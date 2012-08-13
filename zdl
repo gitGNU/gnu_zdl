@@ -670,12 +670,23 @@ while true; do
 				link=${link//\"*}
 				#link=${link//\" class=\"btn btn-danger*}
 			done
-			#nomefile=${link//*\//}
-			#nomefile=${nomefile#*_}
-			nomefile=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
-			nomefile="${nomefile#*'<br> '}"
-			nomefile="${nomefile%%' '*}"
-			nomefile="${nomefile//'<br>'/}"
+			
+			nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
+			nomefile1="${nomefile1#*'<br> '}"
+			nomefile1="${nomefile1%%' '*}"
+			nomefile1="${nomefile1//'<br>'/}"
+			while [ "$nomefile1" != "${nomefile1%.}" ]; do
+				nomefile1=${nomefile1%.}
+			done
+			nomefile2=${link//*\//}
+			nomefile2=${nomefile2#*_}
+			
+			if [ "$nomefile2" != "${nomefile2//$nomefile1}" ]; then
+				nomefile="$nomefile2"
+			else
+				nomefile="$nomefile1"
+			fi
+			
 
 # 		elif [ "$url" != "${url//sharpfile.com}" ]; then
 # 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
