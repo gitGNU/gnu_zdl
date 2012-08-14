@@ -37,6 +37,7 @@ uploaded=0
 quit="sì"
 url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
 max_waiting=40
+COLUMNS=$(tput cols)
 
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
@@ -68,6 +69,10 @@ function print_c {
   esac
   echo -n $2
   echo -e '\e[0m'
+}
+
+function separator {
+	for column in `seq 1 $COLUMNS`; do echo -n = ; done
 }
 
 function pseudo_captcha {
@@ -115,6 +120,7 @@ function new_ip {
 	maxspeed=0
 	minspeed=25
 	unset close unreached speed
+	rm -f "$path_tmp/proxy.tmp"
 	#proxy_types=( "Transparent" "Anonymous" "Elite" )
 	while true; do
 		proxy=""
@@ -208,7 +214,7 @@ function new_ip {
 				#unreached="true"
 				#break
 				speed[$index]=0
-				show_speed=`print_c 3 "Download interrotto"`
+				show_speed=`print_c 3 "0 B/s"`
 			fi
 			
 			echo "$show_speed"
@@ -565,9 +571,6 @@ echo -e "${lnks// /\n}" | while read line ; do
 done
 
 
-
-
-
 while true; do
 	stop=`wc -l "$file" | awk '{ print($1) }'`
 	stop=$(( $stop+1 ))
@@ -617,8 +620,10 @@ while true; do
 				rm -f links_loop.txt
 			fi
 		fi
-		echo "==================="
-		echo "Link da processare: $indirizzo"
+		
+		separator
+		
+		echo -e "\nLink da processare: $indirizzo"
 		
 # 		if [ "$url" != "${url//4us.to/}" ]; then
 # 			
@@ -862,42 +867,31 @@ while true; do
 				test_exceeded=${test_exceeded//,/.}
 				test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
 			fi
-
 			#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
 			test_available=`wget -q -O - -t 1 -T $max_waiting $indirizzo |grep "</html"`
-			
+
 			if [ "$test_exceeded" == "1" ]; then
 				exceeded=1
 			elif [ -z "$test_available" ]; then
 				#echo "Page not found"
 				not_available=true
 			else
-				#check_ip uploaded
-				
-				
 				if [ "${indirizzo##*/}" != "${indirizzo//*file\/}" ]; then
 					nomefile=${indirizzo##*/}
 					indirizzo2=${indirizzo%/*}
 					file_id=${indirizzo2##*/}
-					
-# 					wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-# 					echo -e "...\c"
-				else
-# 					wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-# 					echo -e "...\c"
+				else 
 					wget -T $max_waiting "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-					file_id=${indirizzo##*/}
-					nomefile=`cat $path_tmp/zdl.tmp |grep id=\"filename\"`
+					file_id=${indirizzo##*/} 
+					nomefile=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
 					nomefile="${nomefile//<\/a*/}"
 					nomefile="${nomefile##*>}"
-					
 					if [ "$nomefile" != "${nomefile//'&hellip;'/}" ]; then
 						nomefile="${file_id}_${nomefile//'&hellip;'/.}.uploaded.hellip.tmp"
 						hellip=true
 					fi
 					
 				fi
-				
 				if [ ! -f "$nomefile" ]; then
 					check_ip uploaded
 					wget -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
@@ -939,7 +933,7 @@ while true; do
 		if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ]; then
 			_log 1
 			no_newip=true
-		elif [ -f "${nomefile}" ] && [ "$downloader" = "Wget" ]; then
+		elif ( [ -f "${nomefile}" ] || [ -f "${path_tmp}/${nomefile}" ] ) && [ "$downloader" = "Wget" ]; then
 			_log 1
 			no_newip=true
 		elif [ ! -z "$not_available" ]; then
@@ -948,7 +942,7 @@ while true; do
 		elif [ ! -z "$exceeded" ]; then
 			_log 4
 			no_newip=true
-		elif [ "$link" == "" ] || [ "${nomefile}" == "" ]; then
+		elif [ "$link" == "" ]; then # || [ "${nomefile}" == "" ]; then
 			_log 2
 			unset no_newip
 			#no_newip=true
@@ -965,55 +959,26 @@ while true; do
 			if [ "$downloader" = "Axel" ]; then
 				export AXEL_COOKIES=$path_tmp/cookies.zdl
 				print_c 1 "downloading --> $nomefile ..."
-				
+				[ "$nomefile" != "" ] && fileout="-o \"$nomefile\""
 				if [ $multi == 1 ]; then
-					cmd=`echo -e "axel -n $n -a \"$link\" -o \"$nomefile\""`
+					cmd=`echo -e "axel -n $n -a \"$link\" $fileout"`
 					xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 					sleep 5
 				else
-					axel -n $n -a "$link" -o "$nomefile"
+					axel -n $n -a "$link" $fileout
 				fi
 				
 			elif [ "$downloader" = "Wget" ]; then
 				print_c 1 "downloading --> $nomefile ..."
+				[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-O"
+				
 				if [ $multi == 1 ]; then					
-					if [ "$url" != "${url//easybytez.}" ]; then
-						# --http-user="" --http-passwd=""
-						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused -nc  --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}&btn_download=Download File\" $link"`
-						
-						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
-						pid_term=$!
-					elif [ $hellip ]; then 
-					# uploaded.to taglia i nomi con puntini di sospensione: procedura per il recupero del nome completo
-						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl \"$link\" -S  -O \"$nomefile\" --progress=bar:force 2>&1 | tee $path_tmp/filename"`
-						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
-						pid_term=$!
-						unset post_data
-						
-						
-					else
-						
-						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" \"$link\" -O \"$nomefile\""`
-						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
-						pid_term=$!
-						unset post_data
-					fi
-					
+					cmd=`echo -e "LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl \"$link\" -S $argout \"$fileout\" --progress=bar:force 2>&1 | tee \"$path_tmp/${nomefile}_stout.tmp\""`
+					xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
+					pid_term=$!
+					unset post_data
 				else	
-					if [ "$url" != "${url//easybytez.}" ]; then
-						
-						wget -t 1 -T $max_waiting --retry-connrefused -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $link
-						echo -e "...\c"
-						unset post_data
-						
-					elif [ $hellip ]; then 
-					# uploaded.to taglia i nomi con puntini di sospensione: procedura per il recupero del nome completo
-						wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl "$link" -S  -O "$nomefile" --progress=bar:force 2>&1 | tee $path_tmp/filename
-						
-					else
-						wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$link" -O "$nomefile"
-						unset post_data
-					fi
+					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force 2>&1 | tee "$path_tmp/${nomefile}_stout.tmp"
 				fi
 				
 			fi
@@ -1045,18 +1010,19 @@ while true; do
 				if [ $hellip ]; then
 					unset quit
 					unset newname
-					newname=`cat $path_tmp/filename |grep filename`
+					newname=`cat $path_tmp/${nomefile}_stout.tmp |grep filename`
 					newname="${newname#*'filename="'}"
 					newname="${newname%'"'*}"
 					if [ "$newname" != "" ]; then
 						if [ ! -f "$newname" ]; then
 							mv "$nomefile" "$newname"
+							mv $path_tmp/${nomefile}_stout.tmp $path_tmp/${newname}_stout.tmp
 							print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
 						else
 							kill $pid_term
 							xterm -e "echo \"Il download di $nomefile ($newname) è stato interrotto:\n\n$newname è già presente nella directory di destinazione ($PWD)\" ; echo ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 						fi
-						echo "$pid_prog - nomefile:$newname" > "$nomefile"
+						echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
 						echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
 					else
 						rm -f "$nomefile"
@@ -1081,7 +1047,7 @@ while true; do
 		[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
 
 		unset link nomefile post_data goal not_available exceeded
-		rm -r $path_tmp
+		#rm -r $path_tmp
 		noproxy
 		sleep 1
 	done
