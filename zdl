@@ -36,6 +36,7 @@ file_data="$HOME/.${prog}.data"
 uploaded=0
 quit="sì"
 url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+max_waiting=40
 
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
@@ -186,7 +187,7 @@ function new_ip {
 		index=0
 		while (( $index<3 )); do
 			index=${#speed[*]}
-			speed[$index]=`wget -t 1 -T 35 -O /dev/null "$indirizzo" 2>&1 | grep '/s'`  #'\([0-9.]\+ [KM]B/s\)'`
+			speed[$index]=`wget -t 1 -T $max_waiting -O /dev/null "$indirizzo" 2>&1 | grep '/s'`  #'\([0-9.]\+ [KM]B/s\)'`
 			speed[$index]="${speed[$index]#*'('}"
 			show_speed="${speed[$index]## }"
 			show_speed="${show_speed%%)*}"
@@ -241,7 +242,7 @@ function new_ip {
 function get_tmps {
 	while [ "`less $path_tmp/zdl.tmp |grep \</html`" == "" ]; do
 		#print_c 2 "\nAttendi..."
-		wget -t 20 --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo  &>/dev/null
+		wget -t 20 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo  &>/dev/null
 		echo -e "...\c"
 	done
 }
@@ -452,7 +453,7 @@ for arg in $@ ; do
 	case "$arg" in
 		-u | --update)
 			print_c 1 "Aggiornamento di $PROG ..."
-			wget "$url_update" -O /tmp/$prog 
+			wget -T $max_waiting "$url_update" -O /tmp/$prog 
 			print_c 1 "Installazione di $PROG in /usr/local/bin/"
 			( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
 			echo "which ${prog}:"
@@ -659,7 +660,7 @@ while true; do
 			s=0
 			while [ "$link" == "" ]; do
 				if (( $s>29 )); then
-					wget --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$prelink" &>/dev/null 
+					wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$prelink" &>/dev/null 
 				fi
 				sleep 1
 				s=`date +"%s"`
@@ -786,12 +787,12 @@ while true; do
 # 			fi
 # 			
 		elif [ "$url" != "${url//easybytez.}" ]; then
-			indirizzo=`wget -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
+			indirizzo=`wget -T $max_waiting -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
 			indirizzo="${indirizzo##*'<font color="red">'}"
 			indirizzo="${indirizzo%%'</font'*}"
 			indirizzo="${indirizzo// /}"
 			nomefile=${indirizzo##*\/}
-			not_available=`wget -q -O - $indirizzo |grep "File not available"`
+			not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
 			
 			if [ -f "${nomefile}" ]; then
 				fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
@@ -814,13 +815,13 @@ while true; do
 				#newip=1
 				check_ip easybytez
 				
-				wget -q -t 20  --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
+				wget -q -t 20 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
 				echo -e "...\c"
 				
 				tmp="$path_tmp/zdl.tmp"
 				input_hidden
 			
-				wget -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
+				wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
 				echo -e "...\c"
 				exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
 				unset post_data
@@ -829,7 +830,7 @@ while true; do
 					tmp="$path_tmp/zdl2.tmp"
 					input_hidden
 	
-					wget -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $indirizzo -O $path_tmp/zdl3.tmp &>/dev/null
+					wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $indirizzo -O $path_tmp/zdl3.tmp &>/dev/null
 					echo -e "...\c"
 					unset post_data
 				
@@ -851,7 +852,7 @@ while true; do
 		elif [ "$url" != "${url//uploaded.}" ]; then
 			unset hellip
 			indirizzo="${indirizzo%/}"
-			wget $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
+			wget -T $max_waiting $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
 			test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
 			test_exceeded="${test_exceeded#*'>'}"
 			test_exceeded="${test_exceeded%'<'*}"
@@ -863,7 +864,7 @@ while true; do
 			fi
 
 			#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
-			test_available=`wget -q -O - -t 1 -T 35 $indirizzo |grep "</html"`
+			test_available=`wget -q -O - -t 1 -T $max_waiting $indirizzo |grep "</html"`
 			
 			if [ "$test_exceeded" == "1" ]; then
 				exceeded=1
@@ -884,7 +885,7 @@ while true; do
 				else
 # 					wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
 # 					echo -e "...\c"
-					wget "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
+					wget -T $max_waiting "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
 					file_id=${indirizzo##*/}
 					nomefile=`cat $path_tmp/zdl.tmp |grep id=\"filename\"`
 					nomefile="${nomefile//<\/a*/}"
@@ -899,7 +900,7 @@ while true; do
 				
 				if [ ! -f "$nomefile" ]; then
 					check_ip uploaded
-					wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
+					wget -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
 					echo -e "...\c"
 					
 					cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
@@ -908,7 +909,7 @@ while true; do
 					
 					echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
 					
-					wget --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
+					wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
 					echo -e "...\c"
 					
 					link=`cat $path_tmp/goal.tmp`
@@ -978,13 +979,13 @@ while true; do
 				if [ $multi == 1 ]; then					
 					if [ "$url" != "${url//easybytez.}" ]; then
 						# --http-user="" --http-passwd=""
-						cmd=`echo -e "wget -t 1 -T 40 --retry-connrefused -nc  --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}&btn_download=Download File\" $link"`
+						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused -nc  --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}&btn_download=Download File\" $link"`
 						
 						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 						pid_term=$!
 					elif [ $hellip ]; then 
 					# uploaded.to taglia i nomi con puntini di sospensione: procedura per il recupero del nome completo
-						cmd=`echo -e "wget -t 1 -T 40 --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl \"$link\" -S  -O \"$nomefile\" --progress=bar:force 2>&1 | tee $path_tmp/filename"`
+						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl \"$link\" -S  -O \"$nomefile\" --progress=bar:force 2>&1 | tee $path_tmp/filename"`
 						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 						pid_term=$!
 						unset post_data
@@ -992,7 +993,7 @@ while true; do
 						
 					else
 						
-						cmd=`echo -e "wget -t 1 -T 40 --retry-connrefused --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" \"$link\" -O \"$nomefile\""`
+						cmd=`echo -e "wget -t 1 -T $max_waiting --retry-connrefused --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" \"$link\" -O \"$nomefile\""`
 						xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 						pid_term=$!
 						unset post_data
@@ -1001,23 +1002,23 @@ while true; do
 				else	
 					if [ "$url" != "${url//easybytez.}" ]; then
 						
-						wget -t 1 -T 40 --retry-connrefused -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $link
+						wget -t 1 -T $max_waiting --retry-connrefused -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $link
 						echo -e "...\c"
 						unset post_data
 						
 					elif [ $hellip ]; then 
 					# uploaded.to taglia i nomi con puntini di sospensione: procedura per il recupero del nome completo
-						wget -t 1 -T 40 --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl "$link" -S  -O "$nomefile" --progress=bar:force 2>&1 | tee $path_tmp/filename
+						wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl "$link" -S  -O "$nomefile" --progress=bar:force 2>&1 | tee $path_tmp/filename
 						
 					else
-						wget -t 1 -T 40 --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$link" -O "$nomefile"
+						wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$link" -O "$nomefile"
 						unset post_data
 					fi
 				fi
 				
 			fi
 			if [ $multi == 1 ]; then
-				count_down=50
+				count_down=$(( $max_waiting+10 ))
 				print_c 2 "Attendi:"
 				echo
 				while [ "$count_down" != 0 ]; do
