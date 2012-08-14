@@ -43,10 +43,10 @@ pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
 rm -f links_loop.txt
 
 function old_ip {
-	[ "$url" != "${url//mediafire.com/}" ] && host=mediafire
-	[ "$url" != "${url//uploaded.to/}" ] && host=uploaded
-	[ "$url" != "${url//easybytez.com/}" ] && host=easybytez
-#	[ "$url" != "${url//sharpfile.com/}" ] && host=sharpfile
+	[ "$url" != "${url//mediafire.}" ] && host=mediafire
+	[ "$url" != "${url//uploaded.}" ] && host=uploaded
+	[ "$url" != "${url//easybytez.}" ] && host=easybytez
+#	[ "$url" != "${url//sharpfile.}" ] && host=sharpfile
 	for key in $( seq 0 (( ${#newip[*]}-- )) ); do
 		[ "${newip[$key]}" == "$host" ] && unset newip[$key]
 	done
@@ -119,10 +119,10 @@ function new_ip {
 		proxy=""
 		#### tipi di proxy: Anonymous Transparent Elite
 		proxy_types=( "Transparent" )
-		#[ "$url" != "${url//mediafire.com/}" ] && proxy_types=( "Elite" )
-		[ "$url" != "${url//uploaded.to/}" ] && proxy_types=( "Anonymous" "Elite" )
-		#[ "$url" != "${url//shareflare.net/}" ] && proxy_types=( "Transparent" )
-		#[ "$url" != "${url//easybytez.com/}" ] && proxy_types=( "Transparent" )
+		#[ "$url" != "${url//mediafire.}" ] && proxy_types=( "Elite" )
+		[ "$url" != "${url//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
+		#[ "$url" != "${url//shareflare.}" ] && proxy_types=( "Transparent" )
+		#[ "$url" != "${url//easybytez.}" ] && proxy_types=( "Transparent" )
 		ptypes="${proxy_types[*]}"
 		print_c 1 "Aggiorna proxy (${ptypes// /, }):"
 		old=$http_proxy
@@ -540,7 +540,7 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ "$file" == "" ] ; then 
-	print_c 2 "Incolla la lista dei link (nowdownload, mediafire.com, uploaded.to, ul.to, easybytez.net) poi digita @" 
+	print_c 2 "Incolla la lista dei link (nowdownload, mediafire, uploaded, ul, easybytez) poi digita @" 
 	echo "[per uscire da $PROG digita ctrl+c]"
 	read -d @ -a links
 	printf "%s\n" "${links[@]}" > links.txt
@@ -630,7 +630,7 @@ while true; do
 # 			nomefile=${link##*=} 
 # 			n=1
 # 	
-		if [ "$url" != "${url//mediafire.com/}" ]; then
+		if [ "$url" != "${url//mediafire.}" ]; then
 			
 			# MEDIAFIRE.COM ##############
 			check_ip mediafire
@@ -643,7 +643,7 @@ while true; do
 			
 			nomefile=${link##*'/'}
 			n=4
-		elif [ "$url" != "${url//nowdownload}" ]; then
+		elif [ "$url" != "${url//nowdownload.}" ]; then
 			
 			## http://www.nowdownload ###########
 			
@@ -688,7 +688,7 @@ while true; do
 			fi
 			
 
-# 		elif [ "$url" != "${url//sharpfile.com}" ]; then
+# 		elif [ "$url" != "${url//sharpfile.}" ]; then
 # 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
 # 			tmp="$path_tmp/zdl.tmp"
 # 			input_hidden
@@ -737,7 +737,7 @@ while true; do
 # 			fi
 # 			link="$indirizzo"
 
-# 		elif [ "$url" != "${url//shareflare.net/}" ]; then
+# 		elif [ "$url" != "${url//shareflare.}" ]; then
 # 			
 # 			## http://www.shareflare.net ####
 # 			check_ip shareflare
@@ -785,7 +785,7 @@ while true; do
 # 				n=1
 # 			fi
 # 			
-		elif [ "$url" != "${url//easybytez.com}" ]; then
+		elif [ "$url" != "${url//easybytez.}" ]; then
 			indirizzo=`wget -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
 			indirizzo="${indirizzo##*'<font color="red">'}"
 			indirizzo="${indirizzo%%'</font'*}"
@@ -848,7 +848,7 @@ while true; do
 				fi
 			fi
 				
-		elif [ "$url" != "${url//uploaded.to}" ]; then
+		elif [ "$url" != "${url//uploaded.}" ]; then
 			unset hellip
 			indirizzo="${indirizzo%/}"
 			wget $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
@@ -923,7 +923,7 @@ while true; do
 		fi
 		
 		
-		if [ "$url" != "${url//uploaded.to/}" ] || [ "$url" != "${url//easybytez.com/}" ];then # || [ "$url" != "${url//sharpfile.com/}" ]; then
+		if [ "$url" != "${url//uploaded.}" ] || [ "$url" != "${url//easybytez.}" ];then # || [ "$url" != "${url//sharpfile.}" ]; then
 			if [ "$downloader" == "Axel" ]; then
 				dler=$downloader
 				downloader=Wget
@@ -976,7 +976,7 @@ while true; do
 			elif [ "$downloader" = "Wget" ]; then
 				print_c 1 "downloading --> $nomefile ..."
 				if [ $multi == 1 ]; then					
-					if [ "$url" != "${url//easybytez.com/}" ]; then
+					if [ "$url" != "${url//easybytez.}" ]; then
 						# --http-user="" --http-passwd=""
 						cmd=`echo -e "wget -t 1 -T 40 --retry-connrefused -nc  --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}&btn_download=Download File\" $link"`
 						
@@ -999,7 +999,7 @@ while true; do
 					fi
 					
 				else	
-					if [ "$url" != "${url//easybytez.com/}" ]; then
+					if [ "$url" != "${url//easybytez.}" ]; then
 						
 						wget -t 1 -T 40 --retry-connrefused -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $link
 						echo -e "...\c"
@@ -1071,11 +1071,11 @@ while true; do
 			unset no_newip
 		fi
 		if [ -z $no_newip ]; then
-			[ "$url" != "${url//mediafire.com/}" ] && newip[${#newip[*]}]=mediafire
-			[ "$url" != "${url//uploaded.to/}" ] && newip[${#newip[*]}]=uploaded
-	# 		[ "$url" != "${url//shareflare.net/}" ] && newip[${#newip[*]}]=shareflare
-			[ "$url" != "${url//easybytez.com/}" ] && newip[${#newip[*]}]=easybytez
-# 			[ "$url" != "${url//sharpfile.com/}" ] && newip[${#newip[*]}]=sharpfile
+			[ "$url" != "${url//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+			[ "$url" != "${url//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+	# 		[ "$url" != "${url//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+			[ "$url" != "${url//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+# 			[ "$url" != "${url//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 		fi
 		[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
 
