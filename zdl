@@ -959,13 +959,13 @@ while true; do
 			if [ "$downloader" = "Axel" ]; then
 				export AXEL_COOKIES=$path_tmp/cookies.zdl
 				print_c 1 "downloading --> $nomefile ..."
-				[ "$nomefile" != "" ] && fileout="-o \"$nomefile\""
+				[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
 				if [ $multi == 1 ]; then
-					cmd=`echo -e "axel -n $n -a \"$link\" $fileout"`
+					cmd=`echo -e "axel -n $n -a $argout \"$fileout\"\ \"$link\""`
 					xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
 					sleep 5
 				else
-					axel -n $n -a "$link" $fileout
+					axel -n $n -a "$link" $argout "$fileout"
 				fi
 				
 			elif [ "$downloader" = "Wget" ]; then
