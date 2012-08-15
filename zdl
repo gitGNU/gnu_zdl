@@ -42,20 +42,20 @@ mkdir -p "$path_tmp"
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
-pid_dl=$pid_prog
+pid_dl=1   #$pid_prog
 
 rm -f $path_tmp/links_loop.txt
 
 # init tmps if exist
-totfs=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null | wc -l `
+totfs=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l `
 if [ "$totfs" == "" ]; then
 	for ij in `seq 1 $totfs`; do
-		name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${ij}p"`
-		head_txt=`head -n 15 "$name_stout"`
-		echo "${head_txt//%}" > "$name_stout"
+		name_stdout=`ls -1 $path_tmp/*_stdout.tmp | sed -n "${ij}p"`
+		head_txt=`head -n 15 "$name_stdout"`
+		echo "${head_txt//%}" > "$name_stdout"
 	done
 fi
-unset name_stout head_txt 
+unset name_stdout head_txt 
 
 function old_ip {
 	[ "$url" != "${url//mediafire.}" ] && host=mediafire
@@ -503,49 +503,53 @@ function kill_dl {
 }
 
 function check_dl {
-	ckdl=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null`
+	ckdl=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
 	if [ ! -z "$ckdl" ]; then
-		unset name_stout fname fsize
+		unset name_stdout fname fsize
 		print_c 1 "Downloading..."
 		separator "="
 		unset indirizzo
 		if [ $multi == 1 ]; then 
-			totf=`ls -1 $path_tmp/*_stout.tmp | wc -l`
+			totf=`ls -1 $path_tmp/*_stdout.tmp | wc -l`
 		else
 			totf=1
 		fi
 		for i in `seq 1 $totf`; do
 			if [ $multi == 1 ]; then 
-				name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${i}p"`
+				name_stdout=`ls -1 $path_tmp/*_stdout.tmp | sed -n "${i}p"`
 			else
-				name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
+				name_stdout=`ls -1 $path_tmp/${nomefile}_stdout.tmp | sed -n "${i}p"`
 			fi
-			if [ "$name_stout" == "" ]; then break ; fi
-			head -n 8 "$name_stout" > $path_tmp/head_stout
+			if [ "$name_stdout" == "" ]; then break ; fi
+			head -n 8 "$name_stdout" > $path_tmp/head_stdout
 
-			namef="${name_stout//_stout.tmp}"
+			namef="${name_stdout//_stdout.tmp}"
 			namef="${namef#$path_tmp/}"
-			pid=`head -n 1 "$path_tmp/head_stout"`
-			linkdl=`cat "$path_tmp/head_stout"|grep "link_$prog"`
+			pid=`head -n 1 "$path_tmp/head_stdout"`
+			linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
 			linkdl="${linkdl#link_${prog}: }"
 
-			dlr=`head -n 3 "$name_stout" | sed -n '3p'`
+			dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
 	
 			if [ "$dlr" == "Wget" ]; then
-				tot_size=`cat "$name_stout" |grep "Content-Length:"`
+				tot_size=`cat "$name_stdout" |grep "Content-Length:"`
 				tot_size="${tot_size#*Content-Length: }"
 				tot_size="${tot_size%%' '*}"
-				#sleep 2
+				
+				hellip_stdout=`cat "$name_stdout" |grep 'uploaded.hellip.tmp'`
+				hellip_stdout="${hellip_stdout#*\`}"
+				hellip_stdout="${hellip_stdout//uploaded.hellip.tmp*/uploaded.hellip.tmp}"
+				
 			elif [ "$dlr" == "Axel" ]; then
-				tot_size=`cat "$path_tmp/head_stout" |grep 'File size'`
+				tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
 				tot_size="${tot_size#*File size: }"
 				tot_size="${tot_size%% *}"
 				#sleep 1
-				#rm -f "$name_stout"
-				cat $path_tmp/head_stout > "$name_stout"
+				#rm -f "$name_stdout"
+				cat $path_tmp/head_stdout > "$name_stdout"
 			fi
 			sleep 3
-			progress=`tail -n 1 "$name_stout"`
+			progress=`tail -n 1 "$name_stdout"`
 			[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
 			
 			#show:
@@ -571,31 +575,36 @@ function check_dl {
 				var_pids="${var_pids//-}"
 				pids_alive=( $var_pids )
 				
-				already_there=`cat "$name_stout"|grep 'already there; not retrieving.'`
+				already_there=`cat "$name_stdout"|grep 'already there; not retrieving.'`
 				if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
 					
 					if [ "$pid" != "$killed" ] && [ "$pid" != "killed" ]; then # incidentato o completato
 						fsize=`ls -l "$namef" 2>/dev/null | awk '{ print($5) }'`
-						test_100=`cat "$name_stout" | grep '100%'`
+						test_100=`cat "$name_stdout" | grep '100%'`
 						
 						if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then  #incidentato
-							[ "$dlr" == "Wget" ] && rm -f "$namef"
+							if [ "$dlr" == "Wget" ]; then 
+								if [ "$hellip_stdout" != "$namef" ] && [ "$hellip_stdout" != "" ] ; then
+									rm -f "$hellip_stdout"
+								fi	
+								rm -f "$namef"
+							fi
 							[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
 							loop_txt=`cat $path_tmp/links_loop.txt`
 							unset nomefile
 						
 						else #completato
-							rm -f "$name_stout"
+							rm -f "$name_stdout"
 							unset nomefile
 						fi
-					else #suicida
+					else #suicida 
 						rm -f "$namef"
 						unset nomefile
 						killed[${#killed[*]}]=$pid
 					fi
 				else 
 				# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
-					rm -f "$name_stout"
+					rm -f "$name_stdout"
 					unset nomefile
 				fi
 				
@@ -624,7 +633,7 @@ fi
 for arg in $@ ; do
 	case "$arg" in
 		-clean)
-			( rm -rf "$path_tmp/*" && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
+			( rm -r "$path_tmp"/* && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
 			;;
 		-u | --update)
 			print_c 1 "Aggiornamento di $PROG ..."
@@ -1128,9 +1137,9 @@ while true; do
 					export AXEL_COOKIES=$path_tmp/cookies.zdl
 					print_c 1 "downloading --> $nomefile ..."
 					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
-					axel -n $n -a "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stout.tmp" &
+					axel -n $n -a "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stdout.tmp" &
 					pid_dl=$!
-					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stout.tmp"
+					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
 					unset post_data
 					
@@ -1138,9 +1147,9 @@ while true; do
 					print_c 1 "downloading --> $nomefile ..."
 					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-O"
 					
-					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stout.tmp" &
+					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
 					pid_dl=$!
-					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stout.tmp"
+					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
 					unset post_data
 				fi
@@ -1161,16 +1170,16 @@ while true; do
 				
 				####################################
 				if [ ! -z "$pid_dl" ]; then
-					name_stout=`ls -1 "$path_tmp/${nomefile}_stout.tmp"`
-					dlr=`head -n 3 "$name_stout" | sed -n '3p'`
+					name_stdout=`ls -1 "$path_tmp/${nomefile}_stdout.tmp"`
+					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
 			
 					if [ "$dlr" == "Wget" ]; then
-						tot_size=`cat "$name_stout" |grep "Content-Length:"`
+						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
 						tot_size="${tot_size#*Content-Length: }"
 						tot_size="${tot_size%%' '*}"
 						#sleep 2
 					elif [ "$dlr" == "Axel" ]; then
-						tot_size=`cat "$path_tmp/head_stout" |grep 'File size'`
+						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
 						tot_size="${tot_size#*File size: }"
 						tot_size="${tot_size%% *}"
 					fi
@@ -1194,17 +1203,17 @@ while true; do
 					if [ $hellip ]; then
 						unset quit
 						unset newname
-						newname=`cat $path_tmp/${nomefile}_stout.tmp |grep filename`
+						newname=`cat $path_tmp/${nomefile}_stdout.tmp |grep filename`
 						newname="${newname#*'filename="'}"
 						newname="${newname%'"'*}"
 						if [ "$newname" != "" ]; then
 							if [ ! -f "$newname" ]; then
 								mv "$nomefile" "$newname"
-								mv $path_tmp/${nomefile}_stout.tmp $path_tmp/${newname}_stout.tmp
+								mv $path_tmp/${nomefile}_stdout.tmp $path_tmp/${newname}_stdout.tmp
 								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
-							else
-								kill $pid_dl
-								print_c 3 "Il download di $nomefile ($newname) è stato interrotto: $newname è già presente nella directory di destinazione ($PWD)"
+# 							else
+# 								kill $pid_dl
+# 								print_c 3 "Il download di $nomefile ($newname) è stato interrotto: $newname è già presente nella directory di destinazione ($PWD)"
 							fi
 							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
 							#echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
@@ -1252,7 +1261,7 @@ while true; do
 		
 	else
 		unset file
-		#check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+		#check_tmps=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 		
 		while true; do #[ ! -z "$check_tmps" ]; do
 			check_dl
@@ -1263,7 +1272,7 @@ while true; do
 			fi
 			nodl=0
 			for pk in ${killed[*]}; do
-				check_tmps=`head -n 1 $path_tmp/*_stout.tmp 2>/dev/null`
+				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
 				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
 			done
 			[ $nodl == 0 ] && break
@@ -1276,7 +1285,7 @@ separator "-"
 print_c 1 "Tutti i link per il download sono stati processati."
 separator "-"
 
-test_cleaning=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 [ "$test_cleaning" == "" ] && rm -r "$path_tmp"
 # 
 # 
