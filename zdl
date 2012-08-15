@@ -40,9 +40,22 @@ max_waiting=40
 mkdir -p "$path_tmp"
 
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
+
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
+pid_dl=$pid_prog
 
 rm -f $path_tmp/links_loop.txt
+
+# init tmps if exist
+totfs=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null | wc -l `
+if [ "$totfs" == "" ]; then
+	for ij in `seq 1 $totfs`; do
+		name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${ij}p"`
+		head_txt=`head -n 15 "$name_stout"`
+		echo "${head_txt//%}" > "$name_stout"
+	done
+fi
+unset name_stout head_txt 
 
 function old_ip {
 	[ "$url" != "${url//mediafire.}" ] && host=mediafire
@@ -320,7 +333,7 @@ function _log {
 			;;
 		6)
 			echo
-			print_c 3 "Il file è troppo grande per lo spazio libero sul device: non sarà scaricato." | tee -a $file_log
+			print_c 3 "$indirizzo --> File $nomefile troppo grande per lo spazio libero in $PWD su $dev: non sarà scaricato." | tee -a $file_log
 			echo
 			;;
 	esac
@@ -329,7 +342,7 @@ function _log {
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [nomefile] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update]"
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [nomefile] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean]"
 	echo
 	echo -e "$PROG è abilitato per il download da nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net
 
@@ -349,14 +362,16 @@ $PROG può essere avviato in due modi:
 Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
 uploaded.to (ul.to), easybytez.net
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo il cui nome termina per \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo. Nel caso in cui anche $PROG è stato terminato, il recupero è possibile riavviando $PROG nella seguente forma:
-	$prog NOMEFILE [-m] [axel]
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero anuale è possibile riavviando $PROG nella seguente forma:
+	$prog NOMEFILE [-m] [axel|wget]
 
-NOMEFILE sta per il nome del file che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" sono facoltativi.
+NOMEFILE sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" sono facoltativi.
 
-Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati.
+Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
 
 L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
+
+L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
 
 Per aggiornate $PROG è sufficiente usare l'argomento -u (--update).
 
@@ -460,25 +475,36 @@ function check_freespace {
 	pattern=`ls -l $PWD`
 	pattern="${pattern#*-> }"
 	for l in `seq 2 $maxl`; do
-		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }'`
-		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }'`
-		[ ! -z "$fsize" ] && fsize=$(( $fsize*1024 ))
-		
-		if [ "$dev" != "${dev//\"$pattern\"}" ]; then
+		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }' | sed -n "${l}p"`
+		if [ "$dev" == "/" ]; then dev="/home" ; fi
+		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }' | sed -n "${l}p"`
+		if [ ! -z "$tot_size" ];then 
+			t_size=$(( $tot_size/1024 ))
+		else
+			t_size=0
+		fi
+		if [ "$pattern" != "${pattern//$dev}" ]; then
 			if (( $freespace<5000 )); then
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
-			elif [ ! -z "$fsize" ] && (( $fsize )); then
+			elif [ $t_size != 0 ] && (( $freespace<$t_size )); then
+				kill_dl
 				_log 6
 			fi
 		fi
 	done
-	
+	unset t_size
+}
+
+function kill_dl {
+	kill ${pid_dl}
+	killed=${pid_dl}
+	unset pid_dl
 }
 
 function check_dl {
-	chdl=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null`
-	if [ ! -z "$chdl" ]; then
+	ckdl=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null`
+	if [ ! -z "$ckdl" ]; then
 		unset name_stout fname fsize
 		print_c 1 "Downloading..."
 		separator "="
@@ -494,29 +520,33 @@ function check_dl {
 			else
 				name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
 			fi
+			if [ "$name_stout" == "" ]; then break ; fi
 			head -n 11 "$name_stout" > $path_tmp/head_stout
-			cat $path_tmp/head_stout > "$name_stout"
-			
-			sleep 2
-			
+
 			namef="${name_stout//_stout.tmp}"
 			namef="${namef#$path_tmp/}"
-			pid=`head -n 1 "$name_stout"`
-			linkdl=`cat "$name_stout"|grep "link_$prog"`
+			pid=`head -n 1 "$path_tmp/head_stout"`
+			linkdl=`cat "$path_tmp/head_stout"|grep "link_$prog"`
 			linkdl="${linkdl#link_${prog}: }"
-			
-			dlr=`cat "$name_stout" | sed -n '3p'`
+
+			dlr=`head -n 3 "$name_stout" | sed -n '3p'`
 	
 			if [ "$dlr" == "Wget" ]; then
 				tot_size=`cat "$name_stout" |grep "Content-Length:"`
 				tot_size="${tot_size#*Content-Length: }"
 				tot_size="${tot_size%%' '*}"
+				#sleep 2
 			elif [ "$dlr" == "Axel" ]; then
-				tot_size=`cat "$name_stout" |grep 'File size'`
+				tot_size=`cat "$path_tmp/head_stout" |grep 'File size'`
 				tot_size="${tot_size#*File size: }"
 				tot_size="${tot_size%% *}"
+				#sleep 1
+				rm -f "$name_stout"
+				cat $path_tmp/head_stout > "$name_stout"
 			fi
+			
 			progress=`tail -n 1 "$name_stout"`
+			[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
 			
 			#show:
 			echo "File: $namef - Downloader: $dlr"
@@ -542,26 +572,36 @@ function check_dl {
 				pids_alive=( $var_pids )
 				
 				already_there=`cat "$name_stout"|grep 'already there; not retrieving.'`
-				if [ -z "$already_there" ]; then
-					fsize=`ls -l "$namef" | awk '{ print($5) }'`
-					test_100=`cat "$name_stout" | grep '100%'`
-					if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then 
-						[ "$dlr" == "Wget" ] && rm -f "$namef"
-						echo "$linkdl" >> $path_tmp/links_loop.txt
+				if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
+					
+					if [ "$pid" != "$killed" ] && [ "$pid" != "killed" ]; then # incidentato o completato
+						fsize=`ls -l "$namef" 2>/dev/null | awk '{ print($5) }'`
+						test_100=`cat "$name_stout" | grep '100%'`
+						
+						if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then  #incidentato
+							[ "$dlr" == "Wget" ] && rm -f "$namef"
+							[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
+							loop_txt=`cat $path_tmp/links_loop.txt`
+							unset nomefile
+						
+						else #completato
+							rm -f "$name_stout"
+							unset nomefile
+						fi
+					else #suicida
+						rm -f "$namef"
 						unset nomefile
-					else
-						rm -f "$name_stout"
-						unset nomefile
+						killed[${#killed[*]}]=$pid
 					fi
-				else
+				else 
+				# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
 					rm -f "$name_stout"
 					unset nomefile
 				fi
 				
 			else
-				check_freespace
 				rm $path_tmp/alive
-				if [ "$multi" == "1" ]; then 
+				if [ "$multi" == "1" ]; then
 					unset nomefile
 				fi
 			fi
@@ -569,6 +609,8 @@ function check_dl {
 	else
 		unset nomefile
 	fi
+	[ "$loop_txt" == "" ] && rm -f $path_tmp/links_loop.txt
+
 }
 
 
@@ -581,6 +623,9 @@ fi
 
 for arg in $@ ; do
 	case "$arg" in
+		-clean)
+			( rm -rf "$path_tmp/*" && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
+			;;
 		-u | --update)
 			print_c 1 "Aggiornamento di $PROG ..."
 			wget -T $max_waiting "$url_update" -O /tmp/$prog 
@@ -588,7 +633,6 @@ for arg in $@ ; do
 			( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
 			echo "which ${prog}:"
 			which $prog
-			#print_c 1 "Aggiornamento completato."
 			echo
 			;;
 		wget)
@@ -702,7 +746,8 @@ while true; do
 		riga=1
 		
 		while [ $riga != $stop ]; do
-			check_freespace
+			[ ! -z "$pid_dl" ] && check_freespace
+			unset pid_dl
 			unset hellip
 			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
 			ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
@@ -746,8 +791,9 @@ while true; do
 					rm -f $path_tmp/links_loop.txt
 				fi
 			fi
-			
-			separator "="
+			echo
+			echo
+			separator "Z"
 			
 			echo -e "\nLink da processare: $indirizzo"
 			
@@ -800,7 +846,6 @@ while true; do
 					link=`less $path_tmp/zdl2.tmp |grep "Click here to download"`
 					link=${link//*href=\"} 
 					link=${link//\"*}
-					#link=${link//\" class=\"btn btn-danger*}
 				done
 				
 				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
@@ -999,7 +1044,6 @@ while true; do
 				if [ "$test_exceeded" == "1" ]; then
 					exceeded=1
 				elif [ -z "$test_available" ]; then
-					#echo "Page not found"
 					not_available=true
 				else
 					if [ "${indirizzo##*/}" != "${indirizzo//*file\/}" ]; then
@@ -1039,7 +1083,7 @@ while true; do
 				fi
 				
 			else
-				print_c 3 "$url non supportato da $PROG"
+				[ "$url" != "" ] && print_c 3 "$url non supportato da $PROG"
 				not_available=1
 			fi
 			
@@ -1063,7 +1107,7 @@ while true; do
 				_log 1
 				no_newip=true
 			elif [ ! -z "$not_available" ]; then
-				_log 3
+				[ "$indirizzo" != "" ] && _log 3
 				no_newip=true
 			elif [ ! -z "$exceeded" ]; then
 				_log 4
@@ -1079,9 +1123,7 @@ while true; do
 	# 		elif [ "${nomefile}" == "" ]; then
 	# 			_log 5
 	# 			unset no_newip
-			else
-				
-	
+			elif [ "$indirizzo" != "" ]; then
 				if [ "$downloader" = "Axel" ]; then
 					export AXEL_COOKIES=$path_tmp/cookies.zdl
 					print_c 1 "downloading --> $nomefile ..."
@@ -1102,10 +1144,11 @@ while true; do
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
 					unset post_data
 				fi
+				
 				if [ $multi == 1 ] && [ "$url" == "${url//nowdownload.}" ]; then
 					count_down=$(( $max_waiting+5 ))
 				else	
-					count_down=5
+					count_down=$(( $max_waiting+5 ))
 				fi
 				print_c 2 "Attendi:"
 				while [ "$count_down" != 0 ]; do
@@ -1116,6 +1159,25 @@ while true; do
 				done
 				echo -e "  \r\c"
 				
+				####################################
+				if [ ! -z "$pid_dl" ]; then
+					name_stout=`ls -1 "$path_tmp/${nomefile}_stout.tmp"`
+					dlr=`head -n 3 "$name_stout" | sed -n '3p'`
+			
+					if [ "$dlr" == "Wget" ]; then
+						tot_size=`cat "$name_stout" |grep "Content-Length:"`
+						tot_size="${tot_size#*Content-Length: }"
+						tot_size="${tot_size%%' '*}"
+						#sleep 2
+					elif [ "$dlr" == "Axel" ]; then
+						tot_size=`cat "$path_tmp/head_stout" |grep 'File size'`
+						tot_size="${tot_size#*File size: }"
+						tot_size="${tot_size%% *}"
+					fi
+					
+					check_freespace
+				fi
+				####################################
 				
 				if [ -f "$nomefile" ]; then
 					fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
@@ -1154,7 +1216,7 @@ while true; do
 				fi
 				
 				if [ ! -f "$nomefile" ]; then
-					_log 2
+					[ "$pid_dl" != "$killed" ] && _log 2
 				fi
 				
 				unset no_newip
@@ -1172,7 +1234,7 @@ while true; do
 			#rm -r $path_tmp
 			noproxy
 			if [ $multi == 1 ]; then 
-				unset nomefile
+				#unset nomefile
 				check_dl
 			fi
 
@@ -1190,17 +1252,21 @@ while true; do
 		
 	else
 		unset file
-		check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+		#check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
 		
-		while [ ! -z "$check_tmps" ]; do
+		while true; do #[ ! -z "$check_tmps" ]; do
 			check_dl
 			sleep 3
 			if [ -f "$path_tmp/links_loop.txt" ]; then
 				file="$path_tmp/links_loop.txt"
 				break
 			fi
-			check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
-			
+			nodl=0
+			for pk in ${killed[*]}; do
+				check_tmps=`head -n 1 $path_tmp/*_stout.tmp 2>/dev/null`
+				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
+			done
+			[ $nodl == 0 ] && break
 		done
 	fi
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "${pids_alive[*]}" == "" ] && break
