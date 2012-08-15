@@ -37,7 +37,7 @@ uploaded=0
 quit="sì"
 url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
 max_waiting=40
-
+mkdir -p "$path_tmp"
 
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
@@ -318,6 +318,11 @@ function _log {
 			print_c 3 "Nessun nome per il file collegato dal seguente link: $link (connessione interrotta: riprovo più tardi)" | tee -a $file_log
 			echo
 			;;
+		6)
+			echo
+			print_c 3 "Il file è troppo grande per lo spazio libero sul device: non sarà scaricato." | tee -a $file_log
+			echo
+			;;
 	esac
 	
 }
@@ -457,11 +462,14 @@ function check_freespace {
 	for l in `seq 2 $maxl`; do
 		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }'`
 		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }'`
+		[ ! -z "$fsize" ] && fsize=$(( $fsize*1024 ))
 		
 		if [ "$dev" != "${dev//\"$pattern\"}" ]; then
 			if (( $freespace<5000 )); then
-				print -3 "Spazio insufficiente sul device. $PROG terminato."
+				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
+			elif [ ! -z "$fsize" ] && (( $fsize )); then
+				_log 6
 			fi
 		fi
 	done
@@ -469,93 +477,98 @@ function check_freespace {
 }
 
 function check_dl {
-	check_freespace
-	print_c 1 "Downloading..."
-	separator "="
-	unset indirizzo
-	if [ $multi == 1 ]; then 
-		totf=`ls -1 $path_tmp/*_stout.tmp | wc -l`
-	else
-		totf=1
-	fi
-	for i in `seq 1 $totf`; do
+	chdl=`ls -1 $path_tmp/*_stout.tmp 2>/dev/null`
+	if [ ! -z "$chdl" ]; then
+		unset name_stout fname fsize
+		print_c 1 "Downloading..."
+		separator "="
+		unset indirizzo
 		if [ $multi == 1 ]; then 
-			name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${i}p"`
+			totf=`ls -1 $path_tmp/*_stout.tmp | wc -l`
 		else
-			name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
+			totf=1
 		fi
-		head -n 11 "$name_stout" > $path_tmp/head_stout
-		cat $path_tmp/head_stout > "$name_stout"
-		
-		sleep 2
-		
-		namef="${name_stout//_stout.tmp}"
-		namef="${namef#$path_tmp/}"
-		pid=`head -n 1 "$name_stout"`
-		linkdl=`cat "$name_stout"|grep "link_$prog"`
-		linkdl="${linkdl#link_${prog}: }"
-		
-		dlr=`cat "$name_stout" | sed -n '3p'`
-
-		if [ "$dlr" == "Wget" ]; then
-			tot_size=`cat "$name_stout" |grep "Content-Length:"`
-			tot_size="${tot_size#*Content-Length: }"
-			tot_size="${tot_size%%' '*}"
-		elif [ "$dlr" == "Axel" ]; then
-			tot_size=`cat "$name_stout" |grep 'File size'`
-			tot_size="${tot_size#*File size: }"
-			tot_size="${tot_size%% *}"
-		fi
-		progress=`tail -n 1 "$name_stout"`
-		
-		#show:
-		echo "File: $namef - Downloader: $dlr"
-		echo "$progress"
-		if [ $i != $totf ]; then 
-			separator "-"
-		else
-			separator "="
-		fi
-		
-		#check:
-		ps a -o pid | while read alive; do
-			if [ "$alive" == "$pid" ]; then
-				touch $path_tmp/alive
-				break
+		for i in `seq 1 $totf`; do
+			if [ $multi == 1 ]; then 
+				name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${i}p"`
+			else
+				name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
 			fi
-		done 
-		
-		if [ ! -f $path_tmp/alive ]; then 
-			var_pids="${pids_alive[*]}"
-			var_pids="${var_pids//$pid/-}"
-			var_pids="${var_pids//-}"
-			pids_alive=( $var_pids )
+			head -n 11 "$name_stout" > $path_tmp/head_stout
+			cat $path_tmp/head_stout > "$name_stout"
 			
-			already_there=`cat "$name_stout"|grep 'already there; not retrieving.'`
-			if [ -z "$already_there" ]; then
-				fsize=`ls -l "$namef" | awk '{ print($5) }'`
-				test_100=`cat "$name_stout" | grep '100%'`
-				if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then 
-					[ "$dlr" == "Wget" ] && rm -f "$namef"
-					echo "$linkdl" >> $path_tmp/links_loop.txt
-					unset nomefile
+			sleep 2
+			
+			namef="${name_stout//_stout.tmp}"
+			namef="${namef#$path_tmp/}"
+			pid=`head -n 1 "$name_stout"`
+			linkdl=`cat "$name_stout"|grep "link_$prog"`
+			linkdl="${linkdl#link_${prog}: }"
+			
+			dlr=`cat "$name_stout" | sed -n '3p'`
+	
+			if [ "$dlr" == "Wget" ]; then
+				tot_size=`cat "$name_stout" |grep "Content-Length:"`
+				tot_size="${tot_size#*Content-Length: }"
+				tot_size="${tot_size%%' '*}"
+			elif [ "$dlr" == "Axel" ]; then
+				tot_size=`cat "$name_stout" |grep 'File size'`
+				tot_size="${tot_size#*File size: }"
+				tot_size="${tot_size%% *}"
+			fi
+			progress=`tail -n 1 "$name_stout"`
+			
+			#show:
+			echo "File: $namef - Downloader: $dlr"
+			echo "$progress"
+			if [ $i != $totf ]; then 
+				separator "-"
+			else
+				separator "="
+			fi
+			
+			#check:
+			ps a -o pid | while read alive; do
+				if [ "$alive" == "$pid" ]; then
+					touch $path_tmp/alive
+					break
+				fi
+			done 
+			
+			if [ ! -f $path_tmp/alive ]; then 
+				var_pids="${pids_alive[*]}"
+				var_pids="${var_pids//$pid/-}"
+				var_pids="${var_pids//-}"
+				pids_alive=( $var_pids )
+				
+				already_there=`cat "$name_stout"|grep 'already there; not retrieving.'`
+				if [ -z "$already_there" ]; then
+					fsize=`ls -l "$namef" | awk '{ print($5) }'`
+					test_100=`cat "$name_stout" | grep '100%'`
+					if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then 
+						[ "$dlr" == "Wget" ] && rm -f "$namef"
+						echo "$linkdl" >> $path_tmp/links_loop.txt
+						unset nomefile
+					else
+						rm -f "$name_stout"
+						unset nomefile
+					fi
 				else
 					rm -f "$name_stout"
 					unset nomefile
 				fi
+				
 			else
-			 	rm -f "$name_stout"
-			 	unset nomefile
+				check_freespace
+				rm $path_tmp/alive
+				if [ "$multi" == "1" ]; then 
+					unset nomefile
+				fi
 			fi
-			
-		else
-			rm $path_tmp/alive
-			if [ "$multi" == "1" ]; then 
-				unset nomefile
-			fi
-		fi
-	done
-	unset name_stout fname fsize
+		done
+	else
+		unset nomefile
+	fi
 }
 
 
@@ -1128,11 +1141,11 @@ while true; do
 								mv $path_tmp/${nomefile}_stout.tmp $path_tmp/${newname}_stout.tmp
 								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
 							else
-								kill $pid_term
-								xterm -e "echo \"Il download di $nomefile ($newname) è stato interrotto:\n\n$newname è già presente nella directory di destinazione ($PWD)\" ; echo ; read -p '>> PREMI INVIO per chiudere la console <<'" &
+								kill $pid_dl
+								print_c 3 "Il download di $nomefile ($newname) è stato interrotto: $newname è già presente nella directory di destinazione ($PWD)"
 							fi
 							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
-							echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
+							#echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
 						else
 							rm -f "$nomefile"
 						fi
@@ -1193,39 +1206,43 @@ while true; do
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "${pids_alive[*]}" == "" ] && break
 done
 
-echo "==================================================="
+separator "-"
 print_c 1 "Tutti i link per il download sono stati processati."
-echo
+separator "-"
 
-while [ "$quit" != "sì" ]; do
-	echo -e "$PROG ha utilizzato dei file temporanei per recuperare il nome dei file scaricati da uploaded.to. Prima di chiudere questa applicazione, verifica che i download siano terminati con successo \($PROG può essere avviato più volte, in processi paralleli e in una stessa directory: istanze diverse di $PROG possono interferire generando errori se terminate automaticamente\): devi decidere se cancellare i file temporanei o lasciarli nella directory. Se vuoi riscaricare alcuni file a causa di download interrotti, non cancellarli \(rispondi \"no\"\), altrimenti rispondi \"sì\".
-	
-Per riscaricare i file incompleti \(dopo aver risposto \"no\" qua sotto\):
-	- cancella manualmente i file incompleti dalla directory di destinazione \(soltanto se non sono accompagnati da un file omonimo che finisce per \".st\"\)
-	- riavvia $PROG passandogli il file con la lista dei link da processare \(per default: links.txt\) 
-	 	per esempio, digita il seguente comando: \"$prog -m links.txt\"
-"
-
-	print_c 2 "Vuoi cancellare i file temporanei? [sì|no]:"
-	read quit
-	if [ "$quit" == "no" ]; then 
-		break
-	elif [ "$quit" == "sì" ]; then
-		ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
-			fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
-			fsize_tmp=${fsize_tmp//K/}
-			if (( $fsize_tmp>10 )); then
-				rm -f "$file_tmp"
-			else
-				test_tmp=`cat "$file_tmp" | awk '{ print($1) }' `
-				
-				if [ "$test_tmp" == "$pid_prog" ]; then
-					( rm -f "$file_tmp" && print_c 1 "File temporanei cancellati." ) || ( print_c 3 "Errore: impossibile cancellare i file temporanei." )
-				fi
-			fi
-		done
-	fi
-done
+test_cleaning=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
+# 
+# 
+# while [ "$quit" != "sì" ]; do
+# 	echo -e "$PROG ha utilizzato dei file temporanei per recuperare il nome dei file scaricati da uploaded.to. Prima di chiudere questa applicazione, verifica che i download siano terminati con successo \($PROG può essere avviato più volte, in processi paralleli e in una stessa directory: istanze diverse di $PROG possono interferire generando errori se terminate automaticamente\): devi decidere se cancellare i file temporanei o lasciarli nella directory. Se vuoi riscaricare alcuni file a causa di download interrotti, non cancellarli \(rispondi \"no\"\), altrimenti rispondi \"sì\".
+# 	
+# Per riscaricare i file incompleti \(dopo aver risposto \"no\" qua sotto\):
+# 	- cancella manualmente i file incompleti dalla directory di destinazione \(soltanto se non sono accompagnati da un file omonimo che finisce per \".st\"\)
+# 	- riavvia $PROG passandogli il file con la lista dei link da processare \(per default: links.txt\) 
+# 	 	per esempio, digita il seguente comando: \"$prog -m links.txt\"
+# "
+# 
+# 	print_c 2 "Vuoi cancellare i file temporanei? [sì|no]:"
+# 	read quit
+# 	if [ "$quit" == "no" ]; then 
+# 		break
+# 	elif [ "$quit" == "sì" ]; then
+# 		ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
+# 			fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
+# 			fsize_tmp=${fsize_tmp//K/}
+# 			if (( $fsize_tmp>10 )); then
+# 				rm -f "$file_tmp"
+# 			else
+# 				test_tmp=`cat "$file_tmp" | awk '{ print($1) }' `
+# 				
+# 				if [ "$test_tmp" == "$pid_prog" ]; then
+# 					( rm -f "$file_tmp" && print_c 1 "File temporanei cancellati." ) || ( print_c 3 "Errore: impossibile cancellare i file temporanei." )
+# 				fi
+# 			fi
+# 		done
+# 	fi
+# done
 
 
 echo
