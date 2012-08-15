@@ -37,12 +37,12 @@ uploaded=0
 quit="sì"
 url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
 max_waiting=40
-COLUMNS=$(tput cols)
+
 
 #user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
 
-rm -f links_loop.txt
+rm -f $path_tmp/links_loop.txt
 
 function old_ip {
 	[ "$url" != "${url//mediafire.}" ] && host=mediafire
@@ -72,7 +72,8 @@ function print_c {
 }
 
 function separator {
-	for column in `seq 1 $COLUMNS`; do echo -n = ; done
+	COLUMNS=$(tput cols)
+	for column in `seq 1 $COLUMNS`; do echo -n "$1" ; done
 }
 
 function pseudo_captcha {
@@ -150,7 +151,6 @@ function new_ip {
 			max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
 			#cat "$path_tmp/proxy2.tmp"
 			string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
-#			echo $string_line
 			
 			proxy="${string_line#*Proxy_Details\/}"
 			[ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
@@ -301,7 +301,7 @@ function _log {
 			fi
 			print_c 3  "$indirizzo --> File ${nomefile}${link_log}non disponibile, riprovo più tardi"  | tee -a $file_log
 			echo
-			if [ "$indirizzo" != "" ]; then echo $indirizzo >> links_loop.txt ; fi
+			if [ "$indirizzo" != "" ]; then echo $indirizzo >> $path_tmp/links_loop.txt ; fi
 			;;
 		3)
 			echo
@@ -341,15 +341,15 @@ $PROG può essere avviato in due modi:
 		- digita il seguente comando e premi invio: $prog nomefile.txt
 		
 
-Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo (avvia ogni download in una nuova xterm, quindi richiede l'uso di un terminale in ambiente grafico) attraverso l'uso di proxy:
+Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
 uploaded.to (ul.to), easybytez.net
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo il cui nome termina per \".st\"), avviando $PROG nella seguente forma:
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo il cui nome termina per \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo. Nel caso in cui anche $PROG è stato terminato, il recupero è possibile riavviando $PROG nella seguente forma:
 	$prog NOMEFILE [-m] [axel]
 
 NOMEFILE sta per il nome del file che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" sono facoltativi.
 
-Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati ed è necessario cancellarli dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati.
+Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati.
 
 L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
 
@@ -359,7 +359,7 @@ $PROG funziona anche su Windows.
 Installazione su Windows in due fasi:
 	FASE 1 _ Installazione di Cygwin
 		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
-		- installare i seguenti pacchetti: xterm, xorg-server, wget, aewm++
+		- installare il pacchetto \"wget\"
 
 	FASE 2 _ Installazione di $PROG e di Axel
 		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
@@ -445,6 +445,117 @@ function configure {
 	echo
 	print_c 1 "$PROG scaricherà con $downloader"
 	exit
+}
+
+function check_freespace {
+	mkdir -p $path_tmp
+	df > $path_tmp/df.tmp
+	
+	maxl=`wc -l $path_tmp/df.tmp |awk '{ print($1) }'`
+	pattern=`ls -l $PWD`
+	pattern="${pattern#*-> }"
+	for l in `seq 2 $maxl`; do
+		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }'`
+		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }'`
+		
+		if [ "$dev" != "${dev//\"$pattern\"}" ]; then
+			if (( $freespace<5000 )); then
+				print -3 "Spazio insufficiente sul device. $PROG terminato."
+				exit
+			fi
+		fi
+	done
+	
+}
+
+function check_dl {
+	check_freespace
+	print_c 1 "Downloading..."
+	separator "="
+	unset indirizzo
+	if [ $multi == 1 ]; then 
+		totf=`ls -1 $path_tmp/*_stout.tmp | wc -l`
+	else
+		totf=1
+	fi
+	for i in `seq 1 $totf`; do
+		if [ $multi == 1 ]; then 
+			name_stout=`ls -1 $path_tmp/*_stout.tmp | sed -n "${i}p"`
+		else
+			name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
+		fi
+		head -n 11 "$name_stout" > $path_tmp/head_stout
+		cat $path_tmp/head_stout > "$name_stout"
+		
+		sleep 2
+		
+		namef="${name_stout//_stout.tmp}"
+		namef="${namef#$path_tmp/}"
+		pid=`head -n 1 "$name_stout"`
+		linkdl=`cat "$name_stout"|grep "link_$prog"`
+		linkdl="${linkdl#link_${prog}: }"
+		
+		dlr=`cat "$name_stout" | sed -n '3p'`
+
+		if [ "$dlr" == "Wget" ]; then
+			tot_size=`cat "$name_stout" |grep "Content-Length:"`
+			tot_size="${tot_size#*Content-Length: }"
+			tot_size="${tot_size%%' '*}"
+		elif [ "$dlr" == "Axel" ]; then
+			tot_size=`cat "$name_stout" |grep 'File size'`
+			tot_size="${tot_size#*File size: }"
+			tot_size="${tot_size%% *}"
+		fi
+		progress=`tail -n 1 "$name_stout"`
+		
+		#show:
+		echo "File: $namef - Downloader: $dlr"
+		echo "$progress"
+		if [ $i != $totf ]; then 
+			separator "-"
+		else
+			separator "="
+		fi
+		
+		#check:
+		ps a -o pid | while read alive; do
+			if [ "$alive" == "$pid" ]; then
+				touch $path_tmp/alive
+				break
+			fi
+		done 
+		
+		if [ ! -f $path_tmp/alive ]; then 
+			var_pids="${pids_alive[*]}"
+			var_pids="${var_pids//$pid/-}"
+			var_pids="${var_pids//-}"
+			pids_alive=( $var_pids )
+			
+			already_there=`cat "$name_stout"|grep 'already there; not retrieving.'`
+			if [ -z "$already_there" ]; then
+				fsize=`ls -l "$namef" | awk '{ print($5) }'`
+				test_100=`cat "$name_stout" | grep '100%'`
+				if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then 
+					[ "$dlr" == "Wget" ] && rm -f "$namef"
+					echo "$linkdl" >> $path_tmp/links_loop.txt
+					unset nomefile
+				else
+					rm -f "$name_stout"
+					unset nomefile
+				fi
+			else
+			 	rm -f "$name_stout"
+			 	unset nomefile
+			fi
+			
+		else
+			rm $path_tmp/alive
+			if [ "$multi" == "1" ]; then 
+				unset nomefile
+			fi
+		fi
+	done
+	unset name_stout fname fsize
 }
 
 
@@ -572,420 +683,418 @@ done
 
 
 while true; do
-	stop=`wc -l "$file" | awk '{ print($1) }'`
-	stop=$(( $stop+1 ))
-	riga=1
-	
-	while [ $riga != $stop ]; do
-		unset hellip
-		#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
-		ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
-			fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
-			fsize_tmp=${fsize_tmp//K/}
-			#echo $fsize_tmp
-			if (( $fsize_tmp>10 )); then
-				rm -f "$file_tmp"
-			else
-				nfile_tmp=`cat "$file_tmp"`
-				nfile_tmp="${nfile_tmp#*'nomefile:'}"
-				
-				if [ ! -f "$nfile_tmp" ]; then
-					rm -f "$file_tmp"
-				fi
-			fi
-		done
-		indirizzo=`less $file |sed -n "${riga}p"`
-		(( riga++ ))
+	if [ ! -z "$file" ]; then	
+		stop=`wc -l "$file" | awk '{ print($1) }'`
+		stop=$(( $stop+1 ))
+		riga=1
 		
-		url=${indirizzo//\?*}
-		mkdir $path_tmp 2>/dev/null
-		echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
-		if [ -f "links_loop.txt" ]; then
-			mv links_loop.txt links_loop.tmp
-			
-			max=`wc -l links_loop.tmp | awk '{ print($1) }'`
-			max=$(( $max+1 ))
-			i=1
-			while [ $i != $max ]; do
-				line=`cat links_loop.tmp |sed -n "${i}p"`
-				if [ "${line//$indirizzo}" != "" ]; then echo "${line//$indirizzo}" >> links_loop.txt ; fi
-				#echo "${line//$indirizzo}" >> links_loop.txt
-				(( i++ ))
-			done
-			rm links_loop.tmp
-			
-			text=`cat links_loop.txt 2>/dev/null`
-			text=${text// /}
-			if [ "$text" == "" ]; then
-				rm -f links_loop.txt
-			fi
-		fi
-		
-		separator
-		
-		echo -e "\nLink da processare: $indirizzo"
-		
-# 		if [ "$url" != "${url//4us.to/}" ]; then
-# 			
-# 			## 4US.TO ###############
-# 			get_tmps		
-# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
-# 			link=${link#*document.location=\"}
-# 			link=${link%\"*}
-# 			
-# 			nomefile=${link##*=} 
-# 			n=1
-# 	
-		if [ "$url" != "${url//mediafire.}" ]; then
-			
-			# MEDIAFIRE.COM ##############
-			check_ip mediafire
-			
-			get_tmps
-			link=`less $path_tmp/zdl.tmp |grep 'kNO = '`
-			link=${link#*'kNO = "'}
-			link=${link//\" onclick=\"avh*/}
-			link=${link%'"'*}
-			
-			nomefile=${link##*'/'}
-			n=4
-		elif [ "$url" != "${url//nowdownload.}" ]; then
-			
-			## http://www.nowdownload ###########
-			
-			get_tmps
-			token=`less $path_tmp/zdl.tmp | grep token`
-			token=${token//*=}
-			token=${token//\"*/}
-			
-			prelink=${indirizzo//\/dl/\/dl2}"/$token"
-			
-			print_c 2 "Attendi circa 30 secondi:"
-			k=`date +"%s"`
-			s=0
-			while [ "$link" == "" ]; do
-				if (( $s>29 )); then
-					wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$prelink" &>/dev/null 
-				fi
-				sleep 1
-				s=`date +"%s"`
-				s=$(( $s-$k ))
-				echo -e $s"\r\c"
-				link=`less $path_tmp/zdl2.tmp |grep "Click here to download"`
-				link=${link//*href=\"} 
-				link=${link//\"*}
-				#link=${link//\" class=\"btn btn-danger*}
-			done
-			
-			nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
-			nomefile1="${nomefile1#*'<br> '}"
-			nomefile1="${nomefile1%%' '*}"
-			nomefile1="${nomefile1//'<br>'/}"
-			while [ "$nomefile1" != "${nomefile1%.}" ]; do
-				nomefile1=${nomefile1%.}
-			done
-			nomefile2=${link//*\//}
-			nomefile2=${nomefile2#*_}
-			
-			if [ "$nomefile2" != "${nomefile2//$nomefile1}" ]; then
-				nomefile="$nomefile2"
-			else
-				nomefile="$nomefile1"
-			fi
-			
-
-# 		elif [ "$url" != "${url//sharpfile.}" ]; then
-# 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
-# 			tmp="$path_tmp/zdl.tmp"
-# 			input_hidden
-# 			
-# 			if ( [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ] ) || ( [ -f "${nomefile}" ] && [ "$downloader" = "Wget" ] ); then
-# 				echo -n
-# 			else
-# 				check_ip sharpfile
-# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
-# 				echo -e "...\c"
-# 				tmp="$path_tmp/zdl.tmp"
-# 				input_hidden
-# 				
-# 				post_data="${post_data//'op=catalogue&'}"
-# 				
-# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
-# 				
-# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
-# 				unset post_data
-# 				unset ascii_dec
-# 				unset i
-# 				while [ ${#ascii_dec[*]} != 4 ];do
-# 					captcha_html="${captcha_html#*'position:absolute;padding-left:'}"
-# 					i="${captcha_html%%px*}"
-# 					captcha_html="${captcha_html#*'&#'}"
-# 					ascii_dec[$i]="${captcha_html%%';'*}"
-# 				done
-# 				pseudo_captcha
-# 				print_c 2 "Attendi:"
-# 				
-# 				code=${captcha[*]}
-# 				code=${code// /}
-# 				
-# 				s=65
-# 				while [ $s != 0 ]; do
-# 					echo -e "  \r\c"
-# 					echo -e $s"\r\c"
-# 					sleep 1
-# 					(( s-- ))
-# 				done
-# 				echo -e "  \r\c"
-# 				tmp="$path_tmp/zdl2.tmp"
-# 				input_hidden
-# 				post_data="${post_data//'op=catalogue&'}"
-# 				post_data="${post_data}&code=${code}"
-# 			fi
-# 			link="$indirizzo"
-
-# 		elif [ "$url" != "${url//shareflare.}" ]; then
-# 			
-# 			## http://www.shareflare.net ####
-# 			check_ip shareflare
-# 			get_tmps
-# 			tmp="$path_tmp/zdl.tmp"
-# 			input_hidden
-# 			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ]; then
-# 					echo
-# 			else
-# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
-# 				echo -e "...\c"
-# 				unset post_data
-# 				
-# 				input_hidden
-# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
-# 				echo -e "...\c"
-# 				
-# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
-# 				echo -e "...\c"
-# 				
-# 				print_c 2 "Attendi circa 45 secondi:"
-# 				
-# 				k=`date +"%s"`
-# 				while [ "$goal" == "" ]; do
-# 					sleep 1
-# 					s=`date +"%s"`
-# 					s=$(( $s-$k ))
-# 					echo -e $s"\r\c"
-# 					
-# 					if (( $s>40 )); then
-# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
-# 						
-# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` #grep "========================="`
-# 						sleep 1
-# 					fi
-# 					if (( $s>90 )); then
-# 						break
-# 					fi
-# 				done
-# 				
-# 				link=${goal#*\"}
-# 				link=${link//\"*/}
-# 				
-# 				
-# 				n=1
-# 			fi
-# 			
-		elif [ "$url" != "${url//easybytez.}" ]; then
-			indirizzo=`wget -T $max_waiting -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
-			indirizzo="${indirizzo##*'<font color="red">'}"
-			indirizzo="${indirizzo%%'</font'*}"
-			indirizzo="${indirizzo// /}"
-			nomefile=${indirizzo##*\/}
-			not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
-			
-			if [ -f "${nomefile}" ]; then
-				fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
-				fsize=${fsize//K/}
-				if (( $fsize<500 )); then
-					test_proxy1=`cat "$nomefile" | grep "till next download"`
-					test_proxy2=`cat "$nomefile" | grep "Wrong IP"`
-					test_proxy3=`cat "$nomefile"`
-					test_proxy4=`cat "$nomefile" | grep "html"`
-					
-					if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
-						rm -f "$nomefile"
-					fi
-				fi
-			fi	
-			if [ ! -z "${nomefile}" ] && [ ! -f "${nomefile}" ] && [ -z "$not_available" ]; then
-				
-				print_c 2 "${nomefile}"
-				
-				#newip=1
-				check_ip easybytez
-				
-				wget -q -t 20 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
-				echo -e "...\c"
-				
-				tmp="$path_tmp/zdl.tmp"
-				input_hidden
-			
-				wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
-				echo -e "...\c"
-				exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
-				unset post_data
-				if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
-			
-					tmp="$path_tmp/zdl2.tmp"
-					input_hidden
-	
-					wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $indirizzo -O $path_tmp/zdl3.tmp &>/dev/null
-					echo -e "...\c"
-					unset post_data
-				
-					print_c 2 "Attendi circa 60 secondi:"
-					for s in `seq 0 60`; do
-						echo -e $s"\r\c"
-						sleep 1
-					done
-					echo -e "  \r\c"
-					tmp="$path_tmp/zdl3.tmp"
-					input_hidden
-					
-					
-					link="$indirizzo"
-					#newip="1"
-				fi
-			fi
-				
-		elif [ "$url" != "${url//uploaded.}" ]; then
+		while [ $riga != $stop ]; do
+			check_freespace
 			unset hellip
-			indirizzo="${indirizzo%/}"
-			wget -T $max_waiting $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
-			test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
-			test_exceeded="${test_exceeded#*'>'}"
-			test_exceeded="${test_exceeded%'<'*}"
-			test_exceeded=`echo $test_exceeded |grep GB`
-			if [ ! -z "$test_exceeded" ]; then
-				test_exceeded=${test_exceeded%' '*}
-				test_exceeded=${test_exceeded//,/.}
-				test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
-			fi
-			#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
-			test_available=`wget -q -O - -t 1 -T $max_waiting $indirizzo |grep "</html"`
-
-			if [ "$test_exceeded" == "1" ]; then
-				exceeded=1
-			elif [ -z "$test_available" ]; then
-				#echo "Page not found"
-				not_available=true
-			else
-				if [ "${indirizzo##*/}" != "${indirizzo//*file\/}" ]; then
-					nomefile=${indirizzo##*/}
-					indirizzo2=${indirizzo%/*}
-					file_id=${indirizzo2##*/}
-				else 
-					wget -T $max_waiting "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-					file_id=${indirizzo##*/} 
-					nomefile=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
-					nomefile="${nomefile//<\/a*/}"
-					nomefile="${nomefile##*>}"
-					if [ "$nomefile" != "${nomefile//'&hellip;'/}" ]; then
-						nomefile="${file_id}_${nomefile//'&hellip;'/.}.uploaded.hellip.tmp"
-						hellip=true
-					fi
-					
-				fi
-				if [ ! -f "$nomefile" ]; then
-					check_ip uploaded
-					wget -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-					echo -e "...\c"
-					
-					cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
-					cooking="${cooking//*\(\'/}"
-					cooking=${cooking//"'"*/}
-					
-					echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
-					
-					wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
-					echo -e "...\c"
-					
-					link=`cat $path_tmp/goal.tmp`
-					link=${link//*url:\'/}
-					link=${link//\'*}
-				fi
-			fi
-			
-		else
-			print_c 3 "$url non supportato da $PROG"
-			not_available=1
-		fi
-		
-		
-		if [ "$url" != "${url//uploaded.}" ] || [ "$url" != "${url//easybytez.}" ];then # || [ "$url" != "${url//sharpfile.}" ]; then
-			if [ "$downloader" == "Axel" ]; then
-				dler=$downloader
-				downloader=Wget
-				ch_dler=1
-				print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader"
-			fi
-		fi
-		
-		
-		#### DOWNLOAD ####
-		
-		if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ]; then
-			_log 1
-			no_newip=true
-		elif ( [ -f "${nomefile}" ] || [ -f "${path_tmp}/${nomefile}" ] ) && [ "$downloader" = "Wget" ]; then
-			_log 1
-			no_newip=true
-		elif [ ! -z "$not_available" ]; then
-			_log 3
-			no_newip=true
-		elif [ ! -z "$exceeded" ]; then
-			_log 4
-			no_newip=true
-		elif [ "$link" == "" ]; then # || [ "${nomefile}" == "" ]; then
-			_log 2
-			unset no_newip
-			#no_newip=true
-			#old_ip
-		elif [ "$link" != "${link//{\"err\"/}" ]; then
-			_log 2
-			unset no_newip
-# 		elif [ "${nomefile}" == "" ]; then
-# 			_log 5
-# 			unset no_newip
-		else
-			
-
-			if [ "$downloader" = "Axel" ]; then
-				export AXEL_COOKIES=$path_tmp/cookies.zdl
-				print_c 1 "downloading --> $nomefile ..."
-				[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
-				if [ $multi == 1 ]; then
-					cmd=`echo -e "axel -n $n -a $argout \"$fileout\"\ \"$link\""`
-					xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
-					sleep 5
+			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
+			ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
+				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
+				fsize_tmp=${fsize_tmp//K/}
+				#echo $fsize_tmp
+				if (( $fsize_tmp>10 )); then
+					rm -f "$file_tmp"
 				else
-					axel -n $n -a "$link" $argout "$fileout"
+					nfile_tmp=`cat "$file_tmp"`
+					nfile_tmp="${nfile_tmp#*'nomefile:'}"
+					
+					if [ ! -f "$nfile_tmp" ]; then
+						rm -f "$file_tmp"
+					fi
 				fi
+			done
+			indirizzo=`less $file |sed -n "${riga}p"`
+			(( riga++ ))
+			
+			url=${indirizzo//\?*}
+			mkdir $path_tmp 2>/dev/null
+			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
+			if [ -f "$path_tmp/links_loop.txt" ]; then
+				mv $path_tmp/links_loop.txt $path_tmp/links_loop.tmp
 				
-			elif [ "$downloader" = "Wget" ]; then
-				print_c 1 "downloading --> $nomefile ..."
-				[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-O"
+				max=`wc -l $path_tmp/links_loop.tmp | awk '{ print($1) }'`
+				max=$(( $max+1 ))
+				i=1
+				while [ $i != $max ]; do
+					line=`cat $path_tmp/links_loop.tmp |sed -n "${i}p"`
+					if [ "${line//$indirizzo}" != "" ]; then echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt ; fi
+					#echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt
+					(( i++ ))
+				done
+				rm $path_tmp/links_loop.tmp
 				
-				if [ $multi == 1 ]; then					
-					cmd=`echo -e "LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl \"$link\" -S $argout \"$fileout\" --progress=bar:force 2>&1 | tee \"$path_tmp/${nomefile}_stout.tmp\""`
-					xterm -e "$cmd ; read -p '>> PREMI INVIO per chiudere la console <<'" &
-					pid_term=$!
-					unset post_data
-				else	
-					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force 2>&1 | tee "$path_tmp/${nomefile}_stout.tmp"
+				text=`cat $path_tmp/links_loop.txt 2>/dev/null`
+				text=${text// /}
+				if [ "$text" == "" ]; then
+					rm -f $path_tmp/links_loop.txt
 				fi
-				
 			fi
-			if [ $multi == 1 ]; then
-				count_down=$(( $max_waiting+10 ))
+			
+			separator "="
+			
+			echo -e "\nLink da processare: $indirizzo"
+			
+	# 		if [ "$url" != "${url//4us.to/}" ]; then
+	# 			
+	# 			## 4US.TO ###############
+	# 			get_tmps		
+	# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
+	# 			link=${link#*document.location=\"}
+	# 			link=${link%\"*}
+	# 			
+	# 			nomefile=${link##*=} 
+	# 			n=1
+	# 	
+			if [ "$url" != "${url//mediafire.}" ]; then
+				
+				# MEDIAFIRE.COM ##############
+				check_ip mediafire
+				
+				get_tmps
+				link=`less $path_tmp/zdl.tmp |grep 'kNO = '`
+				link=${link#*'kNO = "'}
+				link=${link//\" onclick=\"avh*/}
+				link=${link%'"'*}
+				
+				nomefile=${link##*'/'}
+				n=4
+			elif [ "$url" != "${url//nowdownload.}" ]; then
+				
+				## http://www.nowdownload ###########
+				
+				get_tmps
+				token=`less $path_tmp/zdl.tmp | grep token`
+				token=${token//*=}
+				token=${token//\"*/}
+				
+				prelink=${indirizzo//\/dl/\/dl2}"/$token"
+				
+				print_c 2 "Attendi circa 30 secondi:"
+				k=`date +"%s"`
+				s=0
+				while [ "$link" == "" ]; do
+					if (( $s>29 )); then
+						wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$prelink" &>/dev/null 
+					fi
+					sleep 1
+					s=`date +"%s"`
+					s=$(( $s-$k ))
+					echo -e $s"\r\c"
+					link=`less $path_tmp/zdl2.tmp |grep "Click here to download"`
+					link=${link//*href=\"} 
+					link=${link//\"*}
+					#link=${link//\" class=\"btn btn-danger*}
+				done
+				
+				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
+				nomefile1="${nomefile1#*'<br> '}"
+				nomefile1="${nomefile1%%' '*}"
+				nomefile1="${nomefile1//'<br>'/}"
+				while [ "$nomefile1" != "${nomefile1%.}" ]; do
+					nomefile1=${nomefile1%.}
+				done
+				nomefile2=${link//*\//}
+				nomefile2=${nomefile2#*_}
+				
+				if [ "$nomefile2" != "${nomefile2//$nomefile1}" ]; then
+					nomefile="$nomefile2"
+				else
+					nomefile="$nomefile1"
+				fi
+				
+	
+	# 		elif [ "$url" != "${url//sharpfile.}" ]; then
+	# 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
+	# 			tmp="$path_tmp/zdl.tmp"
+	# 			input_hidden
+	# 			
+	# 			if ( [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ] ) || ( [ -f "${nomefile}" ] && [ "$downloader" = "Wget" ] ); then
+	# 				echo -n
+	# 			else
+	# 				check_ip sharpfile
+	# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
+	# 				echo -e "...\c"
+	# 				tmp="$path_tmp/zdl.tmp"
+	# 				input_hidden
+	# 				
+	# 				post_data="${post_data//'op=catalogue&'}"
+	# 				
+	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
+	# 				
+	# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
+	# 				unset post_data
+	# 				unset ascii_dec
+	# 				unset i
+	# 				while [ ${#ascii_dec[*]} != 4 ];do
+	# 					captcha_html="${captcha_html#*'position:absolute;padding-left:'}"
+	# 					i="${captcha_html%%px*}"
+	# 					captcha_html="${captcha_html#*'&#'}"
+	# 					ascii_dec[$i]="${captcha_html%%';'*}"
+	# 				done
+	# 				pseudo_captcha
+	# 				print_c 2 "Attendi:"
+	# 				
+	# 				code=${captcha[*]}
+	# 				code=${code// /}
+	# 				
+	# 				s=65
+	# 				while [ $s != 0 ]; do
+	# 					echo -e "  \r\c"
+	# 					echo -e $s"\r\c"
+	# 					sleep 1
+	# 					(( s-- ))
+	# 				done
+	# 				echo -e "  \r\c"
+	# 				tmp="$path_tmp/zdl2.tmp"
+	# 				input_hidden
+	# 				post_data="${post_data//'op=catalogue&'}"
+	# 				post_data="${post_data}&code=${code}"
+	# 			fi
+	# 			link="$indirizzo"
+	
+	# 		elif [ "$url" != "${url//shareflare.}" ]; then
+	# 			
+	# 			## http://www.shareflare.net ####
+	# 			check_ip shareflare
+	# 			get_tmps
+	# 			tmp="$path_tmp/zdl.tmp"
+	# 			input_hidden
+	# 			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ]; then
+	# 					echo
+	# 			else
+	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
+	# 				echo -e "...\c"
+	# 				unset post_data
+	# 				
+	# 				input_hidden
+	# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
+	# 				echo -e "...\c"
+	# 				
+	# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+	# 				echo -e "...\c"
+	# 				
+	# 				print_c 2 "Attendi circa 45 secondi:"
+	# 				
+	# 				k=`date +"%s"`
+	# 				while [ "$goal" == "" ]; do
+	# 					sleep 1
+	# 					s=`date +"%s"`
+	# 					s=$(( $s-$k ))
+	# 					echo -e $s"\r\c"
+	# 					
+	# 					if (( $s>40 )); then
+	# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+	# 						
+	# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` #grep "========================="`
+	# 						sleep 1
+	# 					fi
+	# 					if (( $s>90 )); then
+	# 						break
+	# 					fi
+	# 				done
+	# 				
+	# 				link=${goal#*\"}
+	# 				link=${link//\"*/}
+	# 				
+	# 				
+	# 				n=1
+	# 			fi
+	# 			
+			elif [ "$url" != "${url//easybytez.}" ]; then
+				indirizzo=`wget -T $max_waiting -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
+				indirizzo="${indirizzo##*'<font color="red">'}"
+				indirizzo="${indirizzo%%'</font'*}"
+				indirizzo="${indirizzo// /}"
+				nomefile=${indirizzo##*\/}
+				not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
+				
+				if [ -f "${nomefile}" ]; then
+					fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
+					fsize=${fsize//K/}
+					if (( $fsize<500 )); then
+						test_proxy1=`cat "$nomefile" | grep "till next download"`
+						test_proxy2=`cat "$nomefile" | grep "Wrong IP"`
+						test_proxy3=`cat "$nomefile"`
+						test_proxy4=`cat "$nomefile" | grep "html"`
+						
+						if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
+							rm -f "$nomefile"
+						fi
+					fi
+				fi	
+				if [ ! -z "${nomefile}" ] && [ ! -f "${nomefile}" ] && [ -z "$not_available" ]; then
+					
+					print_c 2 "${nomefile}"
+					
+					#newip=1
+					check_ip easybytez
+					
+					wget -q -t 20 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
+					echo -e "...\c"
+					
+					tmp="$path_tmp/zdl.tmp"
+					input_hidden
+				
+					wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
+					echo -e "...\c"
+					exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
+					unset post_data
+					if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
+				
+						tmp="$path_tmp/zdl2.tmp"
+						input_hidden
+		
+						wget -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $indirizzo -O $path_tmp/zdl3.tmp &>/dev/null
+						echo -e "...\c"
+						unset post_data
+					
+						print_c 2 "Attendi circa 60 secondi:"
+						for s in `seq 0 60`; do
+							echo -e $s"\r\c"
+							sleep 1
+						done
+						echo -e "  \r\c"
+						tmp="$path_tmp/zdl3.tmp"
+						input_hidden
+						
+						
+						link="$indirizzo"
+						#newip="1"
+					fi
+				fi
+					
+			elif [ "$url" != "${url//uploaded.}" ]; then
+				unset hellip
+				indirizzo="${indirizzo%/}"
+				wget -T $max_waiting $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
+				test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
+				test_exceeded="${test_exceeded#*'>'}"
+				test_exceeded="${test_exceeded%'<'*}"
+				test_exceeded=`echo $test_exceeded |grep GB`
+				if [ ! -z "$test_exceeded" ]; then
+					test_exceeded=${test_exceeded%' '*}
+					test_exceeded=${test_exceeded//,/.}
+					test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
+				fi
+				#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
+				test_available=`wget -q -O - -t 1 -T $max_waiting $indirizzo |grep "</html"`
+	
+				if [ "$test_exceeded" == "1" ]; then
+					exceeded=1
+				elif [ -z "$test_available" ]; then
+					#echo "Page not found"
+					not_available=true
+				else
+					if [ "${indirizzo##*/}" != "${indirizzo//*file\/}" ]; then
+						nomefile=${indirizzo##*/}
+						indirizzo2=${indirizzo%/*}
+						file_id=${indirizzo2##*/}
+					else 
+						wget -T $max_waiting "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
+						file_id=${indirizzo##*/} 
+						nomefile=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
+						nomefile="${nomefile//<\/a*/}"
+						nomefile="${nomefile##*>}"
+						if [ "$nomefile" != "${nomefile//'&hellip;'/}" ]; then
+							nomefile="${file_id}_${nomefile//'&hellip;'/.}.uploaded.hellip.tmp"
+							hellip=true
+						fi
+						
+					fi
+					if [ ! -f "$nomefile" ]; then
+						check_ip uploaded
+						wget -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
+						echo -e "...\c"
+						
+						cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
+						cooking="${cooking//*\(\'/}"
+						cooking=${cooking//"'"*/}
+						
+						echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
+						
+						wget -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
+						echo -e "...\c"
+						
+						link=`cat $path_tmp/goal.tmp`
+						link=${link//*url:\'/}
+						link=${link//\'*}
+					fi
+				fi
+				
+			else
+				print_c 3 "$url non supportato da $PROG"
+				not_available=1
+			fi
+			
+			
+			if [ "$url" != "${url//uploaded.}" ] || [ "$url" != "${url//easybytez.}" ];then # || [ "$url" != "${url//sharpfile.}" ]; then
+				if [ "$downloader" == "Axel" ]; then
+					dler=$downloader
+					downloader=Wget
+					ch_dler=1
+					print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader"
+				fi
+			fi
+			
+			
+			#### DOWNLOAD ####
+			
+			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ]; then
+				_log 1
+				no_newip=true
+			elif ( [ -f "${nomefile}" ] || [ -f "${path_tmp}/${nomefile}" ] ) && [ "$downloader" = "Wget" ]; then
+				_log 1
+				no_newip=true
+			elif [ ! -z "$not_available" ]; then
+				_log 3
+				no_newip=true
+			elif [ ! -z "$exceeded" ]; then
+				_log 4
+				no_newip=true
+			elif [ "$link" == "" ] || [ "${nomefile}" == "" ]; then
+				_log 2
+				unset no_newip
+				#no_newip=true
+				#old_ip
+			elif [ "$link" != "${link//{\"err\"/}" ]; then
+				_log 2
+				unset no_newip
+	# 		elif [ "${nomefile}" == "" ]; then
+	# 			_log 5
+	# 			unset no_newip
+			else
+				
+	
+				if [ "$downloader" = "Axel" ]; then
+					export AXEL_COOKIES=$path_tmp/cookies.zdl
+					print_c 1 "downloading --> $nomefile ..."
+					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
+					axel -n $n -a "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stout.tmp" &
+					pid_dl=$!
+					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stout.tmp"
+					pids_alive[${#pids_alive[*]}]=${pid_dl}
+					unset post_data
+					
+				elif [ "$downloader" = "Wget" ]; then
+					print_c 1 "downloading --> $nomefile ..."
+					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-O"
+					
+					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stout.tmp" &
+					pid_dl=$!
+					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stout.tmp"
+					pids_alive[${#pids_alive[*]}]=${pid_dl}
+					unset post_data
+				fi
+				if [ $multi == 1 ] && [ "$url" == "${url//nowdownload.}" ]; then
+					count_down=$(( $max_waiting+5 ))
+				else	
+					count_down=5
+				fi
 				print_c 2 "Attendi:"
-				echo
 				while [ "$count_down" != 0 ]; do
 					echo -e "  \r\c"
 					echo -e $count_down"\r\c"
@@ -993,70 +1102,95 @@ while true; do
 					(( count_down-- ))
 				done
 				echo -e "  \r\c"
-			fi
-			
-			if [ -f "$nomefile" ]; then
-				fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
-				fsize=${fsize//K/}
-				if (( $fsize<500 )); then
-					test_proxy1=`cat "$nomefile" | grep "till next download"`  
-					test_proxy2=`cat "$nomefile" | grep "Wrong IP"` 
-					test_proxy3=`cat "$nomefile"`
-					test_proxy4=`cat "$nomefile" | grep "html"`
-					if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
-						rm -f $nomefile
-					fi
-				fi
-				if [ $hellip ]; then
-					unset quit
-					unset newname
-					newname=`cat $path_tmp/${nomefile}_stout.tmp |grep filename`
-					newname="${newname#*'filename="'}"
-					newname="${newname%'"'*}"
-					if [ "$newname" != "" ]; then
-						if [ ! -f "$newname" ]; then
-							mv "$nomefile" "$newname"
-							mv $path_tmp/${nomefile}_stout.tmp $path_tmp/${newname}_stout.tmp
-							print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
-						else
-							kill $pid_term
-							xterm -e "echo \"Il download di $nomefile ($newname) è stato interrotto:\n\n$newname è già presente nella directory di destinazione ($PWD)\" ; echo ; read -p '>> PREMI INVIO per chiudere la console <<'" &
+				
+				
+				if [ -f "$nomefile" ]; then
+					fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
+					fsize=${fsize//K/}
+					if (( $fsize<500 )); then
+						test_proxy1=`cat "$nomefile" | grep "till next download"`  
+						test_proxy2=`cat "$nomefile" | grep "Wrong IP"` 
+						test_proxy3=`cat "$nomefile"`
+						test_proxy4=`cat "$nomefile" | grep "html"`
+						if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
+							rm -f $nomefile
 						fi
-						echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
-						echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
-					else
-						rm -f "$nomefile"
 					fi
-					unset hellip
+					if [ $hellip ]; then
+						unset quit
+						unset newname
+						newname=`cat $path_tmp/${nomefile}_stout.tmp |grep filename`
+						newname="${newname#*'filename="'}"
+						newname="${newname%'"'*}"
+						if [ "$newname" != "" ]; then
+							if [ ! -f "$newname" ]; then
+								mv "$nomefile" "$newname"
+								mv $path_tmp/${nomefile}_stout.tmp $path_tmp/${newname}_stout.tmp
+								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
+							else
+								kill $pid_term
+								xterm -e "echo \"Il download di $nomefile ($newname) è stato interrotto:\n\n$newname è già presente nella directory di destinazione ($PWD)\" ; echo ; read -p '>> PREMI INVIO per chiudere la console <<'" &
+							fi
+							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
+							echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
+						else
+							rm -f "$nomefile"
+						fi
+						unset hellip
+					fi
 				fi
+				
+				if [ ! -f "$nomefile" ]; then
+					_log 2
+				fi
+				
+				unset no_newip
 			fi
-			
-			if [ ! -f "$nomefile" ]; then
-				_log 2
+			if [ -z $no_newip ]; then
+				[ "$url" != "${url//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+				[ "$url" != "${url//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+		# 		[ "$url" != "${url//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+				[ "$url" != "${url//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+	# 			[ "$url" != "${url//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 			fi
-			
-			unset no_newip
-		fi
-		if [ -z $no_newip ]; then
-			[ "$url" != "${url//mediafire.}" ] && newip[${#newip[*]}]=mediafire
-			[ "$url" != "${url//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-	# 		[ "$url" != "${url//shareflare.}" ] && newip[${#newip[*]}]=shareflare
-			[ "$url" != "${url//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-# 			[ "$url" != "${url//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
-		fi
-		[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
-
-		unset link nomefile post_data goal not_available exceeded
-		#rm -r $path_tmp
-		noproxy
-		sleep 1
-	done
+			[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
 	
-	if [ -f "links_loop.txt" ]; then
-		file="links_loop.txt"
-	else
-		break
+			
+			#rm -r $path_tmp
+			noproxy
+			if [ $multi == 1 ]; then 
+				unset nomefile
+				check_dl
+			fi
+
+			while [ ! -z "$nomefile" ]; do
+				check_dl
+				sleep 3
+			done
+			
+			sleep 1
+			unset link post_data goal not_available exceeded
+		done
 	fi
+	if [ -f "$path_tmp/links_loop.txt" ]; then
+		file="$path_tmp/links_loop.txt"
+		
+	else
+		unset file
+		check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+		
+		while [ ! -z "$check_tmps" ]; do
+			check_dl
+			sleep 3
+			if [ -f "$path_tmp/links_loop.txt" ]; then
+				file="$path_tmp/links_loop.txt"
+				break
+			fi
+			check_tmps=`ls $path_tmp/*_stout.tmp 2>/dev/null`
+			
+		done
+	fi
+	[ ! -f "$path_tmp/links_loop.txt" ] && [ "${pids_alive[*]}" == "" ] && break
 done
 
 echo "==================================================="
@@ -1064,12 +1198,12 @@ print_c 1 "Tutti i link per il download sono stati processati."
 echo
 
 while [ "$quit" != "sì" ]; do
-	echo -e "$PROG ha utilizzato dei file temporanei per recuperare il nome dei file scaricati da uploaded.to. Prima di chiudere questa applicazione, verifica che i download siano terminati con successo ($PROG può essere avviato più volte, in processi paralleli e in una stessa directory: istanze diverse di $PROG possono interferire generando errori se terminate automaticamente): devi decidere se cancellare i file temporanei o lasciarli nella directory. Se vuoi riscaricare alcuni file a causa di download interrotti, non cancellarli (rispondi \"no\"), altrimenti rispondi \"sì\".
+	echo -e "$PROG ha utilizzato dei file temporanei per recuperare il nome dei file scaricati da uploaded.to. Prima di chiudere questa applicazione, verifica che i download siano terminati con successo \($PROG può essere avviato più volte, in processi paralleli e in una stessa directory: istanze diverse di $PROG possono interferire generando errori se terminate automaticamente\): devi decidere se cancellare i file temporanei o lasciarli nella directory. Se vuoi riscaricare alcuni file a causa di download interrotti, non cancellarli \(rispondi \"no\"\), altrimenti rispondi \"sì\".
 	
-Per riscaricare i file incompleti (dopo aver risposto \"no\" qua sotto):
-	- cancella manualmente i file incompleti dalla directory di destinazione (soltanto se non sono accompagnati da un file omonimo che finisce per \".st\")
-	- riavvia $PROG passandogli il file con la lista dei link da processare (per default: links.txt) 
-	 	[per esempio, digita il seguente comando: \"$prog -m links.txt\"
+Per riscaricare i file incompleti \(dopo aver risposto \"no\" qua sotto\):
+	- cancella manualmente i file incompleti dalla directory di destinazione \(soltanto se non sono accompagnati da un file omonimo che finisce per \".st\"\)
+	- riavvia $PROG passandogli il file con la lista dei link da processare \(per default: links.txt\) 
+	 	per esempio, digita il seguente comando: \"$prog -m links.txt\"
 "
 
 	print_c 2 "Vuoi cancellare i file temporanei? [sì|no]:"
