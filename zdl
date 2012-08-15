@@ -521,7 +521,7 @@ function check_dl {
 				name_stout=`ls -1 $path_tmp/${nomefile}_stout.tmp | sed -n "${i}p"`
 			fi
 			if [ "$name_stout" == "" ]; then break ; fi
-			head -n 11 "$name_stout" > $path_tmp/head_stout
+			head -n 8 "$name_stout" > $path_tmp/head_stout
 
 			namef="${name_stout//_stout.tmp}"
 			namef="${namef#$path_tmp/}"
@@ -541,10 +541,10 @@ function check_dl {
 				tot_size="${tot_size#*File size: }"
 				tot_size="${tot_size%% *}"
 				#sleep 1
-				rm -f "$name_stout"
+				#rm -f "$name_stout"
 				cat $path_tmp/head_stout > "$name_stout"
 			fi
-			
+			sleep 3
 			progress=`tail -n 1 "$name_stout"`
 			[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
 			
