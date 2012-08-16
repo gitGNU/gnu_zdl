@@ -1130,7 +1130,7 @@ while true; do
 				[ "$url" != "" ] && print_c 3 "$url non supportato da $PROG"
 				not_available=1
 			fi
-			
+			nomefile="${nomefile// /_}"
 			
 			if [ "$url" != "${url//uploaded.}" ] || [ "$url" != "${url//easybytez.}" ];then # || [ "$url" != "${url//sharpfile.}" ]; then
 				if [ "$downloader" == "Axel" ]; then
