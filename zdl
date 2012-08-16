@@ -48,17 +48,6 @@ pid_dl=1   #$pid_prog
 
 rm -f $path_tmp/links_loop.txt
 
-# init tmps if exist
-totfs=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l `
-if [ "$totfs" == "" ]; then
-	for ij in `seq 1 $totfs`; do
-		name_stdout=`ls -1 $path_tmp/*_stdout.tmp | sed -n "${ij}p"`
-		head_txt=`head -n 15 "$name_stdout"`
-		echo "${head_txt//%}" > "$name_stdout"
-	done
-fi
-unset name_stdout head_txt 
-
 function old_ip {
 	[ "$url" != "${url//mediafire.}" ] && host=mediafire
 	[ "$url" != "${url//uploaded.}" ] && host=uploaded
@@ -513,11 +502,7 @@ function kill_dl {
 }
 
 function check_dl {
-	if [ $multi == 1 ]; then 
-		totf=`ls -1 $path_tmp/*_stdout.tmp | wc -l`
-	else
-		totf=1
-	fi
+	totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
 	if (( $totf>0 )); then
 		unset name_stdout fname fsize
 		print_c 1 "Downloading..."
@@ -644,6 +629,10 @@ function check_dl {
 		done
 		if [ "${#rmfile[*]}" != "0" ] && [ ! -z "${#rmfile[*]}" ]; then
 			for rmf in `seq 0 $(( ${#rmfile[*]}-1 ))`; do
+# 				echo
+# 				cat $path_tmp/links_loop.txt
+# 				echo
+# 				read -p "Cancellazione dei seguenti file: ${rmfile[$rmf]}"
 				rm -rf "${rmfile[$rmf]}" 
 				unset rmfile[$rmf]
 			done
@@ -890,7 +879,6 @@ while true; do
 				
 				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 				nomefile1="${nomefile1#*'<br> '}"
-				#nomefile1="${nomefile1%%' '*}"
 				nomefile1="${nomefile1%%</h4>*}"
 				nomefile1="${nomefile1%' '*}"
 				nomefile1="${nomefile1%' '*}"
@@ -1010,29 +998,11 @@ while true; do
 				indirizzo=`wget -T $max_waiting -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
 				indirizzo="${indirizzo##*'<font color="red">'}"
 				indirizzo="${indirizzo%%'</font'*}"
-				indirizzo="${indirizzo// /}"
+				#indirizzo="${indirizzo// /}"
 				nomefile=${indirizzo##*\/}
 				not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
 				
-				if [ -f "${nomefile}" ]; then
-					fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
-					fsize=${fsize//K/}
-					if (( $fsize<500 )); then
-						test_proxy1=`cat "$nomefile" | grep "till next download"`
-						test_proxy2=`cat "$nomefile" | grep "Wrong IP"`
-						test_proxy3=`cat "$nomefile"`
-						test_proxy4=`cat "$nomefile" | grep "html"`
-						
-						if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
-							rm -f "$nomefile"
-						fi
-					fi
-				fi	
 				if [ ! -z "${nomefile}" ] && [ ! -f "${nomefile}" ] && [ -z "$not_available" ]; then
-					
-					print_c 2 "${nomefile}"
-					
-					#newip=1
 					check_ip easybytez
 					
 					wget -q -t 20 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
@@ -1065,7 +1035,7 @@ while true; do
 						
 						
 						link="$indirizzo"
-						#newip="1"
+						post_data="${post_data}&btn_download=Download File"
 					fi
 				fi
 					
@@ -1102,7 +1072,7 @@ while true; do
 						nomefile="${nomefile##*>}"
 						if [ "$nomefile" != "${nomefile//'&hellip;'/}" ]; then
 							nomefile="${file_id}_${nomefile//'&hellip;'/.}.uploaded.hellip.tmp"
-							hellip=true
+							#hellip=true
 						fi
 						
 					fi
@@ -1181,9 +1151,9 @@ while true; do
 					
 				elif [ "$downloader" = "Wget" ]; then
 					print_c 1 "downloading --> $nomefile ..."
-					[ "$nomefile" != "" ] && argout="-O"
-					
-					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$nomefile" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
+					[ "$nomefile" != "" ] && argout="-O" && fileout="$nomefile"
+					[ "$url" != "${url//easybytez.}" ] && unset argout fileout
+					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
 					pid_dl=$!
 					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
@@ -1224,19 +1194,7 @@ while true; do
 				fi
 				####################################
 				
-				if [ -f "$nomefile" ]; then
-					fsize=`ls -s --block-size=K "${nomefile}" | awk '{ print($1) }'`
-					fsize=${fsize//K/}
-					if (( $fsize<500 )); then
-						test_proxy1=`cat "$nomefile" | grep "till next download"`  
-						test_proxy2=`cat "$nomefile" | grep "Wrong IP"` 
-						test_proxy3=`cat "$nomefile"`
-						test_proxy4=`cat "$nomefile" | grep "html"`
-						if [ "$test_proxy1" != "" ] || [ "$test_proxy2" != "" ] || [ "$test_proxy3" == "" ] || [ "$test_proxy4" != "" ]; then 
-							rm -f $nomefile
-						fi
-					fi
-					if [ $hellip ]; then
+					if [ -f "$nomefile" ] && [ "$nomefile" != "${nomefile//.uploaded.hellip.tmp}" ]; then
 						unset quit
 						unset newname
 						newname=`cat $path_tmp/${nomefile}_stdout.tmp |grep filename`
@@ -1245,24 +1203,11 @@ while true; do
 						if [ "$newname" != "" ]; then
 							if [ ! -f "$newname" ]; then
 								mv "$nomefile" "$newname"
-								#mv $path_tmp/${nomefile}_stdout.tmp $path_tmp/${newname}_stdout.tmp
-								#rm -rf $path_tmp/${nomefile}_stdout.tmp
 								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
-# 							else
-# 								kill $pid_dl
-# 								print_c 3 "Il download di $nomefile ($newname) è stato interrotto: $newname è già presente nella directory di destinazione ($PWD)"
 							fi
 							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
-							#echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
 						fi
-						unset hellip
 					fi
-				fi
-				
-# 				if [ ! -f "$nomefile" ]; then
-# 					[ "${killed[*]}" == "${killed[*]//$pid_dl}" ] && _log 2
-# 				fi
-				
 				unset no_newip
 			fi
 			if [ -z $no_newip ]; then
@@ -1276,7 +1221,6 @@ while true; do
 	
 			noproxy
 			if [ $multi == 1 ]; then 
-				#unset nomefile
 				check_dl
 			fi
 
@@ -1294,9 +1238,7 @@ while true; do
 		
 	else
 		unset file
-		#check_tmps=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
-		
-		while true; do #[ ! -z "$check_tmps" ]; do
+		while true; do 
 			check_dl
 			sleep 3
 			if [ -f "$path_tmp/links_loop.txt" ]; then
@@ -1320,45 +1262,12 @@ separator "-"
 
 test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 [ "$test_cleaning" == "" ] && rm -r "$path_tmp"
-# 
-# 
-# while [ "$quit" != "sì" ]; do
-# 	echo -e "$PROG ha utilizzato dei file temporanei per recuperare il nome dei file scaricati da uploaded.to. Prima di chiudere questa applicazione, verifica che i download siano terminati con successo \($PROG può essere avviato più volte, in processi paralleli e in una stessa directory: istanze diverse di $PROG possono interferire generando errori se terminate automaticamente\): devi decidere se cancellare i file temporanei o lasciarli nella directory. Se vuoi riscaricare alcuni file a causa di download interrotti, non cancellarli \(rispondi \"no\"\), altrimenti rispondi \"sì\".
-# 	
-# Per riscaricare i file incompleti \(dopo aver risposto \"no\" qua sotto\):
-# 	- cancella manualmente i file incompleti dalla directory di destinazione \(soltanto se non sono accompagnati da un file omonimo che finisce per \".st\"\)
-# 	- riavvia $PROG passandogli il file con la lista dei link da processare \(per default: links.txt\) 
-# 	 	per esempio, digita il seguente comando: \"$prog -m links.txt\"
-# "
-# 
-# 	print_c 2 "Vuoi cancellare i file temporanei? [sì|no]:"
-# 	read quit
-# 	if [ "$quit" == "no" ]; then 
-# 		break
-# 	elif [ "$quit" == "sì" ]; then
-# 		ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
-# 			fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
-# 			fsize_tmp=${fsize_tmp//K/}
-# 			if (( $fsize_tmp>10 )); then
-# 				rm -f "$file_tmp"
-# 			else
-# 				test_tmp=`cat "$file_tmp" | awk '{ print($1) }' `
-# 				
-# 				if [ "$test_tmp" == "$pid_prog" ]; then
-# 					( rm -f "$file_tmp" && print_c 1 "File temporanei cancellati." ) || ( print_c 3 "Errore: impossibile cancellare i file temporanei." )
-# 				fi
-# 			fi
-# 		done
-# 	fi
-# done
-
 
 echo
 echo
 if [ -f "$file_log" ]; then
 	print_c 3 "In questa directory è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
 	echo -e "Per leggerlo, digita:\n\n cat $file_log\n\n"
-	#cat  $file_log
 fi
 
 
