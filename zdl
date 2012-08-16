@@ -1240,16 +1240,14 @@ while true; do
 							fi
 							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
 							#echo "Creato file temporaneo $nomefile (all'interno trovi il nome del file corrispondente)"
-						else
-							rm -f "$nomefile"
 						fi
 						unset hellip
 					fi
 				fi
 				
-				if [ ! -f "$nomefile" ]; then
-					[ "$pid_dl" != "$killed" ] && _log 2
-				fi
+# 				if [ ! -f "$nomefile" ]; then
+# 					[ "${killed[*]}" == "${killed[*]//$pid_dl}" ] && _log 2
+# 				fi
 				
 				unset no_newip
 			fi
@@ -1262,8 +1260,6 @@ while true; do
 			fi
 			[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
 	
-			
-			#rm -r $path_tmp
 			noproxy
 			if [ $multi == 1 ]; then 
 				#unset nomefile
