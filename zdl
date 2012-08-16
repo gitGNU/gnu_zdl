@@ -85,8 +85,10 @@ function print_c {
 }
 
 function separator {
-	COLUMNS=$(tput cols)
-	for column in `seq 1 $COLUMNS`; do echo -n "$1" ; done
+	COLUMNS=$( tput cols ) 2>/dev/null
+	if [ ! -z "$COLUMNS" ];then
+		for column in `seq 1 $COLUMNS`; do echo -n -e "\e[1;34m"$1'\e[0m' ; done
+	fi
 }
 
 function pseudo_captcha {
@@ -352,7 +354,7 @@ $PROG può essere avviato in due modi:
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
 		- digita il seguente comando e premi invio: $prog 
 		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
-		- premi la chiocciolina "@"
+		- premi la chiocciolina \"@\"
 		
 	2) Utilizzando un file preparato con un editor di testi (andare a capo dopo ogni link)
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
@@ -503,123 +505,143 @@ function kill_dl {
 }
 
 function check_dl {
-	ckdl=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
-	if [ ! -z "$ckdl" ]; then
+	if [ $multi == 1 ]; then 
+		totf=`ls -1 $path_tmp/*_stdout.tmp | wc -l`
+	else
+		totf=1
+	fi
+	if (( $totf>0 )); then
 		unset name_stdout fname fsize
 		print_c 1 "Downloading..."
 		separator "="
 		unset indirizzo
-		if [ $multi == 1 ]; then 
-			totf=`ls -1 $path_tmp/*_stdout.tmp | wc -l`
+		if (( $totf>1 )); then 
+			nlines=`seq 1 $totf`
 		else
-			totf=1
+			nlines=1
 		fi
-		for i in `seq 1 $totf`; do
+		for i in $nlines; do
+			unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
 			if [ $multi == 1 ]; then 
-				name_stdout=`ls -1 $path_tmp/*_stdout.tmp | sed -n "${i}p"`
+				name_stdout=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null| sed -n "${i}p"`
 			else
 				name_stdout=`ls -1 $path_tmp/${nomefile}_stdout.tmp | sed -n "${i}p"`
 			fi
-			if [ "$name_stdout" == "" ]; then break ; fi
-			head -n 8 "$name_stdout" > $path_tmp/head_stdout
-
-			namef="${name_stdout//_stdout.tmp}"
-			namef="${namef#$path_tmp/}"
-			pid=`head -n 1 "$path_tmp/head_stdout"`
-			linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
-			linkdl="${linkdl#link_${prog}: }"
-
-			dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+			
+			if [ "$name_stdout" != "" ]; then 
+				head -n 8 "$name_stdout" > $path_tmp/head_stdout
 	
-			if [ "$dlr" == "Wget" ]; then
-				tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-				tot_size="${tot_size#*Content-Length: }"
-				tot_size="${tot_size%%' '*}"
-				
-				hellip_stdout=`cat "$name_stdout" |grep 'uploaded.hellip.tmp'`
-				hellip_stdout="${hellip_stdout#*\`}"
-				hellip_stdout="${hellip_stdout//uploaded.hellip.tmp*/uploaded.hellip.tmp}"
-				
-			elif [ "$dlr" == "Axel" ]; then
-				tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
-				tot_size="${tot_size#*File size: }"
-				tot_size="${tot_size%% *}"
-				#sleep 1
-				#rm -f "$name_stdout"
-				cat $path_tmp/head_stdout > "$name_stdout"
-			fi
-			sleep 3
-			progress=`tail -n 1 "$name_stdout"`
-			[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
-			
-			#show:
-			echo "File: $namef - Downloader: $dlr"
-			echo "$progress"
-			if [ $i != $totf ]; then 
-				separator "-"
-			else
-				separator "="
-			fi
-			
-			#check:
-			ps a -o pid | while read alive; do
-				if [ "$alive" == "$pid" ]; then
-					touch $path_tmp/alive
-					break
-				fi
-			done 
-			
-			if [ ! -f $path_tmp/alive ]; then 
-				var_pids="${pids_alive[*]}"
-				var_pids="${var_pids//$pid/-}"
-				var_pids="${var_pids//-}"
-				pids_alive=( $var_pids )
-				
-				already_there=`cat "$name_stdout"|grep 'already there; not retrieving.'`
-				if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
-					
-					if [ "$pid" != "$killed" ] && [ "$pid" != "killed" ]; then # incidentato o completato
-						fsize=`ls -l "$namef" 2>/dev/null | awk '{ print($5) }'`
-						test_100=`cat "$name_stdout" | grep '100%'`
+				namef="${name_stdout//_stdout.tmp}"
+				namef="${namef#$path_tmp/}"
+				pid=`head -n 1 "$path_tmp/head_stdout"`
+				linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
+				linkdl="${linkdl#link_${prog}: }"
+	
+				dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+		
+				if [ "$dlr" == "Wget" ]; then
+					tot_size=`cat "$name_stdout" |grep "Content-Length:"`
+					tot_size="${tot_size#*Content-Length: }"
+					tot_size="${tot_size%%' '*}"
+					if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
+						hellip_namef="$namef"
 						
-						if ( [ "$fsize" != "$tot_size" ] && [ -z "$test_100" ] ) || [ -z "$tot_size" ]; then  #incidentato
-							if [ "$dlr" == "Wget" ]; then 
-								if [ "$hellip_stdout" != "$namef" ] && [ "$hellip_stdout" != "" ] ; then
-									rm -f "$hellip_stdout"
-								fi	
-								rm -f "$namef"
-							fi
-							[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
-							loop_txt=`cat $path_tmp/links_loop.txt`
-							unset nomefile
-						
-						else #completato
-							rm -f "$name_stdout"
-							unset nomefile
-						fi
-					else #suicida 
-						rm -f "$namef"
-						unset nomefile
-						killed[${#killed[*]}]=$pid
+						namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+						namef="${namef#*'filename="'}"
+						namef="${namef%'"'*}"
+						name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
 					fi
-				else 
-				# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
-					rm -f "$name_stdout"
-					unset nomefile
+					sleep 3
+					unset progress
+					progress=`tail -n 1 "$name_stdout"`
+				elif [ "$dlr" == "Axel" ]; then
+					tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
+					tot_size="${tot_size#*File size: }"
+					tot_size="${tot_size%% *}"
+					#sleep 1
+					#rm -f "$name_stdout"
+					cat $path_tmp/head_stdout > "$name_stdout"
+					sleep 2
+					unset progress
+					progress=`tail -n 2 "$name_stdout" |grep K `
+				fi
+				#[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
+								
+				#check pid:
+				ps a -o pid | while read alive; do
+					if [ "$alive" == "$pid" ]; then
+						touch $path_tmp/alive
+						break
+					fi
+				done
+
+				#show:
+				echo "File: $namef - Downloader: $dlr"
+				if [ ! -f $path_tmp/alive ]; then
+					progress="Download ancora da avviare..."
+				fi
+				echo "$progress"
+				if [ $i != $totf ]; then 
+					separator "-"
+				else
+					separator "="
 				fi
 				
-			else
-				rm $path_tmp/alive
-				if [ "$multi" == "1" ]; then
-					unset nomefile
+				#check files:	
+				if [ ! -f $path_tmp/alive ]; then 
+					var_pids="${pids_alive[*]}"
+					var_pids="${var_pids//$pid/-}"
+					var_pids="${var_pids//-}"
+					pids_alive=( $var_pids )
+					
+					already_there=`cat "$name_stdout"|grep 'already there; not retrieving.'`
+					if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
+						unset already_there
+						if [ "${killed[*]}" == "${killed[*]//$pid}" ]; then # incidentato o completato
+							fsize=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
+
+							if [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ]; then  #incidentato
+								
+								if [ "$hellip_namef" != "$namef" ] && [ "$hellip_namef" != "" ] ; then
+									rmfile[${#rmfile[*]}]="$path_tmp/$hellip_namef"
+								fi	
+								
+								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
+								[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
+								unset nomefile
+							
+							else #completato
+								rmfile[${#rmfile[*]}]="$name_stdout"
+								unset nomefile
+							fi
+						else #suicida 
+							rmfile[${#rmfile[*]}]="$namef"
+							unset nomefile
+							killed[${#killed[*]}]=$pid
+						fi
+					else 
+					# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
+						rmfile[${#rmfile[*]}]="$name_stdout"
+						unset nomefile
+					fi
+					
+				else
+					rm $path_tmp/alive
+					if [ "$multi" == "1" ]; then
+						unset nomefile
+					fi
 				fi
 			fi
 		done
+		if [ "${#rmfile[*]}" != "0" ] && [ ! -z "${#rmfile[*]}" ]; then
+			for rmf in `seq 0 $(( ${#rmfile[*]}-1 ))`; do
+				rm -rf "${rmfile[$rmf]}" 
+				unset rmfile[$rmf]
+			done
+		fi
 	else
 		unset nomefile
 	fi
-	[ "$loop_txt" == "" ] && rm -f $path_tmp/links_loop.txt
-
 }
 
 
@@ -653,11 +675,11 @@ for arg in $@ ; do
 		
 		-m | --multi)
 			multi=1
-			if [ -e "/cygdrive" ]; then
-				export DISPLAY=:0
-				X &>/dev/null &
-				exec aewm++ &>/dev/null &
-			fi
+# 			if [ -e "/cygdrive" ]; then
+# 				export DISPLAY=:0
+# 				X &>/dev/null &
+# 				exec aewm++ &>/dev/null &
+# 			fi
 			;;
 		
 		-h | --help)
@@ -1137,7 +1159,7 @@ while true; do
 					export AXEL_COOKIES=$path_tmp/cookies.zdl
 					print_c 1 "downloading --> $nomefile ..."
 					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
-					axel -n $n -a "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stdout.tmp" &
+					axel -n $n "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stdout.tmp" & # -a tolto
 					pid_dl=$!
 					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
@@ -1209,7 +1231,8 @@ while true; do
 						if [ "$newname" != "" ]; then
 							if [ ! -f "$newname" ]; then
 								mv "$nomefile" "$newname"
-								mv $path_tmp/${nomefile}_stdout.tmp $path_tmp/${newname}_stdout.tmp
+								#mv $path_tmp/${nomefile}_stdout.tmp $path_tmp/${newname}_stdout.tmp
+								#rm -rf $path_tmp/${nomefile}_stdout.tmp
 								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
 # 							else
 # 								kill $pid_dl
