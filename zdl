@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -i
 #
 # ZigzagDownLoader (ZDL)
 # 
@@ -85,7 +85,7 @@ function print_c {
 }
 
 function separator {
-	COLUMNS=$( tput cols ) 2>/dev/null
+	#COLUMNS=$( tput cols ) 2>/dev/null
 	if [ ! -z "$COLUMNS" ];then
 		for column in `seq 1 $COLUMNS`; do echo -n -e "\e[1;34m"$1'\e[0m' ; done
 	fi
