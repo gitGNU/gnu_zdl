@@ -370,10 +370,10 @@ $PROG può essere avviato in due modi:
 Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
 uploaded.to (ul.to), easybytez.net
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero anuale è possibile riavviando $PROG nella seguente forma:
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG nella seguente forma:
 	$prog NOMEFILE [-m] [axel|wget]
 
-NOMEFILE sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" sono facoltativi.
+NOMEFILE sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" (o \"wget\")  sono facoltativi.
 
 Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
 
