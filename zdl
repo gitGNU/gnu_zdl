@@ -18,6 +18,8 @@
 # Free Software Foundation, Inc.
 # 
 # For information or to collaborate on the project:
+# https://savannah.nongnu.org/projects/zdl
+# 
 # Gianluca Zoni
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
@@ -89,6 +91,10 @@ function separator {
 	if [ ! -z "$COLUMNS" ];then
 		for column in `seq 1 $COLUMNS`; do echo -n -e "\e[1;34m"$1'\e[0m' ; done
 	fi
+}
+
+function header {
+	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"\e[0m\n"
 }
 
 function pseudo_captcha {
@@ -390,9 +396,11 @@ Installazione su Windows in due fasi:
 
 Uso di $PROG su Windows: avviare cygwin e utilizzare $PROG nel terminale avviato, come descritto in questa guida.
 
-$PROG è rilasciato con licenza GPL (General Public Licence).
+$PROG è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
 
-Per informazioni e per collaborare al progetto, puoi contattare lo sviluppatore:
+Per informazioni e per collaborare al progetto:
+https://savannah.nongnu.org/projects/zdl
+
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz
 "	
@@ -529,6 +537,7 @@ function check_dl {
 			fi
 			
 			if [ "$name_stdout" != "" ]; then 
+				
 				head -n 8 "$name_stdout" > $path_tmp/head_stdout
 	
 				namef="${name_stdout//_stdout.tmp}"
@@ -737,7 +746,7 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 	done
 fi
 
-
+header
 print_c 1 "Download con $downloader"
 
 
@@ -881,13 +890,17 @@ while true; do
 				
 				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 				nomefile1="${nomefile1#*'<br> '}"
-				nomefile1="${nomefile1%%' '*}"
+				#nomefile1="${nomefile1%%' '*}"
+				nomefile1="${nomefile1%%</h4>*}"
+				nomefile1="${nomefile1%' '*}"
+				nomefile1="${nomefile1%' '*}"
+				nomefile1="${nomefile1%' '*}"
 				nomefile1="${nomefile1//'<br>'/}"
 				while [ "$nomefile1" != "${nomefile1%.}" ]; do
 					nomefile1=${nomefile1%.}
 				done
-				nomefile2=${link//*\//}
-				nomefile2=${nomefile2#*_}
+				nomefile2="${link//*\//}"
+				nomefile2="${nomefile2#*_}"
 				
 				if [ "$nomefile2" != "${nomefile2//$nomefile1}" ]; then
 					nomefile="$nomefile2"
@@ -1158,8 +1171,9 @@ while true; do
 				if [ "$downloader" = "Axel" ]; then
 					export AXEL_COOKIES=$path_tmp/cookies.zdl
 					print_c 1 "downloading --> $nomefile ..."
-					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-o"
-					axel -n $n "$link" $argout "$fileout" >> "$path_tmp/${nomefile}_stdout.tmp" & # -a tolto
+					[ "$nomefile" != "" ] && argout="-o"
+					# -a tolto
+					axel -n $n "$link" $argout "$nomefile" >> "$path_tmp/${nomefile}_stdout.tmp" & 
 					pid_dl=$!
 					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
@@ -1167,9 +1181,9 @@ while true; do
 					
 				elif [ "$downloader" = "Wget" ]; then
 					print_c 1 "downloading --> $nomefile ..."
-					[ "$nomefile" != "" ] && fileout="$nomefile" && argout="-O"
+					[ "$nomefile" != "" ] && argout="-O"
 					
-					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
+					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --post-data=\"${post_data}\" --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$link" -S $argout "$nomefile" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
 					pid_dl=$!
 					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stdout.tmp"
 					pids_alive[${#pids_alive[*]}]=${pid_dl}
@@ -1201,7 +1215,7 @@ while true; do
 						tot_size="${tot_size%%' '*}"
 						#sleep 2
 					elif [ "$dlr" == "Axel" ]; then
-						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
+						tot_size=`cat "$name_stdout" |grep 'File size'`
 						tot_size="${tot_size#*File size: }"
 						tot_size="${tot_size%% *}"
 					fi
