@@ -1099,25 +1099,28 @@ while true; do
 				token=`less $path_tmp/zdl.tmp | grep token`
 				token=${token//*=}
 				token=${token//\"*/}
-				
 				prelink=${indirizzo//\/dl/\/dl2}"/$token"
-				
 				print_c 2 "Attendi circa 30 secondi:"
 				k=`date +"%s"`
 				s=0
-				while [ "$link" == "" ]; do
+				unset link
+				while true; do
+
 					if (( $s>29 )); then
 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$prelink" &>/dev/null 
 					fi
 					sleep 1
 					s=`date +"%s"`
 					s=$(( $s-$k ))
+					
 					echo -e $s"\r\c"
-					link=`less $path_tmp/zdl2.tmp |grep "Click here to download"`
+					
+					link=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
 					link=${link//*href=\"} 
 					link=${link//\"*}
-				done
-				
+
+					[ ! -z "$link" ] && break
+				done	
 				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 				nomefile1="${nomefile1#*'<br> '}"
 				nomefile1="${nomefile1%%</h4>*}"
@@ -1136,7 +1139,6 @@ while true; do
 				else
 					nomefile="$nomefile1"
 				fi
-				
 	
 	# 		elif [ "$url" != "${url//sharpfile.}" ]; then
 	# 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
