@@ -699,8 +699,8 @@ function check_dl {
 				dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
 		
 				if [ "$dlr" == "Wget" ]; then
-					tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-					tot_size="${tot_size#*Content-Length: }"
+					tot_size=`cat "$name_stdout" |grep "Length:" |tail -n 1`
+					tot_size="${tot_size#*Length: }"
 					tot_size="${tot_size%%' '*}"
 					if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
 						hellip_namef="$namef"
@@ -761,10 +761,9 @@ function check_dl {
 					if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
 						unset already_there
 						if [ "${killed[*]}" == "${killed[*]//$pid}" ]; then # incidentato o completato
-							fsize=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
-
-							if [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ]; then  #incidentato
-								
+							fsize=`ls -l "$namef" | awk '{ print($5) }'`
+							
+							if [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ] && (( $tot_size>0 )); then  #incidentato
 								if [ "$hellip_namef" != "$namef" ] && [ "$hellip_namef" != "" ] ; then
 									rmfile[${#rmfile[*]}]="$path_tmp/$hellip_namef"
 								fi	
@@ -777,6 +776,7 @@ function check_dl {
 							else #completato
 								#rmfile[${#rmfile[*]}]="$name_stdout"
 #								unset nomefile
+								links_loop - "$linkdl"
 								checked=1
 							fi
 						else #suicida 
@@ -787,9 +787,10 @@ function check_dl {
 						fi
 					else 
 					# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
-						rmfile[${#rmfile[*]}]="$name_stdout"
+						#rmfile[${#rmfile[*]}]="$name_stdout"
 #						unset nomefile
 						checked=1
+						links_loop - "$linkdl"
 					fi
 					
 				else
@@ -807,6 +808,8 @@ function check_dl {
 #						unset nomefile
 						checked=1
 					fi
+					links_loop - "$linkdl"
+					pids_alive[${#pids_alive[*]}]=$pid
 				fi
 			fi
 		done
@@ -877,7 +880,8 @@ function check_loop {
 						
 						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
 						
-							rm -f "$nomefile" 
+							rm -f "$nomefile"
+# 							read -p "ckloop !"
 							links_loop + "$indirizzo"
 						else
 							links_loop - "$indirizzo"1
@@ -1498,6 +1502,11 @@ while true; do
 			[ $nodl == 0 ] && break
 		done
 	fi
+	## DEBUG
+# 	[ ! -f "$path_tmp/links_loop.txt" ] && echo "finito loop"
+# 	( [ "${pids_alive[*]}" == "" ] && echo "finito pids" ) || echo "pids: ${pids_alive[*]}"
+	##
+
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "${pids_alive[*]}" == "" ] && break
 done
 
