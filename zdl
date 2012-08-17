@@ -498,143 +498,144 @@ function check_freespace {
 	unset t_size
 }
 
-function kill_dl {
-	if [ "$1" == "sel" ]; then
-		totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
-		if (( $totf>0 )); then
-			if (( $totf>1 )); then 
-				nlines=`seq 1 $totf`
-			else
-				nlines=1
-			fi
-			unset sel
-			n=0
-			for i in $nlines; do
-				unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
-				name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
-				
-				if [ ! -z "$name_stdout" ]; then 
-					
-					head -n 8 "$name_stdout" > $path_tmp/head_stdout
-		
-					namef="${name_stdout//_stdout.tmp}"
-					namef="${namef#$path_tmp/}"
-					pid=`head -n 1 "$path_tmp/head_stdout"`
-					ps a -o pid | while read alive; do
-						if [ "$alive" == "$pid" ]; then
-							touch $path_tmp/killing
-							break
-						fi
-					done
-					
-					if [ -f "$path_tmp/killing" ]; then
-						rm $path_tmp/killing
-						linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
-						linkdl="${linkdl#link_${prog}: }"
+function interactive {
+	
+	totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
+	if (( $totf>0 )); then
+		if (( $totf>1 )); then 
+			nlines=`seq 1 $totf`
+		else
+			nlines=1
+		fi
+		unset sel
+		n=0
+		for i in $nlines; do
+			unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
+			name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
 			
-						dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+			if [ ! -z "$name_stdout" ]; then 
 				
-						if [ "$dlr" == "Wget" ]; then
-							tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-							tot_size="${tot_size#*Content-Length: }"
-							tot_size="${tot_size%%' '*}"
-							if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
-								hellip_namef="$namef"
-								
-								namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
-								namef="${namef#*'filename="'}"
-								namef="${namef%'"'*}"
-								name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
-							fi
-							sleep 3
-							unset progress
-							progress=`tail -n 1 "$name_stdout"`
-						elif [ "$dlr" == "Axel" ]; then
-							tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
-							tot_size="${tot_size#*File size: }"
-							tot_size="${tot_size%% *}"
-							#sleep 1
-							#rm -f "$name_stdout"
-							cat $path_tmp/head_stdout > "$name_stdout"
-							sleep 2
-							unset progress
-							progress=`tail -n 2 "$name_stdout" |grep K `
+				head -n 8 "$name_stdout" > $path_tmp/head_stdout
+	
+				namef="${name_stdout//_stdout.tmp}"
+				namef="${namef#$path_tmp/}"
+				pid=`head -n 1 "$path_tmp/head_stdout"`
+				ps a -o pid | while read alive; do
+					if [ "$alive" == "$pid" ]; then
+						touch $path_tmp/killing
+						break
+					fi
+				done
+				
+				if [ -f "$path_tmp/killing" ]; then
+					rm $path_tmp/killing
+					linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
+					linkdl="${linkdl#link_${prog}: }"
+		
+					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+			
+					if [ "$dlr" == "Wget" ]; then
+						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
+						tot_size="${tot_size#*Content-Length: }"
+						tot_size="${tot_size%%' '*}"
+						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
+							hellip_namef="$namef"
+							
+							namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+							namef="${namef#*'filename="'}"
+							namef="${namef%'"'*}"
+							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
 						fi
-						
-						sel[${#sel[*]}]=$n
-						kpid[$n]=$pid
-						knamef[$n]="$namef" 
-						khellip_namef[$n]="${hellip_namef}"
-						kname_stdout[$n]="$name_stdout"
-						kdlr[$n]=$dlr
-						kprogress[$n]="$progress"
-						klinkdl[$n]="$linkdl"
-						n=$(( $n+1 ))
+						sleep 3
+						unset progress
+						progress=`tail -n 1 "$name_stdout"`
+					elif [ "$dlr" == "Axel" ]; then
+						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
+						tot_size="${tot_size#*File size: }"
+						tot_size="${tot_size%% *}"
+						#sleep 1
+						#rm -f "$name_stdout"
+						cat $path_tmp/head_stdout > "$name_stdout"
+						sleep 2
+						unset progress
+						progress=`tail -n 2 "$name_stdout" |grep K `
 					fi
 					
+					sel[${#sel[*]}]=$n
+					kpid[$n]=$pid
+					knamef[$n]="$namef" 
+					khellip_namef[$n]="${hellip_namef}"
+					kname_stdout[$n]="$name_stdout"
+					kdlr[$n]=$dlr
+					kprogress[$n]="$progress"
+					klinkdl[$n]="$linkdl"
+					n=$(( $n+1 ))
 				fi
-			done
-			if [ $n != 0 ]; then
-				(( n-- ))
-				#show:
-				print_c 1 "Processi di download attualmente in vita:"
-				separator "="
-				for j in `seq 0 $n`; do
-					print_c 1 "Numero download attivo: $j"
-					[ ! -f "${knamef[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
-					echo -e "File: ${knamef[$j]} ${khellip_namef[$j]}
+				
+			fi
+		done
+		if [ $n != 0 ]; then
+			(( n-- ))
+			#show:
+			print_c 1 "Processi di download attualmente in vita:"
+			separator "="
+			for j in `seq 0 $n`; do
+				print_c 1 "Numero download attivo: $j"
+				[ ! -f "${knamef[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
+				echo -e "File: ${knamef[$j]} Alias: ${khellip_namef[$j]}
 Downloader: ${kdlr[$j]}
 Link: ${klinkdl[$j]}
 Progresso: ${kprogress[$j]}"
-					if [ $i != $totf ]; then 
-						separator "-"
-					else
-						separator "="
-					fi
-				done
-				echo
-				print_c 2 "Seleziona i numeri dei download attivi da uccidere, separati da spazi (digita Ctrl+C per uscire subito):"
-				read input
-				inputs=( $input )
-				while [ "$input2" != "d" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
-					print_c 2 "Vuoi che i processi siano terminati definitivamente oppure che siano riavviati automaticamente più tardi? Per uccidere il/i processo/i definitivamente, digita \"d\", per riavviarlo digita \"r\", per terminare il programma senza fare niente digita \"t\": [d | r | t]"
-					read input2
-					if [ "$input2" == "d" ] || [ "$input2" == "r" ]; then
-						for s in ${inputs[*]}; do
-							if [ "${sel[*]}" != "${sel[*]//$s}" ]; then
-								kill ${kpid[$s]}
-								rm -f "${knamef[$s]}" "${khellip_namef[$s]}" "${kname_stdout[$s]}"
-							fi
-						done
-						if [ "$input2" != "d" ]; then
-							if [ -f "$path_tmp/links_loop.txt" ]; then
-								lines=`cat "$path_tmp/links_loop.txt" |wc -l`
-								for line in `seq 1 $lines`; do
-									lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
-									[ "${klinkdl[*]//$lnk}" == "${klinkdl[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-								done
-								mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
-							fi
+				if [ $i != $totf ]; then 
+					separator "-"
+				else
+					separator "="
+				fi
+			done
+			echo
+			print_c 2 "Seleziona i numeri dei download attivi da uccidere, separati da spazi (digita Ctrl+C per uscire subito):"
+			read input
+			inputs=( $input )
+			while [ "$input2" != "d" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
+				print_c 2 "Vuoi che i processi siano terminati definitivamente oppure che siano riavviati automaticamente più tardi? Per uccidere il/i processo/i definitivamente, digita \"d\", per riavviarlo digita \"r\", per terminare il programma senza fare niente digita \"t\": [d | r | t]"
+				read input2
+				if [ "$input2" == "d" ] || [ "$input2" == "r" ]; then
+					for s in ${inputs[*]}; do
+						if [ "${sel[*]}" != "${sel[*]//$s}" ]; then
+							kill ${kpid[$s]}
+							rm -f "${knamef[$s]}" "${khellip_namef[$s]}" "${kname_stdout[$s]}"
 						fi
-					elif [ "$input2" != "t" ]; then
-						print_c 1  "Nessun processo ucciso"
-						exit
+					done
+					if [ "$input2" != "d" ]; then
+						if [ -f "$path_tmp/links_loop.txt" ]; then
+							lines=`cat "$path_tmp/links_loop.txt" |wc -l`
+							for line in `seq 1 $lines`; do
+								lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
+								[ "${klinkdl[*]//$lnk}" == "${klinkdl[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+							done
+							mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+						fi
 					fi
-				done
-			else
-				print_c 1  "Nessun download attivo di $PROG rilevato"
-			fi
-			unset sel input knamef khellip_namef kname_stdout 
+				elif [ "$input2" != "t" ]; then
+					print_c 1  "Nessun processo ucciso"
+					exit
+				fi
+			done
 		else
-			print_c 1 "Nessun download di $PROG rilevato"
+			print_c 1  "Nessun download attivo di $PROG rilevato"
 		fi
-		exit
+		unset sel input knamef khellip_namef kname_stdout 
 	else
-		#read -p "STA PER UCCIDERE!"
-		kill ${pid_dl}
-		killed[${#killed[*]}]=${pid_dl}
-		unset pid_dl
+		print_c 1 "Nessun download di $PROG rilevato"
 	fi
+	exit
+}
+
+function kill_dl {
+	kill ${pid_dl}
+	killed[${#killed[*]}]=${pid_dl}
+	unset pid_dl
+
 }
 
 function check_dl {
@@ -711,7 +712,7 @@ function check_dl {
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download ancora da avviare..."
 				elif [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
-					progress="Download completato"
+					progress="Download completato5"
 				fi
 				echo "$progress"
 				if [ $i != $totf ]; then 
@@ -862,7 +863,7 @@ separator z
 for arg in $@ ; do
 	case "$arg" in
 		-i|--interactive)
-			kill_dl sel
+			interactive
 			;;
 		-clean)
 			( rm -r "$path_tmp"/* && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
