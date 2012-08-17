@@ -709,7 +709,7 @@ function check_dl {
 				sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
 				echo "File: $namef - $dlr: $linkdl"
 				if [ ! -f $path_tmp/alive ]; then
-					progress="Download ancora da avviare..."
+					progress="Download non attivo"
 				fi
 				if [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
 					progress="Download completato"
