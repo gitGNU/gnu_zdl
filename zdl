@@ -1514,8 +1514,9 @@ separator "-"
 print_c 1 "Tutti i link per il download sono stati processati."
 separator "-"
 
-test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
-[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
+#test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
+#[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
+rm -r "$path_tmp"
 
 echo
 echo
