@@ -870,7 +870,7 @@ for arg in $@ ; do
 			interactive
 			;;
 		-clean)
-			( rm -r "$path_tmp"/* && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
+			( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)"
 			;;
 		-u | --update)
 			print_c 1 "Aggiornamento di $PROG ..."
