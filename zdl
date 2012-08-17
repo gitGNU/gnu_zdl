@@ -581,11 +581,10 @@ function interactive {
 			separator "="
 			for j in `seq 0 $n`; do
 				print_c 1 "Numero download attivo: $j"
-				[ ! -f "${knamef[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
-				echo -e "File: ${knamef[$j]} Alias: ${khellip_namef[$j]}
-Downloader: ${kdlr[$j]}
-Link: ${klinkdl[$j]}
-Progresso: ${kprogress[$j]}"
+				[ ! -f "${knamef[$j]}" ] && [ ! -f "${kname_stdout[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
+				echo -e "File: ${knamef[$j]}" 
+				[ ! -z "${khellip_namef[$j]}" ] && echo "Alias: ${khellip_namef[$j]}"
+				echo -e "Downloader: ${kdlr[$j]}\nLink: ${klinkdl[$j]}\nProgresso: ${kprogress[$j]}"
 				if [ $i != $totf ]; then 
 					separator "-"
 				else
@@ -712,7 +711,7 @@ function check_dl {
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download ancora da avviare..."
 				elif [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
-					progress="Download completato5"
+					progress="Download completato"
 				fi
 				echo "$progress"
 				if [ $i != $totf ]; then 
@@ -769,6 +768,9 @@ function check_dl {
 						kill $pid
 					elif [ "$pid" != "$pid_dl" ] && [ "$newname" == "$namef" ];then
 						return 5
+					elif [ "$pid" == "$pid_dl" ] && [ "$newname" == "$namef" ] && [ -f "$hellip_namef" ] && [ -f "$namef" ];then
+						rm -f "$hellip_namef"
+						kill $pid
 					fi 
 					rm $path_tmp/alive
 					if [ "$multi" == "1" ]; then
@@ -838,6 +840,7 @@ function check_loop {
 					
 					sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
 					sizehellip=`ls -l "$hellip_namef" 2>/dev/null| awk '{ print($5) }'`
+					[ -z "$sizehellip" ] && sizehellip=0
 					if [ ! -z "$sizef" ] || [ ! -z "$sizef" ]; then
 						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
 							echo "$indirizzo" >> $path_tmp/links_loop.txt
@@ -1415,7 +1418,6 @@ while true; do
 					newname="${newname#*'filename="'}"
 					newname="${newname%'"'*}"
 					if [ "$newname" != "" ]; then
-						
 						check_dl
 						
 						if [ $? == 5 ]; then
