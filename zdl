@@ -339,7 +339,7 @@ function _log {
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [nomefile] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean]"
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [nomefile] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean] [-i|--interactive]"
 	echo
 	echo -e "$PROG è abilitato per il download da nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net
 
@@ -369,6 +369,8 @@ Se i file interrotti sono stati scaricati con Wget, non possono essere recuperat
 L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
 
 L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
+
+La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
 
 Per aggiornate $PROG è sufficiente usare l'argomento -u (--update).
 
@@ -487,6 +489,7 @@ function check_freespace {
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
 			elif [ $t_size != 0 ] && (( $freespace<$t_size )); then
+#				read -p "STA PER UCCIDERE!"
 				kill_dl
 				_log 6
 			fi
@@ -496,9 +499,142 @@ function check_freespace {
 }
 
 function kill_dl {
-	kill ${pid_dl}
-	killed=${pid_dl}
-	unset pid_dl
+	if [ "$1" == "sel" ]; then
+		totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
+		if (( $totf>0 )); then
+			if (( $totf>1 )); then 
+				nlines=`seq 1 $totf`
+			else
+				nlines=1
+			fi
+			unset sel
+			n=0
+			for i in $nlines; do
+				unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
+				name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
+				
+				if [ ! -z "$name_stdout" ]; then 
+					
+					head -n 8 "$name_stdout" > $path_tmp/head_stdout
+		
+					namef="${name_stdout//_stdout.tmp}"
+					namef="${namef#$path_tmp/}"
+					pid=`head -n 1 "$path_tmp/head_stdout"`
+					ps a -o pid | while read alive; do
+						if [ "$alive" == "$pid" ]; then
+							touch $path_tmp/killing
+							break
+						fi
+					done
+					
+					if [ -f "$path_tmp/killing" ]; then
+						rm $path_tmp/killing
+						linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
+						linkdl="${linkdl#link_${prog}: }"
+			
+						dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+				
+						if [ "$dlr" == "Wget" ]; then
+							tot_size=`cat "$name_stdout" |grep "Content-Length:"`
+							tot_size="${tot_size#*Content-Length: }"
+							tot_size="${tot_size%%' '*}"
+							if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
+								hellip_namef="$namef"
+								
+								namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+								namef="${namef#*'filename="'}"
+								namef="${namef%'"'*}"
+								name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
+							fi
+							sleep 3
+							unset progress
+							progress=`tail -n 1 "$name_stdout"`
+						elif [ "$dlr" == "Axel" ]; then
+							tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
+							tot_size="${tot_size#*File size: }"
+							tot_size="${tot_size%% *}"
+							#sleep 1
+							#rm -f "$name_stdout"
+							cat $path_tmp/head_stdout > "$name_stdout"
+							sleep 2
+							unset progress
+							progress=`tail -n 2 "$name_stdout" |grep K `
+						fi
+						
+						sel[${#sel[*]}]=$n
+						kpid[$n]=$pid
+						knamef[$n]="$namef" 
+						khellip_namef[$n]="${hellip_namef}"
+						kname_stdout[$n]="$name_stdout"
+						kdlr[$n]=$dlr
+						kprogress[$n]="$progress"
+						klinkdl[$n]="$linkdl"
+						n=$(( $n+1 ))
+					fi
+					
+				fi
+			done
+			if [ $n != 0 ]; then
+				(( n-- ))
+				#show:
+				print_c 1 "Processi di download attualmente in vita:"
+				separator "="
+				for j in `seq 0 $n`; do
+					print_c 1 "Numero download attivo: $j"
+					[ ! -f "${knamef[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
+					echo -e "File: ${knamef[$j]} ${khellip_namef[$j]}
+Downloader: ${kdlr[$j]}
+Link: ${klinkdl[$j]}
+Progresso: ${kprogress[$j]}"
+					if [ $i != $totf ]; then 
+						separator "-"
+					else
+						separator "="
+					fi
+				done
+				echo
+				print_c 2 "Seleziona i numeri dei download attivi da uccidere, separati da spazi (digita Ctrl+C per uscire subito):"
+				read input
+				inputs=( $input )
+				while [ "$input2" != "d" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
+					print_c 2 "Vuoi che i processi siano terminati definitivamente oppure che siano riavviati automaticamente più tardi? Per uccidere il/i processo/i definitivamente, digita \"d\", per riavviarlo digita \"r\", per terminare il programma senza fare niente digita \"t\": [d | r | t]"
+					read input2
+					if [ "$input2" == "d" ] || [ "$input2" == "r" ]; then
+						for s in ${inputs[*]}; do
+							if [ "${sel[*]}" != "${sel[*]//$s}" ]; then
+								kill ${kpid[$s]}
+								rm -f "${knamef[$s]}" "${khellip_namef[$s]}" "${kname_stdout[$s]}"
+							fi
+						done
+						if [ "$input2" != "d" ]; then
+							if [ -f "$path_tmp/links_loop.txt" ]; then
+								lines=`cat "$path_tmp/links_loop.txt" |wc -l`
+								for line in `seq 1 $lines`; do
+									lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
+									[ "${klinkdl[*]//$lnk}" == "${klinkdl[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+								done
+								mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+							fi
+						fi
+					elif [ "$input2" != "t" ]; then
+						print_c 1  "Nessun processo ucciso"
+						exit
+					fi
+				done
+			else
+				print_c 1  "Nessun download attivo di $PROG rilevato"
+			fi
+			unset sel input knamef khellip_namef kname_stdout 
+		else
+			print_c 1 "Nessun download di $PROG rilevato"
+		fi
+		exit
+	else
+		#read -p "STA PER UCCIDERE!"
+		kill ${pid_dl}
+		killed[${#killed[*]}]=${pid_dl}
+		unset pid_dl
+	fi
 }
 
 function check_dl {
@@ -568,11 +704,14 @@ function check_dl {
 						break
 					fi
 				done
-
+				
 				#show:
-				echo "File: $namef - Downloader: $dlr"
+				sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
+				echo "File: $namef - $dlr: $linkdl"
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download ancora da avviare..."
+				elif [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
+					progress="Download completato"
 				fi
 				echo "$progress"
 				if [ $i != $totf ]; then 
@@ -602,27 +741,38 @@ function check_dl {
 								
 								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
 								[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
-								unset nomefile
+#								unset nomefile
+								checked=1
 							
 							else #completato
-								rmfile[${#rmfile[*]}]="$name_stdout"
-								unset nomefile
+								#rmfile[${#rmfile[*]}]="$name_stdout"
+#								unset nomefile
+								checked=1
 							fi
 						else #suicida 
 							rmfile[${#rmfile[*]}]="$namef"
-							unset nomefile
+#							unset nomefile
+							checked=1
 							killed[${#killed[*]}]=$pid
 						fi
 					else 
 					# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
 						rmfile[${#rmfile[*]}]="$name_stdout"
-						unset nomefile
+#						unset nomefile
+						checked=1
 					fi
 					
 				else
+					if [ ! -f "$namef" ] && [ ! -f "$hellip_namef" ]; then
+						killed[${#killed[*]}]=$pid
+						kill $pid
+					elif [ "$pid" != "$pid_dl" ] && [ "$newname" == "$namef" ];then
+						return 5
+					fi 
 					rm $path_tmp/alive
 					if [ "$multi" == "1" ]; then
-						unset nomefile
+#						unset nomefile
+						checked=1
 					fi
 				fi
 			fi
@@ -638,7 +788,63 @@ function check_dl {
 			done
 		fi
 	else
-		unset nomefile
+#		unset nomefile
+		checked=1
+	fi
+	rm -f $path_tmp/alive
+}
+
+function check_loop {
+	if [ -f "$nomefile" ]; then
+		totf=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | wc -l`
+		if (( $totf>0 )); then
+			if (( $totf>1 )); then 
+				nlines=`seq 1 $totf`
+			else
+				nlines=1
+			fi
+			unset sel
+			n=0
+			for i in $nlines; do
+				unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
+				name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
+				
+				if [ ! -z "$name_stdout" ]; then 
+					
+					head -n 8 "$name_stdout" > $path_tmp/head_stdout
+		
+					namef="${name_stdout//_stdout.tmp}"
+					namef="${namef#$path_tmp/}"
+					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+			
+					if [ "$dlr" == "Wget" ]; then
+						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
+						tot_size="${tot_size#*Content-Length: }"
+						tot_size="${tot_size%%' '*}"
+						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
+							hellip_namef="$namef"
+							
+							namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+							namef="${namef#*'filename="'}"
+							namef="${namef%'"'*}"
+							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
+						fi
+					elif [ "$dlr" == "Axel" ]; then
+						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
+						tot_size="${tot_size#*File size: }"
+						tot_size="${tot_size%% *}"
+					fi
+					
+					sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
+					sizehellip=`ls -l "$hellip_namef" 2>/dev/null| awk '{ print($5) }'`
+					if [ ! -z "$sizef" ] || [ ! -z "$sizef" ]; then
+						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
+							echo "$indirizzo" >> $path_tmp/links_loop.txt
+						fi
+					fi
+				fi
+			done
+		fi
 	fi
 }
 
@@ -648,10 +854,16 @@ if [ -f "$conf" ]; then
 else
 	downloader=Axel
 fi
-
-
+################################### HEADER
+#separator z
+header
+separator z
+###################################
 for arg in $@ ; do
 	case "$arg" in
+		-i|--interactive)
+			kill_dl sel
+			;;
 		-clean)
 			( rm -r "$path_tmp"/* && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non riuscita"
 			;;
@@ -735,7 +947,7 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 	done
 fi
 
-header
+
 print_c 1 "Download con $downloader"
 
 
@@ -776,8 +988,7 @@ while true; do
 		
 		while [ $riga != $stop ]; do
 			[ ! -z "$pid_dl" ] && check_freespace
-			unset pid_dl
-			unset hellip
+			unset pid_dl checked
 			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
 			ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
 				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
@@ -1111,7 +1322,8 @@ while true; do
 				fi
 			fi
 			
-			
+# 			check_dl
+# 			unset checked
 			#### DOWNLOAD ####
 			
 			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ]; then
@@ -1120,6 +1332,7 @@ while true; do
 			elif ( [ -f "${nomefile}" ] || [ -f "${path_tmp}/${nomefile}" ] ) && [ "$downloader" = "Wget" ]; then
 				_log 1
 				no_newip=true
+				check_loop
 			elif [ ! -z "$not_available" ]; then
 				[ "$indirizzo" != "" ] && _log 3
 				no_newip=true
@@ -1175,6 +1388,7 @@ while true; do
 				echo -e "  \r\c"
 				
 				####################################
+				# check free space
 				if [ ! -z "$pid_dl" ]; then
 					name_stdout=`ls -1 "$path_tmp/${nomefile}_stdout.tmp"`
 					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
@@ -1193,21 +1407,27 @@ while true; do
 					check_freespace
 				fi
 				####################################
-				
-					if [ -f "$nomefile" ] && [ "$nomefile" != "${nomefile//.uploaded.hellip.tmp}" ]; then
-						unset quit
-						unset newname
-						newname=`cat $path_tmp/${nomefile}_stdout.tmp |grep filename`
-						newname="${newname#*'filename="'}"
-						newname="${newname%'"'*}"
-						if [ "$newname" != "" ]; then
-							if [ ! -f "$newname" ]; then
-								mv "$nomefile" "$newname"
-								print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
-							fi
-							echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
+				# hellip
+				if [ -f "$nomefile" ] && [ "$nomefile" != "${nomefile//.uploaded.hellip.tmp}" ]; then
+					unset quit newname pid 
+					newname=`cat $path_tmp/${nomefile}_stdout.tmp |grep filename`
+					newname="${newname#*'filename="'}"
+					newname="${newname%'"'*}"
+					if [ "$newname" != "" ]; then
+						
+						check_dl
+						
+						if [ $? == 5 ]; then
+							kill_dl
+							rm -f  "$nomefile"
+						elif [ ! -f "$newname" ]; then
+							mv "$nomefile" "$newname"
+							print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
 						fi
+						echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
+						unset checked
 					fi
+				fi
 				unset no_newip
 			fi
 			if [ -z $no_newip ]; then
@@ -1222,9 +1442,9 @@ while true; do
 			noproxy
 			if [ $multi == 1 ]; then 
 				check_dl
+				checked=1
 			fi
-
-			while [ ! -z "$nomefile" ]; do
+			while [ -z "$checked" ]; do #nomefile
 				check_dl
 				sleep 3
 			done
