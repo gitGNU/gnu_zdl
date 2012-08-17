@@ -333,7 +333,7 @@ function _log {
 			fi
 			print_c 3  "$indirizzo --> File ${nomefile}${link_log}non disponibile, riprovo più tardi"  | tee -a $file_log
 			echo
-			if [ "$indirizzo" != "" ]; then echo $indirizzo >> $path_tmp/links_loop.txt ; fi
+			links_loop + "$indirizzo"
 			;;
 		3)
 			echo
@@ -544,7 +544,7 @@ function interactive {
 				namef="${name_stdout//_stdout.tmp}"
 				namef="${namef#$path_tmp/}"
 				pid=`head -n 1 "$path_tmp/head_stdout"`
-				ps a -o pid | while read alive; do
+				ps au | awk '{print $2}' | while read alive; do
 					if [ "$alive" == "$pid" ]; then
 						touch $path_tmp/killing
 						break
@@ -727,7 +727,7 @@ function check_dl {
 				#[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
 								
 				#check pid:
-				ps a -o pid | while read alive; do
+				ps au | awk '{print $2}'  | while read alive; do
 					if [ "$alive" == "$pid" ]; then
 						touch $path_tmp/alive
 						break
@@ -770,7 +770,6 @@ function check_dl {
 								fi	
 								
 								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
-								#[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
 								links_loop + "$linkdl"
 #								unset nomefile
 								checked=1
@@ -1057,26 +1056,6 @@ while true; do
 			url=${indirizzo//\?*}
 			mkdir $path_tmp 2>/dev/null
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
-# 			if [ -f "$path_tmp/links_loop.txt" ]; then
-# 				mv $path_tmp/links_loop.txt $path_tmp/links_loop.tmp
-# 				
-# 				max=`wc -l $path_tmp/links_loop.tmp | awk '{ print($1) }'`
-# 				max=$(( $max+1 ))
-# 				i=1
-# 				while [ $i != $max ]; do
-# 					line=`cat $path_tmp/links_loop.tmp |sed -n "${i}p"`
-# 					if [ "${line//$indirizzo}" != "" ]; then echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt ; fi
-# 					#echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt
-# 					(( i++ ))
-# 				done
-# 				rm $path_tmp/links_loop.tmp
-# 				
-# 				text=`cat $path_tmp/links_loop.txt 2>/dev/null`
-# 				text=${text// /}
-# 				if [ "$text" == "" ]; then
-# 					rm -f $path_tmp/links_loop.txt
-# 				fi
-# 			fi
 			links_loop - $indirizzo
 			echo
 			echo
