@@ -86,6 +86,28 @@ function header {
 	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"\e[0m\n"
 }
 
+
+function links_loop { #usage with op=+|- : links $op $link
+	op="$1"
+	link="$2"
+	if [ "$op" == "+" ]; then
+		[ ! -z "$link" ] && echo "$link" >> $path_tmp/links_loop.txt
+	elif [ "$op" == "-" ]; then
+		#togliere indirizzo da loop
+		if [ -f "$path_tmp/links_loop.txt" ]; then
+			lines=`cat "$path_tmp/links_loop.txt" |wc -l`
+			for line in `seq 1 $lines`; do
+				lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
+				[ "${link[*]//$lnk}" == "${link[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+			done
+			mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+			links=`cat $path_tmp/links_loop.txt`
+			[ -z "$links" ] && rm $path_tmp/links_loop.txt
+		fi
+	fi
+	
+}
+
 function pseudo_captcha {
 	j=0
 	for cod in ${ascii_dec[*]}; do 
@@ -370,9 +392,11 @@ L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Ax
 
 L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
 
-La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
+La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
 
-Per aggiornate $PROG è sufficiente usare l'argomento -u (--update).
+È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in uploaded e in easybytez. Si consiglia di usare tutti i link disponili, sia quelli di easybytez che quelli di uploaded: $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
+
+Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
 
 $PROG funziona anche su Windows. 
 Installazione su Windows in due fasi:
@@ -596,7 +620,12 @@ function interactive {
 			read input
 			inputs=( $input )
 			while [ "$input2" != "d" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
-				print_c 2 "Vuoi che i processi siano terminati definitivamente oppure che siano riavviati automaticamente più tardi? Per uccidere il/i processo/i definitivamente, digita \"d\", per riavviarlo digita \"r\", per terminare il programma senza fare niente digita \"t\": [d | r | t]"
+				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
+				echo
+				echo -e "	d) per ucciderli definitivamente (e cancellare il file), digita \"d\"
+	r) per riavviarli digita \"r\"
+	t) per terminare il programma senza fare niente digita \"t\""
+				print_c 2 "Scegli cosa fare: [d | r | t]"
 				read input2
 				if [ "$input2" == "d" ] || [ "$input2" == "r" ]; then
 					for s in ${inputs[*]}; do
@@ -741,7 +770,8 @@ function check_dl {
 								fi	
 								
 								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
-								[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
+								#[ "$linkdl" != "" ] && echo "$linkdl" >> $path_tmp/links_loop.txt
+								links_loop + "$linkdl"
 #								unset nomefile
 								checked=1
 							
@@ -842,11 +872,21 @@ function check_loop {
 					sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
 					sizehellip=`ls -l "$hellip_namef" 2>/dev/null| awk '{ print($5) }'`
 					[ -z "$sizehellip" ] && sizehellip=0
-					if [ ! -z "$sizef" ] || [ ! -z "$sizef" ]; then
+					[ -z "$sizef" ] && sizef=0
+					
+					if ( [ ! -z "$sizef" ] || [ ! -z "$sizehellip" ] ) && [ ! -z "$tot_size" ]; then
+						
 						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
-							[ ! -z "$indirizzo" ] && echo "$indirizzo" >> $path_tmp/links_loop.txt
+						
+							rm -f "$nomefile" 
+							links_loop + "$indirizzo"
+						else
+							links_loop - "$indirizzo"1
 						fi
+					else
+						links_loop - "$indirizzo"
 					fi
+					unset sizef sizehellip
 				fi
 			done
 		fi
@@ -1017,26 +1057,27 @@ while true; do
 			url=${indirizzo//\?*}
 			mkdir $path_tmp 2>/dev/null
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
-			if [ -f "$path_tmp/links_loop.txt" ]; then
-				mv $path_tmp/links_loop.txt $path_tmp/links_loop.tmp
-				
-				max=`wc -l $path_tmp/links_loop.tmp | awk '{ print($1) }'`
-				max=$(( $max+1 ))
-				i=1
-				while [ $i != $max ]; do
-					line=`cat $path_tmp/links_loop.tmp |sed -n "${i}p"`
-					if [ "${line//$indirizzo}" != "" ]; then echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt ; fi
-					#echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt
-					(( i++ ))
-				done
-				rm $path_tmp/links_loop.tmp
-				
-				text=`cat $path_tmp/links_loop.txt 2>/dev/null`
-				text=${text// /}
-				if [ "$text" == "" ]; then
-					rm -f $path_tmp/links_loop.txt
-				fi
-			fi
+# 			if [ -f "$path_tmp/links_loop.txt" ]; then
+# 				mv $path_tmp/links_loop.txt $path_tmp/links_loop.tmp
+# 				
+# 				max=`wc -l $path_tmp/links_loop.tmp | awk '{ print($1) }'`
+# 				max=$(( $max+1 ))
+# 				i=1
+# 				while [ $i != $max ]; do
+# 					line=`cat $path_tmp/links_loop.tmp |sed -n "${i}p"`
+# 					if [ "${line//$indirizzo}" != "" ]; then echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt ; fi
+# 					#echo "${line//$indirizzo}" >> $path_tmp/links_loop.txt
+# 					(( i++ ))
+# 				done
+# 				rm $path_tmp/links_loop.tmp
+# 				
+# 				text=`cat $path_tmp/links_loop.txt 2>/dev/null`
+# 				text=${text// /}
+# 				if [ "$text" == "" ]; then
+# 					rm -f $path_tmp/links_loop.txt
+# 				fi
+# 			fi
+			links_loop - $indirizzo
 			echo
 			echo
 			separator "Z"
