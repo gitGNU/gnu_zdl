@@ -100,7 +100,7 @@ function links_loop { #usage with op=+|- : links $op $link
 				lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
 				[ "${link[*]//$lnk}" == "${link[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
 			done
-			mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+			[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 			links=`cat $path_tmp/links_loop.txt`
 			[ -z "$links" ] && rm $path_tmp/links_loop.txt
 		fi
@@ -641,7 +641,7 @@ function interactive {
 								lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
 								[ "${klinkdl[*]//$lnk}" == "${klinkdl[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
 							done
-							mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+							[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 						fi
 					fi
 				elif [ "$input2" != "t" ]; then
@@ -740,7 +740,7 @@ function check_dl {
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download non attivo"
 				fi
-				if [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
+				if [ -f "$namef" ] && [ ! -f "${namef}.st" ] && [ "$sizef" == "$tot_size" ];then
 					progress="Download completato"
 				fi
 				echo "$progress"
