@@ -570,19 +570,21 @@ function interactive {
 							namef="${namef%'"'*}"
 							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
 						fi
-						sleep 3
+					#	sleep 3
 						unset progress
 						progress=`tail -n 1 "$name_stdout"`
+						cat $path_tmp/head_stdout > "$name_stdout"
 					elif [ "$dlr" == "Axel" ]; then
 						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
 						tot_size="${tot_size#*File size: }"
 						tot_size="${tot_size%% *}"
 						#sleep 1
 						#rm -f "$name_stdout"
-						cat $path_tmp/head_stdout > "$name_stdout"
-						sleep 2
+					#	cat $path_tmp/head_stdout > "$name_stdout"
+					#	sleep 2
 						unset progress
 						progress=`tail -n 2 "$name_stdout" |grep K `
+						cat $path_tmp/head_stdout > "$name_stdout"
 					fi
 					
 					sel[${#sel[*]}]=$n
@@ -710,19 +712,21 @@ function check_dl {
 						namef="${namef%'"'*}"
 						name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
 					fi
-					sleep 3
+					#sleep 3
 					unset progress
 					progress=`tail -n 1 "$name_stdout"`
+					cat $path_tmp/head_stdout > "$name_stdout"
 				elif [ "$dlr" == "Axel" ]; then
 					tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
 					tot_size="${tot_size#*File size: }"
 					tot_size="${tot_size%% *}"
 					#sleep 1
 					#rm -f "$name_stdout"
-					cat $path_tmp/head_stdout > "$name_stdout"
-					sleep 2
+					#cat $path_tmp/head_stdout > "$name_stdout"
+					#sleep 2
 					unset progress
 					progress=`tail -n 2 "$name_stdout" |grep K `
+					cat $path_tmp/head_stdout > "$name_stdout"
 				fi
 				#[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
 								
@@ -1477,7 +1481,7 @@ while true; do
 			fi
 			while [ -z "$checked" ]; do #nomefile
 				check_dl
-				sleep 3
+				sleep 4
 			done
 			
 			sleep 1
@@ -1491,7 +1495,7 @@ while true; do
 		unset file
 		while true; do 
 			check_dl
-			sleep 3
+			sleep 4
 			if [ -f "$path_tmp/links_loop.txt" ]; then
 				file="$path_tmp/links_loop.txt"
 				break
