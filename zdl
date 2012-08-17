@@ -710,7 +710,8 @@ function check_dl {
 				echo "File: $namef - $dlr: $linkdl"
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download ancora da avviare..."
-				elif [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
+				fi
+				if [ -f "$namef" ] && [ "$sizef" == "$tot_size" ];then
 					progress="Download completato"
 				fi
 				echo "$progress"
@@ -843,7 +844,7 @@ function check_loop {
 					[ -z "$sizehellip" ] && sizehellip=0
 					if [ ! -z "$sizef" ] || [ ! -z "$sizef" ]; then
 						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
-							echo "$indirizzo" >> $path_tmp/links_loop.txt
+							[ ! -z "$indirizzo" ] && echo "$indirizzo" >> $path_tmp/links_loop.txt
 						fi
 					fi
 				fi
@@ -1009,9 +1010,10 @@ while true; do
 					fi
 				fi
 			done
-			indirizzo=`less $file |sed -n "${riga}p"`
-			(( riga++ ))
-			
+			#while [ ! -z "$indirizzo" ];do
+				indirizzo=`less $file |sed -n "${riga}p"`
+				(( riga++ ))
+			#fi
 			url=${indirizzo//\?*}
 			mkdir $path_tmp 2>/dev/null
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
