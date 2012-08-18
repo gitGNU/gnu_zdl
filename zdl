@@ -1038,7 +1038,7 @@ while true; do
 		
 		while [ $riga != $stop ]; do
 			[ ! -z "$pid_dl" ] && check_freespace
-			unset pid_dl checked
+			unset pid_dl checked nomefile
 			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
 			ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
 				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
@@ -1056,13 +1056,12 @@ while true; do
 				fi
 			done
 			#while [ ! -z "$indirizzo" ];do
-				indirizzo=`less $file |sed -n "${riga}p"`
-				(( riga++ ))
+			indirizzo=`less $file |sed -n "${riga}p"`
+			(( riga++ ))
 			#fi
 			url=${indirizzo//\?*}
 			mkdir $path_tmp 2>/dev/null
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
-			links_loop - $indirizzo
 			echo
 			echo
 			separator "Z"
