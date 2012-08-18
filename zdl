@@ -513,7 +513,7 @@ function check_freespace {
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
 			elif [ $t_size != 0 ] && (( $freespace<$t_size )); then
-#				read -p "STA PER UCCIDERE!"
+				read -p "STA PER UCCIDERE!"
 				kill_dl
 				_log 6
 			fi
@@ -539,51 +539,40 @@ function interactive {
 			
 			if [ ! -z "$name_stdout" ]; then 
 				
-				head -n 8 "$name_stdout" > $path_tmp/head_stdout
+				head -n 20 "$name_stdout" > $path_tmp/head_stdout
 	
 				namef="${name_stdout//_stdout.tmp}"
 				namef="${namef#$path_tmp/}"
 				pid=`head -n 1 "$path_tmp/head_stdout"`
 				ps au | awk '{print $2}' | while read alive; do
 					if [ "$alive" == "$pid" ]; then
-						touch $path_tmp/killing
+						touch $path_tmp/interactive
 						break
 					fi
 				done
 				
-				if [ -f "$path_tmp/killing" ]; then
-					rm $path_tmp/killing
+				if [ -f $path_tmp/interactive ]; then
+					rm $path_tmp/interactive
 					linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
 					linkdl="${linkdl#link_${prog}: }"
 		
-					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+					dlr=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
 			
 					if [ "$dlr" == "Wget" ]; then
-						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-						tot_size="${tot_size#*Content-Length: }"
-						tot_size="${tot_size%%' '*}"
 						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
 							hellip_namef="$namef"
 							
-							namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+							namef=`cat "$path_tmp/head_stdout" |grep filename`
 							namef="${namef#*'filename="'}"
 							namef="${namef%'"'*}"
 							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
 						fi
-					#	sleep 3
 						unset progress
 						progress=`tail -n 1 "$name_stdout"`
 						cat $path_tmp/head_stdout > "$name_stdout"
 					elif [ "$dlr" == "Axel" ]; then
-						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
-						tot_size="${tot_size#*File size: }"
-						tot_size="${tot_size%% *}"
-						#sleep 1
-						#rm -f "$name_stdout"
-					#	cat $path_tmp/head_stdout > "$name_stdout"
-					#	sleep 2
 						unset progress
-						progress=`tail -n 2 "$name_stdout" |grep K `
+						progress=`tail "$name_stdout" |grep K |grep % |tail -n 1`
 						cat $path_tmp/head_stdout > "$name_stdout"
 					fi
 					
@@ -662,6 +651,7 @@ function interactive {
 }
 
 function kill_dl {
+	read -p "funzione kill_dl"
 	kill ${pid_dl}
 	killed[${#killed[*]}]=${pid_dl}
 	unset pid_dl
@@ -672,6 +662,7 @@ function check_dl {
 	totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
 	if (( $totf>0 )); then
 		unset name_stdout fname fsize
+		echo
 		print_c 1 "Downloading..."
 		separator "="
 		unset indirizzo
@@ -690,7 +681,7 @@ function check_dl {
 			
 			if [ "$name_stdout" != "" ]; then 
 				
-				head -n 8 "$name_stdout" > $path_tmp/head_stdout
+				head -n 20 "$name_stdout" > $path_tmp/head_stdout
 	
 				namef="${name_stdout//_stdout.tmp}"
 				namef="${namef#$path_tmp/}"
@@ -698,16 +689,17 @@ function check_dl {
 				linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
 				linkdl="${linkdl#link_${prog}: }"
 	
-				dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+				dlr=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
 		
 				if [ "$dlr" == "Wget" ]; then
-					tot_size=`cat "$name_stdout" |grep "Length:" |tail -n 1`
+					tot_size=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
 					tot_size="${tot_size#*Length: }"
 					tot_size="${tot_size%%' '*}"
+					[ "$tot_size" == "unspecified" ] && tot_size=0
 					if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
 						hellip_namef="$namef"
 						
-						namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+						namef=`cat $path_tmp/head_stdout |grep filename`
 						namef="${namef#*'filename="'}"
 						namef="${namef%'"'*}"
 						name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
@@ -725,7 +717,7 @@ function check_dl {
 					#cat $path_tmp/head_stdout > "$name_stdout"
 					#sleep 2
 					unset progress
-					progress=`tail -n 2 "$name_stdout" |grep K `
+					progress=`tail "$name_stdout" | grep % | grep K | tail -n 1 `
 					cat $path_tmp/head_stdout > "$name_stdout"
 				fi
 				#[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
@@ -739,8 +731,9 @@ function check_dl {
 				done
 				
 				#show:
-				sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
-				echo "File: $namef - $dlr: $linkdl"
+				sizef=0
+				[ -f "$namef" ] && sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
+				echo -e "File: $namef - Downloader: $dlr\nLink: $linkdl"
 				if [ ! -f $path_tmp/alive ]; then
 					progress="Download non attivo"
 				fi
@@ -748,7 +741,7 @@ function check_dl {
 					progress="Download completato"
 				fi
 				echo "$progress"
-				if [ $i != $totf ]; then 
+				if [ $i != $totf ] && [ "$multi" == "1" ]; then 
 					separator "-"
 				else
 					separator "="
@@ -760,23 +753,23 @@ function check_dl {
 					var_pids="${var_pids//$pid/-}"
 					var_pids="${var_pids//-}"
 					pids_alive=( $var_pids )
-					
+					( [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] ) && rm "$name_stdout"
 					already_there=`cat "$name_stdout"|grep 'already there; not retrieving.'`
 					if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
 						unset already_there
 						if [ "${killed[*]}" == "${killed[*]//$pid}" ]; then # incidentato o completato
-							fsize=`ls -l "$namef" | awk '{ print($5) }'`
+							fsize=0
+							[ -f "$namef" ] && fsize=`ls -l "$namef" | awk '{ print($5) }'`
 							
-							if [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ] && (( $tot_size>0 )); then  #incidentato
+							if ( [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ] && (( $tot_size>0 )) ) || [ "$tot_size" == "0" ]; then  #incidentato
 								if [ "$hellip_namef" != "$namef" ] && [ "$hellip_namef" != "" ] ; then
 									rmfile[${#rmfile[*]}]="$path_tmp/$hellip_namef"
 								fi	
 								
 								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
 								links_loop + "$linkdl"
-#								unset nomefile
+								rmfile[${#rmfile[*]}]="$name_stdout"
 								checked=1
-							
 							else #completato
 								#rmfile[${#rmfile[*]}]="$name_stdout"
 #								unset nomefile
@@ -816,6 +809,7 @@ function check_dl {
 					pids_alive[${#pids_alive[*]}]=$pid
 				fi
 			fi
+			#rm -f $path_tmp/alive
 		done
 		if [ "${#rmfile[*]}" != "0" ] && [ ! -z "${#rmfile[*]}" ]; then
 			for rmf in `seq 0 $(( ${#rmfile[*]}-1 ))`; do
@@ -831,7 +825,7 @@ function check_dl {
 #		unset nomefile
 		checked=1
 	fi
-	rm -f $path_tmp/alive
+	
 }
 
 function check_loop {
@@ -851,20 +845,20 @@ function check_loop {
 				
 				if [ ! -z "$name_stdout" ]; then 
 					
-					head -n 8 "$name_stdout" > $path_tmp/head_stdout
-		
+					head -n 20 "$name_stdout" > $path_tmp/head_stdout
+					pid=`head -n 1 "$path_tmp/head_stdout"`
 					namef="${name_stdout//_stdout.tmp}"
 					namef="${namef#$path_tmp/}"
-					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
+					dlr=`head -n 3 $path_tmp/head_stdout | sed -n '3p'`
 			
 					if [ "$dlr" == "Wget" ]; then
-						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-						tot_size="${tot_size#*Content-Length: }"
+						tot_size=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
+						tot_size="${tot_size#*Length: }"
 						tot_size="${tot_size%%' '*}"
 						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
 							hellip_namef="$namef"
 							
-							namef=`cat $path_tmp/${hellip_namef}_stdout.tmp |grep filename`
+							namef=`cat $path_tmp/head_stdout |grep filename`
 							namef="${namef#*'filename="'}"
 							namef="${namef%'"'*}"
 							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
@@ -874,26 +868,30 @@ function check_loop {
 						tot_size="${tot_size#*File size: }"
 						tot_size="${tot_size%% *}"
 					fi
-					
-					sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
-					sizehellip=`ls -l "$hellip_namef" 2>/dev/null| awk '{ print($5) }'`
-					[ -z "$sizehellip" ] && sizehellip=0
-					[ -z "$sizef" ] && sizef=0
-					
-					if ( [ ! -z "$sizef" ] || [ ! -z "$sizehellip" ] ) && [ ! -z "$tot_size" ]; then
-						
-						if ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && ( (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
-						
-							rm -f "$nomefile"
-# 							read -p "ckloop !"
-							links_loop + "$indirizzo"
-						else
-							links_loop - "$indirizzo"1
+
+					ps au | awk '{print $2}'  | while read alive; do
+						if [ "$alive" == "$pid" ]; then
+							touch $path_tmp/alive
+							break
 						fi
+					done
+					if [ ! -f $path_tmp/alive ]; then 
+						sizef=0
+						sizehellip=0
+						[ -f "$namef" ] && sizef=`ls -l "$namef" | awk '{ print($5) }'`
+						[ -f "$hellip_namef" ] && sizehellip=`ls -l "$hellip_namef" | awk '{ print($5) }'`
+					
+						if [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] || ( ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && [ ! -z $tot_size ] && (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
+						
+							[ ! -f "${nomefile}.st" ] && rm -f "$nomefile"
+							links_loop - "$indirizzo"
+							( [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] ) && rm "$name_stdout"
+						fi
+						unset sizef sizehellip
 					else
-						links_loop - "$indirizzo"
+						links_loop + "$indirizzo"
+						rm $path_tmp/alive
 					fi
-					unset sizef sizehellip
 				fi
 			done
 		fi
@@ -1248,7 +1246,7 @@ while true; do
 				#indirizzo="${indirizzo// /}"
 				nomefile=${indirizzo##*\/}
 				not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
-				
+				check_loop
 				if [ ! -z "${nomefile}" ] && [ ! -f "${nomefile}" ] && [ -z "$not_available" ]; then
 					check_ip easybytez
 					
@@ -1323,6 +1321,7 @@ while true; do
 						fi
 						
 					fi
+					check_loop
 					if [ ! -f "$nomefile" ]; then
 						check_ip uploaded
 						wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
@@ -1426,7 +1425,7 @@ while true; do
 				####################################
 				# check free space
 				if [ ! -z "$pid_dl" ]; then
-					name_stdout=`ls -1 "$path_tmp/${nomefile}_stdout.tmp"`
+					name_stdout=`ls -1 "$path_tmp/${nomefile}_stdout.tmp" 2>/dev/null`
 					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
 			
 					if [ "$dlr" == "Wget" ]; then
