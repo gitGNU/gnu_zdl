@@ -641,6 +641,7 @@ function data_alive {
 				length_alive[$j]=${length_out[$i]}
 				alive=1
 				(( j++ ))
+				
 			fi
 		done
 	fi
@@ -824,8 +825,6 @@ function check_stdout {
 				var_pids="${var_pids//-}"
 				pids_alive=( $var_pids )
 				
-				( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
-				
 				already_there=`cat "$path_tmp/${file_out[$i]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
 				if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
 				
@@ -842,7 +841,6 @@ function check_stdout {
 							
 							[ ! -f "${file_out[$i]}.st" ] && rm_file[${#rm_file[*]}]="${file_out[$i]}"
 							links_loop + "${url_out[$i]}"
-							rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
 							checked=1
 						else #completato
 							#rm_file[${#rm_file[*]}]="$file_stdout"
@@ -865,6 +863,7 @@ function check_stdout {
 					links_loop - "${url_out[$i]}"
 				fi
 			fi
+			( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
 		done
 		rm_files
 		return 11
@@ -896,21 +895,23 @@ function check_in {
 			for i in `seq 0 $last_stdout`; do
 				check_pid ${pid_out[$i]}
 				if [ $? == 111 ]; then
-					links_loop + "${url_in[$i]}"
+					if [ "${file_out[$i]}" == "$file_in" ] && [ "${url_out[$i]}" != "$url_in" ]; then
+						links_loop + "$url_in"
+					fi
 				else
 					length_saved=0
 					length_alias_saved=0
 					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
 					[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 				
-					if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && [ ! -z ${length_out[$i]} ] && (( ${length_out[$i]}>$sizef )) && (( ${length_out[$i]}>$sizealias )) ); then
+					if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && [ ! -z ${length_out[$i]} ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
 					
 						[ ! -f "${file_in}.st" ] && rm_file[${#rm_file[*]}]="$file_in"
 						links_loop - "$url_in"
-						( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$file_stdout"
 					fi
 					unset length_saved length_alias_saved
 				fi
+				( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
 			done
 			rm_files
 		fi
@@ -943,11 +944,11 @@ function sanitize {
 		_log 1
 		no_newip=true
 	elif ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ]; then
-		_log 1
 		no_newip=true
 		check_in
+		[ -f "${file_in}" ] && _log 1
 	elif [ ! -z "$not_available" ]; then
-		[ "$url_in" != "" ] && _log 3
+		[ ! -z "$url_in" ] && _log 3
 		no_newip=true
 	elif [ ! -z "$exceeded" ]; then
 		_log 4
@@ -963,7 +964,7 @@ function sanitize {
 # 	elif [ "${file_in}" == "" ]; then
 # 		_log 5
 # 		unset no_newip
-	elif [ "$url_in" != "" ]; then
+	elif [ ! -z "$url_in" ]; then
 		return 1
 	fi
 }
@@ -1069,25 +1070,9 @@ while true; do
 			[ ! -z "$pid_in" ] && check_freespace
 			unset pid_in checked file_in
 			
-			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
-# 			ls *.alias 2>/dev/null | while read file_tmp; do
-# 				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
-# 				fsize_tmp=${fsize_tmp//K/}
-# 				#echo $fsize_tmp
-# 				if (( $fsize_tmp>10 )); then
-# 					rm -f "$file_tmp"
-# 				else
-# 					nfile_tmp=`cat "$file_tmp"`
-# 					nfile_tmp="${nfile_tmp#*'file_in:'}"
-# 					
-# 					if [ ! -f "$nfile_tmp" ]; then
-# 						rm -f "$file_tmp"
-# 					fi
-# 				fi
-# 			done
- 			
 			domain=${url_in//\?*}
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
+			
 			echo
 			echo
 			separator "Z"
@@ -1447,15 +1432,17 @@ while true; do
 				check_stdout
 				show_data_stdout
 				checked=1
+				echo PIPPO
 			fi
 			while [ -z "$checked" ]; do #file_in
-				#check_stdout
+				check_stdout
 				show_data_stdout
 				sleep 4
+				
 			done
 			
 			sleep 1
-			unset link post_data goal not_available exceeded
+			unset post_data goal not_available exceeded
 		done
 	fi
 	if [ -f "$path_tmp/links_loop.txt" ]; then
@@ -1471,12 +1458,14 @@ while true; do
 				file="$path_tmp/links_loop.txt"
 				break
 			fi
-# 			nodl=0
-# 			for pk in ${killed[*]}; do
-# 				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
-# 				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
-# 			done
-# 			[ $nodl == 0 ] && break
+			
+			nodl=0
+			for pk in ${killed[*]}; do
+				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
+				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
+			done
+			echo KIKKO
+			[ $nodl == 0 ] && break
 		done
 	fi
 	## DEBUG
