@@ -862,8 +862,14 @@ function check_stdout {
 					checked=1
 					links_loop - "${url_out[$i]}"
 				fi
+				
+				# "$path_tmp/${file_out[$i]}_stdout.tmp" NON VALIDO
+				if ( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) ; then
+					rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
+				fi
 			fi
-			( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
+			
+			
 		done
 		rm_files
 		return 11
@@ -910,8 +916,13 @@ function check_in {
 						links_loop - "$url_in"
 					fi
 					unset length_saved length_alias_saved
+					
+					# "$path_tmp/${file_out[$i]}_stdout.tmp" NON VALIDO
+					if ( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) ; then
+						rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
+					fi
 				fi
-				( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
+				
 			done
 			rm_files
 		fi
@@ -1432,7 +1443,6 @@ while true; do
 				check_stdout
 				show_data_stdout
 				checked=1
-				echo PIPPO
 			fi
 			while [ -z "$checked" ]; do #file_in
 				check_stdout
@@ -1464,7 +1474,6 @@ while true; do
 				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
 				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
 			done
-			echo KIKKO
 			[ $nodl == 0 ] && break
 		done
 	fi
