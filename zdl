@@ -23,41 +23,106 @@
 # Gianluca Zoni
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
-# 
+#
 
-log=0
-n=32
-[ -e "/cygdrive" ] && n=10
-multi=0
-prog=`basename $0`
-PROG=`echo $prog | tr a-z A-Z`
-path_tmp=".${prog}_tmp"
-file_log="${prog}_log.txt"
-conf="$HOME/.${prog}rc"
-file_data="$HOME/.${prog}.data"
-uploaded=0
-quit="sì"
-url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
-max_waiting=40
-mkdir -p "$path_tmp"
 
-#user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
+function usage {
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [file_in] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean] [-i|--interactive]"
+	echo
+	echo -e "$PROG è abilitato per il download da nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net
 
-pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
-pid_dl=1   #$pid_prog
+$PROG può essere avviato in due modi:
 
-rm -f $path_tmp/links_loop.txt
+	1) Generando automaticamente un file per la lista dei link per il download (si chiamerà links.txt)
+		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
+		- digita il seguente comando e premi invio: $prog 
+		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
+		- premi la chiocciolina \"@\"
+		
+	2) Utilizzando un file preparato con un editor di testi (andare a capo dopo ogni link)
+		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
+		- digita il seguente comando e premi invio: $prog file_in.txt
+		
 
-function old_ip {
-	[ "$url" != "${url//mediafire.}" ] && host=mediafire
-	[ "$url" != "${url//uploaded.}" ] && host=uploaded
-	[ "$url" != "${url//easybytez.}" ] && host=easybytez
-#	[ "$url" != "${url//sharpfile.}" ] && host=sharpfile
-	for key in $( seq 0 (( ${#newip[*]}-- )) ); do
-		[ "${newip[$key]}" == "$host" ] && unset newip[$key]
-	done
-	http_proxy=$old_proxy
+Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
+uploaded.to (ul.to), easybytez.net
+
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG nella seguente forma:
+	$prog file_in [-m] [axel|wget]
+
+file_in sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora file_in è links.txt. Gli argomenti \"-m\" e \"axel\" (o \"wget\")  sono facoltativi.
+
+Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
+
+L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
+
+L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
+
+La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
+
+È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in uploaded e in easybytez. Si consiglia di usare tutti i link disponili, sia quelli di easybytez che quelli di uploaded: $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
+
+Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
+
+$PROG funziona anche su Windows. 
+Installazione su Windows in due fasi:
+	FASE 1 _ Installazione di Cygwin
+		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
+		- installare il pacchetto \"wget\"
+
+	FASE 2 _ Installazione di $PROG e di Axel
+		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
+		- avviare cygwin installato nella fase 1 
+		- digitare il seguente comando: /install_zdl-cygwin.sh
+
+Uso di $PROG su Windows: avviare cygwin e utilizzare $PROG nel terminale avviato, come descritto in questa guida.
+
+$PROG è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
+
+Per informazioni e per collaborare al progetto:
+https://savannah.nongnu.org/projects/zdl
+
+Gianluca Zoni (zoninoz)
+http://inventati.org/zoninoz
+"	
+	echo
+	echo
+	exit 1
 }
+
+
+function init {
+	log=0
+	n=32
+	[ -e "/cygdrive" ] && n=10
+	multi=0
+	prog=`basename $0`
+	PROG=`echo $prog | tr a-z A-Z`
+	path_tmp=".${prog}_tmp"
+	file_log="${prog}_log.txt"
+	conf="$HOME/.${prog}rc"
+	file_data="$HOME/.${prog}.data"
+	uploaded=0
+	
+	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+	max_waiting=40
+	mkdir -p "$path_tmp"
+	
+	#user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
+	
+	pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
+	pid_in=1   #$pid_prog
+	
+	rm -f $path_tmp/links_loop.txt
+	
+	if [ -f "$conf" ]; then
+		downloader_in=`cat $conf`
+	else
+		downloader_in=Axel
+	fi
+}
+
+#### layout
 
 function print_c {
   case "$1" in
@@ -87,34 +152,56 @@ function header {
 }
 
 
-function links_loop { #usage with op=+|- : links $op $link
-	op="$1"
-	link="$2"
-	if [ "$op" == "+" ]; then
-		[ ! -z "$link" ] && echo "$link" >> $path_tmp/links_loop.txt
-	elif [ "$op" == "-" ]; then
-		#togliere indirizzo da loop
-		if [ -f "$path_tmp/links_loop.txt" ]; then
-			lines=`cat "$path_tmp/links_loop.txt" |wc -l`
-			for line in `seq 1 $lines`; do
-				lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
-				[ "${link[*]//$lnk}" == "${link[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-			done
-			[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
-			links=`cat $path_tmp/links_loop.txt`
-			[ -z "$links" ] && rm $path_tmp/links_loop.txt
-		fi
+
+function _log {
+	if [ $log == 0 ]; then
+		echo -e "I file seguenti non sono stati scaricati perchè già presenti nella directory di destinazione o perché non disponibili (forse solo temporaneamente):\n">$file_log
+		log=1
 	fi
+	date >> $file_log
+	
+	case $1 in
+		1)
+			echo
+			print_c 3  "File $file_in già presente nella directory di destinazione"  | tee -a $file_log
+			echo
+			;;
+		2)
+			echo
+			if [ ! -z "$link" ]; then
+				link_log=" (link di download: $link) "
+			fi
+			print_c 3  "$url_in --> File ${file_in}${link_log}non disponibile, riprovo più tardi"  | tee -a $file_log
+			echo
+			links_loop + "$url_in"
+			;;
+		3)
+			echo
+			print_c 3  "$url_in --> Indirizzo errato o file non disponibile" | tee -a $file_log
+			echo
+			;;
+		4)
+			echo
+			print_c 3 "Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)" | tee -a $file_log
+			echo
+			;;
+		5)
+			echo
+			print_c 3 "Nessun nome per il file collegato dal seguente link: $link (connessione interrotta: riprovo più tardi)" | tee -a $file_log
+			echo
+			;;
+		6)
+			echo
+			print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev: non sarà scaricato." | tee -a $file_log
+			echo
+			;;
+	esac
 	
 }
 
-function pseudo_captcha {
-	j=0
-	for cod in ${ascii_dec[*]}; do 
-		captcha[$j]=`printf "\x$(printf %x $cod)"`
-		(( j++ ))
-	done
-}
+
+
+#### change IP address
 
 function check_ip {
 	if [ "${newip[*]}" != "${newip[*]//$1}" ]; then 
@@ -159,17 +246,17 @@ function new_ip {
 		proxy=""
 		#### tipi di proxy: Anonymous Transparent Elite
 		proxy_types=( "Transparent" )
-		#[ "$url" != "${url//mediafire.}" ] && proxy_types=( "Elite" )
-		[ "$url" != "${url//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
-		#[ "$url" != "${url//shareflare.}" ] && proxy_types=( "Transparent" )
-		#[ "$url" != "${url//easybytez.}" ] && proxy_types=( "Transparent" )
+		#[ "$domain" != "${domain//mediafire.}" ] && proxy_types=( "Elite" )
+		[ "$domain" != "${domain//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
+		#[ "$domain" != "${domain//shareflare.}" ] && proxy_types=( "Transparent" )
+		#[ "$domain" != "${domain//easybytez.}" ] && proxy_types=( "Transparent" )
 		ptypes="${proxy_types[*]}"
 		print_c 1 "Aggiorna proxy (${ptypes// /, }):"
 		old=$http_proxy
 		
 		noproxy
 		line=1
-		while [ "$proxy" == "" ] ; do		
+		while [ -z "$proxy" ] ; do		
 			#rm -f "$path_tmp/proxy.tmp"
 			if [ ! -f "$path_tmp/proxy.tmp" ]; then
 				wget -q -t 1 -T 20 --user-agent="Anonimo" http://www.ip-adress.com/proxy_list/ -O "$path_tmp/proxy.tmp" &>/dev/null
@@ -225,7 +312,7 @@ function new_ip {
 		index=0
 		while (( $index<3 )); do
 			index=${#speed[*]}
-			speed[$index]=`wget -t 1 -T $max_waiting -O /dev/null "$indirizzo" 2>&1 | grep '/s'`  #'\([0-9.]\+ [KM]B/s\)'`
+			speed[$index]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '/s'`  #'\([0-9.]\+ [KM]B/s\)'`
 			speed[$index]="${speed[$index]#*'('}"
 			show_speed="${speed[$index]## }"
 			show_speed="${show_speed%%)*}"
@@ -277,10 +364,14 @@ function new_ip {
 	old_proxy="$proxy"
 }
 
+#### hacking web pages
+
+
+
 function get_tmps {
 	while [ "`less $path_tmp/zdl.tmp |grep \</html`" == "" ]; do
 		#print_c 2 "\nAttendi..."
-		wget -t 5 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo  &>/dev/null
+		wget -t 5 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
 		echo -e "...\c"
 	done
 }
@@ -313,115 +404,52 @@ function input_hidden {
 }
 
 
-function _log {
-	if [ $log == 0 ]; then
-		echo -e "I file seguenti non sono stati scaricati perchè già presenti nella directory di destinazione o perché non disponibili (forse solo temporaneamente):\n">$file_log
-		log=1
-	fi
-	date >> $file_log
-	
-	case $1 in
-		1)
-			echo
-			print_c 3  "File $nomefile già presente nella directory di destinazione"  | tee -a $file_log
-			echo
-			;;
-		2)
-			echo
-			if [ ! -z "$link" ]; then
-				link_log=" (link di download: $link) "
-			fi
-			print_c 3  "$indirizzo --> File ${nomefile}${link_log}non disponibile, riprovo più tardi"  | tee -a $file_log
-			echo
-			links_loop + "$indirizzo"
-			;;
-		3)
-			echo
-			print_c 3  "$indirizzo --> Indirizzo errato o file non disponibile" | tee -a $file_log
-			echo
-			;;
-		4)
-			echo
-			print_c 3 "Il file $nomefile supera la dimensione consentita dal server per il download gratuito (link: $indirizzo)" | tee -a $file_log
-			echo
-			;;
-		5)
-			echo
-			print_c 3 "Nessun nome per il file collegato dal seguente link: $link (connessione interrotta: riprovo più tardi)" | tee -a $file_log
-			echo
-			;;
-		6)
-			echo
-			print_c 3 "$indirizzo --> File $nomefile troppo grande per lo spazio libero in $PWD su $dev: non sarà scaricato." | tee -a $file_log
-			echo
-			;;
-	esac
-	
+function pseudo_captcha {
+	j=0
+	for cod in ${ascii_dec[*]}; do 
+		captcha[$j]=`printf "\x$(printf %x $cod)"`
+		(( j++ ))
+	done
 }
 
 
-function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [nomefile] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean] [-i|--interactive]"
-	echo
-	echo -e "$PROG è abilitato per il download da nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net
 
-$PROG può essere avviato in due modi:
+#### Axel
 
-	1) Generando automaticamente un file per la lista dei link per il download (si chiamerà links.txt)
-		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog 
-		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
-		- premi la chiocciolina \"@\"
+function check_downloader {
+	if [ "$downloader_in" == "Axel" ]; then
+		while [ -z "`which axel 2>/dev/null`" ]; do
+			clear
+			print_c 3 "ATTENZIONE: Axel non è installato nel tuo sistema"
+			
+			echo -e "$PROG può scaricare con Wget ma raccomanda fortemente Axel, perché:\n
+		- può accelerare sensibilmente il download
+		- permette il recupero dei download in caso di interruzione
 		
-	2) Utilizzando un file preparato con un editor di testi (andare a capo dopo ogni link)
-		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog nomefile.txt
-		
-
-Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
-uploaded.to (ul.to), easybytez.net
-
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG nella seguente forma:
-	$prog NOMEFILE [-m] [axel|wget]
-
-NOMEFILE sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora NOMEFILE è links.txt. Gli argomenti \"-m\" e \"axel\" (o \"wget\")  sono facoltativi.
-
-Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
-
-L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
-
-L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
-
-La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
-
-È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in uploaded e in easybytez. Si consiglia di usare tutti i link disponili, sia quelli di easybytez che quelli di uploaded: $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
-
-Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
-
-$PROG funziona anche su Windows. 
-Installazione su Windows in due fasi:
-	FASE 1 _ Installazione di Cygwin
-		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
-		- installare il pacchetto \"wget\"
-
-	FASE 2 _ Installazione di $PROG e di Axel
-		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
-		- avviare cygwin installato nella fase 1 
-		- digitare il seguente comando: /install_zdl-cygwin.sh
-
-Uso di $PROG su Windows: avviare cygwin e utilizzare $PROG nel terminale avviato, come descritto in questa guida.
-
-$PROG è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
-
-Per informazioni e per collaborare al progetto:
-https://savannah.nongnu.org/projects/zdl
-
-Gianluca Zoni (zoninoz)
-http://inventati.org/zoninoz
-"	
-	echo
-	echo
-	exit 1
+	Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
+	
+	1) Installa automaticamente Axel da pacchetti
+	2) Installa automaticamente Axel da sorgenti
+	3) Esci da $PROG per installare Axel manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=axel)
+	4) Ignora Axel e continua con Wget
+	5) Configura Wget di default
+	6) Ripristina la condizione iniziale (Axel di default)"
+	
+			print_c 2 "Scegli cosa fare (1-6)"
+			read input
+			
+			case $input in
+			
+			1) install_pk ;;
+			2) install_src ;;
+			3) exit ;;
+			4) downloader_in=Wget ; break ;;
+			5) echo Wget > $conf ;;
+			6) rm $conf ;;
+			
+			esac
+		done
+	fi
 }
 
 function install_test {
@@ -470,442 +498,479 @@ function install_src {
 function configure {
 	echo
 	print_c 3 "CONFIGURAZIONE DI $PROG"
-	echo "Il downloader attuale di $PROG è $downloader"
+	echo "Il downloader attuale di $PROG è $downloader_in"
 	echo
 	print_c 2 "Scegli il downloader (wget|axel):"
 	read dloader
 	case $dloader in
 		wget) 
-			downloader=Wget
+			downloader_in=Wget
 		;;
 		axel) 
-			downloader=Axel
+			downloader_in=Axel
 		;;
 		*)
 			print_c 3 "Downloader non riconosciuto: puoi scegliere solo wget o axel"
 			exit 1
 		;;
 	esac
-	echo $downloader > $conf
+	echo $downloader_in > $conf
 	echo
-	print_c 1 "$PROG scaricherà con $downloader"
+	print_c 1 "$PROG scaricherà con $downloader_in"
 	exit
 }
 
+#### ZDL
+
 function check_freespace {
+	if [ -f ${file_in}_stdout.tmp ]; then
+		data_stdout $path_tmp/${file_in}_stdout.tmp
+		if [ $? == 5 ]; then
+			fsize=$(( ${lenght_out[0]}/1024 ))
+		else
+			fsize=0
+		fi
+	else
+		fsize=0
+	fi
+	
 	mkdir -p $path_tmp
 	df > $path_tmp/df.tmp
 	
 	maxl=`wc -l $path_tmp/df.tmp |awk '{ print($1) }'`
-	pattern=`ls -l $PWD`
+	pattern=`ls -l "$PWD"`
 	pattern="${pattern#*-> }"
 	for l in `seq 2 $maxl`; do
 		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }' | sed -n "${l}p"`
 		if [ "$dev" == "/" ]; then dev="/home" ; fi
 		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }' | sed -n "${l}p"`
-		if [ ! -z "$tot_size" ];then 
-			t_size=$(( $tot_size/1024 ))
-		else
-			t_size=0
-		fi
+		
 		if [ "$pattern" != "${pattern//$dev}" ]; then
 			if (( $freespace<5000 )); then
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
-			elif [ $t_size != 0 ] && (( $freespace<$t_size )); then
-				read -p "STA PER UCCIDERE!"
-				kill_dl
+			elif [ $fsize != 0 ] && (( $freespace<$fsize )); then
+				kill_in
 				_log 6
 			fi
 		fi
 	done
-	unset t_size
+	unset fsize
+}
+
+
+
+function download {
+	if [ "$downloader_in" = "Axel" ]; then
+		export AXEL_COOKIES=$path_tmp/cookies.zdl
+		print_c 1 "downloading --> $file_in ..."
+		[ "$file_in" != "" ] && argout="-o"
+		# -a tolto
+		axel -n $n "$link" $argout "$file_in" >> "$path_tmp/${file_in}_stdout.tmp" & 
+		pid_in=$!
+		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel" > "$path_tmp/${file_in}_stdout.tmp"
+		pids_alive[${#pids_alive[*]}]=${pid_in}
+		unset post_data
+		
+	elif [ "$downloader_in" = "Wget" ]; then
+		print_c 1 "downloading --> $file_in ..."
+		[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
+		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$link" -S --progress=bar:force $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+		pid_in=$!
+		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget" > "$path_tmp/${file_in}_stdout.tmp"
+		pids_alive[${#pids_alive[*]}]=${pid_in}
+		unset post_data
+	fi
+}
+
+function check_pid {
+	if [ ! -z $1 ]; then
+		pid=$1
+		ps au | awk '{print $2}' | while read alive; do
+			if [ "$alive" == "$pid" ]; then
+				return 111
+			fi
+		done
+	fi
+}
+
+
+function show_data_alive {
+	data_alive
+	if [ ! -z $alive ]; then 
+		unset alive
+
+		print_c 1 "Processi di download attualmente in vita:"
+		separator "="
+		last_alive=$(( ${#pid_alive[*]}-1 ))
+		#read -p $last_alive
+		for j in `seq 0 $last_alive`; do
+			print_c 1 "Numero download attivo: $j"
+			[ ! -f "${file_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
+			echo -e "File: ${file_alive[$j]}" 
+			[ ! -z "${alias_file_alive[$j]}" ] && echo "Alias: ${alias_file_alive[$j]}"
+			echo -e "Downloader: ${downloader_alive[$j]}\nLink: ${url_alive[$j]}\nProgresso: ${progress_alive[$j]}"
+			if [ $j != $tot ]; then 
+				separator "-"
+			else
+				separator "="
+			fi
+		done
+		return 111
+	else
+		print_c 1  "Nessun download attivo di $PROG rilevato"
+	fi
+}
+
+function data_alive {
+	data_stdout
+	if [ $? == 5 ]; then
+		client=1
+		tot=$(( ${#pid_out[*]}-1 ))
+		j=0
+		for i in `seq 0 $tot`; do
+			check_pid ${pid_out[$i]}
+			if [ $? == 111 ]; then
+				pid_alive[$j]="${pid_out[$i]}"
+				file_alive[$j]="${file_out[$i]}"
+				downloader_alive[$j]="${downloader_out[$i]}"
+				alias_file_alive[$j]="${alias_file_out[$i]}"
+				url_alive[$j]="${url_out[$i]}"
+				progress_alive[$j]="${progress_out[$i]}"
+				length_alive[$j]=${length_out[$i]}
+				alive=1
+				(( j++ ))
+			fi
+		done
+	fi
 }
 
 function interactive {
-	
-	totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
-	if (( $totf>0 )); then
-		if (( $totf>1 )); then 
-			nlines=`seq 1 $totf`
-		else
-			nlines=1
-		fi
-		unset sel
-		n=0
-		for i in $nlines; do
-			unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
-			name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
+	client=1
+	show_data_alive
+	if [ $? == 111 ]; then
+		echo
+		print_c 2 "Seleziona i numeri dei download attivi da riavviare o eliminare, separati da spazi (digita Ctrl+C per uscire subito):"
+		read input
+		inputs=( $input )
+		last_alive=$(( ${#pid_alive[*]}-1 ))
+		options=`seq 0 $last_alive`
+		while [ "$input2" != "e" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
+			print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
+			echo
+			echo -e "	e) per eliminarli definitivamente (e cancellare il file), digita \"e\"
+	r) per riavviarli digita \"r\"
+	t) per terminare il programma senza fare niente digita \"t\""
 			
-			if [ ! -z "$name_stdout" ]; then 
-				
-				head -n 20 "$name_stdout" > $path_tmp/head_stdout
-	
-				namef="${name_stdout//_stdout.tmp}"
-				namef="${namef#$path_tmp/}"
-				pid=`head -n 1 "$path_tmp/head_stdout"`
-				ps au | awk '{print $2}' | while read alive; do
-					if [ "$alive" == "$pid" ]; then
-						touch $path_tmp/interactive
-						break
+			print_c 2 "Scegli cosa fare: [e | r | t]"
+			read input2
+			
+			if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
+				for s in ${inputs[*]}; do
+					if [ "${options}" != "${options//$s}" ]; then
+						kill ${pid_alive[$s]}
+						rm -f "${file_alive[$s]}" "${alias_file_alive[$s]}" "${file_alive[$s]}_stdout.tmp"
 					fi
 				done
-				
-				if [ -f $path_tmp/interactive ]; then
-					rm $path_tmp/interactive
-					linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
-					linkdl="${linkdl#link_${prog}: }"
-		
-					dlr=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
-			
-					if [ "$dlr" == "Wget" ]; then
-						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
-							hellip_namef="$namef"
-							
-							namef=`cat "$path_tmp/head_stdout" |grep filename`
-							namef="${namef#*'filename="'}"
-							namef="${namef%'"'*}"
-							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
-						fi
-						unset progress
-						progress=`tail -n 1 "$name_stdout"`
-						cat $path_tmp/head_stdout > "$name_stdout"
-					elif [ "$dlr" == "Axel" ]; then
-						unset progress
-						progress=`tail "$name_stdout" |grep K |grep % |tail -n 1`
-						cat $path_tmp/head_stdout > "$name_stdout"
+				if [ "$input2" != "e" ]; then
+					if [ -f "$path_tmp/links_loop.txt" ]; then
+						links=`cat "$path_tmp/links_loop.txt"`
+						for lnk in $links; do
+							lnk=`cat $path_tmp/links_loop.txt` 
+							[ "${url_alive[*]//$lnk}" == "${url_alive[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+						done
+						[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 					fi
-					
-					sel[${#sel[*]}]=$n
-					kpid[$n]=$pid
-					knamef[$n]="$namef" 
-					khellip_namef[$n]="${hellip_namef}"
-					kname_stdout[$n]="$name_stdout"
-					kdlr[$n]=$dlr
-					kprogress[$n]="$progress"
-					klinkdl[$n]="$linkdl"
-					n=$(( $n+1 ))
 				fi
+			elif [ "$input2" != "t" ]; then
+				print_c 1  "Nessun processo riavviato o eliminato"
 				
 			fi
 		done
-		if [ $n != 0 ]; then
-			(( n-- ))
-			#show:
-			print_c 1 "Processi di download attualmente in vita:"
-			separator "="
-			for j in `seq 0 $n`; do
-				print_c 1 "Numero download attivo: $j"
-				[ ! -f "${knamef[$j]}" ] && [ ! -f "${kname_stdout[$j]}" ] && print_c 3 "${kdlr[$j]} sta scaricando a vuoto: ${knamef[$j]} non esiste"
-				echo -e "File: ${knamef[$j]}" 
-				[ ! -z "${khellip_namef[$j]}" ] && echo "Alias: ${khellip_namef[$j]}"
-				echo -e "Downloader: ${kdlr[$j]}\nLink: ${klinkdl[$j]}\nProgresso: ${kprogress[$j]}"
-				if [ $i != $totf ]; then 
-					separator "-"
-				else
-					separator "="
-				fi
-			done
-			echo
-			print_c 2 "Seleziona i numeri dei download attivi da uccidere, separati da spazi (digita Ctrl+C per uscire subito):"
-			read input
-			inputs=( $input )
-			while [ "$input2" != "d" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
-				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
-				echo
-				echo -e "	d) per ucciderli definitivamente (e cancellare il file), digita \"d\"
-	r) per riavviarli digita \"r\"
-	t) per terminare il programma senza fare niente digita \"t\""
-				print_c 2 "Scegli cosa fare: [d | r | t]"
-				read input2
-				if [ "$input2" == "d" ] || [ "$input2" == "r" ]; then
-					for s in ${inputs[*]}; do
-						if [ "${sel[*]}" != "${sel[*]//$s}" ]; then
-							kill ${kpid[$s]}
-							rm -f "${knamef[$s]}" "${khellip_namef[$s]}" "${kname_stdout[$s]}"
-						fi
-					done
-					if [ "$input2" != "d" ]; then
-						if [ -f "$path_tmp/links_loop.txt" ]; then
-							lines=`cat "$path_tmp/links_loop.txt" |wc -l`
-							for line in `seq 1 $lines`; do
-								lnk=`cat $path_tmp/links_loop.txt |sed -n "${line}p"` 
-								[ "${klinkdl[*]//$lnk}" == "${klinkdl[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-							done
-							[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
-						fi
-					fi
-				elif [ "$input2" != "t" ]; then
-					print_c 1  "Nessun processo ucciso"
-					exit
-				fi
-			done
-		else
-			print_c 1  "Nessun download attivo di $PROG rilevato"
-		fi
-		unset sel input knamef khellip_namef kname_stdout 
-	else
-		print_c 1 "Nessun download di $PROG rilevato"
 	fi
 	exit
 }
 
-function kill_dl {
-	read -p "funzione kill_dl"
-	kill ${pid_dl}
-	killed[${#killed[*]}]=${pid_dl}
-	unset pid_dl
+
+function kill_in {
+	#read -p "funzione kill_in"
+	kill ${pid_in}
+	killed[${#killed[*]}]=${pid_in}
+	unset pid_in
 
 }
 
-function check_dl {
-	totf=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null | wc -l`
-	if (( $totf>0 )); then
-		unset name_stdout fname fsize
-		echo
+function data_stdout {
+	unset list
+	if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
+		list="$1"
+	else
+		list=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
+	fi
+	if [ ! -z "$list" ]; then
+		unset file_stdout file_out alias_file_out url_out downloader_out pid_out progress_out length_out
+		i=0
+		for item in $list; do
+			
+			file_stdout=$item
+			head -n 50 "$file_stdout" > $path_tmp/head_stdout
+
+			file_out[$i]="${file_stdout//_stdout.tmp}"
+			file_out[$i]="${file_out[$i]#$path_tmp/}"
+			
+			pid_out[$i]=`head -n 1 "$path_tmp/head_stdout"`
+						
+			url_out[$i]=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
+			url_out[$i]="${url_out[$i]#link_${prog}: }"
+
+			downloader_out[$i]=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
+	
+			if [ "$downloader_out[$i]" == "Wget" ]; then
+				if [ "${file_out[$i]}" != "${file_out//alias}" ];then
+					alias_file_out[$i]="${file_out[$i]}"
+					
+					file_out[$i]=`cat "$path_tmp/head_stdout" |grep filename`
+					file_out[$i]="${file_out[$i]#*'filename="'}"
+					file_out[$i]="${file_out[$i]%'"'*}"
+					file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
+				fi
+				#progress_out[$i]=`tail "$file_stdout" | grep `
+				cat $path_tmp/head_stdout > "$file_stdout"
+				
+				length_out[$i]=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
+				length_out[$i]="${length_out[$i]#*Length: }"
+				length_out[$i]="${length_out[$i]%%' '*}"
+
+			elif [ "$downloader_out[$i]" == "Axel" ]; then
+				#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+				cat $path_tmp/head_stdout > "$file_stdout"
+				
+				length_out[$i]=`cat "$path_tmp/head_stdout" |grep 'File size'`
+				length_out[$i]="${length_out[$i]#*File size: }"
+				length_out[$i]="${length_out[$i]%% *}"
+
+			fi
+			progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			(( i++ ))
+		done
+		unset i
+		return 5
+	fi
+}
+
+function show_data_stdout {
+	data_stdout
+	if [ $? == 5 ]; then
 		print_c 1 "Downloading..."
 		separator "="
-		unset indirizzo
-		if (( $totf>1 )); then 
-			nlines=`seq 1 $totf`
-		else
-			nlines=1
-		fi
-		for i in $nlines; do
-			unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
-			if [ $multi == 1 ]; then 
-				name_stdout=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null| sed -n "${i}p"`
-			else
-				name_stdout=`ls -1 $path_tmp/${nomefile}_stdout.tmp | sed -n "${i}p"`
-			fi
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			length_saved=0
+			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
+			echo -e "File: ${file_out[$i]} - Downloader: ${downloader_out[$i]}\nLink: ${url_out[$i]}"
+			progress="${progress_out[$i]}"
 			
-			if [ "$name_stdout" != "" ]; then 
+			check_pid ${pid_out[$i]}
+			if [ -z $? ]; then
+				progress="Download non attivo"
+			fi
+			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+				progress="Download completato"
+			fi
+			echo "$progress"
+			if [ $i != $last_stdout ] && [ "$multi" == "1" ]; then
+				separator "-"
+			else
+				separator "="
+			fi
+		done
+	else
+		print_c 3 "Nessun download attivo"
+	fi
+}
+
+function check_stdout {
+	data_stdout
+	if [ $? == 5 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		#read -p "last:$last_stdout ${#pid_out[*]} ${file_out[*]}"
+		unset rm_file
+		for i in `seq 0 $last_stdout`; do
+			
+			check_pid ${pid_out[$i]}
+			if [ $? == 111 ]; then # ${pid_out[$i]} is alive
+				if [ ! -f "${file_out[$i]}" ] && [ ! -f "${alias_file_out[$i]}" ]; then # download > null
+					killed[${#killed[*]}]=${pid_out[$i]}
+					kill ${pid_out[$i]}
+				elif [ "${pid_out[$i]}" != "$pid_in" ] && [ "$real_file_in" == "${file_out[$i]}" ];then
+					return 5
+				elif [ "${pid_out[$i]}" == "$pid_in" ] && [ "$real_file_in" == "${file_out[$i]}" ] && [ -f "${alias_file_out[$i]}" ] && [ -f "${file_out[$i]}" ];then
+					rm_file[${#rm_file[*]}]="${alias_file_out[$i]}"
+					kill ${pid_out[$i]}
+				fi 
 				
-				head -n 20 "$name_stdout" > $path_tmp/head_stdout
-	
-				namef="${name_stdout//_stdout.tmp}"
-				namef="${namef#$path_tmp/}"
-				pid=`head -n 1 "$path_tmp/head_stdout"`
-				linkdl=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
-				linkdl="${linkdl#link_${prog}: }"
-	
-				dlr=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
-		
-				if [ "$dlr" == "Wget" ]; then
-					tot_size=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
-					tot_size="${tot_size#*Length: }"
-					tot_size="${tot_size%%' '*}"
-					[ "$tot_size" == "unspecified" ] && tot_size=0
-					if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
-						hellip_namef="$namef"
+				if [ "$multi" == "1" ]; then
+					unset file_in
+					checked=1
+				fi
+				links_loop - "${url_out[$i]}"
+				pids_alive[${#pids_alive[*]}]=${pid_out[$i]}
+			
+			else
+			
+				var_pids="${pids_alive[*]}"
+				var_pids="${var_pids//${pid_out[$i]}/-}"
+				var_pids="${var_pids//-}"
+				pids_alive=( $var_pids )
+				
+				( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
+				
+				already_there=`cat "$path_tmp/${file_out[$i]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
+				if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
+				
+					unset already_there
+					if [ "${killed[*]}" == "${killed[*]//${pid_out[$i]}}" ]; then # incidentato o completato
+						length_saved=0
+						[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
 						
-						namef=`cat $path_tmp/head_stdout |grep filename`
-						namef="${namef#*'filename="'}"
-						namef="${namef%'"'*}"
-						name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
-					fi
-					#sleep 3
-					unset progress
-					progress=`tail -n 1 "$name_stdout"`
-					cat $path_tmp/head_stdout > "$name_stdout"
-				elif [ "$dlr" == "Axel" ]; then
-					tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
-					tot_size="${tot_size#*File size: }"
-					tot_size="${tot_size%% *}"
-					#sleep 1
-					#rm -f "$name_stdout"
-					#cat $path_tmp/head_stdout > "$name_stdout"
-					#sleep 2
-					unset progress
-					progress=`tail "$name_stdout" | grep % | grep K | tail -n 1 `
-					cat $path_tmp/head_stdout > "$name_stdout"
-				fi
-				#[ "$progress" == "${progress//%}" ] && progress="Download in attesa"
-								
-				#check pid:
-				ps au | awk '{print $2}'  | while read alive; do
-					if [ "$alive" == "$pid" ]; then
-						touch $path_tmp/alive
-						break
-					fi
-				done
-				
-				#show:
-				sizef=0
-				[ -f "$namef" ] && sizef=`ls -l "$namef" 2>/dev/null| awk '{ print($5) }'`
-				echo -e "File: $namef - Downloader: $dlr\nLink: $linkdl"
-				if [ ! -f $path_tmp/alive ]; then
-					progress="Download non attivo"
-				fi
-				if [ -f "$namef" ] && [ ! -f "${namef}.st" ] && [ "$sizef" == "$tot_size" ];then
-					progress="Download completato"
-				fi
-				echo "$progress"
-				if [ $i != $totf ] && [ "$multi" == "1" ]; then 
-					separator "-"
-				else
-					separator "="
-				fi
-				
-				#check files:	
-				if [ ! -f $path_tmp/alive ]; then 
-					var_pids="${pids_alive[*]}"
-					var_pids="${var_pids//$pid/-}"
-					var_pids="${var_pids//-}"
-					pids_alive=( $var_pids )
-					( [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] ) && rm "$name_stdout"
-					already_there=`cat "$name_stdout"|grep 'already there; not retrieving.'`
-					if [ -z "$already_there" ]; then # morto a posteriori = suicida oppure incidentato/completato
-						unset already_there
-						if [ "${killed[*]}" == "${killed[*]//$pid}" ]; then # incidentato o completato
-							fsize=0
-							[ -f "$namef" ] && fsize=`ls -l "$namef" | awk '{ print($5) }'`
+						if ( [ "$length_saved" != "${length_out[$i]}" ] && [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>0 )) ) || [ "${length_out[$i]}" == "0" ]; then  #incidentato
 							
-							if ( [ "$fsize" != "$tot_size" ] && [ ! -z "$tot_size" ] && (( $tot_size>0 )) ) || [ "$tot_size" == "0" ]; then  #incidentato
-								if [ "$hellip_namef" != "$namef" ] && [ "$hellip_namef" != "" ] ; then
-									rmfile[${#rmfile[*]}]="$path_tmp/$hellip_namef"
-								fi	
-								
-								[ ! -f "${namef}.st" ] && rmfile[${#rmfile[*]}]="$namef"
-								links_loop + "$linkdl"
-								rmfile[${#rmfile[*]}]="$name_stdout"
-								checked=1
-							else #completato
-								#rmfile[${#rmfile[*]}]="$name_stdout"
-#								unset nomefile
-								links_loop - "$linkdl"
-								checked=1
-							fi
-						else #suicida 
-							rmfile[${#rmfile[*]}]="$namef"
-#							unset nomefile
+							if [ "${alias_file_out[$i]}" != "${file_out[$i]}" ] && [ "${alias_file_out[$i]}" != "" ] ; then
+								rm_file[${#rm_file[*]}]="$path_tmp/${alias_file_out[$i]}"
+							fi	
+							
+							[ ! -f "${file_out[$i]}.st" ] && rm_file[${#rm_file[*]}]="${file_out[$i]}"
+							links_loop + "${url_out[$i]}"
+							rm_file[${#rm_file[*]}]="$path_tmp/${file_out[$i]}_stdout.tmp"
 							checked=1
-							killed[${#killed[*]}]=$pid
+						else #completato
+							#rm_file[${#rm_file[*]}]="$file_stdout"
+#							unset file_in
+							links_loop - "${url_out[$i]}"
+							checked=1
 						fi
-					else 
-					# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
-						#rmfile[${#rmfile[*]}]="$name_stdout"
-#						unset nomefile
+					else #suicida 
+						rm_file[${#rm_file[*]}]="${file_out[$i]}"
+#						unset file_in
 						checked=1
-						links_loop - "$linkdl"
+						killed[${#killed[*]}]=${pid_out[$i]}
 					fi
-					
 				else
-					if [ ! -f "$namef" ] && [ ! -f "$hellip_namef" ]; then
-						killed[${#killed[*]}]=$pid
-						kill $pid
-					elif [ "$pid" != "$pid_dl" ] && [ "$newname" == "$namef" ];then
-						return 5
-					elif [ "$pid" == "$pid_dl" ] && [ "$newname" == "$namef" ] && [ -f "$hellip_namef" ] && [ -f "$namef" ];then
-						rm -f "$hellip_namef"
-						kill $pid
-					fi 
-					rm $path_tmp/alive
-					if [ "$multi" == "1" ]; then
-#						unset nomefile
-						checked=1
-					fi
-					links_loop - "$linkdl"
-					pids_alive[${#pids_alive[*]}]=$pid
+					unset already_there
+				# morto a priori = completato oppure escluso fin dall'inizio perché il file è presente prima dell'avvio di $PROG ma è sfuggito all'analisi precedente
+					#rm_file[${#rm_file[*]}]="$file_stdout"
+#						unset file_in
+					checked=1
+					links_loop - "${url_out[$i]}"
 				fi
 			fi
-			#rm -f $path_tmp/alive
 		done
-		if [ "${#rmfile[*]}" != "0" ] && [ ! -z "${#rmfile[*]}" ]; then
-			for rmf in `seq 0 $(( ${#rmfile[*]}-1 ))`; do
-# 				echo
-# 				cat $path_tmp/links_loop.txt
-# 				echo
-# 				read -p "Cancellazione dei seguenti file: ${rmfile[$rmf]}"
-				rm -rf "${rmfile[$rmf]}" 
-				unset rmfile[$rmf]
-			done
-		fi
+		rm_files
+		return 11
 	else
-#		unset nomefile
 		checked=1
 	fi
-	
 }
 
-function check_loop {
-	if [ -f "$nomefile" ]; then
-		totf=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | wc -l`
-		if (( $totf>0 )); then
-			if (( $totf>1 )); then 
-				nlines=`seq 1 $totf`
-			else
-				nlines=1
-			fi
-			unset sel
-			n=0
-			for i in $nlines; do
-				unset name_stdout fname fsize hellip_namef linkdl tot_size dlr pid progress rmfile
-				name_stdout=`ls -1 $path_tmp/*_stdout.tmp  2>/dev/null | sed -n "${i}p"`
-				
-				if [ ! -z "$name_stdout" ]; then 
-					
-					head -n 20 "$name_stdout" > $path_tmp/head_stdout
-					pid=`head -n 1 "$path_tmp/head_stdout"`
-					namef="${name_stdout//_stdout.tmp}"
-					namef="${namef#$path_tmp/}"
-					dlr=`head -n 3 $path_tmp/head_stdout | sed -n '3p'`
-			
-					if [ "$dlr" == "Wget" ]; then
-						tot_size=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
-						tot_size="${tot_size#*Length: }"
-						tot_size="${tot_size%%' '*}"
-						if [ "$namef" != "${namef//uploaded.hellip.tmp}" ];then
-							hellip_namef="$namef"
-							
-							namef=`cat $path_tmp/head_stdout |grep filename`
-							namef="${namef#*'filename="'}"
-							namef="${namef%'"'*}"
-							name_stdout="$path_tmp/${hellip_namef}_stdout.tmp"
-						fi
-					elif [ "$dlr" == "Axel" ]; then
-						tot_size=`cat "$path_tmp/head_stdout" |grep 'File size'`
-						tot_size="${tot_size#*File size: }"
-						tot_size="${tot_size%% *}"
-					fi
+function rm_files {
+	if [ "${#rm_file[*]}" != "0" ] && [ ! -z "${#rm_file[*]}" ]; then
+		for i in `seq 0 $(( ${#rm_file[*]}-1 ))`; do
+# 			echo
+# 			cat $path_tmp/links_loop.txt
+# 			echo
+# 			read -p "Cancellazione dei seguenti file: ${rm_file[$rmf]}"
+			rm -rf "${rm_file[$i]}" 
+			unset rm_file[$i]
+		done
+	fi
 
-					ps au | awk '{print $2}'  | while read alive; do
-						if [ "$alive" == "$pid" ]; then
-							touch $path_tmp/alive
-							break
-						fi
-					done
-					if [ ! -f $path_tmp/alive ]; then 
-						sizef=0
-						sizehellip=0
-						[ -f "$namef" ] && sizef=`ls -l "$namef" | awk '{ print($5) }'`
-						[ -f "$hellip_namef" ] && sizehellip=`ls -l "$hellip_namef" | awk '{ print($5) }'`
+}
+
+function check_in {
+	if [ -f "$file_in" ]; then
+		data_stdout
+		if [ $? == 5 ]; then
+			last_stdout=$(( ${#pid_out[*]}-1 ))
+			#read -p ${#pid_out[*]}
+			for i in `seq 0 $last_stdout`; do
+				check_pid ${pid_out[$i]}
+				if [ $? == 111 ]; then
+					links_loop + "${url_in[$i]}"
+				else
+					length_saved=0
+					length_alias_saved=0
+					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+					[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
+				
+					if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && [ ! -z ${length_out[$i]} ] && (( ${length_out[$i]}>$sizef )) && (( ${length_out[$i]}>$sizealias )) ); then
 					
-						if [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] || ( ( [ "$nomefile" == "$namef" ] || [ "$nomefile" == "$hellip_namef" ] ) && [ ! -z $tot_size ] && (( $tot_size>$sizef )) && (( $tot_size>$sizehellip )) ); then
-						
-							[ ! -f "${nomefile}.st" ] && rm -f "$nomefile"
-							links_loop - "$indirizzo"
-							( [ "$tot_size" == "unspecified" ] || [ "$tot_size" == 0 ] || [ -z "$tot_size" ] ) && rm "$name_stdout"
-						fi
-						unset sizef sizehellip
-					else
-						links_loop + "$indirizzo"
-						rm $path_tmp/alive
+						[ ! -f "${file_in}.st" ] && rm_file[${#rm_file[*]}]="$file_in"
+						links_loop - "$url_in"
+						( [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] ) && rm_file[${#rm_file[*]}]="$file_stdout"
 					fi
+					unset length_saved length_alias_saved
 				fi
 			done
+			rm_files
 		fi
 	fi
 }
 
 
-if [ -f "$conf" ]; then
-	downloader=`cat $conf`
-else
-	downloader=Axel
-fi
+function links_loop { #usage with op=+|- : links $op $link
+	op="$1" #operator
+	link="$2" #link
+	if [ "$op" == "+" ]; then
+		[ ! -z "$link" ] && echo "$link" >> $path_tmp/links_loop.txt
+	elif [ "$op" == "-" ]; then
+		#togliere url_in da loop
+		if [ -f "$path_tmp/links_loop.txt" ]; then
+			lnx=`cat $path_tmp/links_loop.txt`
+			for lnk in $lnx; do
+				[ "${link[*]//$lnk}" == "${link[*]}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+			done
+			[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+			links=`cat $path_tmp/links_loop.txt`
+			[ -z "$links" ] && rm $path_tmp/links_loop.txt
+		fi
+	fi
+	
+}
+
+function sanitize {
+	if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ]; then
+		_log 1
+		no_newip=true
+	elif ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ]; then
+		_log 1
+		no_newip=true
+		check_in
+	elif [ ! -z "$not_available" ]; then
+		[ "$url_in" != "" ] && _log 3
+		no_newip=true
+	elif [ ! -z "$exceeded" ]; then
+		_log 4
+		no_newip=true
+	elif [ "$link" == "" ] || [ "${file_in}" == "" ]; then
+		_log 2
+		unset no_newip
+		#no_newip=true
+		#old_ip
+	elif [ "$link" != "${link//{\"err\"/}" ]; then
+		_log 2
+		unset no_newip
+# 	elif [ "${file_in}" == "" ]; then
+# 		_log 5
+# 		unset no_newip
+	elif [ "$url_in" != "" ]; then
+		return 1
+	fi
+}
+
+init
+
 ################################### HEADER
-#separator z
 header
 separator z
 ###################################
@@ -927,10 +992,10 @@ for arg in $@ ; do
 			echo
 			;;
 		wget)
-			downloader=Wget
+			downloader_in=Wget
 			;;
 		axel)
-			downloader=Axel
+			downloader_in=Axel
 			;;
 		
 		-m | --multi)
@@ -962,43 +1027,9 @@ for arg in $@ ; do
 	esac
 done
 
+check_downloader
 
-if [ "$downloader" == "Axel" ]; then
-	while [ -z "`which axel 2>/dev/null`" ]; do
-		clear
-		print_c 3 "ATTENZIONE: Axel non è installato nel tuo sistema"
-		
-		echo -e "$PROG può scaricare con Wget ma raccomanda fortemente Axel, perché:\n
-	- può accelerare sensibilmente il download
-	- permette il recupero dei download in caso di interruzione
-	
-Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
-
-1) Installa automaticamente Axel da pacchetti
-2) Installa automaticamente Axel da sorgenti
-3) Esci da $PROG per installare Axel manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=axel)
-4) Ignora Axel e continua con Wget
-5) Configura Wget di default
-6) Ripristina la condizione iniziale (Axel di default)"
-
-		print_c 2 "Scegli cosa fare (1-6)"
-		read input
-		
-		case $input in
-		
-		1) install_pk ;;
-		2) install_src ;;
-		3) exit ;;
-		4) downloader=Wget ; break ;;
-		5) echo Wget > $conf ;;
-		6) rm $conf ;;
-		
-		esac
-	done
-fi
-
-
-print_c 1 "Download con $downloader"
+print_c 1 "Download con $downloader_in"
 
 
 if [ -f "$file_log" ]; then
@@ -1032,43 +1063,38 @@ done
 
 while true; do
 	if [ ! -z "$file" ]; then	
-		stop=`wc -l "$file" | awk '{ print($1) }'`
-		stop=$(( $stop+1 ))
-		riga=1
+		links_in=`cat $file`
 		
-		while [ $riga != $stop ]; do
-			[ ! -z "$pid_dl" ] && check_freespace
-			unset pid_dl checked nomefile
+		for url_in in $links_in; do
+			[ ! -z "$pid_in" ] && check_freespace
+			unset pid_in checked file_in
+			
 			#cancella file temporanei per recupero nome da uploaded di file incompleti per download interrotto cancellati dalla directory
-			ls *.uploaded.hellip.tmp 2>/dev/null | while read file_tmp; do
-				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
-				fsize_tmp=${fsize_tmp//K/}
-				#echo $fsize_tmp
-				if (( $fsize_tmp>10 )); then
-					rm -f "$file_tmp"
-				else
-					nfile_tmp=`cat "$file_tmp"`
-					nfile_tmp="${nfile_tmp#*'nomefile:'}"
-					
-					if [ ! -f "$nfile_tmp" ]; then
-						rm -f "$file_tmp"
-					fi
-				fi
-			done
-			#while [ ! -z "$indirizzo" ];do
-			indirizzo=`less $file |sed -n "${riga}p"`
-			(( riga++ ))
-			#fi
-			url=${indirizzo//\?*}
-			mkdir $path_tmp 2>/dev/null
+# 			ls *.alias 2>/dev/null | while read file_tmp; do
+# 				fsize_tmp=`ls -s --block-size=K "$file_tmp" | awk '{ print($1) }'`
+# 				fsize_tmp=${fsize_tmp//K/}
+# 				#echo $fsize_tmp
+# 				if (( $fsize_tmp>10 )); then
+# 					rm -f "$file_tmp"
+# 				else
+# 					nfile_tmp=`cat "$file_tmp"`
+# 					nfile_tmp="${nfile_tmp#*'file_in:'}"
+# 					
+# 					if [ ! -f "$nfile_tmp" ]; then
+# 						rm -f "$file_tmp"
+# 					fi
+# 				fi
+# 			done
+ 			
+			domain=${url_in//\?*}
 			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
 			echo
 			echo
 			separator "Z"
 			
-			echo -e "\nLink da processare: $indirizzo"
+			echo -e "\nLink da processare: $url_in"
 			
-	# 		if [ "$url" != "${url//4us.to/}" ]; then
+	# 		if [ "$domain" != "${domain//4us.to/}" ]; then
 	# 			
 	# 			## 4US.TO ###############
 	# 			get_tmps		
@@ -1076,31 +1102,31 @@ while true; do
 	# 			link=${link#*document.location=\"}
 	# 			link=${link%\"*}
 	# 			
-	# 			nomefile=${link##*=} 
+	# 			file_in=${link##*=} 
 	# 			n=1
 	# 	
-			if [ "$url" != "${url//mediafire.}" ]; then
+			if [ "$domain" != "${domain//mediafire.}" ]; then
 				
 				# MEDIAFIRE.COM ##############
 				check_ip mediafire
 				
 				get_tmps
-				link=`less $path_tmp/zdl.tmp |grep 'kNO = '`
+				link=`cat $path_tmp/zdl.tmp |grep 'kNO = '`
 				link=${link#*'kNO = "'}
 				link=${link//\" onclick=\"avh*/}
 				link=${link%'"'*}
 				
-				nomefile=${link##*'/'}
+				file_in=${link##*'/'}
 				n=4
-			elif [ "$url" != "${url//nowdownload.}" ]; then
+			elif [ "$domain" != "${domain//nowdownload.}" ]; then
 				
 				## http://www.nowdownload ###########
 				
 				get_tmps
-				token=`less $path_tmp/zdl.tmp | grep token`
+				token=`cat $path_tmp/zdl.tmp | grep token`
 				token=${token//*=}
 				token=${token//\"*/}
-				prelink=${indirizzo//\/dl/\/dl2}"/$token"
+				prelink=${url_in//\/dl/\/dl2}"/$token"
 				print_c 2 "Attendi circa 30 secondi:"
 				k=`date +"%s"`
 				s=0
@@ -1122,42 +1148,42 @@ while true; do
 
 					[ ! -z "$link" ] && break
 				done	
-				nomefile1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
-				nomefile1="${nomefile1#*'<br> '}"
-				nomefile1="${nomefile1%%</h4>*}"
-				nomefile1="${nomefile1%' '*}"
-				nomefile1="${nomefile1%' '*}"
-				nomefile1="${nomefile1%' '*}"
-				nomefile1="${nomefile1//'<br>'/}"
-				while [ "$nomefile1" != "${nomefile1%.}" ]; do
-					nomefile1=${nomefile1%.}
+				file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
+				file_in1="${file_in1#*'<br> '}"
+				file_in1="${file_in1%%</h4>*}"
+				file_in1="${file_in1%' '*}"
+				file_in1="${file_in1%' '*}"
+				file_in1="${file_in1%' '*}"
+				file_in1="${file_in1//'<br>'/}"
+				while [ "$file_in1" != "${file_in1%.}" ]; do
+					file_in1=${file_in1%.}
 				done
-				nomefile2="${link//*\//}"
-				nomefile2="${nomefile2#*_}"
+				file_in2="${link//*\//}"
+				file_in2="${file_in2#*_}"
 				
-				if [ "$nomefile2" != "${nomefile2//$nomefile1}" ]; then
-					nomefile="$nomefile2"
+				if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+					file_in="$file_in2"
 				else
-					nomefile="$nomefile1"
+					file_in="$file_in1"
 				fi
 	
-	# 		elif [ "$url" != "${url//sharpfile.}" ]; then
-	# 			wget $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
+	# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
+	# 			wget $url_in -O $path_tmp/zdl.tmp &>/dev/null
 	# 			tmp="$path_tmp/zdl.tmp"
 	# 			input_hidden
 	# 			
-	# 			if ( [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ] ) || ( [ -f "${nomefile}" ] && [ "$downloader" = "Wget" ] ); then
+	# 			if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( [ -f "${file_in}" ] && [ "$downloader_in" = "Wget" ] ); then
 	# 				echo -n
 	# 			else
 	# 				check_ip sharpfile
-	# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $indirizzo -O $path_tmp/zdl.tmp &>/dev/null
+	# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O $path_tmp/zdl.tmp &>/dev/null
 	# 				echo -e "...\c"
 	# 				tmp="$path_tmp/zdl.tmp"
 	# 				input_hidden
 	# 				
 	# 				post_data="${post_data//'op=catalogue&'}"
 	# 				
-	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
+	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
 	# 				
 	# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
 	# 				unset post_data
@@ -1188,16 +1214,16 @@ while true; do
 	# 				post_data="${post_data//'op=catalogue&'}"
 	# 				post_data="${post_data}&code=${code}"
 	# 			fi
-	# 			link="$indirizzo"
+	# 			link="$url_in"
 	
-	# 		elif [ "$url" != "${url//shareflare.}" ]; then
+	# 		elif [ "$domain" != "${domain//shareflare.}" ]; then
 	# 			
 	# 			## http://www.shareflare.net ####
 	# 			check_ip shareflare
 	# 			get_tmps
 	# 			tmp="$path_tmp/zdl.tmp"
 	# 			input_hidden
-	# 			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ]; then
+	# 			if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ]; then
 	# 					echo
 	# 			else
 	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
@@ -1238,24 +1264,27 @@ while true; do
 	# 				n=1
 	# 			fi
 	# 			
-			elif [ "$url" != "${url//easybytez.}" ]; then
-				indirizzo=`wget -t 1 -T $max_waiting -O - $indirizzo -q |grep 'You have requested'` #&>/dev/null
-				indirizzo="${indirizzo##*'<font color="red">'}"
-				indirizzo="${indirizzo%%'</font'*}"
-				#indirizzo="${indirizzo// /}"
-				nomefile=${indirizzo##*\/}
-				not_available=`wget -T $max_waiting -q -O - $indirizzo |grep "File not available"`
-				check_loop
-				if [ ! -z "${nomefile}" ] && [ ! -f "${nomefile}" ] && [ -z "$not_available" ]; then
+			elif [ "$domain" != "${domain//easybytez.}" ]; then
+				url_in=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'` #&>/dev/null
+				url_in="${url_in##*'<font color="red">'}"
+				url_in="${url_in%%'</font'*}"
+				#url_in="${url_in// /}"
+				file_in=${url_in##*\/}
+				
+				#read -p "$file_in"
+				
+				not_available=`wget -T $max_waiting -q -O - $url_in |grep "File not available"`
+				check_in
+				if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
 					check_ip easybytez
 					
-					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $indirizzo &>/dev/null
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
 					echo -e "...\c"
 					
 					tmp="$path_tmp/zdl.tmp"
 					input_hidden
 				
-					wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $indirizzo -O $path_tmp/zdl2.tmp &>/dev/null
+					wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
 					echo -e "...\c"
 					exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
 					unset post_data
@@ -1264,7 +1293,7 @@ while true; do
 						tmp="$path_tmp/zdl2.tmp"
 						input_hidden
 		
-						wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $indirizzo -O $path_tmp/zdl3.tmp &>/dev/null
+						wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
 						echo -e "...\c"
 						unset post_data
 					
@@ -1278,15 +1307,16 @@ while true; do
 						input_hidden
 						
 						
-						link="$indirizzo"
+						link="$url_in"
 						post_data="${post_data}&btn_download=Download File"
 					fi
+					#read -p "$file_in"
 				fi
 					
-			elif [ "$url" != "${url//uploaded.}" ]; then
-				unset hellip
-				indirizzo="${indirizzo%/}"
-				wget -t 1 -T $max_waiting $indirizzo -q -O $path_tmp/test_page.tmp &>/dev/null
+			elif [ "$domain" != "${domain//uploaded.}" ]; then
+				unset alias
+				url_in="${url_in%/}"
+				wget -t 1 -T $max_waiting $url_in -q -O $path_tmp/test_page.tmp &>/dev/null
 				test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
 				test_exceeded="${test_exceeded#*'>'}"
 				test_exceeded="${test_exceeded%'<'*}"
@@ -1297,33 +1327,33 @@ while true; do
 					test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
 				fi
 				#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
-				test_available=`wget -q -O - -t 1 -T $max_waiting $indirizzo |grep "</html"`
+				test_available=`wget -q -O - -t 1 -T $max_waiting $url_in |grep "</html"`
 	
 				if [ "$test_exceeded" == "1" ]; then
 					exceeded=1
 				elif [ -z "$test_available" ]; then
 					not_available=true
 				else
-					if [ "${indirizzo##*/}" != "${indirizzo//*file\/}" ]; then
-						nomefile=${indirizzo##*/}
-						indirizzo2=${indirizzo%/*}
-						file_id=${indirizzo2##*/}
+					if [ "${url_in##*/}" != "${url_in//*file\/}" ]; then
+						file_in=${url_in##*/}
+						url_in2=${url_in%/*}
+						file_id=${url_in2##*/}
 					else 
-						wget -t 1 -T $max_waiting "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
-						file_id=${indirizzo##*/} 
-						nomefile=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
-						nomefile="${nomefile//<\/a*/}"
-						nomefile="${nomefile##*>}"
-						if [ "$nomefile" != "${nomefile//'&hellip;'/}" ]; then
-							nomefile="${file_id}_${nomefile//'&hellip;'/.}.uploaded.hellip.tmp"
-							#hellip=true
+						wget -t 1 -T $max_waiting "$url_in" -O $path_tmp/zdl.tmp &>/dev/null
+						file_id=${url_in##*/} 
+						file_in=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
+						file_in="${file_in//<\/a*/}"
+						file_in="${file_in##*>}"
+						if [ "$file_in" != "${file_in//'&alias;'/}" ]; then
+							file_in="${file_id}_${file_in//'&alias;'/.}.alias"
+							#alias=true
 						fi
 						
 					fi
-					check_loop
-					if [ ! -f "$nomefile" ]; then
+					check_in
+					if [ ! -f "$file_in" ]; then
 						check_ip uploaded
-						wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$indirizzo" -O $path_tmp/zdl.tmp &>/dev/null
+						wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in" -O $path_tmp/zdl.tmp &>/dev/null
 						echo -e "...\c"
 						
 						cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
@@ -1336,82 +1366,38 @@ while true; do
 						echo -e "...\c"
 						
 						link=`cat $path_tmp/goal.tmp`
-						link=${link//*url:\'/}
+						link=${link//*domain:\'/}
 						link=${link//\'*}
 					fi
 				fi
 				
 			else
-				[ "$url" != "" ] && print_c 3 "$url non supportato da $PROG"
+				[ "$domain" != "" ] && print_c 3 "$domain non supportato da $PROG"
 				not_available=1
 			fi
-			nomefile="${nomefile// /_}"
+			file_in="${file_in// /_}"
 			
-			if [ "$url" != "${url//uploaded.}" ] || [ "$url" != "${url//easybytez.}" ];then # || [ "$url" != "${url//sharpfile.}" ]; then
-				if [ "$downloader" == "Axel" ]; then
-					dler=$downloader
-					downloader=Wget
+			if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
+				if [ "$downloader_in" == "Axel" ]; then
+					dler=$downloader_in
+					downloader_in=Wget
 					ch_dler=1
-					print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader"
+					print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 				fi
 			fi
 			
-# 			check_dl
-# 			unset checked
 			#### DOWNLOAD ####
 			
-			if [ ! -f "${nomefile}.st" ] && [ -f "${nomefile}" ] && [ "$downloader" = "Axel" ]; then
-				_log 1
-				no_newip=true
-			elif ( [ -f "${nomefile}" ] || [ -f "${path_tmp}/${nomefile}" ] ) && [ "$downloader" = "Wget" ]; then
-				_log 1
-				no_newip=true
-				check_loop
-			elif [ ! -z "$not_available" ]; then
-				[ "$indirizzo" != "" ] && _log 3
-				no_newip=true
-			elif [ ! -z "$exceeded" ]; then
-				_log 4
-				no_newip=true
-			elif [ "$link" == "" ] || [ "${nomefile}" == "" ]; then
-				_log 2
-				unset no_newip
-				#no_newip=true
-				#old_ip
-			elif [ "$link" != "${link//{\"err\"/}" ]; then
-				_log 2
-				unset no_newip
-	# 		elif [ "${nomefile}" == "" ]; then
-	# 			_log 5
-	# 			unset no_newip
-			elif [ "$indirizzo" != "" ]; then
-				if [ "$downloader" = "Axel" ]; then
-					export AXEL_COOKIES=$path_tmp/cookies.zdl
-					print_c 1 "downloading --> $nomefile ..."
-					[ "$nomefile" != "" ] && argout="-o"
-					# -a tolto
-					axel -n $n "$link" $argout "$nomefile" >> "$path_tmp/${nomefile}_stdout.tmp" & 
-					pid_dl=$!
-					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nAxel" > "$path_tmp/${nomefile}_stdout.tmp"
-					pids_alive[${#pids_alive[*]}]=${pid_dl}
-					unset post_data
-					
-				elif [ "$downloader" = "Wget" ]; then
-					print_c 1 "downloading --> $nomefile ..."
-					[ "$nomefile" != "" ] && argout="-O" && fileout="$nomefile"
-					[ "$url" != "${url//easybytez.}" ] && unset argout fileout
-					LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$link" -S $argout "$fileout" --progress=bar:force -a "$path_tmp/${nomefile}_stdout.tmp" &
-					pid_dl=$!
-					echo -e "${pid_dl}\nlink_${prog}: $indirizzo\nWget" > "$path_tmp/${nomefile}_stdout.tmp"
-					pids_alive[${#pids_alive[*]}]=${pid_dl}
-					unset post_data
-				fi
+			sanitize
+			if [ $? == 1 ]; then
+				download
 				
-				if [ $multi == 1 ] && [ "$url" == "${url//nowdownload.}" ]; then
-					count_down=$(( $max_waiting+5 ))
+				if [ $multi == 1 ] && [ "$domain" == "${domain//nowdownload.}" ]; then
+					count_down=$(( $max_waiting-10 ))
 				else	
 					count_down=$(( $max_waiting+5 ))
 				fi
+				
 				print_c 2 "Attendi:"
 				while [ "$count_down" != 0 ]; do
 					echo -e "  \r\c"
@@ -1421,64 +1407,50 @@ while true; do
 				done
 				echo -e "  \r\c"
 				
-				####################################
-				# check free space
-				if [ ! -z "$pid_dl" ]; then
-					name_stdout=`ls -1 "$path_tmp/${nomefile}_stdout.tmp" 2>/dev/null`
-					dlr=`head -n 3 "$name_stdout" | sed -n '3p'`
-			
-					if [ "$dlr" == "Wget" ]; then
-						tot_size=`cat "$name_stdout" |grep "Content-Length:"`
-						tot_size="${tot_size#*Content-Length: }"
-						tot_size="${tot_size%%' '*}"
-						#sleep 2
-					elif [ "$dlr" == "Axel" ]; then
-						tot_size=`cat "$name_stdout" |grep 'File size'`
-						tot_size="${tot_size#*File size: }"
-						tot_size="${tot_size%% *}"
-					fi
 					
-					check_freespace
-				fi
-				####################################
-				# hellip
-				if [ -f "$nomefile" ] && [ "$nomefile" != "${nomefile//.uploaded.hellip.tmp}" ]; then
-					unset quit newname pid 
-					newname=`cat $path_tmp/${nomefile}_stdout.tmp |grep filename`
-					newname="${newname#*'filename="'}"
-					newname="${newname%'"'*}"
-					if [ "$newname" != "" ]; then
-						check_dl
+				check_freespace
+
+				# if file_in is an alias
+				if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "$file_in" != "${file_in//.alias}" ]; then
+					
+					unset real_file_in 
+					real_file_in=`cat $path_tmp/${file_in}_stdout.tmp |grep filename`
+					real_file_in="${real_file_in#*'filename="'}"
+					real_file_in="${real_file_in%'"'*}"
+					if [ "$real_file_in" != "" ]; then
+						check_stdout
 						
 						if [ $? == 5 ]; then
-							kill_dl
-							rm -f  "$nomefile"
-						elif [ ! -f "$newname" ]; then
-							mv "$nomefile" "$newname"
-							print_c 1 "Recupero nomefile: $nomefile rinominato come $newname"
+							kill_in
+							rm -f  "$file_in"
+						elif [ ! -f "$real_file_in" ]; then
+							mv "$file_in" "$real_file_in"
+							print_c 1 "Recupero file_in: $file_in rinominato come $real_file_in"
 						fi
-						echo "$pid_prog - nomefile:$newname" > "$path_tmp/$nomefile"
-						unset checked
+						#echo "$pid_prog - file_in:$real_file_in" > "$path_tmp/$file_in"
+						unset checked real_file_in
 					fi
 				fi
 				unset no_newip
 			fi
 			if [ -z $no_newip ]; then
-				[ "$url" != "${url//mediafire.}" ] && newip[${#newip[*]}]=mediafire
-				[ "$url" != "${url//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-		# 		[ "$url" != "${url//shareflare.}" ] && newip[${#newip[*]}]=shareflare
-				[ "$url" != "${url//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-	# 			[ "$url" != "${url//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
+				[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+				[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+		# 		[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+				[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+	# 			[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 			fi
-			[ "$ch_dler" == "1" ] && downloader=$dler && unset ch_dler
+			[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
 	
 			noproxy
 			if [ $multi == 1 ]; then 
-				check_dl
+				check_stdout
+				show_data_stdout
 				checked=1
 			fi
-			while [ -z "$checked" ]; do #nomefile
-				check_dl
+			while [ -z "$checked" ]; do #file_in
+				#check_stdout
+				show_data_stdout
 				sleep 4
 			done
 			
@@ -1492,24 +1464,25 @@ while true; do
 	else
 		unset file
 		while true; do 
-			check_dl
+			check_stdout
+			show_data_stdout
 			sleep 4
 			if [ -f "$path_tmp/links_loop.txt" ]; then
 				file="$path_tmp/links_loop.txt"
 				break
 			fi
-			nodl=0
-			for pk in ${killed[*]}; do
-				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
-				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
-			done
-			[ $nodl == 0 ] && break
+# 			nodl=0
+# 			for pk in ${killed[*]}; do
+# 				check_tmps=`head -n 1 $path_tmp/*_stdout.tmp 2>/dev/null`
+# 				[ "$check_tmps" != "${check_tmps//$pk}" ] || (( nodl++ ))
+# 			done
+# 			[ $nodl == 0 ] && break
 		done
 	fi
 	## DEBUG
 # 	[ ! -f "$path_tmp/links_loop.txt" ] && echo "finito loop"
 # 	( [ "${pids_alive[*]}" == "" ] && echo "finito pids" ) || echo "pids: ${pids_alive[*]}"
-	##
+##
 
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "${pids_alive[*]}" == "" ] && break
 done
