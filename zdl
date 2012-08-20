@@ -949,25 +949,26 @@ function check_in {
 			last_stdout=$(( ${#pid_out[*]}-1 ))
 			#read -p ${#pid_out[*]}
 			for i in `seq 0 $last_stdout`; do
-				
-				check_pid ${pid_out[$i]}
-				if [ $? == 1 ]; then
-					if [ "${file_out[$i]}" == "$file_in" ]; then
-						#_log 7
-						return 1
-					fi
-				else
-					length_saved=0
-					length_alias_saved=0
-					length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
-					[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
-				
-					if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+				if [ "${file_out[$i]}" == "$file_in" ]; then
+					check_pid ${pid_out[$i]}
+					if [ $? == 1 ]; then
+							#_log 7
+							return 1
+					else
+						length_saved=0
+						length_alias_saved=0
+						length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
+						[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 					
-						[ ! -f "${file_in}.st" ] && rm -f "$file_in" #&& rm "$path_tmp/${file_out[$i]}_stdout.tmp"
+						if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+						
+							if [ ! -f "${file_in}.st" ]; then
+								rm -f "$file_in"
+								return 2
+							fi
+						fi
 					fi
 				fi
-				
 			done
 		fi
 	fi
@@ -1350,6 +1351,7 @@ while true; do
 				
 				not_available=`wget -T $max_waiting -q -O - $url_in_file |grep "File not available"`
 				check_in
+				# [ $? == 2 ] && [ ! -f $file_in ]
 				if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
 					check_ip easybytez
 					
