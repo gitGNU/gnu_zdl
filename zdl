@@ -808,7 +808,7 @@ function show_data_stdout {
 }
 
 function check_stdout {
-	unset pids_alive
+	unset pids_alive checked
 	data_stdout
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -836,11 +836,9 @@ function check_stdout {
 					unset already_there
 					
 					if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
-						
 						[ ! -f "${file_out[$ck]}.st" ] && rm -f "${file_out[$ck]}"
-						_log 5
-						
-						checked=1
+						#_log 5
+						#checked=1
 					fi
 					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( $length_saved == ${length_out[$ck]} )) && (( ${length_out[$ck]} > 0 )) ); then 
 						links_loop - "${url_out[$ck]}"
@@ -853,11 +851,11 @@ function check_stdout {
 						#print_c 1 "${file_out[$ck]} scaricato con successo"
 						#echo
 						
-						checked=1
+						#checked=1
 					fi
 
 				else # file exists: don't loop its url_out
-					checked=1
+					#checked=1
 					rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
 					#links_loop - "${url_out[$ck]}"
 					#_log 1
@@ -870,21 +868,13 @@ function check_stdout {
 # 					[ ! -f "${file_out[$ck]}.st" ] && rm "$path_tmp/${file_out[$ck]}_stdout.tmp"
 # 				fi
 			fi
-			
-			if [ "$multi" != "1" ]; then
-				links_loop in "${url_out[$ck]}"
-				[ $? != 1 ] && checked=1
-			fi
 		done
 		#return 1
-	else
-		checked=1
+	#else
+		#checked=1
 	fi
 	[ ! -z "$dl_alive" ] && print_c 1 "downloading --> $file_in ..."
 	unset dl_alive
-	if [ "$multi" == "1" ]; then
-		checked=1
-	fi
 }
 
 function check_alias {
@@ -937,6 +927,7 @@ function check_alias {
 
 
 function check_in {
+
 	if [ -f "$file_in" ]; then
 		data_stdout
 		if [ $? == 1 ]; then
@@ -959,7 +950,7 @@ function check_in {
 						length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
 						[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 					
-						if [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )); then
+						if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
 						
 							if [ ! -f "${file_in}.st" ]; then
 								rm -f "$file_in"
@@ -979,7 +970,7 @@ function links_loop { #usage with op=+|- : links $op $link
 	url_loop="$2" #url
 	if [ ! -z "$url_loop" ]; then
 		case $op in
-			"+")	
+			+)	
 				if [ -f "$path_tmp/links_loop.txt" ]; then
 					lnx=`cat $path_tmp/links_loop.txt`
 					for lnk in $lnx; do
@@ -990,7 +981,7 @@ function links_loop { #usage with op=+|- : links $op $link
 				echo "$url_loop" >> $path_tmp/links_loop.txt
 				
 				;;
-			"-")
+			-)
 				if [ -f "$path_tmp/links_loop.txt" ]; then
 					lnx=`cat $path_tmp/links_loop.txt`
 					for lnk in $lnx; do
@@ -999,10 +990,14 @@ function links_loop { #usage with op=+|- : links $op $link
 					[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 				fi
 				;;
-			"in") 
+			in) 
 				lnx=`cat $path_tmp/links_loop.txt`
 				for lnk in $lnx; do
-					[ "${url_loop//$lnk}" != "${url_loop}" ] && return 1
+					if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
+						return 1
+					else
+						return 5
+					fi
 				done
 				;;
 		esac
@@ -1340,13 +1335,13 @@ while true; do
 	# 			fi
 	# 			
 			elif [ "$domain" != "${domain//easybytez.}" ]; then
-				url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'` #&>/dev/null
+				url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'`
 				url_in_file="${url_in_file##*'<font color="red">'}"
 				url_in_file="${url_in_file%%'</font'*}"
 				#url_in_file="${url_in_file// /}"
 				file_in=${url_in_file##*\/}
 				
-				not_available=`wget -T $max_waiting -q -O - $url_in_file |grep "File not available"`
+				not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file |grep "File not available"`
 				check_in
 				
 				#logic: [ $? == 2 ] && [ ! -f $file_in ]
@@ -1482,14 +1477,16 @@ while true; do
 				done
 				echo -e "  \r\c"
 				
-					
-				check_freespace
-				check_alias
-				
 				unset no_newip
+				check_freespace
+				check_alias				
 			else
 				sleep 5
 			fi
+			if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]; then
+				links_loop - "$url_in"
+			fi
+			
 			if [ -z $no_newip ]; then
 				[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
 				[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
@@ -1498,7 +1495,7 @@ while true; do
 	# 			[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 			fi
 			[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
-	
+			unset checked
 			noproxy
 			if [ $multi == 1 ]; then 
 				check_stdout
@@ -1508,10 +1505,15 @@ while true; do
 			while [ -z "$checked" ]; do #file_in
 				check_stdout
 				show_data_stdout
-				sleep 4
+				sleep 5
 				
+				check_pid $pid_in
+				test_pid=$?
+				
+				links_loop "in" "$url_in"
+				if [ $? == 5 ] && [ $test_pid != 13 ]; then checked=1 ; fi
 			done
-			
+			unset checked
 			sleep 5
 			unset post_data goal not_available exceeded
 		done
