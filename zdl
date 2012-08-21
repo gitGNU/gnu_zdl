@@ -767,8 +767,6 @@ function interactive {
 	t) per terminare il programma senza fare niente digita \"t\""
 			
 			print_c 2 "Scegli cosa fare: [r | e | t]"
-			echo ${pid_alive[*]}
-			ps au|grep wget
 			read input2
 			
 			if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
@@ -1666,7 +1664,7 @@ separator "-"
 
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
-#rm -r "$path_tmp"
+rm -r "$path_tmp"
 
 echo
 echo
