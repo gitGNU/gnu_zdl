@@ -706,14 +706,14 @@ function interactive {
 
 
 function data_stdout {
-	unset list
+	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out progress_out length_out
 	if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
 		list="$1"
 	else
 		list=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
 	fi
 	if [ ! -z "$list" ]; then
-		unset file_stdout file_out alias_file_out url_out downloader_out pid_out progress_out length_out
+		
 		i=0
 		for item in $list; do
 			
@@ -723,43 +723,39 @@ function data_stdout {
  			file_o="${file_stdout//_stdout.tmp}"
  			file_o="${file_o#$path_tmp/}"
 			file_out[$i]=`cat "$path_tmp/head_stdout"|grep "Saving to"`
-			file_out[$i]="${file_out[$i]#*\`}"
+			file_out[$i]="${file_out[$i]#*Saving to: \`}"
 			file_out[$i]="${file_out[$i]%\'*}"
-			
-			
 			
 			
 			if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
 				print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
 				exit 1
-			elif [ -z "${file_out[$i]}" ]; then
+			fi
+			
+			if [ -z "${file_out[$i]}" ]; then
 				file_out[$i]="$file_o"
 			fi
-				
-			pid_out[$i]=`head -n 1 "$path_tmp/head_stdout"`
+			
+			pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
 						
-			url_out[$i]=`cat "$path_tmp/head_stdout"|grep "link_$prog"`
+			url_out[$i]=`cat $file_stdout|grep "link_$prog"`
 			url_out[$i]="${url_out[$i]#link_${prog}: }"
 
-			downloader_out[$i]=`head -n 3 "$path_tmp/head_stdout" | sed -n '3p'`
-	
-			if [ "$downloader_out[$i]" == "Wget" ]; then
-				if [ "${file_out[$i]}" != "${file_out//alias}" ];then
+			downloader_out[$i]=`head -n 3 $file_stdout | sed -n '3p'`
+			
+			if [ "${downloader_out[$i]}" == "Wget" ]; then
+				if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
 					alias_file_out[$i]="${file_out[$i]}"
-					
-					file_out[$i]=`cat "$path_tmp/head_stdout" |grep filename`
+					file_out[$i]=`cat $file_stdout |grep filename`
 					file_out[$i]="${file_out[$i]#*'filename="'}"
 					file_out[$i]="${file_out[$i]%'"'*}"
 					file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
 				fi
-				#progress_out[$i]=`tail "$file_stdout" | grep `
-				cat $path_tmp/head_stdout > "$file_stdout"
-				
-				length_out[$i]=`cat "$path_tmp/head_stdout" |grep "Length:" |tail -n 1`
+				length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
 				length_out[$i]="${length_out[$i]#*Length: }"
 				length_out[$i]="${length_out[$i]%%' '*}"
-
-			elif [ "$downloader_out[$i]" == "Axel" ]; then
+				#cat $path_tmp/head_stdout > "$file_stdout"
+			elif [ "${downloader_out[$i]}" == "Axel" ]; then
 				#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
 				cat $path_tmp/head_stdout > "$file_stdout"
 				
@@ -769,12 +765,13 @@ function data_stdout {
 
 			fi
 			progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			
 			(( i++ ))
 # 			else
 # 				unset file_stdout[$i] file_out[$i] alias_file_out[$i] url_out[$i] downloader_out[$i] pid_out[$i] progress_out[$i] length_out[$i]
 # 			fi
 		done
-		unset i
+		#unset i
 		return 1
 	fi
 }
@@ -815,48 +812,45 @@ function check_stdout {
 	data_stdout
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
-		for i in `seq 0 $last_stdout`; do
-			check_pid ${pid_out[$i]}
+		for ck in `seq 0 $last_stdout`; do
+			check_pid ${pid_out[$ck]}
 			if [ $? == 1 ]; then
-				if [ -f "${file_out[$i]}" ] && [ -f "${alias_file_out[$i]}" ]; then
-					rm -f "${alias_file_out[$i]}"
+				if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
+					rm -f "${alias_file_out[$ck]}"
 				fi
-				if [ ! -f "${file_out[$i]}" ] && [ ! -f "${alias_file_out[$i]}" ]; then
-					kill ${pid_out[$i]}
+				if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
+					kill ${pid_out[$ck]}
 				else
-					pids_alive[${#pids_alive[*]}]=${pid_out[$i]}
-					[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$i]}" ] && dl_alive=1
+					pids_alive[${#pids_alive[*]}]=${pid_out[$ck]}
+					[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && dl_alive=1
 				fi
 			fi
 			
-			check_pid ${pid_out[$i]}
+			check_pid ${pid_out[$ck]}
 			if [ $? != 1 ]; then
-				
 				length_saved=0
-				[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
-				
-				already_there=`cat "$path_tmp/${file_out[$i]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
+				[ -f "${file_out[$ck]}" ] && length_saved=`ls -l "${file_out[$ck]}" | awk '{ print($5) }'`
+				already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
 				
 				if [ -z "$already_there" ]; then 
 					unset already_there
 					
-					if [ "${length_out[$i]}" == "0" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>0 )) && (( $length_saved<${length_out[$i]} )) ); then
+					if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
 						
-						[ ! -f "${file_out[$i]}.st" ] && rm -f "${file_out[$i]}"
+						[ ! -f "${file_out[$ck]}.st" ] && rm -f "${file_out[$ck]}"
 						_log 5
 						
 						checked=1
-					
-					elif ( [ ! -z "${length_out[$i]}" ] && [ "${length_out[$i]}" != "0" ] && (( $length_saved==${length_out[$i]} )) && (( ${length_out[$i]}>0 )) ); then 
-						links_loop - "${url_out[$i]}"
-						
+					fi
+					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( $length_saved == ${length_out[$ck]} )) && (( ${length_out[$ck]} > 0 )) ); then 
+						links_loop - "${url_out[$ck]}"
 # 						var_pids="${pids_alive[*]}"
-# 						var_pids="${var_pids//${pid_out[$i]}/-}"
+# 						var_pids="${var_pids//${pid_out[$ck]}/-}"
 # 						var_pids="${var_pids//-}"
 # 						pids_alive=( $var_pids )
 						
 						#echo
-						#print_c 1 "${file_out[$i]} scaricato con successo"
+						#print_c 1 "${file_out[$ck]} scaricato con successo"
 						#echo
 						
 						checked=1
@@ -864,21 +858,21 @@ function check_stdout {
 
 				else # file exists: don't loop its url_out
 					checked=1
-					rm -f "$path_tmp/${file_out[$i]}_stdout.tmp"
-					#links_loop - "${url_out[$i]}"
+					rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
+					#links_loop - "${url_out[$ck]}"
 					#_log 1
 				fi
 				
-				# "$path_tmp/${file_out[$i]}_stdout.tmp" NON VALIDO -->cancellato solo se MORTO
-# 				msg=`cat "$path_tmp/${file_out[$i]}_stdout.tmp" |grep "Proxy request sent, awaiting response... Read error"`
+				# "$path_tmp/${file_out[$ck]}_stdout.tmp" NON VALIDO -->cancellato solo se MORTO
+# 				msg=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" |grep "Proxy request sent, awaiting response... Read error"`
 # 				
-# 				if [ ! -z "$msg" ] || [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ]; then
-# 					[ ! -f "${file_out[$i]}.st" ] && rm "$path_tmp/${file_out[$i]}_stdout.tmp"
+# 				if [ ! -z "$msg" ] || [ "${length_out[$ck]}" == "unspecified" ] || [ "${length_out[$ck]}" == 0 ] || [ -z "${length_out[$ck]}" ]; then
+# 					[ ! -f "${file_out[$ck]}.st" ] && rm "$path_tmp/${file_out[$ck]}_stdout.tmp"
 # 				fi
 			fi
 			
 			if [ "$multi" != "1" ]; then
-				links_loop in "${url_out[$i]}"
+				links_loop in "${url_out[$ck]}"
 				[ $? != 1 ] && checked=1
 			fi
 		done
@@ -896,7 +890,7 @@ function check_stdout {
 function check_alias {
 	# if file_in is an alias...
 	
-	if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "${file_in}" != "${file_in//.alias}" ]; then
+	if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "${file_in}" != "${file_in%.alias}" ]; then
 		data_stdout
 		if [ $? == 1 ]; then
 			last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -949,18 +943,25 @@ function check_in {
 			last_stdout=$(( ${#pid_out[*]}-1 ))
 			#read -p ${#pid_out[*]}
 			for i in `seq 0 $last_stdout`; do
-				if [ "${file_out[$i]}" == "$file_in" ]; then
+				read -p "${file_out[$i]}"
+				if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
+					read -p "${pid_out[$i]}"
 					check_pid ${pid_out[$i]}
 					if [ $? == 1 ]; then
-							#_log 7
-							return 1
-					else
+						#_log 7
+						return 1
+						
+					fi
+					
+					check_pid ${pid_out[$i]}
+					if [ $? != 1 ]; then
+						
 						length_saved=0
 						length_alias_saved=0
 						length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
 						[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 					
-						if [ "${length_out[$i]}" == "unspecified" ] || [ "${length_out[$i]}" == 0 ] || [ -z "${length_out[$i]}" ] || ( ( [ "$file_in" == "${file_out[$i]}" ] || [ "$file_in" == "${alias_file_out[$i]}" ] ) && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+						if [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )); then
 						
 							if [ ! -f "${file_in}.st" ]; then
 								rm -f "$file_in"
