@@ -94,7 +94,13 @@ http://inventati.org/zoninoz
 function init {
 	log=0
 	n=32
-	[ -e "/cygdrive" ] && n=10
+	# CYGWIN
+	if [ -e "/cygdrive" ];then 
+		n=10
+		#kill -SIGWINCH $$
+		updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
+		[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA" && exit
+	fi
 	multi=0
 	prog=`basename $0`
 	PROG=`echo $prog | tr a-z A-Z`
@@ -123,19 +129,94 @@ function init {
 	fi
 	
 	
-# 	data_stdout
-# 	if [ $? == 1 ]; then
-# 		last_stdout=$(( ${#pid_out[*]}-1 ))
-# 		for i in `seq 0 $last_stdout`; do
-# 			check_pid ${pid_out[$i]}
-# 			if [ $? != 1 ]; then
-# 				rm -f "$path_tmp/${file_out[$i]}_stdout.tmp"
-# 			fi
-# 		done
-# 	fi
+	data_stdout
+	if [ $? == 1 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			check_pid ${pid_out[$i]}
+			if [ $? == 1 ]; then
+				pids_alive[${#pids_alive[*]}]=${pid_out[$i]}
+			fi
+		done
+	fi
 }
 
 #### layout
+
+function init_colors {
+	# Reset
+	Color_Off='\e[0m'       # Text Reset
+	
+	# Regular Colors
+	Black='\e[0;30m'        # Nero
+	Red='\e[0;31m'          # Rosso
+	Green='\e[0;32m'        # Verde
+	Yellow='\e[0;33m'       # Giallo
+	Blue='\e[0;34m'         # Blu
+	Purple='\e[0;35m'       # Viola
+	Cyan='\e[0;36m'         # Ciano
+	White='\e[0;37m'        # Bianco
+	
+	# Bold
+	BBlack='\e[1;30m'       # Nero
+	BRed='\e[1;31m'         # Rosso
+	BGreen='\e[1;32m'       # Verde
+	BYellow='\e[1;33m'      # Giallo
+	BBlue='\e[1;34m'        # Blu
+	BPurple='\e[1;35m'      # Viola
+	BCyan='\e[1;36m'        # Ciano
+	BWhite='\e[1;37m'       # Bianco
+	
+	# Underline
+	UBlack='\e[4;30m'       # Nero
+	URed='\e[4;31m'         # Rosso
+	UGreen='\e[4;32m'       # Verde
+	UYellow='\e[4;33m'      # Giallo
+	UBlue='\e[4;34m'        # Blu
+	UPurple='\e[4;35m'      # Viola
+	UCyan='\e[4;36m'        # Ciano
+	UWhite='\e[4;37m'       # Bianco
+	
+	# Background
+	On_Black='\e[40m'       # Nero
+	On_Red='\e[41m'         # Rosso
+	On_Green='\e[42m'       # Verde
+	On_Yellow='\e[43m'      # Giallo
+	On_Blue='\e[44m'        # Blu
+	On_Purple='\e[45m'      # Purple
+	On_Cyan='\e[46m'        # Ciano
+	On_White='\e[47m'       # Bianco
+	
+	# High Intensty
+	IBlack='\e[0;90m'       # Nero
+	IRed='\e[0;91m'         # Rosso
+	IGreen='\e[0;92m'       # Verde
+	IYellow='\e[0;93m'      # Giallo
+	IBlue='\e[0;94m'        # Blu
+	IPurple='\e[0;95m'      # Viola
+	ICyan='\e[0;96m'        # Ciano
+	IWhite='\e[0;97m'       # Bianco
+	
+	# Bold High Intensty
+	BIBlack='\e[1;90m'      # Nero
+	BIRed='\e[1;91m'        # Rosso
+	BIGreen='\e[1;92m'      # Verde
+	BIYellow='\e[1;93m'     # Giallo
+	BIBlue='\e[1;94m'       # Blu
+	BIPurple='\e[1;95m'     # Viola
+	BICyan='\e[1;96m'       # Ciano
+	BIWhite='\e[1;97m'      # Bianco
+	
+	# High Intensty backgrounds
+	On_IBlack='\e[0;100m'   # Nero
+	On_IRed='\e[0;101m'     # Rosso
+	On_IGreen='\e[0;102m'   # Verde
+	On_IYellow='\e[0;103m'  # Giallo
+	On_IBlue='\e[0;104m'    # Blu
+	On_IPurple='\e[10;95m'  # Viola
+	On_ICyan='\e[0;106m'    # Ciano
+	On_IWhite='\e[0;107m'   # Bianco
+}
 
 function print_c {
   case "$1" in
@@ -149,8 +230,8 @@ function print_c {
        echo -n -e '\e[1;31m' #rosso
     ;;	
   esac
-  echo -n $2
-  echo -e '\e[0m'
+  echo -n -e "$2\n"
+  echo -n -e '\e[0m'
 }
 
 function separator {
@@ -578,11 +659,11 @@ function check_freespace {
 
 function download {
 	#[ -f "$file_in" ] && read -p "ERRORE: $file_in c'è già!! programma terminato"
+	rm -f "$path_tmp/${file_in}_stdout.tmp"
 	if [ "$downloader_in" = "Axel" ]; then
 		export AXEL_COOKIES=$path_tmp/cookies.zdl
 		
 		[ "$file_in" != "" ] && argout="-o"
-		# -a tolto
 		axel -n $n "$url_in_file" $argout "$file_in" >> "$path_tmp/${file_in}_stdout.tmp" & 
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel" > "$path_tmp/${file_in}_stdout.tmp"
@@ -618,14 +699,15 @@ function show_data_alive {
 		print_c 1 "Processi di download attualmente in vita:"
 		separator "="
 		last_alive=$(( ${#pid_alive[*]}-1 ))
-		#read -p $last_alive
 		for j in `seq 0 $last_alive`; do
 			print_c 1 "Numero download attivo: $j"
 			[ ! -f "${file_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
 			echo -e "File: ${file_alive[$j]}" 
 			[ ! -z "${alias_file_alive[$j]}" ] && echo "Alias: ${alias_file_alive[$j]}"
-			echo -e "Downloader: ${downloader_alive[$j]}\nLink: ${url_alive[$j]}\nProgresso: ${progress_alive[$j]}"
-			if [ $j != $tot ]; then 
+			echo -e "Downloader: ${downloader_alive[$j]}\nLink: ${url_alive[$j]}"
+			print_c 2 "Progresso: ${progress_alive[$j]}"
+			
+			if [ $j != $last_alive ]; then 
 				separator "-"
 			else
 				separator "="
@@ -633,7 +715,9 @@ function show_data_alive {
 		done
 		return 1
 	else
-		print_c 1  "Nessun download attivo di $PROG rilevato"
+		separator "="
+		print_c 3  "Nessun download attivo di $PROG rilevato"
+		separator "="
 	fi
 }
 
@@ -662,10 +746,14 @@ function data_alive {
 }
 
 function interactive {
+	echo
+	echo
 	client=1
 	show_data_alive
 	if [ $? == 1 ]; then
 		echo
+		echo
+		separator "?"
 		print_c 2 "Seleziona i numeri dei download attivi da riavviare o eliminare, separati da spazi (digita Ctrl+C per uscire subito):"
 		read input
 		inputs=( $input )
@@ -679,6 +767,8 @@ function interactive {
 	t) per terminare il programma senza fare niente digita \"t\""
 			
 			print_c 2 "Scegli cosa fare: [r | e | t]"
+			echo ${pid_alive[*]}
+			ps au|grep wget
 			read input2
 			
 			if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
@@ -688,7 +778,7 @@ function interactive {
 						rm -f "${file_alive[$i]}" "${alias_file_alive[$i]}" # "${file_alive[$i]}_stdout.tmp"
 					fi
 				done
-				if [ "$input2" != "e" ]; then
+				if [ "$input2" == "e" ]; then
 					for i in ${inputs[*]}; do
 						if [ "${options}" != "${options//$i}" ]; then
 							links_loop - "${url_alive[$i]}"
@@ -718,11 +808,10 @@ function data_stdout {
 		for item in $list; do
 			
 			file_stdout=$item
-			head -n 50 "$file_stdout" > $path_tmp/head_stdout
 
- 			file_o="${file_stdout//_stdout.tmp}"
- 			file_o="${file_o#$path_tmp/}"
-			file_out[$i]=`cat "$path_tmp/head_stdout"|grep "Saving to"`
+			file_o="${file_stdout//_stdout.tmp}"
+			file_o="${file_o#$path_tmp/}"
+			file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
 			file_out[$i]="${file_out[$i]#*Saving to: \`}"
 			file_out[$i]="${file_out[$i]%\'*}"
 			
@@ -754,32 +843,23 @@ function data_stdout {
 				length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
 				length_out[$i]="${length_out[$i]#*Length: }"
 				length_out[$i]="${length_out[$i]%%' '*}"
-				#cat $path_tmp/head_stdout > "$file_stdout"
 			elif [ "${downloader_out[$i]}" == "Axel" ]; then
-				#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
-				cat $path_tmp/head_stdout > "$file_stdout"
-				
-				length_out[$i]=`cat "$path_tmp/head_stdout" |grep 'File size'`
+				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
 				length_out[$i]="${length_out[$i]#*File size: }"
 				length_out[$i]="${length_out[$i]%% *}"
-
 			fi
 			progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
 			
 			(( i++ ))
-# 			else
-# 				unset file_stdout[$i] file_out[$i] alias_file_out[$i] url_out[$i] downloader_out[$i] pid_out[$i] progress_out[$i] length_out[$i]
-# 			fi
 		done
-		#unset i
 		return 1
 	fi
 }
 
 function show_data_stdout {
 	data_stdout
-	if [ $? == 1 ]; then
-		print_c 1 "Downloading..."
+	if [ $? == 1 ]; then		
+		print_c 1 "\nDownloading..."
 		separator "="
 		last_stdout=$(( ${#pid_out[*]}-1 ))
 		for i in `seq 0 $last_stdout`; do
@@ -787,15 +867,18 @@ function show_data_stdout {
 			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
 			echo -e "File: ${file_out[$i]} - Downloader: ${downloader_out[$i]}\nLink: ${url_out[$i]}"
 			progress="${progress_out[$i]}"
+			color=2
 			
 			check_pid ${pid_out[$i]}
 			if [ $? != 1 ]; then
 				progress="Download non attivo"
+				color=3
 			fi
 			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
 				progress="Download completato"
+				color=1
 			fi
-			echo "$progress"
+			print_c $color "${progress}"
 			if [ $i != $last_stdout ] && [ "$multi" == "1" ]; then
 				separator "-"
 			else
@@ -803,12 +886,16 @@ function show_data_stdout {
 			fi
 		done
 	else
+		separator "="
 		print_c 3 "Nessun download attivo"
+		separator "="
 	fi
+	echo
+	sleep 5
 }
 
 function check_stdout {
-	unset pids_alive checked
+	unset checked
 	data_stdout
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -822,7 +909,7 @@ function check_stdout {
 					kill ${pid_out[$ck]}
 				else
 					pids_alive[${#pids_alive[*]}]=${pid_out[$ck]}
-					[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && dl_alive=1
+					[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && downloading=1
 				fi
 			fi
 			
@@ -830,8 +917,8 @@ function check_stdout {
 			if [ $? != 1 ]; then
 				length_saved=0
 				[ -f "${file_out[$ck]}" ] && length_saved=`ls -l "${file_out[$ck]}" | awk '{ print($5) }'`
-				already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
 				
+				already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
 				if [ -z "$already_there" ]; then 
 					unset already_there
 					
@@ -842,20 +929,12 @@ function check_stdout {
 					fi
 					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( $length_saved == ${length_out[$ck]} )) && (( ${length_out[$ck]} > 0 )) ); then 
 						links_loop - "${url_out[$ck]}"
-# 						var_pids="${pids_alive[*]}"
-# 						var_pids="${var_pids//${pid_out[$ck]}/-}"
-# 						var_pids="${var_pids//-}"
-# 						pids_alive=( $var_pids )
-						
-						#echo
-						#print_c 1 "${file_out[$ck]} scaricato con successo"
-						#echo
-						
-						#checked=1
 					fi
 
 				else # file exists: don't loop its url_out
 					#checked=1
+					print_c 3 "Errore: $path_tmp/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
+					read -p "ATTENZIONE!"
 					rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
 					#links_loop - "${url_out[$ck]}"
 					#_log 1
@@ -869,12 +948,12 @@ function check_stdout {
 # 				fi
 			fi
 		done
-		#return 1
+		return 1
 	#else
 		#checked=1
 	fi
-	[ ! -z "$dl_alive" ] && print_c 1 "downloading --> $file_in ..."
-	unset dl_alive
+	[ ! -z "$downloading" ] && print_c 1 "downloading --> $file_in ..."
+	unset downloading
 }
 
 function check_alias {
@@ -900,7 +979,6 @@ function check_alias {
 						
 						if [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
 							kill $pid_in
-							#links_loop + "${url_in}"
 							rm -f  "${file_in_alias}"
 						elif [ "${pid_out[$i]}" == "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
 							check_in # se file_in esiste, ne verifica la validità --> potrebbe cancellarlo
@@ -909,7 +987,6 @@ function check_alias {
 								print_c 1 "$file_in_alias rinominato come $file_in"
 							else
 								kill $pid_in
-								#links_loop + "${url_in}"
 								rm -f  "${file_in_alias}"
 							fi
 						fi
@@ -927,45 +1004,72 @@ function check_alias {
 
 
 function check_in {
-
-	if [ -f "$file_in" ]; then
-		data_stdout
-		if [ $? == 1 ]; then
+	if [ -z "$file_in" ]; then
+		unset alive jump
+		# alive
+		data_alive
+		if [ ! -z $alive ]; then 
+			
+			last_alive=$(( ${#pid_alive[*]}-1 ))
+			for i in `seq 0 $last_alive`; do
+				if [ "${url_alive[$i]}" == "$url_in" ]; then
+					jump=1
+					return 3
+				fi
+			done
+			
+		fi
+		#  file_in
+		if [ ! -z "${pid_out[*]}" ]; then 
+			
 			last_stdout=$(( ${#pid_out[*]}-1 ))
-			#read -p ${#pid_out[*]}
 			for i in `seq 0 $last_stdout`; do
-				if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
-					check_pid ${pid_out[$i]}
-					if [ $? == 1 ]; then
-						#_log 7
-						return 1
+				if [ "${url_out[$i]}" == "$url_in" ]; then
+					file_in="${file_out[$i]}"
+				fi
+			done
+			
+		fi
+	fi
+	if [ ! -z "$file_in" ]; then
+		if [ -f "$file_in" ]; then
+			data_stdout
+			if [ $? == 1 ]; then
+				last_stdout=$(( ${#pid_out[*]}-1 ))
+				for i in `seq 0 $last_stdout`; do
+					if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
+						check_pid ${pid_out[$i]}
+						if [ $? == 1 ]; then
+							#_log 7
+							return 1
+							
+						fi
 						
-					fi
-					
-					check_pid ${pid_out[$i]}
-					if [ $? != 1 ]; then
+						check_pid ${pid_out[$i]}
+						if [ $? != 1 ]; then
+							
+							length_saved=0
+							length_alias_saved=0
+							length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
+							[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 						
-						length_saved=0
-						length_alias_saved=0
-						length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
-						[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
-					
-						if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
-						
-							if [ ! -f "${file_in}.st" ]; then
-								rm -f "$file_in"
-								return 2
+							if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+							
+								if [ ! -f "${file_in}.st" ]; then
+									rm -f "$file_in"
+									return 2
+								fi
 							fi
 						fi
 					fi
-				fi
-			done
+				done
+			fi
 		fi
 	fi
 }
 
 
-function links_loop { #usage with op=+|- : links $op $link
+function links_loop { 	#usage with op=+|- : links $op $link
 	op="$1" #operator
 	url_loop="$2" #url
 	if [ ! -z "$url_loop" ]; then
@@ -987,18 +1091,23 @@ function links_loop { #usage with op=+|- : links $op $link
 					for lnk in $lnx; do
 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
 					done
+					rm $path_tmp/links_loop.txt
 					[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 				fi
 				;;
 			in) 
-				lnx=`cat $path_tmp/links_loop.txt`
-				for lnk in $lnx; do
-					if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
-						return 1
-					else
-						return 5
-					fi
-				done
+				lnx=`cat $path_tmp/links_loop.txt 2>/dev/null`
+				if [ ! -z "$lnx" ];then
+					for lnk in $lnx; do
+						if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
+							return 1
+						else
+							return 5
+						fi
+					done
+				else
+					return 5
+				fi
 				;;
 		esac
 	fi
@@ -1027,7 +1136,6 @@ function sanitize {
 		no_newip=true
 	elif ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ]; then
 		no_newip=true
-		check_in
 		[ $? != 1 ] && _log 1
 	elif [ ! -z "$not_available" ]; then
 		[ ! -z "$url_in_file" ] && _log 3
@@ -1038,14 +1146,9 @@ function sanitize {
 	elif [ "$url_in_file" == "" ] || [ "${file_in}" == "" ]; then
 		_log 2
 		unset no_newip
-		#no_newip=true
-		#old_ip
 	elif [ "$url_in_file" != "${url_in_file//{\"err\"/}" ]; then
 		_log 2
 		unset no_newip
-# 	elif [ "${file_in}" == "" ]; then
-# 		_log 5
-# 		unset no_newip
 	elif [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
 		return 6
 	fi
@@ -1149,317 +1252,324 @@ init_links_loop
 while true; do
 	if [ -f "$file" ]; then	
 		links_in=`cat $file`
-		
 		for url_in in $links_in; do
 			[ ! -z "$pid_in" ] && check_freespace
-			unset pid_in checked file_in url_in_file 
 			
-			domain=${url_in//\?*}
-			echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
-			
-			echo
-			separator "Z"
-			
-			echo -e "\nLink da processare: $url_in"
-			
-	# 		if [ "$domain" != "${domain//4us.to/}" ]; then
-	# 			
-	# 			## 4US.TO ###############
-	# 			get_tmps		
-	# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
-	# 			link=${link#*document.location=\"}
-	# 			link=${link%\"*}
-	# 			
-	# 			file_in=${link##*=} 
-	# 			n=1
-	# 	
-			if [ "$domain" != "${domain//mediafire.}" ]; then
-				
-				# MEDIAFIRE.COM ##############
-				check_ip mediafire
-				
-				get_tmps
-				url_in_file=`cat $path_tmp/zdl.tmp |grep 'kNO = '`
-				url_in_file=${url_in_file#*'kNO = "'}
-				url_in_file=${url_in_file//\" onclick=\"avh*/}
-				url_in_file=${url_in_file%'"'*}
-				
-				file_in=${url_in_file##*'/'}
-				n=4
-			elif [ "$domain" != "${domain//nowdownload.}" ]; then
-				
-				## http://www.nowdownload ###########
-				
-				get_tmps
-				token=`cat $path_tmp/zdl.tmp | grep token`
-				token=${token//*=}
-				token=${token//\"*/}
-				preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
-				print_c 2 "Attendi circa 30 secondi:"
-				k=`date +"%s"`
-				s=0
-				unset url_in_file
-				while true; do
-
-					if (( $s>29 )); then
-						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-					fi
-					sleep 1
-					s=`date +"%s"`
-					s=$(( $s-$k ))
-					
-					echo -e $s"\r\c"
-					
-					url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
-					url_in_file=${url_in_file//*href=\"} 
-					url_in_file=${url_in_file//\"*}
-
-					[ ! -z "$url_in_file" ] && break
-				done	
-				file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
-				file_in1="${file_in1#*'<br> '}"
-				file_in1="${file_in1%%</h4>*}"
-				file_in1="${file_in1%' '*}"
-				file_in1="${file_in1%' '*}"
-				file_in1="${file_in1%' '*}"
-				file_in1="${file_in1//'<br>'/}"
-				while [ "$file_in1" != "${file_in1%.}" ]; do
-					file_in1=${file_in1%.}
-				done
-				file_in2="${url_in//*\//}"
-				file_in2="${file_in2#*_}"
-				
-				if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
-					file_in="$file_in2"
-				elif [ "$file_in1" != "${file_in1//$file_in2}" ]; then
-					file_in="$file_in1"
-				else
-					file_in="$file_in1"
-				fi
-	
-	# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
-	# 			wget $url_in -O $path_tmp/zdl.tmp &>/dev/null
-	# 			tmp="$path_tmp/zdl.tmp"
-	# 			input_hidden
-	# 			
-	# 			if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( [ -f "${file_in}" ] && [ "$downloader_in" = "Wget" ] ); then
-	# 				echo -n
-	# 			else
-	# 				check_ip sharpfile
-	# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O $path_tmp/zdl.tmp &>/dev/null
-	# 				echo -e "...\c"
-	# 				tmp="$path_tmp/zdl.tmp"
-	# 				input_hidden
-	# 				
-	# 				post_data="${post_data//'op=catalogue&'}"
-	# 				
-	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
-	# 				
-	# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
-	# 				unset post_data
-	# 				unset ascii_dec
-	# 				unset i
-	# 				while [ ${#ascii_dec[*]} != 4 ];do
-	# 					captcha_html="${captcha_html#*'position:absolute;padding-left:'}"
-	# 					i="${captcha_html%%px*}"
-	# 					captcha_html="${captcha_html#*'&#'}"
-	# 					ascii_dec[$i]="${captcha_html%%';'*}"
-	# 				done
-	# 				pseudo_captcha
-	# 				print_c 2 "Attendi:"
-	# 				
-	# 				code=${captcha[*]}
-	# 				code=${code// /}
-	# 				
-	# 				s=65
-	# 				while [ $s != 0 ]; do
-	# 					echo -e "  \r\c"
-	# 					echo -e $s"\r\c"
-	# 					sleep 1
-	# 					(( s-- ))
-	# 				done
-	# 				echo -e "  \r\c"
-	# 				tmp="$path_tmp/zdl2.tmp"
-	# 				input_hidden
-	# 				post_data="${post_data//'op=catalogue&'}"
-	# 				post_data="${post_data}&code=${code}"
-	# 			fi
-	# 			url_in_file="$url_in"
-	
-	# 		elif [ "$domain" != "${domain//shareflare.}" ]; then
-	# 			
-	# 			## http://www.shareflare.net ####
-	# 			check_ip shareflare
-	# 			get_tmps
-	# 			tmp="$path_tmp/zdl.tmp"
-	# 			input_hidden
-	# 			if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ]; then
-	# 					echo
-	# 			else
-	# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
-	# 				echo -e "...\c"
-	# 				unset post_data
-	# 				
-	# 				input_hidden
-	# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
-	# 				echo -e "...\c"
-	# 				
-	# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
-	# 				echo -e "...\c"
-	# 				
-	# 				print_c 2 "Attendi circa 45 secondi:"
-	# 				
-	# 				k=`date +"%s"`
-	# 				while [ "$goal" == "" ]; do
-	# 					sleep 1
-	# 					s=`date +"%s"`
-	# 					s=$(( $s-$k ))
-	# 					echo -e $s"\r\c"
-	# 					
-	# 					if (( $s>40 )); then
-	# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
-	# 						
-	# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` #grep "========================="`
-	# 						sleep 1
-	# 					fi
-	# 					if (( $s>90 )); then
-	# 						break
-	# 					fi
-	# 				done
-	# 				
-	# 				url_in_file=${goal#*\"}
-	# 				url_in_file=${url_in_file//\"*/}
-	# 				
-	# 				
-	# 				n=1
-	# 			fi
-	# 			
-			elif [ "$domain" != "${domain//easybytez.}" ]; then
-				url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'`
-				url_in_file="${url_in_file##*'<font color="red">'}"
-				url_in_file="${url_in_file%%'</font'*}"
-				#url_in_file="${url_in_file// /}"
-				file_in=${url_in_file##*\/}
-				
-				not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file |grep "File not available"`
-				check_in
-				
-				#logic: [ $? == 2 ] && [ ! -f $file_in ]
-				if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
-					check_ip easybytez
-					
-					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
-					echo -e "...\c"
-					
-					tmp="$path_tmp/zdl.tmp"
-					input_hidden
-				
-					wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O $path_tmp/zdl2.tmp &>/dev/null
-					echo -e "...\c"
-					exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
-					unset post_data
-					if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
-				
-						tmp="$path_tmp/zdl2.tmp"
-						input_hidden
-		
-						wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O $path_tmp/zdl3.tmp &>/dev/null
-						echo -e "...\c"
-						unset post_data
-					
-						print_c 2 "Attendi circa 60 secondi:"
-						for s in `seq 0 60`; do
-							echo -e $s"\r\c"
-							sleep 1
-						done
-						echo -e "  \r\c"
-						tmp="$path_tmp/zdl3.tmp"
-						input_hidden
-						
-						
-						url_in_file="$url_in_file"
-						post_data="${post_data}&btn_download=Download File"
-					fi
-				fi
-					
-			elif [ "$domain" != "${domain//uploaded.}" ]; then
-				unset alias
-				url_in_file="${url_in%/}"
-				
-				wget -t 1 -T $max_waiting $url_in_file -q -O $path_tmp/test_page.tmp &>/dev/null
-				test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
-				test_exceeded="${test_exceeded#*'>'}"
-				test_exceeded="${test_exceeded%'<'*}"
-				test_exceeded=`echo $test_exceeded |grep GB`
-				if [ ! -z "$test_exceeded" ]; then
-					test_exceeded=${test_exceeded%' '*}
-					test_exceeded=${test_exceeded//,/.}
-					test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
-				fi
-				#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
-				test_available=`wget -q -O - -t 1 -T $max_waiting $url_in_file |grep "</html"`
-	
-				if [ "$test_exceeded" == "1" ]; then
-					exceeded=1
-				elif [ -z "$test_available" ]; then
-					not_available=true
-				else
-					if [ "${url_in_file##*/}" != "${url_in_file//*file\/}" ]; then
-						file_in=${url_in_file##*/}
-						url_in_file2=${url_in_file%/*}
-						file_id=${url_in_file2##*/}
-					else 
-						wget -t 1 -T $max_waiting "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
-						file_id=${url_in_file##*/} 
-						file_in=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
-						file_in="${file_in//<\/a*/}"
-						file_in="${file_in##*>}"
-						if [ "$file_in" != "${file_in//'&alias;'/}" ]; then
-							file_in="${file_id}_${file_in//'&alias;'/.}.alias"
-							#alias=true
-						fi
-						
-					fi
-					check_in
-					if [ ! -f "$file_in" ]; then
-						check_ip uploaded
-						wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
-						echo -e "...\c"
-						
-						cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
-						cooking="${cooking//*\(\'/}"
-						cooking=${cooking//"'"*/}
-						
-						echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
-						
-						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
-						echo -e "...\c"
-						
-						url_in_file=`cat $path_tmp/goal.tmp`
-						url_in_file=${url_in_file//*domain:\'/}
-						url_in_file=${url_in_file//\'*}
-					fi
-				fi
-				
+			unset pid_in checked file_in url_in_file 			
+			check_in
+			if [ $? == 3 ];then
+				sleep 1
 			else
-				[ "$domain" != "" ] && print_c 3 "$domain non supportato da $PROG"
-				not_available=1
-			fi
-			file_in="${file_in// /_}"
+				domain=${url_in//\?*}
+				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
+				
+				echo
+				separator "Z"
+				
+				echo -e "\nLink da processare: $url_in"
+				
+		# 		if [ "$domain" != "${domain//4us.to/}" ]; then
+		# 			
+		# 			## 4US.TO ###############
+		# 			get_tmps		
+		# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
+		# 			link=${link#*document.location=\"}
+		# 			link=${link%\"*}
+		# 			
+		# 			file_in=${link##*=} 
+		# 			n=1
+		# 	
+				if [ "$domain" != "${domain//mediafire.}" ]; then
+					
+					# MEDIAFIRE.COM ##############
+					check_ip mediafire
+					
+					get_tmps
+					url_in_file=`cat $path_tmp/zdl.tmp |grep 'kNO = '`
+					url_in_file=${url_in_file#*'kNO = "'}
+					url_in_file=${url_in_file//\" onclick=\"avh*/}
+					url_in_file=${url_in_file%'"'*}
+					
+					file_in=${url_in_file##*'/'}
+					n=4
+				elif [ "$domain" != "${domain//nowdownload.}" ]; then
+					
+					## http://www.nowdownload ###########
+					
+					get_tmps
+					token=`cat $path_tmp/zdl.tmp | grep token`
+					token=${token//*=}
+					token=${token//\"*/}
+					preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+					print_c 2 "Attendi circa 30 secondi:"
+					k=`date +"%s"`
+					s=0
+					unset url_in_file
+					while true; do
+	
+						if (( $s>29 )); then
+							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+						fi
+						sleep 1
+						s=`date +"%s"`
+						s=$(( $s-$k ))
+						
+						echo -e $s"\r\c"
+						
+						url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+						url_in_file=${url_in_file//*href=\"} 
+						url_in_file=${url_in_file//\"*}
+	
+						[ ! -z "$url_in_file" ] && break
+					done	
+					file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
+					file_in1="${file_in1#*'<br> '}"
+					file_in1="${file_in1%%</h4>*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1//'<br>'/}"
+					while [ "$file_in1" != "${file_in1%.}" ]; do
+						file_in1=${file_in1%.}
+					done
+					file_in2="${url_in_file//*'/'}"
+					file_in2="${file_in2#*_}"
+					
+					
+					if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+						file_in="$file_in2"
+					else
+						file_ext="${file_in2##*.}"
+						file_in="${file_in1}.${file_ext}"
+					fi
+					
+		# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
+		# 			wget $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 			tmp="$path_tmp/zdl.tmp"
+		# 			input_hidden
+		# 			
+		# 			if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( [ -f "${file_in}" ] && [ "$downloader_in" = "Wget" ] ); then
+		# 				echo -n
+		# 			else
+		# 				check_ip sharpfile
+		# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				tmp="$path_tmp/zdl.tmp"
+		# 				input_hidden
+		# 				
+		# 				post_data="${post_data//'op=catalogue&'}"
+		# 				
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+		# 				
+		# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
+		# 				unset post_data
+		# 				unset ascii_dec
+		# 				unset i
+		# 				while [ ${#ascii_dec[*]} != 4 ];do
+		# 					captcha_html="${captcha_html#*'position:absolute;padding-left:'}"
+		# 					i="${captcha_html%%px*}"
+		# 					captcha_html="${captcha_html#*'&#'}"
+		# 					ascii_dec[$i]="${captcha_html%%';'*}"
+		# 				done
+		# 				pseudo_captcha
+		# 				print_c 2 "Attendi:"
+		# 				
+		# 				code=${captcha[*]}
+		# 				code=${code// /}
+		# 				
+		# 				s=65
+		# 				while [ $s != 0 ]; do
+		# 					echo -e "  \r\c"
+		# 					echo -e $s"\r\c"
+		# 					sleep 1
+		# 					(( s-- ))
+		# 				done
+		# 				echo -e "  \r\c"
+		# 				tmp="$path_tmp/zdl2.tmp"
+		# 				input_hidden
+		# 				post_data="${post_data//'op=catalogue&'}"
+		# 				post_data="${post_data}&code=${code}"
+		# 			fi
+		# 			url_in_file="$url_in"
+		
+		# 		elif [ "$domain" != "${domain//shareflare.}" ]; then
+		# 			
+		# 			## http://www.shareflare.net ####
+		# 			check_ip shareflare
+		# 			get_tmps
+		# 			tmp="$path_tmp/zdl.tmp"
+		# 			input_hidden
+		# 			if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ]; then
+		# 					echo
+		# 			else
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				unset post_data
+		# 				
+		# 				input_hidden
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 				echo -e "...\c"
+		# 				
+		# 				print_c 2 "Attendi circa 45 secondi:"
+		# 				
+		# 				k=`date +"%s"`
+		# 				while [ "$goal" == "" ]; do
+		# 					sleep 1
+		# 					s=`date +"%s"`
+		# 					s=$(( $s-$k ))
+		# 					echo -e $s"\r\c"
+		# 					
+		# 					if (( $s>40 )); then
+		# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 						
+		# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` #grep "========================="`
+		# 						sleep 1
+		# 					fi
+		# 					if (( $s>90 )); then
+		# 						break
+		# 					fi
+		# 				done
+		# 				
+		# 				url_in_file=${goal#*\"}
+		# 				url_in_file=${url_in_file//\"*/}
+		# 				
+		# 				
+		# 				n=1
+		# 			fi
+		# 			
+				elif [ "$domain" != "${domain//easybytez.}" ]; then
+					url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'`
+					url_in_file="${url_in_file##*'<font color="red">'}"
+					url_in_file="${url_in_file%%'</font'*}"
+					#url_in_file="${url_in_file// /}"
+					file_in=${url_in_file##*\/}
+					
+					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file |grep "File not available"`
+					#check_in
+					
+					#logic: [ $? == 2 ] && [ ! -f $file_in ]
+					if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
+						check_ip easybytez
+						
+						wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
+						echo -e "...\c"
+						
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+					
+						wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O $path_tmp/zdl2.tmp &>/dev/null
+						echo -e "...\c"
+						exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
+						unset post_data
+						if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
+					
+							tmp="$path_tmp/zdl2.tmp"
+							input_hidden
 			
-			if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
-				if [ "$downloader_in" == "Axel" ]; then
-					dler=$downloader_in
-					downloader_in=Wget
-					ch_dler=1
-					print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+							wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O $path_tmp/zdl3.tmp &>/dev/null
+							echo -e "...\c"
+							unset post_data
+						
+							print_c 2 "Attendi circa 60 secondi:"
+							for s in `seq 0 60`; do
+								echo -e $s"\r\c"
+								sleep 1
+							done
+							echo -e "  \r\c"
+							tmp="$path_tmp/zdl3.tmp"
+							input_hidden
+							
+							
+							url_in_file="$url_in_file"
+							post_data="${post_data}&btn_download=Download File"
+						fi
+					fi
+						
+				elif [ "$domain" != "${domain//uploaded.}" ]; then
+					unset alias
+					url_in_file="${url_in%/}"
+					
+					wget -t 1 -T $max_waiting $url_in_file -q -O $path_tmp/test_page.tmp &>/dev/null
+					test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
+					test_exceeded="${test_exceeded#*'>'}"
+					test_exceeded="${test_exceeded%'<'*}"
+					test_exceeded=`echo $test_exceeded |grep GB`
+					if [ ! -z "$test_exceeded" ]; then
+						test_exceeded=${test_exceeded%' '*}
+						test_exceeded=${test_exceeded//,/.}
+						test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
+					fi
+					#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
+					test_available=`wget -q -O - -t 1 -T $max_waiting $url_in_file |grep "</html"`
+		
+					if [ "$test_exceeded" == "1" ]; then
+						exceeded=1
+					elif [ -z "$test_available" ]; then
+						not_available=true
+					else
+						if [ "${url_in_file##*/}" != "${url_in_file//*file\/}" ]; then
+							file_in=${url_in_file##*/}
+							url_in_file2=${url_in_file%/*}
+							file_id=${url_in_file2##*/}
+						else 
+							wget -t 1 -T $max_waiting "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+							file_id=${url_in_file##*/} 
+							file_in=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
+							file_in="${file_in//<\/a*/}"
+							file_in="${file_in##*>}"
+							if [ "$file_in" != "${file_in//'&alias;'/}" ]; then
+								file_in="${file_id}_${file_in//'&alias;'/.}.alias"
+							fi
+							
+						fi
+						check_in
+						if [ ! -f "$file_in" ]; then
+							check_ip uploaded
+							wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+							echo -e "...\c"
+							
+							cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
+							cooking="${cooking//*\(\'/}"
+							cooking=${cooking//"'"*/}
+							
+							echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
+							
+							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
+							echo -e "...\c"
+							
+							url_in_file=`cat $path_tmp/goal.tmp`
+							url_in_file=${url_in_file//*domain:\'/}
+							url_in_file=${url_in_file//\'*}
+						fi
+					fi
+					
+				else
+					[ "$domain" != "" ] && print_c 3 "$domain non supportato da $PROG"
+					not_available=1
 				fi
+				
+				file_in="${file_in// /_}"
+				
+				if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
+					if [ "$downloader_in" == "Axel" ]; then
+						dler=$downloader_in
+						downloader_in=Wget
+						ch_dler=1
+						print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+					fi
+				fi
+				
+				#### CHECK $url_in & $file_in:
+				sanitize
+				test_in=$?
 			fi
 			
 			#### DOWNLOAD ####
-			
-			sanitize
-			if [ $? == 6 ]; then
+			if [ "$test_in" == "6" ]; then
+				unset test_in
 				download
 				
 				if [ $multi == 1 ] && [ "$domain" == "${domain//nowdownload.}" ]; then
@@ -1481,9 +1591,10 @@ while true; do
 				check_freespace
 				check_alias				
 			else
-				sleep 5
+				sleep 1
 			fi
-			if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]; then
+			
+			if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ ! -z "${file_in}" ]; then
 				links_loop - "$url_in"
 			fi
 			
@@ -1505,16 +1616,15 @@ while true; do
 			while [ -z "$checked" ]; do #file_in
 				check_stdout
 				show_data_stdout
-				sleep 5
 				
 				check_pid $pid_in
 				test_pid=$?
 				
 				links_loop "in" "$url_in"
-				if [ $? == 5 ] && [ $test_pid != 13 ]; then checked=1 ; fi
+				if [ $? == 5 ] && [ $test_pid != 1 ]; then checked=1 ; fi
 			done
+			
 			unset checked
-			sleep 5
 			unset post_data goal not_available exceeded
 		done
 	fi
@@ -1526,20 +1636,28 @@ while true; do
 		while true; do 
 			check_stdout
 			show_data_stdout
-			sleep 4
+			#sleep 4
 			if [ -f "$path_tmp/links_loop.txt" ]; then
 				file="$path_tmp/links_loop.txt"
 				break
 			fi
+			
+			for pid in ${pids_alive[*]}; do
+				check_pid $pid
+				test_pids=$?
+				[ "$test_pids" != "1" ] && break
+			done
+			[ "$test_pids" != "1" ] && break
 		done
 	fi
-	
+	unset test_pids
 	for pid in ${pids_alive[*]}; do
 		check_pid $pid
 		test_pids=$?
+		[ "$test_pids" != "1" ] && break
 	done
-	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pid" != "1" ] && break
-	sleep 5
+	( ( [ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] ) || [ -z "${pids_alive[*]}" ] ) && break
+	#sleep 5
 done
 
 separator "-"
@@ -1548,7 +1666,7 @@ separator "-"
 
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
-rm -r "$path_tmp"
+#rm -r "$path_tmp"
 
 echo
 echo
