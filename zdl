@@ -1505,7 +1505,7 @@ while true; do
 					#url_in_file="${url_in_file// /}"
 					file_in=${url_in_file##*\/}
 					
-					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file |grep "File not available"`
+					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file 2>/dev/null |grep "File not available"`
 					#check_in
 					
 					#logic: [ $? == 2 ] && [ ! -f $file_in ]
