@@ -96,11 +96,12 @@ function init {
 	n=32
 	# CYGWIN
 	if [ -e "/cygdrive" ];then 
-		n=10
-		#kill -SIGWINCH $$
-		updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
-		[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA" && exit
+		n=8
+		kill -SIGWINCH $$
 	fi
+	updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
+	[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	#fi
 	multi=0
 	prog=`basename $0`
 	PROG=`echo $prog | tr a-z A-Z`
@@ -108,7 +109,8 @@ function init {
 	file_log="${prog}_log.txt"
 	conf="$HOME/.${prog}rc"
 	file_data="$HOME/.${prog}.data"
-	uploaded=0
+	
+	bar_char="z"
 	
 	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
 	max_waiting=40
@@ -128,7 +130,7 @@ function init {
 		downloader_in=Axel
 	fi
 	
-	
+	init_colors
 	data_stdout
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -237,7 +239,7 @@ function print_c {
 function separator {
 	#COLUMNS=$( tput cols ) 2>/dev/null
 	[ -z "$COLUMNS" ] && COLUMNS=50
-	for column in `seq 1 $COLUMNS`; do echo -n -e "\e[1;34m"$1'\e[0m' ; done
+	for column in `seq 1 $COLUMNS`; do echo -n -e "${IBlue}$1${Color_Off}" ; done #\e[1;34m
 }
 
 function header {
@@ -430,7 +432,7 @@ function new_ip {
 				#unreached="true"
 				#break
 				speed[$index]=0
-				show_speed=`print_c 3 "0 B/s"`
+				show_speed="0 B/s"
 			fi
 			
 			echo "$show_speed"
@@ -669,10 +671,10 @@ function download {
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel" > "$path_tmp/${file_in}_stdout.tmp"
 		
 	elif [ "$downloader_in" = "Wget" ]; then
-		
+		#--progress=bar:force
 		[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
 		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
-		LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S --progress=bar:force $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+		LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget" > "$path_tmp/${file_in}_stdout.tmp"
 	fi
@@ -702,10 +704,11 @@ function show_data_alive {
 		for j in `seq 0 $last_alive`; do
 			print_c 1 "Numero download attivo: $j"
 			[ ! -f "${file_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
-			echo -e "File: ${file_alive[$j]}" 
-			[ ! -z "${alias_file_alive[$j]}" ] && echo "Alias: ${alias_file_alive[$j]}"
-			echo -e "Downloader: ${downloader_alive[$j]}\nLink: ${url_alive[$j]}"
-			print_c 2 "Progresso: ${progress_alive[$j]}"
+			init_colors
+			echo -e "${BBlue}File:${Color_Off} ${file_alive[$j]}" 
+			[ ! -z "${alias_file_alive[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_alive[$j]}"
+			echo -e "${BBlue}Downloader:${Color_Off} ${downloader_alive[$j]}\n${BBlue}Link:${Color_Off} ${url_alive[$j]}"
+			echo -e "${BBlue}Progresso:${IYellow} ${progress_alive[$j]}${Color_Off}"
 			
 			if [ $j != $last_alive ]; then 
 				separator "-"
@@ -794,7 +797,7 @@ function interactive {
 
 
 function data_stdout {
-	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out progress_out length_out
+	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
 		list="$1"
 	else
@@ -827,8 +830,12 @@ function data_stdout {
 						
 			url_out[$i]=`cat $file_stdout|grep "link_$prog"`
 			url_out[$i]="${url_out[$i]#link_${prog}: }"
-
-			downloader_out[$i]=`head -n 3 $file_stdout | sed -n '3p'`
+			#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			
+			downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
+			progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			progress_data="${progress_data//'..........'}"
+			progress_data="${progress_data//[\[\]]}"
 			
 			if [ "${downloader_out[$i]}" == "Wget" ]; then
 				if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
@@ -841,15 +848,68 @@ function data_stdout {
 				length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
 				length_out[$i]="${length_out[$i]#*Length: }"
 				length_out[$i]="${length_out[$i]%%' '*}"
+				
+				percent=`echo $progress_data | awk '{ print($2) }'`
+				eta=`echo $progress_data | awk '{ print($4) }'`
+				speed=`echo $progress_data | awk '{ print($3) }'`
+				type_speed="${speed//[0-9.,]}"
+				num_speed="${speed//$type_speed}"
+				case $type_speed in
+					B) type_speed="B/s";;
+					K) type_speed="KB/s";;
+					M) type_speed="MB/s";;
+				esac
+				speed="${num_speed}${type_speed}"
 			elif [ "${downloader_out[$i]}" == "Axel" ]; then
 				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
 				length_out[$i]="${length_out[$i]#*File size: }"
 				length_out[$i]="${length_out[$i]%% *}"
+				
+				speed=`echo $progress_data | awk '{ print($2) }'`
+				
+				type_speed="${speed//[0-9.,]}"
+				num_speed="${speed//$type_speed}"
+				case $type_speed in
+					KB/s) num_speed=$(( $num_speed*1024 ));;
+					MB/s) num_speed=$(( $num_speed*1024*1024 ));;
+				esac
+				if [ ! -z $num_speed ] && [ $num_speed != 0 ]; then	
+					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+					seconds=0
+					minutes=0
+					hours=0
+					seconds=$(( (${length_out[$i]}-$length_saved)/$num_speed ))
+					minutes=$(( $seconds/60 ))
+					hours=$(( $minutes/60 ))
+					speed="${speed//,/.}"
+					eta="${hours}h${minutes}m"
+					percent=`echo $progress_data | awk '{ print($1) }'`
+				fi
 			fi
-			progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ "$num_percent" != ".." ]; then
+				num_percent=0
+				num_percent=${percent//'%'}
+				size_bar=0
+				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
+				diff_size_bar=$(( ($COLUMNS/2)-$size_bar ))
+				
+				unset bar diff_bar
+				for column in `seq 1 $size_bar`; do
+					bar="${bar}${bar_char}"
+				done
+				for column in `seq 1 $diff_size_bar`; do
+					diff_bar="${diff_bar} "
+				done
+				#echo "$COLUMNS = $size_bar + $diff_size_bar"
+				bar="[${bar}>${diff_bar}]"
+				progress_out[$i]="${bar} $percent $speed $eta"
+			else
+				progress_out[$i]=""
+			fi
 			
 			(( i++ ))
 		done
+		unset length_saved
 		return 1
 	fi
 }
@@ -863,7 +923,7 @@ function show_data_stdout {
 		for i in `seq 0 $last_stdout`; do
 			length_saved=0
 			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
-			echo -e "File: ${file_out[$i]} - Downloader: ${downloader_out[$i]}\nLink: ${url_out[$i]}"
+			echo -e "${BBlue}File:${Color_Off} ${file_out[$i]} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
 			progress="${progress_out[$i]}"
 			color=2
 			
@@ -1439,7 +1499,7 @@ while true; do
 		# 			fi
 		# 			
 				elif [ "$domain" != "${domain//easybytez.}" ]; then
-					url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q |grep 'You have requested'`
+					url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q 2>/dev/null |grep 'You have requested'`
 					url_in_file="${url_in_file##*'<font color="red">'}"
 					url_in_file="${url_in_file%%'</font'*}"
 					#url_in_file="${url_in_file// /}"
@@ -1570,8 +1630,8 @@ while true; do
 				unset test_in
 				download
 				
-				if [ $multi == 1 ] && [ "$domain" == "${domain//nowdownload.}" ]; then
-					count_down=$(( $max_waiting ))
+				if [ "$domain" != "${domain//nowdownload}" ]; then
+					count_down=$(( $max_waiting/2 ))
 				else	
 					count_down=$(( $max_waiting+5 ))
 				fi
