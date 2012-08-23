@@ -924,8 +924,9 @@ function data_stdout {
 			fi
 			num_percent=0
 			num_percent=${percent%'%'*}
-			#num_percent=${num_percent%'.'*}
-			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ "$num_percent" != ".." ]; then
+			num_percent=${num_percent%'.'*}
+			[ "$num_percent" != "${num_percent//.}" ] && num_percent=0
+			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
 				size_bar=0
 				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
@@ -1808,7 +1809,7 @@ while true; do
 				sleep 1
 			fi
 			
-			if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ ! -z "${file_in}" ]; then
+			if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ -f "${file_in}" ]; then
 				links_loop - "$url_in"
 			fi
 			
