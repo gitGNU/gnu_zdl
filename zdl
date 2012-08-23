@@ -27,40 +27,66 @@
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [wget|axel] [file_in] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [-clean] [-i|--interactive]"
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [--clean] [-i|--interactive]"
 	echo
-	echo -e "$PROG è abilitato per il download da nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net
+	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME]"
+	echo
+	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net e sharpfile.
 
-$PROG può essere avviato in due modi:
+$PROG può essere avviato in diversi modi:
 
-	1) Generando automaticamente un file per la lista dei link per il download (si chiamerà links.txt)
+	1) Generando automaticamente un file per la lista dei link per il download (si chiamerà links.txt):
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
 		- digita il seguente comando e premi invio: $prog 
 		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
 		- premi la chiocciolina \"@\"
 		
-	2) Utilizzando un file preparato con un editor di testi (andare a capo dopo ogni link)
+	2) Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indicare un path valido):
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog file_in.txt
-		
+		- digita il seguente comando e premi invio: $prog file_1 file_2 ... file_n
+	
+	3) Indicando direttamente a $PROG i link da processare, per esempio:
+		$prog link_1 link_2 ... link_n
+	
+	4) Attraverso l'uso del browser web. In particolare, per esempio attraverso l'uso di Flashgot (più in basso le istruzioni), allo scopo di catturare e salvare lo stream di un video
+
+I file e i link dei punti 2) e 3) possono essere mescolati. Tutti gli input nei punti 1) 2) 3) sono salvati nel file links.txt, nella directory di destinazione.
 
 Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
-uploaded.to (ul.to), easybytez.net
+uploaded.to (ul.to), easybytez.net e mediafire
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG nella seguente forma:
-	$prog file_in [-m] [axel|wget]
+# Per scaricare da sharpfile, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare $PROG attraverso Flashgot (più avanti le istruzioni per la configurazione di Flashgot)
 
-file_in sta per il nome del file di testo che contiene i link dei file da scaricare. Se il primo download è stato effettuato nel primo modo (vedi sopra, punto 1: generando automaticamente un file per la lista dei link) allora file_in è links.txt. Gli argomenti \"-m\" e \"axel\" (o \"wget\")  sono facoltativi.
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). In ogni caso $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG nella seguente forma:
+	$prog links.txt [-m] [--axel|--wget]
+
+Il file links.txt contiene sempre i link dei file che verranno processati, e che sono stati prelevati da tutti gli input disponibili: i file ed i link passati a $PROG come argomenti oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Gli argomenti \"-m\" e \"--axel\" (o \"--wget\") sono facoltativi.
 
 Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire.com) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
 
-L'argomento [wget|axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"wget\".
+L'argomento [--wget|--axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"--wget\".
 
-L'argomento [-clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
+L'argomento [--clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
 
 La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $PROG anche da un altro terminale oppure nel caso in cui $PROG è terminato (per vostra volontà, premendo Ctrl+C, oppure accidentalmente). Infatti, i download procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere (definitivamente oppure per riavviarli automaticamente) uno o più processi già avviati, anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia (per ora molto rudimentale) con cui poter interagire con i processi di $PROG.
 
 È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in uploaded e in easybytez. Si consiglia di usare tutti i link disponili, sia quelli di easybytez che quelli di uploaded: $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
+
+$PROG accetta come argomenti un numero illimitato di file di testo contenenti link
+
+Inoltre, $PROG è stato progettato anche per scaricare il file di uno stream video. A tale scopo, è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
+Configurazione di Flashgot per $PROG:
+
+1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avviate Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
+
+2) nel tab \"Generale\" aggiungi \"$prog\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/$prog\")
+
+3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME]
+
+4) nel tab \"FlashGot Media\" scegliete $prog come \"Download manager\"
+
+Fine configurazione di Flashgot.
+
 
 Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
 
@@ -92,6 +118,7 @@ http://inventati.org/zoninoz
 
 
 function init {
+	
 	log=0
 	n=32
 	# CYGWIN
@@ -804,27 +831,14 @@ function data_stdout {
 		list=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
 	fi
 	if [ ! -z "$list" ]; then
-		
+		user_lang="$LANG"
+		export LANG='en_US.UTF-8'
 		i=0
 		for item in $list; do
 			
 			file_stdout=$item
 
-			file_o="${file_stdout//_stdout.tmp}"
-			file_o="${file_o#$path_tmp/}"
-			file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
-			file_out[$i]="${file_out[$i]#*Saving to: \`}"
-			file_out[$i]="${file_out[$i]%\'*}"
 			
-			
-			if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
-				print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
-				exit 1
-			fi
-			
-			if [ -z "${file_out[$i]}" ]; then
-				file_out[$i]="$file_o"
-			fi
 			
 			pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
 						
@@ -838,6 +852,22 @@ function data_stdout {
 			progress_data="${progress_data//[\[\]]}"
 			
 			if [ "${downloader_out[$i]}" == "Wget" ]; then
+				file_o="${file_stdout//_stdout.tmp}"
+				file_o="${file_o#$path_tmp/}"
+				file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
+				file_out[$i]="${file_out[$i]#*Saving to: \`}"
+				file_out[$i]="${file_out[$i]%\'*}"
+				
+				
+				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+					exit 1
+				fi
+				
+				if [ -z "${file_out[$i]}" ]; then
+					file_out[$i]="$file_o"
+				fi
+				
 				if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
 					alias_file_out[$i]="${file_out[$i]}"
 					file_out[$i]=`cat $file_stdout |grep filename`
@@ -852,8 +882,10 @@ function data_stdout {
 				percent=`echo $progress_data | awk '{ print($2) }'`
 				eta=`echo $progress_data | awk '{ print($4) }'`
 				speed=`echo $progress_data | awk '{ print($3) }'`
+				speed="${speed//,/.}"
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
+				num_speed=${num_speed%.*}
 				case $type_speed in
 					B) type_speed="B/s";;
 					K) type_speed="KB/s";;
@@ -861,6 +893,8 @@ function data_stdout {
 				esac
 				speed="${num_speed}${type_speed}"
 			elif [ "${downloader_out[$i]}" == "Axel" ]; then
+				file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
+				file_out[$i]="${file_out[$i]#*Opening output file }"
 				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
 				length_out[$i]="${length_out[$i]#*File size: }"
 				length_out[$i]="${length_out[$i]%% *}"
@@ -869,19 +903,21 @@ function data_stdout {
 				
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
+				num_speed=${num_speed%.*}
 				case $type_speed in
 					KB/s) num_speed=$(( $num_speed*1024 ));;
 					MB/s) num_speed=$(( $num_speed*1024*1024 ));;
 				esac
 				if [ ! -z $num_speed ] && [ $num_speed != 0 ]; then	
 					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+					[ -z $length_saved ] && length_saved=${length_out[$i]%.*}
 					seconds=0
 					minutes=0
 					hours=0
-					seconds=$(( (${length_out[$i]}-$length_saved)/$num_speed ))
+					seconds=$(( (${length_out[$i]%.*}-$length_saved)/$num_speed ))
 					minutes=$(( $seconds/60 ))
 					hours=$(( $minutes/60 ))
-					speed="${speed//,/.}"
+					
 					eta="${hours}h${minutes}m"
 					percent=`echo $progress_data | awk '{ print($1) }'`
 				fi
@@ -889,9 +925,11 @@ function data_stdout {
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ "$num_percent" != ".." ]; then
 				num_percent=0
 				num_percent=${percent//'%'}
+				num_percent=${num_percent%.*}
 				size_bar=0
 				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
-				diff_size_bar=$(( ($COLUMNS/2)-$size_bar ))
+				size_bar=${size_bar%.*}
+				diff_size_bar=$(( ($COLUMNS/2)-${size_bar} ))
 				
 				unset bar diff_bar
 				for column in `seq 1 $size_bar`; do
@@ -902,6 +940,7 @@ function data_stdout {
 				done
 				#echo "$COLUMNS = $size_bar + $diff_size_bar"
 				bar="[${bar}>${diff_bar}]"
+				speed="${speed//,/.}"
 				progress_out[$i]="${bar} $percent $speed $eta"
 			else
 				progress_out[$i]=""
@@ -909,6 +948,7 @@ function data_stdout {
 			
 			(( i++ ))
 		done
+		export LANG="$user_lang"
 		unset length_saved
 		return 1
 	fi
@@ -958,17 +998,30 @@ function check_stdout {
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
 		for ck in `seq 0 $last_stdout`; do
+			
+			
 			check_pid ${pid_out[$ck]}
 			if [ $? == 1 ]; then
 				if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
 					rm -f "${alias_file_out[$ck]}"
 				fi
+				
+				test_repeated="${repeated[${pid_out[$ck]}]}"
+				repeated[${pid_out[$ck]}]=`tail -n 50 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
+				if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
+					kill ${pid_out[$ck]}
+				fi
+			
+				
 				if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
 					kill ${pid_out[$ck]}
-				else
-					pids_alive[${#pids_alive[*]}]=${pid_out[$ck]}
-					[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && downloading=1
 				fi
+			fi
+			
+			check_pid ${pid_out[$ck]}
+			if [ $? == 1 ]; then
+				pids_alive[${#pids_alive[*]}]=${pid_out[$ck]}
+				#[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && downloading=1
 			fi
 			
 			check_pid ${pid_out[$ck]}
@@ -986,7 +1039,7 @@ function check_stdout {
 						#checked=1
 					fi
 					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( $length_saved == ${length_out[$ck]} )) && (( ${length_out[$ck]} > 0 )) ); then 
-						links_loop - "${url_out[$ck]}"
+						[ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
 					fi
 
 				else # file exists: don't loop its url_out
@@ -1010,8 +1063,8 @@ function check_stdout {
 	#else
 		#checked=1
 	fi
-	[ ! -z "$downloading" ] && print_c 1 "downloading --> $file_in ..."
-	unset downloading
+# 	[ ! -z "$downloading" ] && print_c 1 "downloading --> $file_in ..."
+# 	unset downloading
 }
 
 function check_alias {
@@ -1189,9 +1242,7 @@ function init_links_loop {
 }
 
 function sanitize {
-	if [ "${file_in}" == "${prog}_universal" ]; then 
-		return 6
-	elif [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ]; then
+	if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ]; then
 		_log 1
 		no_newip=true
 	elif ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ]; then
@@ -1214,64 +1265,155 @@ function sanitize {
 	fi
 }
 
+
+#### MAIN
+
 init
 
 ################################### HEADER
 header
 separator z
 ###################################
-for arg in $@ ; do
-	case "$arg" in
-		-i|--interactive)
-			interactive
-			;;
-		-clean)
-			( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)"
-			;;
-		-u | --update)
-			print_c 1 "Aggiornamento di $PROG ..."
-			wget -T $max_waiting "$url_update" -O /tmp/$prog 
-			print_c 1 "Installazione di $PROG in /usr/local/bin/"
-			( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
-			echo "which ${prog}:"
-			which $prog
-			echo
-			;;
-		wget)
-			downloader_in=Wget
-			;;
-		axel)
-			downloader_in=Axel
-			;;
+args=( $@ )
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--stream" ] ); then 
 		
-		-m | --multi)
-			multi=1
-# 			if [ -e "/cygdrive" ]; then
-# 				export DISPLAY=:0
-# 				X &>/dev/null &
-# 				exec aewm++ &>/dev/null &
-# 			fi
-			;;
 		
-		-h | --help)
-			usage
-			;;
+		# --stream [URL] [FOLDER] [FNAME] 
+		url=$2
+		directory=$3
+		file_in=$4
+		
+		cd $directory
+		mkdir -p ${path_tmp}
+		echo "$file_in" > ${path_tmp}/filename.txt
+		
+		xterm -e "zdl \"$url\" ; read -p \">> PREMI INVIO per chiudere Xterm <<\""
+		pid_xterm=$!
+		wait $pid_xterm
+
+		unset args[$i]
+		exit
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--interactive" ] || [ "${args[$i]}" == "-i" ] ); then 
+		unset args[$i]
+		interactive
+	fi
+done
+	
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--clean" ] ); then 
+		unset args[$i]	
+		( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)"
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--update" ] || [ "${args[$i]}" == "-u" ] ); then 
+		unset args[$i]
+
+		print_c 1 "Aggiornamento di $PROG ..."
+		wget -T $max_waiting "$url_update" -O /tmp/$prog 
+		print_c 1 "Installazione di $PROG in /usr/local/bin/"
+		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
+		echo "which ${prog}:"
+		which $prog
+		echo
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--wget" ] ); then 
+		unset args[$i]
+		downloader_in=Wget
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--axel" ] ); then 
+		unset args[$i]
+	
+		downloader_in=Axel
+	fi
+done
+
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--multi" ] || [ "${args[$i]}" == "-m" ] ); then 
+		unset args[$i]
+	
+		multi=1
+	# 	if [ -e "/cygdrive" ]; then
+	# 		export DISPLAY=:0
+	# 		X &>/dev/null &
+	# 		exec aewm++ &>/dev/null &
+	# 	fi
+	fi
+done
+
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ] ); then 
+		unset args[$i]
+		usage
+	fi
+done
+
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ] ); then 
+		unset args[$i]
+		configure
+	fi
+done
+
+if [ ! -z "${args[*]}" ]; then
+	i=0
+	if [ -f links.txt ];then
+		if [ "${args[*]}" == "${args[*]//links.txt}" ];then 
+			cat links.txt >> links.txt.old || print_c 3 "Errore: cat links.txt >> links.txt.old "
+			rm -f links.txt || print_c 3 "Errore: links.txt non può essere cancellato"
+		else
+			cat links.txt >> links.txt.new
+		fi
+	fi
+	for item in ${args[*]}; do
+		if [ "$item" == "links.txt" ]; then
+			item="links.txt.new"
+		fi
+		if [ -f "${item}" ] && [ "${item}" != "links.txt" ];then
+			cat "$item" >> links.txt
+		elif [ ! -f "${item}" ]; then
+			print_c 2 "Verifica di $item"
+			LANG='en_US.UTF-8' wget "$item" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+						
+			test_link=`cat $path_tmp/spider`
 			
-		-c | --configure)
-			configure
-			;;
-		
-		*)
-			if [ -f "$arg" ]; then
-				file="$arg"
+			if [ ! -z "$test_link" ]; then
+				LANG='en_US.UTF-8' timeout 5 wget "$item" -S -q -O /dev/null 2> $path_tmp/spider
+				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
+				if [ -z "$test_link" ];then
+					
+			
+					echo "$item" >> links.txt
+				else
+					print_c 3 "Link non valido: $item"
+					usage
+				fi
 			else
-				print_c 3 "Il file $arg non esiste"
-				echo
+				print_c 3 "Link non valido: $item"
 				usage
 			fi
-			;;
-	esac
-done
+		fi
+	done
+	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
+	unset item
+fi
+	
+
 
 check_downloader
 
@@ -1282,7 +1424,7 @@ if [ -f "$file_log" ]; then
 	log=1
 fi
 
-if [ "$file" == "" ] ; then 
+if [ -z "$file" ] ; then 
 	print_c 2 "Incolla la lista dei link (nowdownload, mediafire, uploaded, ul, easybytez) poi digita @" 
 	echo "[per uscire da $PROG digita ctrl+c]"
 	read -d @ -a links
@@ -1607,12 +1749,17 @@ while true; do
 					fi
 					
 				else
-# 					[ "$domain" != "" ] && print_c 3 "$domain non supportato da $PROG"
-# 					not_available=1
-					if [ "$domain" != "" ]; then
-						file_in="${prog}_universal"
-						url_in_file="$url_in"
+					# streaming downloader
+					[ -f "$path_tmp/filename.txt" ] && file_in=`cat $path_tmp/filename.txt` #&& rm $path_tmp/filename.txt
+					
+					# universal downloader
+					if [ -z "$file_in" ]; then
+						
+						file_in="${url_in##*'/'}"
+						file_in="${file_in%'?'*}"
+						
 					fi
+					url_in_file="$url_in"
 				fi
 				
 				file_in="${file_in// /_}"
@@ -1635,14 +1782,19 @@ while true; do
 			if [ "$test_in" == "6" ]; then
 				unset test_in
 				download
-				
+				check_pid ${pid_in}
+				if [ $? == 1 ]; then
+					print_c 1 "downloading --> $file_in ..."
+				fi
 				if [ "$domain" != "${domain//nowdownload}" ]; then
 					count_down=$(( $max_waiting/2 ))
-				else	
+				elif [ ! -z "$http_proxy" ]; then	
 					count_down=$(( $max_waiting+5 ))
+				else
+					count_down=10
 				fi
 				
-				print_c 2 "Attendi:"
+				print_c 2 "Attendi per verifica del download già avviato:"
 				while [ "$count_down" != 0 ]; do
 					echo -e "  \r\c"
 					echo -e $count_down"\r\c"
@@ -1685,7 +1837,8 @@ while true; do
 				test_pid=$?
 				
 				links_loop "in" "$url_in"
-				if [ $? == 5 ] && [ $test_pid != 1 ]; then checked=1 ; fi
+				test_loop_in=$?
+				if [ $test_loop_in != 1 ] || [ $test_pid != 1 ]; then checked=1 ; fi
 			done
 			
 			unset checked
