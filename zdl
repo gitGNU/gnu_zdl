@@ -1192,7 +1192,7 @@ function links_loop { 	#usage with op=+|- : links $op $link
 					for lnk in $lnx; do
 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
 					done
-					[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 				fi
 				echo "$url_loop" >> $path_tmp/links_loop.txt
 				
@@ -1204,7 +1204,7 @@ function links_loop { 	#usage with op=+|- : links $op $link
 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
 					done
 					rm $path_tmp/links_loop.txt
-					[ -f $path_tmp/links_loop2.txt ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 				fi
 				;;
 			in) 
@@ -1373,20 +1373,16 @@ done
 
 if [ ! -z "${args[*]}" ]; then
 	i=0
-	if [ -f links.txt ];then
-		if [ "${args[*]}" == "${args[*]//links.txt}" ];then 
-			cat links.txt >> links.txt.old || print_c 3 "Errore: cat links.txt >> links.txt.old "
-			rm -f links.txt || print_c 3 "Errore: links.txt non può essere cancellato"
-		else
-			cat links.txt >> links.txt.new
-		fi
+	if [ -f links.txt ] && [ "${args[*]}" == "${args[*]//links.txt}" ];then
+			mv links.txt links.txt.old || print_c 3 "Errore: mv links.txt links.txt.old "
 	fi
+	rm -f $path_tmp/links_loop.txt
 	for item in ${args[*]}; do
-		if [ "$item" == "links.txt" ]; then
-			item="links.txt.new"
-		fi
-		if [ -f "${item}" ] && [ "${item}" != "links.txt" ];then
-			cat "$item" >> links.txt
+		if [ -f "${item}" ];then
+			cat "$item" | while read lnk; do
+				links_loop + $lnk
+			done
+			
 		elif [ ! -f "${item}" ]; then
 			print_c 2 "Verifica di $item"
 			LANG='en_US.UTF-8' wget "$item" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
@@ -1410,6 +1406,7 @@ if [ ! -z "${args[*]}" ]; then
 			fi
 		fi
 	done
+	[ -f $path_tmp/links_loop.txt ] && mv $path_tmp/links_loop.txt links.txt
 	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
 	unset item
 fi
