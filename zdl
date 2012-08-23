@@ -922,10 +922,10 @@ function data_stdout {
 					percent=`echo $progress_data | awk '{ print($1) }'`
 				fi
 			fi
+			num_percent=0
+			num_percent=${percent%'%'*}
+			#num_percent=${num_percent%'.'*}
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ "$num_percent" != ".." ]; then
-				num_percent=0
-				num_percent=${percent//'%'}
-				num_percent=${num_percent%.*}
 				size_bar=0
 				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
@@ -1789,7 +1789,7 @@ while true; do
 				elif [ ! -z "$http_proxy" ]; then	
 					count_down=$(( $max_waiting+5 ))
 				else
-					count_down=10
+					count_down=20
 				fi
 				
 				print_c 2 "Attendi per verifica del download già avviato:"
