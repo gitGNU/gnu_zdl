@@ -123,7 +123,7 @@ function init {
 	n=32
 	# CYGWIN
 	if [ -e "/cygdrive" ];then 
-		n=8
+		n=10
 		kill -SIGWINCH $$
 	fi
 	updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
@@ -266,7 +266,7 @@ function print_c {
 function separator {
 	#COLUMNS=$( tput cols ) 2>/dev/null
 	[ -z "$COLUMNS" ] && COLUMNS=50
-	for column in `seq 1 $COLUMNS`; do echo -n -e "${IBlue}$1${Color_Off}" ; done #\e[1;34m
+	for column in `seq 1 $COLUMNS`; do echo -n -e "${BBlue}$1${Color_Off}" ; done #\e[1;34m
 }
 
 function header {
@@ -497,7 +497,7 @@ function new_ip {
 function get_tmps {
 	while [ "`less $path_tmp/zdl.tmp |grep \</html`" == "" ]; do
 		#print_c 2 "\nAttendi..."
-		wget -t 5 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
+		wget -t 3 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
 		echo -e "...\c"
 	done
 }
@@ -711,7 +711,7 @@ function download {
 function check_pid {
 	if [ ! -z $1 ]; then
 		pid=$1
-		ps au | awk '{print $2}' | while read alive; do
+		ps au | awk '{ print($2) }' | while read alive; do
 			if [ "$alive" == "$pid" ]; then
 				return 1
 			fi
@@ -955,6 +955,7 @@ function data_stdout {
 }
 
 function show_data_stdout {
+	unset progress
 	data_stdout
 	if [ $? == 1 ]; then		
 		print_c 1 "\nDownloading..."
