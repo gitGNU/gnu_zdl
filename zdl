@@ -43,7 +43,7 @@ $PROG può essere avviato in diversi modi:
 		
 	2) Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indicare un path valido):
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog file_1 file_2 ... file_n
+		- digita il seguente comando e premi invio: $prog path/file_1 path/file_2 ... path/file_n
 	
 	3) Indicando direttamente a $PROG i link da processare, per esempio:
 		$prog link_1 link_2 ... link_n
@@ -930,7 +930,7 @@ function data_stdout {
 				size_bar=0
 				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
-				diff_size_bar=$(( ($COLUMNS/2)-${size_bar} ))
+				diff_size_bar=$(( ($COLUMNS-30)-${size_bar} ))
 				
 				unset bar diff_bar
 				for column in `seq 1 $size_bar`; do
@@ -1424,8 +1424,8 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ -z "$file" ] ; then 
-	print_c 2 "Incolla la lista dei link (nowdownload, mediafire, uploaded, ul, easybytez) poi digita @" 
-	echo "[per uscire da $PROG digita ctrl+c]"
+	print_c 2 "Incolla la lista dei link (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il catcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
+	echo "[per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	read -d @ -a links
 	printf "%s\n" "${links[@]}" > links.txt
 	file="links.txt"
