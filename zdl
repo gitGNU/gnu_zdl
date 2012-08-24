@@ -928,7 +928,7 @@ function data_stdout {
 			[ "$num_percent" != "${num_percent//.}" ] && num_percent=0
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
 				size_bar=0
-				size_bar=$(( ($COLUMNS/2)*$num_percent/100 ))
+				size_bar=$(( ($COLUMNS-30)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
 				diff_size_bar=$(( ($COLUMNS-30)-${size_bar} ))
 				
