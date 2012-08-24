@@ -943,8 +943,8 @@ function data_stdout {
 				bar="[${bar}>${diff_bar}]"
 				speed="${speed//,/.}"
 				progress_out[$i]="${bar} $percent $speed $eta"
-			else
-				progress_out[$i]=""
+# 			else
+# 				progress_out[$i]=""
 			fi
 			
 			(( i++ ))
