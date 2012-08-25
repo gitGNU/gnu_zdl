@@ -146,7 +146,13 @@ function init {
 	
 	#user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 	
-	pid_prog=`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
+	tags=( `ps a |sed -n '1p'` )
+	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
+		j=$(( $i+1 ))
+		[ "${tags[$i]}" == "PID" ] && ps_a_pid="\$$j"
+		[ "${tags[$i]}" == "TTY" ] && ps_a_tty="\$$j"
+	done
+	pid_prog=$$   #`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
 	pid_in=1   #$pid_prog
 	
 	
@@ -715,7 +721,7 @@ function download {
 function check_pid {
 	if [ ! -z $1 ]; then
 		pid=$1
-		ps au | awk '{ print($2) }' | while read alive; do
+		ps a | awk "{ print $ps_a_pid }" | while read alive; do
 			if [ "$alive" == "$pid" ]; then
 				return 1
 			fi
@@ -959,8 +965,6 @@ function data_stdout {
 				bar="[${bar}>${diff_bar}]"
 				speed="${speed//,/.}"
 				progress_out[$i]="${bar} $percent $speed $eta"
-# 			else
-# 				progress_out[$i]=""
 			fi
 			
 			(( i++ ))
@@ -1036,12 +1040,6 @@ function check_stdout {
 				fi
 			fi
 			
-# 			check_pid ${pid_out[$ck]}
-# 			if [ $? == 1 ]; then
-# 				[ "${pid_prog_out[$ck]}" == "$pid_prog" ] && pids_alive[${#pids_alive[*]}]=${pid_out[$ck]}
-# 				#[ ! -z $pid_in ] && [ "${pid_in}" == "${pid_out[$ck]}" ] && downloading=1
-# 			fi
-			
 			check_pid ${pid_out[$ck]}
 			if [ $? != 1 ]; then
 				length_saved=0
@@ -1053,36 +1051,23 @@ function check_stdout {
 					
 					if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
 						[ ! -f "${file_out[$ck]}.st" ] && rm -f "${file_out[$ck]}"
-						#_log 5
-						#checked=1
 					fi
 					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ); then 
 						[ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
 					fi
 
 				else # file exists: don't loop its url_out
-					#checked=1
+
 					print_c 3 "Errore: $path_tmp/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
 					read -p "ATTENZIONE!"
 					rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
-					#links_loop - "${url_out[$ck]}"
-					#_log 1
+
 				fi
 				
-				# "$path_tmp/${file_out[$ck]}_stdout.tmp" NON VALIDO -->cancellato solo se MORTO
-# 				msg=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" |grep "Proxy request sent, awaiting response... Read error"`
-# 				
-# 				if [ ! -z "$msg" ] || [ "${length_out[$ck]}" == "unspecified" ] || [ "${length_out[$ck]}" == 0 ] || [ -z "${length_out[$ck]}" ]; then
-# 					[ ! -f "${file_out[$ck]}.st" ] && rm "$path_tmp/${file_out[$ck]}_stdout.tmp"
-# 				fi
 			fi
 		done
 		return 1
-	#else
-		#checked=1
 	fi
-# 	[ ! -z "$downloading" ] && print_c 1 "downloading --> $file_in ..."
-# 	unset downloading
 }
 
 function check_alias {
@@ -1133,6 +1118,7 @@ function check_alias {
 
 
 function check_in_url { 	# return --> no_download=1 --> download=5
+	check_instance
 	if [ ! -z "$url_in" ]; then
 		if [ -z "$file_in" ]; then
 			unset alive 
@@ -1182,17 +1168,18 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 							return 1
 							
 						else
-							length_saved=0
-							length_alias_saved=0
-							length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
-							[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
-						
-							if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
-								rm -f "$file_in"
-								return 5
-							elif [ -f "${file_in}.st" ]; then 
-								rm -f "$file_in" "${file_in}.st"
-								return 5
+							if [ "$downloader_in" = "Wget" ]; then
+								length_saved=0
+								length_alias_saved=0
+								length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
+								[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
+							
+								if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+									rm -f "$file_in" "${file_in}.st"
+									return 5
+								fi
+							elif [ "$downloader_in" = "Axel" ]; then
+								[ -f "${file_in}.st" ] && return 5
 							fi
 						fi
 					fi
@@ -1220,6 +1207,29 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 	return 1
 }
 
+function check_instance {
+	data_stdout
+	if [ $? == 1 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			check_pid ${pid_prog_out[$i]}
+			if [ $? == 1 ]; then
+				ps a > $path_tmp/ps.tmp
+				max=`cat $path_tmp/ps.tmp |wc -l`
+				for line in `seq 2 $max`; do
+					proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
+					pid=`echo "$proc" | awk "{ print $ps_a_pid }"`
+					tty=`echo "$proc" | awk "{ print $ps_a_tty }"`
+					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
+						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid != $pid_prog), nel seguente terminale: $tty"
+						
+						exit
+					fi
+				done
+			fi
+		done
+	fi
+}
 
 function links_loop { 	#usage with op=+|- : links $op $link
 	op="$1" #operator
@@ -1419,6 +1429,8 @@ if [ ! -z "${args[*]}" ]; then
 					
 			
 					echo "$item" >> links.txt
+					
+					check_instance
 				else
 					print_c 3 "Link non valido: $item"
 					echo
