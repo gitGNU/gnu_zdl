@@ -925,20 +925,20 @@ function data_stdout {
 				
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
-				num_speed=${num_speed%.*}
+				num_speed="${num_speed%.*}"
 				case $type_speed in
-					KB/s) num_speed=$(( $num_speed*1024 ));;
-					MB/s) num_speed=$(( $num_speed*1024*1024 ));;
+					KB/s) num_speed="$(( $num_speed*1024 ))" ;;
+					MB/s) num_speed="$(( $num_speed*1024*1024 ))" ;;
 				esac
 				if [ ! -z $num_speed ] && [ $num_speed != 0 ]; then	
 					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
-					[ -z $length_saved ] && length_saved=${length_out[$i]%.*}
+					#[ -z $length_saved ] && length_saved=${length_out[$i]%.*}
 					seconds=0
 					minutes=0
 					hours=0
-					seconds=$(( (${length_out[$i]%.*}-$length_saved)/$num_speed ))
-					minutes=$(( $seconds/60 ))
-					hours=$(( $minutes/60 ))
+					[ ! -z $length_saved ] && [ $num_speed != 0 ] && seconds="$(( (${length_out[$i]%.*}-$length_saved)/$num_speed ))"
+					minutes="$(( $seconds/60 ))"
+					hours="$(( $minutes/60 ))"
 					
 					eta="${hours}h${minutes}m"
 					percent=`echo $progress_data | awk '{ print($1) }'`
@@ -950,7 +950,7 @@ function data_stdout {
 			[ "$num_percent" != "${num_percent//.}" ] && num_percent=0
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
 				size_bar=0
-				size_bar=$(( ($COLUMNS-30)*$num_percent/100 ))
+				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-30)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
 				diff_size_bar=$(( ($COLUMNS-30)-${size_bar} ))
 				
@@ -1233,6 +1233,27 @@ function check_instance {
 	fi
 }
 
+function clean_file {
+	if [ ! -z "$1" ]; then
+		file_to_ck="$1"
+		last_line=`cat "$file_to_ck" |wc -l`
+	
+		for i in `seq 1 $last_line`; do
+			item=`cat "$file_to_ck" |sed -n "${i}p"`
+			
+			if [ "${items[*]}" == "${items[*]//$item}" ]; then
+				items[${#items[*]}]=$item
+			fi
+		done
+		
+		rm -f "$file_to_ck"
+		
+		for item in ${items[*]}; do
+			[ ! -z "$item" ] && echo "$item" >> "$file_to_ck"
+		done
+	fi
+}
+
 function links_loop { 	#usage with op=+|- : links $op $link
 	op="$1" #operator
 	url_loop="$2" #url
@@ -1332,19 +1353,19 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		
 		
 		# --stream [URL] [FOLDER] [FNAME] 
-		url=$2
+		url_in=$2
 		directory=$3
 		file_in=$4
 		
 		cd $directory
 		mkdir -p ${path_tmp}
-		echo "$file_in" > ${path_tmp}/filename.txt
+		echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
 		
 		#pid xterm
 		#xterm -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 		
 		#pid bash
-		xterm -e "/bin/bash -c \"export pid_prog=\$$ ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+		xterm -e "/bin/bash -c \"export pid_prog=\$$ ; zdl -m \\\"$url_in\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 		
 		#xterm -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
 		unset args[$i]
@@ -1428,18 +1449,20 @@ done
 
 if [ ! -z "${args[*]}" ]; then
 	i=0
-	if [ -f links.txt ] && [ "${args[*]}" == "${args[*]//links.txt}" ];then
-		#rm -f $path_tmp/links_loop.txt
-		cat "links.txt" | while read lnk; do	
-			links_loop + $lnk
+	if [ -f links.txt ];then
+		for item in ${args[*]}; do
+			[ "${item}" != "${args[*]//links.txt}" ] && no_old=1 && break
 		done
-		#[ -f $path_tmp/links_loop.txt ] && mv $path_tmp/links_loop.txt links.txt.old
+		[ -z $no_old ] && cat links.txt >> old_links.txt && rm links.txt
+		unset no_old
 	fi
 	#rm -f $path_tmp/links_loop.txt
 	for item in ${args[*]}; do
 		if [ -f "${item}" ];then
 			cat "$item" | while read lnk; do
-				links_loop + $lnk
+				#links_loop + $lnk
+				echo $lnk >> $path_tmp/links_loop.txt
+				clean_file $path_tmp/links_loop.txt
 			done
 			
 		elif [ ! -f "${item}" ]; then
@@ -1455,12 +1478,16 @@ if [ ! -z "${args[*]}" ]; then
 					
 			
 					echo "$item" >> links.txt
-					links_loop + "$item"
+					clean_file links.txt
+					#links_loop + "$item"
+					echo $lnk >> $path_tmp/links_loop.txt
+					clean_file $path_tmp/links_loop.txt
 # 					check_lock
 # 					if [ $? == 1 ]; then
 # 						exit
 # 					fi
-					check_instance
+					
+					#check_instance
 				else
 					print_c 3 "Link non valido: $item"
 					echo
@@ -1473,7 +1500,7 @@ if [ ! -z "${args[*]}" ]; then
 			fi
 		fi
 	done
-	[ -f $path_tmp/links_loop.txt ] && cp -f $path_tmp/links_loop.txt links.txt
+	[ ! -f links.txt ] && [ -f $path_tmp/links_loop.txt ] && cp -f $path_tmp/links_loop.txt links.txt
 	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
 	unset item
 fi
@@ -1816,7 +1843,14 @@ while true; do
 					
 				else
 					# streaming downloader
-					[ -f "$path_tmp/filename.txt" ] && file_in=`cat $path_tmp/filename.txt` #&& rm $path_tmp/filename.txt
+					#[ -f "$path_tmp/filename_${url_in}.txt" ] && file_in=`cat "$path_tmp/filename_${url_in}.txt"` #&& rm $path_tmp/filename.txt
+					
+					items=( `ls $path_tmp/filename_*` )
+					for item in ${items[*]}; do
+						url=`cat "$item"`
+						[ "$url" == "$url_in" ] && file_in="${item#*filename_}" && break
+					done
+					
 					
 					# universal downloader
 					if [ -z "$file_in" ]; then
@@ -1825,7 +1859,7 @@ while true; do
 						file_in="${file_in%'?'*}"
 						
 					fi
-					url_in_file="$url_in"
+					url_in_file="${url_in% }"
 				fi
 				
 				file_in="${file_in// /_}"
@@ -1855,6 +1889,7 @@ while true; do
 				if [ $? == 1 ]; then
 					print_c 1 "downloading --> $file_in ..."
 				fi
+				check_instance
 				if [ "$domain" != "${domain//nowdownload}" ]; then
 					count_down=$(( $max_waiting/2 ))
 				elif [ ! -z "$http_proxy" ]; then	
