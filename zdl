@@ -146,15 +146,15 @@ function init {
 	
 	#user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
 	
-	tags=( `ps a |sed -n '1p'` )
+	tags=( `ps ax |sed -n '1p'` )
 	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
 		j=$(( $i+1 ))
-		[ "${tags[$i]}" == "PID" ] && ps_a_pid="\$$j"
-		[ "${tags[$i]}" == "TTY" ] && ps_a_tty="\$$j"
+		[ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
+		[ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
 	done
-	pid_prog=$$   #`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
+	[ -z "$pid_prog" ] && pid_prog=$$   #`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
 	pid_in=1   #$pid_prog
-	
+	lock_file="$path_tmp/${prog}_lock_$pid_prog"
 	
 	rm -f $file_log
 	
@@ -720,9 +720,9 @@ function download {
 
 function check_pid {
 	if [ ! -z $1 ]; then
-		pid=$1
-		ps a | awk "{ print $ps_a_pid }" | while read alive; do
-			if [ "$alive" == "$pid" ]; then
+		ck_pid=$1
+		ps ax | awk "{ print $ps_ax_pid }" | while read alive; do
+			if [ "$alive" == "$ck_pid" ]; then
 				return 1
 			fi
 		done
@@ -1015,6 +1015,7 @@ function show_data_stdout {
 }
 
 function check_stdout {
+	#check_instance
 	unset checked
 	data_stdout
 	if [ $? == 1 ]; then
@@ -1118,7 +1119,7 @@ function check_alias {
 
 
 function check_in_url { 	# return --> no_download=1 --> download=5
-	check_instance
+	#check_instance
 	if [ ! -z "$url_in" ]; then
 		if [ -z "$file_in" ]; then
 			unset alive 
@@ -1154,6 +1155,7 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 }
 
 function check_in_file { 	# return --> no_download=1 --> download=5
+	#check_instance
 	if [ ! -z "${file_in}" ] && [ ! -z "$url_in_file" ]; then
 		if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
 			no_newip=true
@@ -1214,16 +1216,16 @@ function check_instance {
 		for i in `seq 0 $last_stdout`; do
 			check_pid ${pid_prog_out[$i]}
 			if [ $? == 1 ]; then
-				ps a > $path_tmp/ps.tmp
+				ps ax > $path_tmp/ps.tmp
 				max=`cat $path_tmp/ps.tmp |wc -l`
 				for line in `seq 2 $max`; do
 					proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
-					pid=`echo "$proc" | awk "{ print $ps_a_pid }"`
-					tty=`echo "$proc" | awk "{ print $ps_a_tty }"`
+					pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
+					tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
 					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
-						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid != $pid_prog), nel seguente terminale: $tty"
-						
+						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
 						exit
+# 						kill "${pid_prog_out[$i]}" && print_c 1 "Uccisa l'istanza in $tty"
 					fi
 				done
 			fi
@@ -1292,11 +1294,32 @@ function init_links_loop {
 	fi
 }
 
-
+function check_lock {
+	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
+	test_lock=`ls $path_tmp/${prog}_lock_* 2>/dev/null`
+	echo "lockfile=$lock_file"
+	read -p "test=$test_lock"
+	
+	
+	if [ ! -z "$test_lock" ]; then
+		pid="${test_lock#*_lock_}"
+		read -p "pid_test=$pid"
+		check_pid $pid
+		if [ $? == 1 ]; then
+# 			touch "$lock_file"
+# 		else
+			rm "$test_lock"
+			return 1
+		fi
+	else
+		touch "$lock_file"
+	fi
+	touch "$lock_file"
+}
 
 
 #### MAIN
-
+#[ ! -z "$pid_prog" ] && read -p "$pid_prog" && exit
 init
 
 ################################### HEADER
@@ -1317,10 +1340,13 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		mkdir -p ${path_tmp}
 		echo "$file_in" > ${path_tmp}/filename.txt
 		
-		xterm -e "zdl \"$url\" ; read -p \">> PREMI INVIO per chiudere Xterm <<\""
-		pid_xterm=$!
-		wait $pid_xterm
-
+		#pid xterm
+		#xterm -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+		
+		#pid bash
+		xterm -e "/bin/bash -c \"export pid_prog=\$$ ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+		
+		#xterm -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
 		unset args[$i]
 		exit
 	fi
@@ -1407,7 +1433,7 @@ if [ ! -z "${args[*]}" ]; then
 		cat "links.txt" | while read lnk; do	
 			links_loop + $lnk
 		done
-		[ -f $path_tmp/links_loop.txt ] && mv $path_tmp/links_loop.txt links.txt.old
+		#[ -f $path_tmp/links_loop.txt ] && mv $path_tmp/links_loop.txt links.txt.old
 	fi
 	#rm -f $path_tmp/links_loop.txt
 	for item in ${args[*]}; do
@@ -1429,7 +1455,11 @@ if [ ! -z "${args[*]}" ]; then
 					
 			
 					echo "$item" >> links.txt
-					
+					links_loop + "$item"
+# 					check_lock
+# 					if [ $? == 1 ]; then
+# 						exit
+# 					fi
 					check_instance
 				else
 					print_c 3 "Link non valido: $item"
@@ -1443,11 +1473,10 @@ if [ ! -z "${args[*]}" ]; then
 			fi
 		fi
 	done
-	[ -f $path_tmp/links_loop.txt ] && mv $path_tmp/links_loop.txt links.txt
+	[ -f $path_tmp/links_loop.txt ] && cp -f $path_tmp/links_loop.txt links.txt
 	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
 	unset item
 fi
-	
 
 
 check_downloader
@@ -1485,6 +1514,8 @@ done
 
 
 init_links_loop
+
+
 
 while true; do
 	if [ -f "$file" ]; then	
@@ -1813,6 +1844,8 @@ while true; do
 				check_in_file
 				test_in=$?
 			fi
+			
+			#check_instance
 			
 			#### DOWNLOAD ####
 			if [ "$test_in" == "5" ]; then
