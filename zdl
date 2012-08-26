@@ -1845,12 +1845,13 @@ while true; do
 					# streaming downloader
 					#[ -f "$path_tmp/filename_${url_in}.txt" ] && file_in=`cat "$path_tmp/filename_${url_in}.txt"` #&& rm $path_tmp/filename.txt
 					
-					items=( `ls $path_tmp/filename_*` )
-					for item in ${items[*]}; do
-						url=`cat "$item"`
-						[ "$url" == "$url_in" ] && file_in="${item#*filename_}" && break
-					done
-					
+					items=( `ls $path_tmp/filename_* 2>/dev/null` )
+					if [ ! -z "${items[*]}" ]; then
+						for item in ${items[*]}; do
+							url=`cat "$item"`
+							[ "$url" == "$url_in" ] && file_in="${item#*filename_}" && break
+						done
+					fi
 					
 					# universal downloader
 					if [ -z "$file_in" ]; then
