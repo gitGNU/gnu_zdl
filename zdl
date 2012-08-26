@@ -745,7 +745,7 @@ function show_data_alive {
 			echo -e "${BBlue}File:${Color_Off} ${file_alive[$j]}" 
 			[ ! -z "${alias_file_alive[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_alive[$j]}"
 			echo -e "${BBlue}Downloader:${Color_Off} ${downloader_alive[$j]}\n${BBlue}Link:${Color_Off} ${url_alive[$j]}"
-			echo -e "${BBlue}Progresso:${IYellow} ${progress_alive[$j]}${Color_Off}"
+			echo -e "${BBlue}Stato:${IYellow} ${progress_alive[$j]}${Color_Off}"
 			
 			if [ $j != $last_alive ]; then 
 				separator "-"
@@ -786,52 +786,124 @@ function data_alive {
 	fi
 }
 
-function interactive {
-	echo
-	echo
-	client=1
-	show_data_alive
-	if [ $? == 1 ]; then
-		echo
-		echo
-		separator "?"
-		print_c 2 "Seleziona i numeri dei download attivi da riavviare o eliminare, separati da spazi (digita Ctrl+C per uscire subito):"
-		read input
-		inputs=( $input )
-		last_alive=$(( ${#pid_alive[*]}-1 ))
-		options=`seq 0 $last_alive`
-		while [ "$input2" != "e" ] && [ "$input2" != "r" ] && [ "$input2" != "t" ]; do
-			print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
-			echo
-			echo -e "	r) per riavviarli digita \"r\"
-	e) per eliminarli definitivamente (e cancellare il file), digita \"e\"
-	t) per terminare il programma senza fare niente digita \"t\""
+function show_downloads_extended {
+	data_stdout
+	if [ $? == 1 ]; then 
+		#separator "Z"
+		print_c 1 "Processi di download attualmente gestiti da $PROG:"
+		separator "="
+		last_out=$(( ${#pid_out[*]}-1 ))
+		for j in `seq 0 $last_out`; do
+			print_c 1 "Numero download attivo: $j"
+			[ ! -f "${file_out[$j]}" ] && print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
+			init_colors
+			echo -e "${BBlue}File:${Color_Off} ${file_out[$j]}" 
+			[ ! -z "${alias_file_out[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$j]}"
+			echo -e "${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
 			
-			print_c 2 "Scegli cosa fare: [r | e | t]"
-			read input2
+			progress="${progress_out[$j]}"
+			color=${BYellow}
 			
-			if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
-				for i in ${inputs[*]}; do
-					if [ "${options}" != "${options//$i}" ]; then
-						kill ${pid_alive[$i]}
-						[ "$input2" == "e" ] && rm -f "${file_alive[$i]}" "${alias_file_alive[$i]}" "${file_alive[$i]}.st" "${alias_file_alive[$i]}.st" # "${file_alive[$i]}_stdout.tmp"
-						
-						[ "$input2" == "r" ] && [ ! -f "${file_alive[$i]}.st" ] && [ ! -f "${alias_file_alive[$i]}.st" ] && rm -f "${file_alive[$i]}" "${alias_file_alive[$i]}"
-					fi
-				done
-				if [ "$input2" == "e" ]; then
-					for i in ${inputs[*]}; do
-						if [ "${options}" != "${options//$i}" ]; then
-							links_loop - "${url_alive[$i]}"
-						fi
-					done
-				fi
-			elif [ "$input2" == "t" ]; then
-				print_c 1  "Nessun processo riavviato o eliminato"
-				
+			check_pid "${pid_out[$j]}"
+			if [ $? != 1 ]; then
+				progress="Download non attivo"
+				color=${BRed}
+			fi
+			length_saved=0
+			[ -f "${file_out[$j]}" ] && length_saved=`ls -l "${file_out[$j]}" | awk '{ print($5) }'`
+			if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+				progress="Download completato"
+				color=${BGreen}
+			fi
+			#print_c $color "${downloader_out[$i]}: ${progress}"
+			
+			echo -e "${BBlue}Stato:${color} ${progress_out[$j]}${Color_Off}"
+			
+			if [ $j != $last_out ]; then 
+				separator "-"
+			else
+				separator "="
 			fi
 		done
+		return 1
+	else
+		separator "="
+		print_c 3  "Nessun download di $PROG rilevato"
+		separator "="
 	fi
+}
+
+function interactive {
+	while true ; do
+		#client=1
+		clear
+		echo
+		header
+		echo
+		#show_data_alive
+		unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
+		show_downloads_extended
+		if [ $? == 1 ]; then
+			echo
+			echo
+			separator "^"
+			print_c 2 "Opzioni:"
+			echo -e "	1) riavvia o elimina un download dalla gestione di $PROG"
+			echo -e "	2) esci da $PROG --interactive\n"
+			echo -e "	*) aggiorna lo stato\n"
+			separator "^"
+			print_c 2 "Scegli cosa fare (1 | 2 | *):"
+			read action
+			
+			if [ "$action" == "1" ]; then
+				clear
+				echo
+				header
+				echo
+				show_downloads_extended
+				print_c 2 "Seleziona i numeri dei download da eliminare o (solo se attivi) da riavviare, separati da spazi (puoi non scegliere):"
+				read input
+				inputs=( $input )
+				last_out=$(( ${#pid_out[*]}-1 ))
+				options=`seq 0 $last_out`
+				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
+				echo
+				echo -e "	r) per riavviarli digita \"r\"
+	e) per eliminarli definitivamente (e cancellare il file), digita \"e\"
+	*) per tornare alla schermata principale"
+				echo
+				separator "^"
+				print_c 2 "Scegli cosa fare: [r | e | *]"
+				read input2
+				
+				if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
+					for i in ${inputs[*]}; do
+						if [ "${options}" != "${options//$i}" ]; then
+							kill ${pid_out[$i]} 2>/dev/null #&& print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})"
+							[ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ] && rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
+						fi
+					done
+					
+					if [ "$input2" == "e" ]; then
+						for i in ${inputs[*]}; do
+							if [ "${options}" != "${options//$i}" ]; then
+								links_loop - "${url_out[$i]}"
+								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+							fi
+						done
+					fi
+				else
+					#print_c 1  "Nessun processo riavviato o eliminato"
+					exit
+				fi
+				
+			elif [ "$action" == "2" ]; then
+				exit
+			fi
+		else
+			exit
+		fi
+	done
 	exit
 }
 
@@ -952,7 +1024,7 @@ function data_stdout {
 				size_bar=0
 				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-30)*$num_percent/100 ))
 				size_bar=${size_bar%.*}
-				diff_size_bar=$(( ($COLUMNS-30)-${size_bar} ))
+				diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
 				
 				unset bar diff_bar
 				for column in `seq 1 $size_bar`; do
@@ -975,7 +1047,7 @@ function data_stdout {
 	fi
 }
 
-function show_data_stdout {
+function show_downloads {
 	unset progress
 	data_stdout
 	if [ $? == 1 ]; then		
@@ -1390,9 +1462,10 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		wget -T $max_waiting "$url_update" -O /tmp/$prog 
 		print_c 1 "Installazione di $PROG in /usr/local/bin/"
 		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
-		echo "which ${prog}:"
-		which $prog
+		#echo "which ${prog}:"
+		#which $prog
 		echo
+		exit
 	fi
 done
 
@@ -1415,6 +1488,7 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if [ "${args[$i]}" == '--clean' ]; then 
 		unset args[$i]
 		( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
+		exit
 	fi
 done
 
@@ -1453,7 +1527,7 @@ if [ ! -z "${args[*]}" ]; then
 		for item in ${args[*]}; do
 			[ "${item}" != "${args[*]//links.txt}" ] && no_old=1 && break
 		done
-		[ -z $no_old ] && cat links.txt >> old_links.txt && rm links.txt
+		[ -z $no_old ] && cat links.txt >> old_links.txt && rm links.txt && clean_file old_links.txt
 		unset no_old
 	fi
 	#rm -f $path_tmp/links_loop.txt
@@ -1516,8 +1590,8 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ -z "$file" ] ; then 
-	print_c 2 "Incolla la lista dei link (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il catcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
-	echo "[per uscire da $PROG, in qualunque momento, digita ctrl+c]"
+	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il catcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
+	echo "[per scaricare da links.txt premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	read -d @ -a links
 	printf "%s\n" "${links[@]}" > links.txt
 	file="links.txt"
@@ -1884,7 +1958,7 @@ while true; do
 				test_in=$?
 			fi
 			
-			#check_instance
+			check_instance
 			
 			#### DOWNLOAD ####
 			if [ "$test_in" == "5" ]; then
@@ -1894,7 +1968,7 @@ while true; do
 				if [ $? == 1 ]; then
 					print_c 1 "downloading --> $file_in ..."
 				fi
-				check_instance
+				#check_instance
 				if [ "$domain" != "${domain//nowdownload}" ]; then
 					count_down=$(( $max_waiting/2 ))
 				elif [ ! -z "$http_proxy" ]; then	
@@ -1935,12 +2009,12 @@ while true; do
 			noproxy
 			if [ "$multi" == "1" ]; then 
 				check_stdout
-				show_data_stdout
+				show_downloads
 				checked=1
 			fi
 			while [ -z "$checked" ]; do #file_in
 				check_stdout
-				show_data_stdout
+				show_downloads
 				check_pid $pid_in
 				test_pid=$?
 				
@@ -1957,7 +2031,7 @@ while true; do
 			file="$path_tmp/links_loop.txt"
 		fi
 		check_stdout
-		show_data_stdout
+		show_downloads
 		unset test_pids
 		data_stdout
 		if [ $? == 1 ]; then
