@@ -1849,7 +1849,11 @@ while true; do
 					if [ ! -z "${items[*]}" ]; then
 						for item in ${items[*]}; do
 							url=`cat "$item"`
-							[ "$url" == "$url_in" ] && file_in="${item#*filename_}" && break
+							if [ "$url" == "$url_in" ]; then
+								file_in="${item#*filename_}"
+								file_in="${file_in%.txt}"
+								break
+							fi
 						done
 					fi
 					
