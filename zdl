@@ -992,38 +992,49 @@ function data_stdout {
 				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
 				length_out[$i]="${length_out[$i]#*File size: }"
 				length_out[$i]="${length_out[$i]%% *}"
-				unset speed
-				speed=`echo $progress_data | awk '{ print($2) }'`
 				
+				unset speed	
+				
+				## `echo "${progress_data}"| grep "[.[0-9]*.[0-9]KB/s]"`
+				
+# 				speed="${progress_data2%%\] \[*}"
+# 				speed="${speed##*\] \[}"
+# 				type_speed="${speed//[0-9.,]}"
+# 				num_speed="${speed//$type_speed}"
+# 				percent=${progress_data%'%'*}
+# 				percent=${percent##*\[}
+				
+				percent=`echo $progress_data | awk '{ print($1) }'`
+				speed=`echo $progress_data | awk '{ print($2) }'`
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
-				num_speed="${num_speed%}"
+				num_speed=$(( ${num_speed%[,.]*} + 1 ))
 				case $type_speed in
-					KB/s) num_speed="$(( $num_speed*1024 ))" ;;
-					MB/s) num_speed="$(( $num_speed*1024*1024 ))" ;;
+					KB/s) num_speed=$(( $num_speed * 1024 )) ;;
+					MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
 				esac
-				if [ ! -z $num_speed ] && [ $num_speed != 0 ]; then	
-					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
-					#[ -z $length_saved ] && length_saved=${length_out[$i]%.*}
-					seconds="-"
-					minutes=0
-					hours=0
-					[ ! -z $length_saved ] && [ $num_speed != 0 ] && seconds="$(( (${length_out[$i]}-$length_saved)/$num_speed ))"
-					if [ "$seconds" != "-" ]; then
-						minutes="$(( $seconds/60 ))"
-						hours="$(( $minutes/60 ))"
+				if [ ! -z $num_speed ]; then	
+					num_percent=${percent%'%'*}
+					num_percent=$(( ${num_percent%[,.]*}+1 ))
+					diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
+					diff_length=$(( ${diff_length%[,.]*}+1 ))
+					unset seconds minutes hours
+					[ $num_speed != 0 ] && seconds=$(( $diff_length/$num_speed ))
+					
+					if [ ! -z "$seconds" ]; then
+						minutes=$(( $seconds/60 ))
+						hours=$(( $minutes/60 ))
 						minutes=$(( $minutes-($hours*60) ))
 						eta="${hours}h${minutes}m"
 					else
 						unset eta
 					fi
-					percent=`echo $progress_data | awk '{ print($1) }'`
+					
 				fi
 			fi
 			num_percent=0
 			num_percent=${percent%'%'*}
 			num_percent=${num_percent%'.'*}
-			[ "$num_percent" != "${num_percent//.}" ] && num_percent=0
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
 				size_bar=0
 				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
@@ -1036,9 +1047,7 @@ function data_stdout {
 				for column in `seq 1 $diff_size_bar`; do
 					diff_bar="${diff_bar} "
 				done
-				#echo "$COLUMNS = $size_bar + $diff_size_bar"
 				bar="[${bar}>${diff_bar}]"
-				#speed="${speed//,/.}"
 				progress_out[$i]="${bar} $percent $speed $eta"
 			fi
 			
@@ -1424,8 +1433,9 @@ header
 separator z
 ###################################
 args=( $@ )
+
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--stream" ] ); then 
+	if [ "${args[$i]}" == "--stream" ]; then 
 		
 		
 		# --stream [URL] [FOLDER] [FNAME] 
@@ -1446,6 +1456,18 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		#xterm -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
 		unset args[$i]
 		exit
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ] ); then 
+		unset args[$i]
+		multi=1
+	# 	if [ -e "/cygdrive" ]; then
+	# 		export DISPLAY=:0
+	# 		X &>/dev/null &
+	# 		exec aewm++ &>/dev/null &
+	# 	fi
 	fi
 done
 
@@ -1496,19 +1518,6 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	fi
 done
 
-for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--multi" ] || [ "${args[$i]}" == "-m" ] ); then 
-		unset args[$i]
-	
-		multi=1
-	# 	if [ -e "/cygdrive" ]; then
-	# 		export DISPLAY=:0
-	# 		X &>/dev/null &
-	# 		exec aewm++ &>/dev/null &
-	# 	fi
-	fi
-done
-
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if ( [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ] ); then 
@@ -1526,31 +1535,31 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 if [ ! -z "${args[*]}" ]; then
-	if [ -f links.txt ]; then
-		unset no_old
-		for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-			if [ "${args[$i]}" == "links.txt" ]; then
-				cat links.txt > new_links.txt
-				args[$i]="new_links.txt"
-				no_old=1
-				break
-			fi
-		done
-		if [ -z $no_old ]; then
-			cat links.txt >> old_links.txt 
-			clean_file old_links.txt
-		fi
-		
-		
-	fi
-	cat /dev/null > links.txt
+	#echo > "$path_tmp/new_links.txt"
+# 	if [ -f links.txt ]; then
+# 		unset no_old
+# 		for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+# 			if [ "${args[$i]}" == "links.txt" ]; then
+# 				#cat links.txt > new_links.txt
+# 				#args[$i]="$path_tmp/new_links.txt"
+# 				no_old=1
+# 				break
+# 			fi
+# 		done
+# 		if [ -z $no_old ]; then
+# 			cat new_links.txt >> links.txt 
+# 			clean_file links.txt
+# 		fi
+# 		
+# 		
+# 	fi
+# 	cat /dev/null > links.txt
 	
 	for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-		
 		if [ -f "${args[$i]}" ]; then
-			cat "${args[$i]}" >> links.txt
+			cat "${args[$i]}" >> $path_tmp/new_links.txt
 			cat "${args[$i]}" >> $path_tmp/links_loop.txt
-		else
+		elif [ ! -z "${args[$i]}" ]; then
 			print_c 2 "Verifica di ${args[$i]}"
 			LANG='en_US.UTF-8' wget "${args[$i]}" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
 						
@@ -1560,7 +1569,7 @@ if [ ! -z "${args[*]}" ]; then
 				LANG='en_US.UTF-8' timeout 5 wget "${args[$i]}" -S -q -O /dev/null 2> $path_tmp/spider
 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
 				if [ -z "$test_link" ];then
-					echo "${args[$i]}" >> links.txt
+					echo "${args[$i]}" >> $path_tmp/new_links.txt
 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
 # 					check_lock
 # 					if [ $? == 1 ]; then
@@ -1580,10 +1589,14 @@ if [ ! -z "${args[*]}" ]; then
 			fi
 		fi
 	done
-	clean_file $path_tmp/links_loop.txt
-	clean_file links.txt
-	[ ! -f links.txt ] && [ -f $path_tmp/links_loop.txt ] && cp -f $path_tmp/links_loop.txt links.txt
-	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
+	if [ -f $path_tmp/new_links.txt ];then 
+		file="$path_tmp/new_links.txt" 
+		clean_file $path_tmp/links_loop.txt
+		clean_file $path_tmp/new_links.txt
+		cat $path_tmp/new_links.txt >> links.txt
+		clean_file links.txt
+		print_c 1 "L'elenco completo dei link è in links.txt"
+	fi
 fi
 
 
@@ -1637,6 +1650,8 @@ while true; do
 			if [ $? == 1 ];then
 				sleep 1
 			else
+				url_in="${url_in## }"
+				url_in="${url_in%% }"
 				domain=${url_in//\?*}
 				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
 				
