@@ -154,7 +154,7 @@ function init {
 	done
 	[ -z "$pid_prog" ] && pid_prog=$$   #`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
 	pid_in=1   #$pid_prog
-	lock_file="$path_tmp/${prog}_lock_$pid_prog"
+	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
 	
 	rm -f $file_log
 	
@@ -992,12 +992,12 @@ function data_stdout {
 				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
 				length_out[$i]="${length_out[$i]#*File size: }"
 				length_out[$i]="${length_out[$i]%% *}"
-				
+				unset speed
 				speed=`echo $progress_data | awk '{ print($2) }'`
 				
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
-				num_speed="${num_speed%.*}"
+				num_speed="${num_speed%}"
 				case $type_speed in
 					KB/s) num_speed="$(( $num_speed*1024 ))" ;;
 					MB/s) num_speed="$(( $num_speed*1024*1024 ))" ;;
@@ -1008,10 +1008,10 @@ function data_stdout {
 					seconds=0
 					minutes=0
 					hours=0
-					[ ! -z $length_saved ] && [ $num_speed != 0 ] && seconds="$(( (${length_out[$i]%.*}-$length_saved)/$num_speed ))"
+					[ ! -z $length_saved ] && [ $num_speed != 0 ] && seconds="$(( (${length_out[$i]}-$length_saved)/$num_speed ))"
 					minutes="$(( $seconds/60 ))"
 					hours="$(( $minutes/60 ))"
-					
+					minutes=$(( $minutes-($hours*60) ))
 					eta="${hours}h${minutes}m"
 					percent=`echo $progress_data | awk '{ print($1) }'`
 				fi
@@ -1311,17 +1311,17 @@ function clean_file {
 		last_line=`cat "$file_to_ck" |wc -l`
 	
 		for i in `seq 1 $last_line`; do
-			item=`cat "$file_to_ck" |sed -n "${i}p"`
+			it=`cat "$file_to_ck" |sed -n "${i}p"`
 			
-			if [ "${items[*]}" == "${items[*]//$item}" ]; then
-				items[${#items[*]}]=$item
+			if [ "${items[*]}" == "${items[*]//$it}" ]; then
+				items[${#items[*]}]=$it
 			fi
 		done
 		
 		rm -f "$file_to_ck"
 		
-		for item in ${items[*]}; do
-			[ ! -z "$item" ] && echo "$item" >> "$file_to_ck"
+		for it in ${items[*]}; do
+			[ ! -z "$it" ] && echo "$it" >> "$file_to_ck"
 		done
 	fi
 }
@@ -1332,14 +1332,15 @@ function links_loop { 	#usage with op=+|- : links $op $link
 	if [ ! -z "$url_loop" ]; then
 		case $op in
 			+)	
-				if [ -f "$path_tmp/links_loop.txt" ]; then
-					lnx=`cat $path_tmp/links_loop.txt`
-					for lnk in $lnx; do
-						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-					done
-					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
-				fi
+# 				if [ -f "$path_tmp/links_loop.txt" ]; then
+# 					lnx=`cat $path_tmp/links_loop.txt`
+# 					for lnk in $lnx; do
+# 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+# 					done
+# 					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+# 				fi
 				echo "$url_loop" >> $path_tmp/links_loop.txt
+				clean_file $path_tmp/links_loop.txt
 				
 				;;
 			-)
@@ -1455,7 +1456,7 @@ done
 
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--update" ] || [ "${args[$i]}" == "-u" ] ); then 
+	if ( [ "${args[$i]}" == "--update" ] || [ "${args[$i]}" == "-u" ] ); then
 		unset args[$i]
 
 		print_c 1 "Aggiornamento di $PROG ..."
@@ -1488,7 +1489,7 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if [ "${args[$i]}" == '--clean' ]; then 
 		unset args[$i]
 		( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
-		exit
+		#exit
 	fi
 done
 
@@ -1522,40 +1523,42 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 if [ ! -z "${args[*]}" ]; then
-	i=0
-	if [ -f links.txt ];then
-		for item in ${args[*]}; do
-			[ "${item}" != "${args[*]//links.txt}" ] && no_old=1 && break
-		done
-		[ -z $no_old ] && cat links.txt >> old_links.txt && rm links.txt && clean_file old_links.txt
+	if [ -f links.txt ]; then
 		unset no_old
+		for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+			if [ "${args[$i]}" == "links.txt" ]; then
+				cat links.txt > new_links.txt
+				args[$i]="new_links.txt"
+				no_old=1
+				break
+			fi
+		done
+		if [ -z $no_old ]; then
+			cat links.txt >> old_links.txt 
+			clean_file old_links.txt
+		fi
+		
+		
 	fi
-	#rm -f $path_tmp/links_loop.txt
-	for item in ${args[*]}; do
-		if [ -f "${item}" ];then
-			cat "$item" | while read lnk; do
-				#links_loop + $lnk
-				echo $lnk >> $path_tmp/links_loop.txt
-				clean_file $path_tmp/links_loop.txt
-			done
-			
-		elif [ ! -f "${item}" ]; then
-			print_c 2 "Verifica di $item"
-			LANG='en_US.UTF-8' wget "$item" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+	cat /dev/null > links.txt
+	
+	for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+		
+		if [ -f "${args[$i]}" ]; then
+			cat "${args[$i]}" >> links.txt
+			cat "${args[$i]}" >> $path_tmp/links_loop.txt
+		else
+			print_c 2 "Verifica di ${args[$i]}"
+			LANG='en_US.UTF-8' wget "${args[$i]}" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
 						
 			test_link=`cat $path_tmp/spider`
 			
 			if [ ! -z "$test_link" ]; then
-				LANG='en_US.UTF-8' timeout 5 wget "$item" -S -q -O /dev/null 2> $path_tmp/spider
+				LANG='en_US.UTF-8' timeout 5 wget "${args[$i]}" -S -q -O /dev/null 2> $path_tmp/spider
 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
 				if [ -z "$test_link" ];then
-					
-			
-					echo "$item" >> links.txt
-					clean_file links.txt
-					#links_loop + "$item"
-					echo $lnk >> $path_tmp/links_loop.txt
-					clean_file $path_tmp/links_loop.txt
+					echo "${args[$i]}" >> links.txt
+					echo "${args[$i]}" >> $path_tmp/links_loop.txt
 # 					check_lock
 # 					if [ $? == 1 ]; then
 # 						exit
@@ -1563,20 +1566,21 @@ if [ ! -z "${args[*]}" ]; then
 					
 					#check_instance
 				else
-					print_c 3 "Link non valido: $item"
+					print_c 3 "Link non valido: ${args[$i]}"
 					echo
 					usage
 				fi
 			else
-				print_c 3 "Link non valido: $item"
+				print_c 3 "Link non valido: ${args[$i]}"
 				echo
 				usage
 			fi
 		fi
 	done
+	clean_file $path_tmp/links_loop.txt
+	clean_file links.txt
 	[ ! -f links.txt ] && [ -f $path_tmp/links_loop.txt ] && cp -f $path_tmp/links_loop.txt links.txt
 	[ -f links.txt ] && file=links.txt && print_c 1 "L'elenco completo dei link è in $file"
-	unset item
 fi
 
 
@@ -1590,8 +1594,9 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ -z "$file" ] ; then 
-	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il catcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
+	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
 	echo "[per scaricare da links.txt premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
+	separator "^"
 	read -d @ -a links
 	printf "%s\n" "${links[@]}" > links.txt
 	file="links.txt"
