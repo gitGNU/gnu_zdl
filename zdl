@@ -1005,14 +1005,18 @@ function data_stdout {
 				if [ ! -z $num_speed ] && [ $num_speed != 0 ]; then	
 					[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
 					#[ -z $length_saved ] && length_saved=${length_out[$i]%.*}
-					seconds=0
+					seconds="-"
 					minutes=0
 					hours=0
 					[ ! -z $length_saved ] && [ $num_speed != 0 ] && seconds="$(( (${length_out[$i]}-$length_saved)/$num_speed ))"
-					minutes="$(( $seconds/60 ))"
-					hours="$(( $minutes/60 ))"
-					minutes=$(( $minutes-($hours*60) ))
-					eta="${hours}h${minutes}m"
+					if [ "$seconds" != "-" ]; then
+						minutes="$(( $seconds/60 ))"
+						hours="$(( $minutes/60 ))"
+						minutes=$(( $minutes-($hours*60) ))
+						eta="${hours}h${minutes}m"
+					else
+						unset eta
+					fi
 					percent=`echo $progress_data | awk '{ print($1) }'`
 				fi
 			fi
@@ -1022,8 +1026,7 @@ function data_stdout {
 			[ "$num_percent" != "${num_percent//.}" ] && num_percent=0
 			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
 				size_bar=0
-				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-30)*$num_percent/100 ))
-				size_bar=${size_bar%.*}
+				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
 				diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
 				
 				unset bar diff_bar
@@ -1035,7 +1038,7 @@ function data_stdout {
 				done
 				#echo "$COLUMNS = $size_bar + $diff_size_bar"
 				bar="[${bar}>${diff_bar}]"
-				speed="${speed//,/.}"
+				#speed="${speed//,/.}"
 				progress_out[$i]="${bar} $percent $speed $eta"
 			fi
 			
