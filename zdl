@@ -260,7 +260,7 @@ function print_c {
        echo -n -e '\e[1;32m' #verde
     ;;
     2)
-       echo -n -e '\e[0;33m' #giallo
+       echo -n -e '\e[1;33m' #giallo
     ;;	
     3)
        echo -n -e '\e[1;31m' #rosso
@@ -893,22 +893,28 @@ function interactive {
 				print_c 2 "Scegli cosa fare: [r | e | *]"
 				read input2
 				
-				if [ "$input2" == "e" ] || [ "$input2" == "r" ]; then
+				if [ "$input2" == "r" ]; then
 					for i in ${inputs[*]}; do
-						if [ "${options}" != "${options//$i}" ]; then
-							kill ${pid_out[$i]} 2>/dev/null #&& print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})"
-							[ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ] && rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
-						fi
+						for j in $options; do
+							if [ "$i" == "$j" ]; then
+								kill ${pid_out[$i]} # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+								if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
+									rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
+								fi
+							fi
+						done
 					done
 					
-					if [ "$input2" == "e" ]; then
-						for i in ${inputs[*]}; do
-							if [ "${options}" != "${options//$i}" ]; then
+				elif [ "$input2" == "e" ]; then
+					for i in ${inputs[*]}; do
+						for j in $options; do
+							if [ "$i" == "$j" ]; then
+								kill ${pid_out[$i]}
 								links_loop - "${url_out[$i]}"
 								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
 							fi
 						done
-					fi
+					done
 				else
 					#print_c 1  "Nessun processo riavviato o eliminato"
 					exit
@@ -1464,10 +1470,10 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		mkdir -p ${path_tmp}
 		echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
 		
-		#pid xterm
+		##pid xterm
 		#xterm -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 		
-		#pid bash
+		##pid bash
 		xterm -e "/bin/bash -c \"export pid_prog=\$$ ; zdl -m \\\"$url_in\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 		
 		#xterm -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
