@@ -794,12 +794,14 @@ function show_downloads_extended {
 		separator "="
 		last_out=$(( ${#pid_out[*]}-1 ))
 		for j in `seq 0 $last_out`; do
+			human_length ${length_out[$j]} # --> $length_H
+			
 			print_c 1 "Numero download attivo: $j"
 			[ ! -f "${file_out[$j]}" ] && print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
 			init_colors
 			echo -e "${BBlue}File:${Color_Off} ${file_out[$j]}" 
 			[ ! -z "${alias_file_out[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$j]}"
-			echo -e "${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
+			echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
 			
 			progress="${progress_out[$j]}"
 			color=${BYellow}
@@ -830,6 +832,21 @@ function show_downloads_extended {
 		separator "="
 		print_c 3  "Nessun download di $PROG rilevato"
 		separator "="
+	fi
+}
+
+function human_length { ## input in bytes
+	if [ ! -z $1 ]; then
+		length_B=$1
+		length_K=$(( $length_B/1024 ))
+		length_M=$(( $length_K/1024 ))
+		if (( $length_M>0 )); then
+			length_H="${length_M} M"
+		elif (( $length_K>0 )); then
+			length_H="${length_K} K"
+		else
+			length_H="${length_B} B"
+		fi
 	fi
 }
 
