@@ -27,7 +27,7 @@
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [--clean] [-i|--interactive]"
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [-u|--update] [--clean] [-i|--interactive] [--proxy|--proxy=[t|a|e]|--proxy=IP:PORTA]"
 	echo
 	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME]"
 	echo
@@ -72,7 +72,7 @@ La funzione [-i|--interactive] permette di visualizzare i download \"vivi\" di $
 
 È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in uploaded e in easybytez. Si consiglia di usare tutti i link disponili, sia quelli di easybytez che quelli di uploaded: $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
 
-$PROG accetta come argomenti un numero illimitato di file di testo contenenti link
+$PROG accetta come argomenti un numero illimitato di file di testo contenenti link.
 
 Inoltre, $PROG è stato progettato anche per scaricare il file di uno stream video. A tale scopo, è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
 Configurazione di Flashgot per $PROG:
@@ -87,6 +87,18 @@ Configurazione di Flashgot per $PROG:
 
 Fine configurazione di Flashgot.
 
+$PROG può essere avviato usando proxy, specificando i seguenti argomenti:
+
+	--proxy			
+seleziona automaticamente un proxy valido di tipo Transparent (valore di default)
+
+	--proxy=[t|a|e]		
+seleziona automaticamente un proxy valido di tipo Transparent (t), Anonymous (a) oppure Elite (t).
+È possibile especificare più di un tipo di proxy, in questo modo (per abilitare i primi due tipi): --proxy=a --proxy=t
+
+	--proxy=IP:PORTA	
+abilita il proxy indicato dall'utente solo per il primo link, mentre gli altri saranno selezionati automaticamente (è possibile definire il tipo dei proxy successivi utilizzando anche --proxy=[t|a|e]
+
 
 Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
 
@@ -96,7 +108,7 @@ Installazione su Windows in due fasi:
 		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
 		- installare il pacchetto \"wget\"
 
-	FASE 2 _ Installazione di $PROG e di Axel
+	FASE 2 _ Installazione di $PROG
 		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
 		- avviare cygwin installato nella fase 1 
 		- digitare il seguente comando: /install_zdl-cygwin.sh
@@ -280,7 +292,9 @@ function header {
 	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"\e[0m\n"
 }
 
-
+function clear {
+	echo -n -e "\ec"
+}
 
 function _log {
 	if [ $log == 0 ]; then
@@ -339,9 +353,9 @@ function _log {
 function check_ip {
 	if [ "${newip[*]}" != "${newip[*]//$1}" ]; then 
 		if [ ! -f "$file_data" ]; then
-			new_ip
+			new_ip_proxy
 		else
-			[ "$multi" == "1" ] && new_ip
+			[ "$multi" == "1" ] && new_ip_proxy
 			[ "$multi" == "0" ] && new_ip_router
 		fi
 	fi
@@ -349,6 +363,14 @@ function check_ip {
 
 function my_ip {
 	myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
+}
+
+function add_newip {
+	[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+	[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+	#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+	[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+	#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 }
 
 function new_ip_router {
@@ -369,7 +391,7 @@ function noproxy {
 		export http_proxy
 }
 
-function new_ip {
+function new_ip_proxy {
 	maxspeed=0
 	minspeed=25
 	unset close unreached speed
@@ -378,7 +400,9 @@ function new_ip {
 	while true; do
 		proxy=""
 		#### tipi di proxy: Anonymous Transparent Elite
-		proxy_types=( "Transparent" )
+		if [ -z "${proxy_types[*]}" ]; then 
+			proxy_types=( "Transparent" )
+		fi
 		#[ "$domain" != "${domain//mediafire.}" ] && proxy_types=( "Elite" )
 		[ "$domain" != "${domain//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
 		#[ "$domain" != "${domain//shareflare.}" ] && proxy_types=( "Transparent" )
@@ -694,6 +718,10 @@ function check_freespace {
 
 
 function download {
+	lang_user="$LANG"
+	LANG='en_US.UTF-8'
+	export LANG
+	
 	#[ -f "$file_in" ] && read -p "ERRORE: $file_in c'è già!! programma terminato"
 	if [ "$axel_parts" == "0" ]; then
 		downloader_in=Wget
@@ -711,11 +739,13 @@ function download {
 		#--progress=bar:force
 		[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
 		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
-		LANG='en_US.UTF-8' wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+		wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}" > "$path_tmp/${file_in}_stdout.tmp"
 	fi
 	unset post_data checked
+	LANG="$lang_user"
+	export LANG
 }
 
 function check_pid {
@@ -796,9 +826,12 @@ function show_downloads_extended {
 		for j in `seq 0 $last_out`; do
 			human_length ${length_out[$j]} # --> $length_H
 			
-			print_c 1 "Numero download attivo: $j"
-			[ ! -f "${file_out[$j]}" ] && print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
-			init_colors
+			print_c 1 "Numero download: $j"
+			check_pid ${pid_out[$j]}
+			if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ]; then
+				print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
+			fi
+			
 			echo -e "${BBlue}File:${Color_Off} ${file_out[$j]}" 
 			[ ! -z "${alias_file_out[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$j]}"
 			echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
@@ -806,20 +839,23 @@ function show_downloads_extended {
 			progress="${progress_out[$j]}"
 			color=${BYellow}
 			
-			check_pid "${pid_out[$j]}"
+			check_pid ${pid_out[$j]}
 			if [ $? != 1 ]; then
 				progress="Download non attivo"
 				color=${BRed}
 			fi
+
 			length_saved=0
 			[ -f "${file_out[$j]}" ] && length_saved=`ls -l "${file_out[$j]}" | awk '{ print($5) }'`
 			if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
 				progress="Download completato"
 				color=${BGreen}
 			fi
+			
+			
 			#print_c $color "${downloader_out[$i]}: ${progress}"
 			
-			echo -e "${BBlue}Stato:${color} ${progress_out[$j]}${Color_Off}"
+			echo -e "${BBlue}Stato:${color} ${progress}${Color_Off}"
 			
 			if [ $j != $last_out ]; then 
 				separator "-"
@@ -1058,7 +1094,7 @@ function data_stdout {
 			num_percent=0
 			num_percent=${percent%'%'*}
 			num_percent=${num_percent%'.'*}
-			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ]; then
+			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ ! -z "${num_percent//.}" ]; then
 				size_bar=0
 				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
 				diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
@@ -1263,7 +1299,7 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 
 function check_in_file { 	# return --> no_download=1 --> download=5
 	#check_instance
-	if [ ! -z "${file_in}" ] && [ ! -z "$url_in_file" ]; then
+	if [ ! -z "${file_in}" ]; then
 		if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
 			no_newip=true
 			data_stdout
@@ -1277,26 +1313,39 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 							return 1
 							
 						else
+							
 							if [ "$downloader_in" = "Wget" ]; then
 								length_saved=0
 								length_alias_saved=0
 								length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
 								[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
 							
-								if [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
-									rm -f "$file_in" "${file_in}.st"
-									return 5
+								if [ "${length_out[$i]//[0-9]}" == "${length_out[$i]}" ] || [ "${length_out[$i]}" == "0" ] || [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+									rm -f "$file_in" "${file_in}.st" # && print_c 1 "FILE CANCELLATO"
+									unset no_newip
+									
+									[ ! -z "$url_in_file" ] && return 5
+								else
+									_log 1
+									no_newip=true
 								fi
 							elif [ "$downloader_in" = "Axel" ]; then
-								[ -f "${file_in}.st" ] && return 5
+								if [ -f "${file_in}.st" ]; then 
+									unset no_newip
+									[ ! -z "$url_in_file" ] && return 5
+								else
+									_log 1
+									no_newip=true
+								fi
 							fi
 						fi
 					fi
 				done
-			fi
 			
-			_log 1
-			no_newip=true
+			else
+				_log 1
+				no_newip=true
+			fi
 		elif [ ! -z "$not_available" ]; then
 			[ ! -z "$url_in_file" ] && _log 3
 			no_newip=true
@@ -1306,8 +1355,9 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 		elif [ "$url_in_file" != "${url_in_file//{\"err\"/}" ]; then
 			_log 2
 			unset no_newip
-		elif  ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ; then
+		elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
 			return 5
+			unset no_newip
 		fi
 	elif [ -z "$url_in_file" ] || [ -z "${file_in}" ]; then
 		_log 2
@@ -1341,7 +1391,7 @@ function check_instance {
 }
 
 function clean_file {
-	if [ ! -z "$1" ]; then
+	if [ ! -z "$1" ] && [ -f "$1" ]; then
 		file_to_ck="$1"
 		last_line=`cat "$file_to_ck" |wc -l`
 	
@@ -1483,6 +1533,21 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if ( [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ] ); then
+		unset args[$i]
+
+		print_c 1 "Aggiornamento di $PROG ..."
+		wget -T $max_waiting "$url_update" -O /tmp/$prog 
+		print_c 1 "Installazione di $PROG in /usr/local/bin/"
+		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
+		#echo "which ${prog}:"
+		#which $prog
+		echo
+	fi
+done
+
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if ( [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ] ); then 
 		unset args[$i]
 		multi=1
@@ -1495,28 +1560,12 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--interactive" ] || [ "${args[$i]}" == "-i" ] ); then 
+	if ( [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ] ); then 
 		unset args[$i]
 		interactive
 	fi
 done
-	
 
-
-for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--update" ] || [ "${args[$i]}" == "-u" ] ); then
-		unset args[$i]
-
-		print_c 1 "Aggiornamento di $PROG ..."
-		wget -T $max_waiting "$url_update" -O /tmp/$prog 
-		print_c 1 "Installazione di $PROG in /usr/local/bin/"
-		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
-		#echo "which ${prog}:"
-		#which $prog
-		echo
-		exit
-	fi
-done
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if [ "${args[$i]}" == '--wget' ]; then 
@@ -1554,6 +1603,52 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 	if ( [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ] ); then 
 		unset args[$i]
 		configure
+	fi
+done
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
+		
+		if [ "${args[$i]}" == '--proxy' ]; then
+			update_proxy=true
+			unset args[$i]
+			break
+		elif [ "${args[$i]}" == '--proxy=t' ]; then
+			proxy_types[${#proxy_types[*]}]="Transparent"
+			update_proxy=true
+		elif [ "${args[$i]}" == '--proxy=a' ]; then
+			proxy_types[${#proxy_types[*]}]="Anonymous"
+			update_proxy=true
+		elif [ "${args[$i]}" == '--proxy=e' ]; then
+			proxy_types[${#proxy_types[*]}]="Elite"
+			update_proxy=true
+		elif [ "${args[$i]}" != "${args[$i]%=*}" ]; then
+			proxy="${args[$i]#'--proxy='}"
+			if [ -z "${proxy//[0-9].[0-9].[0-9].[0-9]:[0-9]}" ]; then
+				export http_proxy=$proxy
+				print_c 1 "Proxy attivo: $http_proxy"
+				update_defined_proxy=true
+				unset update_proxy
+			else
+				print_c 3 "${args[$i]}: argomento non valido"
+				echo
+				usage
+			fi
+		else
+			print_c 3 "${args[$i]}: argomento non valido"
+			echo
+			usage
+		fi
+		unset args[$i]
+	fi
+done
+
+
+for i in `seq 0 $(( ${#args[*]}-1 ))`; do
+	if [ "${args[$i]}" != "${args[$i]#-}" ]; then
+		print_c 3 "${args[$i]}: argomento non valido"
+		echo
+		usage
 	fi
 done
 
@@ -1676,6 +1771,16 @@ while true; do
 				url_in="${url_in## }"
 				url_in="${url_in%% }"
 				domain=${url_in//\?*}
+				
+				if [ "$update_proxy" == "true" ];then
+					unset newip update_proxy
+					new_ip_proxy
+					update_proxy_others="true"
+				elif [ "$update_defined_proxy" == "true" ];then
+					unset newip update_defined_proxy
+					update_proxy_others="true"
+				fi
+				
 				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
 				
 				echo
@@ -1683,6 +1788,15 @@ while true; do
 				
 				echo -e "\nLink da processare: $url_in"
 				
+				if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
+					if [ "$downloader_in" == "Axel" ]; then
+						dler=$downloader_in
+						downloader_in=Wget
+						ch_dler=1
+						print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+					fi
+				fi
+		# 		
 		# 		if [ "$domain" != "${domain//4us.to/}" ]; then
 		# 			
 		# 			## 4US.TO ###############
@@ -1855,7 +1969,7 @@ while true; do
 		# 				n=1
 		# 			fi
 		# 			
-				elif [ "$domain" != "${domain//easybytez.}" ]; then
+				elif [ "$domain" != "${domain//easybytez}" ]; then
 					url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q 2>/dev/null |grep 'You have requested'`
 					url_in_file="${url_in_file##*'<font color="red">'}"
 					url_in_file="${url_in_file%%'</font'*}"
@@ -1863,12 +1977,13 @@ while true; do
 					file_in=${url_in_file##*\/}
 					
 					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file 2>/dev/null |grep "File not available"`
-					#check_in
+					#[ ! -z "$not_available" ] && print_c 3 "$not_available"
+					check_in_file
 					
 					#logic: [ $? == 2 ] && [ ! -f $file_in ]
+					
 					if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
 						check_ip easybytez
-						
 						wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
 						echo -e "...\c"
 						
@@ -1880,7 +1995,6 @@ while true; do
 						exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
 						unset post_data
 						if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
-					
 							tmp="$path_tmp/zdl2.tmp"
 							input_hidden
 			
@@ -1964,6 +2078,9 @@ while true; do
 				else
 					# streaming downloader
 					#[ -f "$path_tmp/filename_${url_in}.txt" ] && file_in=`cat "$path_tmp/filename_${url_in}.txt"` #&& rm $path_tmp/filename.txt
+					if [ "$update_proxy_others_list" == "true" ]; then
+						new_ip_proxy
+					fi
 					
 					items=( `ls $path_tmp/filename_* 2>/dev/null` )
 					if [ ! -z "${items[*]}" ]; then
@@ -1985,18 +2102,14 @@ while true; do
 						
 					fi
 					url_in_file="${url_in% }"
+					if [ "$update_proxy_others" == "true" ]; then
+						update_proxy_others_list="true"
+					fi
 				fi
 				
 				file_in="${file_in// /_}"
 				
-				if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
-					if [ "$downloader_in" == "Axel" ]; then
-						dler=$downloader_in
-						downloader_in=Wget
-						ch_dler=1
-						print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
-					fi
-				fi
+				
 				
 				#### CHECK $url_in_file & $file_in:
 				## 
@@ -2046,9 +2159,9 @@ while true; do
 			if [ -z $no_newip ]; then
 				[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
 				[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-		# 		[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+				#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
 				[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-	# 			[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
+				#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
 			fi
 			[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
 			unset checked
