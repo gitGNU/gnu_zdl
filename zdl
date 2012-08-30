@@ -1726,7 +1726,7 @@ if [ ! -z "${args[*]}" ]; then
 
 		fi
 	done
-	if [ -f $path_tmp/new_links.txt ];then 
+	if [ -f $path_tmp/links_loop.txt ];then 
 		file="$path_tmp/links_loop.txt" 
 		clean_file $path_tmp/links_loop.txt
 		#clean_file $path_tmp/new_links.txt
