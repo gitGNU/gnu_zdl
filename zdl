@@ -735,8 +735,9 @@ function download {
 	rm -f "$path_tmp/${file_in}_stdout.tmp"
 	if [ "$downloader_in" = "Axel" ]; then
 		export AXEL_COOKIES=$path_tmp/cookies.zdl		
-		[ "$file_in" != "" ] && argout="-o"
-		axel -n $axel_parts "$url_in_file" $argout "$file_in" >> "$path_tmp/${file_in}_stdout.tmp" &
+		[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
+		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 		axel_parts=$axel_parts_default
@@ -746,7 +747,7 @@ function download {
 		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
 		wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 		pid_in=$!
-		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}" > "$path_tmp/${file_in}_stdout.tmp"
+		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
 	fi
 	unset post_data checked
 	export LANG="$user_lang"
@@ -938,7 +939,7 @@ function interactive {
 					for i in ${inputs[*]}; do
 						for j in $options; do
 							if [ "$i" == "$j" ]; then
-								kill ${pid_out[$i]} # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+								kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
 								if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
 									rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
 								fi
@@ -950,7 +951,7 @@ function interactive {
 					for i in ${inputs[*]}; do
 						for j in $options; do
 							if [ "$i" == "$j" ]; then
-								kill ${pid_out[$i]}
+								kill ${pid_out[$i]} 2>/dev/null
 								links_loop - "${url_out[$i]}"
 								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
 							fi
@@ -995,13 +996,21 @@ function data_stdout {
 			
 			downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
 			pid_prog_out[$i]=`head -n 4 $file_stdout|sed -n '4p'`
-			axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
+			
 			progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
 			progress_data="${progress_data//'..........'}"
 			progress_data="${progress_data//[\[\]]}"
 			file_o="${file_stdout//_stdout.tmp}"
 			file_o="${file_o#$path_tmp/}"
 			if [ "${downloader_out[$i]}" == "Wget" ]; then
+				length_out[$i]=`head -n 5 $file_stdout|sed -n '5p'|grep "length_in="`
+				length_out[$i]="${length_out[$i]#length_in=}"
+				if [ -z "${length_out[$i]}" ];then
+					length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
+					length_out[$i]="${length_out[$i]#*Length: }"
+					length_out[$i]="${length_out[$i]%%' '*}"
+				fi
+				
 				file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
 				file_out[$i]="${file_out[$i]#*Saving to: \`}"
 				file_out[$i]="${file_out[$i]%\'*}"
@@ -1023,9 +1032,6 @@ function data_stdout {
 					file_out[$i]="${file_out[$i]%'"'*}"
 					file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
 				fi
-				length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
-				length_out[$i]="${length_out[$i]#*Length: }"
-				length_out[$i]="${length_out[$i]%%' '*}"
 				
 				percent=`echo $progress_data | awk '{ print($2) }'`
 				eta=`echo $progress_data | awk '{ print($4) }'`
@@ -1041,6 +1047,7 @@ function data_stdout {
 				esac
 				speed="${num_speed}${type_speed}"
 			elif [ "${downloader_out[$i]}" == "Axel" ]; then
+				axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
 				file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
 				file_out[$i]="${file_out[$i]#*Opening output file }"
 				
@@ -1539,7 +1546,7 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ] ); then
+	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 		unset args[$i]
 
 		print_c 1 "Aggiornamento di $PROG ..."
@@ -1554,7 +1561,7 @@ done
 
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ] ); then 
+	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
 		unset args[$i]
 		multi=1
 	# 	if [ -e "/cygdrive" ]; then
@@ -1566,7 +1573,7 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ] ); then 
+	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
 		unset args[$i]
 		interactive
 	fi
@@ -1598,7 +1605,7 @@ done
 
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ] ); then 
+	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
 		unset args[$i]
 		usage
 	fi
@@ -1606,7 +1613,7 @@ done
 
 
 for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-	if ( [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ] ); then 
+	if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
 		unset args[$i]
 		configure
 	fi
@@ -1681,7 +1688,7 @@ if [ ! -z "${args[*]}" ]; then
 	
 	for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		if [ -f "${args[$i]}" ]; then
-			cat "${args[$i]}" >> $path_tmp/new_links.txt
+			#cat "${args[$i]}" >> $path_tmp/new_links.txt
 			cat "${args[$i]}" >> $path_tmp/links_loop.txt
 		elif [ ! -z "${args[$i]}" ]; then
 			print_c 2 "Verifica di ${args[$i]}"
@@ -1696,7 +1703,7 @@ if [ ! -z "${args[*]}" ]; then
 				
 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
 				if [ -z "$test_link" ];then
-					echo "${args[$i]}" >> $path_tmp/new_links.txt
+					#echo "${args[$i]}" >> $path_tmp/new_links.txt
 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
 # 					check_lock
 # 					if [ $? == 1 ]; then
@@ -1720,10 +1727,10 @@ if [ ! -z "${args[*]}" ]; then
 		fi
 	done
 	if [ -f $path_tmp/new_links.txt ];then 
-		file="$path_tmp/new_links.txt" 
+		file="$path_tmp/links_loop.txt" 
 		clean_file $path_tmp/links_loop.txt
-		clean_file $path_tmp/new_links.txt
-		cat $path_tmp/new_links.txt >> links.txt
+		#clean_file $path_tmp/new_links.txt
+		cat $path_tmp/links_loop.txt >> links.txt
 		clean_file links.txt
 		print_c 1 "L'elenco completo dei link è in links.txt"
 	fi
@@ -2022,13 +2029,15 @@ while true; do
 							echo -e "  \r\c"
 							tmp="$path_tmp/zdl3.tmp"
 							input_hidden
-							
+							length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`
+							length_in="${length_in#*\(}"
+							length_in="${length_in%% *}"
 							
 							url_in_file="$url_in_file"
 							post_data="${post_data}&btn_download=Download File"
 						fi
 					fi
-						
+					axel_parts=1	
 				elif [ "$domain" != "${domain//uploaded.}" ]; then
 					unset alias
 					url_in_file="${url_in%/}"
