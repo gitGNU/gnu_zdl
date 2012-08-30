@@ -1339,15 +1339,16 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 									
 									[ ! -z "$url_in_file" ] && return 5
 								else
-									_log 1
+									#_log 1
 									no_newip=true
+									
 								fi
 							elif [ "$downloader_in" = "Axel" ]; then
 								if [ -f "${file_in}.st" ]; then 
 									unset no_newip
 									[ ! -z "$url_in_file" ] && return 5
 								else
-									_log 1
+									#_log 1
 									no_newip=true
 								fi
 							fi
@@ -1666,29 +1667,8 @@ for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 done
 
 if [ ! -z "${args[*]}" ]; then
-	#echo > "$path_tmp/new_links.txt"
-# 	if [ -f links.txt ]; then
-# 		unset no_old
-# 		for i in `seq 0 $(( ${#args[*]}-1 ))`; do
-# 			if [ "${args[$i]}" == "links.txt" ]; then
-# 				#cat links.txt > new_links.txt
-# 				#args[$i]="$path_tmp/new_links.txt"
-# 				no_old=1
-# 				break
-# 			fi
-# 		done
-# 		if [ -z $no_old ]; then
-# 			cat new_links.txt >> links.txt 
-# 			clean_file links.txt
-# 		fi
-# 		
-# 		
-# 	fi
-# 	cat /dev/null > links.txt
-	
 	for i in `seq 0 $(( ${#args[*]}-1 ))`; do
 		if [ -f "${args[$i]}" ]; then
-			#cat "${args[$i]}" >> $path_tmp/new_links.txt
 			cat "${args[$i]}" >> $path_tmp/links_loop.txt
 		elif [ ! -z "${args[$i]}" ]; then
 			print_c 2 "Verifica di ${args[$i]}"
@@ -1727,7 +1707,7 @@ if [ ! -z "${args[*]}" ]; then
 		fi
 	done
 	if [ -f $path_tmp/links_loop.txt ];then 
-		file="$path_tmp/links_loop.txt" 
+		file="$path_tmp/links_loop.txt"
 		clean_file $path_tmp/links_loop.txt
 		#clean_file $path_tmp/new_links.txt
 		cat $path_tmp/links_loop.txt >> links.txt
@@ -1748,11 +1728,14 @@ fi
 
 if [ -z "$file" ] ; then 
 	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
-	echo "[per scaricare da links.txt premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
+	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
 	read -d @ -a links
-	printf "%s\n" "${links[@]}" > links.txt
-	file="links.txt"
+	printf "%s\n" "${links[@]}" > $path_tmp/links_loop.txt
+	cat $path_tmp/links_loop.txt >> links.txt
+	clean_file links.txt
+	clean_file $path_tmp/links_loop.txt
+	file="$path_tmp/links_loop.txt"
 	echo
 fi
 
@@ -1868,7 +1851,9 @@ while true; do
 						url_in_file=${url_in_file//*href=\"} 
 						url_in_file=${url_in_file//\"*}
 	
-						[ ! -z "$url_in_file" ] && break
+						if [ ! -z "$url_in_file" ] || (( $s>60 )); then
+							break
+						fi
 					done	
 					file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 					file_in1="${file_in1#*'<br> '}"
