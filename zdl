@@ -760,8 +760,8 @@ function download {
 function check_pid {
 	if [ ! -z $1 ]; then
 		ck_pid=$1
-		ps ax | awk "{ print $ps_ax_pid }" | while read alive; do
-			if [ "$alive" == "$ck_pid" ]; then
+		ps ax | awk "{ print $ps_ax_pid }" | while read ck_alive; do
+			if [ "$ck_alive" == "$ck_pid" ]; then
 				return 1
 			fi
 		done
@@ -771,7 +771,7 @@ function check_pid {
 
 function show_data_alive {
 	data_alive
-	if [ ! -z $alive ]; then 
+	if [ "$alive" == "1" ]; then 
 		unset alive
 
 		print_c 1 "Processi di download attualmente in vita:"
@@ -1284,7 +1284,7 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 			unset alive 
 			# alive
 			data_alive
-			if [ ! -z $alive ]; then 
+			if [ "$alive" == "1" ]; then 
 				
 				last_alive=$(( ${#pid_alive[*]}-1 ))
 				for i in `seq 0 $last_alive`; do
