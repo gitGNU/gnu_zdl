@@ -128,60 +128,130 @@ http://inventati.org/zoninoz
 	exit 1
 }
 
+function add_conf { #only if item doesn't exist
+	item="$1"
+	name="${item%%=*}="
+	unset noadd
+	if [ -f "$file_conf" ]; then
+		lines=`cat "$file_conf" |wc -l`
+		for line in `seq 1 $lines`; do
+			text=`cat "$file_conf" | sed -n "${line}p"`
+			if [ "$text" != "${text#$name}" ] || [ "$text" == "$item" ]; then
+				noadd=1
+				break
+			fi
+		done
+		
+		if [ -z "$noadd" ]; then
+			echo "$item" >> "$file_conf"
+			unset noadd
+		fi
+	fi
+}
+
+function set_default_conf {
+	mkdir -p $path_conf
+	touch "$file_conf"
+	add_conf "downloader=Axel"
+	add_conf "axel_parts=32"
+	add_conf "skin=color"
+	add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel)"
+	add_conf "mode=single"
+	add_conf "# modem router credentials"
+	add_conf "admin="
+	add_conf "passwd="
+	add_conf "language=$LANG"
+}
+
+function get_conf {
+	if [ -f  "$file_conf" ]; then
+		lines=`cat "$file_conf" |wc -l`
+		for line in `seq 1 $lines`; do
+			text=`cat "$file_conf" | sed -n "${line}p"`
+			if [ "$text" != "${text#downloader=}" ]; then
+				downloader_in="${text#downloader=}"
+				downloader_in="${downloader_in%% *}"
+				downloader_in="${downloader_in//\"}"
+				if [ -z "$downloader_in" ]; then
+					downloader_in=Axel
+				fi
+			elif [ "$text" != "${text#axel_parts=}" ]; then
+				axel_parts="${text#axel_parts=}"
+				axel_parts_default="${axel_parts%% *}"
+				axel_parts="${axel_parts//\"}"
+				if [ -z "$axel_parts" ]; then
+					axel_parts=32
+				fi
+			elif [ "$text" != "${text#skin=}" ]; then
+				skin="${text#skin=}"
+				skin="${skin%% *}"
+				skin="${skin//\"}"
+			elif [ "$text" != "${text#mode=}" ]; then
+				mode="${text#mode=}"
+				mode="${mode%% *}"
+				mode="${mode//\"}"
+				# mode=single => multi=0
+				if [ "mode" == "multi" ]; then
+					multi=1
+				else
+					multi=0
+				fi
+			elif [ "$text" != "${text#admin=}" ]; then
+				admin="${text#admin=}"
+				admin="${admin%% *}"
+				admin="${admin//\"}"
+			elif [ "$text" != "${text#passwd=}" ]; then
+				passwd="${text#passwd=}"
+				passwd="${passwd%% *}"
+				passwd="${passwd//\"}"
+			elif [ "$text" != "${text#language=}" ]; then
+				language="${text#language=}"
+				language="${language%% *}"
+				language="${language//\"}"
+			fi
+		done
+	fi
+}
 
 function init {
-	
-	log=0
-	axel_parts_default=32
-	# CYGWIN
-	if [ -e "/cygdrive" ];then 
-		axel_parts_default=10
-		kill -SIGWINCH $$
-	fi
-	axel_parts=$axel_parts_default
+	# set default config data
 	updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
 	[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
-	#fi
-	multi=0
+	
+	log=0
 	prog=`basename $0`
 	PROG=`echo $prog | tr a-z A-Z`
 	path_tmp=".${prog}_tmp"
 	file_log="${prog}_log.txt"
-	conf="$HOME/.${prog}rc"
-	file_data="$HOME/.${prog}.data"
+	rm -f $file_log
 	
-	#nuova configurazione
 	path_conf="$HOME/.${prog}"
 	file_conf="$path_conf/$prog.conf"
-	if [ ! -d $path_conf ]; then
-		mkdir $path_conf
+	if [ ! -f "$file_conf" ]; then
+		echo "# ZigzagDownLoader configuration file" > "$file_conf"
 	fi
+	set_default_conf
 	
-	
-	bar_char="z"
-	
-	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
-	max_waiting=40
 	mkdir -p "$path_tmp"
-	
-	#user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20100101 Firefox/10.0.5 Iceweasel/10.0.5"
-	
 	tags=( `ps ax |sed -n '1p'` )
 	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
 		j=$(( $i+1 ))
 		[ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
 		[ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
 	done
-	[ -z "$pid_prog" ] && pid_prog=$$   #`ps |grep "$prog" |awk '{ print($1) }'|sed -n "1p"`
-	pid_in=1   #$pid_prog
+	[ -z "$pid_prog" ] && pid_prog=$$ 
+	pid_in=1
 	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
+
+	# get config data
+	get_conf
 	
-	rm -f $file_log
-	
-	if [ -f "$conf" ]; then
-		downloader_in=`cat $conf`
-	else
-		downloader_in=Axel
+	# CYGWIN
+	if [ -e "/cygdrive" ];then
+		if (( $axel_parts_default>10 )); then
+			axel_parts_default=10
+		fi
+		kill -SIGWINCH $$
 	fi
 	
 	init_colors
@@ -189,16 +259,10 @@ function init {
 	user_lang="$LANG"
 	user_language="$LANGUAGE"
 	prog_lang='en_US.UTF-8:en'
-# 	data_stdout
-# 	if [ $? == 1 ]; then
-# 		last_stdout=$(( ${#pid_out[*]}-1 ))
-# 		for i in `seq 0 $last_stdout`; do
-# 			check_pid ${pid_out[$i]}
-# 			if [ $? == 1 ]; then
-# 				[ "${pid_prog_alive[$i]}" == "$pid_prog" ] && pids_alive[${#pids_alive[*]}]=${pid_out[$i]}
-# 			fi
-# 		done
-# 	fi
+
+	bar_char="z"
+	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+	max_waiting=40
 }
 
 #### layout
@@ -389,12 +453,17 @@ function add_newip {
 }
 
 function new_ip_router {
-	if [ -f "$file_data" ]; then
-		USER=`cat $file_data |awk '{ print($1) }'`
-		PASSWD=`cat $file_data |awk '{ print($2) }'`
+# 	if [ -f "$file_data" ]; then
+# 		USER=`cat $file_data |awk '{ print($1) }'`
+# 		PASSWD=`cat $file_data |awk '{ print($2) }'`
+# 		print_c 1 "Cambio indirizzo IP..."
+# 		wget --http-passwd=$PASSWD --http-user=$USER 192.168.0.1/stanet.stm  -O - &>/dev/null
+# 		wget --http-passwd=$PASSWD --http-user=$USER --post-data="disconnect=1" 192.168.0.1/cgi-bin/statusprocess.exe -O - &>/dev/null
+	
+	if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
 		print_c 1 "Cambio indirizzo IP..."
-		wget --http-passwd=$PASSWD --http-user=$USER 192.168.0.1/stanet.stm  -O - &>/dev/null
-		wget --http-passwd=$PASSWD --http-user=$USER --post-data="disconnect=1" 192.168.0.1/cgi-bin/statusprocess.exe -O - &>/dev/null
+		wget --http-passwd=$passwd --http-user=$admin 192.168.0.1/stanet.stm  -O - &>/dev/null
+		wget --http-passwd=$passwd --http-user=$admin --post-data="disconnect=1" 192.168.0.1/cgi-bin/statusprocess.exe -O - &>/dev/null
 	else
 		echo
 		print_c 3 "Funzione di cambio indirizzo IP via router disattivata: non esiste il file di configurazione $HOME/.${prog}.data"
@@ -670,7 +739,7 @@ function install_src {
 	cd -
 }
 
-function configure {
+function configure_old {
 	echo
 	print_c 3 "CONFIGURAZIONE DI $PROG"
 	echo "Il downloader attuale di $PROG è $downloader_in"
@@ -692,6 +761,11 @@ function configure {
 	echo $downloader_in > $conf
 	echo
 	print_c 1 "$PROG scaricherà con $downloader_in"
+	exit
+}
+
+function configure {
+	vi $file_conf || print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)"
 	exit
 }
 
@@ -723,7 +797,7 @@ function check_freespace {
 			if (( $freespace<50000 )); then
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
-			elif [ $fsize != 0 ] && (( $freespace<$fsize )); then
+			elif [ ! -f "${file_in}.st" ] && [ $fsize != 0 ] && (( $freespace<$fsize )); then
 				kill $pid_in 2>/dev/null
 				_log 6
 				return 1
