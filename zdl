@@ -150,6 +150,14 @@ function init {
 	conf="$HOME/.${prog}rc"
 	file_data="$HOME/.${prog}.data"
 	
+	#nuova configurazione
+	path_conf="$HOME/.${prog}"
+	file_conf="$path_conf/$prog.conf"
+	if [ ! -d $path_conf ]; then
+		mkdir $path_conf
+	fi
+	
+	
 	bar_char="z"
 	
 	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
@@ -302,7 +310,7 @@ function clear {
 
 function _log {
 	if [ $log == 0 ]; then
-		echo -e "I file seguenti non sono stati scaricati perchè già presenti nella directory di destinazione o perché non disponibili (forse solo temporaneamente):\n">$file_log
+		echo -e "File log di $PROG:\n">$file_log
 		log=1
 	fi
 	date >> $file_log
@@ -1278,7 +1286,7 @@ function check_alias {
 }
 
 
-function check_in_url { 	# return --> no_download=1 --> download=5
+function check_in_url { 	# return --> no_download=1 
 	#check_instance
 	if [ ! -z "$url_in" ]; then
 		if [ -z "$file_in" ]; then
@@ -1286,11 +1294,10 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 			# alive
 			data_alive
 			if [ "$alive" == "1" ]; then 
-				
+				unset alive
 				last_alive=$(( ${#pid_alive[*]}-1 ))
 				for i in `seq 0 $last_alive`; do
 					if [ "${url_alive[$i]}" == "$url_in" ]; then
-						
 						return 1
 					fi
 				done
@@ -1310,12 +1317,13 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 						
 						length_saved=0
 						[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
-						if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+						
+						if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ]; then
 							return 1
 						fi
 						unset length_saved
 						check_freespace
-						[ $? == 1 ] && return 1
+						if [ $? == 1 ]; then return 1 ; fi
 					fi
 				done
 			fi
@@ -2267,7 +2275,7 @@ while true; do
 				test_freespace=$?
 				check_in_file
 				test_in=$?
-				[ "$test_freespace" == "1" ] && unset test_in
+				[ "$test_freespace" == "1" ] && unset test_in test_freespace
 			fi
 			
 			check_instance
