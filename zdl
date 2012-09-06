@@ -31,7 +31,7 @@ function usage {
 	echo
 	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME]"
 	echo
-	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net, sharpfile e uload.
+	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire.com, uploaded.to (ul.to), easybytez.net, sharpfile, uload e glumbouploads.
 
 $PROG può essere avviato in diversi modi:
 
@@ -53,7 +53,7 @@ $PROG può essere avviato in diversi modi:
 I file e i link dei punti 2) e 3) possono essere mescolati. Tutti gli input nei punti 1) 2) 3) sono salvati nel file links.txt, nella directory di destinazione.
 
 Per i servizi di sharing seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo attraverso l'uso di proxy:
-uploaded.to (ul.to), easybytez.net, sharpfile, uload e mediafire
+uploaded.to (ul.to), easybytez.net, sharpfile e mediafire
 
 Per scaricare da sharpfile, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare $PROG attraverso Flashgot (più avanti le istruzioni per la configurazione di Flashgot)
 
@@ -62,7 +62,7 @@ In caso di interruzione del download (per esempio a causa di disconnessione), i 
 
 Il file links.txt contiene sempre i link dei file che verranno processati, e che sono stati prelevati da tutti gli input disponibili: i file ed i link passati a $PROG come argomenti oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Gli argomenti \"-m\" e \"--axel\" (o \"--wget\") sono facoltativi.
 
-Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire, upload) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
+Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno cancellati dalla directory prima di effettuare il riavvio di $PROG. I servizi di file-sharing seguenti sono abilitati solo per il download con Wget: uploaded.to (ul.to), easybytez.net. Gli altri servizi (nowdownload, mediafire, uload, glumbouploads) sono abilitati di default per Axel e se interrotti possono essere recuperati e completati (automaticamente da $PROG o manualmente riavviando $PROG nella modalità suggerita qui sopra).
 
 L'argomento [--wget|--axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato di default ma disabilitato per alcuni servizi si filesharing. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"--wget\".
 
@@ -418,6 +418,7 @@ function new_ip_proxy {
 		#[ "$domain" != "${domain//uload.}" ] && proxy_types=( "Anonymous" "Elite" )
 		#[ "$domain" != "${domain//shareflare.}" ] && proxy_types=( "Transparent" )
 		#[ "$domain" != "${domain//easybytez.}" ] && proxy_types=( "Transparent" )
+		[ "$domain" != "${domain//glumbouploads.}" ] && proxy_types=( "Anonymous" "Elite" )
 		ptypes="${proxy_types[*]}"
 		print_c 1 "Aggiorna proxy (${ptypes// /, }):"
 		old=$http_proxy
@@ -556,7 +557,7 @@ function input_hidden {
 		value=${data#*value=\"}
 		value=${value%%\"*}
 		
-		if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload
+		if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
 			file_in="$value"
 		fi
 
@@ -689,35 +690,35 @@ function configure {
 #### ZDL
 
 function check_freespace {
-	if [ -f ${file_in}_stdout.tmp ]; then
+	if [ -f $path_tmp/${file_in}_stdout.tmp ]; then
 		data_stdout $path_tmp/${file_in}_stdout.tmp
 		if [ $? == 1 ]; then
-			fsize=$(( ${lenght_out[0]}/1024 ))
+			fsize=$(( ${length_out[0]}/1024 ))
 		else
 			fsize=0
 		fi
 	else
-		fsize=0
+		if [ ! -z "$lenght_in" ];then
+			fsize="$length_in"
+		else
+			fsize=0
+		fi
 	fi
 	
-	mkdir -p $path_tmp
-	df > $path_tmp/df.tmp
-	
-	maxl=`wc -l $path_tmp/df.tmp |awk '{ print($1) }'`
-	pattern=`ls -l "$PWD"`
-	pattern="${pattern#*-> }"
+	maxl=`df |wc -l`
+	pattern=`pwd -P`
 	for l in `seq 2 $maxl`; do
-		dev=`cat $path_tmp/df.tmp | awk '{ print($6) }' | sed -n "${l}p"`
-		if [ "$dev" == "/" ]; then dev="/home" ; fi
-		freespace=`cat $path_tmp/df.tmp | awk '{ print($4) }' | sed -n "${l}p"`
-		
+		dev=`df | awk '{ print($6) }' | sed -n "${l}p"`
+		if [ "$dev" == "/" ]; then dev="$HOME" ; fi
+		freespace=`df | awk '{ print($4) }' | sed -n "${l}p"`
 		if [ "$pattern" != "${pattern//$dev}" ]; then
-			if (( $freespace<5000 )); then
+			if (( $freespace<50000 )); then
 				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 				exit
 			elif [ $fsize != 0 ] && (( $freespace<$fsize )); then
-				kill $pid_in
+				kill $pid_in 2>/dev/null
 				_log 6
+				return 1
 			fi
 		fi
 	done
@@ -1306,6 +1307,15 @@ function check_in_url { 	# return --> no_download=1 --> download=5
 							(( axel_parts_out[$i]-- ))
 							axel_parts="${axel_parts_out[$i]}"
 						fi
+						
+						length_saved=0
+						[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+						if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+							return 1
+						fi
+						unset length_saved
+						check_freespace
+						[ $? == 1 ] && return 1
 					fi
 				done
 			fi
@@ -1356,7 +1366,7 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 								if [ "${length_out[$i]//[0-9]}" == "${length_out[$i]}" ] || [ "${length_out[$i]}" == "0" ] || [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
 									rm -f "$file_in" "${file_in}.st" # && print_c 1 "FILE CANCELLATO"
 									unset no_newip
-									
+# 									check_freespace
 									[ ! -z "$url_in_file" ] && return 5
 								else
 									#_log 1
@@ -1366,6 +1376,7 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 							elif [ "$downloader_in" = "Axel" ]; then
 								if [ -f "${file_in}.st" ]; then 
 									unset no_newip
+# 									check_freespace
 									[ ! -z "$url_in_file" ] && return 5
 								else
 									#_log 1
@@ -1382,6 +1393,7 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 			fi
 		
 		elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
+# 			check_freespace
 			return 5
 			unset no_newip
 		fi
@@ -1490,7 +1502,14 @@ function init_links_loop {
 		if [ $? == 1 ]; then
 			last_stdout=$(( ${#pid_out[*]}-1 ))
 			for i in `seq 0 $last_stdout`; do
-				links_loop + "${url_out[$i]}"
+				length_saved=0
+				[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+				if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+					links_loop - "${url_out[$i]}"
+				else
+					links_loop + "${url_out[$i]}"
+				fi
+				unset length_saved
 			done
 		fi
 	fi
@@ -1737,11 +1756,11 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ -z "$file" ] ; then 
-	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, uload, mediafire, uploaded/ul, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
+	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, uload, glumbouploads, mediafire, uploaded/ul, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
 	read -d @ -a links
-	printf "%s\n" "${links[@]}" > $path_tmp/links_loop.txt
+	printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
 	file="$path_tmp/links_loop.txt"
 	if [ -f "$file" ];then
 		clean_file "$file"
@@ -1781,13 +1800,11 @@ while true; do
 	if [ -f "$file" ]; then	
 		links_in=`cat $file`
 		for url_in in $links_in; do
-			[ ! -z "$pid_in" ] && check_freespace
+			#[ ! -z "$pid_in" ] && check_freespace
 			
 			unset pid_in checked file_in url_in_file
 			check_in_url
-			if [ $? == 1 ];then
-				sleep 1
-			else
+			if [ $? != 1 ];then
 				url_in="${url_in## }"
 				url_in="${url_in%% }"
 				domain=${url_in//\?*}
@@ -1933,7 +1950,64 @@ while true; do
 							url_in_file="${url_in_file%%\"*}"
 						fi
 					fi
+				elif [ "$domain" != "${domain//glumbouploads.}" ]; then
+					[ "$multi" == "0" ] && [ -f "$file_data" ]&& check_ip glumbouploads
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
 					
+					## exceeded
+					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
+					if [ ! -z "$test_exceeded" ]; then
+						test_exceeded="${test_exceeded#*'('}"
+						test_exceeded="${test_exceeded%')'*}"
+						if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
+							test_exceeded="${test_exceeded% MB}"
+							test_exceeded="${test_exceeded%.*}"
+							(( test_exceeded++ ))
+							if (( $test_exceeded>1024 )); then
+								exceeded=true
+							fi
+						elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
+							exceeded=true
+						fi
+					fi
+									
+					if [ -z "$exceeded" ]; then
+						unset post_data
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+						
+						post_data="${post_data//'op=login&redirect=&'}"
+						if [ -z "$file_in" ]; then
+							file_in=`cat "$path_tmp/zdl.tmp"|grep "fname"|grep "attr"`
+							file_in="${file_in#* \'}"
+							file_in="${file_in%\'*}"
+						fi
+						#read -p "$post_data"
+						
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+						
+						unset post_data
+						tmp="$path_tmp/zdl2.tmp"
+						input_hidden
+						post_data="${post_data//'op=login&redirect=&'}"
+						
+						#read -p "$post_data"
+						
+						print_c 2 "Attendi circa 50 secondi:"
+						for s in `seq 0 50`; do
+							echo -e $s"\r\c"
+							sleep 1
+						done
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+						
+						if [ -f $path_tmp/zdl3.tmp ];then
+							url_in_file=`cat $path_tmp/zdl3.tmp | grep "<a href=" |grep "$file_in"`
+							url_in_file="${url_in_file#<a href=\"}"
+							url_in_file="${url_in_file%%\"*}"
+						fi
+						#read -p "$file_in --> ${url_in_file}"
+					fi
 		## SHARPFILE with pseudo-captcha
 		## 
 		# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
@@ -2189,8 +2263,11 @@ while true; do
 				
 				#### CHECK $url_in_file & $file_in:
 				## 
+				check_freespace
+				test_freespace=$?
 				check_in_file
 				test_in=$?
+				[ "$test_freespace" == "1" ] && unset test_in
 			fi
 			
 			check_instance
@@ -2238,6 +2315,7 @@ while true; do
 				#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
 				[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
 				[ "$domain" != "${domain//uload.}" ] && newip[${#newip[*]}]=uload
+				[ "$domain" != "${domain//glumbouploads.}" ] && newip[${#newip[*]}]=glumbouploads
 				[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]="$server"
 				unset server
 			fi
