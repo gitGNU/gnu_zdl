@@ -765,9 +765,124 @@ function configure_old {
 }
 
 function configure {
-	vi $file_conf || print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)"
-	exit
+	while true; do
+		echo
+		print_c 1 "CONFIGURAZIONE DI $PROG"
+		touch $file_conf
+		echo
+		print_c 1 "Contenuto del file $file_conf"
+		separator "^"
+		cat $file_conf
+		echo
+		separator "^"
+		echo
+		print_c 2 "Opzioni:"
+		echo -e "\t1) modifica il file di configurazione\n\t2) gestisci gli account dei servizi di hosting\n\t3) esci\n"
+		print_c 2 "Scegli una opzione (1|2|3):"
+		read option_0
+		case $option_0 in
+			1)	configure_file
+			;;
+			2)	configure_account
+			;;
+			3) exit
+			;;
+		esac
+	done
 }
+
+function configure_file {
+	vi $file_conf || ( print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)" ; read -p "Premi invio per continuare" )
+	#exit
+}
+
+function configure_account {
+	mkdir -p $path_conf/accounts
+	while true; do
+		echo
+		print_c 2 "Servizi di hosting abilitati per l'uso di account:"
+		echo -e "\t1) easybytez\n\t2) uload\n\t3) glumbouploads\n"
+		print_c 2 "Scegli il servizio (1|2|3):"
+		read option_1
+		case $option_1 in
+			1) 
+				host="easybytez"
+				break
+			;;
+			2)
+				host="uload"
+				break
+			;;
+			3)	
+				host="glumbouploads"
+				break
+			;;
+		esac
+	done
+	touch $path_conf/accounts/$host
+	while true; do
+		echo
+		print_c 2 "Opzioni:"
+		echo -e "\t1) aggiungi un account\n\t2) elimina un account\n\t*) torna alla pagina principale di configurazione\n"
+		print_c 2 "Scegli un'opzione (1|2|*):"
+		read option_2
+		case $option_2 in
+			1)	#add
+				while true; do
+					print_c 2 "Nome utente:"
+					read user
+					print_c 2 "Password (i caratteri non saranno stampati):"
+					read -ers pass
+					if [ ! -z "$user" ] && [ ! -z "$pass" ]; then
+						break
+					else
+						print_c 3 "Ripeti l'operazione: nome utente o password mancante"
+					fi
+				done
+				lines=`cat $path_conf/accounts/$host |wc -l`
+				unset noadd
+				for line in `seq 1 $lines`; do
+					account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+					if [ "$account" == "$user" ]; then
+						noadd=1
+						break
+					fi
+				done
+				if [ -z "$noadd" ]; then
+					echo "$user $pass" >> $path_conf/accounts/$host
+				fi
+			;;
+			2)	#remove
+				while true; do
+					print_c 2 "Nome utente dell'account da cancellare:"
+					read user
+					
+					if [ ! -z "$user" ]; then
+						break
+					else
+						print_c 3 "Ripeti l'operazione: nome utente mancante"
+					fi
+				done
+				lines=`cat $path_conf/accounts/$host |wc -l`
+				unset noadd
+				for line in `seq 1 $lines`; do
+					account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+					if [ "$account" != "$user" ]; then
+						cat $path_conf/accounts/$host |sed -n "${line}p" >> $path_conf/accounts/host
+					fi
+				done
+				rm -f $path_conf/accounts/$host
+				if [ -f $path_conf/accounts/host ]; then
+					cat $path_conf/accounts/host > $path_conf/accounts/$host
+				fi
+			;;
+			*)	#return	
+				break
+			;;
+		esac
+	done
+}
+
 
 #### ZDL
 
