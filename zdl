@@ -2300,7 +2300,7 @@ fi
 
 #init_links_loop
 
-
+check_instance
 
 while true; do
 	if [ -f "$file" ]; then	
@@ -2804,7 +2804,7 @@ while true; do
 				[ "$test_freespace" == "1" ] && unset test_in test_freespace
 #			fi
 # <---indent	
-				check_instance
+				#check_instance
 				
 				#### DOWNLOAD ####
 				if [ "$test_in" == "5" ]; then
