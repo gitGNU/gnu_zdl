@@ -835,10 +835,10 @@ function _log {
 function check_ip {
 	if [ "${newip[*]}" != "${newip[*]//$1}" ]; then 
 		if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
-			new_ip_proxy
-		else
 			[ "$multi" == "1" ] && new_ip_proxy
 			[ "$multi" == "0" ] && new_ip_router
+		else
+			new_ip_proxy
 		fi
 	fi
 }
