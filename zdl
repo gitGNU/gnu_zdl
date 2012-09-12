@@ -2417,7 +2417,7 @@ while true; do
 						file_ext="${file_in2##*.}"
 						file_in="${file_in1}.${file_ext}"
 					fi
-				
+					unset file_in2 file_in1 file_ext token preurl_in_file
 				elif [ "$domain" != "${domain//uload.}" ]; then
 					check_ip uload
 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
