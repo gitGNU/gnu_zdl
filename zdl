@@ -2664,7 +2664,7 @@ while true; do
 						
 						# exceeded login 3G ---> attivare proxy
 						if [ -z "$exceeded_login" ]; then
-							exceeded_login=`cat $path_tmp/zdl2.tmp |grep 'You have reached the download-limit: 3072 Mb for last 1 days'`
+							exceeded_login=`cat $path_tmp/zdl2.tmp |grep 'You have reached the download-limit:'`
 						fi
 						unset post_data
 						if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
