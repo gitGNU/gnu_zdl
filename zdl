@@ -1,0 +1,2921 @@
+#!/bin/bash -i
+#
+# ZigzagDownLoader (ZDL)
+# 
+# This program is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published 
+# by the Free Software Foundation; either version 3 of the License, 
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License 
+# along with this program. If not, see http://www.gnu.org/licenses/. 
+# 
+# Copyright (C) 2012
+# Free Software Foundation, Inc.
+# 
+# For information or to collaborate on the project:
+# https://savannah.nongnu.org/projects/zdl
+# 
+# Gianluca Zoni
+# http://inventati.org/zoninoz
+# zoninoz@inventati.org
+#
+
+
+function usage {
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [--login] [-u|--update] [--clean] [-i|--interactive] [--proxy|--proxy=[t|a|e]|--proxy=IP:PORTA]"
+	echo
+	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME]"
+	echo
+	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire.com, easybytez.net, sharpfile, uload e glumbouploads.
+
+$PROG può essere avviato in diversi modi:
+
+	1) Generando automaticamente la lista dei link per il download:
+		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
+		- digita il seguente comando e premi invio: $prog 
+		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
+		- premi la chiocciolina \"@\"
+		
+	2) Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indicare un path valido):
+		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
+		- digita il seguente comando e premi invio: $prog path/file_1 path/file_2 ... path/file_n
+	
+	3) Indicando direttamente a $PROG i link da processare, per esempio:
+		$prog link_1 link_2 ... link_n
+	
+	4) Dal browser web, per esempio attraverso l'uso di Flashgot (più in basso le istruzioni), allo scopo di catturare e salvare lo stream di un video o un altro file di qualsiasi tipo.
+
+I file e i link dei punti 2) e 3) possono essere mescolati. Tutti gli input nei punti 1) 2) 3) sono salvati nel file links.txt, nella directory di destinazione.
+
+Per i servizi di hosting seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo, eventualmente attraverso l'uso di proxy: easybytez, sharpfile e mediafire
+
+Per scaricare da sharpfile, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare $PROG attraverso Flashgot (più avanti le istruzioni per la configurazione di Flashgot) o copiandolo ed incollandolo nel terminale, per passarlo a $PROG.
+
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). In ogni caso $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG e digitando la chiocciolina \"@\"
+
+Il file links.txt contiene tutti i link processati da $PROG, da ogni input possibile: i file ed i link passati a $PROG come argomenti o attraverso liste contenute in file di testo o passati attraverso Flashgot oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Il file links.txt serve soprattutto al recupero manuale dei link di download interrotti, nel caso in cui non fossero più disponibili i file temporanei di $PROG (per esempio, nel caso di errato utilizzo dell'opzione [--clean])
+
+Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno riscaricati da $PROG. I servizi di hosting seguenti sono abilitati solo per il download con Wget: easybytez. Gli altri servizi (nowdownload, mediafire, uload, glumbouploads) sono abilitati in modo predefinito per Axel.
+
+L'argomento [--wget|--axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato in modo predefinito per tutti i link e per quasi tutti i servizi di hosting. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"--wget\".
+
+L'argomento [--clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
+
+La funzione [-i|--interactive] permette di visualizzare i download di $PROG utilizzando un altro terminale oppure dallo stesso terminale di avvio dei download attraverso Wget nel caso in cui $PROG è terminato (per decisione dell'utente, premendo Ctrl+C, oppure accidentalmente). Infatti, i download di Wget procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere uno o più processi già avviati (definitivamente oppure per riavviarli automaticamente), anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia con cui poter interagire con i processi di $PROG.
+
+È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: se vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in servizi di hosting differenti, si consiglia di usare tutti i link disponili, perché $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
+
+L'argomento [--login] attiva il login automatico nel caso la configurazione di $PROG comprenda uno o più account per l'uso di un servizio di hosting. In particolare, la registrazione di molti account per Easybytez non solo permette il download di file di grandezza fino a 600 MB, ma consente anche lo scaricamento parallelo di più file senza l'uso di proxy (in questo caso è necessario specificare anche [-m|--multi]). Per configurare l'uso di account: $prog [-c|--configure]
+
+Inoltre, $PROG accetta come argomenti un numero illimitato di file di testo contenenti link ed è stato progettato anche per scaricare il file di uno stream video. Per quest'ultima operazione è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
+
+
+CONFIGURAZIONE DI FLASHGOT.
+
+Configurazione di Flashgot per $PROG:
+
+1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avviate Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
+
+2) nel tab \"Generale\" aggiungi \"$prog\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/$prog\")
+
+3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME]
+
+4) nel tab \"FlashGot Media\" scegliete $prog come \"Download manager\"
+
+Fine configurazione di Flashgot.
+
+
+AVVIO ATTRAVERSO PROXY.
+
+$PROG può essere avviato usando proxy, specificando i seguenti argomenti:
+
+	--proxy			
+seleziona automaticamente un proxy valido di tipo Transparent (valore di default)
+
+	--proxy=[t|a|e]		
+seleziona automaticamente un proxy valido di tipo Transparent (t), Anonymous (a) oppure Elite (t).
+È possibile especificare più di un tipo di proxy, in questo modo (per abilitare i primi due tipi): --proxy=a --proxy=t
+
+	--proxy=IP:PORTA	
+abilita il proxy indicato dall'utente solo per il primo link, mentre gli altri saranno selezionati automaticamente (è possibile definire il tipo dei proxy successivi utilizzando anche --proxy=[t|a|e]
+
+
+AGGIORNARE $PROG.
+
+Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
+
+INSTALLAZIONE PER WINDOWS.
+$PROG funziona anche su Windows. 
+Installazione su Windows in due fasi:
+	FASE 1 _ Installazione di Cygwin
+		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
+		- installare il pacchetto \"wget\"
+
+	FASE 2 _ Installazione di $PROG
+		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
+		- avviare cygwin installato nella fase 1 
+		- digitare il seguente comando: /install_zdl-cygwin.sh
+
+Uso di $PROG su Windows: avviare cygwin e utilizzare $PROG nel terminale avviato, come descritto in questa guida.
+
+
+LICENZA.
+
+$PROG è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
+
+Per informazioni e per collaborare al progetto:
+https://savannah.nongnu.org/projects/zdl
+
+Gianluca Zoni (zoninoz)
+http://inventati.org/zoninoz
+"	
+	echo
+	echo
+	exit 1
+}
+
+function add_conf { #only if item doesn't exist
+	item="$1"
+	name="${item%%=*}="
+	unset noadd
+	if [ -f "$file_conf" ]; then
+		lines=`cat "$file_conf" |wc -l`
+		for line in `seq 1 $lines`; do
+			text=`cat "$file_conf" | sed -n "${line}p"`
+			if [ "$text" != "${text#$name}" ] || [ "$text" == "$item" ]; then
+				noadd=1
+				break
+			fi
+		done
+		
+		if [ -z "$noadd" ]; then
+			echo "$item" >> "$file_conf"
+			unset noadd
+		fi
+	fi
+}
+
+function set_default_conf {
+	mkdir -p $path_conf
+	touch "$file_conf"
+	add_conf "downloader=Axel"
+	add_conf "axel_parts=32"
+	add_conf "skin=color"
+	add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel)"
+	add_conf "mode=single"
+	add_conf "# modem router credentials"
+	add_conf "admin="
+	add_conf "passwd="
+	add_conf "language=$LANG"
+	add_conf "flashgot=enabled"
+}
+
+function get_item_conf {
+	if [ -f  "$file_conf" ]; then
+		item=$1
+		lines=`cat "$file_conf" |wc -l`
+		for line in `seq 1 $lines`; do
+			text=`cat "$file_conf" | sed -n "${line}p"`
+			if [ "$text" != "${text#${item}=}" ]; then
+				value="${text#${item}=}"
+				value="${value%% *}"
+				value="${value//\"}"
+			fi
+		done
+	fi
+}
+
+function set_item_conf {
+	if [ -f  "$file_conf" ]; then
+		item=$1
+		value=$2
+		lines=`cat "$file_conf" |wc -l`
+		for line in `seq 1 $lines`; do
+			text=`cat "$file_conf" | sed -n "${line}p"`
+			if [ "$text" != "${text#${item}=}" ]; then
+				echo "${item}=$value" >> "${file_conf}.new"
+				
+			else
+				echo "$text" >> "${file_conf}.new"
+			fi
+		done
+		if [ -f "${file_conf}.new" ]; then
+			mv "${file_conf}" "${file_conf}.old"
+			mv "${file_conf}.new" "${file_conf}"
+		fi
+	fi
+}
+
+function get_conf {
+	get_item_conf "downloader"
+	downloader_in="$value"
+	if [ -z "$downloader_in" ]; then
+		downloader_in=Axel
+	fi
+	
+	get_item_conf "axel_parts"
+	axel_parts="$value"
+	if [ -z "$axel_parts" ]; then
+		axel_parts=32
+	fi
+	
+	get_item_conf "skin"
+	skin="$value"
+	if [ -z "$skin" ]; then
+		skin=color
+	fi
+	
+	get_item_conf "mode"
+	mode="$value"
+	if [ "mode" == "multi" ]; then
+		multi=1
+	else
+		multi=0
+	fi
+	
+	get_item_conf "admin"
+	admin="$value"
+	
+	get_item_conf "passwd"
+	passwd="$value"
+	
+	get_item_conf "language"
+	language="$value"
+	
+	get_item_conf "flashgot"
+	flashgot="$value"
+
+}
+
+
+function configure {
+	while true; do
+		echo
+# 		get_conf
+# 		show_conf
+# 		echo
+		print_c 2 "Opzioni:"
+		echo -e "\t1) modifica la configurazione\n\t2) gestisci gli account dei servizi di hosting\n\t3) esci\n"
+		print_c 2 "Scegli una opzione (1|2|3):"
+		read option_0
+		case $option_0 in
+			1)	#configure_file
+				get_conf
+				show_conf
+				echo
+
+				
+				print_c 2 "Seleziona l'elemento predefinito da modificare (1-8 | *):"
+				read opt
+				test_item=`echo "$opt"|grep [1-8]`
+				if [ ! -z "$test_item" ] && [ "${#test_item}" == "1" ]; then
+					(( opt-- ))
+					print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
+					if [ "${item_options[$opt]}" == "passwd" ]; then
+						read -ers new_value
+					else
+						read new_value
+					fi
+					set_item_conf ${item_options[$opt]} $new_value
+				fi
+			;;
+			2)	
+				configure_accounts
+			;;
+			3) exit
+			;;
+		esac
+	done
+}
+
+function show_conf {
+	print_c 1 "Configurazione di $PROG"
+	separator "^"
+	echo -e "1) Downloader predefinito (Axel|Wget): $downloader_in"
+	echo -e "2) Numero di parti in download parallelo per Axel: $axel_parts"
+	echo -e "3) Modalità di download predefinita (single|multi): $mode"
+	echo -e "4) Aspetto (color): $skin"
+	echo -e "5) Lingua: $language"
+	echo -e "6) Nome utente del modem-router: $admin"
+	unset p
+	for i in `seq 1 ${#passwd}`; do
+		p="${p}*"
+	done
+	echo -e "7) Password del modem-router: $p"
+	echo -e "8) Uso di Flashgot per Firefox (enabled|*): $flashgot"
+	echo
+	separator "^"
+	item_options=( downloader axel_parts mode skin language admin passwd flashgot )
+}
+
+function show_accounts {
+	print_c 1 "Account registrati per $host:"
+	separator "^"
+	if [ ! -z "${accounts_user[*]}" ];then
+		for name_account in ${accounts_user[*]}; do
+			echo "$name_account"
+		done
+	else
+		print_c 3 "Nessun account registrato per $host"
+	fi
+	echo
+	separator "^"
+}
+
+function get_accounts {
+	unset accounts_user accounts_pass
+	if [ -f $path_conf/accounts/$host ];then
+		lines=`cat $path_conf/accounts/$host |wc -l`
+		for line in `seq 1 $lines`; do
+			accounts_user[${#accounts_user[*]}]=`cat $path_conf/accounts/$host | sed -n "${line}p"|awk '{ print($1) }'`
+			accounts_pass[${#accounts_pass[*]}]=`cat $path_conf/accounts/$host | sed -n "${line}p"|awk '{ print($2) }'`
+		done
+	fi
+}
+
+function host_login {
+	unset user pass
+	if [ -z "${accounts_user_loop}" ] && [ -z "${accounts_pass_loop}" ]; then
+		get_accounts
+		if [ ! -z "${accounts_user[*]}" ]; then
+			accounts_user_loop=( ${accounts_user[*]} )
+			accounts_pass_loop=( ${accounts_pass[*]} )
+		fi
+	fi	
+	#accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}" in function download
+	
+	if [ ! -z "${accounts_user_loop}" ] && [ ! -z "${accounts_pass_loop}" ]; then
+		max=$(( ${#accounts_user_loop[*]}-1 ))
+		j=$max
+		if [ ! -z "${accounts_alive[*]}" ]; then
+			for i in `seq 0 $max`; do
+				for account_alive in ${accounts_alive[*]}; do
+					#for user_loop in ${accounts_user_loop[*]}; do
+					if [ "${account_alive#${accounts_user_loop[$i]}@${host}:}" != "${account_alive}" ]; then
+						check_pid "${account_alive#${accounts_user_loop[$i]}@${host}:}"
+						if [ $? == 1 ]; then
+							(( j++ ))
+							accounts_user_loop[$j]="${accounts_user_loop[$i]}"
+							accounts_pass_loop[$j]="${accounts_pass_loop[$i]}"
+							unset accounts_user_loop[$i] accounts_pass_loop[$i]
+						fi
+					fi
+					#done
+				done
+			done
+		fi
+	#	user="${accounts_user[*]}"
+	#	user="${user%% *}"
+	#	pass="${accounts_pass[*]}"
+	#	pass="${pass%% *}"
+		accounts_user_loop=( ${accounts_user_loop[*]} )
+		accounts_pass_loop=( ${accounts_pass_loop[*]} )
+		
+		user="${accounts_user_loop[0]}"
+		pass="${accounts_pass_loop[0]}"
+		
+		accounts_user_loop[${#accounts_user_loop[*]}]="${accounts_user_loop[0]}"
+		accounts_pass_loop[${#accounts_pass_loop[*]}]="${accounts_pass_loop[0]}"
+		unset accounts_user_loop[0] accounts_pass_loop[0]
+		accounts_user_loop=( ${accounts_user_loop[*]} )
+		accounts_pass_loop=( ${accounts_pass_loop[*]} )
+	fi
+# 	if [ -z "${!host}" ]; then
+# 		eval $host=0
+# 	elif (( ${!host}<${#accounts_user[*]} )); then
+# 		(( $host++ ))
+# 	else
+# 		eval $host=0
+# 	fi
+# 	
+# 	
+# 	user="${accounts_user[${!host}]}"
+# 	pass="${accounts_pass[${!host}]}"
+	if [ -z "$user" ] || [ -z "$pass" ]; then
+		print_c 3 "Nessun account disponibile"
+	else
+		print_c 1 "Login: ${user}@${host}"
+	fi
+}
+
+function configure_file_old {
+	vi $file_conf || ( print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)" ; read -p "Premi invio per continuare" )
+	#exit
+}
+
+function configure_accounts {
+	mkdir -p $path_conf/accounts
+	while true; do
+		echo
+		print_c 2 "Servizi di hosting abilitati per l'uso di account:"
+		echo -e "\t1) easybytez\n\t2) uload\n\t3) glumbouploads\n"
+		print_c 2 "Scegli il servizio (1|2|3):"
+		read option_1
+		case $option_1 in
+			1) 
+				host="easybytez"
+				break
+			;;
+			2)
+				host="uload"
+				break
+			;;
+			3)	
+				host="glumbouploads"
+				break
+			;;
+		esac
+	done
+	
+	
+	while true; do
+		touch $path_conf/accounts/$host
+		get_accounts
+		show_accounts
+
+		echo
+		print_c 2 "Opzioni:"
+		echo -e "\t1) aggiungi un account\n\t2) elimina un account\n\t*) torna alla pagina principale di configurazione\n"
+		print_c 2 "Scegli un'opzione (1|2|*):"
+		read option_2
+		case $option_2 in
+			1)	#add
+				while true; do
+					print_c 2 "Nome utente:"
+					read user
+					print_c 2 "Password (i caratteri non saranno stampati):"
+					read -ers pass
+					if [ ! -z "$user" ] && [ ! -z "$pass" ]; then
+						break
+					else
+						print_c 3 "Ripeti l'operazione: nome utente o password mancante"
+					fi
+				done
+				lines=`cat $path_conf/accounts/$host |wc -l`
+				unset noadd
+				for line in `seq 1 $lines`; do
+					account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+					if [ "$account" == "$user" ]; then
+						noadd=1
+						break
+					fi
+				done
+				if [ -z "$noadd" ]; then
+					echo "$user $pass" >> $path_conf/accounts/$host
+				fi
+			;;
+			2)	#remove
+				while true; do
+					print_c 2 "Nome utente dell'account da cancellare:"
+					read user
+					
+					if [ ! -z "$user" ]; then
+						break
+					else
+						print_c 3 "Ripeti l'operazione: nome utente mancante"
+					fi
+				done
+				lines=`cat $path_conf/accounts/$host |wc -l`
+				unset noadd
+				for line in `seq 1 $lines`; do
+					account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+					if [ "$account" != "$user" ]; then
+						cat $path_conf/accounts/$host |sed -n "${line}p" >> $path_conf/accounts/host
+					fi
+				done
+				rm -f $path_conf/accounts/$host
+				if [ -f $path_conf/accounts/host ]; then
+					cat $path_conf/accounts/host > $path_conf/accounts/$host
+				fi
+			;;
+			*)	#return	
+				break
+			;;
+		esac
+	done
+}
+
+function init {
+	# set default config data
+	updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
+	[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	
+	log=0
+	prog=`basename $0`
+	PROG=`echo $prog | tr a-z A-Z`
+	path_tmp=".${prog}_tmp"
+	file_log="${prog}_log.txt"
+	rm -f $file_log
+	
+	path_conf="$HOME/.${prog}"
+	file_conf="$path_conf/$prog.conf"
+	if [ ! -f "$file_conf" ]; then
+		echo "# ZigzagDownLoader configuration file" > "$file_conf"
+	fi
+	set_default_conf
+	
+	mkdir -p "$path_tmp"
+	tags=( `ps ax |sed -n '1p'` )
+	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
+		j=$(( $i+1 ))
+		[ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
+		[ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
+	done
+	[ -z "$pid_prog" ] && pid_prog=$$ 
+	pid_in=1
+	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
+
+	# get config data
+	get_conf
+	
+	# CYGWIN
+	if [ -e "/cygdrive" ];then
+		if (( $axel_parts>10 )); then
+			axel_parts=10
+		fi
+		kill -SIGWINCH $$
+	fi
+	
+	init_colors
+	user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
+	user_lang="$LANG"
+	user_language="$LANGUAGE"
+	prog_lang='en_US.UTF-8:en'
+
+	bar_char="z"
+	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+	max_waiting=40
+# 	if [ "$flashgot" == "enabled" ];then
+# 		flashgot_autoconf
+# 	else
+# 		restore_ffprefs
+# 	fi
+}
+
+
+function restore_ffprefs {
+	if [ -d "$path_conf/firefox" ]; then
+		print_c 2 "Flashgot è stato disabilitato nella configurazione di $PROG: avvio del ripristino della configurazione di Flashgot."
+		test_ff_alive=`ps u -N -C grep |grep firefox`
+		if [ ! -z "$test_ff_alive" ]; then
+			echo
+			print_c 3 "Rilevata un'istanza attiva di Firefox: per procedere con il ripristino di Flashgot è necessario chiudere Firefox. Se non vuoi ripristinare la configurazione di Flashgot e lasciarlo abilitato per $PROG, puoi attivare Flashgot nella configurazione di $PROG, con il seguente comando: $prog --configure (oppure: $prog -c)"
+			echo
+			print_c 2 "Premi <invio> per continuare (se Firefox è ancora attivo, $PROG rimanderà il ripristino di Flashgot a un'altra volta)"
+			read
+		fi
+		
+		test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		if [ -z "$test_ff_alive" ]; then
+			ls  $path_conf/firefox/ | while read file1; do
+				file=${file1#${path_conf}\/firefox\/}
+				file="$HOME/.mozilla/firefox/${file}"
+				file=${file//default_prefs.js/default\/prefs.js}
+				cp $path_conf/firefox/$file1 $file && echo "Ripristino di $file da $path_conf/firefox/$file1"
+			done
+			echo
+			print_c 1 "Le preferenze di Firefox sono state ripristinate da $path_conf/firefox/"
+			echo
+			rm -r "$path_conf/firefox" || print_c 3 "Impossibile il ripristino delle preferenze di Firefox: la directory $path_conf/firefox/ è inesistente"
+		fi
+	fi
+}
+
+function flashgot_autoconf {
+# 	user_pref("flashgot.custom", "ZigzagDownLoader,axel");
+# 	user_pref("flashgot.custom.ZigzagDownLoader.args", "--stream [URL] [FOLDER] [FNAME]");
+# 	user_pref("flashgot.custom.ZigzagDownLoader.exe", "/usr/local/bin/zdl");
+# 	user_pref("flashgot.defaultDM", "ZigzagDownLoader");
+# 	user_pref("flashgot.detect.cache", "(Incorporato nel browser),axel,ZigzagDownLoader");
+# 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
+	test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
+	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
+	
+	if [ ! -z "$test_flashgot" ] && [ -z "$test_ZDL" ]; then
+		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
+		test_ff_alive=`ps u -N -C grep |grep firefox`
+		if [ ! -z "$test_ff_alive" ]; then
+			echo
+			print_c 3 "Rilevata un'istanza attiva di Firefox: per procedere con la configurazione automatica di Flashgot per l'uso di $PROG è necessario chiudere Firefox. Se non vuoi configurare Flashgot per $PROG, puoi disattivare Flashgot nella configurazione di $PROG, con il seguente comando: $prog --configure (oppure: $prog -c)"
+			echo
+			print_c 2 "Premi <invio> per continuare (se Firefox è ancora attivo, $PROG rimanderà la configurazione automatica di Flashgot a un'altra volta)"
+			read
+		fi
+		
+		test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		if [ -z "$test_ff_alive" ]; then
+			# save old prefs
+			if [ ! -d "$path_conf/firefox/" ];then
+				mkdir "$path_conf/firefox/"
+				ls $HOME/.mozilla/firefox/*.default/prefs.js | while read file1; do
+					file=${file1//default\/prefs.js/default_prefs.js}
+					file=${file##*\/}
+					cp $file1 "$path_conf/firefox/$file"
+					echo "Copia di $file1: $path_conf/firefox/$file"
+				done
+				echo
+				print_c 1 "Configurazione automatica di Flashgot: le precedenti preferenze di Firefox sono state salvate in $path_conf/firefox/ per un eventuale ripristino."
+				echo
+			fi
+			
+			# set flashgot config
+			ls $HOME/.mozilla/firefox/*.default/prefs.js | while read file; do
+				for key in 'flashgot.custom\"' 'flashgot.custom.ZigzagDownLoader.args' 'flashgot.custom.ZigzagDownLoader.exe' 'flashgot.defaultDM' 'flashgot.detect.cache' 'flashgot.media.dm'; do
+					
+					firefox_pref=`cat $file |grep $key`
+					case $key in
+						'flashgot.custom\"')
+							values="${firefox_pref#'user_pref("flashgot.custom", "'}"
+							values="${values%'");'}"
+							values="${values//,ZigzagDownLoader}"
+							new_pref="user_pref(\"flashgot.custom\", \"${values},ZigzagDownLoader\");"
+						;;
+						'flashgot.custom.ZigzagDownLoader.args')
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FOLDER\] \[FNAME\]\");"
+						;; 
+						'flashgot.custom.ZigzagDownLoader.exe')
+							path_zdl=`which $prog`
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"$path_zdl\");"
+						;; 
+						'flashgot.defaultDM')
+							new_pref="user_pref(\"flashgot.defaultDM\", \"ZigzagDownLoader\");"
+						;; 
+						'flashgot.detect.cache')
+							values="${firefox_pref#'user_pref("flashgot.detect.cache", "'}"
+							values="${values%'");'}"
+							values="${values//,ZigzagDownLoader}"
+							new_pref="user_pref(\"flashgot.detect.cache\", \"${values},ZigzagDownLoader\");"
+						;; 
+						'flashgot.media.dm')
+							new_pref="user_pref(\"flashgot.media.dm\", \"ZigzagDownLoader\");"
+						;;
+					esac
+					
+					if [ -z "${firefox_pref}" ]; then
+						echo ${new_pref} >> $file
+					else
+						sed -i "s@${firefox_pref}@${new_pref}@g" $file
+					fi
+				done
+			done
+		fi
+	fi
+}
+
+
+#### layout
+
+function init_colors {
+	# Reset
+	Color_Off='\e[0m'       # Text Reset
+	
+	# Regular Colors
+	Black='\e[0;30m'        # Nero
+	Red='\e[0;31m'          # Rosso
+	Green='\e[0;32m'        # Verde
+	Yellow='\e[0;33m'       # Giallo
+	Blue='\e[0;34m'         # Blu
+	Purple='\e[0;35m'       # Viola
+	Cyan='\e[0;36m'         # Ciano
+	White='\e[0;37m'        # Bianco
+	
+	# Bold
+	BBlack='\e[1;30m'       # Nero
+	BRed='\e[1;31m'         # Rosso
+	BGreen='\e[1;32m'       # Verde
+	BYellow='\e[1;33m'      # Giallo
+	BBlue='\e[1;34m'        # Blu
+	BPurple='\e[1;35m'      # Viola
+	BCyan='\e[1;36m'        # Ciano
+	BWhite='\e[1;37m'       # Bianco
+	
+	# Underline
+	UBlack='\e[4;30m'       # Nero
+	URed='\e[4;31m'         # Rosso
+	UGreen='\e[4;32m'       # Verde
+	UYellow='\e[4;33m'      # Giallo
+	UBlue='\e[4;34m'        # Blu
+	UPurple='\e[4;35m'      # Viola
+	UCyan='\e[4;36m'        # Ciano
+	UWhite='\e[4;37m'       # Bianco
+	
+	# Background
+	On_Black='\e[40m'       # Nero
+	On_Red='\e[41m'         # Rosso
+	On_Green='\e[42m'       # Verde
+	On_Yellow='\e[43m'      # Giallo
+	On_Blue='\e[44m'        # Blu
+	On_Purple='\e[45m'      # Purple
+	On_Cyan='\e[46m'        # Ciano
+	On_White='\e[47m'       # Bianco
+	
+	# High Intensty
+	IBlack='\e[0;90m'       # Nero
+	IRed='\e[0;91m'         # Rosso
+	IGreen='\e[0;92m'       # Verde
+	IYellow='\e[0;93m'      # Giallo
+	IBlue='\e[0;94m'        # Blu
+	IPurple='\e[0;95m'      # Viola
+	ICyan='\e[0;96m'        # Ciano
+	IWhite='\e[0;97m'       # Bianco
+	
+	# Bold High Intensty
+	BIBlack='\e[1;90m'      # Nero
+	BIRed='\e[1;91m'        # Rosso
+	BIGreen='\e[1;92m'      # Verde
+	BIYellow='\e[1;93m'     # Giallo
+	BIBlue='\e[1;94m'       # Blu
+	BIPurple='\e[1;95m'     # Viola
+	BICyan='\e[1;96m'       # Ciano
+	BIWhite='\e[1;97m'      # Bianco
+	
+	# High Intensty backgrounds
+	On_IBlack='\e[0;100m'   # Nero
+	On_IRed='\e[0;101m'     # Rosso
+	On_IGreen='\e[0;102m'   # Verde
+	On_IYellow='\e[0;103m'  # Giallo
+	On_IBlue='\e[0;104m'    # Blu
+	On_IPurple='\e[10;95m'  # Viola
+	On_ICyan='\e[0;106m'    # Ciano
+	On_IWhite='\e[0;107m'   # Bianco
+}
+
+function print_c {
+  case "$1" in
+    1)
+       echo -n -e '\e[1;32m' #verde
+    ;;
+    2)
+       echo -n -e '\e[1;33m' #giallo
+    ;;	
+    3)
+       echo -n -e '\e[1;31m' #rosso
+    ;;	
+  esac
+  echo -n -e "$2\n"
+  echo -n -e '\e[0m'
+}
+
+function separator {
+	#COLUMNS=$( tput cols ) 2>/dev/null
+	[ -z "$COLUMNS" ] && COLUMNS=50
+	for column in `seq 1 $COLUMNS`; do echo -n -e "${BBlue}$1${Color_Off}" ; done #\e[1;34m
+}
+
+function header {
+	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"\e[0m\n"
+}
+
+function clear {
+	echo -n -e "\ec"
+}
+
+function _log {
+	if [ $log == 0 ]; then
+		echo -e "File log di $PROG:\n">$file_log
+		log=1
+	fi
+	date >> $file_log
+	
+	case $1 in
+		1)
+			echo
+			print_c 3  "File $file_in già presente nella directory di destinazione: non verrà processato."  | tee -a $file_log
+			echo
+			;;
+		2)
+			echo
+			if [ ! -z "$url_in" ]; then
+				url_in_log=" (link di download: $url_in) "
+			fi
+			print_c 3  "$url_in --> File ${file_in}${link_log} non disponibile, riprovo più tardi"  | tee -a $file_log
+			echo
+			;;
+		3)
+			echo
+			print_c 3  "$url_in --> Indirizzo errato o file non disponibile" | tee -a $file_log
+			links_loop - "$url_in"
+			echo
+			;;
+		4)
+			echo
+			print_c 3 "Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)" | tee -a $file_log
+			links_loop - "$url_in"
+			echo
+			;;
+		5)
+			echo
+			print_c 3 "Connessione interrotta: riprovo più tardi" | tee -a $file_log
+			echo
+			;;
+		6)
+			echo
+			print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev: non sarà scaricato." | tee -a $file_log
+			links_loop - "$url_in"
+			echo
+			;;
+		7)
+			echo
+			print_c 3 "$url_in --> File $file_in già in download (${url_out[$i]})" | tee -a $file_log
+			echo
+			;;
+	esac
+	
+}
+
+
+
+#### change IP address
+
+function check_ip {
+	if [ "${newip[*]}" != "${newip[*]//$1}" ]; then 
+		if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
+			[ "$multi" == "1" ] && new_ip_proxy
+			[ "$multi" == "0" ] && new_ip_router
+		else
+			new_ip_proxy
+		fi
+	fi
+}
+
+function my_ip {
+	myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
+}
+
+function add_newip {
+	[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+	[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+	#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+	[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+	#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
+}
+
+function new_ip_router {
+	if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
+		print_c 1 "Cambio indirizzo IP..."
+		wget --http-passwd=$passwd --http-user=$admin 192.168.0.1/stanet.stm  -O - &>/dev/null
+		wget --http-passwd=$passwd --http-user=$admin --post-data="disconnect=1" 192.168.0.1/cgi-bin/statusprocess.exe -O - &>/dev/null
+	else
+		echo
+		print_c 3 "Funzione di cambio indirizzo IP via router disattivata"
+	fi
+}
+
+function noproxy {
+		unset http_proxy
+		export http_proxy
+}
+
+function new_ip_proxy {
+	export LANG="$prog_lang"
+	export LANGUAGE="$prog_lang"
+	
+	maxspeed=0
+	minspeed=25
+	unset close unreached speed num_speed type_speed
+	rm -f "$path_tmp/proxy.tmp"
+	#proxy_types=( "Transparent" "Anonymous" "Elite" )
+	while true; do
+		proxy=""
+		#### tipi di proxy: Anonymous Transparent Elite
+		if [ -z "${proxy_types[*]}" ]; then 
+			proxy_types=( "Transparent" )
+		fi
+		#[ "$domain" != "${domain//mediafire.}" ] && proxy_types=( "Elite" )
+		[ "$domain" != "${domain//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
+		#[ "$domain" != "${domain//uload.}" ] && proxy_types=( "Anonymous" "Elite" )
+		#[ "$domain" != "${domain//shareflare.}" ] && proxy_types=( "Transparent" )
+		#[ "$domain" != "${domain//easybytez.}" ] && proxy_types=( "Transparent" )
+		[ "$domain" != "${domain//glumbouploads.}" ] && proxy_types=( "Anonymous" "Elite" )
+		ptypes="${proxy_types[*]}"
+		print_c 1 "Aggiorna proxy (${ptypes// /, }):"
+		old=$http_proxy
+		
+		noproxy
+		line=1
+		while [ -z "$proxy" ] ; do		
+			#rm -f "$path_tmp/proxy.tmp"
+			if [ ! -f "$path_tmp/proxy.tmp" ]; then
+				wget -q -t 1 -T 20 --user-agent="Anonimo" http://www.ip-adress.com/proxy_list/ -O "$path_tmp/proxy.tmp" &>/dev/null
+				rm -f "$path_tmp/proxy2.tmp"
+			fi
+			
+			for proxy_type in ${proxy_types[*]}; do
+				less "$path_tmp/proxy.tmp"|grep "Proxy_Details" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+			done
+			
+			max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+			#cat "$path_tmp/proxy2.tmp"
+			string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+			
+			proxy="${string_line#*Proxy_Details\/}"
+			[ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
+			[ "$proxy" != "${proxy%:Transparent*}" ] && proxy_type="Transparent"
+			[ "$proxy" != "${proxy%:Elite*}" ] && proxy_type="Elite"
+			proxy="${proxy%:${proxy_type}*}"
+			
+			z=$(( ${#proxy_done[*]}-1 ))
+			if (( $z<0 )) || [ "$z" == "" ]; then z=0 ; fi
+			
+			for p in `seq 0 $z`; do
+				if [ "${proxy_done[$p]}" == "$proxy" ]; then
+					proxy=""
+				fi
+			done
+			
+			if [ "$string_line" == "" ]; then
+					echo -n -e "."
+					sleep 3
+					(( search_proxy++ ))
+					[ $search_proxy == 100 ] && print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" && noproxy && close=true && break
+			fi
+			if [ $line == $max ] || [ "$string_line" == "" ]; then
+				rm -f "$path_tmp/proxy.tmp"
+				line=0
+			fi
+			(( line++ ))
+			[ "$proxy" != "" ] && [ "${proxy_done[*]}" == "${proxy_done[*]//$proxy}" ] && proxy_done[${#proxy_done[*]}]="$proxy"
+		done
+		unset search_proxy
+		[ ! -z $close ] && break
+		http_proxy=$proxy
+		export http_proxy
+		echo -n "Proxy: $http_proxy ($proxy_type)"
+		echo
+		unset myip
+		#my_ip
+		#echo "Nuovo IP: $myip"
+		print_c 2 "Test velocità di download:"
+		i=0
+		while (( $i<3 )); do
+			i=${#speed[*]}
+			speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$domain" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+			if [ ! -z "${speed[$i]}" ]; then
+				speed[$i]="${speed[$i]#*'('}"
+				speed[$i]="${speed[$i]%%)*}"
+				
+				type_speed[$i]="${speed[$i]//[0-9. ]}"
+				num_speed[$i]="${speed[$i]//${type_speed[$i]}}"
+				num_speed[$i]="${num_speed[$i]//[ ]*}"
+				num_speed[$i]="${num_speed[$i]//[.,]*}"
+				
+				if [ "${type_speed[$i]}" == 'B/s' ]; then
+					num_speed[$i]="0"
+				elif [ "${type_speed[$i]}" == 'MB/s' ]; then
+					num_speed[$i]=$(( ${num_speed[$i]}*1024 ))
+				fi
+			else
+				speed[$i]="0 KB/s"
+				num_speed[$i]="0"
+				type_speed[$i]='KB/s'
+			fi
+			
+			echo "${speed[$i]}"
+		done 2>/dev/null
+		
+		if [ -z $unreached ]; then
+			
+			for k in ${num_speed[*]}; do
+				if (( $maxspeed<$k )); then 
+					maxspeed=$k 
+				fi 
+			done
+			
+			if (( $maxspeed<$minspeed )); then
+				print_c 3 "La massima velocità di download raggiunta usando il proxy è inferiore a quella minima richiesta ($minspeed KB/s)"
+				#unset $proxy
+				
+			else
+				print_c 1 "Massima velocità di download raggiunta usando il proxy $http_proxy: $maxspeed KB/s"
+				break
+			fi 2>/dev/null
+		fi
+		unset unreached speed
+	done
+	unset maxspeed
+	echo
+	rm -f "$path_tmp/proxy.tmp"
+	old_proxy="$proxy"
+	export LANG="$user_lang"
+	export LANGUAGE="$user_language"
+}
+
+#### hacking web pages
+
+
+
+function get_tmps {
+	while [ "`less $path_tmp/zdl.tmp |grep \</html`" == "" ]; do
+		#print_c 2 "\nAttendi..."
+		wget -t 3 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
+		echo -e "...\c"
+	done
+}
+
+function input_hidden {
+	j=1
+	cat $tmp | grep input | grep hidden > $path_tmp/data.tmp
+	max=`wc -l "$path_tmp/data.tmp" | awk '{ print($1) }'`
+	max=$(( $max+1 ))
+	
+	while [ $j != $max ]; do
+		data=`cat $path_tmp/data.tmp |sed -n "${j}p"`
+		name=${data#*name=\"}
+		name=${name%%\"*}
+		value=${data#*value=\"}
+		value=${value%%\"*}
+		
+		if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
+			file_in="$value"
+		fi
+
+		if [ "$post_data" == "" ]; then
+			post_data="${name}=${value}"
+		else
+			post_data="${post_data}&${name}=${value}"
+		fi
+		(( j++ ))
+	done
+}
+
+
+function pseudo_captcha {
+	j=0
+	for cod in ${ascii_dec[*]}; do 
+		captcha[$j]=`printf "\x$(printf %x $cod)"`
+		(( j++ ))
+	done
+}
+
+
+
+#### Axel
+
+function check_downloader {
+	if [ "$downloader_in" == "Axel" ]; then
+		while [ -z "`which axel 2>/dev/null`" ]; do
+			clear
+			print_c 3 "ATTENZIONE: Axel non è installato nel tuo sistema"
+			
+			echo -e "$PROG può scaricare con Wget ma raccomanda fortemente Axel, perché:\n
+		- può accelerare sensibilmente il download
+		- permette il recupero dei download in caso di interruzione
+		
+	Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
+	
+	1) Installa automaticamente Axel da pacchetti
+	2) Installa automaticamente Axel da sorgenti
+	3) Esci da $PROG per installare Axel manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=axel)
+	4) Ignora Axel e continua con Wget
+	5) Configura Wget di default
+	6) Ripristina la condizione iniziale (Axel di default)"
+	
+			print_c 2 "Scegli cosa fare (1-6)"
+			read input
+			
+			case $input in
+			
+			1) install_pk ;;
+			2) install_src ;;
+			3) exit ;;
+			4) downloader_in=Wget ; break ;;
+			5) echo Wget > $conf ;;
+			6) rm $conf ;;
+			
+			esac
+		done
+	fi
+}
+
+function install_test {
+	
+	if [ -z "`which axel 2>/dev/null`" ]; then
+		print_c 3 "Installazione automatica non riuscita"
+		case $1 in
+			pk) echo "$2 non ha trovato il pacchetto di Axel" ;;
+			src) echo "Errori nella compilazione o nell'installazione";;
+		esac
+	fi
+	echo
+	print_c 2 "<Premi un tasto per continuare>"
+	read
+}
+
+function install_pk {
+	print_c 1 "Installo Axel ..."
+	if [ `which apt-get 2>/dev/null` ]; then
+		DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install axel || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install axel" )
+		install_test pk apt-get
+	elif [ `which yum 2>/dev/null` ]; then
+		sudo yum install axel || ( echo "Digita la password di root" ; su -c "yum install axel" )
+		install_test pk yum
+	elif [ `which pacman 2>/dev/null` ]; then
+		sudo pacman -S axel 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S axel" )
+		install_test pk pacman
+	else
+		install_test
+	fi
+}
+
+function install_src {
+	cd /usr/src
+	wget http://alioth.debian.org/frs/download.php/3015/axel-2.4.tar.gz
+	tar zxvf axel-2.4.tar.gz
+	cd axel-2.4
+	
+	make
+	sudo make install || ( echo "Digita la password di root" ; su -c "make install" )
+	make clean
+	install_test src
+	cd -
+}
+
+function configure_old {
+	echo
+	print_c 3 "CONFIGURAZIONE DI $PROG"
+	echo "Il downloader attuale di $PROG è $downloader_in"
+	echo
+	print_c 2 "Scegli il downloader (wget|axel):"
+	read dloader
+	case $dloader in
+		wget) 
+			downloader_in=Wget
+		;;
+		axel) 
+			downloader_in=Axel
+		;;
+		*)
+			print_c 3 "Downloader non riconosciuto: puoi scegliere solo wget o axel"
+			exit 1
+		;;
+	esac
+	echo $downloader_in > $conf
+	echo
+	print_c 1 "$PROG scaricherà con $downloader_in"
+	exit
+}
+
+
+
+
+#### ZDL
+
+function check_freespace {
+	fsize=0
+	if [ -f $path_tmp/${file_in}_stdout.tmp ]; then
+		data_stdout $path_tmp/${file_in}_stdout.tmp
+		if [ $? == 1 ] && [ ! -z ${length_out[0]} ]; then
+			fsize=$(( ${length_out[0]}/1024 ))
+		fi
+	else
+		if [ ! -z "$lenght_in" ];then
+			fsize="$length_in"
+		fi
+	fi
+	
+	maxl=`df |wc -l`
+	pattern=`pwd -P`
+	for l in `seq 2 $maxl`; do
+		dev=`df | awk '{ print($6) }' | sed -n "${l}p"`
+		if [ "$dev" == "/" ]; then dev="$HOME" ; fi
+		freespace=`df | awk '{ print($4) }' | sed -n "${l}p"`
+		if [ "$pattern" != "${pattern//$dev}" ]; then
+			if (( $freespace<50000 )); then
+				print_c 3 "Spazio insufficiente sul device. $PROG terminato."
+				exit
+			elif [ ! -f "${file_in}.st" ] && [ $fsize != 0 ] && (( $freespace<$fsize )); then
+				kill $pid_in 2>/dev/null
+				_log 6
+				return 1
+			fi
+		fi
+	done
+	unset fsize
+}
+
+
+
+function download {
+	export LANG="$prog_lang"
+	export LANGUAGE="$prog_lang"
+# 	
+# 	file_in="${file_in// /_}"
+# 	file_in="${file_in//\'/_}"
+	
+	#[ -f "$file_in" ] && read -p "ERRORE: $file_in c'è già!! programma terminato"
+	if [ "$axel_parts" == "0" ]; then
+		downloader_in=Wget
+		axel_parts=$axel_parts_default
+	fi
+	rm -f "$path_tmp/${file_in}_stdout.tmp"
+	if [ "$downloader_in" = "Axel" ]; then
+		export AXEL_COOKIES=$path_tmp/cookies.zdl
+# 		export AXEL_DATA="${post_data}"	
+		[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
+		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		pid_in=$!
+		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
+		axel_parts=$axel_parts_default
+	elif [ "$downloader_in" = "Wget" ]; then
+		#--progress=bar:force
+		[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
+		#[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+		pid_in=$!
+		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
+	fi
+	if [ ! -z "$user" ] && [ ! -z "$host" ]; then
+		accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
+		unset user host
+	fi
+	unset post_data checked
+	export LANG="$user_lang"
+	export LANGUAGE="$user_language"
+}
+
+function check_pid {
+	if [ ! -z $1 ]; then
+		ck_pid=$1
+		ps ax | awk "{ print $ps_ax_pid }" | while read ck_alive; do
+			if [ "$ck_alive" == "$ck_pid" ]; then
+				return 1
+			fi
+		done
+	fi
+}
+
+
+function show_data_alive {
+	data_alive
+	if [ "$alive" == "1" ]; then 
+		unset alive
+
+		print_c 1 "Processi di download attualmente in vita:"
+		separator "="
+		last_alive=$(( ${#pid_alive[*]}-1 ))
+		for j in `seq 0 $last_alive`; do
+			print_c 1 "Numero download attivo: $j"
+			[ ! -f "${file_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
+			init_colors
+			echo -e "${BBlue}File:${Color_Off} ${file_alive[$j]}" 
+			[ ! -z "${alias_file_alive[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_alive[$j]}"
+			echo -e "${BBlue}Downloader:${Color_Off} ${downloader_alive[$j]}\n${BBlue}Link:${Color_Off} ${url_alive[$j]}"
+			echo -e "${BBlue}Stato:${IYellow} ${progress_alive[$j]}${Color_Off}"
+			
+			if [ $j != $last_alive ]; then 
+				separator "-"
+			else
+				separator "="
+			fi
+		done
+		return 1
+	else
+		separator "="
+		print_c 3  "Nessun download attivo di $PROG rilevato"
+		separator "="
+	fi
+}
+
+function data_alive {
+	unset pid_alive pid_prog_alive file_alive downloader_alive alias_file_alive url_alive progress_alive length_alive alive
+	data_stdout
+	if [ $? == 1 ]; then
+		client=1
+		tot=$(( ${#pid_out[*]}-1 ))
+		j=0
+		for i in `seq 0 $tot`; do
+			check_pid ${pid_out[$i]}
+			if [ $? == 1 ]; then
+				pid_alive[$j]="${pid_out[$i]}"
+				pid_prog_alive[$j]="${pid_prog_out[$i]}"
+				file_alive[$j]="${file_out[$i]}"
+				downloader_alive[$j]="${downloader_out[$i]}"
+				alias_file_alive[$j]="${alias_file_out[$i]}"
+				url_alive[$j]="${url_out[$i]}"
+				progress_alive[$j]="${progress_out[$i]}"
+				length_alive[$j]=${length_out[$i]}
+				alive=1
+				(( j++ ))
+				
+			fi
+		done
+	fi
+}
+
+function show_downloads_extended {
+	data_stdout
+	if [ $? == 1 ]; then 
+		#separator "Z"
+		print_c 1 "Processi di download attualmente gestiti da $PROG:"
+		separator "="
+		last_out=$(( ${#pid_out[*]}-1 ))
+		for j in `seq 0 $last_out`; do
+			human_length ${length_out[$j]} # --> $length_H
+			
+			print_c 1 "Numero download: $j"
+			check_pid ${pid_out[$j]}
+			if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ]; then
+				print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
+			fi
+			
+			echo -e "${BBlue}File:${Color_Off} ${file_out[$j]}" 
+			[ ! -z "${alias_file_out[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$j]}"
+			echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
+			
+			progress="${progress_out[$j]}"
+			color=${BYellow}
+			
+			check_pid ${pid_out[$j]}
+			if [ $? != 1 ]; then
+				progress="Download non attivo"
+				color=${BRed}
+			fi
+
+			length_saved=0
+			[ -f "${file_out[$j]}" ] && length_saved=`ls -l "${file_out[$j]}" | awk '{ print($5) }'`
+			if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+				progress="Download completato"
+				color=${BGreen}
+			fi
+			
+			
+			#print_c $color "${downloader_out[$i]}: ${progress}"
+			
+			echo -e "${BBlue}Stato:${color} ${progress}${Color_Off}"
+			
+			if [ $j != $last_out ]; then 
+				separator "-"
+			else
+				separator "="
+			fi
+			echo
+		done
+		return 1
+	else
+		separator "="
+		print_c 3  "Nessun download di $PROG rilevato"
+		separator "="
+	fi
+}
+
+function human_length { ## input in bytes
+	if [ ! -z $1 ]; then
+		length_B=$1
+		length_K=$(( $length_B/1024 ))
+		length_M=$(( $length_K/1024 ))
+		if (( $length_M>0 )); then
+			length_H="${length_M} M"
+		elif (( $length_K>0 )); then
+			length_H="${length_K} K"
+		else
+			length_H="${length_B} B"
+		fi
+	fi
+}
+
+function interactive {
+	while true ; do
+		#client=1
+		clear
+		echo
+		header
+		echo
+		#show_data_alive
+		unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
+		show_downloads_extended
+		if [ $? == 1 ]; then
+			echo
+			echo
+			separator "^"
+			print_c 2 "Opzioni:"
+			echo -e "	1) riavvia o elimina un download dalla gestione di $PROG"
+			echo -e "	2) esci da $PROG --interactive\n"
+			echo -e "	*) aggiorna lo stato\n"
+			separator "^"
+			print_c 2 "Scegli cosa fare (1 | 2 | *):"
+			read action
+			
+			if [ "$action" == "1" ]; then
+				clear
+				echo
+				header
+				echo
+				show_downloads_extended
+				print_c 2 "Seleziona i numeri dei download da eliminare o (solo se attivi) da riavviare, separati da spazi (puoi non scegliere):"
+				read input
+				inputs=( $input )
+				last_out=$(( ${#pid_out[*]}-1 ))
+				options=`seq 0 $last_out`
+				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
+				echo
+				echo -e "	r) per riavviarli digita \"r\"
+	e) per eliminarli definitivamente (e cancellare il file), digita \"e\"
+	*) per tornare alla schermata principale"
+				echo
+				separator "^"
+				print_c 2 "Scegli cosa fare: [r | e | *]"
+				read input2
+				
+				if [ "$input2" == "r" ]; then
+					for i in ${inputs[*]}; do
+						for j in $options; do
+							if [ "$i" == "$j" ]; then
+								kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+								if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
+									rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
+								fi
+							fi
+						done
+					done
+					
+				elif [ "$input2" == "e" ]; then
+					for i in ${inputs[*]}; do
+						for j in $options; do
+							if [ "$i" == "$j" ]; then
+								kill ${pid_out[$i]} 2>/dev/null
+								links_loop - "${url_out[$i]}"
+								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+							fi
+						done
+					done
+# 				else
+# 					#print_c 1  "Nessun processo riavviato o eliminato"
+# 					exit
+				fi
+				
+			elif [ "$action" == "2" ]; then
+				exit
+			fi
+		else
+			exit
+		fi
+	done
+	exit
+}
+
+
+function data_stdout {
+	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
+	if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
+		list="$1"
+	else
+		list=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
+	fi
+	if [ ! -z "$list" ]; then
+		export LANG="$prog_lang"
+		export LANGUAGE="$prog_lang"
+		i=0
+		for item in $list; do
+			
+			file_stdout=$item
+			
+			pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
+						
+			url_out[$i]=`cat $file_stdout|grep "link_$prog"`
+			url_out[$i]="${url_out[$i]#link_${prog}: }"
+			#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			
+			downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
+			pid_prog_out[$i]=`head -n 4 $file_stdout|sed -n '4p'`
+			
+			progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+			progress_data="${progress_data//'..........'}"
+			progress_data="${progress_data//[\[\]]}"
+			file_o="${file_stdout//_stdout.tmp}"
+			file_o="${file_o#$path_tmp/}"
+			if [ "${downloader_out[$i]}" == "Wget" ]; then
+				length_out[$i]=`head -n 5 $file_stdout|sed -n '5p'|grep "length_in="`
+				length_out[$i]="${length_out[$i]#length_in=}"
+				if [ -z "${length_out[$i]}" ];then
+					length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
+					length_out[$i]="${length_out[$i]#*Length: }"
+					length_out[$i]="${length_out[$i]%%' '*}"
+				fi
+				
+				file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
+				file_out[$i]="${file_out[$i]#*Saving to: \`}"
+				file_out[$i]="${file_out[$i]%\'*}"
+				
+				
+				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+					exit 1
+				fi
+				
+				if [ -z "${file_out[$i]}" ]; then
+					file_out[$i]="$file_o"
+				fi
+				
+				if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
+					alias_file_out[$i]="${file_out[$i]}"
+					file_out[$i]=`cat $file_stdout |grep filename`
+					file_out[$i]="${file_out[$i]#*'filename="'}"
+					file_out[$i]="${file_out[$i]%'"'*}"
+					file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
+				fi
+				
+				percent=`echo $progress_data | awk '{ print($2) }'`
+				eta=`echo $progress_data | awk '{ print($4) }'`
+				speed=`echo $progress_data | awk '{ print($3) }'`
+				speed="${speed//,/.}"
+				type_speed="${speed//[0-9.,]}"
+				num_speed="${speed//$type_speed}"
+				num_speed=${num_speed%.*}
+				case $type_speed in
+					B) type_speed="B/s";;
+					K) type_speed="KB/s";;
+					M) type_speed="MB/s";;
+				esac
+				speed="${num_speed}${type_speed}"
+			elif [ "${downloader_out[$i]}" == "Axel" ]; then
+				axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
+				file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
+				file_out[$i]="${file_out[$i]#*Opening output file }"
+				
+				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+					exit 1
+				fi
+				
+				if [ -z "${file_out[$i]}" ]; then
+					file_out[$i]="$file_o"
+				fi
+				
+				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
+				length_out[$i]="${length_out[$i]#*File size: }"
+				length_out[$i]="${length_out[$i]%% *}"
+				
+				unset speed	
+				
+				## `echo "${progress_data}"| grep "[.[0-9]*.[0-9]KB/s]"`
+				
+# 				speed="${progress_data2%%\] \[*}"
+# 				speed="${speed##*\] \[}"
+# 				type_speed="${speed//[0-9.,]}"
+# 				num_speed="${speed//$type_speed}"
+# 				percent=${progress_data%'%'*}
+# 				percent=${percent##*\[}
+				
+				percent=`echo $progress_data | awk '{ print($1) }'`
+				speed=`echo $progress_data | awk '{ print($2) }'`
+				type_speed="${speed//[0-9.,]}"
+				num_speed="${speed//$type_speed}"
+				num_speed=$(( ${num_speed%[,.]*} + 1 ))
+				case $type_speed in
+					KB/s) num_speed=$(( $num_speed * 1024 )) ;;
+					MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
+				esac
+				if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then	
+					num_percent=${percent%'%'*}
+					num_percent=$(( ${num_percent%[,.]*}+1 ))
+					diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
+					diff_length=$(( ${diff_length%[,.]*}+1 ))
+					unset seconds minutes hours
+					[ $num_speed != 0 ] && seconds=$(( $diff_length/$num_speed ))
+					
+					if [ ! -z "$seconds" ]; then
+						minutes=$(( $seconds/60 ))
+						hours=$(( $minutes/60 ))
+						minutes=$(( $minutes-($hours*60) ))
+						eta="${hours}h${minutes}m"
+					else
+						unset eta
+					fi
+					
+				fi
+			fi
+			num_percent=0
+			num_percent=${percent%'%'*}
+			num_percent=${num_percent%'.'*}
+			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ ! -z "${num_percent//.}" ]; then
+				size_bar=0
+				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
+				diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
+				
+				unset bar diff_bar
+				for column in `seq 1 $size_bar`; do
+					bar="${bar}${bar_char}"
+				done
+				for column in `seq 1 $diff_size_bar`; do
+					diff_bar="${diff_bar} "
+				done
+				bar="[${bar}>${diff_bar}]"
+				progress_out[$i]="${bar} $percent $speed $eta"
+			fi
+			
+			(( i++ ))
+		done
+		export LANG="$user_lang"
+		export LANGUAGE="$user_language"
+		unset length_saved
+		return 1
+	fi
+}
+
+function show_downloads {
+	unset progress
+	data_stdout
+	if [ $? == 1 ]; then		
+		print_c 1 "\nDownloading..."
+		separator "="
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			length_saved=0
+			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
+			echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+			progress="${progress_out[$i]}"
+			color=2
+			
+			check_pid "${pid_out[$i]}"
+			if [ $? != 1 ]; then
+				progress="Download non attivo"
+				color=3
+			fi
+			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+				progress="Download completato"
+				color=1
+			fi
+			print_c $color "${downloader_out[$i]}: ${progress}"
+			if [ $i != $last_stdout ]; then # && [ "$multi" == "1" ]; then
+				separator "-"
+			else
+				separator "="
+			fi
+			echo
+		done
+	else
+		separator "="
+		print_c 3 "Nessun download attivo"
+		separator "="
+	fi
+	echo
+	sleep 5
+}
+
+function check_stdout {
+	#check_instance
+	unset checked
+	data_stdout
+	if [ $? == 1 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for ck in `seq 0 $last_stdout`; do
+			
+			
+			check_pid ${pid_out[$ck]}
+			if [ $? == 1 ]; then
+				if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
+					rm -f "${alias_file_out[$ck]}"
+				fi
+				
+				test_repeated="${repeated[${pid_out[$ck]}]}"
+				repeated[${pid_out[$ck]}]=`tail -n 50 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
+				if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
+					kill ${pid_out[$ck]}
+				fi
+			
+				
+				if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
+					kill ${pid_out[$ck]}
+				fi
+			fi
+			
+			check_pid ${pid_out[$ck]}
+			if [ $? != 1 ]; then
+				length_saved=0
+				[ -f "${file_out[$ck]}" ] && length_saved=`ls -l "${file_out[$ck]}" | awk '{ print($5) }'`
+				
+				already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
+				if [ -z "$already_there" ]; then 
+					unset already_there
+					
+					if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
+						[ ! -f "${file_out[$ck]}.st" ] && rm -f "${file_out[$ck]}"
+					fi
+					if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ); then 
+						[ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
+					fi
+
+				else # file exists: don't loop its url_out
+
+					print_c 3 "Errore: $path_tmp/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
+					read -p "ATTENZIONE!"
+					rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
+
+				fi
+				
+			fi
+		done
+		return 1
+	fi
+}
+
+function check_alias {
+	# if file_in is an alias...
+	
+	if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "${file_in}" != "${file_in%.alias}" ]; then
+		data_stdout
+		if [ $? == 1 ]; then
+			last_stdout=$(( ${#pid_out[*]}-1 ))
+			#read -p ${#pid_out[*]}
+			for i in `seq 0 $last_stdout`; do
+				check_pid ${pid_out[$i]}
+				if [ $? == 1 ]; then
+					check_pid ${pid_in}
+					if [ $? == 1 ]; then
+						unset real_file_in 
+						real_file_in=`cat $path_tmp/${file_in}_stdout.tmp |grep filename`
+						real_file_in="${real_file_in#*'filename="'}"
+						real_file_in="${real_file_in%'"'*}"
+						
+						file_in_alias="${file_in}"
+						file_in="${real_file_in}"
+						
+						if [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
+							kill $pid_in
+							rm -f  "${file_in_alias}"
+						elif [ "${pid_out[$i]}" == "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
+							check_in_file # se file_in esiste, ne verifica la validità --> potrebbe cancellarlo
+							if [ ! -f "$file_in" ]; then
+								mv "$file_in_alias" "$file_in"
+								print_c 1 "$file_in_alias rinominato come $file_in"
+							else
+								kill $pid_in
+								rm -f  "${file_in_alias}"
+							fi
+						fi
+					fi
+					
+					check_pid ${pid_in}
+					if [ $? != 1 ] && [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
+						rm -f "${file_in}"
+					fi
+				fi
+			done
+		fi
+	fi
+}
+
+
+function check_in_url { 	# return --> no_download=1 
+	#check_instance
+	if [ ! -z "$url_in" ]; then
+		if [ -z "$file_in" ]; then
+# 			unset alive 
+# 			# alive
+# 			data_alive
+# 			if [ "$alive" == "1" ]; then 
+# 				unset alive
+# 				last_alive=$(( ${#pid_alive[*]}-1 ))
+# 				for i in `seq 0 $last_alive`; do
+# 					if [ "${url_alive[$i]}" == "$url_in" ]; then
+# 						return 1
+# 					fi
+# 				done
+# 			fi
+			
+			#  file_in
+			data_stdout
+			if [ $? == 1 ]; then 
+				last_out=$(( ${#pid_out[*]}-1 ))
+				for i in `seq 0 $last_out`; do
+					if [ "${url_out[$i]}" == "$url_in" ]; then
+						check_pid ${pid_out[$i]}
+						if [ $? == 1 ]; then
+							return 1
+						fi
+						
+						file_in="${file_out[$i]}"
+						if [ -z "$file_in" ]; then
+							(( axel_parts_out[$i]-- ))
+							axel_parts="${axel_parts_out[$i]}"
+						fi
+						
+						length_saved=0
+						[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+						
+						if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ]; then
+							return 1
+						fi
+						unset length_saved
+						check_freespace
+						if [ $? == 1 ]; then return 1 ; fi
+					fi
+				done
+			fi
+		fi
+	fi
+}
+
+function check_in_file { 	# return --> no_download=1 --> download=5
+	#check_instance
+	file_in="${file_in// /_}"
+	file_in="${file_in//\'/_}"
+	if [ ! -z "$exceeded" ]; then
+		_log 4
+		no_newip=true
+		unset exceeded
+	elif [ ! -z "$not_available" ]; then
+		[ ! -z "$url_in_file" ] && _log 3
+		no_newip=true
+		unset not_available
+	
+	elif [ "$url_in_file" != "${url_in_file//{\"err\"/}" ]; then
+		_log 2
+		unset no_newip
+	elif [ -z "$url_in_file" ] || [ -z "${file_in}" ]; then
+		_log 2
+		unset no_newip
+	fi
+	
+	if [ ! -z "${file_in}" ]; then
+		if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
+			no_newip=true
+			data_stdout
+			if [ $? == 1 ]; then
+				last_stdout=$(( ${#pid_out[*]}-1 ))
+				for i in `seq 0 $last_stdout`; do
+					if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
+						check_pid ${pid_out[$i]}
+						if [ $? == 1 ]; then
+							#_log 7
+							return 1
+							
+						else
+							
+							if [ "$downloader_in" = "Wget" ]; then
+								length_saved=0
+								length_alias_saved=0
+								length_saved=`ls -l "${file_in}" | awk '{ print($5) }'`
+								[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "${alias_file_out[$i]}" | awk '{ print($5) }'`
+							
+								if [ "${length_out[$i]//[0-9]}" == "${length_out[$i]}" ] || [ "${length_out[$i]}" == "0" ] || [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+									rm -f "$file_in" "${file_in}.st" # && print_c 1 "FILE CANCELLATO"
+									unset no_newip
+# 									check_freespace
+									[ ! -z "$url_in_file" ] && return 5
+								else
+									#_log 1
+									no_newip=true
+									
+								fi
+							elif [ "$downloader_in" = "Axel" ]; then
+								if [ -f "${file_in}.st" ]; then 
+									unset no_newip
+# 									check_freespace
+									[ ! -z "$url_in_file" ] && return 5
+								else
+									#_log 1
+									no_newip=true
+								fi
+							fi
+						fi
+					fi
+				done
+			
+			else
+				_log 1
+				no_newip=true
+			fi
+		
+		elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
+# 			check_freespace
+			return 5
+			unset no_newip
+		fi
+	
+	fi
+	return 1
+}
+
+function check_instance {
+	data_stdout
+	if [ $? == 1 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			check_pid ${pid_prog_out[$i]}
+			if [ $? == 1 ]; then
+				ps ax > $path_tmp/ps.tmp
+				max=`cat $path_tmp/ps.tmp |wc -l`
+				for line in `seq 2 $max`; do
+					proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
+					pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
+					tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
+					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
+						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+						exit
+# 						kill "${pid_prog_out[$i]}" && print_c 1 "Uccisa l'istanza in $tty"
+					fi
+				done
+			fi
+		done
+	fi
+}
+
+function clean_file {
+	if [ ! -z "$1" ] && [ -f "$1" ]; then
+		file_to_ck="$1"
+		last_line=`cat "$file_to_ck" |wc -l`
+		for i in `seq 1 $last_line`; do
+			it=`cat "$file_to_ck" |sed -n "${i}p"`
+			
+			if [ "${items[*]}" == "${items[*]//$it}" ]; then
+				items[${#items[*]}]=$it
+			fi
+		done
+		
+		rm "$file_to_ck"
+		
+		for ij in ${items[*]}; do
+			[ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
+		done
+	fi
+	unset items
+}
+
+function links_loop { 	#usage with op=+|- : links $op $link
+	op="$1" #operator
+	url_loop="$2" #url
+	if [ ! -z "$url_loop" ]; then
+		case $op in
+			+)	
+# 				if [ -f "$path_tmp/links_loop.txt" ]; then
+# 					lnx=`cat $path_tmp/links_loop.txt`
+# 					for lnk in $lnx; do
+# 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+# 					done
+# 					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+# 				fi
+				echo "$url_loop" >> $path_tmp/links_loop.txt
+				clean_file $path_tmp/links_loop.txt
+				
+				;;
+			-)
+				if [ -f "$path_tmp/links_loop.txt" ]; then
+					lnx=`cat $path_tmp/links_loop.txt`
+					for lnk in $lnx; do
+						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+					done
+					rm $path_tmp/links_loop.txt
+					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+				fi
+				;;
+			in) 
+				lnx=`cat $path_tmp/links_loop.txt 2>/dev/null`
+				if [ ! -z "$lnx" ];then
+					for lnk in $lnx; do
+						if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
+							return 1
+						fi
+					done
+					return 5
+				else
+					return 5
+				fi
+				;;
+		esac
+	fi
+}
+
+function init_links_loop {
+	
+	if [ -f $file ]; then
+		urls=`cat $file`
+		for url in $urls; do
+			links_loop + $url
+		done
+		data_stdout
+		if [ $? == 1 ]; then
+			last_stdout=$(( ${#pid_out[*]}-1 ))
+			for i in `seq 0 $last_stdout`; do
+				length_saved=0
+				[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
+				if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+					links_loop - "${url_out[$i]}"
+				else
+					links_loop + "${url_out[$i]}"
+				fi
+				unset length_saved
+			done
+		fi
+	fi
+}
+
+function check_lock {
+	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
+	test_lock=`ls $path_tmp/${prog}_lock_* 2>/dev/null`
+	echo "lockfile=$lock_file"
+	read -p "test=$test_lock"
+	
+	
+	if [ ! -z "$test_lock" ]; then
+		pid="${test_lock#*_lock_}"
+		read -p "pid_test=$pid"
+		check_pid $pid
+		if [ $? == 1 ]; then
+# 			touch "$lock_file"
+# 		else
+			rm "$test_lock"
+			return 1
+		fi
+	else
+		touch "$lock_file"
+	fi
+	touch "$lock_file"
+}
+
+
+#### MAIN
+#[ ! -z "$pid_prog" ] && read -p "$pid_prog" && exit
+init
+
+################################### HEADER
+header
+separator z
+###################################
+args=( $@ )
+max_args=$(( ${#args[*]}-1 ))
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--stream" ]; then 
+		
+		# --stream [URL] [FOLDER] [FNAME] 
+		url_in=$2
+		directory=$3
+		file_in=$4
+		cd $directory
+		mkdir -p ${path_tmp}
+		echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
+		
+		##pid xterm
+		#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+		
+		##pid bash
+		xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; zdl \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+		
+		#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
+		unset args[$i]
+		exit
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
+		unset args[$i]
+
+		print_c 1 "Aggiornamento di $PROG ..."
+		wget -T $max_waiting "$url_update" -O /tmp/$prog 
+		print_c 1 "Installazione di $PROG in /usr/local/bin/"
+		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
+		#echo "which ${prog}:"
+		#which $prog
+		echo
+	fi
+done
+
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
+		unset args[$i]
+		multi=1
+	# 	if [ -e "/cygdrive" ]; then
+	# 		export DISPLAY=:0
+	# 		X &>/dev/null &
+	# 		exec aewm++ &>/dev/null &
+	# 	fi
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--login' ]; then 
+		unset args[$i]
+		login=1
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
+		unset args[$i]
+		interactive
+	fi
+done
+
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--wget' ]; then 
+		unset args[$i]
+		downloader_in=Wget
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--axel' ]; then 
+		unset args[$i]
+	
+		downloader_in=Axel
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--clean' ]; then 
+		unset args[$i]
+		( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
+		#exit
+	fi
+done
+
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
+		unset args[$i]
+		usage
+	fi
+done
+
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
+		unset args[$i]
+		configure
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
+		
+		if [ "${args[$i]}" == '--proxy' ]; then
+			update_proxy=true
+			unset args[$i]
+			break
+		elif [ "${args[$i]}" == '--proxy=t' ]; then
+			proxy_types[${#proxy_types[*]}]="Transparent"
+			update_proxy=true
+		elif [ "${args[$i]}" == '--proxy=a' ]; then
+			proxy_types[${#proxy_types[*]}]="Anonymous"
+			update_proxy=true
+		elif [ "${args[$i]}" == '--proxy=e' ]; then
+			proxy_types[${#proxy_types[*]}]="Elite"
+			update_proxy=true
+		elif [ "${args[$i]}" != "${args[$i]%=*}" ]; then
+			proxy="${args[$i]#'--proxy='}"
+			if [ -z "${proxy//[0-9].[0-9].[0-9].[0-9]:[0-9]}" ]; then
+				export http_proxy=$proxy
+				print_c 1 "Proxy attivo: $http_proxy"
+				update_defined_proxy=true
+				unset update_proxy
+			else
+				print_c 3 "${args[$i]}: argomento non valido"
+				echo
+				usage
+			fi
+		else
+			print_c 3 "${args[$i]}: argomento non valido"
+			echo
+			usage
+		fi
+		unset args[$i]
+	fi
+done
+
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" != "${args[$i]#-}" ]; then
+		print_c 3 "${args[$i]}: argomento non valido"
+		echo
+		usage
+	fi
+done
+
+if [ ! -z "${args[*]}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ -f "${args[$i]}" ]; then
+			cat "${args[$i]}" >> $path_tmp/links_loop.txt
+		elif [ ! -z "${args[$i]}" ]; then
+			print_c 2 "Verifica di ${args[$i]}"
+			export LANG="$prog_lang"
+			export LANGUAGE="$prog_lang"
+			wget "${args[$i]}" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+			
+			test_link=`cat $path_tmp/spider`
+			
+			if [ ! -z "$test_link" ]; then
+				timeout 5 wget "${args[$i]}" -S -q -O /dev/null 2> $path_tmp/spider
+				
+				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
+				if [ -z "$test_link" ];then
+					#echo "${args[$i]}" >> $path_tmp/new_links.txt
+					echo "${args[$i]}" >> $path_tmp/links_loop.txt
+# 					check_lock
+# 					if [ $? == 1 ]; then
+# 						exit
+# 					fi
+					
+					#check_instance
+				else
+					print_c 3 "Link non valido: ${args[$i]}"
+					echo
+					usage
+				fi
+			else
+				print_c 3 "Link non valido: ${args[$i]}"
+				echo
+				usage
+			fi
+			export LANG="$user_lang"
+			export LANGUAGE="$user_language"
+
+		fi
+	done
+	if [ -f $path_tmp/links_loop.txt ];then 
+		file="$path_tmp/links_loop.txt"
+		clean_file $path_tmp/links_loop.txt
+		#clean_file $path_tmp/new_links.txt
+		cat $path_tmp/links_loop.txt >> links.txt
+		clean_file links.txt
+		print_c 1 "L'elenco completo dei link è in links.txt"
+# 	else
+# 		touch $path_tmp/links_loop.txt
+	fi
+fi
+
+if [ ! -e "/cygdrive" ];then
+	if [ "$flashgot" == "enabled" ];then
+		flashgot_autoconf
+	else
+		restore_ffprefs
+	fi
+fi
+
+
+check_downloader
+
+print_c 1 "Download con $downloader_in"
+
+
+if [ -f "$file_log" ]; then
+	log=1
+fi
+
+if [ -z "$file" ] ; then 
+	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, uload, glumbouploads, mediafire, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
+	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
+	separator "^"
+	read -d @ -a links
+	printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
+	file="$path_tmp/links_loop.txt"
+	if [ -f "$file" ];then
+		clean_file "$file"
+		if [ -f "$file" ];then
+			cat $file >> links.txt
+		else
+			print_c 3 "Nessun link da processare"
+			exit
+		fi
+		echo
+	fi
+fi
+
+
+
+#converti UL.TO in UPLOADED.TO/FILE
+if [ -f $file ]; then
+	lnks=`cat $file`
+	rm $file
+	
+	echo -e "${lnks// /\n}" | while read line ; do 
+		if [ "$line" != "${line//http:\/\/ul.to/}" ]; then
+			line=${line//ul.to/uploaded.to/file}
+			
+			
+		fi
+		echo $line >> $file
+	done
+	init_links_loop
+fi
+
+#init_links_loop
+
+check_instance
+
+while true; do
+	if [ -f "$file" ]; then	
+		links_in=`cat $file`
+		for url_in in $links_in; do
+			#[ ! -z "$pid_in" ] && check_freespace
+			
+			echo "checking $url_in ..."
+			unset pid_in checked file_in url_in_file
+			check_in_url
+			if [ $? != 1 ];then
+				url_in="${url_in## }"
+				url_in="${url_in%% }"
+				domain=${url_in//\?*}
+				
+				if [ "$update_proxy" == "true" ];then
+					unset newip update_proxy
+					new_ip_proxy
+					update_proxy_others="true"
+				elif [ "$update_defined_proxy" == "true" ];then
+					unset newip update_defined_proxy
+					update_proxy_others="true"
+				fi
+				
+				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
+				
+				echo
+				separator "Z"
+				
+				echo -e "\nLink da processare: $url_in"
+				
+				if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
+					if [ "$downloader_in" == "Axel" ]; then
+						dler=$downloader_in
+						downloader_in=Wget
+						ch_dler=1
+						print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+					fi
+				fi
+		# 		
+		# 		if [ "$domain" != "${domain//4us.to/}" ]; then
+		# 			
+		# 			## 4US.TO ###############
+		# 			get_tmps		
+		# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
+		# 			link=${link#*document.location=\"}
+		# 			link=${link%\"*}
+		# 			
+		# 			file_in=${link##*=} 
+		# 			n=1
+		# 	
+				if [ "$domain" != "${domain//mediafire.}" ]; then
+					
+					# MEDIAFIRE.COM ##############
+					check_ip mediafire
+					
+					get_tmps
+					url_in_file=`cat $path_tmp/zdl.tmp |grep 'kNO = '`
+					url_in_file=${url_in_file#*'kNO = "'}
+					url_in_file=${url_in_file//\" onclick=\"avh*/}
+					url_in_file=${url_in_file%'"'*}
+					
+					file_in=${url_in_file##*'/'}
+					axel_parts=4
+				elif [ "$domain" != "${domain//nowdownload.}" ]; then
+					
+					## http://www.nowdownload ###########
+					
+					get_tmps
+					token=`cat $path_tmp/zdl.tmp | grep token`
+					token=${token//*=}
+					token=${token//\"*/}
+					preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+					print_c 2 "Attendi circa 30 secondi:"
+					k=`date +"%s"`
+					s=0
+					unset url_in_file
+					while true; do
+	
+						if (( $s>29 )); then
+							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+						fi
+						sleep 1
+						s=`date +"%s"`
+						s=$(( $s-$k ))
+						
+						echo -e $s"\r\c"
+						
+						url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+						url_in_file=${url_in_file//*href=\"} 
+						url_in_file=${url_in_file//\"*}
+	
+						if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+							break
+						fi
+					done	
+					file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
+					file_in1="${file_in1#*'<br> '}"
+					file_in1="${file_in1%%</h4>*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1%' '*}"
+					file_in1="${file_in1//'<br>'/}"
+					while [ "$file_in1" != "${file_in1%.}" ]; do
+						file_in1=${file_in1%.}
+					done
+					file_in2="${url_in_file//*'/'}"
+					file_in2="${file_in2#*_}"
+					
+					
+					if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+						file_in="$file_in2"
+					else
+						file_ext="${file_in2##*.}"
+						file_in="${file_in1}.${file_ext}"
+					fi
+					unset file_in2 file_in1 file_ext token preurl_in_file
+				elif [ "$domain" != "${domain//uload.}" ]; then
+					check_ip uload
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
+					
+					#exceeded
+					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
+					if [ ! -z "$test_exceeded" ]; then
+						test_exceeded="${test_exceeded#*- }"
+						test_exceeded="${test_exceeded%% *}"
+						test_exceeded="${test_exceeded%.*}"
+						if (( $test_exceeded>400 )); then
+							exceeded=true
+						fi
+					fi
+									
+					if [ -z "$exceeded" ]; then
+						unset post_data
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+						
+						post_data="${post_data//'op=catalogue&'}"
+						
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+						
+						
+						unset post_data
+						tmp="$path_tmp/zdl2.tmp"
+						input_hidden
+						post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
+						
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+						
+						if [ -f $path_tmp/zdl3.tmp ];then
+							url_in_file=`cat $path_tmp/zdl3.tmp | grep "http://uload.to/images/download.png"`
+							url_in_file="${url_in_file#<a href=\"}"
+							url_in_file="${url_in_file%%\"*}"
+						fi
+					fi
+				elif [ "$domain" != "${domain//glumbouploads.}" ]; then
+					[ "$multi" == "0" ] && [ -f "$file_data" ]&& check_ip glumbouploads
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
+					
+					## exceeded
+					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
+					if [ ! -z "$test_exceeded" ]; then
+						test_exceeded="${test_exceeded#*'('}"
+						test_exceeded="${test_exceeded%')'*}"
+						if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
+							test_exceeded="${test_exceeded% MB}"
+							test_exceeded="${test_exceeded%.*}"
+							(( test_exceeded++ ))
+							if (( $test_exceeded>1024 )); then
+								exceeded=true
+							fi
+						elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
+							exceeded=true
+						fi
+					fi
+									
+					if [ -z "$exceeded" ]; then
+						unset post_data
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+						
+						post_data="${post_data//'op=login&redirect=&'}"
+						if [ -z "$file_in" ]; then
+							file_in=`cat "$path_tmp/zdl.tmp"|grep "fname"|grep "attr"`
+							file_in="${file_in#* \'}"
+							file_in="${file_in%\'*}"
+						fi
+						#read -p "$post_data"
+						
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+						
+						unset post_data
+						tmp="$path_tmp/zdl2.tmp"
+						input_hidden
+						post_data="${post_data//'op=login&redirect=&'}"
+						
+						#read -p "$post_data"
+						
+						print_c 2 "Attendi circa 50 secondi:"
+						for s in `seq 0 50`; do
+							echo -e $s"\r\c"
+							sleep 1
+						done
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+						
+						if [ -f $path_tmp/zdl3.tmp ];then
+							url_in_file=`cat $path_tmp/zdl3.tmp | grep "<a href=" |grep "$file_in"`
+							url_in_file="${url_in_file#<a href=\"}"
+							url_in_file="${url_in_file%%\"*}"
+						fi
+						#read -p "$file_in --> ${url_in_file}"
+					fi
+		## SHARPFILE with pseudo-captcha
+		## 
+		# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
+		# 			wget $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 			tmp="$path_tmp/zdl.tmp"
+		# 			input_hidden
+		# 			
+		# 			if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( [ -f "${file_in}" ] && [ "$downloader_in" = "Wget" ] ); then
+		# 				echo -n
+		# 			else
+		# 				check_ip sharpfile
+		# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				tmp="$path_tmp/zdl.tmp"
+		# 				input_hidden
+		# 				
+		# 				post_data="${post_data//'op=catalogue&'}"
+		# 				
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+		# 				
+		# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
+		# 				unset post_data
+		# 				unset ascii_dec
+		# 				unset i
+		# 				while [ ${#ascii_dec[*]} != 4 ];do
+		# 					captcha_html="${captcha_html#*'position:absolute;padding-left:'}"
+		# 					i="${captcha_html%%px*}"
+		# 					captcha_html="${captcha_html#*'&#'}"
+		# 					ascii_dec[$i]="${captcha_html%%';'*}"
+		# 				done
+		# 				pseudo_captcha
+		# 				print_c 2 "Attendi:"
+		# 				
+		# 				code=${captcha[*]}
+		# 				code=${code// /}
+		# 				
+		# 				s=65
+		# 				while [ $s != 0 ]; do
+		# 					echo -e "  \r\c"
+		# 					echo -e $s"\r\c"
+		# 					sleep 1
+		# 					(( s-- ))
+		# 				done
+		# 				echo -e "  \r\c"
+		# 				tmp="$path_tmp/zdl2.tmp"
+		# 				input_hidden
+		# 				post_data="${post_data//'op=catalogue&'}"
+		# 				post_data="${post_data}&code=${code}"
+		# 			fi
+		# 			url_in_file="$url_in"
+		
+		# 		elif [ "$domain" != "${domain//shareflare.}" ]; then
+		# 			
+		# 			## http://www.shareflare.net ####
+		# 			check_ip shareflare
+		# 			get_tmps
+		# 			tmp="$path_tmp/zdl.tmp"
+		# 			input_hidden
+		# 			if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ]; then
+		# 					echo
+		# 			else
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				unset post_data
+		# 				
+		# 				input_hidden
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
+		# 				echo -e "...\c"
+		# 				
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 				echo -e "...\c"
+		# 				
+		# 				print_c 2 "Attendi circa 45 secondi:"
+		# 				
+		# 				k=`date +"%s"`
+		# 				while [ "$goal" == "" ]; do
+		# 					sleep 1
+		# 					s=`date +"%s"`
+		# 					s=$(( $s-$k ))
+		# 					echo -e $s"\r\c"
+		# 					
+		# 					if (( $s>40 )); then
+		# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 						
+		# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` 
+		# 						sleep 1
+		# 					fi
+		# 					if (( $s>90 )); then
+		# 						break
+		# 					fi
+		# 				done
+		# 				
+		# 				url_in_file=${goal#*\"}
+		# 				url_in_file=${url_in_file//\"*/}
+		# 				
+		# 				
+		# 				n=1
+		# 			fi
+		# 			
+				elif [ "$domain" != "${domain//easybytez}" ]; then
+					url_in_file=`wget -t 1 -T $max_waiting -O - $url_in -q 2>/dev/null |grep 'You have requested'`
+					url_in_file="${url_in_file##*'<font color="red">'}"
+					url_in_file="${url_in_file%%'</font'*}"
+					#url_in_file="${url_in_file// /}"
+					file_in=${url_in_file##*\/}
+					url_in_file="${url_in_file%'/'$file_in}"
+					
+					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file 2>/dev/null |grep "File not available"`
+					#[ ! -z "$not_available" ] && print_c 3 "$not_available"
+					check_in_file
+					
+					if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
+						if [ ! -z "$exceeded_login" ]; then
+							check_ip easybytez
+						fi
+						if [ "$login" == "1" ]; then
+							wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
+							echo -e "...\c"
+							tmp="$path_tmp/login.tmp"
+							input_hidden
+							
+							host="easybytez"
+							host_login
+							wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" --post-data="${post_data}&login=${user}&password=${pass}" "http://www.easybytez.com" &>/dev/null
+							#echo -e "login: ${user}\c"
+							unset post_data
+							wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
+							echo -e "...\c"
+							
+							countdown=40
+						else
+							check_ip easybytez
+							wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
+							echo -e "...\c"
+							
+							countdown=60
+						fi
+						
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+					
+						wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O $path_tmp/zdl2.tmp &>/dev/null
+						echo -e "...\c"
+						
+						#exceeded no login
+						exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
+						
+						# exceeded login 3G ---> attivare proxy
+						if [ -z "$exceeded_login" ]; then
+							exceeded_login=`cat $path_tmp/zdl2.tmp |grep 'You have reached the download-limit:'`
+						fi
+						unset post_data
+						if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
+							tmp="$path_tmp/zdl2.tmp"
+							input_hidden
+			
+							wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O $path_tmp/zdl3.tmp &>/dev/null
+							echo -e "...\c"
+							unset post_data
+							
+							print_c 2 "Attendi $countdown secondi:"
+							for s in `seq 0 $countdown`; do
+								echo -e $s"\r\c"
+								sleep 1
+							done
+							echo -e "  \r\c"
+							tmp="$path_tmp/zdl3.tmp"
+							input_hidden
+							length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`
+							length_in="${length_in#*\(}"
+							length_in="${length_in%% *}"
+							
+							url_in_file="$url_in_file"
+							post_data="${post_data}&btn_download=Download File"
+						fi
+					fi
+					#axel_parts=1	
+					
+# 				elif [ "$domain" != "${domain//uploaded.}" ]; then
+# 					unset alias
+# 					url_in_file="${url_in%/}"
+# 					
+# 					wget -t 1 -T $max_waiting $url_in_file -q -O $path_tmp/test_page.tmp &>/dev/null
+# 					test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
+# 					test_exceeded="${test_exceeded#*'>'}"
+# 					test_exceeded="${test_exceeded%'<'*}"
+# 					test_exceeded=`echo $test_exceeded |grep GB`
+# 					if [ ! -z "$test_exceeded" ]; then
+# 						test_exceeded=${test_exceeded%' '*}
+# 						test_exceeded=${test_exceeded//,/.}
+# 						test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
+# 					fi
+# 					#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
+# 					test_available=`wget -q -O - -t 1 -T $max_waiting $url_in_file |grep "</html"`
+# 		
+# 					if [ "$test_exceeded" == "1" ]; then
+# 						exceeded=1
+# 					elif [ -z "$test_available" ]; then
+# 						not_available=true
+# 					else
+# 						if [ "${url_in_file##*/}" != "${url_in_file//*file\/}" ]; then
+# 							file_in=${url_in_file##*/}
+# 							url_in_file2=${url_in_file%/*}
+# 							file_id=${url_in_file2##*/}
+# 						else 
+# 							wget -t 1 -T $max_waiting "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+# 							file_id=${url_in_file##*/} 
+# 							file_in=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
+# 							file_in="${file_in//<\/a*/}"
+# 							file_in="${file_in##*>}"
+# 							if [ "$file_in" != "${file_in//'&alias;'/}" ]; then
+# 								file_in="${file_id}_${file_in//'&alias;'/.}.alias"
+# 							fi
+# 							
+# 						fi
+# 						
+# 						if [ ! -f "$file_in" ]; then
+# 							check_ip uploaded
+# 							wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+# 							echo -e "...\c"
+# 							
+# 							cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
+# 							cooking="${cooking//*\(\'/}"
+# 							cooking=${cooking//"'"*/}
+# 							
+# 							echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
+# 							
+# 							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
+# 							echo -e "...\c"
+# 							
+# 							url_in_file=`cat $path_tmp/goal.tmp`
+# 							url_in_file=${url_in_file//*domain:\'/}
+# 							url_in_file=${url_in_file//\'*}
+# 						fi
+# 					fi
+# 					
+				else
+					
+					if [ "$update_proxy_others_list" == "true" ]; then
+						new_ip_proxy
+					fi
+					
+					#sharpfile
+# 					if [ "$domain" != "${domain//sharpfile.}" ] && [ "multi" == "1" ]; then
+# 						server="${url_in#'http://'}"
+# 						server="${server%%'/'*}"
+# 						#check_ip "$server"
+# 						
+# 					fi
+					
+					# streaming downloader
+					items=( `ls $path_tmp/filename_* 2>/dev/null` )
+					if [ ! -z "${items[*]}" ]; then
+						for item in ${items[*]}; do
+							url=`cat "$item"`
+							if [ "$url" == "$url_in" ]; then
+								file_in="${item#*filename_}"
+								file_in="${file_in%.txt}"
+								break
+							fi
+						done
+					fi
+					
+					# universal downloader
+					if [ -z "$file_in" ]; then
+						
+						file_in="${url_in##*'/'}"
+						file_in="${file_in%'?'*}"
+						
+					fi
+					url_in_file="${url_in% }"
+					if [ "$update_proxy_others" == "true" ]; then
+						update_proxy_others_list="true"
+					fi
+					
+					
+				fi
+				file_in="${file_in// /_}"
+				file_in="${file_in//\'/_}"
+				
+				#### CHECK $url_in_file & $file_in:
+				## 
+				check_freespace
+				test_freespace=$?
+				check_in_file
+				test_in=$?
+				[ "$test_freespace" == "1" ] && unset test_in test_freespace
+#			fi
+# <---indent	
+				#check_instance
+				
+				#### DOWNLOAD ####
+				if [ "$test_in" == "5" ]; then
+					unset test_in
+					download || usage
+					check_pid ${pid_in}
+					if [ $? == 1 ]; then
+						print_c 1 "downloading --> $file_in ..."
+					fi
+					#check_instance
+					if [ "$domain" != "${domain//nowdownload}" ] || [ "$downloader_in" == "Axel" ]; then
+						count_down=15 #$(( $max_waiting/2 ))
+					elif [ ! -z "$http_proxy" ]; then	
+						count_down=$(( $max_waiting+5 ))
+					else
+						count_down=20
+					fi
+					
+					print_c 2 "Attendi per verifica del download già avviato:"
+					while [ "$count_down" != 0 ]; do
+						echo -e "  \r\c"
+						echo -e $count_down"\r\c"
+						sleep 1
+						(( count_down-- ))
+					done
+					echo -e "  \r\c"
+					
+					unset no_newip
+					check_freespace
+					check_alias				
+				else
+					sleep 1
+				fi
+				
+				if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ]; then
+					links_loop - "$url_in"
+				fi
+				
+				if [ -z $no_newip ]; then
+					[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+					[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+					#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+					[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+					[ "$domain" != "${domain//uload.}" ] && newip[${#newip[*]}]=uload
+					[ "$domain" != "${domain//glumbouploads.}" ] && newip[${#newip[*]}]=glumbouploads
+					#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]="$server"
+					unset server
+				fi
+				[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
+				unset checked
+				noproxy
+				if [ "$multi" == "1" ]; then 
+					check_stdout
+					show_downloads
+					checked=1
+				fi
+				while [ "$checked" != "1" ]; do #file_in
+					check_stdout
+					show_downloads
+					check_pid $pid_in
+					test_pid=$?
+					
+					links_loop "in" "$url_in"
+					test_loop_in=$?
+					if [ $test_loop_in != 1 ] || [ $test_pid != 1 ]; then 
+						checked=1
+					fi
+				done
+				
+				unset checked
+				unset post_data goal not_available exceeded
+			fi
+			
+		done
+		if [ -f "$path_tmp/links_loop.txt" ]; then
+			file="$path_tmp/links_loop.txt"
+		fi
+		check_stdout
+		show_downloads
+		unset test_pids
+		data_stdout
+		if [ $? == 1 ]; then
+			last_stdout=$(( ${#pid_out[*]}-1 ))
+			for i in `seq 0 $last_stdout`; do
+				check_pid "${pid_out[$i]}"
+				test_pids=$?
+				[ "$test_pids" == "1" ] && break
+			done
+		fi
+		[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && break
+	else 
+	# [ ! -z $file ]
+		usage
+		exit
+	fi
+done
+
+separator "-"
+print_c 1 "Tutti i link per il download sono stati processati."
+separator "-"
+
+#test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
+#[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
+rm -r "$path_tmp"
+
+echo
+echo
+if [ -f "$file_log" ]; then
+	print_c 3 "In questa directory è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
+	echo -e "Per leggerlo, digita:\n\n cat $file_log\n\n"
+fi
+
+
+exit
