@@ -27,11 +27,11 @@
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [--login] [-u|--update] [--clean] [-i|--interactive] [--proxy|--proxy=[t|a|e]|--proxy=IP:PORTA]"
+	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [--login] [-u|--update] [--clean] [-i|--interactive] [--proxy|--proxy=[t|a|e]|--proxy=IP:PORTA] [--ip]"
 	echo
-	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME]"
+	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]"
 	echo
-	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire.com, easybytez.net, sharpfile, uload e glumbouploads.
+	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire, easybytez, sharpfile, uload e glumbouploads.
 
 $PROG può essere avviato in diversi modi:
 
@@ -74,18 +74,20 @@ L'argomento [--login] attiva il login automatico nel caso la configurazione di $
 
 Inoltre, $PROG accetta come argomenti un numero illimitato di file di testo contenenti link ed è stato progettato anche per scaricare il file di uno stream video. Per quest'ultima operazione è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
 
+Infine, la funzione [--ip] mostra l'indirizzo IP corrente.
 
-CONFIGURAZIONE DI FLASHGOT.
+CONFIGURAZIONE MANUALE DI FLASHGOT.
+La configurazione manuale di Flashgot non dovrebbe essere necessaria, perché $PROG avvia un controllo della configurazione di Flashgot ad ogni sua istanza ed eventualmente, se glielo consente la propria configurazione ($prog --configure), provvede ad configurarlo automaticamente.
 
-Configurazione di Flashgot per $PROG:
+Configurazione manuale di Flashgot per $PROG:
 
-1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avviate Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
+1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avvia Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
 
 2) nel tab \"Generale\" aggiungi \"$prog\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/$prog\")
 
-3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME]
+3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
 
-4) nel tab \"FlashGot Media\" scegliete $prog come \"Download manager\"
+4) nel tab \"FlashGot Media\" scegli $prog come \"Download manager\"
 
 Fine configurazione di Flashgot.
 
@@ -103,6 +105,7 @@ seleziona automaticamente un proxy valido di tipo Transparent (t), Anonymous (a)
 
 	--proxy=IP:PORTA	
 abilita il proxy indicato dall'utente solo per il primo link, mentre gli altri saranno selezionati automaticamente (è possibile definire il tipo dei proxy successivi utilizzando anche --proxy=[t|a|e]
+
 
 
 AGGIORNARE $PROG.
@@ -413,7 +416,7 @@ function configure_accounts {
 	while true; do
 		echo
 		print_c 2 "Servizi di hosting abilitati per l'uso di account:"
-		echo -e "\t1) easybytez\n\t2) uload\n\t3) glumbouploads\n"
+		echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
 		print_c 2 "Scegli il servizio (1|2|3):"
 		read option_1
 		case $option_1 in
@@ -421,14 +424,14 @@ function configure_accounts {
 				host="easybytez"
 				break
 			;;
-			2)
-				host="uload"
-				break
-			;;
-			3)	
-				host="glumbouploads"
-				break
-			;;
+# 			2)
+# 				host="uload"
+# 				break
+# 			;;
+# 			3)	
+# 				host="glumbouploads"
+# 				break
+# 			;;
 		esac
 	done
 	
@@ -595,8 +598,10 @@ function flashgot_autoconf {
 # 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
 	test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
 	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
+	test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep CFILE`
+	test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep COOKIE`
 	
-	if [ ! -z "$test_flashgot" ] && [ -z "$test_ZDL" ]; then
+	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] ); then
 		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
 		test_ff_alive=`ps u -N -C grep |grep firefox`
 		if [ ! -z "$test_ff_alive" ]; then
@@ -636,7 +641,7 @@ function flashgot_autoconf {
 							new_pref="user_pref(\"flashgot.custom\", \"${values},ZigzagDownLoader\");"
 						;;
 						'flashgot.custom.ZigzagDownLoader.args')
-							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FOLDER\] \[FNAME\]\");"
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FOLDER\] \[FNAME\] \[CFILE\]\ \[COOKIE\]\");"
 						;; 
 						'flashgot.custom.ZigzagDownLoader.exe')
 							path_zdl=`which $prog`
@@ -659,12 +664,16 @@ function flashgot_autoconf {
 					if [ -z "${firefox_pref}" ]; then
 						echo ${new_pref} >> $file
 					else
+						firefox_pref="${firefox_pref//[/\[}"
+						firefox_pref="${firefox_pref//]/\]}"
 						sed -i "s@${firefox_pref}@${new_pref}@g" $file
+						#echo " ${firefox_pref} --> ${new_pref} "
 					fi
 				done
 			done
 		fi
 	fi
+	#read
 }
 
 
@@ -845,6 +854,15 @@ function check_ip {
 
 function my_ip {
 	myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
+	echo
+	separator -
+	if [ ! -z "$myip" ]; then
+		print_c 1 "Indirizzo IP: $myip"
+	else
+		print_c 3 "Indirizzo IP non rilevato"
+	fi
+	separator -
+	echo
 }
 
 function add_newip {
@@ -1208,28 +1226,50 @@ function download {
 # 	file_in="${file_in//\'/_}"
 	
 	#[ -f "$file_in" ] && read -p "ERRORE: $file_in c'è già!! programma terminato"
-	if [ "$axel_parts" == "0" ]; then
-		downloader_in=Wget
-		axel_parts=$axel_parts_default
-	fi
+	#read -p "$COOKIE"
+	unset headers
 	rm -f "$path_tmp/${file_in}_stdout.tmp"
 	if [ "$downloader_in" = "Axel" ]; then
-		export AXEL_COOKIES=$path_tmp/cookies.zdl
-# 		export AXEL_DATA="${post_data}"	
 		[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
-		[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
-		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		#[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		if [ -f $path_tmp/cookies.zdl ]; then
+			export AXEL_COOKIES="$path_tmp/cookies.zdl"
+			axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
+			#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
+			COOKIES=`cat $path_tmp/flashgot_cookie.zdl`
+			headers="-H \"Cookie:$COOKIES\""
+			axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		fi
+# 		if [ -f $path_tmp/flashgot_cookie.zdl ]; then
+# 			COOKIES=`cat $path_tmp/flashgot_cookies.zdl`
+# 			headers="-H \"Cookie:$COOKIES\""
+# 			axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+# 		else
+# 			export AXEL_COOKIES=$path_tmp/cookies.zdl
+# 			axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+# 		fi
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
-		axel_parts=$axel_parts_default
+		
 	elif [ "$downloader_in" = "Wget" ]; then
+		if [ -f $path_tmp/cookies.zdl ]; then
+			COOKIES="$path_tmp/cookies.zdl"
+		elif [ -f $path_tmp/flashgot_cfile.zdl ]; then
+			COOKIES="$path_tmp/flashgot_cfile.zdl"
+		fi
+		if [ ! -z "${post_data}" ]; then
+			method_post="--post-data=${post_data}"
+		fi
 		#--progress=bar:force
 		[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
 		#[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
-		wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  --post-data="${post_data}" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+		wget -t 1 -T $max_waiting --retry-connrefused -c -nc --load-cookies=$COOKIES "$method_post" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & #--keep-session-cookies --save-cookies=$path_tmp/cookies.zdl  
 		pid_in=$!
 		echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
+		
 	fi
+	
 	if [ ! -z "$user" ] && [ ! -z "$host" ]; then
 		accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
 		unset user host
@@ -1503,9 +1543,12 @@ function data_stdout {
 				file_out[$i]="${file_out[$i]%\'*}"
 				
 				
-				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
-					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
-					exit 1
+# 				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+# 					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+# 					exit 1
+# 				fi
+				if [ ! -z "${file_o}" ]; then
+					file_out[$i]="$file_o"
 				fi
 				
 				if [ -z "${file_out[$i]}" ]; then
@@ -1791,10 +1834,10 @@ function check_in_url { 	# return --> no_download=1
 						fi
 						
 						file_in="${file_out[$i]}"
-						if [ -z "$file_in" ]; then
-							(( axel_parts_out[$i]-- ))
-							axel_parts="${axel_parts_out[$i]}"
-						fi
+# 						if [ -z "$file_in" ]; then
+# 							(( axel_parts_out[$i]-- ))
+# 							axel_parts="${axel_parts_out[$i]}"
+# 						fi
 						
 						length_saved=0
 						[ -f "${file_out[$i]}" ] && length_saved=`ls -l "${file_out[$i]}" | awk '{ print($5) }'`
@@ -1907,8 +1950,9 @@ function check_instance {
 					pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
 					tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
 					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
-						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
-						exit
+# 						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+# 						exit
+						return 1
 # 						kill "${pid_prog_out[$i]}" && print_c 1 "Uccisa l'istanza in $tty"
 					fi
 				done
@@ -2044,12 +2088,20 @@ max_args=$(( ${#args[*]}-1 ))
 for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--stream" ]; then 
 		
-		# --stream [URL] [FOLDER] [FNAME] 
-		url_in=$2
-		directory=$3
-		file_in=$4
-		cd $directory
-		mkdir -p ${path_tmp}
+		# --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
+		
+		url_in="$2"
+		directory="$3"
+		file_in="$4"
+		cfile="$5"
+		cookie="$6"
+		
+		cd "$directory"
+		mkdir -p "${path_tmp}"
+		
+		cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl"
+		echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
+
 		echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
 		
 		##pid xterm
@@ -2074,7 +2126,10 @@ for i in `seq 0 $max_args`; do
 		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
 		#echo "which ${prog}:"
 		#which $prog
+		#
 		echo
+		print_c 2 "Per usare $PROG aggiornato è necessario riavviarlo." 
+		exit
 	fi
 done
 
@@ -2088,6 +2143,13 @@ for i in `seq 0 $max_args`; do
 	# 		X &>/dev/null &
 	# 		exec aewm++ &>/dev/null &
 	# 	fi
+	fi
+done
+
+for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--ip' ]; then 
+		unset args[$i]
+		my_ip
 	fi
 done
 
@@ -2192,6 +2254,7 @@ for i in `seq 0 $max_args`; do
 done
 
 if [ ! -z "${args[*]}" ]; then
+	COOKIE="$path_tmp/flashgot_cfile.zdl"
 	for i in `seq 0 $max_args`; do
 		if [ -f "${args[$i]}" ]; then
 			cat "${args[$i]}" >> $path_tmp/links_loop.txt
@@ -2199,12 +2262,12 @@ if [ ! -z "${args[*]}" ]; then
 			print_c 2 "Verifica di ${args[$i]}"
 			export LANG="$prog_lang"
 			export LANGUAGE="$prog_lang"
-			wget "${args[$i]}" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
 			
 			test_link=`cat $path_tmp/spider`
 			
 			if [ ! -z "$test_link" ]; then
-				timeout 5 wget "${args[$i]}" -S -q -O /dev/null 2> $path_tmp/spider
+				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
 				
 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
 				if [ -z "$test_link" ];then
@@ -2265,6 +2328,7 @@ if [ -z "$file" ] ; then
 	print_c 2 "Incolla i link andando a capo dopo ciascuno (abilitato anche per nowdownload, uload, glumbouploads, mediafire, easybytez e, dopo aver risolto il captcha e generato il link, anche per sharpfile) poi digita la chiocciolina \"@\"" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
+	echo -e "\r"
 	read -d @ -a links
 	printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
 	file="$path_tmp/links_loop.txt"
@@ -2301,6 +2365,10 @@ fi
 #init_links_loop
 
 check_instance
+if [ "$?" == "1" ]; then
+	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+	exit
+fi
 
 while true; do
 	if [ -f "$file" ]; then	
@@ -2331,8 +2399,8 @@ while true; do
 				separator "Z"
 				
 				echo -e "\nLink da processare: $url_in"
-				
-				if [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
+				#[ "$domain" != "${domain//dailymotion}" ] || 
+				if [ "$domain" != "${domain//dailymotion}" ] || [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then
 					if [ "$downloader_in" == "Axel" ]; then
 						dler=$downloader_in
 						downloader_in=Wget
@@ -2396,7 +2464,8 @@ while true; do
 						if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
 							break
 						fi
-					done	
+					done
+					#echo "$url_in_file"
 					file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 					file_in1="${file_in1#*'<br> '}"
 					file_in1="${file_in1%%</h4>*}"
@@ -2790,8 +2859,9 @@ while true; do
 						update_proxy_others_list="true"
 					fi
 					
-					
+					axel_parts=8
 				fi
+				
 				file_in="${file_in// /_}"
 				file_in="${file_in//\'/_}"
 				
@@ -2831,7 +2901,7 @@ while true; do
 						(( count_down-- ))
 					done
 					echo -e "  \r\c"
-					
+					rm -f "$path_tmp/cookies.zdl"
 					unset no_newip
 					check_freespace
 					check_alias				
@@ -2908,7 +2978,10 @@ separator "-"
 
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
-rm -r "$path_tmp"
+check_instance
+if [ "$?" != "1" ]; then
+	rm -r "$path_tmp"
+fi
 
 echo
 echo
