@@ -27,116 +27,166 @@
 
 
 function usage {
-	print_c 3 "Uso (l'ordine degli argomenti non è importante): `basename $0` [--wget|--axel] [file_1 file_2 ...] [link_1 link_2 ...] [-m|--multi] [-h|--help] [-c|--configure] [--login] [-u|--update] [--clean] [-i|--interactive] [--proxy|--proxy=[t|a|e]|--proxy=IP:PORTA] [--ip]"
-	echo
-	print_c 3 "Per scaricare lo stream video [rispettare l'ordine]: $prog --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]"
-	echo
-	echo -e "$PROG è abilitato per il download di tutti i file attraverso ogni tipo di link valido, dello stream video (per esempio da youtube, putlocker, nowvideo...) e dei file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire, easybytez, sharpfile, uload e glumbouploads.
+	echo -e "\e[1mUso (l'ordine degli argomenti non è importante): \e[0m
+	zdl [opzioni] [file_1 file_2 ...] [link_1 link_2 ...]
 
-$PROG può essere avviato in diversi modi:
+\e[1mOpzioni:\e[0m
+-h,	--help		Manuale di ZigzagDownLoader (ZDL)
+
+	--wget		Forza l'uso di Wget
+	--axel		Forza l'uso di Axel
+
+-m,	--multi		Download parallelo
+	--login		Utilizza eventuali account registrati
+
+-u,	--update	Aggiorna ZDL
+	--clean		Cancella eventuali file temporanei 
+			dalla directory di destinazione, 
+			prima di effettuare il download
+
+-i,	--interactive	Avvia l'interfaccia interattiva di ZDL 
+			per i download che hanno come destinazione
+			la directory attuale. I download gestiti 
+			possono essere attivi o registrati 
+			nei file temporanei della directory
+
+	--ip		Scrive l'indirizzo IP attuale, prima di effettuare
+			altre operazioni
+
+\e[1mAvvio con proxy (i download successivi al primo saranno avviati con proxy differenti, ma rispettando il tipo se selezionato dall'utente):\e[0m
+
+	--proxy			Avvia ZDL attivando un proxy 
+				automaticamente 
+				(il tipo di proxy predefinito è Transparent)
+				
+	--proxy=[t|a|e]		Avvia ZDL attivando un proxy 
+				del tipo definito dall'utente:
+				t = Transparent
+				a = Anonymous
+				e = Elite
+				
+	--proxy=IP:PORTA	Avvia ZDL attivando il proxy
+				indicato dall'utente
+
+\e[1mConfigurazione:\e[0m
+-c,	--configure	Interfaccia di configurazione di ZDL, permette
+			anche di salvare eventuali account dei servizi di hosting
+
+
+\e[1mPer scaricare lo stream video, il modello dei parametri di ZDL per Flashgot (rispettare l'ordine): \e[0m
+	zdl --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
+	
+
+\e[1mIl gestore di download ZigzagDownLoader: manuale e consigli d'uso.\e[0m
+
+ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da youtube, putlocker, nowvideo, dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: nowdownload, mediafire, easybytez, sharpfile, uload e glumbouploads.
+
+ZDL può essere avviato in diversi modi:
 
 	1) Generando automaticamente la lista dei link per il download:
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog 
+		- digita il seguente comando e premi invio: ZDL 
 		- copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
 		- premi la chiocciolina \"@\"
 		
 	2) Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indicare un path valido):
 		- apri un terminale ed entra nella directory che dovrà contenere i file scaricati
-		- digita il seguente comando e premi invio: $prog path/file_1 path/file_2 ... path/file_n
+		- digita il seguente comando e premi invio: zdl path/file_1 path/file_2 ... path/file_n
 	
-	3) Indicando direttamente a $PROG i link da processare, per esempio:
-		$prog link_1 link_2 ... link_n
+	3) Indicando direttamente a ZDL i link da processare (se link validi dovessero essere dichiarati non validi, usare il modo 1), per esempio:
+		zdl link_1 link_2 ... link_n
 	
 	4) Dal browser web, per esempio attraverso l'uso di Flashgot (più in basso le istruzioni), allo scopo di catturare e salvare lo stream di un video o un altro file di qualsiasi tipo.
 
-I file e i link dei punti 2) e 3) possono essere mescolati. Tutti gli input nei punti 1) 2) 3) sono salvati nel file links.txt, nella directory di destinazione.
+I file e i link dei punti 2) e 3) possono essere mescolati. Tutti i link degli input sono salvati nel file links.txt, nella directory di destinazione.
 
 Per i servizi di hosting seguenti è consigliato l'uso della funzione \"multi\" (aggiungere l'argomento -m alle istruzioni sopra elencate) per procedere con il download in parallelo, eventualmente attraverso l'uso di proxy: easybytez, sharpfile e mediafire
 
-Per scaricare da sharpfile, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare $PROG attraverso Flashgot (più avanti le istruzioni per la configurazione di Flashgot) o copiandolo ed incollandolo nel terminale, per passarlo a $PROG.
+Per scaricare da sharpfile, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare ZDL attraverso Flashgot (componente aggiuntiva di Firefox/Iceweasel) o copiandolo ed incollandolo nel terminale, per passarlo a ZDL.
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente anche un file omonimo con estensione \".st\"). In ogni caso $PROG provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche $PROG è stato terminato, il recupero manuale è possibile riavviando $PROG e digitando la chiocciolina \"@\"
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente il file omonimo con estensione \".st\"). Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno riscaricati automaticamente da capo. I servizi di hosting seguenti sono abilitati solo per il download con Wget: easybytez. Gli altri servizi (nowdownload, mediafire, uload, glumbouploads) sono abilitati in modo predefinito per Axel. In ogni caso ZDL provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche ZDL è stato terminato, il recupero manuale è possibile riavviando ZDL e digitando la chiocciolina \"@\"-
 
-Il file links.txt contiene tutti i link processati da $PROG, da ogni input possibile: i file ed i link passati a $PROG come argomenti o attraverso liste contenute in file di testo o passati attraverso Flashgot oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Il file links.txt serve soprattutto al recupero manuale dei link di download interrotti, nel caso in cui non fossero più disponibili i file temporanei di $PROG (per esempio, nel caso di errato utilizzo dell'opzione [--clean])
-
-Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno riscaricati da $PROG. I servizi di hosting seguenti sono abilitati solo per il download con Wget: easybytez. Gli altri servizi (nowdownload, mediafire, uload, glumbouploads) sono abilitati in modo predefinito per Axel.
+Il file links.txt contiene tutti i link processati da ZDL, da ogni input possibile: i file ed i link passati a ZDL come argomenti o attraverso liste contenute in file di testo o passati attraverso Flashgot oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Il file links.txt serve soprattutto al recupero manuale dei link di download interrotti, nel caso in cui non fossero più disponibili i file temporanei di ZDL (per esempio, nel caso di errato utilizzo dell'opzione [--clean])
 
 L'argomento [--wget|--axel], wget oppure axel, consente la scelta del downloader. Axel è un acceleratore di download fortemente consigliato e abilitato in modo predefinito per tutti i link e per quasi tutti i servizi di hosting. L'argomento [-c|--configure] consente di configurare il downloader di default, cioè di selezionare Wget al posto di Axel senza dover attivare Wget manualmente adottando l'argomento \"--wget\".
 
-L'argomento [--clean] cancella eventuali residui di file temporanei di $PROG nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
+L'argomento [--clean] cancella eventuali residui di file temporanei di ZDL nella directory di destinazione, prima di iniziare a processare i link immessi dall'utente.
 
-La funzione [-i|--interactive] permette di visualizzare i download di $PROG utilizzando un altro terminale oppure dallo stesso terminale di avvio dei download attraverso Wget nel caso in cui $PROG è terminato (per decisione dell'utente, premendo Ctrl+C, oppure accidentalmente). Infatti, i download di Wget procedono in background e non muoiono insieme a $PROG (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere uno o più processi già avviati (definitivamente oppure per riavviarli automaticamente), anche con $PROG perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"$prog -i\" o \"$prog --interactive\": comparirà un'interfaccia con cui poter interagire con i processi di $PROG.
+La funzione [-i|--interactive] permette di visualizzare i download di ZDL utilizzando un altro terminale oppure dallo stesso terminale di avvio dei download attraverso Wget nel caso in cui ZDL è terminato (per decisione dell'utente, premendo Ctrl+C, oppure accidentalmente). Infatti, i download di Wget procedono in background e non muoiono insieme a ZDL (tecnicamente possono essere tutti uccisi \"terminando il terminale\"). Per uccidere uno o più processi già avviati (definitivamente oppure per riavviarli automaticamente), anche con ZDL perfettamente attivo, da un altro terminale entrare nella directory di destinazione e digitare \"zdl -i\" o \"zdl --interactive\": comparirà un'interfaccia con cui poter interagire con i processi di ZDL.
 
-È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: se vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in servizi di hosting differenti, si consiglia di usare tutti i link disponili, perché $PROG processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
+È possibile (ed è raccomandato) far processare, nella stessa lista, link di mirror diversi per uno stesso file (per esempio: se vogliamo scaricare file.part1.rar, file.part2.rar e file.part3.rar e abbiamo copie di questi file in servizi di hosting differenti, si consiglia di usare tutti i link disponibili, perché ZDL processerà tutti i link e scaricherà una sola copia dei file, utilizzando il link migliore).
 
-L'argomento [--login] attiva il login automatico nel caso la configurazione di $PROG comprenda uno o più account per l'uso di un servizio di hosting. In particolare, la registrazione di molti account per Easybytez non solo permette il download di file di grandezza fino a 600 MB, ma consente anche lo scaricamento parallelo di più file senza l'uso di proxy (in questo caso è necessario specificare anche [-m|--multi]). Per configurare l'uso di account: $prog [-c|--configure]
+L'argomento [--login] attiva il login automatico nel caso la configurazione di ZDL comprenda uno o più account per l'uso di un servizio di hosting. In particolare, la registrazione di molti account per Easybytez non solo permette il download di file di grandezza fino a 600 MB, ma consente anche lo scaricamento parallelo di più file senza l'uso di proxy (in questo caso è necessario specificare anche [-m|--multi]). Per configurare l'uso di account: zdl [-c|--configure]
 
-Inoltre, $PROG accetta come argomenti un numero illimitato di file di testo contenenti link ed è stato progettato anche per scaricare il file di uno stream video. Per quest'ultima operazione è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
+Inoltre, ZDL accetta come argomenti un numero illimitato di file di testo contenenti link ed è stato progettato anche per scaricare il file di uno stream video. Per quest'ultima operazione è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/).
 
 Infine, la funzione [--ip] mostra l'indirizzo IP corrente.
 
-CONFIGURAZIONE MANUALE DI FLASHGOT.
-La configurazione manuale di Flashgot non dovrebbe essere necessaria, perché $PROG avvia un controllo della configurazione di Flashgot ad ogni sua istanza ed eventualmente, se glielo consente la propria configurazione ($prog --configure), provvede ad configurarlo automaticamente.
+\e[1mCONFIGURAZIONE MANUALE DI FLASHGOT.\e[0m
+La configurazione manuale di Flashgot non dovrebbe essere necessaria, perché ZDL avvia un controllo della configurazione di Flashgot ad ogni sua istanza ed eventualmente, se glielo consente la propria configurazione (ZDL --configure), provvede a configurarlo automaticamente.
 
-Configurazione manuale di Flashgot per $PROG:
+Configurazione manuale di Flashgot per ZDL:
 
 1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avvia Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
 
-2) nel tab \"Generale\" aggiungi \"$prog\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/$prog\")
+2) nel tab \"Generale\" aggiungi \"ZigzagDownLoader\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/zdl\")
 
 3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
 
-4) nel tab \"FlashGot Media\" scegli $prog come \"Download manager\"
+4) nel tab \"FlashGot Media\" scegli \"ZigzagDownLoader\" come \"Download manager\"
 
 Fine configurazione di Flashgot.
 
 
-AVVIO ATTRAVERSO PROXY.
+\e[1mAVVIO ATTRAVERSO PROXY.\e[0m
+ZDL può essere avviato usando proxy, specificando i seguenti argomenti:
 
-$PROG può essere avviato usando proxy, specificando i seguenti argomenti:
+--proxy		Seleziona automaticamente un proxy valido 
+		di tipo Transparent (valore di default)
 
-	--proxy			
-seleziona automaticamente un proxy valido di tipo Transparent (valore di default)
+--proxy=[t|a|e]		Seleziona automaticamente un proxy valido 
+			di tipo Transparent (t), Anonymous (a) 
+			oppure Elite (t). 
+			È possibile especificare più di un tipo 
+			di proxy, in questo modo 
+			(per esempio, per abilitare i primi due tipi): 
+			--proxy=a --proxy=t
 
-	--proxy=[t|a|e]		
-seleziona automaticamente un proxy valido di tipo Transparent (t), Anonymous (a) oppure Elite (t).
-È possibile especificare più di un tipo di proxy, in questo modo (per abilitare i primi due tipi): --proxy=a --proxy=t
-
-	--proxy=IP:PORTA	
-abilita il proxy indicato dall'utente solo per il primo link, mentre gli altri saranno selezionati automaticamente (è possibile definire il tipo dei proxy successivi utilizzando anche --proxy=[t|a|e]
-
+--proxy=IP:PORTA	abilita il proxy indicato dall'utente 
+			solo per il primo link, mentre gli altri 
+			saranno selezionati automaticamente 
+			(è possibile definire il tipo dei proxy successivi 
+			(utilizzando anche --proxy=[t|a|e]
 
 
-AGGIORNARE $PROG.
 
-Per aggiornare $PROG è sufficiente usare l'argomento -u (--update).
+\e[1mAGGIORNARE ZDL.\e[0m
+Per aggiornare ZDL è sufficiente usare l'argomento -u (--update).
 
-INSTALLAZIONE PER WINDOWS.
-$PROG funziona anche su Windows. 
+
+\e[1mINSTALLAZIONE PER WINDOWS.\e[0m
+ZDL funziona anche su Windows. 
 Installazione su Windows in due fasi:
 	FASE 1 _ Installazione di Cygwin
 		- installatore automatico di Cygwin (serve anche ad aggiornare il sistema emulato e ad installare nuovi pacchetti): http://cygwin.com/setup.exe
 		- installare il pacchetto \"wget\"
 
-	FASE 2 _ Installazione di $PROG
+	FASE 2 _ Installazione di ZDL
 		- salvare nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl-cygwin.sh
 		- avviare cygwin installato nella fase 1 
 		- digitare il seguente comando: /install_zdl-cygwin.sh
 
-Uso di $PROG su Windows: avviare cygwin e utilizzare $PROG nel terminale avviato, come descritto in questa guida.
+Uso di ZDL su Windows: avviare cygwin e utilizzare ZDL nel terminale avviato, come descritto in questa guida.
 
 
-LICENZA.
+\e[1mLICENZA.\e[0m
+ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
 
-$PROG è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
-
-Per informazioni e per collaborare al progetto:
+\e[1mPer informazioni e per collaborare al progetto:\e[0m
 https://savannah.nongnu.org/projects/zdl
 
 Gianluca Zoni (zoninoz)
-http://inventati.org/zoninoz
-"	
+http://inventati.org/zoninoz"	
 	echo
 	echo
 	exit 1
@@ -512,6 +562,8 @@ function init {
 	prog=`basename $0`
 	PROG=`echo $prog | tr a-z A-Z`
 	path_tmp=".${prog}_tmp"
+	mkdir -p "$path_tmp"
+	touch "$path_tmp/lock.zdl"
 	file_log="${prog}_log.txt"
 	rm -f $file_log
 	
@@ -522,7 +574,7 @@ function init {
 	fi
 	set_default_conf
 	
-	mkdir -p "$path_tmp"
+	
 	tags=( `ps ax |sed -n '1p'` )
 	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
 		j=$(( $i+1 ))
@@ -2367,8 +2419,10 @@ fi
 check_instance
 if [ "$?" == "1" ]; then
 	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+	rm -f "$path_tmp/lock.zdl"
 	exit
 fi
+rm -f "$path_tmp/lock.zdl"
 
 while true; do
 	if [ -f "$file" ]; then	
@@ -2979,7 +3033,7 @@ separator "-"
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
 check_instance
-if [ "$?" != "1" ]; then
+if [ "$?" != "1" ] && [ ! -f "$path_tmp/lock.zdl" ]; then
 	rm -r "$path_tmp"
 fi
 
