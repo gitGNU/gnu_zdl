@@ -2334,11 +2334,15 @@ if [ ! -z "${args[*]}" ]; then
 				else
 					print_c 3 "Link non valido: ${args[$i]}"
 					echo
+					export LANG="$user_lang"
+					export LANGUAGE="$user_language"
 					usage
 				fi
 			else
 				print_c 3 "Link non valido: ${args[$i]}"
 				echo
+				export LANG="$user_lang"
+				export LANGUAGE="$user_language"
 				usage
 			fi
 			export LANG="$user_lang"
