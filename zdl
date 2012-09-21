@@ -238,6 +238,7 @@ function get_item_conf {
 				value="${text#${item}=}"
 				value="${value%% *}"
 				value="${value//\"}"
+				break
 			fi
 		done
 	fi
@@ -265,6 +266,9 @@ function set_item_conf {
 }
 
 function get_conf {
+	if [ -e "/cygdrive" ]; then
+		print_c 1 "Attendi: lettura configurazione..."
+	fi
 	get_item_conf "downloader"
 	downloader_in="$value"
 	if [ -z "$downloader_in" ]; then
@@ -556,7 +560,9 @@ function configure_accounts {
 function init {
 	# set default config data
 	updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
-	[ -z "$updatecols" ] && echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	if [ -z "$updatecols" ]; then 
+		echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	fi
 	
 	log=0
 	prog=`basename $0`
@@ -569,11 +575,14 @@ function init {
 	
 	path_conf="$HOME/.${prog}"
 	file_conf="$path_conf/$prog.conf"
+	mkdir -p "$path_conf"
 	if [ ! -f "$file_conf" ]; then
 		echo "# ZigzagDownLoader configuration file" > "$file_conf"
 	fi
-	set_default_conf
-	
+	if [ -f "$path_conf/updated" ] || [ ! -f "$file_conf" ]; then
+		set_default_conf
+		rm -f "$path_conf/updated"
+	fi
 	
 	tags=( `ps ax |sed -n '1p'` )
 	for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
@@ -1995,10 +2004,11 @@ function check_instance {
 		for i in `seq 0 $last_stdout`; do
 			check_pid ${pid_prog_out[$i]}
 			if [ $? == 1 ]; then
-				ps ax > $path_tmp/ps.tmp
-				max=`cat $path_tmp/ps.tmp |wc -l`
+				#ps ax > $path_tmp/ps.tmp
+				max=`ps ax |wc -l`
 				for line in `seq 2 $max`; do
-					proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
+					#proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
+					proc=`ps ax |sed -n "${line}p"`
 					pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
 					tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
 					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
@@ -2136,166 +2146,186 @@ separator z
 ###################################
 args=( $@ )
 max_args=$(( ${#args[*]}-1 ))
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--stream" ]; then 
-		
-		# --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
-		
-		url_in="$2"
-		directory="$3"
-		file_in="$4"
-		cfile="$5"
-		cookie="$6"
-		
-		cd "$directory"
-		mkdir -p "${path_tmp}"
-		
-		cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl"
-		echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
-
-		echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
-		
-		##pid xterm
-		#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
-		
-		##pid bash
-		xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; zdl \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
-		
-		#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
-		unset args[$i]
-		exit
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
-		unset args[$i]
-
-		print_c 1 "Aggiornamento di $PROG ..."
-		wget -T $max_waiting "$url_update" -O /tmp/$prog 
-		print_c 1 "Installazione di $PROG in /usr/local/bin/"
-		( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
-		#echo "which ${prog}:"
-		#which $prog
-		#
-		echo
-		print_c 2 "Per usare $PROG aggiornato è necessario riavviarlo." 
-		exit
-	fi
-done
-
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
-		unset args[$i]
-		multi=1
-	# 	if [ -e "/cygdrive" ]; then
-	# 		export DISPLAY=:0
-	# 		X &>/dev/null &
-	# 		exec aewm++ &>/dev/null &
-	# 	fi
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--ip' ]; then 
-		unset args[$i]
-		my_ip
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--login' ]; then 
-		unset args[$i]
-		login=1
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
-		unset args[$i]
-		interactive
-	fi
-done
-
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--wget' ]; then 
-		unset args[$i]
-		downloader_in=Wget
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--axel' ]; then 
-		unset args[$i]
+if [ "${args[*]}" != "${args[*]//--stream}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == "--stream" ]; then 
+			
+			# --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
+			if [ -z "$DISPLAY" ]; then
+				export DISPLAY=":0"
+			fi
+			url_in="$2"
+			directory="$3"
+			file_in="$4"
+			cfile="$5"
+			cookie="$6"
+			
+			cd "$directory"
+			mkdir -p "${path_tmp}"
+			
+			cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl"
+			echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 	
-		downloader_in=Axel
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--clean' ]; then 
-		unset args[$i]
-		( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
-		#exit
-	fi
-done
-
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
-		unset args[$i]
-		usage
-	fi
-done
-
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
-		unset args[$i]
-		configure
-	fi
-done
-
-for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
-		
-		if [ "${args[$i]}" == '--proxy' ]; then
-			update_proxy=true
+			echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
+			
+			##pid xterm
+			#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+			
+			##pid bash
+			xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+			
+			#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
 			unset args[$i]
-			break
-		elif [ "${args[$i]}" == '--proxy=t' ]; then
-			proxy_types[${#proxy_types[*]}]="Transparent"
-			update_proxy=true
-		elif [ "${args[$i]}" == '--proxy=a' ]; then
-			proxy_types[${#proxy_types[*]}]="Anonymous"
-			update_proxy=true
-		elif [ "${args[$i]}" == '--proxy=e' ]; then
-			proxy_types[${#proxy_types[*]}]="Elite"
-			update_proxy=true
-		elif [ "${args[$i]}" != "${args[$i]%=*}" ]; then
-			proxy="${args[$i]#'--proxy='}"
-			if [ -z "${proxy//[0-9].[0-9].[0-9].[0-9]:[0-9]}" ]; then
-				export http_proxy=$proxy
-				print_c 1 "Proxy attivo: $http_proxy"
-				update_defined_proxy=true
-				unset update_proxy
+			exit
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
+			unset args[$i]
+	
+			print_c 1 "Aggiornamento di $PROG ..."
+			wget -T $max_waiting "$url_update" -O /tmp/$prog 
+			print_c 1 "Installazione di $PROG in /usr/local/bin/"
+			( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
+			#echo "which ${prog}:"
+			#which $prog
+			#
+			
+			touch "$path_conf/updated" 
+			print_c 2 "\nPer usare $PROG aggiornato è necessario riavviarlo."
+			exit
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
+			unset args[$i]
+			multi=1
+		# 	if [ -e "/cygdrive" ]; then
+		# 		export DISPLAY=:0
+		# 		X &>/dev/null &
+		# 		exec aewm++ &>/dev/null &
+		# 	fi
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--ip}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--ip' ]; then 
+			unset args[$i]
+			my_ip
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--login}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--login' ]; then 
+			unset args[$i]
+			login=1
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
+			unset args[$i]
+			interactive
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--wget}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--wget' ]; then 
+			unset args[$i]
+			downloader_in=Wget
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--axel}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--axel' ]; then 
+			unset args[$i]
+			downloader_in=Axel
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--clean}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == '--clean' ]; then 
+			unset args[$i]
+			( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
+			#exit
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
+			unset args[$i]
+			usage
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
+			unset args[$i]
+			configure
+		fi
+	done
+fi
+
+if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
+	for i in `seq 0 $max_args`; do
+		if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
+			
+			if [ "${args[$i]}" == '--proxy' ]; then
+				update_proxy=true
+				unset args[$i]
+				break
+			elif [ "${args[$i]}" == '--proxy=t' ]; then
+				proxy_types[${#proxy_types[*]}]="Transparent"
+				update_proxy=true
+			elif [ "${args[$i]}" == '--proxy=a' ]; then
+				proxy_types[${#proxy_types[*]}]="Anonymous"
+				update_proxy=true
+			elif [ "${args[$i]}" == '--proxy=e' ]; then
+				proxy_types[${#proxy_types[*]}]="Elite"
+				update_proxy=true
+			elif [ "${args[$i]}" != "${args[$i]%=*}" ]; then
+				proxy="${args[$i]#'--proxy='}"
+				if [ -z "${proxy//[0-9].[0-9].[0-9].[0-9]:[0-9]}" ]; then
+					export http_proxy=$proxy
+					print_c 1 "Proxy attivo: $http_proxy"
+					update_defined_proxy=true
+					unset update_proxy
+				else
+					print_c 3 "${args[$i]}: argomento non valido"
+					echo
+					usage
+				fi
 			else
 				print_c 3 "${args[$i]}: argomento non valido"
 				echo
 				usage
 			fi
-		else
-			print_c 3 "${args[$i]}: argomento non valido"
-			echo
-			usage
+			unset args[$i]
 		fi
-		unset args[$i]
-	fi
-done
-
+	done
+fi
 
 for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" != "${args[$i]#-}" ]; then
@@ -2311,42 +2341,48 @@ if [ ! -z "${args[*]}" ]; then
 		if [ -f "${args[$i]}" ]; then
 			cat "${args[$i]}" >> $path_tmp/links_loop.txt
 		elif [ ! -z "${args[$i]}" ]; then
-			print_c 2 "Verifica di ${args[$i]}"
-			export LANG="$prog_lang"
-			export LANGUAGE="$prog_lang"
-			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
-			
-			test_link=`cat $path_tmp/spider`
-			
-			if [ ! -z "$test_link" ]; then
-				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
-				
-				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
-				if [ -z "$test_link" ];then
-					#echo "${args[$i]}" >> $path_tmp/new_links.txt
-					echo "${args[$i]}" >> $path_tmp/links_loop.txt
-# 					check_lock
-# 					if [ $? == 1 ]; then
-# 						exit
-# 					fi
-					
-					#check_instance
-				else
-					print_c 3 "Link non valido: ${args[$i]}"
-					echo
-					export LANG="$user_lang"
-					export LANGUAGE="$user_language"
-					usage
-				fi
-			else
-				print_c 3 "Link non valido: ${args[$i]}"
-				echo
-				export LANG="$user_lang"
-				export LANGUAGE="$user_language"
-				usage
-			fi
-			export LANG="$user_lang"
-			export LANGUAGE="$user_language"
+			echo "${args[$i]}" >> $path_tmp/links_loop.txt
+			## 
+			## in alternativa alla riga qua sopra, un controllo del link:
+			## 
+# 			print_c 2 "Verifica di ${args[$i]}"
+# 			export LANG="$prog_lang"
+# 			export LANGUAGE="$prog_lang"
+# 			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+# 			
+# 			test_link=`cat $path_tmp/spider`
+# 			if [ -z "$test_link" ]; then
+# 				wget "${args[$i]}" --retry-connrefused --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+# 			fi
+# 			if [ ! -z "$test_link" ]; then
+# 				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
+# 				
+# 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
+# 				if [ -z "$test_link" ];then
+# 					#echo "${args[$i]}" >> $path_tmp/new_links.txt
+# 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
+# # 					check_lock
+# # 					if [ $? == 1 ]; then
+# # 						exit
+# # 					fi
+# 					
+# 					#check_instance
+# 				else
+# 					print_c 3 "Link non valido: ${args[$i]}"
+# 					echo
+# 					export LANG="$user_lang"
+# 					export LANGUAGE="$user_language"
+# 					usage
+# 				fi
+# 			else
+# 				print_c 3 "Link non valido: ${args[$i]}"
+# 				echo
+# 				export LANG="$user_lang"
+# 				export LANGUAGE="$user_language"
+# 				usage
+# 			fi
+# 			export LANG="$user_lang"
+# 			export LANGUAGE="$user_language"
 
 		fi
 	done
@@ -2368,10 +2404,8 @@ if [ ! -e "/cygdrive" ];then
 	else
 		restore_ffprefs
 	fi
+	check_downloader
 fi
-
-
-check_downloader
 
 print_c 1 "Download con $downloader_in"
 
@@ -2403,20 +2437,20 @@ fi
 
 
 #converti UL.TO in UPLOADED.TO/FILE
-if [ -f $file ]; then
-	lnks=`cat $file`
-	rm $file
-	
-	echo -e "${lnks// /\n}" | while read line ; do 
-		if [ "$line" != "${line//http:\/\/ul.to/}" ]; then
-			line=${line//ul.to/uploaded.to/file}
-			
-			
-		fi
-		echo $line >> $file
-	done
-	init_links_loop
-fi
+# if [ -f $file ]; then
+# 	lnks=`cat $file`
+# 	rm $file
+# 	
+# 	echo -e "${lnks// /\n}" | while read line ; do 
+# 		if [ "$line" != "${line//http:\/\/ul.to/}" ]; then
+# 			line=${line//ul.to/uploaded.to/file}
+# 			
+# 			
+# 		fi
+# 		echo $line >> $file
+# 	done
+# 	init_links_loop
+# fi
 
 #init_links_loop
 
@@ -2628,8 +2662,8 @@ while true; do
 						
 						#read -p "$post_data"
 						
-						print_c 2 "Attendi circa 50 secondi:"
-						for s in `seq 0 50`; do
+						print_c 2 "Attendi circa 100 secondi:"
+						for s in `seq 0 100`; do
 							echo -e $s"\r\c"
 							sleep 1
 						done
@@ -3037,7 +3071,7 @@ separator "-"
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
 check_instance
-if [ "$?" != "1" ] && [ ! -f "$path_tmp/lock.zdl" ]; then
+if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
 	rm -r "$path_tmp"
 fi
 
