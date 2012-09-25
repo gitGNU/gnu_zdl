@@ -2187,7 +2187,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				fi
 				file_in="${file_in##*/}"
 			fi
-			
+			file_in="${file_in// /_}"
 			cfile="$5"
 			cookie="$6"
 			
@@ -2216,7 +2216,6 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			exit
 		fi
 	done 
-	
 fi
 
 if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
