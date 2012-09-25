@@ -1180,8 +1180,8 @@ function check_downloader {
 			2) install_src ;;
 			3) exit ;;
 			4) downloader_in=Wget ; break ;;
-			5) echo Wget > $conf ;;
-			6) rm $conf ;;
+			5) set_item_conf "downloader" "Wget" ;;
+			6) set_item_conf "downloader" "Axel" ;;
 			
 			esac
 		done
