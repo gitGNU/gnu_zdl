@@ -667,10 +667,12 @@ function flashgot_autoconf {
 # 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
 	test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
 	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
+	## test updates
 	test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep CFILE`
 	test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep COOKIE`
+	test_update3_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '\[FNAME\] \[FOLDER\]'`
 	
-	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] ); then
+	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] || [ -z "$test_update3_ZDL" ] ); then
 		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
 		test_ff_alive=`ps u -N -C grep |grep firefox`
 		if [ ! -z "$test_ff_alive" ]; then
@@ -710,7 +712,7 @@ function flashgot_autoconf {
 							new_pref="user_pref(\"flashgot.custom\", \"${values},ZigzagDownLoader\");"
 						;;
 						'flashgot.custom.ZigzagDownLoader.args')
-							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FOLDER\] \[FNAME\] \[CFILE\]\ \[COOKIE\]\");"
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FNAME\] \[FOLDER\] \[CFILE\]\ \[COOKIE\]\");"
 						;; 
 						'flashgot.custom.ZigzagDownLoader.exe')
 							path_zdl=`which $prog`
@@ -2163,20 +2165,33 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	for i in `seq 0 $max_args`; do
 		if [ "${args[$i]}" == "--stream" ]; then 
 			
-			# --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
+			# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE]
 			if [ -z "$DISPLAY" ]; then
 				export DISPLAY=":0"
 			fi
 			url_in="$2"
-			directory="$3"
-			file_in="$4"
+			if [ ! -d "$3" ]; then
+				file_in="$3"
+				directory="$4"
+			else
+				directory="$3"
+				unset file_in
+			fi
+			xterm -e "read -p \"1=$1 --2=$2 --3=$3 --4=$4 --5=$5 --6=$6\""
+			if [ "$file_in" != "${file_in//'/'/}" ]; then
+				if [ -z "$directory" ]; then
+					directory="${file_in%/*}"
+				fi
+				file_in="${file_in##*/}"
+			fi
+			
 			cfile="$5"
 			cookie="$6"
 			
 			cd "$directory"
 			mkdir -p "${path_tmp}"
 			
-			cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl"
+			if [ "$cfile" ] ; then cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl" ; fi
 			echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 	
 			echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
@@ -2217,10 +2232,24 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
 			print_c 1 "Aggiornamento di $PROG ..."
 			wget "$url_update" -O /tmp/$prog 
 			print_c 1 "Installazione di $PROG in /usr/local/bin/"
-			( mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( sudo mv /tmp/$prog /usr/local/bin/$prog ; sudo chmod +x /usr/local/bin/$prog ; print_c 1 "Aggiornamento completato." ) || ( echo -n "(Root)" ; su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod +x /usr/local/bin/$prog" ; print_c 1 "Aggiornamento completato." ) || ( print_c 3 "Aggiornamento automatico non riuscito" )
-			#echo "which ${prog}:"
-			#which $prog
-			#
+			
+			err=`mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+			if [ -z "$err" ]; then
+				chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+			else
+				err=`sudo mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+				if [ -z "$err" ]; then
+					sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+				else
+					echo -n "(Root)"
+					err=`su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod a+rx /usr/local/bin/$prog"`
+					if [ -z "$err" ]; then
+						print_c 1 "Aggiornamento completato."
+					else
+						print_c 3 "Aggiornamento automatico non riuscito"
+					fi
+				fi
+			fi
 			
 			touch "$path_conf/updated" 
 			print_c 2 "\nPer usare $PROG aggiornato è necessario riavviarlo."
