@@ -2166,18 +2166,21 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		if [ "${args[$i]}" == "--stream" ]; then 
 			
 			# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE]
+			# --stream [URL] [FNAME] --noXterm
 			if [ -z "$DISPLAY" ]; then
 				export DISPLAY=":0"
 			fi
 			url_in="$2"
 			if [ ! -d "$3" ]; then
 				file_in="$3"
-				directory="$4"
+				if [ "$4" != "--noXterm" ] && [ -d "$4" ]; then
+					directory="$4"
+				fi
 			else
 				directory="$3"
 				unset file_in
 			fi
-			xterm -e "read -p \"1=$1 --2=$2 --3=$3 --4=$4 --5=$5 --6=$6\""
+			
 			if [ "$file_in" != "${file_in//'/'/}" ]; then
 				if [ -z "$directory" ]; then
 					directory="${file_in%/*}"
@@ -2200,13 +2203,20 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 			
 			##pid bash
-			xterm  -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+			if [ "$4" == "--noXterm" ]; then
+				export pid_prog=\$$
+				$prog "$url_in" -m
+				read -p ">> PREMI INVIO per chiudere Xterm <<"
+			else
+				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+			fi
 			
 			#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
 			unset args[$i]
 			exit
 		fi
-	done
+	done 
+	
 fi
 
 if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
