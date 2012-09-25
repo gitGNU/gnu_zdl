@@ -1693,6 +1693,7 @@ function data_stdout {
 				
 				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
 					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+					echo "$file_o != ${file_out[$i]}"
 					exit 1
 				fi
 				
@@ -1719,7 +1720,11 @@ function data_stdout {
 				speed=`echo $progress_data | awk '{ print($2) }'`
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
-				num_speed=$(( ${num_speed%[,.]*} + 1 ))
+				if [ "$num_speed" != "${num_speed//[0-9]}" ]; then
+					num_speed=$(( ${num_speed%[,.]*} + 1 ))
+				else
+					num_speed=0
+				fi
 				case $type_speed in
 					KB/s) num_speed=$(( $num_speed * 1024 )) ;;
 					MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
@@ -2235,10 +2240,21 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			
 			##pid bash
 			if [ "$4" == "--noXterm" ]; then
-				export pid_prog=\$$
-				$prog "$url_in" -m
-				read -p ">> PREMI INVIO per chiudere Xterm <<"
+				export pid_prog=$$
+				check_instance
+				if [ "$?" == "1" ]; then
+					print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+					links_loop + "$url_in"
+					rm -f "$path_tmp/lock.zdl"
+					read -p ">> PREMI INVIO per chiudere Xterm <<"
+					exit
+				else
+					#export pid_prog=$$
+					$prog "$url_in" -m
+					read -p ">> PREMI INVIO per chiudere Xterm <<"
+				fi
 			else
+				
 				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 			fi
 			
@@ -2248,6 +2264,8 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		fi
 	done 
 fi
+
+export pid_prog=$$
 
 if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
 	for i in `seq 0 $max_args`; do
@@ -3167,7 +3185,7 @@ separator "-"
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
 check_instance
 if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
-	rm -r "$path_tmp"
+	rm -r "$path_tmp" 2>/dev/null
 fi
 
 echo
