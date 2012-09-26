@@ -153,7 +153,7 @@ Le estensioni di Chrome/Chromium che permettono l'uso di ZDL come download manag
      -  \e[1mconfigurazione\e[0m per ZDL (dal menu: Strumenti -> Estensioni) 
         1) clicca su \e[1mOpzioni\e[0m dell'estensione
         2) in \e[1mAdd More Downloaders\e[0m, aggiungi \e[1mZigzagDownLoader\e[0m nella colonna \e[1mName\e[0m
-        3) aggiungi \e[1mzdl --stream "$URL" "$FILE_NAME" --noXterm\e[0m nella colonna \e[1mCommand line\e[0m
+        3) aggiungi \e[1mzdl --stream \"\$URL\" \"\$FILE_NAME\" --noXterm\e[0m nella colonna \e[1mCommand line\e[0m
         4) clicca sul bottone \e[1mSave & Close\e[0m
     
     \e[1mSimple Get\e[0m: http://www.chromeextensions.org/other/simple-get/
@@ -227,6 +227,45 @@ http://inventati.org/zoninoz"|less --RAW-CONTROL-CHARS
 	exit 1
 }
 
+function update {
+	remote_version=`wget "$url_version" -O - -q`
+	local_version=`cat "$path_conf/version.txt" 2>/dev/null`
+	if [ "$remote_version" != "$local_version" ] && [ ! -z "$remote_version" ]; then
+		print_c 1 "Aggiornamento di $PROG ..."
+		wget "$url_update" -O /tmp/$prog 
+		print_c 1 "Installazione di $PROG in /usr/local/bin/"
+		
+		err=`mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+		if [ -z "$err" ]; then
+			chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+			touch "$path_conf/updated"
+		else
+			err=`sudo mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+			if [ -z "$err" ]; then
+				sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+				touch "$path_conf/updated"
+			else
+				echo -n "(Root)"
+				err=`su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod a+rx /usr/local/bin/$prog"`
+				if [ -z "$err" ]; then
+					print_c 1 "Aggiornamento completato."
+					touch "$path_conf/updated"
+				else
+					print_c 3 "Aggiornamento automatico non riuscito"
+				fi
+			fi
+		fi
+		if [ -f "$path_conf/updated" ];then 
+			echo "$remote_version" > "$path_conf/version.txt"
+			echo
+			exec $0 "${args[*]}"
+			exit
+		fi
+	else
+		print_c 1 "$PROG è alla versione più recente."
+	fi
+}
+
 function add_conf { #only if item doesn't exist
 	item="$1"
 	name="${item%%=*}="
@@ -261,6 +300,7 @@ function set_default_conf {
 	add_conf "passwd="
 	add_conf "language=$LANG"
 	add_conf "flashgot=enabled"
+	add_conf "autoupdate=enabled"
 }
 
 function get_item_conf {
@@ -341,7 +381,9 @@ function get_conf {
 	
 	get_item_conf "flashgot"
 	flashgot="$value"
-
+	
+	get_item_conf "autoupdate"
+	autoupdate="$value"
 }
 
 
@@ -362,9 +404,9 @@ function configure {
 				echo
 
 				
-				print_c 2 "Seleziona l'elemento predefinito da modificare (1-8 | *):"
+				print_c 2 "Seleziona l'elemento predefinito da modificare (1-9 | *):"
 				read opt
-				test_item=`echo "$opt"|grep [1-8]`
+				test_item=`echo "$opt"|grep [1-9]`
 				if [ ! -z "$test_item" ] && [ "${#test_item}" == "1" ]; then
 					(( opt-- ))
 					print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
@@ -401,9 +443,10 @@ function show_conf {
 	done
 	echo -e "7) Password del modem-router: $p"
 	echo -e "8) Uso di Flashgot per Firefox (enabled|*): $flashgot"
+	echo -e "9) Aggiornamenti automatici di $PROG (enabled|*): $autoupdate"
 	echo
 	separator "^"
-	item_options=( downloader axel_parts mode skin language admin passwd flashgot )
+	item_options=( downloader axel_parts mode skin language admin passwd flashgot autoupdate )
 }
 
 function show_accounts {
@@ -618,7 +661,6 @@ function init {
 	fi
 	if [ -f "$path_conf/updated" ] || [ ! -f "$file_conf" ]; then
 		set_default_conf
-		rm -f "$path_conf/updated"
 	fi
 	
 	tags=( `ps ax |sed -n '1p'` )
@@ -648,6 +690,7 @@ function init {
 
 	bar_char="z"
 	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+	url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
 	max_waiting=40
 	
 	## skin dark
@@ -2277,48 +2320,27 @@ if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}
 fi
 
 ################################### HEADER
-fclear
+[ ! -f "$path_conf/updated" ] && fclear
 header
 separator z
 ###################################
+
+## get config data
+get_conf
+rm -f "$path_conf/updated"
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
 	for i in `seq 0 $max_args`; do
 		if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 			unset args[$i]
-	
-			print_c 1 "Aggiornamento di $PROG ..."
-			wget "$url_update" -O /tmp/$prog 
-			print_c 1 "Installazione di $PROG in /usr/local/bin/"
-			
-			err=`mv /tmp/$prog /usr/local/bin/$prog 2>&1`
-			if [ -z "$err" ]; then
-				chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
-			else
-				err=`sudo mv /tmp/$prog /usr/local/bin/$prog 2>&1`
-				if [ -z "$err" ]; then
-					sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
-				else
-					echo -n "(Root)"
-					err=`su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod a+rx /usr/local/bin/$prog"`
-					if [ -z "$err" ]; then
-						print_c 1 "Aggiornamento completato."
-					else
-						print_c 3 "Aggiornamento automatico non riuscito"
-					fi
-				fi
-			fi
-			
-			touch "$path_conf/updated" 
-			print_c 2 "\nPer usare $PROG aggiornato è necessario riavviarlo."
-			echo -e "\e[0m\e[J"
-			exit
+			update
+# 			print_c 2 "\nPer usare $PROG aggiornato è necessario riavviarlo."
+# 			echo -e "\e[0m\e[J"
 		fi
 	done
+elif [ "$autoupdate" == "enabled" ]; then
+	update
 fi
-
-# get config data
-get_conf
 
 
 if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
