@@ -1425,7 +1425,7 @@ function download {
 				rm -f "$path_tmp/redirect"
 			fi
 			
-			axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 			
 		elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
 			#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
@@ -2675,6 +2675,15 @@ while true; do
 						print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 					fi
 				fi
+				
+				if [ "$url_in" != "${url_in//cyberlocker.}" ]; then
+					# esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
+					test_url_in="${url_in#http://*/}"
+					test_url_in="${test_url_in%%/*}"
+					echo "${test_url_in}"
+				fi
+				
+				
 		# 		
 		# 		if [ "$domain" != "${domain//4us.to/}" ]; then
 		# 			
@@ -2687,6 +2696,8 @@ while true; do
 		# 			file_in=${link##*=} 
 		# 			n=1
 		# 	
+				
+				
 				if [ "$domain" != "${domain//mediafire.}" ]; then
 					
 					# MEDIAFIRE.COM ##############
@@ -2851,61 +2862,62 @@ while true; do
 						fi
 						#read -p "$file_in --> ${url_in_file}"
 					fi
-				elif [ "$domain" != "${domain//cyberlocker.}" ]; then
+				elif [ "$domain" != "${domain//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; then
 					# esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
-					test_domain="${domain#http://*/}"
-					test_domain="${test_domain%%/*}"
-					if [ "${test_domain}" != "d" ]; then
-						redirected=true
-						cookies="$path_tmp/cookies.zdl"
-						
-						wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-						echo -e "...\c"
-						
-						## exceeded
-	# 					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
-	# 					if [ ! -z "$test_exceeded" ]; then
-	# 						test_exceeded="${test_exceeded#*'('}"
-	# 						test_exceeded="${test_exceeded%')'*}"
-	# 						if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
-	# 							test_exceeded="${test_exceeded% MB}"
-	# 							test_exceeded="${test_exceeded%.*}"
-	# 							(( test_exceeded++ ))
-	# 							if (( $test_exceeded>1024 )); then
-	# 								exceeded=true
-	# 							fi
-	# 						elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
-	# 							exceeded=true
-	# 						fi
-	# 					fi
-										
-						#if [ -z "$exceeded" ]; then
-						unset post_data
-						tmp="$path_tmp/zdl.tmp"
-						input_hidden
-						
-						post_data="${post_data//'op=login&redirect=&'}"
-						post_data="$post_data&method_free=Free Download"
-						#read -p "$post_data"
-						
-						if [ -z "$file_in" ]; then
-							file_in=`cat "$path_tmp/zdl.tmp"|grep "<h2>Download File"`
-							file_in="${file_in#*<h2>Download File }"
-							file_in="${file_in%</h2>*}"
-						fi
-						
-						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
-						
-						unset post_data
-						tmp="$path_tmp/zdl2.tmp"
-						input_hidden
-						post_data="${post_data//'op=login&'}"
-						post_data="${post_data//'redirect=&'}"
-						post_data="${post_data%&op=register_save*}"
-						
-						url_in_file="$url_in"
-						#axel_parts=8
+					
+					
+# 					test_domain="${domain#http://*/}"
+# 					test_domain="${test_domain%%/*}"
+					
+					redirected=true
+					cookies="$path_tmp/cookies.zdl"
+					
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
+					
+					## exceeded
+# 					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
+# 					if [ ! -z "$test_exceeded" ]; then
+# 						test_exceeded="${test_exceeded#*'('}"
+# 						test_exceeded="${test_exceeded%')'*}"
+# 						if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
+# 							test_exceeded="${test_exceeded% MB}"
+# 							test_exceeded="${test_exceeded%.*}"
+# 							(( test_exceeded++ ))
+# 							if (( $test_exceeded>1024 )); then
+# 								exceeded=true
+# 							fi
+# 						elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
+# 							exceeded=true
+# 						fi
+# 					fi
+									
+					#if [ -z "$exceeded" ]; then
+					unset post_data
+					tmp="$path_tmp/zdl.tmp"
+					input_hidden
+					
+					post_data="${post_data//'op=login&redirect=&'}"
+					post_data="$post_data&method_free=Free Download"
+					#read -p "$post_data"
+					
+					if [ -z "$file_in" ]; then
+						file_in=`cat "$path_tmp/zdl.tmp"|grep "<h2>Download File"`
+						file_in="${file_in#*<h2>Download File }"
+						file_in="${file_in%</h2>*}"
 					fi
+					
+					wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+					
+					unset post_data
+					tmp="$path_tmp/zdl2.tmp"
+					input_hidden
+					post_data="${post_data//'op=login&'}"
+					post_data="${post_data//'redirect=&'}"
+					post_data="${post_data%&op=register_save*}"
+					
+					url_in_file="$url_in"
+						
 		## SHARPFILE with pseudo-captcha
 		## 
 		# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
