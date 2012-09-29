@@ -83,7 +83,7 @@ ZigzagDownLoader ($PROG) - Download manager
 
 \e[1mIl gestore di download ZigzagDownLoader: manuale e consigli d'uso.\e[0m
 
-ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Nowdownload, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili).
+ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Nowdownload, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili).
 
 ZDL può essere avviato in diversi modi:
 
@@ -108,7 +108,7 @@ Per i servizi di hosting seguenti è consigliato l'uso della funzione \"multi\" 
 
 Per scaricare da Sharpfile, Depositfiles e da altri servizi, attualmente è necessario utilizzare il browser per risolvere il captcha, generare il link ed avviare ZDL attraverso le componenti aggiuntive compatibili dei browser o copiandolo ed incollandolo nel terminale, per passarlo a ZDL.
 
-In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente il file omonimo con estensione \".st\"). Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno riscaricati automaticamente da capo. I servizi seguenti sono abilitati solo per il download con Wget: Easybytez, Dailymotion. Gli altri servizi (Nowdownload, Mediafire, Uload, Glumbouploads, Shapfile, Depositfiles, ...) sono abilitati in modo predefinito per Axel. In ogni caso ZDL provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche ZDL è stato terminato, il recupero manuale è possibile riavviando ZDL e digitando la chiocciolina \"@\"-
+In caso di interruzione del download (per esempio a causa di disconnessione), i file scaricati attraverso Axel possono riprendere il download dal punto di interruzione (solo se nella cartella che contiene il file scaricato è ancora presente il file omonimo con estensione \".st\"). Se i file interrotti sono stati scaricati con Wget, non possono essere recuperati e verranno riscaricati automaticamente da capo. I servizi seguenti sono abilitati solo per il download con Wget: Easybytez, Dailymotion. Gli altri servizi (Nowdownload, Cyberlocker, Mediafire, Uload, Glumbouploads, Shapfile, Depositfiles, ...) sono abilitati in modo predefinito per Axel. In ogni caso ZDL provvederà automaticamente a recuperare il download o a rieseguirlo da capo. Nel caso in cui anche ZDL è stato terminato, il recupero manuale è possibile riavviando ZDL e digitando la chiocciolina \"@\"-
 
 Il file links.txt contiene tutti i link processati da ZDL, da ogni input possibile: i file ed i link passati a ZDL come argomenti o attraverso liste contenute in file di testo o passati attraverso componenti aggiuntive dei browser oppure, in mancanza di tali dati, i link incollati al terminale, prima di avviare il download digitando \"@\". Il file links.txt serve soprattutto al recupero manuale dei link di download interrotti, nel caso in cui non fossero più disponibili i file temporanei di ZDL (per esempio, nel caso di errato utilizzo dell'opzione [--clean])
 
@@ -1384,9 +1384,49 @@ function download {
 	if [ "$downloader_in" = "Axel" ]; then
 		[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
 		#[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
+		
 		if [ -f $path_tmp/cookies.zdl ]; then
 			export AXEL_COOKIES="$path_tmp/cookies.zdl"
-			axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			
+			## 
+			## redirection with cUrl
+			## PROBLEMS: 
+			## - $url_in_file with a line-feed (?) at the end (%0D)
+			## - cUrl is not installed by default on Cygwin
+			## 
+			#curl -b $path_tmp/cookies.zdl -v --data "$post_data" "$url_in_file" -L $argout "$fileout"
+			#url_in_file=$(curl -b $path_tmp/cookies.zdl -v --data "$post_data" "$url_in_file" 2>&1| grep "Location:" | awk '{ print($3) }')
+			
+			if [ "$redirected" == "true" ]; then
+				k=`date +"%s"`
+				s=0
+				while true; do
+					if [ "$s" != "${s%0}" ] || [ "$s" != "${s%5}" ]; then
+						kill "$wpid" 2>/dev/null
+						rm -f "$path_tmp/redirect"
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
+						wpid=$!
+					fi
+					url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
+					check_pid "$wpid"
+					if [ ! -z "$url_redirect" ] || [ $? != 1 ] || (( $s>60 )); then 
+						kill "$wpid" 2>/dev/null
+						break
+					else
+						[ $s == 0 ] && print_c 2 "Attendi massimo 60 secondi:"
+						sleep 1
+						s=`date +"%s"`
+						s=$(( $s-$k ))
+						echo -e $s"\r\c"
+					fi
+				done
+				url_in_file="$url_redirect"
+				unset redirected url_redirect
+				rm -f "$path_tmp/redirect"
+			fi
+			
+			axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			
 		elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
 			#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
 			COOKIES=`cat $path_tmp/flashgot_cookie.zdl`
@@ -2550,7 +2590,7 @@ if [ -f "$file_log" ]; then
 fi
 
 if [ -z "$file" ] ; then 
-	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
+	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Cyberlocker, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
 	echo -e "\r"
@@ -2810,6 +2850,61 @@ while true; do
 							url_in_file="${url_in_file%%\"*}"
 						fi
 						#read -p "$file_in --> ${url_in_file}"
+					fi
+				elif [ "$domain" != "${domain//cyberlocker.}" ]; then
+					# esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
+					test_domain="${domain#http://*/}"
+					test_domain="${test_domain%%/*}"
+					if [ "${test_domain}" != "d" ]; then
+						redirected=true
+						cookies="$path_tmp/cookies.zdl"
+						
+						wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+						echo -e "...\c"
+						
+						## exceeded
+	# 					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
+	# 					if [ ! -z "$test_exceeded" ]; then
+	# 						test_exceeded="${test_exceeded#*'('}"
+	# 						test_exceeded="${test_exceeded%')'*}"
+	# 						if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
+	# 							test_exceeded="${test_exceeded% MB}"
+	# 							test_exceeded="${test_exceeded%.*}"
+	# 							(( test_exceeded++ ))
+	# 							if (( $test_exceeded>1024 )); then
+	# 								exceeded=true
+	# 							fi
+	# 						elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
+	# 							exceeded=true
+	# 						fi
+	# 					fi
+										
+						#if [ -z "$exceeded" ]; then
+						unset post_data
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+						
+						post_data="${post_data//'op=login&redirect=&'}"
+						post_data="$post_data&method_free=Free Download"
+						#read -p "$post_data"
+						
+						if [ -z "$file_in" ]; then
+							file_in=`cat "$path_tmp/zdl.tmp"|grep "<h2>Download File"`
+							file_in="${file_in#*<h2>Download File }"
+							file_in="${file_in%</h2>*}"
+						fi
+						
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+						
+						unset post_data
+						tmp="$path_tmp/zdl2.tmp"
+						input_hidden
+						post_data="${post_data//'op=login&'}"
+						post_data="${post_data//'redirect=&'}"
+						post_data="${post_data%&op=register_save*}"
+						
+						url_in_file="$url_in"
+						#axel_parts=8
 					fi
 		## SHARPFILE with pseudo-captcha
 		## 
