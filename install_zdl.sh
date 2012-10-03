@@ -114,7 +114,9 @@ function install_axel-cygwin {
 	fi
 }
 
-
+function install_batch {
+	wget "${install_url}.bat" -O /zdl.bat && bold "Script batch di avvio installato: C:\Cygwin\zdl.bat "
+}
 
 install_url="http://inventati.org/zoninoz/html/upload/files/zdl"
 install_path="/usr/local/bin/zdl"
@@ -150,6 +152,7 @@ fi
 
 ## Axel
 if [ -e "/cygdrive" ]; then
+	install_batch
 	install_axel-cygwin
 else
 	check_downloader

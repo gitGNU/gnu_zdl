@@ -57,7 +57,7 @@ ZigzagDownLoader ($PROG) - Download manager
 	--ip		Scrive l'indirizzo IP attuale, prima di effettuare
 			altre operazioni
 
-\e[1mAvvio con proxy (i download successivi al primo saranno avviati con proxy differenti, ma rispettando il tipo se selezionato dall'utente):\e[0m
+\e[1mAvvio con proxy:\e[0m
 
 	--proxy			Avvia ZDL attivando un proxy 
 				automaticamente 
@@ -70,7 +70,11 @@ ZigzagDownLoader ($PROG) - Download manager
 				e = Elite
 				
 	--proxy=IP:PORTA	Avvia ZDL attivando il proxy
-				indicato dall'utente
+				indicato dall'utente, per l'intera durata
+				del download (il proxy viene sostituito
+				automaticamente solo per i link dei servizi
+				abilitati che necessitano di un nuovo
+				indirizzo IP)
 
 \e[1mConfigurazione:\e[0m
 -c,	--configure	Interfaccia di configurazione di ZDL, permette
@@ -128,17 +132,27 @@ Infine, la funzione [--ip] mostra l'indirizzo IP corrente.
 
 \e[1mIntegrazione con Firefox/Iceweasel
 CONFIGURAZIONE MANUALE DI FLASHGOT.\e[0m
-La configurazione manuale di Flashgot non dovrebbe essere necessaria, perché ZDL avvia un controllo della configurazione di Flashgot ad ogni sua istanza ed eventualmente, se glielo consente la propria configurazione (ZDL --configure), provvede a configurarlo automaticamente.
+La configurazione manuale di Flashgot non dovrebbe essere necessaria, perché ZDL avvia un controllo della configurazione di Flashgot dopo ogni aggiornamento del software o della configurazione ed eventualmente, se glielo consente la propria configurazione (zdl --configure), provvede a configurarlo automaticamente.
 
 Configurazione manuale di Flashgot per ZDL:
 
-1) dopo aver installato flashgot, il componente aggiuntivo di Firefox, avvia Firefox (o Iceweasel) e apri la finestra per la gestione delle opzioni di flashgot: (dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
+	1) 	dopo aver installato flashgot, il componente aggiuntivo di Firefox, 
+		avvia Firefox (o Iceweasel) e apri la finestra 
+		per la gestione delle opzioni di flashgot: 
+		(dal menu di firefox)--> Strumenti --> FlashGot --> Altre opzioni...
 
-2) nel tab \"Generale\" aggiungi \"ZigzagDownLoader\" come downloader (\"Percorso dell'eseguibile: /usr/local/bin/zdl\")
+	2) 	nel tab \"Generale\" aggiungi \"ZigzagDownLoader\" come downloader 
+		
+	3)	ancora nel tab \"Generale\", il \"Percorso dell'eseguibile:\" 
+			su GNU/LINUX: /usr/local/bin/zdl
+			su WINDOWS: C:\Cygwin\zdl.bat
 
-3) sempre nel tab \"Generale\", in \"Modello dei parametri\", incolla la seguente stringa: --stream [URL] [FOLDER] [FNAME] [CFILE] [COOKIE]
+	3) 	sempre nel tab \"Generale\", in \"Modello dei parametri\", 
+		incolla la seguente stringa: 
+		--stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE]
 
-4) nel tab \"FlashGot Media\" scegli \"ZigzagDownLoader\" come \"Download manager\"
+	4) 	nel tab \"FlashGot Media\" 
+		scegli \"ZigzagDownLoader\" come \"Download manager\"
 
 
 \e[1mIntegrazione con Chrome/Chromium
@@ -164,29 +178,6 @@ Le estensioni di Chrome/Chromium che permettono l'uso di ZDL come download manag
         3) clicca sul bottone \e[1mSave\e[0m
 
 Le estensioni qua sopra funzionano anche con \e[1mFVD Video Downloader\e[0m [https://chrome.google.com/webstore/detail/lfmhcpmkbdkbgbmkjoiopeeegenkdikp] (per scaricare i video in streaming: clicca con il tasto \e[1mdestro\e[0m del mouse sui \e[1mlink\e[0m che compaiono nella tendina aperta dall'estensione, poi scegli il download manager ZigzagDownLoader)
-
-
-
-\e[1mAVVIO ATTRAVERSO PROXY.\e[0m
-ZDL può essere avviato usando proxy, specificando i seguenti argomenti:
-
---proxy		Seleziona automaticamente un proxy valido 
-		di tipo Transparent (valore di default)
-
---proxy=[t|a|e]		Seleziona automaticamente un proxy valido 
-			di tipo Transparent (t), Anonymous (a) 
-			oppure Elite (t). 
-			È possibile especificare più di un tipo 
-			di proxy, in questo modo 
-			(per esempio, per abilitare i primi due tipi): 
-			--proxy=a --proxy=t
-
---proxy=IP:PORTA	abilita il proxy indicato dall'utente 
-			solo per il primo link, mentre gli altri 
-			saranno selezionati automaticamente 
-			(è possibile definire il tipo dei proxy successivi 
-			(utilizzando anche --proxy=[t|a|e]
-
 
 
 \e[1mAGGIORNARE ZDL.\e[0m
@@ -231,24 +222,28 @@ function update {
 	remote_version=`wget "$url_version" -O - -q`
 	local_version=`cat "$path_conf/version.txt" 2>/dev/null`
 	if [ "$remote_version" != "$local_version" ] && [ ! -z "$remote_version" ]; then
-		print_c 1 "Aggiornamento di $PROG ..."
-		wget "$url_update" -O /tmp/$prog 
-		print_c 1 "Installazione di $PROG in /usr/local/bin/"
+		print_c 2 "\nAggiornamento di $PROG ..."
+		if [ -e "/cygdrive" ]; then
+			wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio aggiornato: C:\Cygwin\zdl.bat "
+			chmod a+rx /zdl.bat
+		fi
+		
+		wget "$url_update" -O /tmp/$prog -q && print_c 1 "\n$PROG scaricato"
 		
 		err=`mv /tmp/$prog /usr/local/bin/$prog 2>&1`
 		if [ -z "$err" ]; then
-			chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+			chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
 			touch "$path_conf/updated"
 		else
 			err=`sudo mv /tmp/$prog /usr/local/bin/$prog 2>&1`
 			if [ -z "$err" ]; then
-				sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento completato."
+				sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
 				touch "$path_conf/updated"
 			else
 				echo -n "(Root)"
 				err=`su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod a+rx /usr/local/bin/$prog"`
 				if [ -z "$err" ]; then
-					print_c 1 "Aggiornamento completato."
+					print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
 					touch "$path_conf/updated"
 				else
 					print_c 3 "Aggiornamento automatico non riuscito"
@@ -291,7 +286,12 @@ function set_default_conf {
 	mkdir -p $path_conf
 	touch "$file_conf"
 	add_conf "downloader=Axel"
-	add_conf "axel_parts=32"
+	if [ ! -e "/cygdrive" ]; then
+		add_conf "axel_parts=32"
+	else
+		add_conf "axel_parts=10"
+	fi
+	
 	add_conf "skin=color"
 	add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel)"
 	add_conf "mode=single"
@@ -355,6 +355,12 @@ function get_conf {
 	if [ -z "$axel_parts" ]; then
 		axel_parts=32
 	fi
+	## CYGWIN
+	if [ -e "/cygdrive" ];then
+		if (( $axel_parts>10 )); then
+			axel_parts=10
+		fi
+	fi
 	
 	get_item_conf "skin"
 	skin="$value"
@@ -388,6 +394,7 @@ function get_conf {
 
 
 function configure {
+	
 	while true; do
 		echo
 # 		get_conf
@@ -395,7 +402,7 @@ function configure {
 # 		echo
 		print_c 2 "Opzioni:"
 		echo -e "\t1) modifica la configurazione\n\t2) gestisci gli account dei servizi di hosting\n\t3) esci\n"
-		print_c 2 "Scegli una opzione (1|2|3):"
+		print_c 2 "Scegli un'opzione (1|2|3):"
 		read option_0
 		case $option_0 in
 			1)	#configure_file
@@ -416,6 +423,7 @@ function configure {
 						read new_value
 					fi
 					set_item_conf ${item_options[$opt]} $new_value
+					touch "$path_conf/updated"
 				fi
 			;;
 			2)	
@@ -550,7 +558,7 @@ function configure_accounts {
 		echo
 		print_c 2 "Servizi di hosting abilitati per l'uso di account:"
 		echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
-		print_c 2 "Scegli il servizio (1|2|3):"
+		print_c 2 "Scegli il servizio (1):"
 		read option_1
 		case $option_1 in
 			1) 
@@ -676,9 +684,9 @@ function init {
 	
 	# CYGWIN
 	if [ -e "/cygdrive" ];then
-		if (( $axel_parts>10 )); then
-			axel_parts=10
-		fi
+# 		if (( $axel_parts>10 )); then
+# 			axel_parts=10
+# 		fi
 		kill -SIGWINCH $$
 	fi
 	
@@ -692,7 +700,9 @@ function init {
 	url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
 	url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
 	max_waiting=40
-	
+	if [ -e "/cygdrive" ] && [ ! -f "/zdl.bat" ]; then
+		wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: C:\Cygwin\zdl.bat "
+	fi
 	## skin dark
 #  	echo -n -e "${White}${On_Black}\e[J"
 
@@ -707,7 +717,11 @@ function init {
 function restore_ffprefs {
 	if [ -d "$path_conf/firefox" ]; then
 		print_c 2 "Flashgot è stato disabilitato nella configurazione di $PROG: avvio del ripristino della configurazione di Flashgot."
-		test_ff_alive=`ps u -N -C grep |grep firefox`
+		if [ -e "/cygdrive" ]; then
+			test_ff_alive=`ps -efW |grep firefox`
+		else
+			test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		fi
 		if [ ! -z "$test_ff_alive" ]; then
 			echo
 			print_c 3 "Rilevata un'istanza attiva di Firefox: per procedere con il ripristino di Flashgot è necessario chiudere Firefox. Se non vuoi ripristinare la configurazione di Flashgot e lasciarlo abilitato per $PROG, puoi attivare Flashgot nella configurazione di $PROG, con il seguente comando: $prog --configure (oppure: $prog -c)"
@@ -716,11 +730,26 @@ function restore_ffprefs {
 			read
 		fi
 		
-		test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		if [ -e "/cygdrive" ]; then
+			test_ff_alive=`ps -efW |grep firefox`
+		else
+			test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		fi
 		if [ -z "$test_ff_alive" ]; then
+			if [ -e "/cygdrive" ]; then
+				print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso..."
+				cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js |grep "/$USER/"`
+			fi
 			ls  $path_conf/firefox/ | while read file1; do
 				file=${file1#${path_conf}\/firefox\/}
-				file="$HOME/.mozilla/firefox/${file}"
+				if [ -e "/cygwin" ]; then
+					prepath=( $cygprefs )
+					prepath=( ${prepath%/*} )
+					prepath=( ${prepath%/*} )
+					file="${prepath[0]}/${file}"
+				else
+					file="$HOME/.mozilla/firefox/${file}"
+				fi
 				file=${file//default_prefs.js/default\/prefs.js}
 				cp $path_conf/firefox/$file1 $file && echo "Ripristino di $file da $path_conf/firefox/$file1"
 			done
@@ -739,16 +768,26 @@ function flashgot_autoconf {
 # 	user_pref("flashgot.defaultDM", "ZigzagDownLoader");
 # 	user_pref("flashgot.detect.cache", "(Incorporato nel browser),axel,ZigzagDownLoader");
 # 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
-	test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
+	if [ -e "/cygdrive" ]; then
+		print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso..."
+		cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/"`
+		test_flashgot=`cat $cygprefs | grep flashgot`
+	else
+		test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
+	fi
 	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
 	## test updates
 	test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep CFILE`
 	test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep COOKIE`
 	test_update3_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '\[FNAME\] \[FOLDER\]'`
 	
-	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] || [ -z "$test_update3_ZDL" ] ); then
+	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] || [ -z "$test_update3_ZDL" ] ); then
 		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
-		test_ff_alive=`ps u -N -C grep |grep firefox`
+		if [ -e "/cygdrive" ]; then
+			test_ff_alive=`ps -efW |grep firefox`
+		else
+			test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		fi
 		if [ ! -z "$test_ff_alive" ]; then
 			echo
 			print_c 3 "Rilevata un'istanza attiva di Firefox: per procedere con la configurazione automatica di Flashgot per l'uso di $PROG è necessario chiudere Firefox. Se non vuoi configurare Flashgot per $PROG, puoi disattivare Flashgot nella configurazione di $PROG, con il seguente comando: $prog --configure (oppure: $prog -c)"
@@ -757,12 +796,23 @@ function flashgot_autoconf {
 			read
 		fi
 		
-		test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		if [ -e "/cygdrive" ]; then
+			test_ff_alive=`ps -efW |grep firefox`
+		else
+			test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+		fi
 		if [ -z "$test_ff_alive" ]; then
 			# save old prefs
 			if [ ! -d "$path_conf/firefox/" ];then
 				mkdir "$path_conf/firefox/"
-				ls $HOME/.mozilla/firefox/*.default/prefs.js | while read file1; do
+				if [ -e "/cygdrive" ];then
+					path_ffprefs="$cygprefs"
+				else
+					path_ffprefs=`ls $HOME/.mozilla/firefox/*.default/prefs.js`
+				fi
+				
+				
+				ls $path_ffprefs | while read file1; do
 					file=${file1//default\/prefs.js/default_prefs.js}
 					file=${file##*\/}
 					cp $file1 "$path_conf/firefox/$file"
@@ -774,7 +824,7 @@ function flashgot_autoconf {
 			fi
 			
 			# set flashgot config
-			ls $HOME/.mozilla/firefox/*.default/prefs.js | while read file; do
+			ls $path_ffprefs | while read file; do
 				for key in 'flashgot.custom\"' 'flashgot.custom.ZigzagDownLoader.args' 'flashgot.custom.ZigzagDownLoader.exe' 'flashgot.defaultDM' 'flashgot.detect.cache' 'flashgot.media.dm'; do
 					
 					firefox_pref=`cat $file |grep $key`
@@ -783,7 +833,10 @@ function flashgot_autoconf {
 							values="${firefox_pref#'user_pref("flashgot.custom", "'}"
 							values="${values%'");'}"
 							values="${values//,ZigzagDownLoader}"
-							new_pref="user_pref(\"flashgot.custom\", \"${values},ZigzagDownLoader\");"
+							if [ ! -z "${values}" ]; then
+								values="${values},"
+							fi
+							new_pref="user_pref(\"flashgot.custom\", \"${values}ZigzagDownLoader\");"
 						;;
 						'flashgot.custom.ZigzagDownLoader.args')
 							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FNAME\] \[FOLDER\] \[CFILE\]\ \[COOKIE\]\");"
@@ -791,6 +844,9 @@ function flashgot_autoconf {
 						'flashgot.custom.ZigzagDownLoader.exe')
 							path_zdl=`which $prog`
 							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"$path_zdl\");"
+							if [ -e "/cygdrive" ]; then
+								new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"C:\\\cygwin\\\zdl.bat\");"
+							fi
 						;; 
 						'flashgot.defaultDM')
 							new_pref="user_pref(\"flashgot.defaultDM\", \"ZigzagDownLoader\");"
@@ -1026,6 +1082,7 @@ function add_newip {
 }
 
 function new_ip_router {
+	noproxy
 	if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
 		print_c 1 "Cambio indirizzo IP..."
 		wget --http-passwd=$passwd --http-user=$admin 192.168.0.1/stanet.stm  -O - &>/dev/null
@@ -1042,6 +1099,7 @@ function noproxy {
 }
 
 function new_ip_proxy {
+	noproxy
 	export LANG="$prog_lang"
 	export LANGUAGE="$prog_lang"
 	
@@ -1401,7 +1459,7 @@ function download {
 				k=`date +"%s"`
 				s=0
 				while true; do
-					if [ "$s" != "${s%0}" ] || [ "$s" != "${s%5}" ]; then
+					if [ $s == 0 ] || [ $s == $max_waiting ] || [ $s == $(( $max_waiting*2 )) ]; then # if [ "$s" != "${s%0}" ] || [ "$s" != "${s%5}" ]; then
 						kill "$wpid" 2>/dev/null
 						rm -f "$path_tmp/redirect"
 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
@@ -1409,11 +1467,11 @@ function download {
 					fi
 					url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
 					check_pid "$wpid"
-					if [ ! -z "$url_redirect" ] || [ $? != 1 ] || (( $s>60 )); then 
+					if [ ! -z "$url_redirect" ] || [ $? != 1 ] || (( $s>90 )); then 
 						kill "$wpid" 2>/dev/null
 						break
 					else
-						[ $s == 0 ] && print_c 2 "Attendi massimo 60 secondi:"
+						[ $s == 0 ] && print_c 2 "Attendi massimo 90 secondi:"
 						sleep 1
 						s=`date +"%s"`
 						s=$(( $s-$k ))
@@ -1421,17 +1479,24 @@ function download {
 					fi
 				done
 				url_in_file="$url_redirect"
+				#echo "$url_in_file"
 				unset redirected url_redirect
 				rm -f "$path_tmp/redirect"
 			fi
-			
-			axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-			
+			sleep 3
+			axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 		elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
 			#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
 			COOKIES=`cat $path_tmp/flashgot_cookie.zdl`
-			headers="-H \"Cookie:$COOKIES\""
-			axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			if [ ! -z "$COOKIES" ] ; then
+				headers="-H \"Cookie:$COOKIES\""
+				axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			else
+				axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+			fi
+			
+		else
+			axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 		fi
 # 		if [ -f $path_tmp/flashgot_cookie.zdl ]; then
 # 			COOKIES=`cat $path_tmp/flashgot_cookies.zdl`
@@ -2322,19 +2387,19 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 			
 			##pid bash
-			if [ "$4" == "--noXterm" ]; then
+			if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]; then
 				export pid_prog=$$
 				check_instance
 				if [ "$?" == "1" ]; then
 					print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
 					links_loop + "$url_in"
 					rm -f "$path_tmp/lock.zdl"
-					read -p ">> PREMI INVIO per chiudere Xterm <<"
+					read -p ">> PREMI INVIO per uscire <<"
 					exit
 				else
 					#export pid_prog=$$
 					$prog "$url_in" -m
-					read -p ">> PREMI INVIO per chiudere Xterm <<"
+					read -p ">> PREMI INVIO per uscire <<"
 				fi
 			else
 				
@@ -2367,7 +2432,7 @@ separator z
 
 ## get config data
 get_conf
-rm -f "$path_conf/updated"
+
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
 	for i in `seq 0 $max_args`; do
@@ -2452,8 +2517,6 @@ if [ "${args[*]}" != "${args[*]//--clean}" ]; then
 	done
 fi
 
-
-
 if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]; then
 	for i in `seq 0 $max_args`; do
 		if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
@@ -2480,10 +2543,11 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
 			elif [ "${args[$i]}" == '--proxy=e' ]; then
 				proxy_types[${#proxy_types[*]}]="Elite"
 				update_proxy=true
-			elif [ "${args[$i]}" != "${args[$i]%=*}" ]; then
+			elif [ "${args[$i]}" != "${args[$i]%'='*}" ]; then
 				proxy="${args[$i]#'--proxy='}"
-				if [ -z "${proxy//[0-9].[0-9].[0-9].[0-9]:[0-9]}" ]; then
+				if [ -z "${proxy//[0-9.:]}" ]; then
 					export http_proxy=$proxy
+					defined_proxy=$proxy
 					print_c 1 "Proxy attivo: $http_proxy"
 					update_defined_proxy=true
 					unset update_proxy
@@ -2573,12 +2637,21 @@ if [ ! -z "${args[*]}" ]; then
 	fi
 fi
 
+
+if [ "$flashgot" == "enabled" ] && [ -f "$path_conf/updated" ];then
+	flashgot_autoconf
+elif [ -f "$path_conf/updated" ];then
+	restore_ffprefs
+fi
+
+rm -f "$path_conf/updated"
+
 if [ ! -e "/cygdrive" ];then
-	if [ "$flashgot" == "enabled" ];then
-		flashgot_autoconf
-	else
-		restore_ffprefs
-	fi
+# 	if [ "$flashgot" == "enabled" ];then
+# 		flashgot_autoconf
+# 	else
+# 		restore_ffprefs
+# 	fi
 	check_downloader
 fi
 
@@ -2589,7 +2662,11 @@ if [ -f "$file_log" ]; then
 	log=1
 fi
 
-if [ -z "$file" ] ; then 
+
+
+if [ -z "$file" ] ; then
+	echo
+	separator "v"
 	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Cyberlocker, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
@@ -2635,7 +2712,9 @@ if [ "$?" == "1" ]; then
 	rm -f "$path_tmp/lock.zdl"
 	exit
 fi
+
 rm -f "$path_tmp/lock.zdl"
+
 
 while true; do
 	if [ -f "$file" ]; then	
@@ -2656,8 +2735,10 @@ while true; do
 					new_ip_proxy
 					update_proxy_others="true"
 				elif [ "$update_defined_proxy" == "true" ];then
-					unset newip update_defined_proxy
-					update_proxy_others="true"
+					#unset newip update_defined_proxy
+					export http_proxy=$defined_proxy
+					
+					#update_proxy_others="true"
 				fi
 				
 				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
@@ -2680,7 +2761,6 @@ while true; do
 					# esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
 					test_url_in="${url_in#http://*/}"
 					test_url_in="${test_url_in%%/*}"
-					echo "${test_url_in}"
 				fi
 				
 				
@@ -2716,34 +2796,41 @@ while true; do
 					## http://www.nowdownload ###########
 					
 					get_tmps
-					token=`cat $path_tmp/zdl.tmp | grep token`
-					token=${token//*=}
-					token=${token//\"*/}
-					preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
-					print_c 2 "Attendi circa 30 secondi:"
-					k=`date +"%s"`
-					s=0
-					unset url_in_file
-					while true; do
-	
-						if (( $s>29 )); then
-							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-						fi
-						sleep 1
-						s=`date +"%s"`
-						s=$(( $s-$k ))
-						
-						echo -e $s"\r\c"
-						
-						url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
-						url_in_file=${url_in_file//*href=\"} 
-						url_in_file=${url_in_file//\"*}
-	
-						if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
-							break
-						fi
-					done
-					#echo "$url_in_file"
+					now=`cat $path_tmp/zdl.tmp | grep "Download Now"`
+					if [ ! -z "$now" ]; then
+						url_in_file="${now#*\"}"
+						url_in_file="${url_in_file%%\"*}"
+						unset now
+					else
+						token=`cat $path_tmp/zdl.tmp | grep token`
+						token=${token//*=}
+						token=${token//\"*/}
+						preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+						print_c 2 "Attendi circa 30 secondi:"
+						k=`date +"%s"`
+						s=0
+						unset url_in_file
+						while true; do
+		
+							if (( $s>29 )); then
+								wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+							fi
+							sleep 1
+							s=`date +"%s"`
+							s=$(( $s-$k ))
+							
+							echo -e $s"\r\c"
+							
+							url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+							url_in_file=${url_in_file//*href=\"} 
+							url_in_file=${url_in_file//\"*}
+		
+							if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+								break
+							fi
+						done
+					fi
+						#echo "$url_in_file"
 					file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
 					file_in1="${file_in1#*'<br> '}"
 					file_in1="${file_in1%%</h4>*}"
@@ -2765,6 +2852,7 @@ while true; do
 						file_in="${file_in1}.${file_ext}"
 					fi
 					unset file_in2 file_in1 file_ext token preurl_in_file
+					
 				elif [ "$domain" != "${domain//uload.}" ]; then
 					check_ip uload
 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
@@ -3154,46 +3242,54 @@ while true; do
 # 						fi
 # 					fi
 # 					
+				
 				else
-					
-					if [ "$update_proxy_others_list" == "true" ]; then
-						new_ip_proxy
+					if [ -f "/usr/local/bin/add_on_zdl.sh" ]; then
+						source /usr/local/bin/add_on_zdl.sh
 					fi
 					
-					#sharpfile
-# 					if [ "$domain" != "${domain//sharpfile.}" ] && [ "multi" == "1" ]; then
-# 						server="${url_in#'http://'}"
-# 						server="${server%%'/'*}"
-# 						#check_ip "$server"
-# 						
-# 					fi
-					
-					# streaming downloader
-					items=( `ls $path_tmp/filename_* 2>/dev/null` )
-					if [ ! -z "${items[*]}" ]; then
-						for item in ${items[*]}; do
-							url=`cat "$item"`
-							if [ "$url" == "$url_in" ]; then
-								file_in="${item#*filename_}"
-								file_in="${file_in%.txt}"
-								break
-							fi
-						done
-					fi
-					
-					# universal downloader
-					if [ -z "$file_in" ]; then
+					if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
+						if [ "$update_proxy_others_list" == "true" ]; then
+							new_ip_proxy
+						fi
 						
-						file_in="${url_in##*'/'}"
-						file_in="${file_in%'?'*}"
+						#sharpfile
+	# 					if [ "$domain" != "${domain//sharpfile.}" ] && [ "multi" == "1" ]; then
+	# 						server="${url_in#'http://'}"
+	# 						server="${server%%'/'*}"
+	# 						#check_ip "$server"
+	# 						
+	# 					fi
 						
-					fi
-					url_in_file="${url_in% }"
-					if [ "$update_proxy_others" == "true" ]; then
-						update_proxy_others_list="true"
-					fi
+						## streaming downloader
+						items=( `ls $path_tmp/filename_* 2>/dev/null` ) #2>/dev/null
+						if [ ! -z "${items[*]}" ]; then
+							
+							for item in ${items[*]}; do
+								url=`cat "$item"`
+								if [ "${url%% }" == "$url_in" ]; then
+									file_in="${item#*filename_}"
+									file_in="${file_in%.txt}"
+									break
+								fi
+							done
+						fi
+						
+						## universal downloader
+						if [ -z "$file_in" ]; then
+							
+							file_in="${url_in##*'/'}"
+							file_in="${file_in%'?'*}"
+							
+						fi
+						url_in_file="${url_in% }"
+						
+						if [ "$update_proxy_others" == "true" ]; then
+							update_proxy_others_list="true"
+						fi
 					
-					axel_parts=8
+						axel_parts=8
+					fi
 				fi
 				
 				file_in="${file_in// /_}"
@@ -3305,6 +3401,8 @@ while true; do
 		exit
 	fi
 done
+
+noproxy
 
 separator "-"
 print_c 1 "Tutti i link per il download sono stati processati."
