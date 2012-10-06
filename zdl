@@ -251,6 +251,7 @@ function update {
 			fi
 		fi
 		if [ -f "$path_conf/updated" ];then 
+			touch "$path_conf/noclear"
 			echo "$remote_version" > "$path_conf/version.txt"
 			echo
 			exec $0 "${args[*]}"
@@ -414,6 +415,7 @@ function configure {
 				print_c 2 "Seleziona l'elemento predefinito da modificare (1-9 | *):"
 				read opt
 				test_item=`echo "$opt"|grep [1-9]`
+				test_item="${test_item// }"
 				if [ ! -z "$test_item" ] && [ "${#test_item}" == "1" ]; then
 					(( opt-- ))
 					print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
@@ -800,19 +802,16 @@ function flashgot_autoconf {
 		
 		if [ -e "/cygdrive" ]; then
 			test_ff_alive=`ps -efW |grep firefox`
+			path_ffprefs="$cygprefs"
 		else
 			test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
+			path_ffprefs=`ls $HOME/.mozilla/firefox/*.default/prefs.js`
 		fi
+		
 		if [ -z "$test_ff_alive" ]; then
 			# save old prefs
 			if [ ! -d "$path_conf/firefox/" ];then
 				mkdir "$path_conf/firefox/"
-				if [ -e "/cygdrive" ];then
-					path_ffprefs="$cygprefs"
-				else
-					path_ffprefs=`ls $HOME/.mozilla/firefox/*.default/prefs.js`
-				fi
-				
 				
 				ls $path_ffprefs | while read file1; do
 					file=${file1//default\/prefs.js/default_prefs.js}
@@ -870,7 +869,7 @@ function flashgot_autoconf {
 						firefox_pref="${firefox_pref//[/\[}"
 						firefox_pref="${firefox_pref//]/\]}"
 						sed -i "s@${firefox_pref}@${new_pref}@g" $file
-						#echo " ${firefox_pref} --> ${new_pref} "
+						echo " ${firefox_pref} --> ${new_pref} "
 					fi
 				done
 			done
@@ -1722,11 +1721,12 @@ function interactive {
 				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
 				echo
 				echo -e "	r) per riavviarli digita \"r\"
-	e) per eliminarli definitivamente (e cancellare il file), digita \"e\"
+	e) per eliminarli definitivamente (e cancellare il file scaricato), digita \"e\"
+	t) per terminarli definitivamente SENZA cancellare il file scaricato, digita \"t\"
 	*) per tornare alla schermata principale"
 				echo
 				separator "^"
-				print_c 2 "Scegli cosa fare: [r | e | *]"
+				print_c 2 "Scegli cosa fare: [r | e | t | *]"
 				read input2
 				
 				if [ "$input2" == "r" ]; then
@@ -1748,6 +1748,16 @@ function interactive {
 								kill ${pid_out[$i]} 2>/dev/null
 								links_loop - "${url_out[$i]}"
 								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+							fi
+						done
+					done
+				elif [ "$input2" == "t" ]; then
+					for i in ${inputs[*]}; do
+						for j in $options; do
+							if [ "$i" == "$j" ]; then
+								kill ${pid_out[$i]} 2>/dev/null
+								links_loop - "${url_out[$i]}"
+								rm -f $path_tmp/"${file_out[$i]}_stdout.tmp"
 							fi
 						done
 					done
@@ -1934,6 +1944,22 @@ function data_stdout {
 	fi
 }
 
+function check_download {
+	data_stdout
+	if [ $? == 1 ]; then
+		last_stdout=$(( ${#pid_out[*]}-1 ))
+		for i in `seq 0 $last_stdout`; do
+			if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ] && [ "$test_progress" != "${progress_out[$i]}" ]; then
+				unset test_progress
+				return 1
+			elif [ "${file_in}" == "${file_out[$i]}" ]; then
+				test_progress="${progress_out[$i]}"
+				break
+			fi
+		done
+	fi
+}
+
 function show_downloads {
 	unset progress
 	data_stdout
@@ -1975,7 +2001,7 @@ function show_downloads {
 }
 
 function check_stdout {
-	#check_instance
+	
 	unset checked
 	data_stdout
 	if [ $? == 1 ]; then
@@ -2079,7 +2105,7 @@ function check_alias {
 
 
 function check_in_url { 	# return --> no_download=1 
-	#check_instance
+	
 	if [ ! -z "$url_in" ]; then
 		if [ -z "$file_in" ]; then
 # 			unset alive 
@@ -2129,7 +2155,7 @@ function check_in_url { 	# return --> no_download=1
 }
 
 function check_in_file { 	# return --> no_download=1 --> download=5
-	#check_instance
+	
 	file_in="${file_in// /_}"
 	file_in="${file_in//\'/_}"
 	if [ ! -z "$exceeded" ]; then
@@ -2209,7 +2235,17 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 	return 1
 }
 
-function check_instance {
+function check_instance_prog {
+	if [ -f "$path_tmp/pid.zdl" ]; then
+		test_pid=`cat "$path_tmp/pid.zdl"`
+		check_pid "$test_pid"
+		if [ $? == 1 ]; then
+			return 1
+		fi
+	fi
+}
+
+function check_instance_dl {	
 	data_stdout
 	if [ $? == 1 ]; then
 		last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -2392,7 +2428,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			##pid bash
 			if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]; then
 				export pid_prog=$$
-				check_instance
+				check_instance_prog
 				if [ "$?" == "1" ]; then
 					print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
 					links_loop + "$url_in"
@@ -2428,7 +2464,11 @@ if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}
 fi
 
 ################################### HEADER
-[ ! -f "$path_conf/updated" ] && fclear
+if [ ! -f "$path_conf/noclear" ]; then 
+	fclear
+else
+	rm "$path_conf/noclear"
+fi
 header
 separator z
 ###################################
@@ -2643,7 +2683,7 @@ fi
 
 if [ "$flashgot" == "enabled" ] && [ -f "$path_conf/updated" ];then
 	flashgot_autoconf
-elif [ -f "$path_conf/updated" ];then
+elif [ "$flashgot" != "enabled" ] && [ -f "$path_conf/updated" ];then
 	restore_ffprefs
 fi
 
@@ -2669,7 +2709,7 @@ fi
 
 if [ -z "$file" ] ; then
 	echo
-	separator "v"
+	separator "@"
 	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Rapidshare, Cyberlocker, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
@@ -2709,13 +2749,13 @@ fi
 
 #init_links_loop
 
-check_instance
+check_instance_prog
 if [ "$?" == "1" ]; then
-	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
+	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
 	rm -f "$path_tmp/lock.zdl"
 	exit
 fi
-
+echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"
 
 
@@ -2723,8 +2763,6 @@ while true; do
 	if [ -f "$file" ]; then	
 		links_in=`cat $file`
 		for url_in in $links_in; do
-			#[ ! -z "$pid_in" ] && check_freespace
-			
 			echo "checking $url_in ..."
 			unset pid_in checked file_in url_in_file
 			check_in_url
@@ -2955,12 +2993,6 @@ while true; do
 						#read -p "$file_in --> ${url_in_file}"
 					fi
 				elif [ "$domain" != "${domain//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; then
-					# esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
-					
-					
-# 					test_domain="${domain#http://*/}"
-# 					test_domain="${test_domain%%/*}"
-					
 					redirected=true
 					cookies="$path_tmp/cookies.zdl"
 					
@@ -3319,22 +3351,34 @@ while true; do
 						print_c 1 "downloading --> $file_in ..."
 					fi
 					
-					if [ "$domain" != "${domain//nowdownload}" ] || [ "$downloader_in" == "Axel" ]; then
-						count_down=15 #$(( $max_waiting/2 ))
-					elif [ ! -z "$http_proxy" ]; then	
-						count_down=$(( $max_waiting+5 ))
-					else
-						count_down=20
-					fi
+# 					if [ "$domain" != "${domain//nowdownload}" ] || [ "$downloader_in" == "Axel" ]; then
+# 						count_down=5 #$(( $max_waiting/2 ))
+# 					elif [ ! -z "$http_proxy" ]; then	
+# 						count_down=$(( $max_waiting-5 ))
+# 					else
+# 						count_down=10
+# 					fi
 					
-					print_c 2 "Attendi per verifica del download già avviato:"
-					while [ "$count_down" != 0 ]; do
-						echo -e "  \r\c"
-						echo -e $count_down"\r\c"
-						sleep 1
-						(( count_down-- ))
+# 					print_c 2 "Attendi per verifica del download già avviato:"
+# 					while [ "$count_down" != 0 ]; do
+# 						echo -e "  \r\c"
+# 						echo -e $count_down"\r\c"
+# 						sleep 1
+# 						(( count_down-- ))
+# 					done
+# 					echo -e "  \r\c"
+# 					for loops in `seq 0 $count_down`; do
+					while true; do
+						show_downloads
+						check_download
+						if [ $? == 1 ]; then
+							break
+						fi
+						check_pid ${pid_in}
+						if [ $? != 1 ]; then
+							break
+						fi
 					done
-					echo -e "  \r\c"
 					rm -f "$path_tmp/cookies.zdl"
 					unset no_newip
 					check_freespace
@@ -3348,16 +3392,6 @@ while true; do
 				fi
 
 				newip_add_provider
-# 				if [ -z $no_newip ]; then
-# 					[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
-# 					[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-# 					#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
-# 					[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-# 					[ "$domain" != "${domain//uload.}" ] && newip[${#newip[*]}]=uload
-# 					[ "$domain" != "${domain//glumbouploads.}" ] && newip[${#newip[*]}]=glumbouploads
-# 					
-# 					unset server
-# 				fi
 
 				[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
 				unset checked
@@ -3416,7 +3450,7 @@ separator "-"
 
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
-check_instance
+check_instance_dl
 if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
 	rm -r "$path_tmp" 2>/dev/null
 fi
