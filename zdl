@@ -3340,19 +3340,12 @@ while true; do
 						break
 					fi
 				else
-# 					if [ -f "/usr/local/bin/add_on_zdl.sh" ]; then
-# 						source /usr/local/bin/add_on_zdl.sh
-# 					fi
+					## ADDS-ON
 					max_sources=`ls -1 $path_conf/extensions/*.sh |wc -l`
 					for i in `seq 1 $max_sources`; do
 						fsource=`ls -1 $path_conf/extensions/*.sh | sed -n "${i}p"`
 						source "$fsource"
 					done
-# 					if [ "$domain" != "${domain//rapidshare}" ]; then
-# 						file_in="${url_in#*filename=}"
-# 						file_in="${file_in%%&*}"
-# 						url_in_file="$url_in"
-# 					fi
 					
 					if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
 						if [ "$update_proxy_others_list" == "true" ]; then
@@ -3409,25 +3402,6 @@ while true; do
 					if [ $? == 1 ]; then
 						print_c 1 "downloading --> $file_in ..."
 					fi
-					
-# 					if [ "$domain" != "${domain//nowdownload}" ] || [ "$downloader_in" == "Axel" ]; then
-# 						count_down=5 #$(( $max_waiting/2 ))
-# 					elif [ ! -z "$http_proxy" ]; then	
-# 						count_down=$(( $max_waiting-5 ))
-# 					else
-# 						count_down=10
-# 					fi
-					
-# 					print_c 2 "Attendi per verifica del download già avviato:"
-# 					while [ "$count_down" != 0 ]; do
-# 						echo -e "  \r\c"
-# 						echo -e $count_down"\r\c"
-# 						sleep 1
-# 						(( count_down-- ))
-# 					done
-# 					echo -e "  \r\c"
-# 					for loops in `seq 0 $count_down`; do
-					unset progress
 					
 					while true; do
 						show_downloads
