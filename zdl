@@ -783,9 +783,11 @@ function flashgot_autoconf {
 	fi
 	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
 	## test updates
-	test_update_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '\[REFERER\]'`
+	test_update_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '[REFERER]'`
+	test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep 'CFILE\]'`
+	test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep 'CFILE]\ '`
 	
-	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update_ZDL" ] ); then
+	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update_ZDL" ] || [ ! -z "$test_update1_ZDL" ] || [ ! -z "$test_update2_ZDL" ] ); then
 		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
 		if [ -e "/cygdrive" ]; then
 			test_ff_alive=`ps -efW |grep firefox`
@@ -840,7 +842,7 @@ function flashgot_autoconf {
 							new_pref="user_pref(\"flashgot.custom\", \"${values}ZigzagDownLoader\");"
 						;;
 						'flashgot.custom.ZigzagDownLoader.args')
-							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FNAME\] \[FOLDER\] \[CFILE\]\ \[COOKIE\] \[REFERER\]\");"
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]\");"
 						;; 
 						'flashgot.custom.ZigzagDownLoader.exe')
 							path_zdl=`which $prog`
@@ -2455,12 +2457,13 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			cookie="$6"
 			referer="$7"
 			
-			if [ "$url_in" != "${url_in//nowvideo.}" ]; then
+			if [ "$url_in" != "${url_in//nowvideo.}" ] && [ ! -e "/cygdrive" ]; then
 				referer="$6"
+				#xterm -e "read -p \"1:$1 -- 2:$2 -- 3:$3 -- 4:$4 -- 5:$5 -- 6:$6 -- 7:$7\""
 				ext="${file_in##*.}"
-				file_in=`wget "$referer" -O - -q | grep "&title="`
-				file_in="${file_in#*&title=}"
-				file_in="${file_in%%\"*}.$ext"
+				file_in2=`wget "$referer" -O - -q | grep "&title="`
+				file_in2="${file_in2#*&title=}"
+				[ ! -z "$file_in2" ] && file_in="${file_in2%%\"*}.$ext"
 			fi
 			
 			cd "$directory"
@@ -3341,12 +3344,15 @@ while true; do
 					fi
 				else
 					## ADDS-ON
-					max_sources=`ls -1 $path_conf/extensions/*.sh |wc -l`
-					for i in `seq 1 $max_sources`; do
-						fsource=`ls -1 $path_conf/extensions/*.sh | sed -n "${i}p"`
-						source "$fsource"
-					done
-					
+					if [ -d "$path_conf/extensions/" ]; then
+						max_sources=`ls -1 $path_conf/extensions/*.sh 2>/dev/null |wc -l`
+						if [ "$max_sources" != "0" ]; then
+							for i in `seq 1 $max_sources`; do
+								fsource=`ls -1 $path_conf/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
+								source "$fsource"
+							done
+						fi
+					fi
 					if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
 						if [ "$update_proxy_others_list" == "true" ]; then
 							new_ip_proxy
