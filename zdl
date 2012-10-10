@@ -352,16 +352,17 @@ function get_conf {
 	fi
 	
 	get_item_conf "axel_parts"
-	axel_parts="$value"
-	if [ -z "$axel_parts" ]; then
-		axel_parts=32
+	axel_parts_conf="$value"
+	if [ -z "$axel_parts_conf" ]; then
+		axel_parts_conf=32
 	fi
 	## CYGWIN
 	if [ -e "/cygdrive" ];then
-		if (( $axel_parts>10 )); then
-			axel_parts=10
+		if (( $axel_parts_conf>10 )); then
+			axel_parts_conf=10
 		fi
 	fi
+	axel_parts=$axel_parts_conf
 	
 	get_item_conf "skin"
 	skin="$value"
@@ -781,11 +782,9 @@ function flashgot_autoconf {
 	fi
 	test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
 	## test updates
-	test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep CFILE`
-	test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep COOKIE`
-	test_update3_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '\[FNAME\] \[FOLDER\]'`
+	test_update_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '\[REFERER\]'`
 	
-	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update1_ZDL" ] || [ -z "$test_update2_ZDL" ] || [ -z "$test_update3_ZDL" ] ); then
+	if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update_ZDL" ] ); then
 		print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
 		if [ -e "/cygdrive" ]; then
 			test_ff_alive=`ps -efW |grep firefox`
@@ -840,7 +839,7 @@ function flashgot_autoconf {
 							new_pref="user_pref(\"flashgot.custom\", \"${values}ZigzagDownLoader\");"
 						;;
 						'flashgot.custom.ZigzagDownLoader.args')
-							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FNAME\] \[FOLDER\] \[CFILE\]\ \[COOKIE\]\");"
+							new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.args\", \"--stream \[URL\] \[FNAME\] \[FOLDER\] \[CFILE\]\ \[COOKIE\] \[REFERER\]\");"
 						;; 
 						'flashgot.custom.ZigzagDownLoader.exe')
 							path_zdl=`which $prog`
@@ -869,7 +868,7 @@ function flashgot_autoconf {
 						firefox_pref="${firefox_pref//[/\[}"
 						firefox_pref="${firefox_pref//]/\]}"
 						sed -i "s@${firefox_pref}@${new_pref}@g" $file
-						echo " ${firefox_pref} --> ${new_pref} "
+						#echo " ${firefox_pref} --> ${new_pref} "
 					fi
 				done
 			done
@@ -1004,6 +1003,7 @@ function _log {
 		1)
 			echo
 			print_c 3  "File $file_in già presente nella directory di destinazione: non verrà processato."  | tee -a $file_log
+			links_loop - "$url_in"
 			echo
 			;;
 		2)
@@ -1888,7 +1888,7 @@ function data_stdout {
 				speed=`echo $progress_data | awk '{ print($2) }'`
 				type_speed="${speed//[0-9.,]}"
 				num_speed="${speed//$type_speed}"
-				if [ "$num_speed" != "${num_speed//[0-9]}" ]; then
+				if [ -z "${num_speed//[0-9,.]}" ] && [ ! -z "${num_speed//.}" ]; then
 					num_speed=$(( ${num_speed%[,.]*} + 1 ))
 				else
 					num_speed=0
@@ -2272,45 +2272,75 @@ function check_instance_dl {
 }
 
 function clean_file {
-	if [ ! -z "$1" ] && [ -f "$1" ]; then
-		file_to_ck="$1"
-		last_line=`cat "$file_to_ck" |wc -l`
-		for i in `seq 1 $last_line`; do
-			it=`cat "$file_to_ck" |sed -n "${i}p"`
-			
-			if [ "${items[*]}" == "${items[*]//$it}" ]; then
-				items[${#items[*]}]=$it
-			fi
-		done
-		
-		rm "$file_to_ck"
-		
-		for ij in ${items[*]}; do
-			[ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
+	if [ -f "$path_tmp/rewriting" ];then
+		while [ -f "$path_tmp/rewriting" ]; do
+			sleep 0.1
 		done
 	fi
-	unset items
+	touch "$path_tmp/rewriting"
+	if [ ! -z "$1" ] && [ -f "$1" ]; then
+		file_to_ck="$1"
+		
+		list=`sort -u "$file_to_ck" | sed '/^$/d'`
+		if [ ! -z "$list" ]; then
+			echo -e "$list" > "$file_to_ck"
+		else
+			rm "$file_to_ck"
+		fi
+# 		last_line=`cat "$file_to_ck" |wc -l`
+# 		for i in `seq 1 $last_line`; do
+# 			it=`cat "$file_to_ck" 2>/dev/null |sed -n "${i}p"`
+# 			
+# 			if [ "${items[*]}" == "${items[*]//$it}" ]; then
+# 				items[${#items[*]}]=$it
+# 			fi
+# 		done
+# 		
+# 		rm "$file_to_ck"
+# 		
+# 		for ij in ${items[*]}; do
+# 			[ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
+# 		done
+	fi
+	rm -f "$path_tmp/rewriting"
+	#unset items
 }
 
 function links_loop { 	#usage with op=+|- : links $op $link
 	op="$1" #operator
 	url_loop="$2" #url
+	if [ "$op" != "in" ]; then
+		if [ -f "$path_tmp/rewriting" ];then
+			while [ -f "$path_tmp/rewriting" ]; do
+				sleep 0.1
+			done
+		fi
+		touch "$path_tmp/rewriting"
+	fi
 	if [ ! -z "$url_loop" ]; then
 		case $op in
 			+)	
 				echo "$url_loop" >> $path_tmp/links_loop.txt
-				clean_file $path_tmp/links_loop.txt
-				
+				rm -f "$path_tmp/rewriting"
 				;;
 			-)
 				if [ -f "$path_tmp/links_loop.txt" ]; then
-					lnx=`cat $path_tmp/links_loop.txt`
-					for lnk in $lnx; do
-						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-					done
-					rm $path_tmp/links_loop.txt
-					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+# 					lnx=`cat $path_tmp/links_loop.txt`
+# 					for lnk in $lnx; do
+# 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+# 					done
+# 					rm $path_tmp/links_loop.txt
+# 					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+					
+					list=`sort -u "$path_tmp/links_loop.txt" | sed "s<${url_loop}<<g"  | sed '/^$/d'`
+					
+					if [ ! -z "$list" ]; then 
+						echo -e "$list" > "$path_tmp/links_loop.txt"
+					else
+						rm "$path_tmp/links_loop.txt"
+					fi
 				fi
+				rm -f "$path_tmp/rewriting"
 				;;
 			in) 
 				lnx=`cat $path_tmp/links_loop.txt 2>/dev/null`
@@ -2324,8 +2354,12 @@ function links_loop { 	#usage with op=+|- : links $op $link
 				else
 					return 5
 				fi
+				return
 				;;
 		esac
+	fi
+	if [ -f "$path_tmp/links_loop.txt" ]; then
+		clean_file $path_tmp/links_loop.txt
 	fi
 }
 
@@ -2388,12 +2422,15 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	for i in `seq 0 $max_args`; do
 		if [ "${args[$i]}" == "--stream" ]; then 
 			
-			# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE]
+			# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]
 			# --stream [URL] [FNAME] --noXterm
 			if [ -z "$DISPLAY" ]; then
 				export DISPLAY=":0"
 			fi
 			url_in="$2"
+			
+			
+			
 			if [ ! -d "$3" ]; then
 				file_in="$3"
 				if [ "$4" != "--noXterm" ] && [ -d "$4" ]; then
@@ -2413,6 +2450,15 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			file_in="${file_in// /_}"
 			cfile="$5"
 			cookie="$6"
+			referer="$7"
+			
+			if [ "$url_in" != "${url_in//nowvideo.}" ]; then
+				referer="$6"
+				ext="${file_in##*.}"
+				file_in=`wget "$referer" -O - -q | grep "&title="`
+				file_in="${file_in#*&title=}"
+				file_in="${file_in%%\"*}.$ext"
+			fi
 			
 			cd "$directory"
 			mkdir -p "${path_tmp}"
@@ -2619,65 +2665,65 @@ done
 
 if [ ! -z "${args[*]}" ]; then
 	COOKIE="$path_tmp/flashgot_cfile.zdl"
-	for i in `seq 0 $max_args`; do
-		if [ -f "${args[$i]}" ]; then
-			cat "${args[$i]}" >> $path_tmp/links_loop.txt
-		elif [ ! -z "${args[$i]}" ]; then
-			echo "${args[$i]}" >> $path_tmp/links_loop.txt
-			## 
-			## in alternativa alla riga qua sopra, un controllo del link:
-			## 
-# 			print_c 2 "Verifica di ${args[$i]}"
-# 			export LANG="$prog_lang"
-# 			export LANGUAGE="$prog_lang"
-# 			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
-# 			
-# 			test_link=`cat $path_tmp/spider`
-# 			if [ -z "$test_link" ]; then
-# 				wget "${args[$i]}" --retry-connrefused --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
-# 			fi
-# 			if [ ! -z "$test_link" ]; then
-# 				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
-# 				
-# 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
-# 				if [ -z "$test_link" ];then
-# 					#echo "${args[$i]}" >> $path_tmp/new_links.txt
-# 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
-# # 					check_lock
-# # 					if [ $? == 1 ]; then
-# # 						exit
-# # 					fi
-# 					
-# 					#check_instance
-# 				else
-# 					print_c 3 "Link non valido: ${args[$i]}"
-# 					echo
-# 					export LANG="$user_lang"
-# 					export LANGUAGE="$user_language"
-# 					usage
-# 				fi
-# 			else
-# 				print_c 3 "Link non valido: ${args[$i]}"
-# 				echo
-# 				export LANG="$user_lang"
-# 				export LANGUAGE="$user_language"
-# 				usage
-# 			fi
-# 			export LANG="$user_lang"
-# 			export LANGUAGE="$user_language"
-
+	while true; do
+		for i in `seq 0 $max_args`; do
+			if [ -f "${args[$i]}" ]; then
+				cat "${args[$i]}" >> $path_tmp/links_loop.txt
+			elif [ ! -z "${args[$i]}" ]; then
+				echo "${args[$i]}" >> $path_tmp/links_loop.txt
+				## 
+				## in alternativa alla riga qua sopra, un controllo del link:
+				## 
+	# 			print_c 2 "Verifica di ${args[$i]}"
+	# 			export LANG="$prog_lang"
+	# 			export LANGUAGE="$prog_lang"
+	# 			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+	# 			
+	# 			test_link=`cat $path_tmp/spider`
+	# 			if [ -z "$test_link" ]; then
+	# 				wget "${args[$i]}" --retry-connrefused --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+	# 			fi
+	# 			if [ ! -z "$test_link" ]; then
+	# 				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
+	# 				
+	# 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
+	# 				if [ -z "$test_link" ];then
+	# 					#echo "${args[$i]}" >> $path_tmp/new_links.txt
+	# 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
+	# # 					check_lock
+	# # 					if [ $? == 1 ]; then
+	# # 						exit
+	# # 					fi
+	# 					
+	# 					#check_instance
+	# 				else
+	# 					print_c 3 "Link non valido: ${args[$i]}"
+	# 					echo
+	# 					export LANG="$user_lang"
+	# 					export LANGUAGE="$user_language"
+	# 					usage
+	# 				fi
+	# 			else
+	# 				print_c 3 "Link non valido: ${args[$i]}"
+	# 				echo
+	# 				export LANG="$user_lang"
+	# 				export LANGUAGE="$user_language"
+	# 				usage
+	# 			fi
+	# 			export LANG="$user_lang"
+	# 			export LANGUAGE="$user_language"
+	
+			fi
+		done
+		if [ -f $path_tmp/links_loop.txt ];then 
+			file="$path_tmp/links_loop.txt"
+			clean_file $path_tmp/links_loop.txt
+			cat $path_tmp/links_loop.txt >> links.txt 2>/dev/null
+			#clean_file links.txt
+			print_c 1 "L'elenco completo dei link è in links.txt"
+			break
 		fi
 	done
-	if [ -f $path_tmp/links_loop.txt ];then 
-		file="$path_tmp/links_loop.txt"
-		clean_file $path_tmp/links_loop.txt
-		#clean_file $path_tmp/new_links.txt
-		cat $path_tmp/links_loop.txt >> links.txt
-		clean_file links.txt
-		print_c 1 "L'elenco completo dei link è in links.txt"
-# 	else
-# 		touch $path_tmp/links_loop.txt
-	fi
 fi
 
 
@@ -2690,11 +2736,6 @@ fi
 rm -f "$path_conf/updated"
 
 if [ ! -e "/cygdrive" ];then
-# 	if [ "$flashgot" == "enabled" ];then
-# 		flashgot_autoconf
-# 	else
-# 		restore_ffprefs
-# 	fi
 	check_downloader
 fi
 
@@ -2767,6 +2808,7 @@ while true; do
 			unset pid_in checked file_in url_in_file
 			check_in_url
 			if [ $? != 1 ];then
+				axel_parts=$axel_parts_conf
 				url_in="${url_in## }"
 				url_in="${url_in%% }"
 				domain=${url_in//\?*}
@@ -2837,6 +2879,11 @@ while true; do
 					## http://www.nowdownload ###########
 					
 					get_tmps
+					test_file=`cat $path_tmp/zdl.tmp | grep "This file does not exist"`
+					if [ ! -z "$test_file" ]; then
+						_log 3
+						break
+					fi
 					now=`cat $path_tmp/zdl.tmp | grep "Download Now"`
 					if [ ! -z "$now" ]; then
 						url_in_file="${now#*\"}"
@@ -3268,27 +3315,36 @@ while true; do
 					elif [ "$url_in" != "${url_in//'rapidshare.com/#!download|'}" ]; then
 						reurl="$url_in"
 					fi
-					devrapid="${reurl#*download|}"
-					devrapid="${devrapid%%|*}"
-					
-					fileid="${reurl#*${devrapid}|}"
-					fileid="${fileid%%|*}"
-					
-					file_in="${reurl#*${fileid}|}"
-					file_in="${file_in%%|*}"
-					
-					url_in_file="http://rs${devrapid}.rapidshare.com/cgi-bin/rsapi.cgi?sub=download&fileid=${fileid}&filename=${file_in}&dlauth=0123456789"
-					if [ -z "$file_in" ]; then
-						file_in="${url_in#*filename=}"
-						file_in="${file_in%%&*}"
-						url_in_file="$url_in"
+					if [ "$reurl" == "${reurl//File not found}" ]; then
+
+						devrapid="${reurl#*download|}"
+						devrapid="${devrapid%%|*}"
+						
+						fileid="${reurl#*${devrapid}|}"
+						fileid="${fileid%%|*}"
+						
+						file_in="${reurl#*${fileid}|}"
+						file_in="${file_in%%|*}"
+						
+						url_in_file="http://rs${devrapid}.rapidshare.com/cgi-bin/rsapi.cgi?sub=download&fileid=${fileid}&filename=${file_in}&dlauth=0123456789"
+						if [ -z "$file_in" ]; then
+							file_in="${url_in#*filename=}"
+							file_in="${file_in%%&*}"
+							url_in_file="$url_in"
+						fi
+					else
+						_log 3
+						break
 					fi
-					
 				else
-					if [ -f "/usr/local/bin/add_on_zdl.sh" ]; then
-						source /usr/local/bin/add_on_zdl.sh
-					fi
-					
+# 					if [ -f "/usr/local/bin/add_on_zdl.sh" ]; then
+# 						source /usr/local/bin/add_on_zdl.sh
+# 					fi
+					max_sources=`ls -1 $path_conf/extensions/*.sh |wc -l`
+					for i in `seq 1 $max_sources`; do
+						fsource=`ls -1 $path_conf/extensions/*.sh | sed -n "${i}p"`
+						source "$fsource"
+					done
 # 					if [ "$domain" != "${domain//rapidshare}" ]; then
 # 						file_in="${url_in#*filename=}"
 # 						file_in="${file_in%%&*}"
