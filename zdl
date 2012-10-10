@@ -149,7 +149,7 @@ Configurazione manuale di Flashgot per ZDL:
 
 	3) 	sempre nel tab \"Generale\", in \"Modello dei parametri\", 
 		incolla la seguente stringa: 
-		--stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE]
+		--stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]
 
 	4) 	nel tab \"FlashGot Media\" 
 		scegli \"ZigzagDownLoader\" come \"Download manager\"
@@ -181,7 +181,8 @@ Le estensioni qua sopra funzionano anche con \e[1mFVD Video Downloader\e[0m [htt
 
 
 \e[1mAGGIORNARE ZDL.\e[0m
-Per aggiornare ZDL è sufficiente usare l'argomento -u (--update).
+Se è disponibile una nuova versione del programma, ZDL si aggiorna automaticamente. È possibile disabilitare l'aggiornamento automatico modificando la configurazione (zdl --configure).
+Inoltre, per aggiornare manualmente ZDL è sufficiente usare l'argomento -u (--update).
 
 \e[1mINSTALLAZIONE PER GNU/LINUX\e[0m
 
