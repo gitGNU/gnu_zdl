@@ -1543,6 +1543,7 @@ function download {
 	unset post_data checked
 	export LANG="$user_lang"
 	export LANGUAGE="$user_language"
+	rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
 }
 
 function check_pid {
@@ -1997,6 +1998,7 @@ function show_downloads {
 		separator "="
 	fi
 	echo
+	unset progress
 	sleep 5
 }
 
@@ -3424,6 +3426,8 @@ while true; do
 # 					done
 # 					echo -e "  \r\c"
 # 					for loops in `seq 0 $count_down`; do
+					unset progress
+					
 					while true; do
 						show_downloads
 						check_download
