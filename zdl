@@ -1796,150 +1796,159 @@ function data_stdout {
 		for item in $list; do
 			
 			file_stdout=$item
+			test_found=`cat "$file_stdout" |grep "404: Not Found"`
+			if [ -z "$test_found" ]; then
+				test_found=`cat "$file_stdout" |grep "404 Not Found"`
+			fi
 			
-			pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
-						
-			url_out[$i]=`cat $file_stdout|grep "link_$prog"`
-			url_out[$i]="${url_out[$i]#link_${prog}: }"
-			#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
-			
-			downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
-			pid_prog_out[$i]=`head -n 4 $file_stdout|sed -n '4p'`
-			
-			progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
-			progress_data="${progress_data//'..........'}"
-			progress_data="${progress_data//[\[\]]}"
-			file_o="${file_stdout//_stdout.tmp}"
-			file_o="${file_o#$path_tmp/}"
-			if [ "${downloader_out[$i]}" == "Wget" ]; then
-				length_out[$i]=`head -n 5 $file_stdout|sed -n '5p'|grep "length_in="`
-				length_out[$i]="${length_out[$i]#length_in=}"
-				if [ -z "${length_out[$i]}" ];then
-					length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
-					length_out[$i]="${length_out[$i]#*Length: }"
-					length_out[$i]="${length_out[$i]%%' '*}"
-				fi
+			if [ ! -z "$test_found" ]; then
+				_log 3
+				rm -f "$file_stdout" "$file_in"
+			else
+				pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
+							
+				url_out[$i]=`cat $file_stdout|grep "link_$prog"`
+				url_out[$i]="${url_out[$i]#link_${prog}: }"
+				#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
 				
-				file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
-				file_out[$i]="${file_out[$i]#*Saving to: \`}"
-				file_out[$i]="${file_out[$i]%\'*}"
+				downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
+				pid_prog_out[$i]=`head -n 4 $file_stdout|sed -n '4p'`
 				
-				
-# 				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
-# 					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
-# 					exit 1
-# 				fi
-				if [ ! -z "${file_o}" ]; then
-					file_out[$i]="$file_o"
-				fi
-				
-				if [ -z "${file_out[$i]}" ]; then
-					file_out[$i]="$file_o"
-				fi
-				
-				if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
-					alias_file_out[$i]="${file_out[$i]}"
-					file_out[$i]=`cat $file_stdout |grep filename`
-					file_out[$i]="${file_out[$i]#*'filename="'}"
-					file_out[$i]="${file_out[$i]%'"'*}"
-					file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
-				fi
-				
-				percent=`echo $progress_data | awk '{ print($2) }'`
-				eta=`echo $progress_data | awk '{ print($4) }'`
-				speed=`echo $progress_data | awk '{ print($3) }'`
-				speed="${speed//,/.}"
-				type_speed="${speed//[0-9.,]}"
-				num_speed="${speed//$type_speed}"
-				num_speed=${num_speed%.*}
-				case $type_speed in
-					B) type_speed="B/s";;
-					K) type_speed="KB/s";;
-					M) type_speed="MB/s";;
-				esac
-				speed="${num_speed}${type_speed}"
-			elif [ "${downloader_out[$i]}" == "Axel" ]; then
-				axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
-				file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
-				file_out[$i]="${file_out[$i]#*Opening output file }"
-				
-				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
-					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
-					echo "$file_o != ${file_out[$i]}"
-					exit 1
-				fi
-				
-				if [ -z "${file_out[$i]}" ]; then
-					file_out[$i]="$file_o"
-				fi
-				
-				length_out[$i]=`cat "$file_stdout" |grep 'File size'`
-				length_out[$i]="${length_out[$i]#*File size: }"
-				length_out[$i]="${length_out[$i]%% *}"
-				
-				unset speed	
-				
-				## `echo "${progress_data}"| grep "[.[0-9]*.[0-9]KB/s]"`
-				
-# 				speed="${progress_data2%%\] \[*}"
-# 				speed="${speed##*\] \[}"
-# 				type_speed="${speed//[0-9.,]}"
-# 				num_speed="${speed//$type_speed}"
-# 				percent=${progress_data%'%'*}
-# 				percent=${percent##*\[}
-				
-				percent=`echo $progress_data | awk '{ print($1) }'`
-				speed=`echo $progress_data | awk '{ print($2) }'`
-				type_speed="${speed//[0-9.,]}"
-				num_speed="${speed//$type_speed}"
-				if [ -z "${num_speed//[0-9,.]}" ] && [ ! -z "${num_speed//.}" ]; then
-					num_speed=$(( ${num_speed%[,.]*} + 1 ))
-				else
-					num_speed=0
-				fi
-				case $type_speed in
-					KB/s) num_speed=$(( $num_speed * 1024 )) ;;
-					MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
-				esac
-				if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then	
-					num_percent=${percent%'%'*}
-					num_percent=$(( ${num_percent%[,.]*}+1 ))
-					diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
-					diff_length=$(( ${diff_length%[,.]*}+1 ))
-					unset seconds minutes hours
-					[ $num_speed != 0 ] && seconds=$(( $diff_length/$num_speed ))
-					
-					if [ ! -z "$seconds" ]; then
-						minutes=$(( $seconds/60 ))
-						hours=$(( $minutes/60 ))
-						minutes=$(( $minutes-($hours*60) ))
-						eta="${hours}h${minutes}m"
-					else
-						unset eta
+				progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+				progress_data="${progress_data//'..........'}"
+				progress_data="${progress_data//[\[\]]}"
+				file_o="${file_stdout//_stdout.tmp}"
+				file_o="${file_o#$path_tmp/}"
+				if [ "${downloader_out[$i]}" == "Wget" ]; then
+					length_out[$i]=`head -n 5 $file_stdout|sed -n '5p'|grep "length_in="`
+					length_out[$i]="${length_out[$i]#length_in=}"
+					if [ -z "${length_out[$i]}" ];then
+						length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
+						length_out[$i]="${length_out[$i]#*Length: }"
+						length_out[$i]="${length_out[$i]%%' '*}"
 					fi
 					
+					file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
+					file_out[$i]="${file_out[$i]#*Saving to: \`}"
+					file_out[$i]="${file_out[$i]%\'*}"
+					
+					
+	# 				if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+	# 					print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+	# 					exit 1
+	# 				fi
+					if [ ! -z "${file_o}" ]; then
+						file_out[$i]="$file_o"
+					fi
+					
+					if [ -z "${file_out[$i]}" ]; then
+						file_out[$i]="$file_o"
+					fi
+					
+					if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
+						alias_file_out[$i]="${file_out[$i]}"
+						file_out[$i]=`cat $file_stdout |grep filename`
+						file_out[$i]="${file_out[$i]#*'filename="'}"
+						file_out[$i]="${file_out[$i]%'"'*}"
+						file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
+					fi
+					
+					percent=`echo $progress_data | awk '{ print($2) }'`
+					eta=`echo $progress_data | awk '{ print($4) }'`
+					speed=`echo $progress_data | awk '{ print($3) }'`
+					speed="${speed//,/.}"
+					type_speed="${speed//[0-9.,]}"
+					num_speed="${speed//$type_speed}"
+					num_speed=${num_speed%.*}
+					case $type_speed in
+						B) type_speed="B/s";;
+						K) type_speed="KB/s";;
+						M) type_speed="MB/s";;
+					esac
+					speed="${num_speed}${type_speed}"
+				elif [ "${downloader_out[$i]}" == "Axel" ]; then
+					axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
+					file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
+					file_out[$i]="${file_out[$i]#*Opening output file }"
+					
+					if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
+						print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
+						echo "$file_o != ${file_out[$i]}"
+						exit 1
+					fi
+					
+					if [ -z "${file_out[$i]}" ]; then
+						file_out[$i]="$file_o"
+					fi
+					
+					length_out[$i]=`cat "$file_stdout" |grep 'File size'`
+					length_out[$i]="${length_out[$i]#*File size: }"
+					length_out[$i]="${length_out[$i]%% *}"
+					
+					unset speed	
+					
+					## `echo "${progress_data}"| grep "[.[0-9]*.[0-9]KB/s]"`
+					
+	# 				speed="${progress_data2%%\] \[*}"
+	# 				speed="${speed##*\] \[}"
+	# 				type_speed="${speed//[0-9.,]}"
+	# 				num_speed="${speed//$type_speed}"
+	# 				percent=${progress_data%'%'*}
+	# 				percent=${percent##*\[}
+					
+					percent=`echo $progress_data | awk '{ print($1) }'`
+					speed=`echo $progress_data | awk '{ print($2) }'`
+					type_speed="${speed//[0-9.,]}"
+					num_speed="${speed//$type_speed}"
+					if [ -z "${num_speed//[0-9,.]}" ] && [ ! -z "${num_speed//.}" ]; then
+						num_speed=$(( ${num_speed%[,.]*} + 1 ))
+					else
+						num_speed=0
+					fi
+					case $type_speed in
+						KB/s) num_speed=$(( $num_speed * 1024 )) ;;
+						MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
+					esac
+					if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then	
+						num_percent=${percent%'%'*}
+						num_percent=$(( ${num_percent%[,.]*}+1 ))
+						diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
+						diff_length=$(( ${diff_length%[,.]*}+1 ))
+						unset seconds minutes hours
+						[ $num_speed != 0 ] && seconds=$(( $diff_length/$num_speed ))
+						
+						if [ ! -z "$seconds" ]; then
+							minutes=$(( $seconds/60 ))
+							hours=$(( $minutes/60 ))
+							minutes=$(( $minutes-($hours*60) ))
+							eta="${hours}h${minutes}m"
+						else
+							unset eta
+						fi
+						
+					fi
 				fi
-			fi
-			num_percent=0
-			num_percent=${percent%'%'*}
-			num_percent=${num_percent%'.'*}
-			if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ ! -z "${num_percent//.}" ]; then
-				size_bar=0
-				[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
-				diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
+				num_percent=0
+				num_percent=${percent%'%'*}
+				num_percent=${num_percent%'.'*}
+				if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ ! -z "${num_percent//.}" ]; then
+					size_bar=0
+					[ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
+					diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
+					
+					unset bar diff_bar
+					for column in `seq 1 $size_bar`; do
+						bar="${bar}${bar_char}"
+					done
+					for column in `seq 1 $diff_size_bar`; do
+						diff_bar="${diff_bar} "
+					done
+					bar="[${bar}>${diff_bar}]"
+					progress_out[$i]="${bar} $percent $speed $eta"
+				fi
 				
-				unset bar diff_bar
-				for column in `seq 1 $size_bar`; do
-					bar="${bar}${bar_char}"
-				done
-				for column in `seq 1 $diff_size_bar`; do
-					diff_bar="${diff_bar} "
-				done
-				bar="[${bar}>${diff_bar}]"
-				progress_out[$i]="${bar} $percent $speed $eta"
+				(( i++ ))
 			fi
-			
-			(( i++ ))
 		done
 		export LANG="$user_lang"
 		export LANGUAGE="$user_language"
@@ -2339,7 +2348,7 @@ function links_loop { 	#usage with op=+|- : links $op $link
 					
 					list=`sort -u "$path_tmp/links_loop.txt" | sed "s<${url_loop}<<g"  | sed '/^$/d'`
 					
-					if [ ! -z "$list" ]; then 
+					if [ ! -z "$list" ] && [ "`cat $path_tmp/links_loop.txt 2>/dev/null |wc -w`" != "0" ]; then 
 						echo -e "$list" > "$path_tmp/links_loop.txt"
 					else
 						rm "$path_tmp/links_loop.txt"
