@@ -297,6 +297,7 @@ function set_default_conf {
 	add_conf "skin=color"
 	add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel)"
 	add_conf "mode=single"
+	add_conf "stream_mode=multi"
 	add_conf "# modem router credentials"
 	add_conf "admin="
 	add_conf "passwd="
@@ -342,7 +343,7 @@ function set_item_conf {
 	fi
 }
 
-function get_conf {
+function get_conf_old {
 	if [ -e "/cygdrive" ]; then
 		print_c 1 "Attendi: lettura configurazione..."
 	fi
@@ -395,6 +396,39 @@ function get_conf {
 	autoupdate="$value"
 }
 
+function get_conf {
+	source "$file_conf"
+	downloader_in="$downloader"
+	if [ -z "$downloader_in" ]; then
+		downloader_in=Axel
+	fi
+	
+	axel_parts_conf="$axel_parts"
+	if [ -z "$axel_parts_conf" ]; then
+		axel_parts_conf=32
+	fi
+	## CYGWIN
+	if [ -e "/cygdrive" ];then
+		if (( $axel_parts_conf>10 )); then
+			axel_parts_conf=10
+		fi
+	fi
+	axel_parts=$axel_parts_conf
+	
+	if [ -z "$skin" ]; then
+		skin=color
+	fi
+	
+	if [ "mode" == "multi" ]; then
+		multi=1
+	else
+		multi=0
+	fi
+	
+	if [ "stream_mode" == "multi" ]; then
+		stream_params="-m"
+	fi
+}
 
 function configure {
 	
@@ -414,7 +448,7 @@ function configure {
 				echo
 
 				
-				print_c 2 "Seleziona l'elemento predefinito da modificare (1-9 | *):"
+				print_c 2 "Seleziona l'elemento predefinito da modificare (1-10 | *):"
 				read opt
 				test_item=`echo "$opt"|grep [1-9]`
 				test_item="${test_item// }"
@@ -446,19 +480,20 @@ function show_conf {
 	echo -e "1) Downloader predefinito (Axel|Wget): $downloader_in"
 	echo -e "2) Numero di parti in download parallelo per Axel: $axel_parts"
 	echo -e "3) Modalità di download predefinita (single|multi): $mode"
-	echo -e "4) Aspetto (color): $skin"
-	echo -e "5) Lingua: $language"
-	echo -e "6) Nome utente del modem-router: $admin"
+	echo -e "4) Modalità di download predefinita per lo stream dal browser (single|multi): $stream_mode"
+	echo -e "5) Aspetto (color): $skin"
+	echo -e "6) Lingua: $language"
+	echo -e "7) Nome utente del modem-router: $admin"
 	unset p
 	for i in `seq 1 ${#passwd}`; do
 		p="${p}*"
 	done
-	echo -e "7) Password del modem-router: $p"
-	echo -e "8) Uso di Flashgot per Firefox (enabled|*): $flashgot"
-	echo -e "9) Aggiornamenti automatici di $PROG (enabled|*): $autoupdate"
+	echo -e "8) Password del modem-router: $p"
+	echo -e "9) Uso di Flashgot per Firefox (enabled|*): $flashgot"
+	echo -e "10) Aggiornamenti automatici di $PROG (enabled|*): $autoupdate"
 	echo
 	separator "^"
-	item_options=( downloader axel_parts mode skin language admin passwd flashgot autoupdate )
+	item_options=( downloader axel_parts mode stream_mode skin language admin passwd flashgot autoupdate )
 }
 
 function show_accounts {
@@ -695,7 +730,7 @@ function init {
 	fi
 	
 	init_colors
-	user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
+	user_agent="Mozilla/5.0 (X11; Linux x36_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
 	user_lang="$LANG"
 	user_language="$LANGUAGE"
 	prog_lang='en_US.UTF-8:en'
@@ -1571,7 +1606,7 @@ function show_data_alive {
 		last_alive=$(( ${#pid_alive[*]}-1 ))
 		for j in `seq 0 $last_alive`; do
 			print_c 1 "Numero download attivo: $j"
-			[ ! -f "${file_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
+			[ ! -f "${file_alive[$j]}" ] && [ ! -z "${progress_alive[$j]}" ] && print_c 3 "${downloader_alive[$j]} sta scaricando a vuoto: ${file_alive[$j]} non esiste"
 			init_colors
 			echo -e "${BBlue}File:${Color_Off} ${file_alive[$j]}" 
 			[ ! -z "${alias_file_alive[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_alive[$j]}"
@@ -1618,6 +1653,20 @@ function data_alive {
 	fi
 }
 
+function clean_completed {
+	data_stdout
+	if [ $? == 1 ]; then
+		last_out=$(( ${#pid_out[*]}-1 ))
+		for j in `seq 0 $last_out`; do
+			length_saved=0
+			[ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
+			if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+				rm  $path_tmp/"${file_out[$j]}_stdout.tmp"
+			fi
+		done
+	fi
+}
+
 function show_downloads_extended {
 	data_stdout
 	if [ $? == 1 ]; then 
@@ -1630,7 +1679,7 @@ function show_downloads_extended {
 			
 			print_c 1 "Numero download: $j"
 			check_pid ${pid_out[$j]}
-			if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ]; then
+			if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ] && [ ! -z "${progress_out[$j]}" ]; then
 				print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
 			fi
 			
@@ -1705,10 +1754,11 @@ function interactive {
 			separator "^"
 			print_c 2 "Opzioni:"
 			echo -e "	1) riavvia o elimina un download dalla gestione di $PROG"
-			echo -e "	2) esci da $PROG --interactive\n"
+			echo -e "	2) cancella i file temporanei dei download completati"
+			echo -e "	3) esci da $PROG --interactive\n"
 			echo -e "	*) aggiorna lo stato\n"
 			separator "^"
-			print_c 2 "Scegli cosa fare (1 | 2 | *):"
+			print_c 2 "Scegli cosa fare ( 1 | 2 | 3 | * ):"
 			read action
 			
 			if [ "$action" == "1" ]; then
@@ -1727,10 +1777,11 @@ function interactive {
 				echo -e "	r) per riavviarli digita \"r\"
 	e) per eliminarli definitivamente (e cancellare il file scaricato), digita \"e\"
 	t) per terminarli definitivamente SENZA cancellare il file scaricato, digita \"t\"
+	c) per cancellare i file temporanei dei download completati, digita \"c\"
 	*) per tornare alla schermata principale"
 				echo
 				separator "^"
-				print_c 2 "Scegli cosa fare: [r | e | t | *]"
+				print_c 2 "Scegli cosa fare: ( r | e | t | c | * )"
 				read input2
 				
 				if [ "$input2" == "r" ]; then
@@ -1765,12 +1816,12 @@ function interactive {
 							fi
 						done
 					done
-# 				else
-# 					#print_c 1  "Nessun processo riavviato o eliminato"
-# 					exit
+				elif [ "$input2" == "c" ]; then
+					clean_completed
 				fi
-				
 			elif [ "$action" == "2" ]; then
+				clean_completed
+			elif [ "$action" == "3" ]; then
 				break
 			fi
 		else
@@ -1783,7 +1834,7 @@ function interactive {
 
 
 function data_stdout {
-	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
+	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress_out
 	if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
 		list="$1"
 	else
@@ -1796,39 +1847,39 @@ function data_stdout {
 		for item in $list; do
 			
 			file_stdout=$item
-			test_found=`cat "$file_stdout" |grep "404: Not Found"`
+			test_found=`cat "$file_stdout" 2>/dev/null |grep "404: Not Found"`
 			if [ -z "$test_found" ]; then
-				test_found=`cat "$file_stdout" |grep "404 Not Found"`
+				test_found=`cat "$file_stdout" 2>/dev/null |grep "404 Not Found"`
 			fi
 			
 			if [ ! -z "$test_found" ]; then
 				_log 3
 				rm -f "$file_stdout" "$file_in"
 			else
-				pid_out[$i]=`head -n 1 $file_stdout #"$path_tmp/head_stdout"`
+				pid_out[$i]=`head -n 1 $file_stdout 2>/dev/null` #"$path_tmp/head_stdout"`
 							
-				url_out[$i]=`cat $file_stdout|grep "link_$prog"`
+				url_out[$i]=`cat $file_stdout 2>/dev/null |grep "link_$prog"`
 				url_out[$i]="${url_out[$i]#link_${prog}: }"
 				#progress_out[$i]=`tail "$file_stdout" |grep K |grep % |tail -n 1`
 				
-				downloader_out[$i]=`head -n 3 $file_stdout|sed -n '3p'`
-				pid_prog_out[$i]=`head -n 4 $file_stdout|sed -n '4p'`
+				downloader_out[$i]=`head -n 3 $file_stdout 2>/dev/null |sed -n '3p'`
+				pid_prog_out[$i]=`head -n 4 $file_stdout 2>/dev/null |sed -n '4p'`
 				
-				progress_data=`tail "$file_stdout" |grep K |grep % |tail -n 1`
+				progress_data=`tail "$file_stdout" 2>/dev/null |grep K |grep % |tail -n 1`
 				progress_data="${progress_data//'..........'}"
 				progress_data="${progress_data//[\[\]]}"
 				file_o="${file_stdout//_stdout.tmp}"
 				file_o="${file_o#$path_tmp/}"
 				if [ "${downloader_out[$i]}" == "Wget" ]; then
-					length_out[$i]=`head -n 5 $file_stdout|sed -n '5p'|grep "length_in="`
+					length_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'|grep "length_in="`
 					length_out[$i]="${length_out[$i]#length_in=}"
 					if [ -z "${length_out[$i]}" ];then
-						length_out[$i]=`cat $file_stdout |grep "Length:" |tail -n 1`
+						length_out[$i]=`cat $file_stdout 2>/dev/null |grep "Length:" |tail -n 1`
 						length_out[$i]="${length_out[$i]#*Length: }"
 						length_out[$i]="${length_out[$i]%%' '*}"
 					fi
 					
-					file_out[$i]=`cat "$file_stdout"|grep "Saving to"`
+					file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Saving to"`
 					file_out[$i]="${file_out[$i]#*Saving to: \`}"
 					file_out[$i]="${file_out[$i]%\'*}"
 					
@@ -1847,7 +1898,7 @@ function data_stdout {
 					
 					if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
 						alias_file_out[$i]="${file_out[$i]}"
-						file_out[$i]=`cat $file_stdout |grep filename`
+						file_out[$i]=`cat $file_stdout 2>/dev/null |grep filename`
 						file_out[$i]="${file_out[$i]#*'filename="'}"
 						file_out[$i]="${file_out[$i]%'"'*}"
 						file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
@@ -1867,8 +1918,8 @@ function data_stdout {
 					esac
 					speed="${num_speed}${type_speed}"
 				elif [ "${downloader_out[$i]}" == "Axel" ]; then
-					axel_parts_out[$i]=`head -n 5 $file_stdout|sed -n '5p'`
-					file_out[$i]=`cat "$file_stdout"|grep "Opening output file"`
+					axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
+					file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
 					file_out[$i]="${file_out[$i]#*Opening output file }"
 					
 					if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
@@ -1881,7 +1932,7 @@ function data_stdout {
 						file_out[$i]="$file_o"
 					fi
 					
-					length_out[$i]=`cat "$file_stdout" |grep 'File size'`
+					length_out[$i]=`cat "$file_stdout" 2>/dev/null |grep 'File size'`
 					length_out[$i]="${length_out[$i]#*File size: }"
 					length_out[$i]="${length_out[$i]%% *}"
 					
@@ -1909,7 +1960,7 @@ function data_stdout {
 						KB/s) num_speed=$(( $num_speed * 1024 )) ;;
 						MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
 					esac
-					if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then	
+					if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then
 						num_percent=${percent%'%'*}
 						num_percent=$(( ${num_percent%[,.]*}+1 ))
 						diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
@@ -1981,34 +2032,36 @@ function show_downloads {
 		separator "="
 		last_stdout=$(( ${#pid_out[*]}-1 ))
 		for i in `seq 0 $last_stdout`; do
-			length_saved=0
-			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
-			echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
-			progress="${progress_out[$i]}"
-			color=2
-			
-			check_pid "${pid_out[$i]}"
-			if [ $? != 1 ]; then
-				progress="Download non attivo"
-				color=3
+			if [ ! -z "${url_out[$i]}" ]; then
+				length_saved=0
+				[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
+				echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+				progress="${progress_out[$i]}"
+				color=2
+				
+				check_pid "${pid_out[$i]}"
+				if [ $? != 1 ]; then
+					progress="Download non attivo"
+					color=3
+				fi
+				if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+					progress="Download completato"
+					color=1
+				fi
+				print_c $color "${downloader_out[$i]}: ${progress}"
+				ii=$(( $i+1 ))
+				if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
+					separator "-"
+					echo
+				fi
 			fi
-			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
-				progress="Download completato"
-				color=1
-			fi
-			print_c $color "${downloader_out[$i]}: ${progress}"
-			if [ $i != $last_stdout ]; then # && [ "$multi" == "1" ]; then
-				separator "-"
-			else
-				separator "="
-			fi
-			echo
 		done
 	else
 		separator "="
 		print_c 3 "Nessun download attivo"
-		separator "="
 	fi
+	separator "="
+	echo
 	echo
 	unset progress
 	sleep 5
@@ -2251,10 +2304,20 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 
 function check_instance_prog {
 	if [ -f "$path_tmp/pid.zdl" ]; then
-		test_pid=`cat "$path_tmp/pid.zdl"`
+		test_pid=`cat "$path_tmp/pid.zdl" 2>/dev/null`
 		check_pid "$test_pid"
 		if [ $? == 1 ]; then
-			return 1
+			pss=`ps ax|grep "$test_pid"`
+			max=`echo -e "$pss" | wc -l`
+			for line in `seq 1 $max`; do
+				proc=`echo -e "$pss" |sed -n "${line}p"`
+				pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
+				tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
+				if [ "$pid" == "${test_pid}" ] && [ "$pid" != "$pid_prog" ]; then
+					return 1
+				fi
+			done
+			#return 1
 		fi
 	fi
 }
@@ -2266,18 +2329,14 @@ function check_instance_dl {
 		for i in `seq 0 $last_stdout`; do
 			check_pid ${pid_prog_out[$i]}
 			if [ $? == 1 ]; then
-				#ps ax > $path_tmp/ps.tmp
-				max=`ps ax |wc -l`
-				for line in `seq 2 $max`; do
-					#proc=`cat $path_tmp/ps.tmp |sed -n "${line}p"`
-					proc=`ps ax |sed -n "${line}p"`
+				pss=`ps ax |grep "${pid_prog_out[$i]}"`
+				max=`echo -e "$pss" |wc -l`
+				for line in `seq 1 $max`; do
+					proc=`echo -e $pss"" |sed -n "${line}p"`
 					pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
 					tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
 					if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
-# 						print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
-# 						exit
 						return 1
-# 						kill "${pid_prog_out[$i]}" && print_c 1 "Uccisa l'istanza in $tty"
 					fi
 				done
 			fi
@@ -2286,6 +2345,7 @@ function check_instance_dl {
 }
 
 function clean_file {
+	unset items
 	if [ -f "$path_tmp/rewriting" ];then
 		while [ -f "$path_tmp/rewriting" ]; do
 			sleep 0.1
@@ -2295,29 +2355,29 @@ function clean_file {
 	if [ ! -z "$1" ] && [ -f "$1" ]; then
 		file_to_ck="$1"
 		
-		list=`sort -u "$file_to_ck" | sed '/^$/d'`
-		if [ ! -z "$list" ]; then
-			echo -e "$list" > "$file_to_ck"
-		else
-			rm "$file_to_ck"
-		fi
-# 		last_line=`cat "$file_to_ck" |wc -l`
-# 		for i in `seq 1 $last_line`; do
-# 			it=`cat "$file_to_ck" 2>/dev/null |sed -n "${i}p"`
-# 			
-# 			if [ "${items[*]}" == "${items[*]//$it}" ]; then
-# 				items[${#items[*]}]=$it
-# 			fi
-# 		done
-# 		
-# 		rm "$file_to_ck"
-# 		
-# 		for ij in ${items[*]}; do
-# 			[ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
-# 		done
+# # 		list=`sort -u "$file_to_ck" | sed '/^$/d'`
+# # 		if [ ! -z "$list" ]; then
+# # 			echo -e "$list" > "$file_to_ck"
+# # 		else
+# # 			rm "$file_to_ck"
+# # 		fi
+		last_line=`cat "$file_to_ck" |wc -l`
+		for i in `seq 1 $last_line`; do
+			it=`cat "$file_to_ck" 2>/dev/null |sed -n "${i}p"`
+			
+			if [ "${items[*]}" == "${items[*]//$it}" ]; then
+				items[${#items[*]}]=$it
+			fi
+		done
+		
+		rm "$file_to_ck"
+		
+		for ij in ${items[*]}; do
+			[ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
+		done
 	fi
 	rm -f "$path_tmp/rewriting"
-	#unset items
+	unset items
 }
 
 function links_loop { 	#usage with op=+|- : links $op $link
@@ -2339,20 +2399,20 @@ function links_loop { 	#usage with op=+|- : links $op $link
 				;;
 			-)
 				if [ -f "$path_tmp/links_loop.txt" ]; then
-# 					lnx=`cat $path_tmp/links_loop.txt`
-# 					for lnk in $lnx; do
-# 						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
-# 					done
-# 					rm $path_tmp/links_loop.txt
-# 					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+					lnx=`cat $path_tmp/links_loop.txt`
+					for lnk in $lnx; do
+						[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+					done
+					rm $path_tmp/links_loop.txt
+					[ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
 					
-					list=`sort -u "$path_tmp/links_loop.txt" | sed "s<${url_loop}<<g"  | sed '/^$/d'`
-					
-					if [ ! -z "$list" ] && [ "`cat $path_tmp/links_loop.txt 2>/dev/null |wc -w`" != "0" ]; then 
-						echo -e "$list" > "$path_tmp/links_loop.txt"
-					else
-						rm "$path_tmp/links_loop.txt"
-					fi
+# # 					list=`sort -u "$path_tmp/links_loop.txt" | sed "s<${url_loop}<<g"  | sed '/^$/d'`
+# # 					
+# # 					if [ ! -z "$list" ] && [ "`cat $path_tmp/links_loop.txt 2>/dev/null |wc -w`" != "0" ]; then 
+# # 						echo -e "$list" > "$path_tmp/links_loop.txt"
+# # 					else
+# # 						rm "$path_tmp/links_loop.txt"
+# # 					fi
 				fi
 				rm -f "$path_tmp/rewriting"
 				;;
@@ -2429,6 +2489,8 @@ function check_lock {
 #[ ! -z "$pid_prog" ] && read -p "$pid_prog" && exit
 init
 
+## get config data
+get_conf
 
 args=( $@ )
 max_args=$(( ${#args[*]}-1 ))
@@ -2498,12 +2560,12 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 					exit
 				else
 					#export pid_prog=$$
-					$prog "$url_in" -m
+					$prog "$url_in" $stream_params
 					read -p ">> PREMI INVIO per uscire <<"
 				fi
 			else
 				
-				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" -m ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 			fi
 			
 			#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
@@ -2534,8 +2596,7 @@ header
 separator z
 ###################################
 
-## get config data
-get_conf
+
 
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
@@ -2733,6 +2794,8 @@ if [ ! -z "${args[*]}" ]; then
 		if [ -f $path_tmp/links_loop.txt ];then 
 			file="$path_tmp/links_loop.txt"
 			clean_file $path_tmp/links_loop.txt
+			echo >> links.txt 2>/dev/null
+			date >> links.txt 2>/dev/null
 			cat $path_tmp/links_loop.txt >> links.txt 2>/dev/null
 			#clean_file links.txt
 			print_c 1 "L'elenco completo dei link è in links.txt"
@@ -2764,6 +2827,11 @@ fi
 
 
 if [ -z "$file" ] ; then
+	check_instance_prog
+	if [ "$?" != "1" ]; then
+		echo "$pid_prog" > "$path_tmp/pid.zdl"
+	fi
+		
 	echo
 	separator "@"
 	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Rapidshare, Cyberlocker, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
@@ -2771,17 +2839,34 @@ if [ -z "$file" ] ; then
 	separator "^"
 	echo -e "\r"
 	read -d @ -a links
+	if [ -f "$path_tmp/rewriting" ];then
+		while [ -f "$path_tmp/rewriting" ]; do
+			sleep 0.1
+		done
+	fi
+	touch "$path_tmp/rewriting"
 	printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
 	file="$path_tmp/links_loop.txt"
 	if [ -f "$file" ];then
+		rm -f "$path_tmp/rewriting"
 		clean_file "$file"
+		if [ -f "$path_tmp/rewriting" ];then
+			while [ -f "$path_tmp/rewriting" ]; do
+				sleep 0.1
+			done
+		fi
+		touch "$path_tmp/rewriting"
 		if [ -f "$file" ];then
 			cat $file >> links.txt
+			rm -f "$path_tmp/rewriting"
 		else
+			rm -f "$path_tmp/rewriting"
 			print_c 3 "Nessun link da processare"
 			exit
 		fi
 		echo
+	else
+		rm -f "$path_tmp/rewriting"
 	fi
 fi
 
@@ -3388,12 +3473,15 @@ while true; do
 							file_in="${file_in%'?'*}"
 							
 						fi
-						url_in_file="${url_in% }"
+						url_in_file="${url_in%% }"
+						url_in_file="${url_in_file## }"
 						
 						if [ "$update_proxy_others" == "true" ]; then
 							update_proxy_others_list="true"
 						fi
-					
+						
+					fi
+					if [ "$url_in_file" == "${url_in_file//nowvideo.}" ]; then
 						axel_parts=8
 					fi
 				fi
@@ -3491,7 +3579,7 @@ while true; do
 		exit
 	fi
 done
-
+rm -f "$path_tmp/lock.zdl"
 noproxy
 
 separator "-"
