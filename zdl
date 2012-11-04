@@ -462,6 +462,9 @@ function configure {
 					fi
 					set_item_conf ${item_options[$opt]} $new_value
 					touch "$path_conf/updated"
+					if [ "${item_options[$opt]}" == "flashgot" ]; then
+						touch "$path_conf/flashgot_updated"
+					fi
 				fi
 			;;
 			2)	
@@ -704,6 +707,7 @@ function init {
 	file_conf="$path_conf/$prog.conf"
 	mkdir -p "$path_conf"
 	if [ ! -f "$file_conf" ]; then
+		touch "$path_conf/flashgot_updated"
 		echo "# ZigzagDownLoader configuration file" > "$file_conf"
 	fi
 	if [ -f "$path_conf/updated" ] || [ ! -f "$file_conf" ]; then
@@ -810,8 +814,12 @@ function flashgot_autoconf {
 # 	user_pref("flashgot.detect.cache", "(Incorporato nel browser),axel,ZigzagDownLoader");
 # 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
 	if [ -e "/cygdrive" ]; then
-		print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso..."
-		cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/"`
+		if [ ! -f $path_conf/ffprefs_path ]; then
+			print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso (può richiedere molti minuti)..."
+			#cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/"`
+			find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/" > $path_conf/ffprefs_path
+		fi
+		cygprefs=`cat $path_conf/ffprefs_path`
 		test_flashgot=`cat $cygprefs | grep flashgot`
 	else
 		test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
@@ -1801,8 +1809,8 @@ function interactive {
 						for j in $options; do
 							if [ "$i" == "$j" ]; then
 								kill ${pid_out[$i]} 2>/dev/null
-								links_loop - "${url_out[$i]}"
 								rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+								links_loop - "${url_out[$i]}"
 							fi
 						done
 					done
@@ -1811,8 +1819,8 @@ function interactive {
 						for j in $options; do
 							if [ "$i" == "$j" ]; then
 								kill ${pid_out[$i]} 2>/dev/null
-								links_loop - "${url_out[$i]}"
 								rm -f $path_tmp/"${file_out[$i]}_stdout.tmp"
+								links_loop - "${url_out[$i]}"
 							fi
 						done
 					done
@@ -1854,7 +1862,9 @@ function data_stdout {
 			
 			if [ ! -z "$test_found" ]; then
 				_log 3
-				rm -f "$file_stdout" "$file_in"
+				if [ ! -f "${file_in}.st" ]; then
+					rm -f "$file_stdout" "$file_in"
+				fi
 			else
 				pid_out[$i]=`head -n 1 $file_stdout 2>/dev/null` #"$path_tmp/head_stdout"`
 							
@@ -2083,7 +2093,7 @@ function check_stdout {
 				fi
 				
 				test_repeated="${repeated[${pid_out[$ck]}]}"
-				repeated[${pid_out[$ck]}]=`tail -n 50 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
+				repeated[${pid_out[$ck]}]=`tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
 				if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
 					kill ${pid_out[$ck]}
 				fi
@@ -2805,13 +2815,18 @@ if [ ! -z "${args[*]}" ]; then
 fi
 
 
-if [ "$flashgot" == "enabled" ] && [ -f "$path_conf/updated" ];then
-	flashgot_autoconf
-elif [ "$flashgot" != "enabled" ] && [ -f "$path_conf/updated" ];then
-	restore_ffprefs
-fi
+local_version=`cat "$path_conf/version.txt" 2>/dev/null`
+num1=${local_version//*[.,]}
+num2=${local_version//[.,]*}
 
-rm -f "$path_conf/updated"
+if [ -f "$path_conf/flashgot_updated" ] || ( [ -f "$path_conf/updated" ] && (( $num1<125 )) ); then
+	if [ "$flashgot" == "enabled" ];then
+		flashgot_autoconf
+	elif [ "$flashgot" != "enabled" ];then
+		restore_ffprefs
+	fi
+fi
+rm -f "$path_conf/updated" "$path_conf/flashgot_updated"
 
 if [ ! -e "/cygdrive" ];then
 	check_downloader
@@ -3081,7 +3096,7 @@ while true; do
 						fi
 					fi
 				elif [ "$domain" != "${domain//glumbouploads.}" ]; then
-					[ "$multi" == "0" ] && [ -f "$file_data" ]&& check_ip glumbouploads
+					[ "$multi" == "0" ] && [ -f "$file_data" ] && check_ip glumbouploads
 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
 					echo -e "...\c"
 					
@@ -3277,8 +3292,11 @@ while true; do
 					file_in=${url_in_file##*\/}
 					url_in_file="${url_in_file%'/'$file_in}"
 					
-					not_available=`wget -t 1 -T $max_waiting -q -O - $url_in_file 2>/dev/null |grep "File not available"`
-					#[ ! -z "$not_available" ] && print_c 3 "$not_available"
+					not_available=`wget -t 1 -T $max_waiting -q -O - "$url_in" |grep "File not available"`
+					if [ ! -z "$not_available" ]; then 
+						_log 3
+						break
+					fi
 					check_in_file
 					
 					if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
@@ -3452,6 +3470,17 @@ while true; do
 							new_ip_proxy
 						fi
 						
+						data_stdout
+						if [ $? == 1 ]; then 
+							last_out=$(( ${#pid_out[*]}-1 ))
+							for j in `seq 0 $last_out`; do
+								if [ "$url_in" == "${url_out[$j]}" ]; then
+									file_in="${file_out[$j]}"
+									break
+								fi
+							done
+						fi	
+							
 						## streaming downloader
 						items=( `ls $path_tmp/filename_* 2>/dev/null` ) #2>/dev/null
 						if [ ! -z "${items[*]}" ]; then
