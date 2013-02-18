@@ -87,7 +87,7 @@ ZigzagDownLoader ($PROG) - Download manager
 
 \e[1mIl gestore di download ZigzagDownLoader: manuale e consigli d'uso.\e[0m
 
-ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Nowdownload, Rapidshare, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili).
+ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Putlocker (scarica il file in formato AVI, se si tratta di un filmato disponibile anche in streaming), Nowdownload, Rapidshare, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili).
 
 ZDL può essere avviato in diversi modi:
 
@@ -129,6 +129,43 @@ L'argomento [--login] attiva il login automatico nel caso la configurazione di Z
 Inoltre, ZDL accetta come argomenti un numero illimitato di file di testo contenenti link ed è stato progettato anche per scaricare il file di uno stream video. Per quest'ultima operazione è particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo di Firefox/Iceweasel (http://flashgot.net/). È disponibile anche un'integrazione manuale di ZDL con Chrome/Chromium attraverso l'uso di alcune estensioni (qualitativamente inferiori a Flashgot, più avanti le istruzioni).
 
 Infine, la funzione [--ip] mostra l'indirizzo IP corrente.
+
+\e[1mUn altro modo di usare ZDL, per aggiungere opzioni al download dal browser.\e[0m
+La spiegazione di seguito con un esempio, partendo da un problema pratico:
+
+\e[1mProblema:\e[0m
+
+voglio scaricare dei file da Easybytez usando Flashgot, ma voglio anche usare le opzioni --login, --multi e --clean, che non sono impostate di default. Come posso utilizzare queste funzioni aggiuntive usando il browser (con Flashgot), se queste possono essere attivate solo dal terminale?
+
+\e[1mSoluzione:\e[0m
+
+    avvio zdl in un terminale, dalla directory di destinazione, utilizzando tutte le opzioni di cui ho bisogno:
+
+    zdl -m --login --clean
+
+    usando Firefox, clicco con il tasto destro del mouse sui link dei file da scaricare e avvio il download con Flashgot: il download non viene effettuato subito e i link vengono registrati da zdl per essere processati da un'altra istanza attiva del programma (quella nel terminale)
+
+    quando ho finito di registrare i link, torno al terminale e, senza scrivere nulla, digito la chiocciolina @
+
+
+\e[1mCome aggiungere estensioni personalizzate e sperimentali.\e[0m
+ZDL incorpora il codice che trova in tutti gli script *.sh nella directory \$HOME/.zdl/extensions/
+
+Per esempio:
+
+## add-on Pippo
+
+if [ \"\$url_in\" != \"\${url_in//'http://pippo.org'}\" ]; then
+   url_in_file=\"\${url_in//'http://pippo.org'/http://USER:PASSWORD@pippo.org}\"
+   file_in=\"\${url_in##*/}\"
+   unset multi
+   axel_parts=3
+fi
+
+L'esempio può essere usato come modello, modificando l'url del download aggiungendo USER e PASSWORD per i link di pippo.org (variabile \$url_in_file), indicando come ricavare il nome del file da scaricare (variabile \$file_in), aggiungendo o modificando opzioni, come disattivare la funzione multi (serve a scaricare più file in parallelo) e stabilire il numero di parti da scaricare con Axel (il grado di accelerazione, che per default è 32 ma che per diversi server può essere eccessivo o insufficiente, peggiorando le prestazioni).
+
+In questo modo, è possibile estendere ZDL ad altri servizi di file hosting (anche a scopo sperimentale), aggiungere opzioni mirate e personalizzate o implementare il funzionamento del programma, utilizzando le variabili e le funzioni disponibili nello script /usr/local/bin/zdl, senza modificare il sorgente, scrivendo semplicemente un file *.sh nella directory \$HOME/.zdl/extensions/
+
 
 \e[1mIntegrazione con Firefox/Iceweasel
 CONFIGURAZIONE MANUALE DI FLASHGOT.\e[0m
@@ -747,7 +784,7 @@ function init {
 		wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: C:\Cygwin\zdl.bat "
 	fi
 	
-	newip_providers=( mediafire uploaded easybytez uload glumbouploads )
+	newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads)
 	## skin dark
 #  	echo -n -e "${White}${On_Black}\e[J"
 
@@ -1079,8 +1116,8 @@ function _log {
 			;;
 		6)
 			echo
-			print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev: non sarà scaricato." | tee -a $file_log
-			links_loop - "$url_in"
+			print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev" #| tee -a $file_log
+			#links_loop - "$url_in"
 			echo
 			;;
 		7)
@@ -1128,13 +1165,14 @@ function my_ip {
 	echo
 }
 
-function add_newip {
-	[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
-	[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-	#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
-	[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-	#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
-}
+# function add_newip {
+# 	[ "$domain" != "${domain//mediafire.}" ] && newip[${#newip[*]}]=mediafire
+# 	[ "$domain" != "${domain//uploaded.}" ] && newip[${#newip[*]}]=uploaded
+# 	#[ "$domain" != "${domain//shareflare.}" ] && newip[${#newip[*]}]=shareflare
+# 	[ "$domain" != "${domain//easybytez.}" ] && newip[${#newip[*]}]=easybytez
+# 	#[ "$domain" != "${domain//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
+# 	[ "$domain" != "${domain//billionuploads.}" ] && newip[${#newip[*]}]=billionuploads
+# }
 
 function new_ip_router {
 	noproxy
@@ -2544,7 +2582,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				ext="${file_in##*.}"
 				file_in2=`wget "$referer" -O - -q | grep "&title="`
 				file_in2="${file_in2#*&title=}"
-				[ ! -z "$file_in2" ] && file_in="${file_in2%%\"*}.$ext"
+				[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
 			fi
 			
 			cd "$directory"
@@ -2849,7 +2887,7 @@ if [ -z "$file" ] ; then
 		
 	echo
 	separator "@"
-	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Rapidshare, Cyberlocker, Uload, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
+	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Nowdownload, Rapidshare, Cyberlocker, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
 	echo -e "\r"
@@ -2919,6 +2957,7 @@ while true; do
 	if [ -f "$file" ]; then	
 		links_in=`cat $file`
 		for url_in in $links_in; do
+			
 			echo "checking $url_in ..."
 			unset pid_in checked file_in url_in_file
 			check_in_url
@@ -2927,7 +2966,7 @@ while true; do
 				url_in="${url_in## }"
 				url_in="${url_in%% }"
 				domain=${url_in//\?*}
-				
+				domain=`echo "$domain" | tr  [:upper:] [:lower:]`
 				if [ "$update_proxy" == "true" ];then
 					unset newip update_proxy
 					new_ip_proxy
@@ -3056,45 +3095,45 @@ while true; do
 					fi
 					unset file_in2 file_in1 file_ext token preurl_in_file
 					
-				elif [ "$domain" != "${domain//uload.}" ]; then
-					check_ip uload
-					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-					echo -e "...\c"
-					
-					#exceeded
-					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
-					if [ ! -z "$test_exceeded" ]; then
-						test_exceeded="${test_exceeded#*- }"
-						test_exceeded="${test_exceeded%% *}"
-						test_exceeded="${test_exceeded%.*}"
-						if (( $test_exceeded>400 )); then
-							exceeded=true
-						fi
-					fi
-									
-					if [ -z "$exceeded" ]; then
-						unset post_data
-						tmp="$path_tmp/zdl.tmp"
-						input_hidden
-						
-						post_data="${post_data//'op=catalogue&'}"
-						
-						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
-						
-						
-						unset post_data
-						tmp="$path_tmp/zdl2.tmp"
-						input_hidden
-						post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
-						
-						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
-						
-						if [ -f $path_tmp/zdl3.tmp ];then
-							url_in_file=`cat $path_tmp/zdl3.tmp | grep "http://uload.to/images/download.png"`
-							url_in_file="${url_in_file#<a href=\"}"
-							url_in_file="${url_in_file%%\"*}"
-						fi
-					fi
+# 				elif [ "$domain" != "${domain//uload.}" ]; then
+# 					check_ip uload
+# 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+# 					echo -e "...\c"
+# 					
+# 					#exceeded
+# 					test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
+# 					if [ ! -z "$test_exceeded" ]; then
+# 						test_exceeded="${test_exceeded#*- }"
+# 						test_exceeded="${test_exceeded%% *}"
+# 						test_exceeded="${test_exceeded%.*}"
+# 						if (( $test_exceeded>400 )); then
+# 							exceeded=true
+# 						fi
+# 					fi
+# 									
+# 					if [ -z "$exceeded" ]; then
+# 						unset post_data
+# 						tmp="$path_tmp/zdl.tmp"
+# 						input_hidden
+# 						
+# 						post_data="${post_data//'op=catalogue&'}"
+# 						
+# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+# 						
+# 						
+# 						unset post_data
+# 						tmp="$path_tmp/zdl2.tmp"
+# 						input_hidden
+# 						post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
+# 						
+# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+# 						
+# 						if [ -f $path_tmp/zdl3.tmp ];then
+# 							url_in_file=`cat $path_tmp/zdl3.tmp | grep "http://uload.to/images/download.png"`
+# 							url_in_file="${url_in_file#<a href=\"}"
+# 							url_in_file="${url_in_file%%\"*}"
+# 						fi
+# 					fi
 				elif [ "$domain" != "${domain//glumbouploads.}" ]; then
 					[ "$multi" == "0" ] && [ -f "$file_data" ] && check_ip glumbouploads
 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
@@ -3365,6 +3404,51 @@ while true; do
 						fi
 					fi
 					#axel_parts=1	
+				elif [ "$domain" != "${domain//billionuploads}" ]; then
+					cookies="$path_tmp/cookies.zdl"
+					if [ ! -z "$multi" ];then
+						check_ip billionuploads
+					fi
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
+					
+					unset post_data
+					tmp="$path_tmp/zdl.tmp"
+					input_hidden
+					post_data="${post_data%&cmt_type=*}"
+					
+					if [ -z "$file_in" ]; then
+						file_in=`cat "$path_tmp/zdl.tmp"|grep "Filename"`
+						file_in="${file_in#*</b>}"
+						file_in="${file_in%<br>*}"
+					fi
+					
+					print_c 2 "Attendi circa 30 secondi:"
+					k=`date +"%s"`
+					s=0
+					unset url_in_file
+					while true; do
+	
+						if (( $s>29 )); then
+							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+							url_in_file=`cat $path_tmp/zdl2.tmp | grep ">Download</a>"`
+							url_in_file="${url_in_file#*product_download_url=}"
+							url_in_file="${url_in_file%%'"'*}"
+						fi
+						sleep 1
+						s=`date +"%s"`
+						s=$(( $s-$k ))
+						
+						echo -e $s"\r\c"
+						if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+							break
+						fi
+					done
+					
+					#sleep 5
+					if (( $axel_parts>8 )); then
+						axel_parts=8
+					fi
 					
 # 				elif [ "$domain" != "${domain//uploaded.}" ]; then
 # 					unset alias
@@ -3433,7 +3517,12 @@ while true; do
 					elif [ "$url_in" != "${url_in//'rapidshare.com/#!download|'}" ]; then
 						reurl="$url_in"
 					fi
-					if [ "$reurl" == "${reurl//File not found}" ]; then
+					
+					if [ "$reurl" != "${reurl//public traffic exhausted}" ]; then
+						#_log 2
+						unset url_in_file
+						#break
+					elif [ "$reurl" == "${reurl//File not found}" ] && [ "$reurl" == "${reurl//Download permission denied by uploader}" ]; then
 
 						devrapid="${reurl#*download|}"
 						devrapid="${devrapid%%|*}"
@@ -3450,6 +3539,30 @@ while true; do
 							file_in="${file_in%%&*}"
 							url_in_file="$url_in"
 						fi
+					else
+						_log 3
+						break
+					fi
+				elif [ "$url_in" != "${url_in//'putlocker.com/file/'}" ]; then
+					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+					echo -e "...\c"
+					test_putlocker=`cat "$path_tmp/zdl.tmp" | grep "This file doesn't exist, or has been removed"`
+					
+					if [ ! -z "$test_putlocker" ]; then
+						unset post_data
+						tmp="$path_tmp/zdl.tmp"
+						input_hidden
+						post_data="${post_data}&confirm=Continue as Free User"
+						
+						file_in=`cat "$path_tmp/zdl.tmp" |grep ' | PutLocker</title>'`
+						file_in="${file_in#*'title>'}"
+						file_in="${file_in%' | PutLocker</title>'*}"
+						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+						
+						url_in_file=`cat $path_tmp/zdl2.tmp | grep "get_file.php"`
+						url_in_file="${url_in_file#*\"}"
+						url_in_file="${url_in_file%%'"'*}"
+						url_in_file="http://www.putlocker.com${url_in_file}"
 					else
 						_log 3
 						break
@@ -3488,6 +3601,7 @@ while true; do
 							for item in ${items[*]}; do
 								url=`cat "$item"`
 								if [ "${url%% }" == "$url_in" ]; then
+									item="${item// /_}"
 									file_in="${item#*filename_}"
 									file_in="${file_in%.txt}"
 									break
