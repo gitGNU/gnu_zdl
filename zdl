@@ -3548,7 +3548,7 @@ while true; do
 					echo -e "...\c"
 					test_putlocker=`cat "$path_tmp/zdl.tmp" | grep "This file doesn't exist, or has been removed"`
 					
-					if [ ! -z "$test_putlocker" ]; then
+					if [ -z "$test_putlocker" ]; then
 						unset post_data
 						tmp="$path_tmp/zdl.tmp"
 						input_hidden
