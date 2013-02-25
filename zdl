@@ -785,6 +785,7 @@ function init {
 	fi
 	
 	newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads)
+# 	data_stdout
 	## skin dark
 #  	echo -n -e "${White}${On_Black}\e[J"
 
@@ -1965,6 +1966,9 @@ function data_stdout {
 						M) type_speed="MB/s";;
 					esac
 					speed="${num_speed}${type_speed}"
+# 					if [ ! -e "${file_out[$i]}" ]; then
+# 						rm "$file_stdout"
+# 					fi
 				elif [ "${downloader_out[$i]}" == "Axel" ]; then
 					axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
 					file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
@@ -2026,6 +2030,7 @@ function data_stdout {
 						fi
 						
 					fi
+# 					rm "$file_stdout"
 				fi
 				num_percent=0
 				num_percent=${percent%'%'*}
@@ -2047,6 +2052,7 @@ function data_stdout {
 				fi
 				
 				(( i++ ))
+				
 			fi
 		done
 		export LANG="$user_lang"
@@ -2287,6 +2293,8 @@ function check_in_file { 	# return --> no_download=1 --> download=5
 		unset no_newip
 	elif [ -z "$url_in_file" ] || [ -z "${file_in}" ]; then
 		_log 2
+# 		[ -z "$url_in_file" ] && echo ">>>>>> _URL_ NON DISPONIBILE"
+# 		[ -z "${file_in}" ] && echo ">>>>>> _NOME FILE_ NON DISPONIBILE"
 		unset no_newip
 	fi
 	
@@ -3578,7 +3586,7 @@ while true; do
 							done
 						fi
 					fi
-					if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
+					if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 						if [ "$update_proxy_others_list" == "true" ]; then
 							new_ip_proxy
 						fi
