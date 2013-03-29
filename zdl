@@ -2548,7 +2548,7 @@ init
 ## get config data
 get_conf
 
-args=( $@ )
+args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
 if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	for i in `seq 0 $max_args`; do
@@ -2803,7 +2803,7 @@ if [ ! -z "${args[*]}" ]; then
 				links=`cat "${args[$i]}"` 
 				echo -e "${links// /%20}" >> $path_tmp/links_loop.txt
 			elif [ ! -z "${args[$i]}" ]; then
-				echo "${args[$i]// /%20}" >> $path_tmp/links_loop.txt
+				echo -e "${args[$i]// /%20}" >> $path_tmp/links_loop.txt
 				## 
 				## in alternativa alla riga qua sopra, un controllo del link:
 				## 
