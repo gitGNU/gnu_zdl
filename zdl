@@ -2560,7 +2560,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				export DISPLAY=":0"
 			fi
 			url_in="$2"
-			
+			url_in="${url_in// /20%}"
 			
 			
 			if [ ! -d "$3" ]; then
@@ -2800,9 +2800,10 @@ if [ ! -z "${args[*]}" ]; then
 	while true; do
 		for i in `seq 0 $max_args`; do
 			if [ -f "${args[$i]}" ]; then
-				cat "${args[$i]}" >> $path_tmp/links_loop.txt
+				links=`cat "${args[$i]}"` 
+				echo -e "${links// /%20}" >> $path_tmp/links_loop.txt
 			elif [ ! -z "${args[$i]}" ]; then
-				echo "${args[$i]}" >> $path_tmp/links_loop.txt
+				echo "${args[$i]// /%20}" >> $path_tmp/links_loop.txt
 				## 
 				## in alternativa alla riga qua sopra, un controllo del link:
 				## 
@@ -2899,14 +2900,18 @@ if [ -z "$file" ] ; then
 	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
 	separator "^"
 	echo -e "\r"
-	read -d @ -a links
+	#read -d @ -a links
+	read -d @ links
+	
 	if [ -f "$path_tmp/rewriting" ];then
 		while [ -f "$path_tmp/rewriting" ]; do
 			sleep 0.1
 		done
 	fi
 	touch "$path_tmp/rewriting"
-	printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
+	#printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
+	echo -e "${links// /%20}" >> $path_tmp/links_loop.txt
+	
 	file="$path_tmp/links_loop.txt"
 	if [ -f "$file" ];then
 		rm -f "$path_tmp/rewriting"
