@@ -470,26 +470,28 @@ function get_conf {
 function configure {
 	
 	while true; do
-		echo
 # 		get_conf
 # 		show_conf
 # 		echo
-		print_c 2 "Opzioni:"
-		echo -e "\t1) modifica la configurazione\n\t2) gestisci gli account dei servizi di hosting\n\t3) esci\n"
-		print_c 2 "Scegli un'opzione (1|2|3):"
-		read option_0
+		header_z
+		header_box "Preferenze"
+		print_c 2 "Scegli un'opzione (1|2|3)"
+		echo -e "\t<${BBlue} 1 ${Color_Off}> modifica la configurazione\n\t<${BBlue} 2 ${Color_Off}> gestisci gli account dei servizi di hosting\n\t<${BBlue} 3 ${Color_Off}> esci\n"
+		
+		cursor off
+		read -n 1 option_0
+		cursor on
+		echo -e -n "\r \r"
 		case $option_0 in
-			1)	#configure_file
+			1)	header_z
+				header_box "Configurazione di $name_prog"
 				get_conf
 				show_conf
-				echo
-
-				
 				print_c 2 "Seleziona l'elemento predefinito da modificare (1-10 | *):"
 				read opt
 				test_item=`echo "$opt"|grep [1-9]`
 				test_item="${test_item// }"
-				if [ ! -z "$test_item" ] && [ "${#test_item}" == "1" ]; then
+				if [ ! -z "$test_item" ]; then # && [ "${#test_item}" == "1" ]; then
 					(( opt-- ))
 					print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
 					if [ "${item_options[$opt]}" == "passwd" ]; then
@@ -498,6 +500,9 @@ function configure {
 						read new_value
 					fi
 					set_item_conf ${item_options[$opt]} $new_value
+					echo -e "${item_options[$opt]}=$new_value"
+					cat "$path_conf/updated"
+					read
 					touch "$path_conf/updated"
 					if [ "${item_options[$opt]}" == "flashgot" ]; then
 						touch "$path_conf/flashgot_updated"
@@ -515,30 +520,31 @@ function configure {
 }
 
 function show_conf {
-	print_c 1 "Configurazione di $PROG"
-	separator "^"
-	echo -e "1) Downloader predefinito (Axel|Wget): $downloader_in"
-	echo -e "2) Numero di parti in download parallelo per Axel: $axel_parts"
-	echo -e "3) Modalità di download predefinita (single|multi): $mode"
-	echo -e "4) Modalità di download predefinita per lo stream dal browser (single|multi): $stream_mode"
-	echo -e "5) Aspetto (color): $skin"
-	echo -e "6) Lingua: $language"
-	echo -e "7) Nome utente del modem-router: $admin"
+#	header_z
+
+	#separator "─"
+	echo -e " 1)\tDownloader predefinito (Axel|Wget): $downloader_in"
+	echo -e " 2)\tNumero di parti in download parallelo per Axel: $axel_parts"
+	echo -e " 3)\tModalità di download predefinita (single|multi): $mode"
+	echo -e " 4)\tModalità di download predefinita per lo stream dal browser (single|multi): $stream_mode"
+	echo -e " 5)\tAspetto (color): $skin"
+	echo -e " 6)\tLingua: $language"
+	echo -e " 7)\tNome utente del modem-router: $admin"
 	unset p
 	for i in `seq 1 ${#passwd}`; do
 		p="${p}*"
-	done
-	echo -e "8) Password del modem-router: $p"
-	echo -e "9) Uso di Flashgot per Firefox (enabled|*): $flashgot"
-	echo -e "10) Aggiornamenti automatici di $PROG (enabled|*): $autoupdate"
+	done 
+	echo -e " 8)\tPassword del modem-router: $p"
+	echo -e " 9)\tUso di Flashgot per Firefox (enabled|*): $flashgot"
+	echo -e "10)\tAggiornamenti automatici di $PROG (enabled|*): $autoupdate"
 	echo
-	separator "^"
+	#separator "─"
 	item_options=( downloader axel_parts mode stream_mode skin language admin passwd flashgot autoupdate )
 }
 
 function show_accounts {
-	print_c 1 "Account registrati per $host:"
-	separator "^"
+	header_box "Account registrati per $host:"
+	#separator "─"
 	if [ ! -z "${accounts_user[*]}" ];then
 		for name_account in ${accounts_user[*]}; do
 			echo "$name_account"
@@ -546,8 +552,6 @@ function show_accounts {
 	else
 		print_c 3 "Nessun account registrato per $host"
 	fi
-	echo
-	separator "^"
 }
 
 function get_accounts {
@@ -627,70 +631,87 @@ function host_login {
 }
 
 function configure_file_old {
-	vi $file_conf || ( print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)" ; read -p "Premi invio per continuare" )
+	vi $file_conf || ( print_c 3 "Per configurare $PROG devi modificare i valori nel file $file_conf (puoi usare un qualunque editor di testi)" ; pause )
 	#exit
 }
 
 function configure_accounts {
 	mkdir -p $path_conf/accounts
-	while true; do
-		echo
-		print_c 2 "Servizi di hosting abilitati per l'uso di account:"
-		echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
-		print_c 2 "Scegli il servizio (1):"
-		read option_1
-		case $option_1 in
-			1) 
-				host="easybytez"
-				break
-			;;
-# 			2)
-# 				host="uload"
-# 				break
-# 			;;
-# 			3)	
-# 				host="glumbouploads"
-# 				break
-# 			;;
-		esac
-	done
-	
+	# while true; do
+	# 	print_c 2 "Servizi di hosting abilitati per l'uso di account:"
+	# 	echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
+	# 	print_c 2 "Scegli il servizio (1):"
+	# 	cursor off
+	# 	read -n 1 option_1
+	# 	cursor on
+	# 	case $option_1 in
+	# 		1)
+				
+	# 			host="easybytez"
+	# 			break
+	# 		;;
+	# 		2)
+	# 			host="uload"
+	# 			break
+	# 		;;
+	# 		3)	
+	# 			host="glumbouploads"
+	# 			break
+	# 		;;
+	# 	esac
+	# done
+	print_c 1 "\rAttualmente $name_prog è abilitato per gli account di Easybytez\n"
+	host="easybytez"
 	
 	while true; do
 		touch $path_conf/accounts/$host
+		header_z
 		get_accounts
 		show_accounts
 
 		echo
-		print_c 2 "Opzioni:"
-		echo -e "\t1) aggiungi un account\n\t2) elimina un account\n\t*) torna alla pagina principale di configurazione\n"
-		print_c 2 "Scegli un'opzione (1|2|*):"
-		read option_2
+		header_box "Opzioni"
+		echo -e "\t<${BBlue} 1 ${Color_Off}> aggiungi un account\n\t<${BBlue} 2 ${Color_Off}> elimina un account\n\t<${BBlue} * ${Color_Off}> torna alla pagina principale di configurazione\n"
+		#print_c 2 "Scegli un'opzione (1|2|*):"
+		cursor off
+		read -n 1 option_2
+		echo -e -n "\r \r"
+		cursor on
 		case $option_2 in
 			1)	#add
 				while true; do
-					print_c 2 "Nome utente:"
+					header_box "Registra un account per il login automatico ($host)"
+					print_c 2 "\rNome utente:"
 					read user
 					print_c 2 "Password (i caratteri non saranno stampati):"
 					read -ers pass
-					if [ ! -z "$user" ] && [ ! -z "$pass" ]; then
-						break
+					print_c 2 "Ripeti la password (per verifica):"
+					read -ers pass2
+					if [ ! -z "$user" ] && [ ! -z "$pass" ] && [ "$pass" == "$pass2" ]; then
+						lines=`cat $path_conf/accounts/$host |wc -l`
+						unset noadd
+						for line in `seq 1 $lines`; do
+							account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+							if [ "$account" == "$user" ]; then
+								noadd=1
+								break
+							fi
+						done
+						if [ -z "$noadd" ]; then
+							echo "$user $pass" >> $path_conf/accounts/$host
+						fi
+					elif [ "$pass" != "$pass2" ]; then
+						print_c 3 "Ripeti l'operazione: password non corrispondenti\n"
 					else
-						print_c 3 "Ripeti l'operazione: nome utente o password mancante"
+						print_c 3 "Ripeti l'operazione: nome utente o password mancante\n"
 					fi
+					echo
+					print_c 2 "Vuoi registrare un nuovo account? (s|*)"
+					cursor off
+					read -n 1 new_input
+					cursor on
+					[ "$new_input" != "s" ] && break
 				done
-				lines=`cat $path_conf/accounts/$host |wc -l`
-				unset noadd
-				for line in `seq 1 $lines`; do
-					account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
-					if [ "$account" == "$user" ]; then
-						noadd=1
-						break
-					fi
-				done
-				if [ -z "$noadd" ]; then
-					echo "$user $pass" >> $path_conf/accounts/$host
-				fi
 			;;
 			2)	#remove
 				while true; do
@@ -725,6 +746,7 @@ function configure_accounts {
 
 function init {
 	prog=`basename $0`
+	name_prog="ZigzagDownLoader"
 	PROG=`echo $prog | tr a-z A-Z`
 	path_tmp=".${prog}_tmp"
 	mkdir -p "$path_tmp"
@@ -1066,15 +1088,64 @@ function separator {
 	echo -n -e "${Color_Off}"
 }
 
-function header {
-	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"${Color_Off}\n"
-}
+# function header {
+# 	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"${Color_Off}\n"
+# }
 
 function fclear {
 	#echo -n -e "\e[0;37m\e[40m\ec"
 	#echo -n -e "\ec\e[37m\e[40m\e[J"
 	echo -n -e "\ec${White}${On_Black}\e[J"
 }
+
+function cursor {
+	stato=$1
+	case $stato in
+		off)
+			echo -e -n "\033[?30;30;30c" ;;
+		on)
+			echo -e -n "\033[?0;0;0c" ;;
+	esac
+}
+
+function header { # $1=label ; $2=colors ; $3=header pattern
+	# echo -n -e "\e[1;34m $1 ${Color_Off}\n"
+	hpattern="$3"
+	[ -z "$hpattern" ] && hpattern=" "
+	echo -n -e "${2}"
+	for column in `seq 1 $COLUMNS`; do echo -n -e "$hpattern" ; done #\e[1;34m
+
+	echo -n -e "\r$1${Color_Off}\n"
+}
+
+
+function header_z {
+	fclear
+	zclock
+	header " $name_prog ($prog) $zclock" "$On_Blue" " "
+}
+
+function header_box {
+	header " $1 " "$Black${On_White}" "─" #"-" 
+}
+
+function header_dl {
+	header " $1 " "$White${On_Blue}" " "
+}
+
+function pause {
+	echo
+	header ">>>>>>>> Digita un tasto per continuare " "$On_Blue$BWhite" "<"
+	cursor off
+	read -n 1
+	cursor on
+}
+
+function zclock {
+	week=( "dom" "lun" "mar" "mer" "gio" "ven" "sab" )
+	zclock="\033[1;$((COLUMNS-22))f$(date +%R) | ${week[$( date +%w )]} $(date +%d·%m·%Y)"
+}
+
 
 function _log {
 	if [ $log == 0 ]; then
@@ -1424,8 +1495,7 @@ function install_test {
 		esac
 	fi
 	echo
-	print_c 2 "<Premi un tasto per continuare>"
-	read
+	pause
 }
 
 function install_pk {
@@ -1661,7 +1731,7 @@ function show_data_alive {
 			echo -e "${BBlue}Stato:${IYellow} ${progress_alive[$j]}${Color_Off}"
 			
 			if [ $j != $last_alive ]; then 
-				separator "-"
+				separator "─"
 			else
 				separator "="
 			fi
@@ -1717,14 +1787,15 @@ function clean_completed {
 function show_downloads_extended {
 	data_stdout
 	if [ $? == 1 ]; then 
-		#separator "Z"
-		print_c 1 "Processi di download attualmente gestiti da $PROG:"
-		separator "="
+		header_z
+		header_box "Modalità interattiva"
+		echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD"
+		echo
 		last_out=$(( ${#pid_out[*]}-1 ))
 		for j in `seq 0 $last_out`; do
 			human_length ${length_out[$j]} # --> $length_H
 			
-			print_c 1 "Numero download: $j"
+			header_dl "Numero download: $j"
 			check_pid ${pid_out[$j]}
 			if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ] && [ ! -z "${progress_out[$j]}" ]; then
 				print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
@@ -1735,7 +1806,7 @@ function show_downloads_extended {
 			echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
 			
 			progress="${progress_out[$j]}"
-			color=${BYellow}
+			color=${Green}
 			
 			check_pid ${pid_out[$j]}
 			if [ $? != 1 ]; then
@@ -1755,18 +1826,16 @@ function show_downloads_extended {
 			
 			echo -e "${BBlue}Stato:${color} ${progress}${Color_Off}"
 			
-			if [ $j != $last_out ]; then 
-				separator "-"
-			else
-				separator "="
-			fi
+			# if [ $j != $last_out ]; then 
+			#  	separator "─"
+			# else
+			# 	echo
+			# fi
 			echo
 		done
 		return 1
 	else
-		separator "="
-		print_c 3 "Nessun download di $PROG rilevato"
-		separator "="
+		print_c 3 "$name_prog: nessun download rilevato in $PWD"
 	fi
 }
 
@@ -1788,9 +1857,10 @@ function human_length { ## input in bytes
 function interactive {
 	while true ; do
 		#client=1
-		fclear
-		echo
-		header
+		#fclear
+		#echo
+		header_z
+		header_box "Modalità interattiva"
 		echo
 		#show_data_alive
 		unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
@@ -1798,37 +1868,41 @@ function interactive {
 		if [ $? == 1 ]; then
 			echo
 			echo
-			separator "^"
-			print_c 2 "Opzioni:"
-			echo -e "	1) riavvia o elimina un download dalla gestione di $PROG"
-			echo -e "	2) cancella i file temporanei dei download completati"
-			echo -e "	3) esci da $PROG --interactive\n"
-			echo -e "	*) aggiorna lo stato\n"
-			separator "^"
-			print_c 2 "Scegli cosa fare ( 1 | 2 | 3 | * ):"
-			read action
-			
-			if [ "$action" == "1" ]; then
+			header_box "Opzioni"
+			echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
+			echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati"
+			echo -e "\t<${BBlue} e ${Color_Off}> esci da $PROG --interactive\n"
+			echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
+			cursor off
+			read -n 1 action
+			cursor on
+			if [ "$action" == "r" ]; then
 				fclear
-				echo
-				header
+				
+				header_z
 				echo
 				show_downloads_extended
+				header_box "Seleziona (Riavvia o Elimina)"
 				print_c 2 "Seleziona i numeri dei download da eliminare o (solo se attivi) da riavviare, separati da spazi (puoi non scegliere):"
 				read input
 				inputs=( $input )
 				last_out=$(( ${#pid_out[*]}-1 ))
 				options=`seq 0 $last_out`
+				echo
+				header_box "Riavvia o Elimina"
 				print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
 				echo
-				echo -e "	r) per riavviarli digita \"r\"
-	e) per eliminarli definitivamente (e cancellare il file scaricato), digita \"e\"
-	t) per terminarli definitivamente SENZA cancellare il file scaricato, digita \"t\"
-	c) per cancellare i file temporanei dei download completati, digita \"c\"
-	*) per tornare alla schermata principale"
+				echo -e "${BYellow}	r ${Color_Off}) per riavviarli
+
+${BRed}	e ${Color_Off}) per eliminarli definitivamente (e cancellare il file scaricato)
+${BRed}	t ${Color_Off}) per terminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
+
+${BGreen}	c ${Color_Off}) per cancellare i file temporanei dei download completati
+
+${BBlue}	* ${Color_Off}) per tornare alla schermata principale"
 				echo
-				separator "^"
-				print_c 2 "Scegli cosa fare: ( r | e | t | c | * )"
+				#separator "─"
+				print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
 				read input2
 				
 				if [ "$input2" == "r" ]; then
@@ -1866,15 +1940,18 @@ function interactive {
 				elif [ "$input2" == "c" ]; then
 					clean_completed
 				fi
-			elif [ "$action" == "2" ]; then
+			elif [ "$action" == "c" ]; then
 				clean_completed
-			elif [ "$action" == "3" ]; then
+			elif [ "$action" == "e" ]; then
+#				echo -e -n "\r \r"
+				fclear
 				break
 			fi
 		else
 			break
 		fi
 	done
+
 	echo -e "\e[0m\e[J"
 	exit
 }
@@ -2042,12 +2119,12 @@ function data_stdout {
 					
 					unset bar diff_bar
 					for column in `seq 1 $size_bar`; do
-						bar="${bar}${bar_char}"
+						bar="${On_Green}${bar} " #${bar_char}"
 					done
 					for column in `seq 1 $diff_size_bar`; do
-						diff_bar="${diff_bar} "
+						diff_bar="${Color_Off}${BGreen}${diff_bar}|"
 					done
-					bar="[${bar}>${diff_bar}]"
+					bar="${bar}${diff_bar}"
 					progress_out[$i]="${bar} $percent $speed $eta"
 				fi
 				
@@ -2081,17 +2158,20 @@ function check_download {
 function show_downloads {
 	unset progress
 	data_stdout
-	if [ $? == 1 ]; then		
-		print_c 1 "\nDownloading..."
-		separator "="
+	if [ $? == 1 ]; then
+		echo
+		echo
+		header_dl "Downloading..."
 		last_stdout=$(( ${#pid_out[*]}-1 ))
 		for i in `seq 0 $last_stdout`; do
 			if [ ! -z "${url_out[$i]}" ]; then
 				length_saved=0
 				[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
-				echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+
+				echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
+				echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
 				progress="${progress_out[$i]}"
-				color=2
+				color=1
 				
 				check_pid "${pid_out[$i]}"
 				if [ $? != 1 ]; then
@@ -2102,19 +2182,19 @@ function show_downloads {
 					progress="Download completato"
 					color=1
 				fi
-				print_c $color "${downloader_out[$i]}: ${progress}"
+				print_c $color " ${downloader_out[$i]}: ${progress}"
 				ii=$(( $i+1 ))
 				if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
-					separator "-"
-					echo
+					separator "─"
 				fi
 			fi
 		done
 	else
-		separator "="
-		print_c 3 "Nessun download attivo"
+		echo
+		print_c 3 "$name_prog: nessun download attivo in $PWD"
+		echo
 	fi
-	separator "="
+	separator "─"
 	echo
 	echo
 	unset progress
@@ -2647,8 +2727,8 @@ if [ ! -f "$path_conf/noclear" ]; then
 else
 	rm "$path_conf/noclear"
 fi
-header
-separator z
+header_z
+#separator z
 ###################################
 
 
@@ -2878,7 +2958,7 @@ if [ ! -e "/cygdrive" ];then
 	check_downloader
 fi
 
-print_c 1 "Download con $downloader_in"
+print_c 1 "Downloader: $downloader_in"
 
 
 if [ -f "$file_log" ]; then
@@ -2894,11 +2974,13 @@ if [ -z "$file" ] ; then
 	fi
 		
 	echo
-	separator "@"
-	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\" (abilitato anche per Putlocker[scarica il file HD], Nowdownload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi)" 
-	echo "[per recuperare i download incompleti premi subito la chiocciolina \"@\" senza scrivere nulla | per uscire da $PROG, in qualunque momento, digita ctrl+c]"
-	separator "^"
-	echo -e "\r"
+	#separator "@"
+	header_box "Seleziona i link per il download"
+	print_c 2 "Incolla i link andando a capo dopo ciascuno, poi digita la chiocciolina \"@\""
+	echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Nowdownload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
+	header_box "Per recuperare i download incompleti: solo < @ > | per uscire da $PROG, in qualunque momento: < Ctrl+c >"
+	#separator "─"
+	echo -e -n "\r"
 	#read -d @ -a links
 	read -d @ links
 	
@@ -2926,7 +3008,7 @@ if [ -z "$file" ] ; then
 			rm -f "$path_tmp/rewriting"
 		else
 			rm -f "$path_tmp/rewriting"
-			print_c 3 "Nessun link da processare"
+			print_c 3 "$name_prog: nessun link da processare in $PWD"
 			rm -r "$path_tmp"
 			exit
 		fi
@@ -2971,7 +3053,7 @@ while true; do
 		links_in=`cat $file`
 		for url_in in $links_in; do
 			
-			echo "checking $url_in ..."
+			echo -e "${BBlue}checking $url_in ...${Color_Off}"
 			unset pid_in checked file_in url_in_file
 			check_in_url
 			if [ $? != 1 ];then
@@ -2994,9 +3076,8 @@ while true; do
 				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
 				
 				echo
-				separator "Z"
-				
-				echo -e "\nLink da processare: $url_in"
+				header_box "Link da processare: $url_in"
+				echo
 				#[ "$domain" != "${domain//dailymotion}" ] || 
 				if [ "$domain" != "${domain//dailymotion}" ] || [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ] || [ "$domain" != "${domain//rapidgator.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then					#axel "${url_in}" -o $path_tmp/zdl2.tmp
 					#url_in_file=`cat $path_tmp/zdl2.tmp`
@@ -3758,9 +3839,9 @@ done
 rm -f "$path_tmp/lock.zdl"
 noproxy
 
-separator "-"
+separator "─"
 print_c 1 "Tutti i link per il download sono stati processati."
-separator "-"
+separator "─"
 
 #test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
@@ -3778,3 +3859,4 @@ fi
 
 echo -e -n "\e[0m\e[J"
 exit
+
