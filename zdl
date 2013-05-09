@@ -784,7 +784,7 @@ function init {
 		wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: C:\Cygwin\zdl.bat "
 	fi
 	
-	newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads)
+	newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
 # 	data_stdout
 	## skin dark
 #  	echo -n -e "${White}${On_Black}\e[J"
@@ -2580,6 +2580,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				file_in="${file_in##*/}"
 			fi
 			file_in="${file_in// /_}"
+			
 			cfile="$5"
 			cookie="$6"
 			referer="$7"
@@ -2592,7 +2593,6 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				file_in2="${file_in2#*&title=}"
 				[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
 			fi
-			
 			cd "$directory"
 			mkdir -p "${path_tmp}"
 			
@@ -2600,7 +2600,6 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 			echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 	
 			echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
-			
 			##pid xterm
 			#xterm -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$PPID ; zdl -m \\\"$url\\\" ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
 			
@@ -2928,6 +2927,7 @@ if [ -z "$file" ] ; then
 		else
 			rm -f "$path_tmp/rewriting"
 			print_c 3 "Nessun link da processare"
+			rm -r "$path_tmp"
 			exit
 		fi
 		echo
@@ -3448,7 +3448,7 @@ while true; do
 							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
 							url_in_file=`cat $path_tmp/zdl2.tmp | grep ">Download</a>"`
 							url_in_file="${url_in_file#*product_download_url=}"
-							url_in_file="${url_in_file%%'"'*}"
+							url_in_file="${url_in_file%%\"*}"
 						fi
 						sleep 1
 						s=`date +"%s"`
@@ -3527,7 +3527,7 @@ while true; do
 				elif [ "$domain" != "${domain//'rapidshare.'}" ]; then
 					if [ "$url_in" != "${url_in//'rapidshare.com/files'}" ]; then
 						reurl=`wget -t 1 -T $max_waiting "$url_in" -O - -q`
-						reurl="${reurl#*'location="'}"
+						reurl="${reurl#*location=\"}"
 						reurl="${reurl%\"*}"
 					elif [ "$url_in" != "${url_in//'rapidshare.com/#!download|'}" ]; then
 						reurl="$url_in"
@@ -3576,7 +3576,7 @@ while true; do
 						
 						url_in_file=`cat $path_tmp/zdl2.tmp | grep "get_file.php"`
 						url_in_file="${url_in_file#*\"}"
-						url_in_file="${url_in_file%%'"'*}"
+						url_in_file="${url_in_file%%\"*}"
 						url_in_file="http://www.putlocker.com${url_in_file}"
 					else
 						_log 3
@@ -3592,12 +3592,13 @@ while true; do
 					
 					file_in=`cat "$path_tmp/zdl.tmp" |grep 'http://lp.ncdownloader.com/tusn/?q='`
 					file_in="${file_in#*'http://lp.ncdownloader.com/tusn/?q='}"
-					file_in="${file_in%%'"'*}"
+					file_in="${file_in%%\"*}"
 					url_in_file=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
 					
 					if [ ! -f $path_tmp/cookies.zdl ]; then touch $path_tmp/cookies.zdl ; fi
 					url_in_file="${url_in}"
 					redirected="true"
+					
 				else
 					## ADDS-ON
 					if [ -d "$path_conf/extensions/" ]; then
@@ -3609,6 +3610,7 @@ while true; do
 							done
 						fi
 					fi
+					
 					if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 						if [ "$update_proxy_others_list" == "true" ]; then
 							new_ip_proxy
