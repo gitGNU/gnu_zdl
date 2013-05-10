@@ -1235,13 +1235,13 @@ function check_ip {
 function my_ip {
 	myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
 	echo
-	separator -
+	separator "─"
 	if [ ! -z "$myip" ]; then
 		print_c 1 "Indirizzo IP: $myip"
 	else
 		print_c 3 "Indirizzo IP non rilevato"
 	fi
-	separator -
+	separator "─"
 	echo
 }
 
@@ -1874,8 +1874,6 @@ function interactive {
 		unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 		show_downloads_extended
 		if [ $? == 1 ]; then
-			echo
-			echo
 			header_box "Opzioni"
 			echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
 			echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati"
@@ -2696,19 +2694,22 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 				export pid_prog=$$
 				check_instance_prog
 				if [ "$?" == "1" ]; then
+					separator "─"
 					print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $pid), nel seguente terminale: $tty"
 					links_loop + "$url_in"
 					rm -f "$path_tmp/lock.zdl"
-					read -p ">> PREMI INVIO per uscire <<"
+					#read -p ">> PREMI INVIO per uscire <<"
+					pause
 					exit
 				else
 					#export pid_prog=$$
 					$prog "$url_in" $stream_params
-					read -p ">> PREMI INVIO per uscire <<"
+					#read -p ">> PREMI INVIO per uscire <<"
+					pause
 				fi
 			else
 				
-				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader" -e "/bin/bash -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params ; read -p \\\">> PREMI INVIO per chiudere Xterm <<\\\"\""
+				xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params ; if [ $? == 0 ]; then echo -n -e \\\"${On_Blue}\\\" ; echo ; for column in `seq 1 $COLUMNS`; do echo -n -e \\\"<\\\" ; done ; echo -e -n \\\"\r>> Premi un tasto per chiudere Xterm <<\\\" ; echo -n -e \\\"${Color_Off}\\\" ; read -n 1 ; fi ; exit\""
 			fi
 			
 			#xterm -title "ZigzagDownLoader" -e "zdl -m \"$url\" ; read -p \'>> PREMI INVIO per chiudere Xterm <<\'" &
@@ -2966,7 +2967,7 @@ if [ ! -e "/cygdrive" ];then
 	check_downloader
 fi
 
-echo -e "\n${BBlue}Downloader: $downloader_in\nDirectory: $PWD\n"
+echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\n${BBlue}Directory:${Color_Off} $PWD\n"
 
 
 if [ -f "$file_log" ]; then
@@ -3048,9 +3049,11 @@ fi
 
 check_instance_prog
 if [ "$?" == "1" ]; then
+	separator "─"
 	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
 	rm -f "$path_tmp/lock.zdl"
-	exit
+	pause
+	exit 1
 fi
 echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"
