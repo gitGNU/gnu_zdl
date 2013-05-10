@@ -3087,7 +3087,8 @@ while true; do
 				echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
 				
 				echo
-				header_box "Link da processare: $url_in"
+				header_box "Link da processare:"
+				echo "$url_in"
 				echo
 				#[ "$domain" != "${domain//dailymotion}" ] || 
 				if [ "$domain" != "${domain//dailymotion}" ] || [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ] || [ "$domain" != "${domain//rapidgator.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then					#axel "${url_in}" -o $path_tmp/zdl2.tmp
