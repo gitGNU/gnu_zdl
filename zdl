@@ -1994,11 +1994,13 @@ function interactive {
 	    if [ ! -f "$path_tmp/daemon.zdl" ] || [ -z "$daemon_pid" ]; then
 		break
 	    else
-		print_c 1 "$PROG è attivo in modalità demone: attendi... (per uscire dal client, digita \"q\")"
+		print_c 1 "$PROG è attivo in modalità demone: attendi..."
+		echo "Per uscire dal client digita \"q\", per fermare il demone digita \"s\""
 		cursor off
 		read -n 1 -t 5 esc
 		cursor on
 		[ "$esc" == "q" ] && break
+		[ "$esc" == "s" ]&& kill $daemon_pid 2>/dev/null && break
 	    fi
 	fi
     done
@@ -2700,7 +2702,7 @@ if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-
 	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
 	    unset args[$i]
 	    rm -r "$path_tmp/lock.zdl"
-	    /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+	    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 	    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
 	    mkdir -p "$path_tmp"
 	    touch "$path_tmp/daemon.zdl"
@@ -2713,7 +2715,7 @@ if [ "${args[*]}" != "${args[*]//--silent}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--silent" ]; then
 	    unset args[$i]
-	    daemon=true
+	    daemon="true"
 	fi
     done
 fi
@@ -3062,6 +3064,7 @@ if [ ! -z "${args[*]}" ]; then
 fi
 
 
+
 local_version=`cat "$path_conf/version.txt" 2>/dev/null`
 num1=${local_version//*[.,]}
 num2=${local_version//[.,]*}
@@ -3126,9 +3129,12 @@ if [ -z "$file" ] ; then
 	    rm -f "$path_tmp/rewriting"
 	else
 	    rm -f "$path_tmp/rewriting"
-	    print_c 3 "$name_prog: nessun link da processare in $PWD"
-	    rm -r "$path_tmp"
-	    exit
+	    
+	    if [ "$daemon" != "true" ]; then
+		print_c 3 "$name_prog: nessun link da processare in $PWD"
+		rm -r "$path_tmp"
+		exit
+	    fi
 	fi
 	echo
     else
@@ -3164,9 +3170,11 @@ fi
 echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"
 
+while [ "$daemon" == "true" ] || [ ! -z "$file" ]; do
+    if [ "$daemon" == "true" ] && [ -z "$file" ]; then
+	sleep 5
+    elif [ -f "$file" ]; then
 
-while true; do
-    if [ -f "$file" ]; then	
 	links_in=`cat $file`
 	for url_in in $links_in; do
 	    
@@ -3969,7 +3977,6 @@ while true; do
 	unset no_msg
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && break
     else 
-	# [ ! -z $file ]
 	usage
 	exit
     fi
