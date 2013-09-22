@@ -54,11 +54,13 @@ ZigzagDownLoader ($PROG) - Download manager
 			possono essere attivi o registrati 
 			nei file temporanei della directory
 
+-d,     --daemon        Avvia ZDL in modalità \"demone\"
+                        (può essere controllato attraverso l'interfaccia interattiva)
+
+
 	--ip		Scrive l'indirizzo IP attuale, prima di effettuare
 			altre operazioni
 
--d,     --daemon        Avvia ZDL in modalità \"demone\"
-                        (può essere controllato attraverso l'interfaccia interattiva)
 
 
 \e[1mAvvio con proxy:\e[0m
@@ -91,7 +93,7 @@ ZigzagDownLoader ($PROG) - Download manager
 
 \e[1mIl gestore di download ZigzagDownLoader: manuale e consigli d'uso.\e[0m
 
-ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Putlocker (scarica il file in formato AVI, se si tratta di un filmato disponibile anche in streaming), Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili). Inoltre, ZDL converte i redirect di Likeupload, avviando automaticamente il download dai link di destinazione.
+ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Putlocker (scarica il file in formato AVI, se si tratta di un filmato disponibile anche in streaming), Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili). Inoltre, ZDL converte i redirect di Likeupload, avviando automaticamente il download dai link reindirizzati.
 
 ZDL può essere avviato in diversi modi:
 
