@@ -57,6 +57,10 @@ ZigzagDownLoader ($PROG) - Download manager
 	--ip		Scrive l'indirizzo IP attuale, prima di effettuare
 			altre operazioni
 
+-d,     --daemon        Avvia ZDL in modalità \"demone\"
+                        (può essere controllato attraverso l'interfaccia interattiva)
+
+
 \e[1mAvvio con proxy:\e[0m
 
 	--proxy			Avvia ZDL attivando un proxy 
@@ -1889,6 +1893,7 @@ function human_length { ## input in bytes
 }
 
 function interactive {
+    daemon_pid=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent" |awk '{print $1}')
     while true ; do
 		#client=1
 		#fclear
@@ -1902,11 +1907,12 @@ function interactive {
 	if [ $? == 1 ]; then
 	    header_box "Opzioni"
 	    echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
-	    echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati"
-	    echo -e "\t<${BBlue} e ${Color_Off}> esci da $PROG --interactive\n"
+	    echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
+	    echo -e "\t<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
+	    echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
-	    read -n 1 action
+	    read -n 1 -t 5 action
 	    cursor on
 	    if [ "$action" == "r" ]; then
 		fclear
@@ -1974,13 +1980,24 @@ function interactive {
 		fi
 	    elif [ "$action" == "c" ]; then
 		clean_completed
-	    elif [ "$action" == "e" ]; then
+	    elif [ "$action" == "q" ]; then
 #				echo -e -n "\r \r"
 		fclear
 		break
+	    elif [ "$action" == "s" ]; then
+		kill $daemon_pid 2>/dev/null
+		break
 	    fi
 	else
-	    break
+	    if [ ! -f "$path_tmp/daemon.zdl" ] || [ -z "$daemon_pid" ]; then
+		break
+	    else
+		print_c 1 "$PROG è attivo in modalità demone: attendi... (per uscire dal client, digita \"q\")"
+		cursor off
+		read -n 1 -t 5 esc
+		cursor on
+		[ "$esc" == "q" ] && break
+	    fi
 	fi
     done
 
@@ -2188,50 +2205,51 @@ function check_download {
 }
 
 function show_downloads {
+    if [ "$daemon" != "true" ]; then
+	echo
+	header_dl "Downloading in $PWD"
 
-    echo
-    header_dl "Downloading in $PWD"
+	unset progress
+	data_stdout
+	if [ $? == 1 ]; then
+	    last_stdout=$(( ${#pid_out[*]}-1 ))
+	    for i in `seq 0 $last_stdout`; do
+		if [ ! -z "${url_out[$i]}" ]; then
+		    length_saved=0
+		    [ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
 
-    unset progress
-    data_stdout
-    if [ $? == 1 ]; then
-	last_stdout=$(( ${#pid_out[*]}-1 ))
-	for i in `seq 0 $last_stdout`; do
-	    if [ ! -z "${url_out[$i]}" ]; then
-		length_saved=0
-		[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
-
-		echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
-		echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
-		progress="${progress_out[$i]}"
-		color=1
-		
-		check_pid "${pid_out[$i]}"
-		if [ $? != 1 ]; then
-		    progress="Download non attivo"
-		    color=3
-		fi
-		if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
-		    progress="Download completato"
+		    echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
+		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
+		    progress="${progress_out[$i]}"
 		    color=1
+		    
+		    check_pid "${pid_out[$i]}"
+		    if [ $? != 1 ]; then
+			progress="Download non attivo"
+			color=3
+		    fi
+		    if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
+			progress="Download completato"
+			color=1
+		    fi
+		    print_c $color " ${downloader_out[$i]}: ${progress}"
+		    ii=$(( $i+1 ))
+		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
+			separator "─"
+		    fi
 		fi
-		print_c $color " ${downloader_out[$i]}: ${progress}"
-		ii=$(( $i+1 ))
-		if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
-		    separator "─"
-		fi
-	    fi
-	done
-    else
+	    done
+	else
+	    echo
+	    print_c 3 " Nessun download rilevato"
+	    echo
+	fi
+	separator "─"
 	echo
-	print_c 3 " Nessun download rilevato"
 	echo
+	echo
+	unset progress
     fi
-    separator "─"
-    echo
-    echo
-    echo
-    unset progress
     sleep 5
 }
 
@@ -2675,12 +2693,43 @@ get_conf
 
 args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
+if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
+	    unset args[$i]
+	    rm -r "$path_tmp/lock.zdl"
+	    /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+	    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
+	    mkdir -p "$path_tmp"
+	    touch "$path_tmp/daemon.zdl"
+	    exit
+	fi
+    done
+fi
+
+if [ "${args[*]}" != "${args[*]//--silent}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--silent" ]; then
+	    unset args[$i]
+	    daemon=true
+	fi
+    done
+fi
+
+if [ "${args[*]}" != "${args[*]//$PWD}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "$PWD" ]; then
+	    unset args[$i]
+	fi
+    done
+fi
+
+
 if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--stream" ]; then 
-	    
-			# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]
-			# --stream [URL] [FNAME] --noXterm
+	# --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]
+	# --stream [URL] [FNAME] --noXterm
 	    if [ -z "$DISPLAY" ]; then
 		export DISPLAY=":0"
 	    fi
@@ -3937,6 +3986,8 @@ if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
     rm -r "$path_tmp" 2>/dev/null
 fi
 
+
+[ -f "$path_tmp/daemon.zdl" ] && rm "$path_tmp/daemon.zdl"
 echo
 echo
 if [ -f "$file_log" ]; then
