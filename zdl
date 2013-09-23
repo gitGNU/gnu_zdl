@@ -1129,9 +1129,9 @@ function header { # $1=label ; $2=colors ; $3=header pattern
     for column in `seq 1 $COLUMNS`; do
 	echo -n -e "$hpattern" 
     done 
-    if (( $length_text<=$COLUMNS )); then
+    if [ ! -z "$length_text" ] && [ ! -z "$COLUMNS" ] && (( $length_text<=$COLUMNS )); then
 	echo -n -e "\r$text${Color_Off}\n"
-    else
+    elif [ ! -z "$length_text" ] && [ ! -z "$COLUMNS" ]; then
 	echo -n -e "\r${text:0:$COLUMNS}${Color_Off}${text:$COLUMNS}\n"
     fi
 }
@@ -1914,7 +1914,7 @@ function interactive {
 	    echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
-	    read -n 1 -t 5 action
+	    read -n 1 -t 15 action
 	    cursor on
 	    if [ "$action" == "r" ]; then
 		fclear
@@ -1925,14 +1925,16 @@ function interactive {
 		header_box "Seleziona (Riavvia o Elimina)"
 		print_c 2 "Seleziona i numeri dei download da eliminare o (solo se attivi) da riavviare, separati da spazi (puoi non scegliere):"
 		read input
-		inputs=( $input )
-		last_out=$(( ${#pid_out[*]}-1 ))
-		options=`seq 0 $last_out`
-		echo
-		header_box "Riavvia o Elimina"
-		print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
-		echo
-		echo -e "\t<${BYellow} r ${Color_Off}> per riavviarli
+		if [ ! -z "$input" ]; then
+		    unset inputs
+		    inputs=( $input )
+		    #last_out=$(( ${#pid_out[*]}-1 ))
+		    options=`seq 0 $last_out`
+		    echo
+		    header_box "Riavvia o Elimina"
+		    print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
+		    echo
+		    echo -e "\t<${BYellow} r ${Color_Off}> per riavviarli
 
 \t<${BRed} e ${Color_Off}> per eliminarli definitivamente (e cancellare il file scaricato)
 \t<${BRed} t ${Color_Off}> per terminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
@@ -1940,45 +1942,33 @@ function interactive {
 \t<${BGreen} c ${Color_Off}> per cancellare i file temporanei dei download completati
 
 \t<${BBlue} * ${Color_Off}> per tornare alla schermata principale"
-		echo
+		    echo
 				#separator "─"
-		print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
-		read input2
-		
-		if [ "$input2" == "r" ]; then
-		    for i in ${inputs[*]}; do
-			for j in $options; do
-			    if [ "$i" == "$j" ]; then
-				kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
-				if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
-				    rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
-				fi
-			    fi
-			done
-		    done
+		    print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
+		    read input2
 		    
-		elif [ "$input2" == "e" ]; then
-		    for i in ${inputs[*]}; do
-			for j in $options; do
-			    if [ "$i" == "$j" ]; then
-				kill ${pid_out[$i]} 2>/dev/null
-				rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
-				links_loop - "${url_out[$i]}"
+		    if [ "$input2" == "r" ]; then
+			for i in ${inputs[*]}; do
+			    kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+			    if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
+				rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
 			    fi
 			done
-		    done
-		elif [ "$input2" == "t" ]; then
-		    for i in ${inputs[*]}; do
-			for j in $options; do
-			    if [ "$i" == "$j" ]; then
-				kill ${pid_out[$i]} 2>/dev/null
-				rm -f $path_tmp/"${file_out[$i]}_stdout.tmp"
-				links_loop - "${url_out[$i]}"
-			    fi
+		    elif [ "$input2" == "e" ]; then
+			for i in ${inputs[*]}; do
+			    kill ${pid_out[$i]} 2>/dev/null
+			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+			    links_loop - "${url_out[$i]}"
 			done
-		    done
-		elif [ "$input2" == "c" ]; then
-		    clean_completed
+		    elif [ "$input2" == "t" ]; then
+			for i in ${inputs[*]}; do
+			    kill ${pid_out[$i]} 2>/dev/null
+			    rm -f $path_tmp/"${file_out[$i]}_stdout.tmp"
+			    links_loop - "${url_out[$i]}"
+			done
+		    elif [ "$input2" == "c" ]; then
+			clean_completed
+		    fi
 		fi
 	    elif [ "$action" == "c" ]; then
 		clean_completed
@@ -1988,8 +1978,10 @@ function interactive {
 		break
 	    elif [ "$action" == "s" ]; then
 		kill $daemon_pid 2>/dev/null
+		fclear
 		break
 	    fi
+	    
 	else
 	    if [ ! -f "$path_tmp/daemon.zdl" ] || [ -z "$daemon_pid" ]; then
 		break
@@ -3090,7 +3082,7 @@ fi
 
 
 
-if [ -z "$file" ] ; then
+if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     check_instance_prog
     if [ "$?" != "1" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
@@ -3170,8 +3162,9 @@ fi
 echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"
 
-while [ "$daemon" == "true" ] || [ ! -z "$file" ]; do
-    if [ "$daemon" == "true" ] && [ -z "$file" ]; then
+while true; do
+    if [ "$daemon" == "true" ] && [ ! -f "$file" ]; then
+	file="$path_tmp/links_loop.txt"
 	sleep 5
     elif [ -f "$file" ]; then
 
@@ -3975,7 +3968,7 @@ while [ "$daemon" == "true" ] || [ ! -z "$file" ]; do
 	    done
 	fi
 	unset no_msg
-	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && break
+	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && [ "$daemon" != "true" ] && break
     else 
 	usage
 	exit
