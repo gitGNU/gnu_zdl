@@ -822,6 +822,10 @@ function init {
 # 	else
 # 		restore_ffprefs
 # 	fi
+    proxy_server="proxy_list"
+    list_proxy_url["ip_adress"]="http://www.ip-adress.com/proxy_list/"
+    list_proxy_url["proxy_list"]="http://proxy-list.org/en/index.php"
+
 }
 
 
@@ -1300,6 +1304,42 @@ function noproxy {
     export http_proxy
 }
 
+## servizi che offrono liste di proxy
+function ip_adress {
+    ## ip-adress.com
+    
+    for proxy_type in ${proxy_types[*]}; do
+	less "$path_tmp/proxy.tmp"|grep "Proxy_Details" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+    done
+    
+    max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+    
+    string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+    
+    proxy="${string_line#*Proxy_Details\/}"
+    [ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
+    [ "$proxy" != "${proxy%:Transparent*}" ] && proxy_type="Transparent"
+    [ "$proxy" != "${proxy%:Elite*}" ] && proxy_type="Elite"
+    proxy="${proxy%:${proxy_type}*}"
+}
+
+function proxy_list {
+    ## proxy-list.org
+    
+    proxy_tmp=$( cat "$path_tmp/proxy.tmp" |grep "ago" )
+    proxy_tmp=${proxy_tmp//"</tr>"/"\n"}
+    for proxy_type in ${proxy_types[*]}; do
+	echo -e "$proxy_tmp" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+    done
+    max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+    
+    string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+
+    proxy="${string_line#*'<td>'}"
+    proxy="${proxy%%'</td>'*}"
+}			
+
+
 function new_ip_proxy {
     noproxy
     export LANG="$prog_lang"
@@ -1331,23 +1371,24 @@ function new_ip_proxy {
 	while [ -z "$proxy" ] ; do		
 			#rm -f "$path_tmp/proxy.tmp"
 	    if [ ! -f "$path_tmp/proxy.tmp" ]; then
-		wget -q -t 1 -T 20 --user-agent="Anonimo" http://www.ip-adress.com/proxy_list/ -O "$path_tmp/proxy.tmp" &>/dev/null
+		#  http://www.ip-adress.com/proxy_list/  ---> CON UNA SOLA "d"
+		wget -q -t 1 -T 20 --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
 		rm -f "$path_tmp/proxy2.tmp"
 	    fi
+	    $proxy_server
+	    # for proxy_type in ${proxy_types[*]}; do
+	    # 	less "$path_tmp/proxy.tmp"|grep "Proxy_Details" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+	    # done
 	    
-	    for proxy_type in ${proxy_types[*]}; do
-		less "$path_tmp/proxy.tmp"|grep "Proxy_Details" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
-	    done
+	    # max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+	    # 		#cat "$path_tmp/proxy2.tmp"
+	    # string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
 	    
-	    max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
-			#cat "$path_tmp/proxy2.tmp"
-	    string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
-	    
-	    proxy="${string_line#*Proxy_Details\/}"
-	    [ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
-	    [ "$proxy" != "${proxy%:Transparent*}" ] && proxy_type="Transparent"
-	    [ "$proxy" != "${proxy%:Elite*}" ] && proxy_type="Elite"
-	    proxy="${proxy%:${proxy_type}*}"
+	    # proxy="${string_line#*Proxy_Details\/}"
+	    # [ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
+	    # [ "$proxy" != "${proxy%:Transparent*}" ] && proxy_type="Transparent"
+	    # [ "$proxy" != "${proxy%:Elite*}" ] && proxy_type="Elite"
+	    # proxy="${proxy%:${proxy_type}*}"
 	    
 	    z=$(( ${#proxy_done[*]}-1 ))
 	    if (( $z<0 )) || [ "$z" == "" ]; then z=0 ; fi
@@ -3297,7 +3338,7 @@ while true; do
 			    url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
 			    url_in_file=${url_in_file//*href=\"} 
 			    url_in_file=${url_in_file//\"*}
-			    
+			    sleep 0.1
 			    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
 				break
 			    fi
