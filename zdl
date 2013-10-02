@@ -1865,7 +1865,7 @@ function show_downloads_extended {
     header_z
     header_box "Modalità interattiva"
     echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD\n"
-    if [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ]; then
+    if [ ! -z "$daemon_pid" ]; then
 	print_c 1 "$PROG è attivo in modalità demone\n"
     fi
     data_stdout
@@ -1932,12 +1932,12 @@ function interactive {
 		#show_data_alive
 	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
-	if [ $? == 1 ] || ( [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ] ); then
+	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
 	    header_box "Opzioni"
 	    echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
 	    echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
 	    echo -e "\t<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
-	    [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ] && echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
+	    [ ! -z "$daemon_pid" ] && echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
 	    read -n 1 -t 15 action
@@ -2690,6 +2690,15 @@ function redirect_links {
     exit 1
 }
 
+function check_instance_daemon {
+    test_instance=$( ps ax | grep "$prog" |grep "silent $PWD" )
+    if [ ! -z "$test_instance" ]; then
+	return 1
+    else
+	return 0
+    fi
+}
+
 
 #### MAIN
 #[ ! -z "$pid_prog" ] && read -p "$pid_prog" && exit
@@ -2698,17 +2707,23 @@ init
 ## get config data
 get_conf
 
+
 args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
 	    unset args[$i]
-	    rm -r "$path_tmp/lock.zdl"
-	    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
-	    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
-	    mkdir -p "$path_tmp"
-	    touch "$path_tmp/daemon.zdl"
+	    check_instance_daemon
+	    if [ $? != 1 ]; then
+		rm -r "$path_tmp/lock.zdl"
+		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+		print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
+		mkdir -p "$path_tmp"
+#		touch "$path_tmp/daemon.zdl"
+	    else
+		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD"
+	    fi
 	    exit
 	fi
     done
@@ -3999,8 +4014,6 @@ if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
     rm -r "$path_tmp" 2>/dev/null
 fi
 
-
-[ -f "$path_tmp/daemon.zdl" ] && rm "$path_tmp/daemon.zdl"
 echo
 echo
 if [ -f "$file_log" ]; then
