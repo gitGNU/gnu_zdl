@@ -1720,14 +1720,14 @@ function download {
 		    fi
 		done
 		url_in_file="$url_redirect"
-				#echo "$url_in_file"
+		#echo "$url_in_file"
 		unset redirected url_redirect
 		rm -f "$path_tmp/redirect"
 	    fi
 	    sleep 3
 	    axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
-			#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
+	#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
 	    COOKIES=`cat $path_tmp/flashgot_cookie.zdl`
 	    if [ ! -z "$COOKIES" ] ; then
 		headers="-H \"Cookie:$COOKIES\""
@@ -1862,12 +1862,14 @@ function clean_completed {
 }
 
 function show_downloads_extended {
+    header_z
+    header_box "Modalità interattiva"
+    echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD\n"
+    if [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ]; then
+	print_c 1 "$PROG è attivo in modalità demone\n"
+    fi
     data_stdout
-    if [ $? == 1 ]; then 
-	header_z
-	header_box "Modalità interattiva"
-	echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD"
-	echo
+    if [ $? == 1 ]; then
 	last_out=$(( ${#pid_out[*]}-1 ))
 	for j in `seq 0 $last_out`; do
 	    human_length ${length_out[$j]} # --> $length_H
@@ -1897,26 +1899,12 @@ function show_downloads_extended {
 		progress="Download completato"
 		color=${BGreen}
 	    fi
-	    
-	    
-			#print_c $color "${downloader_out[$i]}: ${progress}"
-	    
 	    echo -e "${BBlue}Stato:${color} ${progress}${Color_Off}"
-	    
-			# if [ $j != $last_out ]; then 
-			#  	separator "─"
-			# else
-			# 	echo
-			# fi
 	    echo
 	done
 	return 1
     else
-	header_z
-	echo
-	print_c 3 " Nessun download rilevato in $PWD"
-	echo
-	separator "─"
+	print_c 3 "Nessun download rilevato in $PWD\n"	
     fi
 }
 
@@ -1936,30 +1924,26 @@ function human_length { ## input in bytes
 }
 
 function interactive {
-    daemon_pid=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent" |awk '{print $1}')
     while true ; do
-		#client=1
-		#fclear
-		#echo
+	daemon_pid=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent" |awk '{print $1}')
 	header_z
 	header_box "Modalità interattiva"
 	echo
 		#show_data_alive
 	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
-	if [ $? == 1 ]; then
+	if [ $? == 1 ] || ( [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ] ); then
 	    header_box "Opzioni"
 	    echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
 	    echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
 	    echo -e "\t<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
-	    echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
+	    [ -f "$path_tmp/daemon.zdl" ] && [ ! -z "$daemon_pid" ] && echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
 	    read -n 1 -t 15 action
 	    cursor on
 	    if [ "$action" == "r" ]; then
 		fclear
-		
 		header_z
 		echo
 		show_downloads_extended
@@ -1982,9 +1966,7 @@ function interactive {
 
 \t<${BGreen} c ${Color_Off}> per cancellare i file temporanei dei download completati
 
-\t<${BBlue} * ${Color_Off}> per tornare alla schermata principale"
-		    echo
-				#separator "─"
+\t<${BBlue} * ${Color_Off}> per tornare alla schermata principale\n"
 		    print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
 		    read input2
 		    
@@ -2014,7 +1996,6 @@ function interactive {
 	    elif [ "$action" == "c" ]; then
 		clean_completed
 	    elif [ "$action" == "q" ]; then
-#				echo -e -n "\r \r"
 		fclear
 		break
 	    elif [ "$action" == "s" ]; then
@@ -2022,19 +2003,8 @@ function interactive {
 		fclear
 		break
 	    fi
-	    
 	else
-	    if [ ! -f "$path_tmp/daemon.zdl" ] || [ -z "$daemon_pid" ]; then
-		break
-	    else
-		print_c 1 "$PROG è attivo in modalità demone: attendi..."
-		echo "Per uscire dal client digita \"q\", per fermare il demone digita \"s\""
-		cursor off
-		read -n 1 -t 5 esc
-		cursor on
-		[ "$esc" == "q" ] && break
-		[ "$esc" == "s" ]&& kill $daemon_pid 2>/dev/null && break
-	    fi
+	    break
 	fi
     done
 
