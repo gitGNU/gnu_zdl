@@ -3177,9 +3177,9 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     header_dl "Comandi"
     echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
     echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
-    echo -e "\n<${BBlue} i ${Color_Off}>\t\tmodalità interattiva (attivo dopo ${BGreen}@${Color_Off})
+    echo -e "\n<${BYellow} i ${Color_Off}>\t\tmodalità interattiva (attivo dopo ${BGreen}@${Color_Off})
 <${BRed} q ${Color_Off}>\t\tuscita da ZDL (attivo dopo ${BGreen}@${Color_Off})
-<${BRed} Ctrl+c ${Color_Off}>\ttermina ZDL e i download di Axel"
+<${BRed} Ctrl+c ${Color_Off}>\ttermina ZDL e i download di Axel (attivo anche ora)"
     separator-
     echo
 #	echo -e -n "\r"
