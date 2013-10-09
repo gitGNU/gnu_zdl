@@ -131,7 +131,7 @@ ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream
                 1) digitando Control+c (in questo caso saranno interrotti anche i download di Axel)
                 2) digitando il tasto \"q\" (tutti i download già avviati nella directory corrente con Wget e Axel non saranno interrotti, ma non verranno più gestiti da ZDL)
         - Se i download sono gestiti dalla modalità \"demone\": 
-                attraverso la modalità interattiva (\e[1mzdl -i\e[0m) avviata nella directory gestita dal demone, digitando il tasto di stop: \"s\" (in questo caso i download avviati con Axel e Wget non sarano interrotti, ma non verranno gestiti dal ZDL)
+                attraverso la modalità interattiva (\e[1mzdl -i\e[0m) avviata nella directory gestita dal demone, digitando il tasto di stop: \"s\" (in questo caso i download avviati con Axel e Wget non sarano interrotti, ma non verranno gestiti da ZDL)
 
 
 \e[1mAltre informazioni utili.\e[0m
@@ -1310,7 +1310,8 @@ function check_ip {
 }
 
 function my_ip {
-    myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
+    #myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
+    myip=$(wget -q -O - -t 1 -T 20 http://indirizzo-ip.com/ip.php)
     echo
     separator "─"
     if [ ! -z "$myip" ]; then
@@ -2308,7 +2309,7 @@ function sleep {
 	case $action in
 	    q) exit ;;
 	    i) zdl -i
-		#header_z
+		header_z
 		print_c 1 "\nModalità interattiva terminata: di seguito l'output di gestione dei download\n"
 		header_box "Modalità non interattiva/standard"
 		;;
@@ -2793,6 +2794,7 @@ if [ "${args[*]}" != "${args[*]//--silent}" ]; then
 	if [ "${args[$i]}" == "--silent" ]; then
 	    unset args[$i]
 	    daemon="true"
+	    sleeping_pause=10
 	fi
     done
 fi
@@ -3267,6 +3269,18 @@ while true; do
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
+		## ADDS-ON
+		if [ -d "$path_conf/extensions/" ]; then
+		    max_sources=`ls -1 $path_conf/extensions/*.sh 2>/dev/null |wc -l`
+		    if [ "$max_sources" != "0" ]; then
+			for i in `seq 1 $max_sources`; do
+			    fsource=`ls -1 $path_conf/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
+			    source "$fsource"
+			done
+		    fi
+		fi
+		####
+		## REDIRECTS
 		if [ "$url_in" != "${url_in//'likeupload.org'}" ]; then
 		    url_in_old="$url_in"
 		    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location")
@@ -3275,14 +3289,20 @@ while true; do
 		    links_loop + "$url_in"
 
 		fi
-
-		if [ "$url_in" != "${url_in//'down.php?id='}" ]; then
-		    url_in_old="$url_in"
-		    url_in="${url_in_old//'down.php?id='/dl/}"
-		    links_loop - "$url_in_old"
-		    links_loop + "$url_in"
+		if [ "$url_in" != "${url_in//'nowdownload'}" ]; then
+		    if [ "$url_in" != "${url_in//'down.php?id='}" ]; then
+			url_in_old="$url_in"
+			url_in="${url_in_old//'down.php?id='/dl/}"
+			links_loop - "$url_in_old"
+			links_loop + "$url_in"
+		    elif [ "$url_in" != "${url_in//'download.php?id='}" ]; then
+			url_in_old="$url_in"
+			url_in="${url_in_old//'download.php?id='/dl/}"
+			links_loop - "$url_in_old"
+			links_loop + "$url_in"
+		    fi
 		fi
-		
+		####
 		domain=${url_in//\?*}
 		domain=`echo "$domain" | tr  [:upper:] [:lower:]`
 		if [ "$update_proxy" == "true" ];then
@@ -3904,21 +3924,8 @@ while true; do
 		    redirected="true"
 		    
 		else
-					## ADDS-ON
-		    if [ -d "$path_conf/extensions/" ]; then
-			max_sources=`ls -1 $path_conf/extensions/*.sh 2>/dev/null |wc -l`
-			if [ "$max_sources" != "0" ]; then
-			    for i in `seq 1 $max_sources`; do
-				fsource=`ls -1 $path_conf/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
-				source "$fsource"
-			    done
-			fi
-		    fi
-		    
-					# to-do: get_flash_videos
-
-		    
-					# else..
+	    
+		# to-do: get_flash_videos
 		    if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 			if [ "$update_proxy_others_list" == "true" ]; then
 			    new_ip_proxy
@@ -3935,7 +3942,7 @@ while true; do
 			    done
 			fi	
 			
-						## streaming downloader
+		## streaming downloader
 			items=( `ls $path_tmp/filename_* 2>/dev/null` ) #2>/dev/null
 			if [ ! -z "${items[*]}" ]; then
 			    
@@ -3950,7 +3957,7 @@ while true; do
 			    done
 			fi
 			
-						## universal downloader
+		## universal downloader
 			if [ -z "$file_in" ]; then
 			    
 			    file_in="${url_in##*'/'}"
