@@ -94,6 +94,7 @@ ZigzagDownLoader ($PROG) - Download manager
 \e[1mIl gestore di download ZigzagDownLoader: manuale e consigli d'uso.\e[0m
 
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (per esempio da Youtube, Putlocker, Nowvideo, Dailymotion...) ed i file condivisi attraverso i seguenti servizi di hosting: Putlocker (scarica il file in formato AVI, se si tratta di un filmato disponibile anche in streaming), Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire, Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo aver risolto il captcha, anche avviando ZDL con il browser attraverso le componenti aggiuntive compatibili). Inoltre, ZDL converte i redirect di Likeupload, avviando automaticamente il download dai link reindirizzati.
+ZDL è anche in grado di estrarre e di scaricare un video di Youtube, direttamente dal link della pagina.
 
 \e[1mZDL può essere avviato in diversi modi:\e[0m
 
@@ -245,6 +246,46 @@ Le estensioni di Chrome/Chromium che permettono l'uso di ZDL come download manag
 Le estensioni qua sopra funzionano anche con \e[1mFVD Video Downloader\e[0m [https://chrome.google.com/webstore/detail/lfmhcpmkbdkbgbmkjoiopeeegenkdikp] (per scaricare i video in streaming: clicca con il tasto \e[1mdestro\e[0m del mouse sui \e[1mlink\e[0m che compaiono nella tendina aperta dall'estensione, poi scegli il download manager ZigzagDownLoader)
 
 
+
+\e[1mFunzione interattiva di Conkeror.\e[0m
+
+ZDL implementa automaticamente il browser Conkeror con la nuova funzione \"zdl\". 
+Per attivarla, digita: \e[1mM+x zdl\e[0m
+
+Dopo aver avviato il comando, il minibuffer di Conkeror:
+ - chiede di selezionare la \e[1mdirectory\e[0m di destinazione
+ - offre la possibilità di utilizzare le \e[1mopzioni\e[0m di zdl (lasciare il campo vuoto per non selezionarle)
+ - mostra e indicizza i \e[1mlink\e[0m nel buffer corrente (per esempio la pagina web), per procedere nella selezione del link (il link della pagina corrente corrisponde all'indice 0)
+ - avvia ZDL in un terminale xterm oppure, se è stata selezionata l'opzione --daemon (oppure -d), in background. In ogni caso è possibile gestire i download utilizzando l'interfaccia interattiva: \e[1mzdl -i\e[0m
+
+
+
+\e[1mXXXTerm (Xombrero) e altri software.\e[0m
+
+ZDL dispone anche dello script \e[1m/usr/local/bin/zdl-xterm\e[0m, che può essere avviato da qualunque applicazione e da un terminale. È stato pensato per rendere possibile l'avvio di ZDL in contesti diversi da quelli previsti dal programma. In particolare, XXXTerm può avviare uno script bash, utilizzando il comando \e[1m:run_script\e[0m, passandogli un solo argomento: il link della pagina corrente. Questo rende impossibile l'avvio standard di zdl in un'istanza di xterm, perché \e[1m:run_script\e[0m non accetta ulteriori parametri. L'avvio di zdl in un nuovo terminale virtuale xterm è reso possibile da \e[1mzdl-xterm\e[0m.
+
+\e[1mUso in XXXTerm:\e[0m
+- comando \e[1m:run_script\e[0m
+- digita: \e[1mzdl-xterm\e[0m
+- il programma avvia un'istanza di xterm che:
+   - chiede in quale \e[1mdirectory\e[0m scaricare il file (è possibile evitare questa interazione configurando zdl-xterm: inserisci in \e[1m/usr/local/bin/zdl-xterm\e[0m, come valore della variabile \e[1m\$default_directory\e[0m all'inizio dello script, il path di una \e[1mdirectory valida\e[0m)
+   - zdl-xterm avvia zdl sull'\e[1mURL corrente\e[0m
+
+\e[1mSemplificazione per XXXTerm.\e[0m
+Per utilizzare zdl-xterm con più rapidità, XXXTerm può essere configurato in molti modi.
+
+\e[1mUn suggerimento:\e[0m
+- apri il file \e[1m$HOME/.xxxterm.conf\e[0m
+- inserisci il seguente testo:
+
+  \e[1mdefault_script = zdl-xterm\e[0m
+  \e[1mkeybinding = run_script,C-z\e[0m
+  
+Con la configurazione suggerita, digitando \e[1mCtrl+z\e[0m si avvia il prompt di \e[1m:run_script\e[0m con il campo già occupato dal nome dello script \e[1mzdl-xterm\e[0m: è sufficiente premere \e[1minvio\e[0m.
+
+
+
+
 \e[1mAGGIORNARE ZDL.\e[0m
 Se è disponibile una nuova versione del programma, ZDL si aggiorna automaticamente. È possibile disabilitare l'aggiornamento automatico modificando la configurazione (zdl --configure).
 Inoltre, per aggiornare manualmente ZDL è sufficiente usare l'argomento -u (--update).
@@ -284,6 +325,26 @@ http://inventati.org/zoninoz"|less --RAW-CONTROL-CHARS
     exit 1
 }
 
+function update_zdl-xterm {
+    cd /tmp
+    wget "${url_path_update}zdl-xterm" -q && print_c 1 "\nzdl-xterm scaricato" || echo ERRORE
+    cd - &>/dev/null
+}
+
+function update_zdl-conkeror {
+    if [ -f "$HOME/.conkerorrc" ]; then
+	test=$(cat "$HOME/.conkerorrc"|grep "$path_conf/conkerorrc.zdl" |tail -n 1)
+	test2=$(echo "${test#*'//'}" |grep "$path_conf/conkerorrc.zdl")
+	if [ -z "$test" ]; then
+	    echo -e "\n// ZigzagDownLoader\nrequire(\"$path_conf/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
+	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
+	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
+	fi
+	wget "${url_path_update}conkerorrc.zdl" -O "$path_conf/conkerorrc.zdl" -q && print_c 1 "\nEstensione per Conkeror aggiornata" || print_c 3 "\nErrore nell'aggiornamento dell'estensione di Conkeror, contatta gli sviluppatori: http://nongnu.org/zdl" 
+    fi
+}
+
+
 function update {
     remote_version=`wget "$url_version" -O - -q`
     local_version=`cat "$path_conf/version.txt" 2>/dev/null`
@@ -295,19 +356,20 @@ function update {
 	fi
 	
 	wget "$url_update" -O /tmp/$prog -q && print_c 1 "\n$PROG scaricato"
-	
-	err=`mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+	update_zdl-xterm
+	update_zdl-conkeror
+	err=`mv /tmp/*${prog}* /usr/local/bin/ 2>&1`
 	if [ -z "$err" ]; then
-	    chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
+	    chmod a+rx /usr/local/bin/*${prog}* && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/" || print_c 3 "\nErrore nell'aggiornamento nell'assegnazione dei diritti di esecuzione, contatta gli sviluppatori: http://nongnu.org/zdl" 
 	    touch "$path_conf/updated"
 	else
-	    err=`sudo mv /tmp/$prog /usr/local/bin/$prog 2>&1`
+	    err=`sudo mv /tmp/*${prog}* /usr/local/bin/ 2>&1`
 	    if [ -z "$err" ]; then
-		sudo chmod a+rx /usr/local/bin/$prog && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
+		sudo chmod a+rx /usr/local/bin/*${prog}* && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/" || print_c 3 "\nErrore nell'aggiornamento nell'assegnazione dei diritti di esecuzione" 
 		touch "$path_conf/updated"
 	    else
 		echo -n "(Root)"
-		err=`su -c "mv /tmp/$prog /usr/local/bin/$prog ; chmod a+rx /usr/local/bin/$prog"`
+		err=`su -c "mv /tmp/*${prog}* /usr/local/bin/ ; chmod a+rx /usr/local/bin/*${prog}*"`
 		if [ -z "$err" ]; then
 		    print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
 		    touch "$path_conf/updated"
@@ -316,6 +378,7 @@ function update {
 		fi
 	    fi
 	fi
+	pause
 	if [ -f "$path_conf/updated" ];then 
 	    touch "$path_conf/noclear"
 	    echo "$remote_version" > "$path_conf/version.txt"
@@ -828,6 +891,7 @@ function init {
 
     bar_char="z"
     url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+    url_path_update="http://inventati.org/zoninoz/html/upload/files/"
     url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
     max_waiting=40
     if [ -e "/cygdrive" ] && [ ! -f "/zdl.bat" ]; then
@@ -1273,13 +1337,30 @@ function _log {
 	    ;;
 	6)
 	    echo
-	    print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev" #| tee -a $file_log
-			#links_loop - "$url_in"
+	    print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev" | tee -a $file_log
+	    #links_loop - "$url_in"
 	    echo
 	    ;;
 	7)
 	    echo
 	    print_c 3 "$url_in --> File $file_in già in download (${url_out[$i]})" | tee -a $file_log
+	    echo
+	    ;;
+	8)
+	    echo
+	    print_c 3  "$url_in --> Indirizzo errato o file non disponibile.\nErrore nello scaricare la pagina HTML del video. Controllare che l'URL sia stato inserito correttamente o che il video non sia privato." | tee -a $file_log
+	    links_loop - "$url_in"
+	    echo
+	    ;;
+	9)
+	    echo
+	    print_c 3 "$url_in --> Titolo della pagina HTML non trovato. Controlla l'URL." | tee -a $file_log
+	    links_loop - "$url_in"
+	    echo
+	    ;;
+	10)
+	    echo
+	    "$url_in --> Firma del video non trovata" | tee -a $file_log
 	    echo
 	    ;;
     esac
@@ -2807,6 +2888,23 @@ if [ "${args[*]}" != "${args[*]//$PWD}" ]; then
     done
 fi
 
+if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "$daemon" != "true" ]; then 
+	    if [ -z "$DISPLAY" ]; then
+		export DISPLAY=":0"
+	    fi
+	    url="${args[$i]%'--zigzag-xterm'*}"
+	    parameters="${args[$i]#*'--zigzag-xterm'}"
+	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
+
+	    exit
+	else
+	    unset args[$i]
+	fi
+    done
+fi
+
 
 if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     for i in `seq 0 $max_args`; do
@@ -3175,7 +3273,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
     header_box "Links"
-    echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
+    echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Youtube, Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
     header_dl "Comandi"
     echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
     echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
@@ -3368,6 +3466,83 @@ while true; do
 		    
 		    file_in=${url_in_file##*'/'}
 		    axel_parts=4
+		elif [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
+		    videoType="mp4"
+
+                    ## (Wget) Scarica il codice HTML della pagina YouTube del video
+		    html="`wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O-`" || _log 8 
+
+                    ## Impostazione del nome del file come il titolo della pagina YouTube
+		    if [[ $html =~ \<title\>(.+)\<\/title\> ]]; then
+			title=${BASH_REMATCH[1]}
+			title=$(echo $title | sed -r 's/([^0-9a-z])+/_/ig')
+			title=$(echo $title | sed -r 's/_youtube//ig')
+			title=$(echo $title | sed -r 's/^_//ig')
+			title=$(echo $title | tr '[A-Z]' '[a-z]')
+			title=$(echo $title | sed -r 's/_amp//ig')
+		    else
+			_log 9 
+		    fi
+
+                    ## Selezione del blocco di codice contenente gli URLs ai vari formati video
+		    while IFS= read -r line
+		    do
+			if [[ $line =~ \"url_encoded_fmt_stream_map\"(.*) ]]; then
+			    download=${BASH_REMATCH[1]}
+			    break
+			fi
+		    done <<< "$html"
+
+                    ## Selezione della stringa contenente l'URL per scaricare in formato mp4
+		    IFS=',' read -ra URLs <<< "$download"
+		    for val in "${URLs[@]}"; do
+			if [[ $val =~ $videoType ]]; then
+			    download=$val
+			    break
+			fi
+		    done
+
+                    ## Conversione caratteri unicode e rimozione parti della stringa non necessarie 
+		    download=$(echo $download | sed -r 's/\:\ \"//')
+		    download=$(echo $download | sed -r 's/%3A/:/g')
+		    download=$(echo $download | sed -r 's/%2F/\//g')
+		    download=$(echo $download | sed -r 's/%3F/\?/g')
+		    download=$(echo $download | sed -r 's/%3D/\=/g')
+		    download=$(echo $download | sed -r 's/%252C/%2C/g')
+		    download=$(echo $download | sed -r 's/%26/\&/g')
+		    download=$(echo $download | sed -r 's/sig=/signature=/g')
+		    download=$(echo $download | sed -r 's/\\u0026/\&/g')
+		    download=$(echo $download | sed -r 's/(type=[^&]+)//g')
+		    download=$(echo $download | sed -r 's/(fallback_host=[^&]+)//g')
+		    download=$(echo $download | sed -r 's/(quality=[^&]+)//g')
+
+                    ## Selezione del parametro firma (generato ed unserito in modo casuale ad ogni visita della pagina)
+		    if [[ $download =~ (signature=[^&]+) ]]; then
+			signature=${BASH_REMATCH[1]}
+		    else
+			_log 10 #die "\nERRORE: firma del video non trovata!\n\n"
+		    fi
+
+                    ## Selezione dell'URL
+		    if [[ $download =~ (http?:.+) ]]; then
+			youtubeurl=${BASH_REMATCH[1]}
+		    else
+			_log 3 #die "\nERRORE: URL del video non trovato!\n\n"
+		    fi
+
+                    ## Rimozione del parametro firma dall'URL (se presente)
+		    youtubeurl=$(echo $youtubeurl | sed -r 's/\&signature.+$//')
+
+                    ## Posizionamento corretto del parametro firma
+		    download="$youtubeurl&$signature"
+
+                    ## Rimozione duplicati
+		    download=$(echo $download | sed -r 's/\&+/\&/g')
+		    url_in_file=$(echo $download | sed -r 's/\&itag=[0-9]+\&signature=/\&signature=/g')
+
+                    ## Nome del file da scaricare
+		    file_in="$title.$videoType"
+
 		elif [ "$domain" != "${domain//nowdownload.}" ]; then
 		    
 					## http://www.nowdownload ###########
