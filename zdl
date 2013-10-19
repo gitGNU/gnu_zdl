@@ -325,6 +325,7 @@ http://inventati.org/zoninoz"|less --RAW-CONTROL-CHARS
     exit 1
 }
 
+
 function update_zdl-xterm {
     cd /tmp
     wget "${url_path_update}zdl-xterm" -q && print_c 1 "\nzdl-xterm scaricato" || echo ERRORE
@@ -914,6 +915,21 @@ function init {
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
     sleeping_pause=5
+
+    ## per determinare se lo stdin è una pipe (disattivare l'interazione della funzione sleeping)
+    stdin="$(ls -l /dev/fd/0)"
+    stdin="${stdin/*-> /}"
+    #ftype="$(stat --printf=%F $stdin)"
+    # if   [[ "$ftype" == 'character special file' ]]; then
+	# echo Terminal
+    if [ "${stdin}" != "${stdin//'pipe:['}" ]; then     # if [[ "$ftype" == 'regular file' ]]; then
+	# echo Pipe: $stdin
+	pipe=true
+    # else
+	# echo Unknown: $stdin
+    fi
+
+
 }
 
 
@@ -1527,7 +1543,7 @@ function new_ip_proxy {
 	    
 	    if [ "$string_line" == "" ]; then
 		echo -n -e "."
-		sleep 3
+		sleeping 3
 		(( search_proxy++ ))
 		[ $search_proxy == 100 ] && print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" && noproxy && close=true && break
 	    fi
@@ -1607,7 +1623,7 @@ function new_ip_proxy {
 
 
 function get_tmps {
-    while [ "`less $path_tmp/zdl.tmp |grep \</html`" == "" ]; do
+    while [ "`cat $path_tmp/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
 		#print_c 2 "\nAttendi..."
 	wget -t 3 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
 	echo -e "...\c"
@@ -1839,7 +1855,7 @@ function download {
 			break
 		    else
 			[ $s == 0 ] && print_c 2 "Attendi massimo 90 secondi:"
-			sleep 1
+			sleeping 1
 			s=`date +"%s"`
 			s=$(( $s-$k ))
 			echo -e $s"\r\c"
@@ -1850,7 +1866,7 @@ function download {
 		unset redirected url_redirect
 		rm -f "$path_tmp/redirect"
 	    fi
-	    sleep 3
+	    sleeping 3
 	    axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
 	#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
@@ -2381,12 +2397,17 @@ function show_downloads {
 	echo -e "\n\n\n"
 	unset progress
     fi
-    sleep $sleeping_pause 
+
+    sleeping $sleeping_pause
 }
 
-function sleep {
-    if [ -z "$daemon" ]; then
-	read -t $1 -n 1 action
+
+function sleeping {
+    timer=$1
+
+
+    if [ -z "$daemon" ] && [ -z "$pipe" ]; then
+	read -t $timer -n 1 action
 	case $action in
 	    q) exit ;;
 	    i) zdl -i
@@ -2396,7 +2417,7 @@ function sleep {
 		;;
 	esac
     else
-	/bin/sleep $1
+	/bin/sleep $timer
     fi
 }
 
@@ -2683,7 +2704,7 @@ function clean_file {
     unset items
     if [ -f "$path_tmp/rewriting" ];then
 	while [ -f "$path_tmp/rewriting" ]; do
-	    sleep 0.1
+	    sleeping 0.1
 	done
     fi
     touch "$path_tmp/rewriting"
@@ -2721,7 +2742,7 @@ function links_loop { 	#usage with op=+|- : links_loop $op $link
     if [ "$op" != "in" ]; then
 	if [ -f "$path_tmp/rewriting" ];then
 	    while [ -f "$path_tmp/rewriting" ]; do
-		sleep 0.1
+		sleeping 0.1
 	    done
 	fi
 	touch "$path_tmp/rewriting"
@@ -3272,23 +3293,27 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     if [ "$?" != "1" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
-    header_box "Links"
-    echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Youtube, Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
-    header_dl "Comandi"
-    echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
-    echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
-    echo -e "\n<${BYellow} i ${Color_Off}>\t\tmodalità interattiva (attivo dopo ${BGreen}@${Color_Off})
-<${BRed} q ${Color_Off}>\t\tuscita da ZDL (attivo dopo ${BGreen}@${Color_Off})
-<${BRed} Ctrl+c ${Color_Off}>\ttermina ZDL e i download di Axel (attivo anche ora)"
-    separator-
-    echo
+    if [ -z "$pipe" ]; then
+	header_box "Links"
+	echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Youtube, Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
+	header_dl "Comandi"
+	echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
+	echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
+	echo -e "\n<${BYellow} i ${Color_Off}>\t\tmodalità interattiva (attivo dopo ${BGreen}@${Color_Off})"
+	echo -e "<${BRed} q ${Color_Off}>\t\tuscita da ZDL (attivo dopo ${BGreen}@${Color_Off})"
+	echo -e "<${BRed} Ctrl+c ${Color_Off}>\ttermina ZDL e i download di Axel (attivo anche ora)"
+	separator-
+	echo
+    else
+	print_c 3 "Le funzioni interattive non sono disponibili in questa istanza del programma, perché lo standard input è una PIPE. Puoi avviare l'interfaccia interattiva in questa stessa directory da un altro terminale\n"
+    fi
 #	echo -e -n "\r"
 	#read -d @ -a links
     read -d @ links
     
     if [ -f "$path_tmp/rewriting" ];then
 	while [ -f "$path_tmp/rewriting" ]; do
-	    sleep 0.1
+	    sleeping 0.1
 	done
     fi
     touch "$path_tmp/rewriting"
@@ -3301,7 +3326,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
 	clean_file "$file"
 	if [ -f "$path_tmp/rewriting" ];then
 	    while [ -f "$path_tmp/rewriting" ]; do
-		sleep 0.1
+		sleeping 0.1
 	    done
 	fi
 	touch "$path_tmp/rewriting"
@@ -3354,7 +3379,7 @@ rm -f "$path_tmp/lock.zdl"
 while true; do
     if [ "$daemon" == "true" ] && [ ! -f "$file" ]; then
 	file="$path_tmp/links_loop.txt"
-	sleep 5
+	sleeping 5
     elif [ -f "$file" ]; then
 
 	links_in=`cat $file`
@@ -3399,6 +3424,13 @@ while true; do
 			links_loop - "$url_in_old"
 			links_loop + "$url_in"
 		    fi
+		fi
+		if [ "$url_in" != "${url_in//'google.com/url?q='}" ]; then
+		    url_in_old="$url_in"
+		    url_in="${url_in_old#*'google.com/url?q='}"
+		    url_in="${url_in%'&sa=U'*}"
+		    links_loop - "$url_in_old"
+		    links_loop + "$url_in"
 		fi
 		####
 		domain=${url_in//\?*}
@@ -3572,7 +3604,7 @@ while true; do
 			    if (( $s>29 )); then
 				wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
 			    fi
-			    sleep 1
+			    sleeping 1
 			    s=`date +"%s"`
 			    s=$(( $s-$k ))
 			    
@@ -3581,7 +3613,7 @@ while true; do
 			    url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
 			    url_in_file=${url_in_file//*href=\"} 
 			    url_in_file=${url_in_file//\"*}
-			    sleep 0.1
+			    sleeping 0.1
 			    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
 				break
 			    fi
@@ -3698,7 +3730,7 @@ while true; do
 			print_c 2 "Attendi 100 secondi:"
 			for s in `seq 0 100`; do
 			    echo -e $s"\r\c"
-			    sleep 1
+			    sleeping 1
 			done
 			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
 			
@@ -3780,7 +3812,7 @@ while true; do
 		# 				while [ $s != 0 ]; do
 		# 					echo -e "  \r\c"
 		# 					echo -e $s"\r\c"
-		# 					sleep 1
+		# 					sleeping 1
 		# 					(( s-- ))
 		# 				done
 		# 				echo -e "  \r\c"
@@ -3816,7 +3848,7 @@ while true; do
 		# 				
 		# 				k=`date +"%s"`
 		# 				while [ "$goal" == "" ]; do
-		# 					sleep 1
+		# 					sleeping 1
 		# 					s=`date +"%s"`
 		# 					s=$(( $s-$k ))
 		# 					echo -e $s"\r\c"
@@ -3825,7 +3857,7 @@ while true; do
 		# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
 		# 						
 		# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` 
-		# 						sleep 1
+		# 						sleeping 1
 		# 					fi
 		# 					if (( $s>90 )); then
 		# 						break
@@ -3904,7 +3936,7 @@ while true; do
 			    print_c 2 "Attendi $countdown secondi:"
 			    for s in `seq 0 $countdown`; do
 				echo -e $s"\r\c"
-				sleep 1
+				sleeping 1
 			    done
 			    echo -e "  \r\c"
 			    tmp="$path_tmp/zdl3.tmp"
@@ -3949,7 +3981,7 @@ while true; do
 			    url_in_file="${url_in_file#*product_download_url=}"
 			    url_in_file="${url_in_file%%\"*}"
 			fi
-			sleep 1
+			sleeping 1
 			s=`date +"%s"`
 			s=$(( $s-$k ))
 			
@@ -3959,7 +3991,7 @@ while true; do
 			fi
 		    done
 		    
-					#sleep 5
+					#sleeping 5
 		    if (( $axel_parts>8 )); then
 			axel_parts=8
 		    fi
@@ -4188,7 +4220,7 @@ while true; do
 		    check_freespace
 		    check_alias
 		else
-		    sleep 1
+		    sleeping 1
 		fi
 		
 		if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ]; then
