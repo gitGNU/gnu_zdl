@@ -3769,14 +3769,9 @@ while true; do
 			unset now
 			
 		    else
-#			print_c 2 "Attendi: potrebbe impiegare qualche minuto"
-			print_c 2 "Attendi circa 30 secondi:"
-		    	k=`date +"%s"`
-		    	s=0
-                        #inizio=$( date )
 			wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
-
 			if [ ! -e "$path_conf/extensions/zdl-wise" ]; then
+			    print_c 2 "Attendi: potrebbe impiegare qualche minuto"
 			    wise_code=$( wise $( wise_args "$wise_code" ) )
 			    wise_code=$( wise $( wise_args "$wise_code" ) )
 			    wise_code=$( wise $( wise_args "$wise_code" ) )
@@ -3791,6 +3786,9 @@ while true; do
 			    url_in_file="${url_in_file%%\"*}"
 			    
 			else
+			    print_c 2 "Attendi circa 30 secondi:"
+		    	    k=`date +"%s"`
+		    	    s=0
 			    while true; do
 		    		sleep 1
 		    		s=`date +"%s"`
@@ -3803,13 +3801,12 @@ while true; do
 			    wise_code=$( "$path_conf"/extensions/zdl-wise $( wise_args "$wise_code" ) )
 			    wise_code=$( "$path_conf"/extensions/zdl-wise $( wise_args "$wise_code" ) )
 			    kill $pid_counter			    
-  			    #echo "$inizio --> $(date)"
 		    	    unset url_in_file
 			    preurl_in_file="${wise_code##*href=\"}"
 			    preurl_in_file="${preurl_in_file%%\"*}"
 			    preurl_in_file="${domain%'/dl/'*}$preurl_in_file"
 		    	    while true; do
-		    		if (( $s>29 )); then
+		    		if (( $s>30 )); then
 				    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
 		    		fi
 		    		sleeping 1
