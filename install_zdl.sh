@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+
+
 function bold {
 	echo -e "\e[1m$1\e[0m"
 }
@@ -108,8 +110,10 @@ function install_axel-cygwin {
 	if [ -z $test_axel ]; then
 		cd /
 		mv axel-2.4-1bl1.tar.bz2 axel-2.4-1bl1.tar.bz2.old &>/dev/null
-		wget http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
-		tar -xvjf axel-2.4-1bl1.tar.bz2
+		wget "$axel_url"
+#http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
+		tar -xvjf "${axel_url##*'/'}"
+#axel-2.4-1bl1.tar.bz2
 		cd -
 	fi
 }
@@ -121,6 +125,7 @@ function install_batch {
 install_url="http://inventati.org/zoninoz/html/upload/files/zdl"
 install_path="/usr/local/bin/zdl"
 install_tmp="/tmp/zdl"
+axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2"
 success="Installazione completata"
 unsuccess="Installazione non riuscita"
 PROG=ZigzagDownLoader
@@ -157,6 +162,7 @@ if [ -e "/cygdrive" ]; then
 else
 	check_downloader
 fi
+
 
 bold "Per informazioni su ZigzagDownLoader (zdl): zdl --help"
 exit

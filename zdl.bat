@@ -31,6 +31,6 @@ set cfile="%5"
 set cookie=%6
 set referer=%7
 
-start C:\cygwin\bin\mintty.exe -t ZigzagDownLoader -s 120,50 -e C:\cygwin\bin\bash.exe --login -i -c 'zdl --stream %url% %fname% %folder% %cfile% %cookie% %referer%'
+start \cygwin\bin\mintty.exe -t ZigzagDownLoader -s 140,50 -e \cygwin\bin\bash.exe --login -i -c 'zdl --stream %url% %fname% %folder% %cfile% %cookie% %referer%'
 
 exit

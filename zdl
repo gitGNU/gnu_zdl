@@ -20,7 +20,7 @@
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni
+# Gianluca Zoni (project administrator and first inventor)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
@@ -211,7 +211,7 @@ Configurazione manuale di Flashgot per ZDL:
 		
 	3)	ancora nel tab \"Generale\", il \"Percorso dell'eseguibile:\" 
 			su GNU/LINUX: /usr/local/bin/zdl
-			su WINDOWS: C:\Cygwin\zdl.bat
+			su WINDOWS: [unità]\Cygwin\zdl.bat
 
 	3) 	sempre nel tab \"Generale\", in \"Modello dei parametri\", 
 		incolla la seguente stringa: 
@@ -228,7 +228,7 @@ Non è attualmente prevista una configurazione automatica delle estensioni di Ch
 Le estensioni di Chrome/Chromium che permettono l'uso di ZDL come download manager esterno sono le seguenti:
 
     \e[1mDownload Assistant\e[0m: http://mac.softpedia.com/get/Internet-Utilities/Chrome-Extensions/Download-Assistant.shtml
-    
+0;278;0c    
      -  istruzioni per l'\e[1minstallazione\e[0m e informazioni utili: http://www.lffl.org/2011/03/chrome-utilizzare-un-download-manager.html
      -  \e[1mconfigurazione\e[0m per ZDL (dal menu: Strumenti -> Estensioni) 
         1) clicca su \e[1mOpzioni\e[0m dell'estensione
@@ -305,7 +305,7 @@ Installazione su Windows in due fasi:
 		- con l'installatore di Cygwin, installa il pacchetto \"Wget\"
 
 	FASE 2 _ Installazione di ZDL
-		- salva nella cartella C:\\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl.sh
+		- salva nella cartella \\\cygwin il seguente file: http://inventati.org/zoninoz/html/upload/files/install_zdl.sh
 		- avvia Cygwin installato nella fase 1 
 		- digita il seguente comando: /install_zdl.sh
 
@@ -325,11 +325,43 @@ http://inventati.org/zoninoz"|less --RAW-CONTROL-CHARS
     exit 1
 }
 
+function install_gcc {
+#    wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
+    wget https://db.tt/6LMocx1a -O apt-cyg -q
+    chmod +x apt-cyg
+    mv apt-cyg /usr/local/bin/
+    apt-cyg -a x86 install gcc
+}
+
+
+
+function update_zdl-wise {
+    
+    # if [ $(which cygcheck) ]; then
+    # 	cygcheck -c gcc-g++ | grep OK > /dev/null 2>&1
+    # 	if [ "$?" -ne "0" ]; then
+    # 	    install_gcc
+    # 	fi
+    # fi
+    if [ -e "/cygdrive" ]; then # && [ ! -e "/bin/gcc.exe" ]; then
+	#install_gcc
+	wget "${url_path_update}zdl-wise.exe" -O zdl-wise.exe -q
+    else
+	wget "${url_path_update}zdl-wise.c" -O zdl-wise.c -q && print_c 1 "\nPlugin zdl-wise scaricato: compilazione e installazione avviate..." || echo ERRORE
+	gcc zdl-wise.c -o zdl-wise 2>/dev/null #|| print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
+    fi
+
+    if [ -e zdl-wise ]; then
+	chmod +x zdl-wise || chmod +x zdl-wise.exe
+	cp zdl-wise* "$path_conf"/extensions/
+    fi 
+
+}
 
 function update_zdl-xterm {
-    cd /tmp
-    wget "${url_path_update}zdl-xterm" -q && print_c 1 "\nzdl-xterm scaricato" || echo ERRORE
-    cd - &>/dev/null
+    wget "${url_path_update}zdl-xterm" -q -O zdl-xterm && print_c 1 "\nzdl-xterm scaricato" || echo ERRORE
+    chmod +x zdl-xterm
+    mv zdl-xterm /usr/local/bin || sudo mv zdl-xterm /usr/local/bin
 }
 
 function update_zdl-conkeror {
@@ -349,16 +381,17 @@ function update_zdl-conkeror {
 function update {
     remote_version=`wget "$url_version" -O - -q`
     local_version=`cat "$path_conf/version.txt" 2>/dev/null`
-    if [ "$remote_version" != "$local_version" ] && [ ! -z "$remote_version" ]; then
+    if [ "${remote_version#*'.'}" != "${local_version#*'.'}" ] && [ ! -z "$remote_version" ]; then
 	print_c 2 "\nAggiornamento di $PROG ..."
 	if [ -e "/cygdrive" ]; then
-	    wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio aggiornato: C:\Cygwin\zdl.bat "
+	    wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio aggiornato: $(cygpath -m /)\zdl.bat "
 	    chmod a+rx /zdl.bat
 	fi
 	
 	wget "$url_update" -O /tmp/$prog -q && print_c 1 "\n$PROG scaricato"
 	update_zdl-xterm
 	update_zdl-conkeror
+	update_zdl-wise
 	err=`mv /tmp/*${prog}* /usr/local/bin/ 2>&1`
 	if [ -z "$err" ]; then
 	    chmod a+rx /usr/local/bin/*${prog}* && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/" || print_c 3 "\nErrore nell'aggiornamento nell'assegnazione dei diritti di esecuzione, contatta gli sviluppatori: http://nongnu.org/zdl" 
@@ -414,7 +447,7 @@ function add_conf { #only if item doesn't exist
 }
 
 function set_default_conf {
-    mkdir -p $path_conf
+    mkdir -p "$path_conf"
     touch "$file_conf"
     add_conf "downloader=Axel"
     if [ ! -e "/cygdrive" ]; then
@@ -648,11 +681,11 @@ function show_accounts {
 
 function get_accounts {
     unset accounts_user accounts_pass
-    if [ -f $path_conf/accounts/$host ];then
-	lines=`cat $path_conf/accounts/$host |wc -l`
+    if [ -f "$path_conf"/accounts/$host ];then
+	lines=`cat "$path_conf"/accounts/$host |wc -l`
 	for line in `seq 1 $lines`; do
-	    accounts_user[${#accounts_user[*]}]=`cat $path_conf/accounts/$host | sed -n "${line}p"|awk '{ print($1) }'`
-	    accounts_pass[${#accounts_pass[*]}]=`cat $path_conf/accounts/$host | sed -n "${line}p"|awk '{ print($2) }'`
+	    accounts_user[${#accounts_user[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($1) }'`
+	    accounts_pass[${#accounts_pass[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($2) }'`
 	done
     fi
 }
@@ -728,7 +761,7 @@ function configure_file_old {
 }
 
 function configure_accounts {
-    mkdir -p $path_conf/accounts
+    mkdir -p "$path_conf"/accounts
 	# while true; do
 	# 	print_c 2 "Servizi di hosting abilitati per l'uso di account:"
 	# 	echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
@@ -756,7 +789,7 @@ function configure_accounts {
     host="easybytez"
     
     while true; do
-	touch $path_conf/accounts/$host
+	touch "$path_conf"/accounts/$host
 	header_z
 	get_accounts
 	show_accounts
@@ -780,17 +813,17 @@ function configure_accounts {
 		    print_c 2 "Ripeti la password (per verifica):"
 		    read -ers pass2
 		    if [ ! -z "$user" ] && [ ! -z "$pass" ] && [ "$pass" == "$pass2" ]; then
-			lines=`cat $path_conf/accounts/$host |wc -l`
+			lines=`cat "$path_conf"/accounts/$host |wc -l`
 			unset noadd
 			for line in `seq 1 $lines`; do
-			    account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+			    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
 			    if [ "$account" == "$user" ]; then
 				noadd=1
 				break
 			    fi
 			done
 			if [ -z "$noadd" ]; then
-			    echo "$user $pass" >> $path_conf/accounts/$host
+			    echo "$user $pass" >> "$path_conf"/accounts/$host
 			fi
 		    elif [ "$pass" != "$pass2" ]; then
 			print_c 3 "Ripeti l'operazione: password non corrispondenti\n"
@@ -816,17 +849,17 @@ function configure_accounts {
 			print_c 3 "Ripeti l'operazione: nome utente mancante"
 		    fi
 		done
-		lines=`cat $path_conf/accounts/$host |wc -l`
+		lines=`cat "$path_conf"/accounts/$host |wc -l`
 		unset noadd
 		for line in `seq 1 $lines`; do
-		    account=`cat $path_conf/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
+		    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
 		    if [ "$account" != "$user" ]; then
-			cat $path_conf/accounts/$host |sed -n "${line}p" >> $path_conf/accounts/host
+			cat "$path_conf"/accounts/$host |sed -n "${line}p" >> "$path_conf"/accounts/host
 		    fi
 		done
-		rm -f $path_conf/accounts/$host
-		if [ -f $path_conf/accounts/host ]; then
-		    cat $path_conf/accounts/host > $path_conf/accounts/$host
+		rm -f "$path_conf"/accounts/$host
+		if [ -f "$path_conf"/accounts/host ]; then
+		    cat "$path_conf"/accounts/host > "$path_conf"/accounts/$host
 		fi
 		;;
 	    *)	#return	
@@ -856,7 +889,7 @@ function init {
     
     path_conf="$HOME/.${prog}"
     file_conf="$path_conf/$prog.conf"
-    mkdir -p "$path_conf"
+    mkdir -p "$path_conf/extensions"
     if [ ! -f "$file_conf" ]; then
 	touch "$path_conf/flashgot_updated"
 	echo "# ZigzagDownLoader configuration file" > "$file_conf"
@@ -882,6 +915,8 @@ function init {
 # 			axel_parts=10
 # 		fi
 	kill -SIGWINCH $$
+	dev_cygwin=${HOME#'/cygdrive/'}
+	dev_cygwin="${dev_cygwin%%'/'*}:"
     fi
     
     init_colors
@@ -892,11 +927,12 @@ function init {
 
     bar_char="z"
     url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+    url_gcc="http://inventati.org/zoninoz/html/upload/files/gcc.exe"
     url_path_update="http://inventati.org/zoninoz/html/upload/files/"
     url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
     max_waiting=40
     if [ -e "/cygdrive" ] && [ ! -f "/zdl.bat" ]; then
-	wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: C:\Cygwin\zdl.bat "
+	wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
     fi
     
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
@@ -928,8 +964,10 @@ function init {
     # else
 	# echo Unknown: $stdin
     fi
-
-
+    version_ffprefs_new=294
+    if [ ! -e "$path_conf/extensions/zdl-wise" ]; then
+	update_zdl-wise
+    fi
 }
 
 
@@ -959,9 +997,9 @@ function restore_ffprefs {
 		print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso..."
 		cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js |grep "/$USER/"`
 	    fi
-	    ls  $path_conf/firefox/ | while read file1; do
-		file=${file1#${path_conf}\/firefox\/}
-		if [ -e "/cygwin" ]; then
+	    ls  "$path_conf"/firefox/ | while read file1; do
+		file="${file1#${path_conf}\/firefox\/}"
+		if [ -e "/cygdrive" ]; then
 		    prepath=( $cygprefs )
 		    prepath=( ${prepath%/*} )
 		    prepath=( ${prepath%/*} )
@@ -970,12 +1008,12 @@ function restore_ffprefs {
 		    file="$HOME/.mozilla/firefox/${file}"
 		fi
 		file=${file//default_prefs.js/default\/prefs.js}
-		cp $path_conf/firefox/$file1 $file && echo "Ripristino di $file da $path_conf/firefox/$file1"
+		cp "$path_conf"/firefox/"$file1" "$file" && echo "Ripristino di $file da \"$path_conf\"/firefox/$file1"
 	    done
 	    echo
-	    print_c 1 "Le preferenze di Firefox sono state ripristinate da $path_conf/firefox/"
+	    print_c 1 "Le preferenze di Firefox sono state ripristinate da \"$path_conf\"/firefox/"
 	    echo
-	    rm -r "$path_conf/firefox" || print_c 3 "Impossibile il ripristino delle preferenze di Firefox: la directory $path_conf/firefox/ è inesistente"
+	    rm -r "$path_conf/firefox" || print_c 3 "Impossibile il ripristino delle preferenze di Firefox: la directory \"$path_conf\"/firefox/ è inesistente"
 	fi
     fi
 }
@@ -988,24 +1026,24 @@ function flashgot_autoconf {
 # 	user_pref("flashgot.detect.cache", "(Incorporato nel browser),axel,ZigzagDownLoader");
 # 	user_pref("flashgot.media.dm", "ZigzagDownLoader");
     if [ -e "/cygdrive" ]; then
-	if [ ! -f $path_conf/ffprefs_path ]; then
+	if [ ! -f "$path_conf"/ffprefs_path ]; then
 	    print_c 2 "Attendere: ricerca dei file delle preferenze di Firefox in corso (può richiedere molti minuti)..."
 			#cygprefs=`find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/"`
-	    find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/" > $path_conf/ffprefs_path
+	    find /cygdrive 2>/dev/null |grep Firefox |grep default/prefs.js|grep "/$USER/" > "$path_conf"/ffprefs_path
 	fi
-	cygprefs=`cat $path_conf/ffprefs_path`
-	test_flashgot=`cat $cygprefs | grep flashgot`
+	cygprefs=`cat "$path_conf"/ffprefs_path`
+	test_flashgot=`cat "$cygprefs" | grep flashgot`
     else
-	test_flashgot=`cat $HOME/.mozilla/firefox/*.default/prefs.js |grep flashgot`
+	test_flashgot=`cat "$HOME"/.mozilla/firefox/*.default/prefs.js |grep flashgot`
     fi
     test_ZDL=`echo "$test_flashgot" | grep 'flashgot.custom"' |grep ZigzagDownLoader`
 	## test updates
     test_update_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep '[REFERER]'`
     test_update1_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep 'CFILE\]'`
     test_update2_ZDL=`echo "$test_flashgot" | grep ZigzagDownLoader |grep 'CFILE]\ '`
-    
+#    VERSION=$(cat "$path_conf/"version.txt)
     if [ ! -z "$test_flashgot" ] && ( [ -z "$test_ZDL" ] || [ "$test_ZDL" != "${test_ZDL//'",ZigzagDownLoader"'}" ] || [ -z "$test_update_ZDL" ] || [ ! -z "$test_update1_ZDL" ] || [ ! -z "$test_update2_ZDL" ] ); then
-	print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG"
+	print_c 1 "Rilevata la presenza di Flashgot: configurazione automatica per l'uso di $PROG, attendi..."
 	if [ -e "/cygdrive" ]; then
 	    test_ff_alive=`ps -efW |grep firefox`
 	else
@@ -1024,7 +1062,7 @@ function flashgot_autoconf {
 	    path_ffprefs="$cygprefs"
 	else
 	    test_ff_alive=`ps u -N -C grep |grep firefox` #ps aux |grep "firefox-bin"`
-	    path_ffprefs=`ls $HOME/.mozilla/firefox/*.default/prefs.js`
+	    path_ffprefs=`ls "$HOME"/.mozilla/firefox/*.default/prefs.js`
 	fi
 	
 	if [ -z "$test_ff_alive" ]; then
@@ -1032,26 +1070,26 @@ function flashgot_autoconf {
 	    if [ ! -d "$path_conf/firefox/" ];then
 		mkdir "$path_conf/firefox/"
 		
-		ls $path_ffprefs | while read file1; do
-		    file=${file1//default\/prefs.js/default_prefs.js}
-		    file=${file##*\/}
-		    cp $file1 "$path_conf/firefox/$file"
-		    echo "Copia di $file1: $path_conf/firefox/$file"
+		echo -e "$path_ffprefs" | while read file1; do
+		    file="${file1//default\/prefs.js/default_prefs.js}"
+		    file="${file##*\/}"
+		    cp "$file1" "$path_conf/firefox/$file"
+		    echo "Copia di $file1: \"$path_conf\"/firefox/$file"
 		done
 		echo
-		print_c 1 "Configurazione automatica di Flashgot: le precedenti preferenze di Firefox sono state salvate in $path_conf/firefox/ per un eventuale ripristino."
+		print_c 1 "Configurazione automatica di Flashgot: le precedenti preferenze di Firefox sono state salvate in \"$path_conf\"/firefox/ per un eventuale ripristino."
 		echo
 	    fi
 	    
 			# set flashgot config
-	    ls $path_ffprefs | while read file; do
+	    echo -e "$path_ffprefs" | while read file; do
 		for key in 'flashgot.custom\"' 'flashgot.custom.ZigzagDownLoader.args' 'flashgot.custom.ZigzagDownLoader.exe' 'flashgot.defaultDM' 'flashgot.detect.cache' 'flashgot.media.dm'; do
 		    
-		    firefox_pref=`cat $file |grep $key`
+		    firefox_pref=`cat "$file" |grep $key`
 		    case $key in
 			'flashgot.custom\"')
-			    values="${firefox_pref#'user_pref("flashgot.custom", "'}"
-		    values="${values%'");'}"
+			    values="${firefox_pref#'user_pref(\"flashgot.custom\", \"'}"
+		    values="${values%'\");'}"
 			    values="${values//,ZigzagDownLoader}"
 			    if [ ! -z "${values}" ]; then
 				values="${values},"
@@ -1065,14 +1103,14 @@ function flashgot_autoconf {
 			    path_zdl=`which $prog`
 			    new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"$path_zdl\");"
 			    if [ -e "/cygdrive" ]; then
-				new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"C:\\\cygwin\\\zdl.bat\");"
+				new_pref="user_pref(\"flashgot.custom.ZigzagDownLoader.exe\", \"$(cygpath -m /)\\\zdl.bat\");"
 			    fi
 			    ;; 
 			'flashgot.defaultDM')
 			    new_pref="user_pref(\"flashgot.defaultDM\", \"ZigzagDownLoader\");"
 			    ;; 
 			'flashgot.detect.cache')
-			    values="${firefox_pref#'user_pref("flashgot.detect.cache", "'}"
+			    values="${firefox_pref#'user_pref(\"flashgot.detect.cache\", "'}"
 		    values="${values%'");'}"
 			    values="${values//,ZigzagDownLoader}"
 			    new_pref="user_pref(\"flashgot.detect.cache\", \"${values},ZigzagDownLoader\");"
@@ -1083,7 +1121,7 @@ function flashgot_autoconf {
 		    esac
 		    
 		    if [ -z "${firefox_pref}" ]; then
-			echo ${new_pref} >> $file
+			echo "${new_pref}" >> "$file"
 		    else
 			firefox_pref="${firefox_pref//[/\[}"
 			firefox_pref="${firefox_pref//]/\]}"
@@ -1623,7 +1661,7 @@ function new_ip_proxy {
 
 
 function get_tmps {
-    while [ "`cat $path_tmp/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
+    while [ "`cat "$path_tmp"/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
 		#print_c 2 "\nAttendi..."
 	wget -t 3 -T $max_waiting --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
 	echo -e "...\c"
@@ -1632,12 +1670,12 @@ function get_tmps {
 
 function input_hidden {
     j=1
-    cat $tmp | grep input | grep hidden > $path_tmp/data.tmp
+    cat $tmp | grep input | grep hidden > "$path_tmp"/data.tmp
     max=`wc -l "$path_tmp/data.tmp" | awk '{ print($1) }'`
     max=$(( $max+1 ))
     
     while [ $j != $max ]; do
-	data=`cat $path_tmp/data.tmp |sed -n "${j}p"`
+	data=`cat "$path_tmp"/data.tmp |sed -n "${j}p"`
 	name=${data#*name=\"}
 	name=${name%%\"*}
 	value=${data#*value=\"}
@@ -1778,8 +1816,8 @@ function configure_old {
 
 function check_freespace {
     fsize=0
-    if [ -f $path_tmp/${file_in}_stdout.tmp ]; then
-	data_stdout $path_tmp/${file_in}_stdout.tmp
+    if [ -f "$path_tmp"/${file_in}_stdout.tmp ]; then
+	data_stdout "$path_tmp"/${file_in}_stdout.tmp
 	if [ $? == 1 ] && [ ! -z ${length_out[0]} ]; then
 	    fsize=$(( ${length_out[0]}/1024 ))
 	fi
@@ -1826,7 +1864,7 @@ function download {
 	[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
 		#[ "$domain" != "${domain//easybytez.}" ] && unset argout fileout
 	
-	if [ -f $path_tmp/cookies.zdl ]; then
+	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
 	    
 			## 
@@ -1835,8 +1873,8 @@ function download {
 			## - $url_in_file with a line-feed (?) at the end (%0D)
 			## - cUrl is not installed by default on Cygwin
 			## 
-			#curl -b $path_tmp/cookies.zdl -v --data "$post_data" "$url_in_file" -L $argout "$fileout"
-			#url_in_file=$(curl -b $path_tmp/cookies.zdl -v --data "$post_data" "$url_in_file" 2>&1| grep "Location:" | awk '{ print($3) }')
+			#curl -b "$path_tmp"/cookies.zdl -v --data "$post_data" "$url_in_file" -L $argout "$fileout"
+			#url_in_file=$(curl -b "$path_tmp"/cookies.zdl -v --data "$post_data" "$url_in_file" 2>&1| grep "Location:" | awk '{ print($3) }')
 	    
 	    if [ "$redirected" == "true" ]; then
 		k=`date +"%s"`
@@ -1868,9 +1906,9 @@ function download {
 	    fi
 	    sleeping 3
 	    axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-	elif [ -f $path_tmp/flashgot_cookie.zdl ]; then
+	elif [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
 	#export AXEL_COOKIES="$path_tmp/flashgot_cfile.zdl"
-	    COOKIES=`cat $path_tmp/flashgot_cookie.zdl`
+	    COOKIES=`cat "$path_tmp"/flashgot_cookie.zdl`
 	    if [ ! -z "$COOKIES" ] ; then
 		headers="-H \"Cookie:$COOKIES\""
 		axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
@@ -1881,8 +1919,8 @@ function download {
 	else
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
-# 		if [ -f $path_tmp/flashgot_cookie.zdl ]; then
-# 			COOKIES=`cat $path_tmp/flashgot_cookies.zdl`
+# 		if [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
+# 			COOKIES=`cat "$path_tmp"/flashgot_cookies.zdl`
 # 			headers="-H \"Cookie:$COOKIES\""
 # 			axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 # 		else
@@ -1893,9 +1931,9 @@ function download {
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 	
     elif [ "$downloader_in" = "Wget" ]; then
-	if [ -f $path_tmp/cookies.zdl ]; then
+	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    COOKIES="$path_tmp/cookies.zdl"
-	elif [ -f $path_tmp/flashgot_cfile.zdl ]; then
+	elif [ -f "$path_tmp"/flashgot_cfile.zdl ]; then
 	    COOKIES="$path_tmp/flashgot_cfile.zdl"
 	fi
 	if [ ! -z "${post_data}" ]; then
@@ -1997,7 +2035,7 @@ function clean_completed {
 	    length_saved=0
 	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
 	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
-		rm  $path_tmp/"${file_out[$j]}_stdout.tmp"
+		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 	    fi
 	done
     fi
@@ -2122,13 +2160,13 @@ function interactive {
 		    elif [ "$input2" == "e" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
-			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" $path_tmp/"${file_out[$i]}_stdout.tmp"
+			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "t" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
-			    rm -f $path_tmp/"${file_out[$i]}_stdout.tmp"
+			    rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "c" ]; then
@@ -2160,7 +2198,7 @@ function data_stdout {
     if [ ! -z "$1" ];then # arg=$path_tmp/${file_in}_stdout.tmp
 	list="$1"
     else
-	list=`ls -1 $path_tmp/*_stdout.tmp 2>/dev/null`
+	list=`ls -1 "$path_tmp"/*_stdout.tmp 2>/dev/null`
     fi
     if [ ! -z "$list" ]; then
 	export LANG="$prog_lang"
@@ -2466,7 +2504,7 @@ function check_stdout {
 
 		else # file exists: don't loop its url_out
 
-		    print_c 3 "Errore: $path_tmp/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
+		    print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
 		    read -p "ATTENZIONE!"
 		    rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
 
@@ -2492,7 +2530,7 @@ function check_alias {
 		    check_pid ${pid_in}
 		    if [ $? == 1 ]; then
 			unset real_file_in 
-			real_file_in=`cat $path_tmp/${file_in}_stdout.tmp |grep filename`
+			real_file_in=`cat "$path_tmp"/${file_in}_stdout.tmp |grep filename`
 			real_file_in="${real_file_in#*'filename="'}"
 		    real_file_in="${real_file_in%'"'*}"
 			
@@ -2750,21 +2788,21 @@ function links_loop { 	#usage with op=+|- : links_loop $op $link
     if [ ! -z "$url_loop" ]; then
 	case $op in
 	    +)	
-		echo "$url_loop" >> $path_tmp/links_loop.txt
+		echo "$url_loop" >> "$path_tmp"/links_loop.txt
 		rm -f "$path_tmp/rewriting"
 		;;
 	    -)
 		if [ -f "$path_tmp/links_loop.txt" ]; then
-		    lnx=`cat $path_tmp/links_loop.txt`
+		    lnx=`cat "$path_tmp"/links_loop.txt`
 		    for lnk in $lnx; do
-			[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> $path_tmp/links_loop2.txt
+			[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
 		    done
-		    rm $path_tmp/links_loop.txt
-		    [ -f "$path_tmp/links_loop2.txt" ] && mv $path_tmp/links_loop2.txt $path_tmp/links_loop.txt
+		    rm "$path_tmp"/links_loop.txt
+		    [ -f "$path_tmp/links_loop2.txt" ] && mv "$path_tmp"/links_loop2.txt "$path_tmp"/links_loop.txt
 		    
 # # 					list=`sort -u "$path_tmp/links_loop.txt" | sed "s<${url_loop}<<g"  | sed '/^$/d'`
 # # 					
-# # 					if [ ! -z "$list" ] && [ "`cat $path_tmp/links_loop.txt 2>/dev/null |wc -w`" != "0" ]; then 
+# # 					if [ ! -z "$list" ] && [ "`cat "$path_tmp"/links_loop.txt 2>/dev/null |wc -w`" != "0" ]; then 
 # # 						echo -e "$list" > "$path_tmp/links_loop.txt"
 # # 					else
 # # 						rm "$path_tmp/links_loop.txt"
@@ -2773,7 +2811,7 @@ function links_loop { 	#usage with op=+|- : links_loop $op $link
 		rm -f "$path_tmp/rewriting"
 		;;
 	    in) 
-		lnx=`cat $path_tmp/links_loop.txt 2>/dev/null`
+		lnx=`cat "$path_tmp"/links_loop.txt 2>/dev/null`
 		if [ ! -z "$lnx" ];then
 		    for lnk in $lnx; do
 			if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
@@ -2789,7 +2827,7 @@ function links_loop { 	#usage with op=+|- : links_loop $op $link
 	esac
     fi
     if [ -f "$path_tmp/links_loop.txt" ]; then
-	clean_file $path_tmp/links_loop.txt
+	clean_file "$path_tmp"/links_loop.txt
     fi
 }
 
@@ -2819,7 +2857,7 @@ function init_links_loop {
 
 function check_lock {
 	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
-    test_lock=`ls $path_tmp/${prog}_lock_* 2>/dev/null`
+    test_lock=`ls "$path_tmp"/${prog}_lock_* 2>/dev/null`
     echo "lockfile=$lock_file"
     read -p "test=$test_lock"
     
@@ -2859,6 +2897,136 @@ function check_instance_daemon {
     else
 	return 0
     fi
+}
+
+# Nowdownload /Nowvideo
+function wise {
+    w="$1"
+    i="$2"
+    s="$3"
+    e="$4"
+    lIll=0;
+    ll1I=0;
+    Il1l=0;
+    ll1l=();
+    l1lI=();
+    while true; do
+	if (( $lIll<5 )); then
+	    l1lI+=( "${w:$lIll:1}" )
+	elif (( $lIll<${#w} )); then
+	    ll1l+=( "${w:$lIll:1}" )
+	fi
+	(( lIll++ ))
+	
+
+	if (( $ll1I<5 )); then
+	    l1lI+=( "${i:$ll1I:1}" )
+	elif (( $ll1I<${#i} )); then
+	    ll1l+=( "${i:$ll1I:1}" )
+	fi
+	(( ll1I++ ))
+		
+	if (( $Il1l<5 )); then
+	    l1lI+=( "${s:$Il1l:1}" )
+	elif (( $Il1l<${#s} )); then
+	    ll1l+=( "${s:$Il1l:1}" )
+	fi
+	(( Il1l++ ))
+	test1=$(( ${#w}+${#i}+${#s}+${#e} ))
+	test2=$(( ${#ll1l[*]}+${#l1lI[*]}+${#e} ))
+	if (( $test1 == $test2 )); then
+	    break
+	fi
+#	sleep 0.01
+    done
+
+    lI1l="${ll1l[*]}"
+    lI1l="${lI1l//' '}"
+    I1lI="${l1lI[*]}"
+    I1lI="${I1lI//' '}"
+    ll1I=0
+    unset l1ll
+    l1ll=()
+    max=$(( ${#ll1l[*]}-1 ))
+
+    for lIll in $(seq 0 2 $max); do
+	ll11=-1;
+
+	char2code ${I1lI:$ll1I:1}
+	if (( $char_code%2 )); then 
+	    ll11=1
+	fi
+	
+	parse_int "${lI1l:$lIll:2}" 36
+	code2char $(( $int-$ll11 ))
+	l1ll+=( "$code_char" )
+
+	(( ll1I++ ))
+	if (( $ll1I>=${#l1lI[*]} )); then
+	    ll1I=0
+	fi
+#	sleep 0.01
+    done
+    join="${l1ll[*]}"
+    echo "${join//' '}"
+
+}
+
+function wise2 {
+    lI1l=$1
+    I1lI=$2
+#    echo "$lI1l $I1lI"
+
+    ll1I=0
+    unset l1ll
+    l1ll=()
+#    max=$(( ${#ll1l[*]}-1 ))
+    max=${#lI1l}
+    for lIll in $(seq 0 2 $max); do
+	ll11=-1;
+
+	char2code ${I1lI:$ll1I:1}
+	if (( $char_code%2 )); then 
+	    ll11=1
+	fi
+	
+	parse_int "${lI1l:$lIll:2}" 36
+	code2char $(( $int-$ll11 ))
+	l1ll+=( "$code_char" )
+
+	(( ll1I++ ))
+	if (( $ll1I>=${#l1lI[*]} )); then
+	    ll1I=0
+	fi
+#	sleep 0.01
+    done
+    join="${l1ll[*]}"
+    echo "${join//' '}"
+
+}
+
+
+function wise_args {
+    code="${1##*'('}"
+    code="${code%%')'*}"
+    code="${code//\'}"
+    echo ${code//','/' '}
+}
+
+function char2code {
+    char=$1
+    char_code=$( printf "%d" "'$char" )
+}
+
+function code2char {
+    code=$1
+    code_char=$( printf \\$(printf "%03o" "$code" ))
+}
+
+function parse_int {
+    int0="${1%% *}"
+    base=$2
+    int=$( echo $(( $base#${int0##0} )) ) #conversione di $int da base 36 a base decimale
 }
 
 
@@ -2916,13 +3084,22 @@ if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
 		export DISPLAY=":0"
 	    fi
 	    url="${args[$i]%'--zigzag-xterm'*}"
+	    dest_dir="${args[$i]#*'--cwd'}"
+	    if [ "$dest_dir" != "${args[$i]}" ]; then
+		if [ -e "/cygdrive" ]; then
+		    dest_dir="/cygdrive/i/${dest_dir//\\/\/}"
+		    cd "$dest_dir"
+		fi
+	    fi
 	    parameters="${args[$i]#*'--zigzag-xterm'}"
+	    parameters="${parameters%'--cwd'*}"
 	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
 
 	    exit
 	else
-	    unset args[$i]
+	    unset args
 	fi
+
     done
 fi
 
@@ -2963,10 +3140,10 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 
 	    if [ "$url_in" != "${url_in//nowvideo.}" ] && [ ! -e "/cygdrive" ]; then
 		referer="$6"
-				#xterm -e "read -p \"1:$1 -- 2:$2 -- 3:$3 -- 4:$4 -- 5:$5 -- 6:$6 -- 7:$7\""
+		#xterm -e "read -p \"1:$1 -- 2:$2 -- 3:$3 -- 4:$4 -- 5:$5 -- 6:$6 -- 7:$7\""
 		ext="${file_in##*.}"
-		file_in2=`wget "$referer" -O - -q | grep "&title="`
-		file_in2="${file_in2#*&title=}"
+		file_in2=`wget "$referer" -O - -q | grep "&amp;title="`
+		file_in2="${file_in2#*'&amp;title='}"
 		[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
 	    fi
 	    cd "$directory"
@@ -3200,9 +3377,9 @@ if [ ! -z "${args[*]}" ]; then
 	for i in `seq 0 $max_args`; do
 	    if [ -f "${args[$i]}" ]; then
 		links=`cat "${args[$i]}"` 
-		echo -e "${links// /%20}" >> $path_tmp/links_loop.txt
+		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    elif [ ! -z "${args[$i]}" ]; then
-		echo -e "${args[$i]// /%20}" >> $path_tmp/links_loop.txt
+		echo -e "${args[$i]// /%20}" >> "$path_tmp"/links_loop.txt
 		links="${links}\n${args[$i]// /%20}"
 				## 
 				## in alternativa alla riga qua sopra, un controllo del link:
@@ -3210,19 +3387,19 @@ if [ ! -z "${args[*]}" ]; then
 	# 			print_c 2 "Verifica di ${args[$i]}"
 	# 			export LANG="$prog_lang"
 	# 			export LANGUAGE="$prog_lang"
-	# 			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+	# 			wget "${args[$i]}" --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > "$path_tmp"/spider )
 	# 			
-	# 			test_link=`cat $path_tmp/spider`
+	# 			test_link=`cat "$path_tmp"/spider`
 	# 			if [ -z "$test_link" ]; then
-	# 				wget "${args[$i]}" --retry-connrefused --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > $path_tmp/spider )
+	# 				wget "${args[$i]}" --retry-connrefused --load-cookies="$COOKIE" --spider 2> >( grep "Remote file exists" > "$path_tmp"/spider )
 	# 			fi
 	# 			if [ ! -z "$test_link" ]; then
-	# 				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> $path_tmp/spider
+	# 				timeout 5 wget "${args[$i]}" --load-cookies="$COOKIE" -S -q -O /dev/null 2> "$path_tmp"/spider
 	# 				
-	# 				test_link=`cat $path_tmp/spider |grep "website-unavailable"`
+	# 				test_link=`cat "$path_tmp"/spider |grep "website-unavailable"`
 	# 				if [ -z "$test_link" ];then
-	# 					#echo "${args[$i]}" >> $path_tmp/new_links.txt
-	# 					echo "${args[$i]}" >> $path_tmp/links_loop.txt
+	# 					#echo "${args[$i]}" >> "$path_tmp"/new_links.txt
+	# 					echo "${args[$i]}" >> "$path_tmp"/links_loop.txt
 	# # 					check_lock
 	# # 					if [ $? == 1 ]; then
 	# # 						exit
@@ -3248,12 +3425,12 @@ if [ ! -z "${args[*]}" ]; then
 		
 	    fi
 	done
-	if [ -f $path_tmp/links_loop.txt ];then 
+	if [ -f "$path_tmp"/links_loop.txt ];then 
 	    file="$path_tmp/links_loop.txt"
-	    clean_file $path_tmp/links_loop.txt
+	    clean_file "$path_tmp"/links_loop.txt
 	    echo >> links.txt 2>/dev/null
 	    date >> links.txt 2>/dev/null
-	    cat $path_tmp/links_loop.txt >> links.txt 2>/dev/null
+	    cat "$path_tmp"/links_loop.txt >> links.txt 2>/dev/null
 			#clean_file links.txt
 	    print_c 1 "L'elenco completo dei link è in links.txt"
 	    break
@@ -3267,18 +3444,20 @@ local_version=`cat "$path_conf/version.txt" 2>/dev/null`
 num1=${local_version//*[.,]}
 num2=${local_version//[.,]*}
 
-if [ -f "$path_conf/flashgot_updated" ] || ( [ -f "$path_conf/updated" ] && (( $num1<125 )) ); then
-    if [ "$flashgot" == "enabled" ];then
-	flashgot_autoconf
-    elif [ "$flashgot" != "enabled" ];then
-	restore_ffprefs
-    fi
-fi
-rm -f "$path_conf/updated" "$path_conf/flashgot_updated"
 
-if [ ! -e "/cygdrive" ];then
-    check_downloader
-fi
+## FLASHGOT AVVIO CONFIGURAZIONE AUTOMATICA
+# if [ -f "$path_conf/flashgot_updated" ] || ( [ -f "$path_conf/updated" ] && (( $num1<$version_ffprefs_new )) ); then
+#     if [ "$flashgot" == "enabled" ];then
+# 	flashgot_autoconf
+#     elif [ "$flashgot" != "enabled" ];then
+# 	restore_ffprefs
+#     fi
+# fi
+# rm -f "$path_conf/updated" "$path_conf/flashgot_updated"
+
+# if [ ! -e "/cygdrive" ];then
+#     check_downloader
+# fi
 
 echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
@@ -3317,8 +3496,8 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
 	done
     fi
     touch "$path_tmp/rewriting"
-	#printf "%s\n" "${links[@]}" >> $path_tmp/links_loop.txt
-    echo -e "${links// /%20}" >> $path_tmp/links_loop.txt
+	#printf "%s\n" "${links[@]}" >> "$path_tmp"/links_loop.txt
+    echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
     
     file="$path_tmp/links_loop.txt"
     if [ -f "$file" ];then
@@ -3394,10 +3573,10 @@ while true; do
 		url_in="${url_in%% }"
 		## ADDS-ON
 		if [ -d "$path_conf/extensions/" ]; then
-		    max_sources=`ls -1 $path_conf/extensions/*.sh 2>/dev/null |wc -l`
+		    max_sources=`ls -1 "$path_conf"/extensions/*.sh 2>/dev/null |wc -l`
 		    if [ "$max_sources" != "0" ]; then
 			for i in `seq 1 $max_sources`; do
-			    fsource=`ls -1 $path_conf/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
+			    fsource=`ls -1 "$path_conf"/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
 			    source "$fsource"
 			done
 		    fi
@@ -3446,15 +3625,15 @@ while true; do
 					#update_proxy_others="true"
 		fi
 		
-		echo > $path_tmp/zdl.tmp > $path_tmp/zdl2.tmp
+		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 		
 		echo
 		header_box "Link da processare:"
 		echo "$url_in"
 		echo
 				#[ "$domain" != "${domain//dailymotion}" ] || 
-		if [ "$domain" != "${domain//dailymotion}" ] || [ "$domain" != "${domain//dmcdn.net}" ] || [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ] || [ "$domain" != "${domain//rapidgator.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then					#axel "${url_in}" -o $path_tmp/zdl2.tmp
-					#url_in_file=`cat $path_tmp/zdl2.tmp`
+		if [ "$domain" != "${domain//dailymotion}" ] || [ "$domain" != "${domain//dmcdn.net}" ] || [ "$domain" != "${domain//uploaded.}" ] || [ "$domain" != "${domain//easybytez.}" ] || [ "$domain" != "${domain//rapidgator.}" ];then # || [ "$domain" != "${domain//sharpfile.}" ]; then					#axel "${url_in}" -o "$path_tmp"/zdl2.tmp
+					#url_in_file=`cat "$path_tmp"/zdl2.tmp`
 
 		    if [ "$downloader_in" == "Axel" ]; then
 			dler=$downloader_in
@@ -3476,7 +3655,7 @@ while true; do
 		# 			
 		# 			## 4US.TO ###############
 		# 			get_tmps		
-		# 			link=`cat $path_tmp/zdl.tmp | grep morpheus `
+		# 			link=`cat "$path_tmp"/zdl.tmp | grep morpheus `
 		# 			link=${link#*document.location=\"}
 		# 			link=${link%\"*}
 		# 			
@@ -3491,7 +3670,7 @@ while true; do
 		    check_ip mediafire
 		    
 		    get_tmps
-		    url_in_file=`cat $path_tmp/zdl.tmp |grep 'kNO = '`
+		    url_in_file=`cat "$path_tmp"/zdl.tmp |grep 'kNO = '`
 		    url_in_file=${url_in_file#*'kNO = "'}
 		    url_in_file=${url_in_file//\" onclick=\"avh*/}
 		    url_in_file=${url_in_file%'"'*}
@@ -3575,74 +3754,153 @@ while true; do
                     ## Nome del file da scaricare
 		    file_in="$title.$videoType"
 
-		elif [ "$domain" != "${domain//nowdownload.}" ]; then
-		    
-					## http://www.nowdownload ###########
-		    
+		elif [ "$domain" != "${domain//nowdownload.}" ] && [ "$domain" == "${domain//\/nowdownload\/}" ]; then
+
 		    get_tmps
-		    test_file=`cat $path_tmp/zdl.tmp | grep "This file does not exist"`
+		    test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
 		    if [ ! -z "$test_file" ]; then
 			_log 3
 			break
 		    fi
-		    now=`cat $path_tmp/zdl.tmp | grep "Download Now"`
+		    now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
 		    if [ ! -z "$now" ]; then
 			url_in_file="${now#*\"}"
 			url_in_file="${url_in_file%%\"*}"
 			unset now
+			
 		    else
-			token=`cat $path_tmp/zdl.tmp | grep token`
-			token=${token//*=}
-			token=${token//\"*/}
-			preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+#			print_c 2 "Attendi: potrebbe impiegare qualche minuto"
 			print_c 2 "Attendi circa 30 secondi:"
-			k=`date +"%s"`
-			s=0
-			unset url_in_file
-			while true; do
+		    	k=`date +"%s"`
+		    	s=0
+                        #inizio=$( date )
+			wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
+
+			if [ ! -e "$path_conf/extensions/zdl-wise" ]; then
+			    wise_code=$( wise $( wise_args "$wise_code" ) )
+			    wise_code=$( wise $( wise_args "$wise_code" ) )
+			    wise_code=$( wise $( wise_args "$wise_code" ) )
+
+			    unset url_in_file
+			    preurl_in_file="${wise_code##*href=\"}"
+			    preurl_in_file="${preurl_in_file%%\"*}"
+			    preurl_in_file="${domain%'/dl/'*}$preurl_in_file"
+			    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+		    	    url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
+			    url_in_file="${url_in_file#*href=\"}"
+			    url_in_file="${url_in_file%%\"*}"
 			    
-			    if (( $s>29 )); then
-				wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-			    fi
-			    sleeping 1
-			    s=`date +"%s"`
-			    s=$(( $s-$k ))
-			    
-			    echo -e $s"\r\c"
-			    
-			    url_in_file=`cat $path_tmp/zdl2.tmp |grep "Click here to download" 2>/dev/null`
-			    url_in_file=${url_in_file//*href=\"} 
-			    url_in_file=${url_in_file//\"*}
-			    sleeping 0.1
-			    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
-				break
-			    fi
-			done
+			else
+			    while true; do
+		    		sleep 1
+		    		s=`date +"%s"`
+		    		s=$(( $s-$k ))
+				
+		    		echo -e $s"\r\c"
+			    done &
+			    pid_counter=$!
+			    wise_code=$( "$path_conf"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+			    wise_code=$( "$path_conf"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+			    wise_code=$( "$path_conf"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+			    kill $pid_counter			    
+  			    #echo "$inizio --> $(date)"
+		    	    unset url_in_file
+			    preurl_in_file="${wise_code##*href=\"}"
+			    preurl_in_file="${preurl_in_file%%\"*}"
+			    preurl_in_file="${domain%'/dl/'*}$preurl_in_file"
+		    	    while true; do
+		    		if (( $s>29 )); then
+				    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+		    		fi
+		    		sleeping 1
+		    		s=`date +"%s"`
+		    		s=$(( $s-$k ))
+				
+		    		echo -e $s"\r\c"
+				
+				
+				url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
+				url_in_file="${url_in_file#*href=\"}"
+				url_in_file="${url_in_file%%\"*}"
+				sleeping 0.1
+				if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+		    		    break
+		    		fi
+			    done
+			fi
 		    fi
-						#echo "$url_in_file"
-		    file_in1=`cat $path_tmp/zdl.tmp | grep 'Downloading'`
-		    file_in1="${file_in1#*'<br> '}"
-		    file_in1="${file_in1%%</h4>*}"
-		    file_in1="${file_in1%' '*}"
-		    file_in1="${file_in1%' '*}"
-		    file_in1="${file_in1%' '*}"
-		    file_in1="${file_in1//'<br>'/}"
-		    while [ "$file_in1" != "${file_in1%.}" ]; do
-			file_in1=${file_in1%.}
-		    done
-		    file_in2="${url_in_file//*'/'}"
-		    file_in2="${file_in2#*_}"
-		    
-		    
-		    if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
-			file_in="$file_in2"
-		    else
-			file_ext="${file_in2##*.}"
-			file_in="${file_in1}.${file_ext}"
-		    fi
+		    file_in="${url_in_file##*'/'}"
 		    file_in="${file_in%'?'*}"
-		    unset file_in2 file_in1 file_ext token preurl_in_file
+		    unset preurl_in_file
+
+		    # ## OLD http://www.nowdownload ###########
 		    
+		    # get_tmps
+		    # test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
+		    # if [ ! -z "$test_file" ]; then
+		    # 	_log 3
+		    # 	break
+		    # fi
+		    # now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
+		    # if [ ! -z "$now" ]; then
+		    # 	url_in_file="${now#*\"}"
+		    # 	url_in_file="${url_in_file%%\"*}"
+		    # 	unset now
+		    # else
+		    # 	token=`cat "$path_tmp"/zdl.tmp | grep token`
+		    # 	token=${token//*=}
+		    # 	token=${token//\"*/}
+		    # 	preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+		    # 	print_c 2 "Attendi circa 30 secondi:"
+		    # 	k=`date +"%s"`
+		    # 	s=0
+		    # 	unset url_in_file
+		    # 	while true; do
+			    
+		    # 	    if (( $s>29 )); then
+		    # 		wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+		    # 	    fi
+		    # 	    sleeping 1
+		    # 	    s=`date +"%s"`
+		    # 	    s=$(( $s-$k ))
+			    
+		    # 	    echo -e $s"\r\c"
+			    
+		    # 	    url_in_file=`cat "$path_tmp"/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+		    # 	    url_in_file=${url_in_file//*href=\"} 
+		    # 	    url_in_file=${url_in_file//\"*}
+		    # 	    sleeping 0.1
+		    # 	    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+		    # 		break
+		    # 	    fi
+		    # 	done
+		    # fi
+		    # 				#echo "$url_in_file"
+		    # file_in1=`cat "$path_tmp"/zdl.tmp | grep 'Downloading'`
+		    # file_in1="${file_in1#*'<br> '}"
+		    # file_in1="${file_in1%%</h4>*}"
+		    # file_in1="${file_in1%' '*}"
+		    # file_in1="${file_in1%' '*}"
+		    # file_in1="${file_in1%' '*}"
+		    # file_in1="${file_in1//'<br>'/}"
+		    # while [ "$file_in1" != "${file_in1%.}" ]; do
+		    # 	file_in1=${file_in1%.}
+		    # done
+		    # file_in2="${url_in_file//*'/'}"
+		    # file_in2="${file_in2#*_}"
+		    
+		    
+		    # if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+		    # 	file_in="$file_in2"
+		    # else
+		    # 	file_ext="${file_in2##*.}"
+		    # 	file_in="${file_in1}.${file_ext}"
+		    # fi
+		    # file_in="${file_in%'?'*}"
+		    # unset file_in2 file_in1 file_ext token preurl_in_file
+		    
+		    
+
 # 				elif [ "$domain" != "${domain//uload.}" ]; then
 # 					check_ip uload
 # 					wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
@@ -3666,7 +3924,7 @@ while true; do
 # 						
 # 						post_data="${post_data//'op=catalogue&'}"
 # 						
-# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 # 						
 # 						
 # 						unset post_data
@@ -3674,10 +3932,10 @@ while true; do
 # 						input_hidden
 # 						post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
 # 						
-# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+# 						wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
 # 						
-# 						if [ -f $path_tmp/zdl3.tmp ];then
-# 							url_in_file=`cat $path_tmp/zdl3.tmp | grep "http://uload.to/images/download.png"`
+# 						if [ -f "$path_tmp"/zdl3.tmp ];then
+# 							url_in_file=`cat "$path_tmp"/zdl3.tmp | grep "http://uload.to/images/download.png"`
 # 							url_in_file="${url_in_file#<a href=\"}"
 # 							url_in_file="${url_in_file%%\"*}"
 # 						fi
@@ -3718,7 +3976,7 @@ while true; do
 			
 			post_data="$post_data&method_free=Free Download"
 			
-			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 			
 			unset post_data
 			tmp="$path_tmp/zdl2.tmp"
@@ -3732,10 +3990,10 @@ while true; do
 			    echo -e $s"\r\c"
 			    sleeping 1
 			done
-			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl3.tmp &>/dev/null
+			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
 			
-			if [ -f $path_tmp/zdl3.tmp ];then
-			    url_in_file=`cat $path_tmp/zdl3.tmp | grep "<a href=" |grep "$file_in"`
+			if [ -f "$path_tmp"/zdl3.tmp ];then
+			    url_in_file=`cat "$path_tmp"/zdl3.tmp | grep "<a href=" |grep "$file_in"`
 			    url_in_file="${url_in_file#<a href=\"}"
 			    url_in_file="${url_in_file%%\"*}"
 			fi
@@ -3761,7 +4019,7 @@ while true; do
 			file_in="${file_in%</h2>*}"
 		    fi
 		    
-		    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+		    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 		    
 		    unset post_data
 		    tmp="$path_tmp/zdl2.tmp"
@@ -3775,7 +4033,7 @@ while true; do
 		## SHARPFILE with pseudo-captcha
 		## 
 		# 		elif [ "$domain" != "${domain//sharpfile.}" ]; then
-		# 			wget $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 			wget $url_in -O "$path_tmp"/zdl.tmp &>/dev/null
 		# 			tmp="$path_tmp/zdl.tmp"
 		# 			input_hidden
 		# 			
@@ -3783,16 +4041,16 @@ while true; do
 		# 				echo -n
 		# 			else
 		# 				check_ip sharpfile
-		# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O $path_tmp/zdl.tmp &>/dev/null
+		# 				wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl $url_in -O "$path_tmp"/zdl.tmp &>/dev/null
 		# 				echo -e "...\c"
 		# 				tmp="$path_tmp/zdl.tmp"
 		# 				input_hidden
 		# 				
 		# 				post_data="${post_data//'op=catalogue&'}"
 		# 				
-		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 		# 				
-		# 				captcha_html=`cat $path_tmp/zdl2.tmp |grep "position:absolute;padding-left"`
+		# 				captcha_html=`cat "$path_tmp"/zdl2.tmp |grep "position:absolute;padding-left"`
 		# 				unset post_data
 		# 				unset ascii_dec
 		# 				unset i
@@ -3833,15 +4091,15 @@ while true; do
 		# 			if [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ]; then
 		# 					echo
 		# 			else
-		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O $path_tmp/download4.tmp &>/dev/null
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&submit_ifree=Download file" http://shareflare.net/download4.php -O "$path_tmp"/download4.tmp &>/dev/null
 		# 				echo -e "...\c"
 		# 				unset post_data
 		# 				
 		# 				input_hidden
-		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O $path_tmp/download3.tmp &>/dev/null
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." http://shareflare.net/download3.php -O "$path_tmp"/download3.tmp &>/dev/null
 		# 				echo -e "...\c"
 		# 				
-		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 				wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O "$path_tmp"/tmpl_frame_top.php &>/dev/null
 		# 				echo -e "...\c"
 		# 				
 		# 				print_c 2 "Attendi circa 45 secondi:"
@@ -3854,9 +4112,9 @@ while true; do
 		# 					echo -e $s"\r\c"
 		# 					
 		# 					if (( $s>40 )); then
-		# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O $path_tmp/tmpl_frame_top.php &>/dev/null
+		# 						wget --load-cookies=$path_tmp/cookies.zdl --post-data=$post_data"&frameset=Download file." "http://shareflare.net/tmpl/tmpl_frame_top.php?link=" -O "$path_tmp"/tmpl_frame_top.php &>/dev/null
 		# 						
-		# 						goal=`less $path_tmp/tmpl_frame_top.php |grep direct_link_0` 
+		# 						goal=`less "$path_tmp"/tmpl_frame_top.php |grep direct_link_0` 
 		# 						sleeping 1
 		# 					fi
 		# 					if (( $s>90 )); then
@@ -3914,22 +4172,22 @@ while true; do
 			tmp="$path_tmp/zdl.tmp"
 			input_hidden
 			
-			wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O $path_tmp/zdl2.tmp &>/dev/null
+			wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O "$path_tmp"/zdl2.tmp &>/dev/null
 			echo -e "...\c"
 			
 						#exceeded no login
-			exceeded=`cat $path_tmp/zdl2.tmp |grep "Upgrade your account to download bigger files"`
+			exceeded=`cat "$path_tmp"/zdl2.tmp |grep "Upgrade your account to download bigger files"`
 			
 						# exceeded login 3G ---> attivare proxy
 			if [ -z "$exceeded_login" ]; then
-			    exceeded_login=`cat $path_tmp/zdl2.tmp |grep 'You have reached the download-limit:'`
+			    exceeded_login=`cat "$path_tmp"/zdl2.tmp |grep 'You have reached the download-limit:'`
 			fi
 			unset post_data
 			if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
 			    tmp="$path_tmp/zdl2.tmp"
 			    input_hidden
 			    
-			    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O $path_tmp/zdl3.tmp &>/dev/null
+			    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O "$path_tmp"/zdl3.tmp &>/dev/null
 			    echo -e "...\c"
 			    unset post_data
 			    
@@ -3976,8 +4234,8 @@ while true; do
 		    while true; do
 			
 			if (( $s>29 )); then
-			    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
-			    url_in_file=`cat $path_tmp/zdl2.tmp | grep ">Download</a>"`
+			    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
+			    url_in_file=`cat "$path_tmp"/zdl2.tmp | grep ">Download</a>"`
 			    url_in_file="${url_in_file#*product_download_url=}"
 			    url_in_file="${url_in_file%%\"*}"
 			fi
@@ -4000,8 +4258,8 @@ while true; do
 # 					unset alias
 # 					url_in_file="${url_in%/}"
 # 					
-# 					wget -t 1 -T $max_waiting $url_in_file -q -O $path_tmp/test_page.tmp &>/dev/null
-# 					test_exceeded=`cat $path_tmp/test_page.tmp |grep 'small style'`
+# 					wget -t 1 -T $max_waiting $url_in_file -q -O "$path_tmp"/test_page.tmp &>/dev/null
+# 					test_exceeded=`cat "$path_tmp"/test_page.tmp |grep 'small style'`
 # 					test_exceeded="${test_exceeded#*'>'}"
 # 					test_exceeded="${test_exceeded%'<'*}"
 # 					test_exceeded=`echo $test_exceeded |grep GB`
@@ -4010,7 +4268,7 @@ while true; do
 # 						test_exceeded=${test_exceeded//,/.}
 # 						test_exceeded=`echo "( $test_exceeded>1 )" |bc -l 2>/dev/null`
 # 					fi
-# 					#not_available=`cat $path_tmp/test_page.tmp |grep 'Page not found'`
+# 					#not_available=`cat "$path_tmp"/test_page.tmp |grep 'Page not found'`
 # 					test_available=`wget -q -O - -t 1 -T $max_waiting $url_in_file |grep "</html"`
 # 		
 # 					if [ "$test_exceeded" == "1" ]; then
@@ -4023,9 +4281,9 @@ while true; do
 # 							url_in_file2=${url_in_file%/*}
 # 							file_id=${url_in_file2##*/}
 # 						else 
-# 							wget -t 1 -T $max_waiting "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+# 							wget -t 1 -T $max_waiting "$url_in_file" -O "$path_tmp"/zdl.tmp &>/dev/null
 # 							file_id=${url_in_file##*/} 
-# 							file_in=`cat $path_tmp/zdl.tmp |grep "id=\"filename\""`
+# 							file_in=`cat "$path_tmp"/zdl.tmp |grep "id=\"filename\""`
 # 							file_in="${file_in//<\/a*/}"
 # 							file_in="${file_in##*>}"
 # 							if [ "$file_in" != "${file_in//'&alias;'/}" ]; then
@@ -4036,19 +4294,19 @@ while true; do
 # 						
 # 						if [ ! -f "$file_in" ]; then
 # 							check_ip uploaded
-# 							wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in_file" -O $path_tmp/zdl.tmp &>/dev/null
+# 							wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl "$url_in_file" -O "$path_tmp"/zdl.tmp &>/dev/null
 # 							echo -e "...\c"
 # 							
-# 							cooking=`cat $path_tmp/zdl.tmp |grep ref_user`
+# 							cooking=`cat "$path_tmp"/zdl.tmp |grep ref_user`
 # 							cooking="${cooking//*\(\'/}"
 # 							cooking=${cooking//"'"*/}
 # 							
-# 							echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> $path_tmp/cookies.zdl
+# 							echo "uploaded.to     FALSE   /       FALSE   0       ref     $cooking" >> "$path_tmp"/cookies.zdl
 # 							
 # 							wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl "http://uploaded.to/io/ticket/captcha/$file_id" -O "$path_tmp/goal.tmp" &>/dev/null
 # 							echo -e "...\c"
 # 							
-# 							url_in_file=`cat $path_tmp/goal.tmp`
+# 							url_in_file=`cat "$path_tmp"/goal.tmp`
 # 							url_in_file=${url_in_file//*domain:\'/}
 # 							url_in_file=${url_in_file//\'*}
 # 						fi
@@ -4103,9 +4361,9 @@ while true; do
 			file_in=`cat "$path_tmp/zdl.tmp" |grep ' | PutLocker</title>'`
 			file_in="${file_in#*'title>'}"
 			file_in="${file_in%' | PutLocker</title>'*}"
-			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O $path_tmp/zdl2.tmp &>/dev/null
+			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 			
-			url_in_file=`cat $path_tmp/zdl2.tmp | grep "get_file.php"`
+			url_in_file=`cat "$path_tmp"/zdl2.tmp | grep "get_file.php"`
 			url_in_file="${url_in_file#*\"}"
 			url_in_file="${url_in_file%%\"*}"
 			url_in_file="http://www.putlocker.com${url_in_file}"
@@ -4126,7 +4384,7 @@ while true; do
 		    file_in="${file_in%%\"*}"
 		    url_in_file=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
 		    
-		    if [ ! -f $path_tmp/cookies.zdl ]; then touch $path_tmp/cookies.zdl ; fi
+		    if [ ! -f "$path_tmp"/cookies.zdl ]; then touch "$path_tmp"/cookies.zdl ; fi
 		    url_in_file="${url_in}"
 		    redirected="true"
 		    
@@ -4150,7 +4408,7 @@ while true; do
 			fi	
 			
 		## streaming downloader
-			items=( `ls $path_tmp/filename_* 2>/dev/null` ) #2>/dev/null
+			items=( `ls "$path_tmp"/filename_* 2>/dev/null` ) #2>/dev/null
 			if [ ! -z "${items[*]}" ]; then
 			    
 			    for item in ${items[*]}; do
@@ -4284,7 +4542,7 @@ separator "─"
 print_c 1 "Download completato"
 separator "─"
 
-#test_cleaning=`ls $path_tmp/*_stdout.tmp 2>/dev/null`
+#test_cleaning=`ls "$path_tmp"/*_stdout.tmp 2>/dev/null`
 #[ "$test_cleaning" == "" ] && rm -r "$path_tmp"
 check_instance_dl
 if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
