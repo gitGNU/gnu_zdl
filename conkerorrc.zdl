@@ -1,0 +1,60 @@
+// ZigzagDownLoader (ZDL)
+
+// This program is free software: you can redistribute it and/or modify it 
+// under the terms of the GNU General Public License as published 
+// by the Free Software Foundation; either version 3 of the License, 
+// or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful, 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+// or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License 
+// along with this program. If not, see http://www.gnu.org/licenses/. 
+
+// Copyright (C) 2012
+// Free Software Foundation, Inc.
+
+// For information or to collaborate on the project:
+// https://savannah.nongnu.org/projects/zdl
+
+// Gianluca Zoni
+// http://inventati.org/zoninoz
+// zoninoz@inventati.org
+
+
+
+function shell_on_url(funcname, funcdesc, cmd) {
+    //Create an interactive function for running a predetermined
+    //shell command on a url
+    //Bind a specific shell command for a url to 'functionname'
+
+    //Taken largely from "shell-command-on-url"  and
+    //"shell-command-on-file" in commands.js
+    interactive(funcname, funcdesc,
+        function (I) {
+	    change_directory(
+		I.buffer,
+		(yield I.minibuffer.read_existing_directory_path(
+                    $prompt = "Seleziona la directory:",
+                    $initial_value = make_file(I.local.cwd).path)
+		)
+	    );
+	    var cwd = I.local.cwd;
+
+	    var args = yield I.minibuffer.read(
+	    	$prompt = "Opzioni di ZDL:",
+		$initial_value = ""
+		
+	    )
+            
+            var element = yield read_browser_object(I);
+            var spec = load_spec(element);
+            var uri = load_spec_uri_string(spec);
+            shell_command_with_argument_blind(cmd, uri+"--zigzag-xterm"+args, $cwd = cwd);
+        },
+        $browser_object = browser_object_links);
+}
+shell_on_url("zdl", "Scarica da un link con ZigzagDownLoader","zdl");
+
+
