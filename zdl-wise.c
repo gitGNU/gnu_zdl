@@ -41,21 +41,21 @@ int main (int argc, char *argv[]){
   
   while (1) {
     if (j < 5) {
-      F[m] = w[j]; m++;
+      F[m++] = w[j];
     } else if (j < strlen(w)) {
-      D[n] = w[j]; n++;
+      D[n++] = w[j];
     }
 
     if (j < 5) {
-      F[m] = i[j]; m++;
+      F[m++] = i[j];
     } else if (j < strlen(i)) {
-      D[n] = i[j]; n++;
+      D[n++] = i[j];
     }
 
     if (j < 5) {
-      F[m] = s[j]; m++;
+      F[m++] = s[j];
     } else if (j < strlen(s)) {
-      D[n] = s[j]; n++;
+      D[n++] = s[j];
     }
     j++;
 
@@ -67,7 +67,7 @@ int main (int argc, char *argv[]){
   int J = 0;
   char *z;
 
-  for (j = 0; j < strlen(D); j = j+2) {
+  for (j = 0; j < strlen(D); j += 2) {
     m = -1;
     c = (int) F[J]; 
     if (c%2)
