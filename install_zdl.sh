@@ -20,7 +20,7 @@
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni
+# Gianluca Zoni (project administrator and first inventor)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
@@ -62,7 +62,6 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 }
 
 function install_test {
-	
 	if [ -z "`which axel 2>/dev/null`" ]; then
 		bold "Installazione automatica non riuscita"
 		case $1 in
@@ -109,55 +108,68 @@ function install_axel-cygwin {
 	test_axel=`which axel`
 	if [ -z $test_axel ]; then
 		cd /
-		mv axel-2.4-1bl1.tar.bz2 axel-2.4-1bl1.tar.bz2.old &>/dev/null
 		wget "$axel_url"
-#http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
 		tar -xvjf "${axel_url##*'/'}"
-#axel-2.4-1bl1.tar.bz2
 		cd -
 	fi
 }
 
-function install_batch {
-	wget "${install_url}.bat" -O /zdl.bat && bold "Script batch di avvio installato: C:\Cygwin\zdl.bat "
+
+function install_zdl-wise {
+    if [ ! -e "/cygdrive" ]; then 
+	gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || sudo gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || su -c "gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise" 2>/dev/null || print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
+    fi
 }
 
-install_url="http://inventati.org/zoninoz/html/upload/files/zdl"
-install_path="/usr/local/bin/zdl"
-install_tmp="/tmp/zdl"
-axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2"
+
+function install_zdl-conkeror {
+    if [ -f "$HOME/.conkerorrc" ]; then
+	[ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
+	text_conkerorrc=$(cat "$HOME/.conkerorrc")
+	if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
+	    cp "$HOME/.conkerorrc" "$HOME/.conkerorrc.old"
+	    echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$HOME/.conkerorrc"
+	fi
+	test=$(cat "$HOME/.conkerorrc"|grep "$SHARE/conkerorrc.zdl" |tail -n 1)
+	test2=$(echo "${test#*'//'}" |grep "$SHARE/conkerorrc.zdl")
+	if [ -z "$test" ]; then
+	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
+	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
+	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
+	fi
+    fi
+}
+
+
+PROG=ZigzagDownLoader
+prog=zdl
+BIN="/usr/local/bin"
+SHARE="/usr/local/share/zdl"
+URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
+axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
 success="Installazione completata"
 unsuccess="Installazione non riuscita"
-PROG=ZigzagDownLoader
-
-## ZigzagDownLoader
 
 
 echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
 
-wget "$install_url" -O "$install_tmp"
+mkdir -p "$path_conf/src"
+cd "$path_conf/src"
+wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+tar -xzf *.tar.gz
+mkdir -p $SHARE 2>&1 || sudo mkdir -p $SHARE 2>/dev/null || su -c "mkdir -p $SHARE" 2>/dev/null || ( print_c 3 "Installazione fallita: impossibile creare la directory $SHARE"; return )
+cd ${prog}
+install $prog $BIN/
+install ${prog}-xterm $BIN/
+[ -e /cygdrive ] && install ${prog}/${prog}.bat / && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 
-err=`mv "$install_tmp" "$install_path" 2>&1`
-if [ -z "$err" ]; then
-	chmod a+rx "$install_path" && echo "$success"
-else
-	err=`sudo mv "$install_tmp" "$install_path" 2>&1`
-	if [ -z "$err" ]; then
-		sudo chmod a+rx "$install_path" && echo "$success"
-	else
-		echo -n "(Root)"
-		err=`su -c "mv \"$install_tmp\" \"$install_path\" ; chmod a+rx \"$install_path\""`
-		if [ -z "$err" ]; then
-			echo "$success"
-		else
-			echo "$unsuccess"
-		fi
-	fi
-fi
+sudo rm -r $SHARE/${prog}/*
+install "${prog}/*" $SHARE
+install_zdl-conkeror
+install_zdl-wise
 
 ## Axel
 if [ -e "/cygdrive" ]; then
-	install_batch
 	install_axel-cygwin
 else
 	check_downloader
