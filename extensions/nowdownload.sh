@@ -134,6 +134,19 @@ function wise_args {
 }
 
 
+if [ "$url_in" != "${url_in//'nowdownload'}" ]; then
+    if [ "$url_in" != "${url_in//'down.php?id='}" ]; then
+	url_in_old="$url_in"
+	url_in="${url_in_old//'down.php?id='/dl/}"
+	links_loop - "$url_in_old"
+	links_loop + "$url_in"
+    elif [ "$url_in" != "${url_in//'download.php?id='}" ]; then
+	url_in_old="$url_in"
+	url_in="${url_in_old//'download.php?id='/dl/}"
+	links_loop - "$url_in_old"
+	links_loop + "$url_in"
+    fi
+fi
 
 if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/nowdownload\/}" ]; then
     get_tmps

@@ -25,6 +25,11 @@
 # zoninoz@inventati.org
 #
 
+if [ "$url_in" != "${url_in//cyberlocker.}" ]; then
+## esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
+    test_url_in="${url_in#http://*/}"
+    test_url_in="${test_url_in%%/*}"
+fi
 
 
 if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; then

@@ -69,3 +69,9 @@ function pseudo_captcha { #per implementarla, analizzare ../extensions/frozen/sh
 	(( j++ ))
     done
 }
+
+function urldecode {
+    local data=${1//+/ }
+    printf '%b' "${data//%/\x}" 2>/dev/null
+}
+

@@ -524,40 +524,6 @@ while true; do
 		fi
 		####
 
-		
-		## REDIRECTS
-		if [ "$url_in" != "${url_in//'likeupload.org'}" ]; then
-		    url_in_old="$url_in"
-		    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location")
-		    url_in="${url_in#*'Location: '}"
-		    links_loop - "$url_in_old"
-		    links_loop + "$url_in"
-
-		fi
-
-		if [ "$url_in" != "${url_in//'nowdownload'}" ]; then
-		    if [ "$url_in" != "${url_in//'down.php?id='}" ]; then
-			url_in_old="$url_in"
-			url_in="${url_in_old//'down.php?id='/dl/}"
-			links_loop - "$url_in_old"
-			links_loop + "$url_in"
-		    elif [ "$url_in" != "${url_in//'download.php?id='}" ]; then
-			url_in_old="$url_in"
-			url_in="${url_in_old//'download.php?id='/dl/}"
-			links_loop - "$url_in_old"
-			links_loop + "$url_in"
-		    fi
-		fi
-		if [ "$url_in" != "${url_in//'google.com/url?q='}" ]; then
-		    url_in_old="$url_in"
-		    url_in="${url_in_old#*'google.com/url?q='}"
-		    url_in="${url_in%'&sa=U'*}"
-		    links_loop - "$url_in_old"
-		    links_loop + "$url_in"
-		fi
-		####
-
-
 		if [ "$update_proxy" == "true" ];then
 		    unset newip update_proxy
 		    new_ip_proxy
@@ -570,22 +536,7 @@ while true; do
 		
 		echo
 		header_box "Link da processare:"
-		echo "$url_in"
-		echo
-		if [ "$url_in" != "${url_in//dailymotion}" ] || [ "$url_in" != "${url_in//dmcdn.net}" ] || [ "$url_in" != "${url_in//uploaded.}" ] || [ "$url_in" != "${url_in//easybytez.}" ] || [ "$url_in" != "${url_in//rapidgator.}" ];then # || [ "$url_in" != "${url_in//sharpfile.}" ]; then			
-		    if [ "$downloader_in" == "Axel" ]; then
-			dler=$downloader_in
-			downloader_in=Wget
-			ch_dler=1
-			print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
-		    fi
-		fi
-		
-		if [ "$url_in" != "${url_in//cyberlocker.}" ]; then
-		## esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
-		    test_url_in="${url_in#http://*/}"
-		    test_url_in="${test_url_in%%/*}"
-		fi
+		echo -e "$url_in\n"
 
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
