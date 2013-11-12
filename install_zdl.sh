@@ -149,7 +149,7 @@ URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
 axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
 success="Installazione completata"
 unsuccess="Installazione non riuscita"
-
+path_conf="$HOME/.$prog"
 
 echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
 
