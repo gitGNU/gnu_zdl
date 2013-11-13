@@ -41,10 +41,10 @@ function update_zdl-conkeror {
 	    cp "$HOME/.conkerorrc" "$HOME/.conkerorrc.old"
 	    echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$HOME/.conkerorrc"
 	fi
-	test=$(cat "$HOME/.conkerorrc"|grep "$SHARE/conkerorrc.zdl" |tail -n 1)
-	test2=$(echo "${test#*'//'}" |grep "$SHARE/conkerorrc.zdl")
+	test=$(cat "$HOME/.conkerorrc"|grep "$SHARE/extensions/conkerorrc.zdl" |tail -n 1)
+	test2=$(echo "${test#*'//'}" |grep "$SHARE/extensions/conkerorrc.zdl")
 	if [ -z "$test" ]; then
-	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
+	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/extensions/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
 	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
 	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
 	fi
