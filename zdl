@@ -567,7 +567,7 @@ while true; do
 		    fi	
 		    
 		## streaming downloader
-		    items=( `ls "$path_tmp"/filename_* 2>/dev/null` ) #2>/dev/null
+		    items=( `ls "$path_tmp"/filename_* 2>/dev/null` )
 		    if [ ! -z "${items[*]}" ]; then
 			
 			for item in ${items[*]}; do

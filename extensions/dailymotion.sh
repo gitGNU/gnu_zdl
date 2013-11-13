@@ -27,13 +27,26 @@
 
 if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]; then
     get_tmps
-    cat $path_tmp/zdl.tmp | grep mp4 > $path_tmp/zdl2.tmp
+    urldecode "$(cat $path_tmp/zdl.tmp | grep flashvars)" > $path_tmp/zdl2.tmp
     urldecode "$(cat $path_tmp/zdl2.tmp )" > $path_tmp/zdl3.tmp
-    urldecode "$(cat $path_tmp/zdl3.tmp )" > $path_tmp/zdl2.tmp
-    code="$(cat $path_tmp/zdl2.tmp )"
+    code="$(cat $path_tmp/zdl3.tmp )"
     code="${code##*video_url\":\"}"
-    url_in_file="${code%%\"*}"
-    file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
-    file_in="${file_in#*'<title>'}"
-    file_in="${file_in%'</title>'*}.mp4"
+    test="$(cat $path_tmp/zdl3.tmp |grep video_url)"
+    if [ -z "$test" ]; then
+	#############
+	## da continuare:
+	##
+	# video_url="${code##*autoURL\":\"}"
+	# video_url="${video_url//'\'}"
+	#fi
+        #################
+	
+	print_c 3 "Filmato non ancora estraibile da $url_in" | tee -a $file_log
+	not_available=true
+    else
+	url_in_file="${code%%\"*}"
+	file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
+	file_in="${file_in#*'<title>'}"
+	file_in="${file_in%'</title>'*}.mp4"
+    fi
 fi

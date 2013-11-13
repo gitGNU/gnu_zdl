@@ -25,13 +25,23 @@
 # zoninoz@inventati.org
 #
 
-
-if [ "$url_in" != "${url_in//'italiafilm.tv'}" ]; then
-    redir=$( wget "$url_in" -O - -q |grep dle-content ) #> 
-    links_loop - "$url_in"
-
-    url_in="${redir##*href=\"}"
-    url_in="${url_in%%\"*}"
-    links_loop + "$url_in"
-
+if [ "$url_in" != "${url_in//metacafe.com\/watch}" ]; then
+    get_tmps
+    cat $path_tmp/zdl.tmp | grep flashVars > $path_tmp/zdl2.tmp
+    urldecode "$(cat $path_tmp/zdl2.tmp )" > $path_tmp/zdl3.tmp
+    urldecode "$(cat $path_tmp/zdl3.tmp )" > $path_tmp/zdl2.tmp
+    code="$(cat $path_tmp/zdl2.tmp )"
+    code="${code##*mediaURL\":\"}"
+    code="${code%%\"*}"
+    code="${code//'\'}"
+    code="${code//'[From www.metacafe.com] '}"
+    url_in_file="$code"
+    ext="${url_in_file##*'.'}"
+    file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
+    file_in="${file_in#*'<title>'}"
+    file_in="${file_in%'</title>'*}.$ext"
+    if [ "$file_in" == "Family Filter Disclamer." ]; then
+	not_available=true
+	print_c 3 "Filmato non ancora estraibile da $url_in: filtro \"famiglia\" di Metacafe" | tee -a $file_log
+    fi
 fi
