@@ -148,7 +148,7 @@ SHARE="/usr/local/share/zdl"
 URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
 axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
 success="Installazione completata"
-unsuccess="Installazione non riuscita"
+failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
 
 echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
@@ -166,13 +166,13 @@ install_zdl-wise
 
 chmod +rx -R .
 bold "Installazione in $BIN\n"
-mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null 
+mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null || ( print_c 3 "$failure"; exit )
 [ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 cd ..
 
 bold "Installazione in $SHARE\n"
-rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  
-cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null
+rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  || ( print_c 3 "$failure"; exit )
+cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null || ( print_c 3 "$failure"; exit )
 
 install_zdl-conkeror
 
@@ -184,6 +184,6 @@ else
 	check_downloader
 fi
 
-
+bold "$success"
 bold "Per informazioni su ZigzagDownLoader (zdl): zdl --help"
 exit
