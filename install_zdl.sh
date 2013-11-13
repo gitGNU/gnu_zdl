@@ -117,7 +117,7 @@ function install_axel-cygwin {
 
 function install_zdl-wise {
     if [ ! -e "/cygdrive" ]; then 
-	gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || sudo gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || su -c "gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise" 2>/dev/null || print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
+	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || sudo gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || su -c "gcc extensions/zdl-wise.c -o extensions/zdl-wise" 2>/dev/null || bold "\nCompilazione del sorgente zdl-wise.c non riuscita"
     fi
 }
 
@@ -135,7 +135,7 @@ function install_zdl-conkeror {
 	if [ -z "$test" ]; then
 	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
 	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
+	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
 	fi
     fi
 }
@@ -155,18 +155,27 @@ echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
 
 mkdir -p "$path_conf/src"
 cd "$path_conf/src"
+rm *.tar.gz* -f
 wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
-tar -xzf *.tar.gz
-mkdir -p $SHARE 2>&1 || sudo mkdir -p $SHARE 2>/dev/null || su -c "mkdir -p $SHARE" 2>/dev/null || ( print_c 3 "Installazione fallita: impossibile creare la directory $SHARE"; return )
-cd ${prog}
-install $prog $BIN/
-install ${prog}-xterm $BIN/
-[ -e /cygdrive ] && install ${prog}/${prog}.bat / && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+package=$(ls *.tar.gz)
+tar -xzf "$package"
 
-sudo rm -r $SHARE/${prog}/*
-install "${prog}/*" $SHARE
-install_zdl-conkeror
+mv "${package%.tar.gz}" $prog
+cd $prog
 install_zdl-wise
+
+chmod +rx -R .
+bold "Installazione in $BIN\n"
+mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null 
+[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+cd ..
+
+bold "Installazione in $SHARE\n"
+rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  
+cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null
+
+install_zdl-conkeror
+
 
 ## Axel
 if [ -e "/cygdrive" ]; then

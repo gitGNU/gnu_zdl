@@ -28,7 +28,7 @@
 
 function update_zdl-wise {
     if [ ! -e "/cygdrive" ]; then # && [ ! -e "/bin/gcc.exe" ]; then
-	gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || sudo gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise 2>/dev/null || su -c "gcc $SHARE/extensions/zdl-wise.c -o $SHARE/extensions/zdl-wise" 2>/dev/null || print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
+	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || sudo gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || su -c "gcc extensions/zdl-wise.c -o extensions/zdl-wise" 2>/dev/null || print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
     fi
 }
 
@@ -52,108 +52,39 @@ function update_zdl-conkeror {
 }
 
 
-# function update {
-#     remote_version=`wget "$url_version" -O - -q`
-#     local_version=`cat "$path_conf/version.txt" 2>/dev/null`
-#     if [ "${remote_version#*'.'}" != "${local_version#*'.'}" ] && [ ! -z "$remote_version" ]; then
-# 	print_c 2 "\nAggiornamento di $PROG ..."
-# 	if [ -e "/cygdrive" ]; then
-# 	    wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio aggiornato: $(cygpath -m /)\zdl.bat "
-# 	    chmod a+rx /zdl.bat
-# 	fi
-	
-# 	wget "$url_update" -O /tmp/$prog -q && print_c 1 "\n$PROG scaricato"
-# 	update_zdl-xterm
-# 	update_zdl-conkeror
-# 	update_zdl-wise
-# 	err=`mv /tmp/*${prog}* /usr/local/bin/ 2>&1`
-# 	if [ -z "$err" ]; then
-# 	    chmod a+rx /usr/local/bin/*${prog}* && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/" || print_c 3 "\nErrore nell'aggiornamento nell'assegnazione dei diritti di esecuzione, contatta gli sviluppatori: http://nongnu.org/zdl" 
-# 	    touch "$path_conf/updated"
-# 	else
-# 	    err=`sudo mv /tmp/*${prog}* /usr/local/bin/ 2>&1`
-# 	    if [ -z "$err" ]; then
-# 		sudo chmod a+rx /usr/local/bin/*${prog}* && print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/" || print_c 3 "\nErrore nell'aggiornamento nell'assegnazione dei diritti di esecuzione" 
-# 		touch "$path_conf/updated"
-# 	    else
-# 		echo -n "(Root)"
-# 		err=`su -c "mv /tmp/*${prog}* /usr/local/bin/ ; chmod a+rx /usr/local/bin/*${prog}*"`
-# 		if [ -z "$err" ]; then
-# 		    print_c 1 "Aggiornamento di $PROG effettuato con successo in /usr/local/bin/"
-# 		    touch "$path_conf/updated"
-# 		else
-# 		    print_c 3 "Aggiornamento automatico non riuscito"
-# 		fi
-# 	    fi
-# 	fi
-# 	pause
-# 	if [ -f "$path_conf/updated" ];then 
-# 	    touch "$path_conf/noclear"
-# 	    echo "$remote_version" > "$path_conf/version.txt"
-# 	    echo
-# 	    exec $0 "${args[*]}"
-# 	    exit
-# 	fi
-#     else
-# 	print_c 1 "$PROG è alla versione più recente."
-#     fi
-# }
-
-
-################
-
-
-function install {
-    origin="$1"
-    path_dest="$2"
-    err=$( mv "$file_origin" "$path_dest/" 2>&1 )
-    if [ -z "$err" ]; then
-	chmod a+rx "$path_dest/$origin" && print_c 1 "$path_dest/$origin aggiornato" || print_c 3 "\nErrore nell'assegnazione dei diritti di esecuzione, contatta gli sviluppatori: http://nongnu.org/zdl" 
-	touch "$path_conf/updated"
-    else
-	err=$(sudo mv "$file_origin" "$path_dest/" 2>&1 )
-	if [ -z "$err" ]; then
-	    sudo chmod a+rx "$path_dest/$origin" && print_c 1 "$path_dest/$origin aggiornato" || print_c 3 "\nErrore nell'assegnazione dei diritti di esecuzione, contatta gli sviluppatori: http://nongnu.org/zdl" 
-	    touch "$path_conf/updated"
-	else
-	    echo -n "(Root)"
-	    err=$(su -c "mv \"$file_origin\" \"$path_dest/\" ; chmod a+rx \"$path_dest/$origin\"")
-	    if [ -z "$err" ]; then
-		print_c 1 "$path_dest/$origin aggiornato"
-		touch "$path_conf/updated"
-	    else
-		print_c 3 "Aggiornamento automatico non riuscito"
-	    fi
-	fi
-    fi
-    
-}
-
-
-BIN="/usr/local/bin"
-SHARE="/usr/local/share/${prog}"
-
 function update {
-    wget http://download.savannah.gnu.org/releases/zdl/ -A sig -O /tmp/zdl.sig -q
-    version_diff=$(diff "/tmp/zdl.sig" "$SHARE/*.sig" )
-    if [ ! -z "$version_diff" ]; then
-	print_c 2 "\nAggiornamento di $PROG ..."
+    PROG=ZigzagDownLoader
+    prog=zdl
+    BIN="/usr/local/bin"
+    SHARE="/usr/local/share/zdl"
+    URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
+    axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
+    success="Installazione completata"
+    unsuccess="Installazione non riuscita"
+    path_conf="$HOME/.$prog"
 
-	mkdir -p "$path_conf/src"
-	cd "$path_conf/src"
-	wget http://download.savannah.gnu.org/releases/zdl/ -r -l 1 -A gz,sig,txt -np -nd -q
-	tar -xzf *.tar.gz
-	mkdir -p $SHARE 2>&1 || sudo mkdir -p $SHARE 2>/dev/null || su -c "mkdir -p $SHARE" 2>/dev/null || ( print_c 3 "Aggiornamento fallito: impossibile creare la directory $SHARE"; return )
-	cd ${prog}
-	install $prog $BIN/
-	install ${prog}-xterm $BIN/
-	[ -e /cygdrive ] && install ${prog}/${prog}.bat / && print_c 1 "\nScript batch di avvio aggiornato: $(cygpath -m /)\zdl.bat "
+    header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
-	sudo rm -r $SHARE/${prog}/*
-	install "${prog}/*" $SHARE
-	update_zdl-conkeror
-	update_zdl-wise
-    else
- 	print_c 1 "$PROG è alla versione più recente."
-    fi
+    mkdir -p "$path_conf/src"
+    cd "$path_conf/src"
+    rm *.tar.gz* -f
+    wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+    package=$(ls *.tar.gz)
+    tar -xzf "$package"
+
+    mv "${package%.tar.gz}" $prog
+    cd $prog
+    update_zdl-wise
+
+    chmod +rx -R .
+    print_c 1 "Aggiornamento automatico in $BIN\n"
+    mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null 
+    [ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+    cd ..
+
+    print_c 1 "Aggiornamento automatico in $SHARE\n"
+    rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  
+    cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null
+
+    update_zdl-conkeror
 }
