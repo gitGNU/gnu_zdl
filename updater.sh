@@ -62,29 +62,42 @@ function update {
     success="Installazione completata"
     unsuccess="Installazione non riuscita"
     path_conf="$HOME/.$prog"
-
+    
     header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
     mkdir -p "$path_conf/src"
     cd "$path_conf/src"
     rm *.tar.gz* -f
     wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
-    package=$(ls *.tar.gz)
-    tar -xzf "$package"
+    test_version=$(diff $path_conf/*.sig *.sig )
+    if [ -z "$test_version" ]; then
+	print_c 1 "$PROG è già alla versione più recente"
+    else
+	
+	package=$(ls *.tar.gz)
+	tar -xzf "$package"
 
-    mv "${package%.tar.gz}" $prog
-    cd $prog
-    update_zdl-wise
+	mv "${package%.tar.gz}" $prog
+	cd $prog
+	update_zdl-wise
 
-    chmod +rx -R .
-    print_c 1 "Aggiornamento automatico in $BIN\n"
-    mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null 
-    [ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
-    cd ..
+	chmod +rx -R .
+	print_c 1 "Aggiornamento automatico in $BIN\n"
+	mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null 
+	[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+	cd ..
 
-    print_c 1 "Aggiornamento automatico in $SHARE\n"
-    rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  
-    cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null
+	print_c 1 "Aggiornamento automatico in $SHARE\n"
+	rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  
+	cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null
 
-    update_zdl-conkeror
+	update_zdl-conkeror
+	
+	cp *.sig $path_conf/
+	
+	print_c 1 "Aggiornamento automatico completato"
+	pause
+	$prog ${args[*]}
+	exit
+    fi
 }

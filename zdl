@@ -400,11 +400,6 @@ fi
 # rm -f "$path_conf/updated" "$path_conf/flashgot_updated"
 ###########################################
 
-################################# 
-# if [ ! -e "/cygdrive" ];then
-#     check_downloader
-# fi
-#################################
 
 echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
