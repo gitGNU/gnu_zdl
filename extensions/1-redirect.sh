@@ -24,12 +24,27 @@
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
-		
-if [ "$url_in" != "${url_in//'likeupload.org'}" ]; then
-    url_in_old="$url_in"
-    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location")
-    url_in="${url_in#*'Location: '}"
-    links_loop - "$url_in_old"
-    links_loop + "$url_in"
 
-fi
+
+urls_redir="italiafilm.tv/engine nowupload.net/nowdownload"
+
+for url_redir in $urls_redir; do
+    if [ "$url_in" != "${url_in//$url_redir}" ]; then
+	export LANG="$prog_lang"
+	export LANGUAGE="$prog_lang"
+	new_url_in=`wget -O /dev/null -S "$url_in" 2>&1 |grep Location |sed -n 1p`
+	export LANG="$user_lang"
+	export LANGUAGE="$user_language"
+	new_url_in="${new_url_in#*: }"
+	new_url_in="${new_url_in%% *}"
+	if [ "$new_url_in" == "${new_url_in//$url_redir}" ] && [ "$new_url_in" != "${new_url_in//'http://'}" ]; then
+	    links_loop - "$url_in"
+	    url_in="$new_url_in"
+	    links_loop + "$url_in"
+	else
+	    _log 2
+	    unset url_in
+	fi
+    fi
+done
+
