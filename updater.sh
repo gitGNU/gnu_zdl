@@ -27,8 +27,9 @@
 
 
 function update_zdl-wise {
-    if [ ! -e "/cygdrive" ]; then # && [ ! -e "/bin/gcc.exe" ]; then
-	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null #|| sudo gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || su -c "gcc extensions/zdl-wise.c -o extensions/zdl-wise" 2>/dev/null || print_c 3 "\nCompilazione del sorgente zdl-wise.c non riuscita"
+    if [ ! -e "/cygdrive" ]; then
+	print_c 1 "Compilazione automatica di zdl-wise.c"
+	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null 
     fi
 }
 
@@ -51,12 +52,22 @@ function update_zdl-conkeror {
     fi
 }
 
+function try {
+    cmd=$*
+    $cmd 2>/dev/null
+    if [ "$?" != 0 ]; then
+	sudo $cmd 
+	if [ "$?" != 0 ]; then
+	    su -c "$cmd" || ( print_c 3 "$failure"; return 1 )
+	fi
+    fi
+}
 
 function update {
     PROG=ZigzagDownLoader
     prog=zdl
     BIN="/usr/local/bin"
-    SHARE="/usr/local/share/zdl"
+    SHARE="/usr/local/share"
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
     axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
     success="Aggiornamento completato"
@@ -65,17 +76,20 @@ function update {
     
     header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
-    mkdir -p "$path_conf/src"
-    cd "$path_conf/src"
-    rm *.tar.gz* -f
+    rm -r $path_tmp/*
+    cd $path_tmp
+    print_c 1 "Download in corso: attendere..."
     wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+    cd ..
     if [ -f $path_conf/zdl.sig ]; then
-	test_version=$(diff $path_conf/zdl.sig *.sig )
+	test_version=$(diff $path_conf/zdl.sig $path_tmp/*.sig )
     fi
     if [ -z "$test_version" ] && [ -f $path_conf/zdl.sig ]; then
-	print_c 1 "$PROG è già alla versione più recente\n"
+	print_c 1 "$PROG è già alla versione più recente"
     else
+	cd $path_tmp
 	package=$(ls *.tar.gz)
+	print_c 1 "Inizio installazione di $package"
 	tar -xzf "$package"
 
 	mv "${package%.tar.gz}" $prog
@@ -83,14 +97,16 @@ function update {
 	update_zdl-wise
 
 	chmod +rx -R .
-	print_c 1 "Aggiornamento automatico in $BIN\n"
-	mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null || ( print_c 3 "$failure"; return 1 )
+	print_c 1 "Aggiornamento automatico in $BIN"
+	try mv zdl zdl-xterm $BIN
+	[ "$?" != 0 ] && return
+
 	[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 	cd ..
 
-	print_c 1 "Aggiornamento automatico in $SHARE\n"
-	rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  || ( print_c 3 "$failure"; return 1 )
-	cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null || ( print_c 3 "$failure"; return 1 )
+	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+	try rm -rf "$SHARE/$prog"
+	try cp -r "$prog" "$SHARE"
 
 	update_zdl-conkeror
 	
@@ -98,6 +114,7 @@ function update {
 	
 	print_c 1 "Aggiornamento automatico completato"
 	pause
+	cd ..
 	$prog ${args[*]}
 	exit
     fi

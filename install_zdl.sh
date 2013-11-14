@@ -155,8 +155,10 @@ echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
 
 mkdir -p "$path_conf/src"
 cd "$path_conf/src"
-rm *.tar.gz* -f
+rm *.tar.gz* $prog -rf
 wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+cp *.sig $path_conf/zdl.sig
+
 package=$(ls *.tar.gz)
 tar -xzf "$package"
 
@@ -166,7 +168,7 @@ install_zdl-wise
 
 chmod +rx -R .
 bold "Installazione in $BIN\n"
-mv zdl zdl-xterm $BIN 2>/dev/null || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null || ( print_c 3 "$failure"; exit )
+mv zdl zdl-xterm $BIN || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null || ( print_c 3 "$failure"; exit )
 [ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 cd ..
 
