@@ -47,7 +47,7 @@ function update_zdl-conkeror {
 	if [ -z "$test" ]; then
 	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/extensions/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
 	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
+	    print_c 3 "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file "$HOME"/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
 	fi
     fi
 }
@@ -76,20 +76,20 @@ function update {
     
     header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
-    rm -r $path_tmp/*
-    cd $path_tmp
+    rm -r "$path_tmp"/*
+    cd "$path_tmp"
     print_c 1 "Download in corso: attendere..."
     wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
     cd ..
-    if [ -f $path_conf/zdl.sig ]; then
-	test_version=$(diff $path_conf/zdl.sig $path_tmp/*.sig )
+    if [ -f "$path_conf"/zdl.sig ]; then
+	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
     fi
-    if [ -z "$test_version" ] && [ -f $path_conf/zdl.sig ]; then
+    if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
 	print_c 1 "$PROG è già alla versione più recente"
     else
-	cd $path_tmp
+	cd "$path_tmp"
 	package=$(ls *.tar.gz)
-	print_c 1 "Inizio installazione di $package"
+	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
 
 	mv "${package%.tar.gz}" $prog
@@ -101,7 +101,7 @@ function update {
 	try mv zdl zdl-xterm $BIN
 	[ "$?" != 0 ] && return
 
-	[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+	[ -e /cygdrive ] && ( mv ${prog}.bat / ) && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 	cd ..
 
 	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
@@ -110,7 +110,7 @@ function update {
 
 	update_zdl-conkeror
 	
-	cp *.sig $path_conf/zdl.sig
+	cp *.sig "$path_conf"/zdl.sig
 	
 	print_c 1 "Aggiornamento automatico completato"
 	pause

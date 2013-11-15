@@ -135,11 +135,21 @@ function install_zdl-conkeror {
 	if [ -z "$test" ]; then
 	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/extensions/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
 	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file $HOME/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
+	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file "$HOME"/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
 	fi
     fi
 }
 
+function try {
+    cmd=$*
+    $cmd 2>/dev/null
+    if [ "$?" != 0 ]; then
+	sudo $cmd 
+	if [ "$?" != 0 ]; then
+	    su -c "$cmd" || ( print_c 3 "$failure"; exit )
+	fi
+    fi
+}
 
 PROG=ZigzagDownLoader
 prog=zdl
@@ -157,7 +167,7 @@ mkdir -p "$path_conf/src"
 cd "$path_conf/src"
 rm *.tar.gz* $prog -rf
 wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
-cp *.sig $path_conf/zdl.sig
+cp *.sig "$path_conf"/zdl.sig
 
 package=$(ls *.tar.gz)
 tar -xzf "$package"
@@ -168,13 +178,13 @@ install_zdl-wise
 
 chmod +rx -R .
 bold "Installazione in $BIN\n"
-mv zdl zdl-xterm $BIN || sudo mv zdl zdl-xterm $BIN 2>/dev/null || su -c "mv zdl zdl-xterm $BIN" 2>/dev/null || ( print_c 3 "$failure"; exit )
+try mv zdl zdl-xterm $BIN 
 [ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
 cd ..
 
 bold "Installazione in $SHARE\n"
-rm -rf $SHARE 2>/dev/null || sudo rm -rf $SHARE 2>/dev/null || su -c "rm -rf $SHARE" 2>/dev/null  || ( print_c 3 "$failure"; exit )
-cp -r $prog $SHARE 2>/dev/null || sudo cp -r $prog $SHARE 2>/dev/null || su -c "cp -r $prog $SHARE" 2>/dev/null || ( print_c 3 "$failure"; exit )
+try rm -rf "$SHARE" 
+try cp -r $prog "$SHARE"
 
 install_zdl-conkeror
 
