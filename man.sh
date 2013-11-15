@@ -522,7 +522,7 @@ l'opzione -u (--update).
 \e[1mINSTALLAZIONE PER GNU/LINUX\e[0m
 
  -  Scarica l'installatore (è uno script per la Bash):
-    http://inventati.org/zoninoz/html/upload/files/install_zdl.sh
+    http://download.savannah.gnu.org/releases/zdl/install_zdl.sh
 
  -  Attribuisci i diritti di esecuzione allo script:
     chmod +x install_zdl.sh 
@@ -548,8 +548,8 @@ FASE 1) Installazione di Cygwin 32 bit
 FASE 2) Installazione di ZDL
 
      - salva nella cartella \\\cygwin il seguente file:
-       http://inventati.org/zoninoz/html/upload/files/install_zdl.sh
-
+       http://download.savannah.gnu.org/releases/zdl/install_zdl.sh
+       
      - avvia Cygwin installato nella fase 1
 
      - digita il seguente comando: /install_zdl.sh
