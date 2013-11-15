@@ -318,7 +318,7 @@ function init {
     ## set default config data
     updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
     if [ -z "$updatecols" ]; then 
-	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL PROGRAMMA: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
     fi
     
     log=0
@@ -346,14 +346,9 @@ function init {
     done
     [ -z "$pid_prog" ] && pid_prog=$$ 
     pid_in=1
-	#lock_file="$path_tmp/${prog}_lock_$pid_prog"
-
     
-	# CYGWIN
+    # CYGWIN
     if [ -e "/cygdrive" ];then
-# 		if (( $axel_parts>10 )); then
-# 			axel_parts=10
-# 		fi
 	kill -SIGWINCH $$
 	dev_cygwin=${HOME#'/cygdrive/'}
 	dev_cygwin="${dev_cygwin%%'/'*}:"
@@ -365,20 +360,19 @@ function init {
     user_language="$LANGUAGE"
     prog_lang='en_US.UTF-8:en'
 
-    bar_char="z"
-    url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
-    url_gcc="http://inventati.org/zoninoz/html/upload/files/gcc.exe"
-    url_path_update="http://inventati.org/zoninoz/html/upload/files/"
-    url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
+    # bar_char="z"
+    # url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
+    # url_gcc="http://inventati.org/zoninoz/html/upload/files/gcc.exe"
+    # url_path_update="http://inventati.org/zoninoz/html/upload/files/"
+    # url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
     max_waiting=40
     if [ -e "/cygdrive" ] && [ ! -f "/zdl.bat" ]; then
 	wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
     fi
     
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
-# 	data_stdout
-	## skin dark
-#  	echo -n -e "${White}${On_Black}\e[J"
+    ## skin dark
+    # echo -n -e "${White}${On_Black}\e[J"
 
 # 	if [ "$flashgot" == "enabled" ];then
 # 		flashgot_autoconf
@@ -405,7 +399,4 @@ function init {
 	# echo Unknown: $stdin
     fi
     version_ffprefs_new=294
-    if [ ! -e "$path_conf/extensions/zdl-wise" ]; then
-	update_zdl-wise
-    fi
 }
