@@ -105,6 +105,7 @@ function update {
 	cd ..
 
 	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+	[ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
 	try rm -rf "$SHARE/$prog"
 	try cp -r "$prog" "$SHARE"
 

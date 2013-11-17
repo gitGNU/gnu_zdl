@@ -183,6 +183,7 @@ try mv zdl zdl-xterm $BIN
 cd ..
 
 bold "Installazione in $SHARE\n"
+[ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
 try rm -rf "$SHARE" 
 try cp -r $prog "$SHARE"
 
