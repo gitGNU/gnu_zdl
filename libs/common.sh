@@ -130,7 +130,6 @@ function check_instance_daemon {
     fi
 }
 
-
 function char2code {
     char=$1
     char_code=$( printf "%d" "'$char" )
@@ -147,4 +146,10 @@ function parse_int {
     int=$( echo $(( $base#${int0##0} )) ) #conversione di $int da base 36 a base decimale
 }
 
+function base36 {
+        b36arr=( 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z )
+        for i in $(echo "obase=36; $1"| bc); do
+            int="$int${b36arr[${i#0}]}"
+        done
+}
 

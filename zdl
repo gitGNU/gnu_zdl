@@ -217,7 +217,7 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
 	    update
 	fi
     done
-elif [ "$autoupdate" == "enabled" ]; then
+elif [ "$autoupdate" == "enabled" ] && ( [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ] ); then
     update
 fi
 

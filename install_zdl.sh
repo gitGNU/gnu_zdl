@@ -146,7 +146,7 @@ function try {
     if [ "$?" != 0 ]; then
 	sudo $cmd 
 	if [ "$?" != 0 ]; then
-	    su -c "$cmd" || ( print_c 3 "$failure"; exit )
+	    su -c "$cmd" || ( bold "$failure"; exit )
 	fi
     fi
 }
