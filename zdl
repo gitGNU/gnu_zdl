@@ -416,7 +416,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     fi
     if [ -z "$pipe" ]; then
 	header_box "Links"
-	echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Youtube, Dailymotion, Metacafe, Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
+	echo -e "Abilitato anche per Putlocker (scarica il filmato HD), Youtube, Dailymotion, Metacafe, Topvideo, Nowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Easybytez e, dopo aver risolto il captcha e generato il link, anche per Sharpfile, Depositfiles ed altri servizi\n" 
 	header_dl "Comandi"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"

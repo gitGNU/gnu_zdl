@@ -84,6 +84,7 @@ le componenti aggiuntive compatibili). Inoltre, ZDL converte i
 redirect di Likeupload, avviando automaticamente il download dai link
 reindirizzati.  
 
+
 ZDL può essere avviato in diversi modi:
 
     A) PER IMMETTERE LINK E AVVIARE NUOVI DOWNLOAD
