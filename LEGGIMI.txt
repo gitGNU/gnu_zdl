@@ -72,17 +72,17 @@ Il gestore di download ZigzagDownLoader: manuale e consigli d'uso.
 
 ZDL è abilitato per il download da ogni tipo di link valido, compresi
 lo stream video (per esempio da Youtube, Putlocker, Nowvideo,
-Dailymotion...) ed i file condivisi attraverso i seguenti servizi di
-hosting, direttamente dal link senza ulteriori estensioni per i
-web browser:
+Dailymotion...) per mezzo di estensioni dei browser, ed i file
+condivisi attraverso i seguenti servizi di hosting e di streaming,
+direttamente dal link:
 Putlocker (scarica il file in formato AVI, se si tratta di un filmato
 disponibile anche in streaming), Youtube, Dailymotion, Metacafe,
-Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire, Easybytez,
-Uload e Glumbouploads (Sharpfile, Depositfiles e altri servizi, dopo
-aver risolto il captcha, anche avviando ZDL con il browser attraverso
-le componenti aggiuntive compatibili). Inoltre, ZDL converte i
-redirect di Likeupload, avviando automaticamente il download dai link
-reindirizzati.  
+Topvideo, Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire,
+Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri
+servizi, dopo aver risolto il captcha, anche avviando ZDL con il
+browser attraverso le componenti aggiuntive compatibili). Inoltre, ZDL
+converte i redirect di Likeupload, avviando automaticamente il
+download dai link reindirizzati.  
 
 
 ZDL può essere avviato in diversi modi:

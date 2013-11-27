@@ -106,7 +106,7 @@ condivisi attraverso i seguenti servizi di hosting e di streaming,
 direttamente dal link:
 Putlocker (scarica il file in formato AVI, se si tratta di un filmato
 disponibile anche in streaming), Youtube, Dailymotion, Metacafe,
-Topvideo Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire,
+Topvideo, Nowdownload, Rapidshare, Tusfiles, Cyberlocker, Mediafire,
 Easybytez, Uload e Glumbouploads (Sharpfile, Depositfiles e altri
 servizi, dopo aver risolto il captcha, anche avviando ZDL con il
 browser attraverso le componenti aggiuntive compatibili). Inoltre, ZDL
