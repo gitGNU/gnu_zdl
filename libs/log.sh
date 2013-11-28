@@ -105,6 +105,15 @@ function _log {
 	    "$url_in --> Firma del video non trovata" | tee -a $file_log
 	    echo
 	    ;;
+	11)
+	    echo
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		print_c 3  "$url_in -->File scaricabile solo da utenti \"Premium\"" | tee -a $file_log
+		links_loop - "$url_in"
+		no_msg=true
+		unset from_loop url_in file_in url_in_file
+	    fi
+	    ;;
     esac
     
 }

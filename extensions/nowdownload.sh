@@ -206,21 +206,24 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 		sleeping 1
 		s=`date +"%s"`
 		s=$(( $s-$k ))
-		
 		echo -e $s"\r\c"
-		
-		
 		url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
 		url_in_file="${url_in_file#*href=\"}"
 		url_in_file="${url_in_file%%\"*}"
+		premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
 		sleeping 0.1
-		if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+		if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
 		    break
 		fi
 	    done
 	fi
     fi
-    file_in="${url_in_file##*'/'}"
-    file_in="${file_in%'?'*}"
-    unset preurl_in_file
+    if [ ! -z "$premium" ]; then
+	_log 11
+	break
+    else
+	file_in="${url_in_file##*'/'}"
+	file_in="${file_in%'?'*}"
+    fi
+    unset preurl_in_file 
 fi

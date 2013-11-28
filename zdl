@@ -609,7 +609,7 @@ while true; do
 		[ "$test_freespace" == "1" ] && unset test_in test_freespace
 		
 		#### DOWNLOAD ####
-		if [ "$test_in" == "5" ]; then
+		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
 		    unset test_in
 		    download || usage
 		    check_pid ${pid_in}
