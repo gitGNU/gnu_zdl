@@ -512,7 +512,7 @@ while true; do
 		if [ -d "$path_conf/extensions/" ]; then
 		    shopt -s nullglob
 		    for srcfile in "$path_conf"/extensions/*.sh; do
-			    source "$srcfile"
+			source "$srcfile"
 		    done
 		    shopt -u nullglob
 		fi

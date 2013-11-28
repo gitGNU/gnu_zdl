@@ -21,15 +21,15 @@
 # https://savannah.nongnu.org/projects/zdl
 # 
 
-
+shopt -u nullglob
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     videoType="mp4"
 
-                    ## (Wget) Scarica il codice HTML della pagina YouTube del video
+    ## (Wget) Scarica il codice HTML della pagina YouTube del video
     html="`wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O-`" || _log 8 
 
-                    ## Impostazione del nome del file come il titolo della pagina YouTube
+    ## Impostazione del nome del file come il titolo della pagina YouTube
     if [[ $html =~ \<title\>(.+)\<\/title\> ]]; then
 	title=${BASH_REMATCH[1]}
 	title=$(echo $title | sed -r 's/([^0-9a-z])+/_/ig')
@@ -101,3 +101,5 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     file_in="$title.$videoType"
 
 fi
+
+shopt -s nullglob

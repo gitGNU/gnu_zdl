@@ -102,7 +102,7 @@ function _log {
 	    ;;
 	10)
 	    echo
-	    "$url_in --> Firma del video non trovata" | tee -a $file_log
+	    print_c 3 "$url_in --> Firma del video non trovata" | tee -a $file_log
 	    echo
 	    ;;
 	11)
