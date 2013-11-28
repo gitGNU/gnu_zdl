@@ -76,7 +76,7 @@ function update {
     
     header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
-    rm -r "$path_tmp"/*
+    rm -fr "$path_tmp"/*.gz "$path_tmp"/*.sig "$prog"
     cd "$path_tmp"
     print_c 1 "Download in corso: attendere..."
     wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q

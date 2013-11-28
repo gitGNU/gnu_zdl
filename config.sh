@@ -318,7 +318,7 @@ function init {
     ## set default config data
     updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
     if [ -z "$updatecols" ]; then 
-	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && exit
+	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
     fi
     
     log=0
@@ -360,15 +360,7 @@ function init {
     user_language="$LANGUAGE"
     prog_lang='en_US.UTF-8:en'
 
-    # bar_char="z"
-    # url_update="http://inventati.org/zoninoz/html/upload/files/zdl"
-    # url_gcc="http://inventati.org/zoninoz/html/upload/files/gcc.exe"
-    # url_path_update="http://inventati.org/zoninoz/html/upload/files/"
-    # url_version="http://inventati.org/zoninoz/html/upload/files/zdl_version.txt"
     max_waiting=40
-    if [ -e "/cygdrive" ] && [ ! -f "/zdl.bat" ]; then
-	wget "${url_update}.bat" -O /zdl.bat -q && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
-    fi
     
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
     ## skin dark

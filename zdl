@@ -134,6 +134,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    
 	    if [ ! -d "$3" ]; then
 		file_in="$3"
+
 		if [ "$4" != "--noXterm" ] && [ -d "$4" ]; then
 		    directory="$4"
 		fi
@@ -210,6 +211,7 @@ header_z
 
 
 
+
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
@@ -217,7 +219,7 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
 	    update
 	fi
     done
-elif [ "$autoupdate" == "enabled" ] && ( [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ] ); then
+elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]; then
     update
 fi
 
@@ -408,7 +410,6 @@ if [ -f "$file_log" ]; then
 fi
 
 
-
 if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     check_instance_prog
     if [ "$?" != "1" ]; then
@@ -509,15 +510,13 @@ while true; do
 
 		## user extensions
 		if [ -d "$path_conf/extensions/" ]; then
-		    max_sources=`ls -1 "$path_conf"/extensions/*.sh 2>/dev/null |wc -l`
-		    if [ "$max_sources" != "0" ]; then
-			for i in `seq 1 $max_sources`; do
-			    fsource=`ls -1 "$path_conf"/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
-			    source "$fsource"
-			done
-		    fi
+		    shopt -s nullglob
+		    for srcfile in "$path_conf"/extensions/*.sh; do
+			    source "$srcfile"
+		    done
+		    shopt -u nullglob
 		fi
-		####
+		##################
 
 		if [ "$update_proxy" == "true" ];then
 		    unset newip update_proxy
@@ -535,15 +534,13 @@ while true; do
 
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
-		    max_sources=`ls -1 "$path_usr"/extensions/*.sh 2>/dev/null |wc -l`
-		    if [ "$max_sources" != "0" ]; then
-			for i in `seq 1 $max_sources`; do
-			    fsource=`ls -1 "$path_usr"/extensions/*.sh 2>/dev/null | sed -n "${i}p"`
-			    source "$fsource"
-			done
-		    fi
+		    shopt -s nullglob
+		    for srcfile in "$path_usr"/extensions/*.sh; do
+			source "$srcfile"
+		    done
+		    shopt -u nullglob
 		fi
-		####
+		###################
 		
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 		    if [ "$update_proxy_others_list" == "true" ]; then
@@ -560,7 +557,7 @@ while true; do
 			    fi
 			done
 		    fi	
-		    
+		 
 		## streaming downloader
 		    items=( `ls "$path_tmp"/filename_* 2>/dev/null` )
 		    if [ ! -z "${items[*]}" ]; then
