@@ -131,18 +131,22 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    url_in="$2"
 	    url_in="${url_in// /20%}"
 	    
-	    
-	    if [ ! -d "$3" ]; then
-		file_in="$3"
-
-		if [ "$4" != "--noXterm" ] && [ -d "$4" ]; then
-		    directory="$4"
+	    test_dir_3="$3"
+	    test_dir_4="$4"
+	    if [ -e "/cygdrive" ]; then
+		test_dir_3=$(cygpath -u "$test_dir_3")
+		test_dir_4=$(cygpath -u "$test_dir_4")
+	    fi
+	    if [ ! -d "$test_dir_3" ]; then
+		file_in="$test_dir_3"
+		if [ "$test_dir_4" != "--noXterm" ] && [ -d "$test_dir_4" ]; then
+		    directory="$test_dir_4"
 		fi
 	    else
-		directory="$3"
+		directory="$test_dir_3"
 		unset file_in
 	    fi
-	    
+
 	    if [ "$file_in" != "${file_in//'/'/}" ]; then
 		if [ -z "$directory" ]; then
 		    directory="${file_in%/*}"
@@ -162,10 +166,11 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		file_in2="${file_in2#*'&amp;title='}"
 		[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
 	    fi
+
 	    cd "$directory"
 	    mkdir -p "${path_tmp}"
 	    
-	    if [ "$cfile" ] ; then cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl" ; fi
+	    if [ -e "$cfile" ]; then cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl" ; fi
 	    echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 	    
 	    echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
