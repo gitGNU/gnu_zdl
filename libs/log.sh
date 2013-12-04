@@ -28,7 +28,7 @@
 
 function _log {
     if [ $log == 0 ]; then
-	echo -e "File log di $PROG:\n">$file_log
+	echo -e "File log di $name_prog:\n">$file_log
 	log=1
     fi
     date >> $file_log

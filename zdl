@@ -310,11 +310,22 @@ if [ "${args[*]}" != "${args[*]//--stop}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--flash}" ]; then
+if [ "${args[*]}" != "${args[*]//--out=}" ]; then
     for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--flash" ]; then 
+	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]; then
+	    if [ -e "$(which $(echo ${args[$i]#'--out='} | awk '{print $1}') )" ]; then
+		pipe_out="${args[$i]#'--out='}"
+	    else
+		print_c 3 "Il file in ${args[$i]} non esiste"
+		print_c 2 "Scrivo in ${args[$i]#'--out='}.txt la lista dei file scaricati? (s|*)"
+		read -n 1 option_out
+		if [ "$option_out" == "s" ]; then
+		    print_out="${args[$i]#'--out='}"
+		    print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		    unset option_out
+		fi
+	    fi
 	    unset args[$i]
-	    flash=true
 	fi
     done
 fi
@@ -663,13 +674,14 @@ while true; do
 		    if [ $test_loop_in != 1 ] || [ $test_pid != 1 ]; then 
 			checked=1
 		    fi
+		    pipe_files
 		done
 		
 		unset checked
 		unset post_data goal not_available exceeded
 	    fi
-	    
 	done
+	pipe_files
 	if [ -f "$path_tmp/links_loop.txt" ]; then
 	    file="$path_tmp/links_loop.txt"
 	fi

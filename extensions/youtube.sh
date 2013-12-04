@@ -41,7 +41,7 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	_log 9 
     fi
 
-                    ## Selezione del blocco di codice contenente gli URLs ai vari formati video
+    ## Selezione del blocco di codice contenente gli URLs ai vari formati video
     while IFS= read -r line
     do
 	if [[ $line =~ \"url_encoded_fmt_stream_map\"(.*) ]]; then
@@ -50,7 +50,7 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	fi
     done <<< "$html"
 
-                    ## Selezione della stringa contenente l'URL per scaricare in formato mp4
+    ## Selezione della stringa contenente l'URL per scaricare in formato mp4
     IFS=',' read -ra URLs <<< "$download"
     for val in "${URLs[@]}"; do
 	if [[ $val =~ $videoType ]]; then
@@ -59,7 +59,7 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	fi
     done
 
-                    ## Conversione caratteri unicode e rimozione parti della stringa non necessarie 
+    ## Conversione caratteri unicode e rimozione parti della stringa non necessarie 
     download=$(echo $download | sed -r 's/\:\ \"//')
     download=$(echo $download | sed -r 's/%3A/:/g')
     download=$(echo $download | sed -r 's/%2F/\//g')
@@ -73,33 +73,32 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     download=$(echo $download | sed -r 's/(fallback_host=[^&]+)//g')
     download=$(echo $download | sed -r 's/(quality=[^&]+)//g')
 
-                    ## Selezione del parametro firma (generato ed unserito in modo casuale ad ogni visita della pagina)
+    ## Selezione del parametro firma (generato ed unserito in modo casuale ad ogni visita della pagina)
     if [[ $download =~ (signature=[^&]+) ]]; then
 	signature=${BASH_REMATCH[1]}
     else
 	_log 10 #die "\nERRORE: firma del video non trovata!\n\n"
     fi
 
-                    ## Selezione dell'URL
+    ## Selezione dell'URL
     if [[ $download =~ (http?:.+) ]]; then
 	youtubeurl=${BASH_REMATCH[1]}
     else
 	_log 3 #die "\nERRORE: URL del video non trovato!\n\n"
     fi
 
-                    ## Rimozione del parametro firma dall'URL (se presente)
+    ## Rimozione del parametro firma dall'URL (se presente)
     youtubeurl=$(echo $youtubeurl | sed -r 's/\&signature.+$//')
 
-                    ## Posizionamento corretto del parametro firma
+    ## Posizionamento corretto del parametro firma
     download="$youtubeurl&$signature"
 
-                    ## Rimozione duplicati
+    ## Rimozione duplicati
     download=$(echo $download | sed -r 's/\&+/\&/g')
     url_in_file=$(echo $download | sed -r 's/\&itag=[0-9]+\&signature=/\&signature=/g')
 
-                    ## Nome del file da scaricare
+    ## Nome del file da scaricare
     file_in="$title.$videoType"
-
 fi
 
 shopt -s nullglob

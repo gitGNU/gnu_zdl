@@ -95,15 +95,15 @@ function data_stdout {
 		    eta=`echo $progress_data | awk '{ print($4) }'`
 		    speed=`echo $progress_data | awk '{ print($3) }'`
 		    speed="${speed//,/.}"
-		    type_speed="${speed//[0-9.,]}"
-		    num_speed="${speed//$type_speed}"
-		    num_speed=${num_speed%.*}
-		    case $type_speed in
-			B) type_speed="B/s";;
-			K) type_speed="KB/s";;
-			M) type_speed="MB/s";;
+		    type_speed[$i]="${speed//[0-9.,]}"
+		    num_speed[$i]="${speed//${type_speed[$i]}}"
+		    num_speed[$i]=${num_speed[$i]%.*}
+		    case ${type_speed[$i]} in
+			B) type_speed[$i]="B/s";;
+			K) type_speed[$i]="KB/s";;
+			M) type_speed[$i]="MB/s";;
 		    esac
-		    speed="${num_speed}${type_speed}"
+		    speed="${num_speed[$i]}${type_speed[$i]}"
 		elif [ "${downloader_out[$i]}" == "Axel" ]; then
 		    axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
 		    file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
@@ -126,24 +126,24 @@ function data_stdout {
 		    unset speed	
 		    percent=`echo $progress_data | awk '{ print($1) }'`
 		    speed=`echo $progress_data | awk '{ print($2) }'`
-		    type_speed="${speed//[0-9.,]}"
-		    num_speed="${speed//$type_speed}"
-		    if [ -z "${num_speed//[0-9,.]}" ] && [ ! -z "${num_speed//.}" ]; then
-			num_speed=$(( ${num_speed%[,.]*} + 1 ))
+		    type_speed[$i]="${speed//[0-9.,]}"
+		    num_speed[$i]="${speed//${type_speed[$i]}}"
+		    if [ -z "${num_speed[$i]//[0-9,.]}" ] && [ ! -z "${num_speed[$i]//.}" ]; then
+			num_speed[$i]=$(( ${num_speed[$i]%[,.]*} + 1 ))
 		    else
-			num_speed=0
+			num_speed[$i]=0
 		    fi
-		    case $type_speed in
-			KB/s) num_speed=$(( $num_speed * 1024 )) ;;
-			MB/s) num_speed=$(( $num_speed * 1024 * 1024 )) ;;
+		    case ${type_speed[$i]} in
+			KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
+			MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
-		    if [ ! -z "$num_speed" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent}" ]; then
-			num_percent=${percent%'%'*}
-			num_percent=$(( ${num_percent%[,.]*}+1 ))
-			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent}) / 100 ))
+		    if [ ! -z "${num_speed[$i]}" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]}" ]; then
+			num_percent[$i]=${percent%'%'*}
+			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
+			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
 			unset seconds minutes hours
-			[ $num_speed != 0 ] && seconds=$(( $diff_length/$num_speed ))
+			[ ${num_speed[$i]} != 0 ] && seconds=$(( $diff_length/${num_speed[$i]} ))
 			
 			if [ ! -z "$seconds" ]; then
 			    minutes=$(( $seconds/60 ))
@@ -156,12 +156,12 @@ function data_stdout {
 			
 		    fi
 		fi
-		num_percent=0
-		num_percent=${percent%'%'*}
-		num_percent=${num_percent%'.'*}
-		if [ ! -z "$num_speed" ] && [ "$num_speed" != "0" ] && [ ! -z "${num_percent//.}" ]; then
+		num_percent[$i]=0
+		num_percent[$i]=${percent%'%'*}
+		num_percent[$i]=${num_percent[$i]%'.'*}
+		if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 		    size_bar=0
-		    [ -z "${num_percent//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*$num_percent/100 ))
+		    [ -z "${num_percent[$i]//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
 		    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
 		    
 		    unset bar diff_bar
@@ -329,6 +329,50 @@ function check_alias {
 		    fi
 		fi
 	    done
+	fi
+    fi
+}
+
+function pipe_files {
+    for i in $(seq 0 ${#file_out[*]}); do
+	if [ ! -z ${length_out[$i]} ]; then
+	    if [ "${downloader_out[$i]}" == "Axel" ]; then
+		denum=$(( $axel_parts*100 ))
+	    else
+		denum=100
+	    fi
+	    length_down=$(( ${length_out[$i]}*${num_percent[$i]}/$denum ))
+	    case ${type_speed[$i]} in
+		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
+		MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
+	    esac
+	    if [ -f "${file_out[$i]}" ] && (( "$length_down">10000000 )) && (( ${num_speed[$i]}>200000 )) || ((  "$length_down" == ${length_out[$i]} )); then
+		if [ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]; then
+		    echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
+		fi
+	    else
+		listpipe=$(cat "$path_tmp"/pipe_files.txt 2>/dev/null)
+		listpipe="${listpipe//${file_out[$i]}}"
+		echo -e "$listpipe" > "$path_tmp"/pipe_files.txt
+	    fi
+	fi
+    done
+    _out
+}
+
+
+function _out {
+    if [ -f "$path_tmp"/pipe_files.txt ]; then
+	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
+	check_pid $pid_pipe_out
+	test=$?
+	if [ ! -z "$pipe_out" ] && [ "$test" != 1 ]; then
+	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
+	    nohup $pipe_out ${outfiles[*]} &>/dev/null &
+	    pid_pipe_out="$!"
+	    echo $pid_pipe_out > "$path_tmp"/pid_pipe
+	elif [ ! -z "$print_out" ]; then
+	    cp "$path_tmp"/pipe_files.txt "$print_out"
 	fi
     fi
 }

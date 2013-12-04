@@ -26,8 +26,8 @@
 #
 
 function check_pid {
-    if [ ! -z $1 ]; then
-	ck_pid=$1
+    ck_pid=$1
+    if [ ! -z $ck_pid ]; then
 	ps ax | awk "{ print $ps_ax_pid }" | while read ck_alive; do
 	    if [ "$ck_alive" == "$ck_pid" ]; then
 		return 1
