@@ -26,7 +26,7 @@
 #
 
 function data_stdout {
-    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress_out
+    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress speed type_speed num_speed num_percent
     if [ ! -z "$1" ];then 
 	list="$1"
     else
@@ -104,6 +104,10 @@ function data_stdout {
 			M) type_speed[$i]="MB/s";;
 		    esac
 		    speed="${num_speed[$i]}${type_speed[$i]}"
+		num_percent[$i]=0
+		num_percent[$i]=${percent%'%'*}
+		num_percent[$i]=${num_percent[$i]%'.'*}
+
 		elif [ "${downloader_out[$i]}" == "Axel" ]; then
 		    axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
 		    file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
@@ -137,7 +141,7 @@ function data_stdout {
 			KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
 			MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
-		    if [ ! -z "${num_speed[$i]}" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]}" ]; then
+		    if [ ! -z "${num_speed[$i]}" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${percent}" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
@@ -156,30 +160,10 @@ function data_stdout {
 			
 		    fi
 		fi
-		num_percent[$i]=0
-		num_percent[$i]=${percent%'%'*}
-		num_percent[$i]=${num_percent[$i]%'.'*}
-		if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
-		    size_bar=0
-		    [ -z "${num_percent[$i]//[0-9.]}" ] && size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
-		    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
-		    
-		    unset bar diff_bar
-		    for column in `seq 1 $size_bar`; do
-			bar="${On_Green}${bar} " #${bar_char}"
-		    done
-		    for column in `seq 1 $diff_size_bar`; do
-			diff_bar="${Color_Off}${BGreen}${diff_bar}|"
-		    done
-		    bar="${bar}${diff_bar}"
-		    progress_out[$i]="${bar}${Color_Off}${BGreen} $percent${Color_Off}${BBlue} $speed${Color_Off} $eta"
-		fi
-		
+		length_saved[$i]=0
+		[ -f "${file_out[$i]}" ] && length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
 		(( i++ ))
-		
 	    fi
-	    length_saved[$i]=0
-	    [ -f "${file_out[$i]}" ] && length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
 	done
 	export LANG="$user_lang"
 	export LANGUAGE="$user_language"

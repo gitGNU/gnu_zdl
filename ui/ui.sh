@@ -35,33 +35,20 @@ function show_downloads_extended {
     data_stdout
     if [ $? == 1 ]; then
 	last_out=$(( ${#pid_out[*]}-1 ))
-	for j in `seq 0 $last_out`; do
-	    human_length ${length_out[$j]} # --> $length_H
+	for i in `seq 0 $last_out`; do
+	    human_length ${length_out[$i]} # --> $length_H
 	    
-	    header_dl "Numero download: $j"
-	    check_pid ${pid_out[$j]}
-	    if [ $? == 1 ] && [ ! -f "${file_out[$j]}" ] && [ ! -z "${progress_out[$j]}" ]; then
-		print_c 3 "${downloader_out[$j]} sta scaricando a vuoto: ${file_out[$j]} non esiste"
+	    header_dl "Numero download: $i"
+	    check_pid ${pid_out[$i]}
+	    if [ $? == 1 ] && [ ! -f "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ]; then
+		print_c 3 "${downloader_out[$i]} sta scaricando a vuoto: ${file_out[$i]} non esiste"
 	    fi
 	    
-	    echo -e "${BBlue}File:${Color_Off} ${file_out[$j]}" 
-	    [ ! -z "${alias_file_out[$j]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$j]}"
-	    echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$j]}\n${BBlue}Link:${Color_Off} ${url_out[$j]}"
-	    
-	    progress="${progress_out[$j]}"
-	    color=${Green}
-	    
-	    check_pid ${pid_out[$j]}
-	    if [ $? != 1 ]; then
-		progress="Download non attivo"
-		color=${BRed}
-	    fi
-
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "${length_saved[$j]}" == "${length_out[$j]}" ];then
-		progress="Download completato"
-		color=${BGreen}
-	    fi
-	    echo -e "${BBlue}Stato:${color} ${progress}${Color_Off}"
+	    echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
+	    [ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
+	    echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+	    make_progress
+	    print_c "" "${BBlue}Stato:${diff_bar_color} ${progress}"
 	    echo
 	done
 	return 1
@@ -187,24 +174,11 @@ function show_downloads {
 	    last_stdout=$(( ${#pid_out[*]}-1 ))
 	    for i in `seq 0 $last_stdout`; do
 		if [ ! -z "${url_out[$i]}" ]; then
-		    length_saved=0
-		    [ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" 2>/dev/null| awk '{ print($5) }'`
-
 		    echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
 		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
-		    progress="${progress_out[$i]}"
-		    color=1
-		    
-		    check_pid "${pid_out[$i]}"
-		    if [ $? != 1 ]; then
-			progress="Download non attivo"
-			color=3
-		    fi
-		    if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
-			progress="Download completato"
-			color=1
-		    fi
-		    print_c $color " ${downloader_out[$i]}: ${progress}"
+
+		    make_progress
+		    print_c "" "${diff_bar_color} ${downloader_out[$i]}: ${progress}"
 		    ii=$(( $i+1 ))
 		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
 			separator "─"
@@ -220,8 +194,60 @@ function show_downloads {
 	echo -e "\n\n\n"
 	unset progress
     fi
-
     sleeping $sleeping_pause
+}
+
+
+function make_progress {
+    size_bar=0
+    if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
+	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
+	
+    fi
+    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
+    if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
+	check_pid ${pid_out[$i]}
+	if [ $? != 1 ]; then
+	    if [ "${downloader_out[$i]}" == "Wget" ]; then
+		progress="Download non attivo"
+	    fi
+	    diff_bar_color="${BRed}"
+	    bar_color="${On_Red}"
+	    speed=""
+	    eta="${diff_bar_color}non attivo${Color_Off}"
+	else
+	    diff_bar_color="${BGreen}"
+	    bar_color="${On_Green}"
+	    case ${type_speed[$i]} in
+		KB/s) num_speed[$i]=$(( ${num_speed[$i]} / 1024 )) ;;
+		MB/s) num_speed[$i]=$(( ${num_speed[$i]} / (1024 * 1024) )) ;;
+	    esac
+
+	    speed="${num_speed[$i]}${type_speed[$i]}"
+	    eta="${eta[$i]}"
+	fi
+    else
+	diff_bar_color="${BYellow}"
+	bar_color="${On_Yellow}"
+	speed=""
+	eta="${diff_bar_color}attendi...${Color_Off}"
+	num_percent[$i]=0
+    fi		    
+    
+    unset bar diff_bar
+    for column in `seq 1 $size_bar`; do
+	bar="${bar_color}${bar} " 
+    done
+    for column in `seq 1 $diff_size_bar`; do
+	diff_bar="${Color_Off}${diff_bar_color}${diff_bar}|"
+    done
+    bar="${bar}${diff_bar}"
+
+    if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "${length_saved[$i]}" == "${length_out[$i]}" ] && [ "${length_out[$i]}" != 0 ] && [ ! -z "${length_out[$i]}" ];then
+	progress="Download completato"
+	diff_bar_color="${BGreen}"
+    fi
+    [ -z "$progress" ] && progress="${bar}${Color_Off}${diff_bar_color} ${num_percent[$i]}%${Color_Off}${BBlue} ${speed}${Color_Off} ${eta}"
 }
 
 
