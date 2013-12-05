@@ -711,11 +711,13 @@ separator "─"
 print_c 1 "Download completato"
 separator "─"
 
+if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
+    data_stdout
+    pipe_files
+fi
+
 check_instance_dl
 if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
-    if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
-	_out
-    fi
     rm -r "$path_tmp" 2>/dev/null
 fi
 

@@ -178,10 +178,11 @@ function data_stdout {
 		(( i++ ))
 		
 	    fi
+	    length_saved[$i]=0
+	    [ -f "${file_out[$i]}" ] && length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
 	done
 	export LANG="$user_lang"
 	export LANGUAGE="$user_language"
-	unset length_saved
 	return 1
     fi
 }
@@ -346,7 +347,7 @@ function pipe_files {
 		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
 		MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 	    esac
-	    if [ -f "${file_out[$i]}" ] && (( "$length_down">5000000 )) && (( ${num_speed[$i]}>200000 )) || ((  "$length_down" == ${length_out[$i]} )); then
+	    if [ -f "${file_out[$i]}" ] && ( (( "$length_down">5000000 )) && (( ${num_speed[$i]}>200000 )) ) || ( ((  "${length_saved[$i]}" == ${length_out[$i]} )) && [ ! -f "${file_out[$i]}.st" ] ); then
 		if [ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]; then
 		    echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
 		fi
@@ -368,10 +369,12 @@ function _out {
 	test=$?
 	if [ ! -z "$pipe_out" ] && [ "$test" != 1 ]; then
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
-	    nohup $pipe_out ${outfiles[*]} &>/dev/null &
-	    pid_pipe_out="$!"
-	    echo $pid_pipe_out > "$path_tmp"/pid_pipe
-	    pipe_done=1
+	    if [ ! -z "${outfiles[*]}" ]; then
+		nohup $pipe_out ${outfiles[*]} &>/dev/null &
+		pid_pipe_out="$!"
+		echo $pid_pipe_out > "$path_tmp"/pid_pipe
+		pipe_done=1
+	    fi
 	elif [ ! -z "$print_out" ]; then
 	    cp "$path_tmp"/pipe_files.txt "$print_out"
 	fi

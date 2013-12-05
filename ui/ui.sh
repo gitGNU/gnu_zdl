@@ -57,9 +57,7 @@ function show_downloads_extended {
 		color=${BRed}
 	    fi
 
-	    length_saved=0
-	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "${length_saved[$j]}" == "${length_out[$j]}" ];then
 		progress="Download completato"
 		color=${BGreen}
 	    fi
