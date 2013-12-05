@@ -346,7 +346,7 @@ function pipe_files {
 		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
 		MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 	    esac
-	    if [ -f "${file_out[$i]}" ] && (( "$length_down">10000000 )) && (( ${num_speed[$i]}>200000 )) || ((  "$length_down" == ${length_out[$i]} )); then
+	    if [ -f "${file_out[$i]}" ] && (( "$length_down">5000000 )) && (( ${num_speed[$i]}>200000 )) || ((  "$length_down" == ${length_out[$i]} )); then
 		if [ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]; then
 		    echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
 		fi
@@ -371,6 +371,7 @@ function _out {
 	    nohup $pipe_out ${outfiles[*]} &>/dev/null &
 	    pid_pipe_out="$!"
 	    echo $pid_pipe_out > "$path_tmp"/pid_pipe
+	    pipe_done=1
 	elif [ ! -z "$print_out" ]; then
 	    cp "$path_tmp"/pipe_files.txt "$print_out"
 	fi
