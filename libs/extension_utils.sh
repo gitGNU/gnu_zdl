@@ -75,3 +75,15 @@ function urldecode {
     printf '%b' "${data//%/\x}" 2>/dev/null
 }
 
+function htmldecode {
+    entity=( '&quot;' '&amp;' '&lt;' '&gt;' '&OElig;' '&oelig;' '&Scaron;' '&scaron;' '&Yuml;' '&circ;' '&tilde;' '&ensp;' '&emsp;' '&thinsp;' '&zwnj;' '&zwj;' '&lrm;' '&rlm;' '&ndash;' '&mdash;' '&lsquo;' '&rsquo;' '&sbquo;' '&ldquo;' '&rdquo;' '&bdquo;' '&dagger;' '&Dagger;' '&permil;' '&lsaquo;' '&rsaquo;' '&euro;' )
+
+    entity_decoded=( '"' '&' '<' '>' 'Œ' 'œ' 'Š' 'š' 'Ÿ' '^' '~' ' ' '  ' '' '' '' '' '' '–' '—' '‘' '’' '‚' '“' '”' '„' '†' '‡' '‰' '‹' '›' '€' )
+
+    decoded_expr="$1"
+    for i in $(seq 0 $(( ${#entity[*]}-1 )) ); do
+	decoded_expr="${decoded_expr//${entity[$i]}/${entity_decoded[$i]}}"
+    done
+
+}
+
