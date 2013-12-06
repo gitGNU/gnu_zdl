@@ -658,7 +658,8 @@ while true; do
 		[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
 		unset checked
 		noproxy
-		if [ "$multi" == "1" ]; then 
+
+		if [ "$multi" == "1" ]; then
 		    check_stdout
 		    show_downloads
 		    checked=1

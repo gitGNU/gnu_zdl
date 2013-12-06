@@ -167,8 +167,6 @@ function show_downloads {
     if [ "$daemon" != "true" ]; then
 	echo
 	header_dl "Downloading in $PWD"
-
-	unset progress
 	data_stdout
 	if [ $? == 1 ]; then
 	    last_stdout=$(( ${#pid_out[*]}-1 ))
@@ -192,7 +190,6 @@ function show_downloads {
 	fi
 	separator "─"
 	echo -e "\n\n\n"
-	unset progress
     fi
     sleeping $sleeping_pause
 }

@@ -153,9 +153,9 @@ function data_stdout {
 			    minutes=$(( $seconds/60 ))
 			    hours=$(( $minutes/60 ))
 			    minutes=$(( $minutes-($hours*60) ))
-			    eta="${hours}h${minutes}m"
+			    eta[$i]="${hours}h${minutes}m"
 			else
-			    unset eta
+			    eta[$i]=""
 			fi
 			
 		    fi
@@ -204,11 +204,11 @@ function check_download {
     if [ $? == 1 ]; then
 	last_stdout=$(( ${#pid_out[*]}-1 ))
 	for i in `seq 0 $last_stdout`; do
-	    if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ] && [ "$test_progress" != "${progress_out[$i]}" ]; then
-		unset test_progress
+	    if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${length_saved[$i]}" ] && [ "$test_saved" != "${length_saved[$i]}" ]; then
+		unset test_saved
 		return 1
 	    elif [ "${file_in}" == "${file_out[$i]}" ]; then
-		test_progress="${progress_out[$i]}"
+		test_saved="${length_saved[$i]}"
 		break
 	    fi
 	done
@@ -287,8 +287,8 @@ function check_alias {
 		    if [ $? == 1 ]; then
 			unset real_file_in 
 			real_file_in=`cat "$path_tmp"/${file_in}_stdout.tmp |grep filename`
-			real_file_in="${real_file_in#*'filename="'}"
-		    real_file_in="${real_file_in%'"'*}"
+			real_file_in="${real_file_in#*filename=\"}"
+			real_file_in="${real_file_in%\"*}"
 			
 			file_in_alias="${file_in}"
 			file_in="${real_file_in}"
