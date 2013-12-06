@@ -26,7 +26,7 @@
 #
 
 function data_stdout {
-    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress speed type_speed num_speed num_percent
+    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress speed type_speed num_speed num_percent percent
     if [ ! -z "$1" ];then 
 	list="$1"
     else
@@ -104,9 +104,9 @@ function data_stdout {
 			M) type_speed[$i]="MB/s";;
 		    esac
 		    speed="${num_speed[$i]}${type_speed[$i]}"
-		num_percent[$i]=0
-		num_percent[$i]=${percent%'%'*}
-		num_percent[$i]=${num_percent[$i]%'.'*}
+		    num_percent[$i]=0
+		    num_percent[$i]=${percent%'%'*}
+		    num_percent[$i]=${num_percent[$i]%'.'*}
 
 		elif [ "${downloader_out[$i]}" == "Axel" ]; then
 		    axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`

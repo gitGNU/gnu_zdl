@@ -199,6 +199,7 @@ function show_downloads {
 
 
 function make_progress {
+    unset progress
     size_bar=0
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
 	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
