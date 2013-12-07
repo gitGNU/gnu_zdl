@@ -94,29 +94,32 @@ fi
 
 ## conkeror
 if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "$daemon" != "true" ]; then 
-	    if [ -z "$DISPLAY" ]; then
-		export DISPLAY=":0"
+    if [ "$daemon" != "true" ]; then 
+	if [ -z "$DISPLAY" ]; then
+	    export DISPLAY=":0"
+	fi
+	url="${args[*]%'--zigzag-xterm'*}"
+	parameters="${args[*]#*'--zigzag-xterm'}"
+	parameters="${parameters%'--cwd'*}"
+	if [ -e "/cygdrive" ]; then
+	    dest_dir="${args[*]#*'--cwd'}"
+	    dest_dir=$(cygpath -u "$dest_dir")
+	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
+	    export pid_prog=$$
+	    check_instance_prog
+	    if [ "$?" == "1" ]; then
+		links_loop + "$url"
+		redirect_links
+	    else
+		$prog "$url" $parameters --stop
 	    fi
-	    url="${args[$i]%'--zigzag-xterm'*}"
-	    dest_dir="${args[$i]#*'--cwd'}"
-	    if [ "$dest_dir" != "${args[$i]}" ]; then
-		if [ -e "/cygdrive" ]; then
-		    dest_dir="/cygdrive/i/${dest_dir//\\/\/}"
-		    cd "$dest_dir"
-		fi
-	    fi
-	    parameters="${args[$i]#*'--zigzag-xterm'}"
-	    parameters="${parameters%'--cwd'*}"
-	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
-
 	    exit
 	else
-	    unset args
+	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
 	fi
-
-    done
+    else
+	unset args
+    fi
 fi
 
 
