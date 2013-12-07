@@ -105,18 +105,18 @@ if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
 	    dest_dir="${args[*]#*'--cwd'}"
 	    dest_dir=$(cygpath -u "$dest_dir")
 	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
-	    export pid_prog=$$
-	    check_instance_prog
-	    if [ "$?" == "1" ]; then
-		links_loop + "$url"
-		redirect_links
-	    else
-		$prog "$url" $parameters --stop
-	    fi
-	    exit
+	fi
+	export pid_prog=$$
+	check_instance_prog
+	if [ "$?" == "1" ]; then
+	    links_loop + "$url"
+	    redirect_links
+	elif [ -e "/cygdrive" ]; then
+	    $prog "$url" $parameters --stop
 	else
 	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
 	fi
+	exit
     else
 	unset args
     fi
