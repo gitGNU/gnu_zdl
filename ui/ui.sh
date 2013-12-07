@@ -85,11 +85,11 @@ function interactive {
 	show_downloads_extended
 	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
 	    header_box "Opzioni"
-	    echo -e "\t<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
-	    echo -e "\t<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
-	    echo -e "\t<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
-	    [ ! -z "$daemon_pid" ] && echo -e "\t<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
-	    echo -e "\t<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
+	    echo -e "<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
+	    echo -e "<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
+	    echo -e "<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
+	    [ ! -z "$daemon_pid" ] && echo -e "<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
+	    echo -e "<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
 	    read -n 1 -t 15 action
 	    cursor on
@@ -110,14 +110,14 @@ function interactive {
 		    header_box "Riavvia o Elimina"
 		    print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
 		    echo
-		    echo -e "\t<${BYellow} r ${Color_Off}> per riavviarli
+		    echo -e "<${BYellow} r ${Color_Off}> per riavviarli
 
-\t<${BRed} e ${Color_Off}> per eliminarli definitivamente (e cancellare il file scaricato)
-\t<${BRed} t ${Color_Off}> per terminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
+<${BRed} e ${Color_Off}> per eliminarli definitivamente (e cancellare il file scaricato)
+<${BRed} t ${Color_Off}> per terminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
 
-\t<${BGreen} c ${Color_Off}> per cancellare i file temporanei dei download completati
+<${BGreen} c ${Color_Off}> per cancellare i file temporanei dei download completati
 
-\t<${BBlue} * ${Color_Off}> per tornare alla schermata principale\n"
+<${BBlue} * ${Color_Off}> per tornare alla schermata principale\n"
 		    print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
 		    read input2
 		    
