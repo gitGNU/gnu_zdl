@@ -211,8 +211,8 @@ function make_progress {
 	    fi
 	    diff_bar_color="${BRed}"
 	    bar_color="${On_Red}"
-	    speed=""
-	    eta="${diff_bar_color}non attivo${Color_Off}"
+	    speed="${diff_bar_color}non attivo${Color_Off}"
+	    eta=""
 	else
 	    diff_bar_color="${BGreen}"
 	    bar_color="${On_Green}"
@@ -227,8 +227,8 @@ function make_progress {
     else
 	diff_bar_color="${BYellow}"
 	bar_color="${On_Yellow}"
-	speed=""
-	eta="${diff_bar_color}attendi...${Color_Off}"
+	speed="${diff_bar_color}attendi...${Color_Off}"
+	eta=""
 	num_percent[$i]=0
     fi		    
     
