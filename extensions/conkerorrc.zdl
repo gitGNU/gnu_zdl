@@ -23,10 +23,9 @@
 // zoninoz@inventati.org
 
 
-
-function shell_on_url(funcname, funcdesc, cmd) {
+function zdl_on_url(funcname, funcdesc,cmd) { 
     //Create an interactive function for running a predetermined
-    //shell command on a url
+    //shell command on a url ('shell_on_url()' instead of 'zdl_on_url()', adapted by zoninoz)
     //Bind a specific shell command for a url to 'functionname'
 
     //Taken largely from "shell-command-on-url"  and
@@ -51,10 +50,42 @@ function shell_on_url(funcname, funcdesc, cmd) {
             var element = yield read_browser_object(I);
             var spec = load_spec(element);
             var uri = load_spec_uri_string(spec);
-            shell_command_with_argument_blind(cmd, uri+"--zigzag-xterm"+args, $cwd = cwd);
+
+            shell_command_with_argument_blind(cmd, uri+"--zigzag-xterm"+args+"--cwd"+make_file(I.local.cwd).path, $cwd = cwd);
         },
         $browser_object = browser_object_links);
 }
-shell_on_url("zdl", "Scarica da un link con ZigzagDownLoader","zdl");
+
+const CI = Components.interfaces;
+const CC = Components.classes;
+
+zdl = {
+
+    get isWindows() {
+	return this._lazyPlatformCheck("isWin", "WinD");
+    },
+    
+    get isMac() {
+	return this._lazyPlatformCheck("isMac", "UsrDsk");
+    },
+    
+    get isLinux() {
+	return this._lazyPlatformCheck("isLinux", "XDGDesk");
+    },
+    
+    _lazyPlatformCheck: function(prop, folder) {
+	delete this[prop];
+	var is = false;
+	try {
+	    is = this.directoryService.get(folder, CI.nsIFile);
+	} catch(e) {}
+	return this[prop] = is;
+    },
+}
 
 
+if (zdl.isWindows) {
+    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "\\cygwin\\zdl.bat");
+} else {
+    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader","zdl");
+}

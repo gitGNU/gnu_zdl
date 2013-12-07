@@ -123,20 +123,29 @@ function install_zdl-wise {
 
 
 function install_zdl-conkeror {
-    if [ -f "$HOME/.conkerorrc" ]; then
-	[ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-	text_conkerorrc=$(cat "$HOME/.conkerorrc")
-	if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
-	    cp "$HOME/.conkerorrc" "$HOME/.conkerorrc.old"
-	    echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$HOME/.conkerorrc"
-	fi
-	test=$(cat "$HOME/.conkerorrc"|grep "$SHARE/extensions/conkerorrc.zdl" |tail -n 1)
-	test2=$(echo "${test#*'//'}" |grep "$SHARE/extensions/conkerorrc.zdl")
-	if [ -z "$test" ]; then
-	    echo -e "\n// ZigzagDownLoader\nrequire(\"$SHARE/extensions/conkerorrc.zdl\");" >> "$HOME/.conkerorrc"
-	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file "$HOME"/.conkerorrc: per riattivarla, cancella i simboli di commento \"\\\\\""
-	fi
+    [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
+    if [ -e /cygdrive ]; then
+	module_target="${win_progfiles}/conkeror/modules/conkerorrc.zdl"
+	rc_target="${win_home}/.conkerorrc"
+	require_target="conkerorrc.zdl"
+	cp "$SHARE/extensions/conkerorrc.zdl" "$module_target"
+    elif [ -e "$(which conkeror 2>/dev/null )" ]; then
+	module_target="$SHARE/extensions/conkerorrc.zdl"
+	rc_target="$HOME/.conkerorrc.old"
+	require_target="$module_target"
+    fi
+    touch "$rc_target"
+    text_conkerorrc=$(cat "$rc_target")
+    if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
+	cp "$rc_target" "${rc_target}.old"
+	echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$rc_target"
+    fi
+    test=$(cat "$rc_target"|grep "$require_target" |tail -n 1)
+    test2=$(echo "${test#*'//'}" |grep "$require_target")
+    if [ -z "$test" ]; then
+	echo -e "\n// ZigzagDownLoader\nrequire(\"$require_target\");" >> "$rc_target"
+    elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
+	bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file \"$rc_target\": per riattivarla, cancella i simboli di commento \"\\\\\""
     fi
 }
 
@@ -160,6 +169,10 @@ axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2"
 success="Installazione completata"
 failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
+if [ -e /cygdrive ]; then
+    win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
+    win_progfiles=$(cygpath -u "$PROGRAMFILES")
+fi
 
 echo -e "\e[1mInstallazione di ZigzagDownLoader\e[0m\n"
 
@@ -179,7 +192,7 @@ install_zdl-wise
 chmod +rx -R .
 bold "Installazione in $BIN\n"
 try mv zdl zdl-xterm $BIN 
-[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)\zdl.bat "
+[ -e /cygdrive ] && ( mv ${prog}.bat / ) && bold "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
 cd ..
 
 bold "Installazione in $SHARE\n"
