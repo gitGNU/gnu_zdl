@@ -201,7 +201,19 @@ if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-
 		print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
 		mkdir -p "$path_tmp"
 	    else
-		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD"
+		header_z
+		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD\n"
+		for j in `seq 0 ${#args[*]}`; do
+		    if [ "${args[$j]}" == "${args[$j]#'-'}" ] && [ ! -e "${args[$j]}" ] && [ ! -z "${args[$j]}" ]; then
+			touch "$path_tmp"/links_loop.txt
+			links_loop + "${args[$j]}"
+			new_links="${args[$j]}\n$new_links"
+		    fi
+		done
+		if [ ! -z "$new_links" ]; then
+		    header_box "Nuovi URL aggiunti in coda al demone:"
+		    echo -e "$new_links"
+		fi
 	    fi
 	    [ ! -z "$xterm_stop" ] && xterm_stop
 	    exit
@@ -512,6 +524,12 @@ check_instance_prog
 if [ "$?" == "1" ]; then
     redirect_links
 fi
+
+check_instance_daemon
+if [ $? == 1 ]; then
+    redirect_links
+fi
+
 echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"
 
