@@ -55,23 +55,6 @@ get_conf
 
 args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
-if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
-	    unset args[$i]
-	    check_instance_daemon
-	    if [ $? != 1 ]; then
-		rm -r "$path_tmp/lock.zdl"
-		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
-		print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
-		mkdir -p "$path_tmp"
-	    else
-		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD"
-	    fi
-	    exit
-	fi
-    done
-fi
 
 if [ "${args[*]}" != "${args[*]//--silent}" ]; then
     for i in `seq 0 $max_args`; do
@@ -106,12 +89,12 @@ if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
 	    dest_dir=$(cygpath -u "$dest_dir")
 	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
 	fi
-	export pid_prog=$$
-	check_instance_prog
-	if [ "$?" == "1" ]; then
-	    links_loop + "$url"
-	    redirect_links
-	elif [ -e "/cygdrive" ]; then
+	# export pid_prog=$$
+	# check_instance_prog
+	# if [ "$?" == "1" ]; then
+	#     links_loop + "$url"
+	#     redirect_links
+	if [ -e "/cygdrive" ]; then
 	    $prog "$url" $parameters --stop
 	else
 	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
@@ -195,6 +178,37 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	fi
     done 
 fi
+
+
+if [ "${args[*]}" != "${args[*]//--stop}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--stop" ]; then 
+	    unset args[$i]
+	    xterm_stop=true
+	fi
+    done
+fi
+
+
+if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
+	    unset args[$i]
+	    check_instance_daemon
+	    if [ $? != 1 ]; then
+		rm -r "$path_tmp/lock.zdl"
+		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+		print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\""
+		mkdir -p "$path_tmp"
+	    else
+		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD"
+	    fi
+	    [ ! -z "$xterm_stop" ] && xterm_stop
+	    exit
+	fi
+    done
+fi
+
 
 export pid_prog=$$
 
@@ -300,15 +314,6 @@ if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]
 	if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
 	    unset args[$i]
 	    configure
-	fi
-    done
-fi
-
-if [ "${args[*]}" != "${args[*]//--stop}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--stop" ]; then 
-	    unset args[$i]
-	    xterm_stop=true
 	fi
     done
 fi

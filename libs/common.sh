@@ -122,8 +122,8 @@ function redirect_links {
 
 function check_instance_daemon {
     test_instance=$( ps ax | grep "$prog" |grep "silent $PWD" )
-    test_instance=${test_instance##* }
-    if [ ! -z "$test_instance" ] && [ "$test_instance" != "$PWD" ]; then
+    test_instance=${test_instance#*'silent '}
+    if [ ! -z "$test_instance" ] && [ "$test_instance" == "$PWD" ]; then
 	return 1
     else
 	return 0
