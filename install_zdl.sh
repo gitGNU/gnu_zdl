@@ -131,7 +131,7 @@ function install_zdl-conkeror {
 	cp "$SHARE/extensions/conkerorrc.zdl" "$module_target"
     elif [ -e "$(which conkeror 2>/dev/null )" ]; then
 	module_target="$SHARE/extensions/conkerorrc.zdl"
-	rc_target="$HOME/.conkerorrc.old"
+	rc_target="$HOME/.conkerorrc"
 	require_target="$module_target"
     fi
     touch "$rc_target"
