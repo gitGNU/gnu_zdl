@@ -129,23 +129,25 @@ function install_zdl-conkeror {
 	rc_target="${win_home}/.conkerorrc"
 	require_target="conkerorrc.zdl"
 	cp "$SHARE/extensions/conkerorrc.zdl" "$module_target"
-    elif [ -e "$(which conkeror 2>/dev/null )" ]; then
+    else #if [ -e "$(which conkeror 2>/dev/null )" ]; then
 	module_target="$SHARE/extensions/conkerorrc.zdl"
 	rc_target="$HOME/.conkerorrc"
 	require_target="$module_target"
     fi
-    touch "$rc_target"
-    text_conkerorrc=$(cat "$rc_target")
-    if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
-	cp "$rc_target" "${rc_target}.old"
-	echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$rc_target"
-    fi
-    test=$(cat "$rc_target"|grep "$require_target" |tail -n 1)
-    test2=$(echo "${test#*'//'}" |grep "$require_target")
-    if [ -z "$test" ]; then
-	echo -e "\n// ZigzagDownLoader\nrequire(\"$require_target\");" >> "$rc_target"
-    elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file \"$rc_target\": per riattivarla, cancella i simboli di commento \"\\\\\""
+    if [ ! -z "$rc_target" ]; then
+	touch "$rc_target"
+	text_conkerorrc=$(cat "$rc_target")
+	if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
+	    cp "$rc_target" "${rc_target}.old"
+	    echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$rc_target"
+	fi
+	test=$(cat "$rc_target"|grep "$require_target" |tail -n 1)
+	test2=$(echo "${test#*'//'}" |grep "$require_target")
+	if [ -z "$test" ]; then
+	    echo -e "\n// ZigzagDownLoader\nrequire(\"$require_target\");" >> "$rc_target"
+	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
+	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file \"$rc_target\": per riattivarla, cancella i simboli di commento \"\\\\\""
+	fi
     fi
 }
 
