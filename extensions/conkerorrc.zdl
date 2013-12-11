@@ -58,34 +58,19 @@ function zdl_on_url(funcname, funcdesc,cmd) {
 
 const CI = Components.interfaces;
 const CC = Components.classes;
+var isWin;
 
-zdl = {
-
-    get isWindows() {
-	return this._lazyPlatformCheck("isWin", "WinD");
-    },
-    
-    get isMac() {
-	return this._lazyPlatformCheck("isMac", "UsrDsk");
-    },
-    
-    get isLinux() {
-	return this._lazyPlatformCheck("isLinux", "XDGDesk");
-    },
-    
-    _lazyPlatformCheck: function(prop, folder) {
-	delete this[prop];
-	var is = false;
-	try {
-	    is = this.directoryService.get(folder, CI.nsIFile);
-	} catch(e) {}
-	return this[prop] = is;
-    },
+try {
+    isWin = CC["@mozilla.org/file/directory_service;1"].getService(CI.nsIProperties).get("WinD", CI.nsIFile);
+}
+catch(e) {
+    isWin = false;
 }
 
-
-if (zdl.isWindows) {
+if (isWin) {
     zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "\\cygwin\\zdl.bat");
 } else {
-    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader","zdl");
+    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "zdl");
 }
+
+

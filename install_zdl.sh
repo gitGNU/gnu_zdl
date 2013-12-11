@@ -124,7 +124,7 @@ function install_zdl-wise {
 
 function install_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-    if [ -e /cygdrive ]; then
+    if [ -e /cygdrive ] && [ -d "${win_progfiles}/conkeror/modules/" ]; then
 	module_target="${win_progfiles}/conkeror/modules/conkerorrc.zdl"
 	rc_target="${win_home}/.conkerorrc"
 	require_target="conkerorrc.zdl"

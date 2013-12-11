@@ -63,11 +63,6 @@ if [ "${args[*]}" != "${args[*]//--silent}" ]; then
 	    daemon="true"
 	    sleeping_pause=10
 	fi
-    done
-fi
-
-if [ "${args[*]}" != "${args[*]//$PWD}" ]; then
-    for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "$PWD" ]; then
 	    unset args[$i]
 	fi
@@ -77,6 +72,7 @@ fi
 
 ## conkeror
 if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
+
     if [ "$daemon" != "true" ]; then 
 	if [ -z "$DISPLAY" ]; then
 	    export DISPLAY=":0"
@@ -88,13 +84,6 @@ if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
 	    dest_dir="${args[*]#*'--cwd'}"
 	    dest_dir=$(cygpath -u "$dest_dir")
 	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
-	fi
-	# export pid_prog=$$
-	# check_instance_prog
-	# if [ "$?" == "1" ]; then
-	#     links_loop + "$url"
-	#     redirect_links
-	if [ -e "/cygdrive" ]; then
 	    $prog "$url" $parameters --stop
 	else
 	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
@@ -122,7 +111,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    if [ -e "/cygdrive" ]; then
 		test_dir_3=$(cygpath -u "$test_dir_3")
 		test_dir_4=$(cygpath -u "$test_dir_4")
-	    fi
+	    fi 
 	    if [ ! -d "$test_dir_3" ]; then
 		file_in="$test_dir_3"
 		if [ "$test_dir_4" != "--noXterm" ] && [ -d "$test_dir_4" ]; then
@@ -188,6 +177,7 @@ if [ "${args[*]}" != "${args[*]//--stop}" ]; then
 	fi
     done
 fi
+
 
 
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
@@ -394,6 +384,8 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
 	fi
     done
 fi
+
+
 
 for i in `seq 0 $max_args`; do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then

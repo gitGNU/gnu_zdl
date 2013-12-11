@@ -36,9 +36,9 @@ function update_zdl-wise {
 
 function update_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-    if [ -e /cygdrive ]; then
-	module_target="$win_progfiles/conkeror/modules/conkerorrc.zdl"
-	rc_target="$win_home/.conkerorrc"
+    if [ -e /cygdrive ] && [ -d "${win_progfiles}/conkeror/modules/" ]; then
+	module_target="${win_progfiles}/conkeror/modules/conkerorrc.zdl"
+	rc_target="${win_home}/.conkerorrc"
 	require_target="conkerorrc.zdl"
 	cp "$SHARE/extensions/conkerorrc.zdl" "$module_target"
     else  #if [ -e "$(which conkeror 2>/dev/null )" ]; then
