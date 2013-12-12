@@ -27,7 +27,7 @@
 
 ## ZDL add-on
 
-if [ "$url_in" != "${url_in//'movshare.'}" ]; then
+if [ "$url_in" != "${url_in//'movshare.'}" ] && [ "$url_in" != "${url_in//video}" ]; then
     wget "$url_in" -O "$path_tmp"/zdl.tmp -q
     test_exist=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "This file no longer exists on our servers")
     if [ ! -z "$test_exist" ]; then

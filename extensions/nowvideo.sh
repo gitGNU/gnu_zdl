@@ -27,7 +27,7 @@
 
 ## ZDL add-on
 
-if [ "$url_in" != "${url_in//'nowvideo.'}" ]; then
+if [ "$url_in" != "${url_in//'nowvideo.'}" ] && [ "$url_in" != "${url_in//video}" ]; then
     myip="$(wget -q -O - http://indirizzo-ip.com/ip.php)"
     wget "$url_in" -O "$path_tmp"/zdl.tmp -q
     test_exist=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "This file no longer exists on our servers")
