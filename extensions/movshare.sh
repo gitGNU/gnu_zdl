@@ -27,7 +27,7 @@
 
 ## ZDL add-on
 
-if [ "$url_in" != "${url_in//'movshare.net'}" ]; then
+if [ "$url_in" != "${url_in//'movshare.'}" ]; then
     wget "$url_in" -O "$path_tmp"/zdl.tmp -q
     flashvars_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "flashvars.file=")
     flashvars_file="${flashvars_file#*'flashvars.file='\"}"
@@ -36,8 +36,12 @@ if [ "$url_in" != "${url_in//'movshare.net'}" ]; then
     flashvars_key=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "flashvars.filekey=")
     flashvars_key="${flashvars_key#*'flashvars.filekey='\"}"
     flashvars_key="${flashvars_key%\"*}"
+    flashvars_domain=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "flashvars.domain=")
+    flashvars_domain="${flashvars_domain#*'flashvars.domain='\"}"
+    flashvars_domain="${flashvars_domain%\"*}"
+
     rm -f "$path_tmp"/zdl2.tmp
-    axel "http://www.movshare.net/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null 
+    axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null 
     url_in_file=$(cat "$path_tmp"/zdl2.tmp)
     url_in_file="${url_in_file#*'url='}"
     url_in_file="${url_in_file%%'&'*}"
