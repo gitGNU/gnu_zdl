@@ -644,6 +644,11 @@ while true; do
 		check_in_file
 		test_in=$?
 		[ "$test_freespace" == "1" ] && unset test_in test_freespace
+
+		if [ "$break_loop" == "true" ]; then
+		    unset break_loop
+		    break
+		fi
 		
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
@@ -703,7 +708,7 @@ while true; do
 		done
 		
 		unset checked
-		unset post_data goal not_available exceeded
+		unset post_data goal not_available exceeded 
 	    fi
 	done
 	pipe_files
