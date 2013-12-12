@@ -49,5 +49,5 @@ if [ "$url_in" != "${url_in//'movshare.'}" ]; then
     ext="${url_in_file##*'.'}"
     file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "share"|grep "title=")
     file_in="${file_in#*'title='}"
-    file_in="${file_in%%\"*}.ext"
+    file_in="${file_in%%\"*}.$ext"
 fi
