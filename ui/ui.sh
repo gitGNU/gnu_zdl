@@ -80,7 +80,6 @@ function interactive {
 	header_z
 	header_box "Modalità interattiva"
 	echo
-		#show_data_alive
 	unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
 	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
@@ -88,7 +87,7 @@ function interactive {
 	    echo -e "<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
 	    echo -e "<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
 	    echo -e "<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
-	    [ ! -z "$daemon_pid" ] && echo -e "<${BBlue} s ${Color_Off}> ferma il demone di $PROG avviato in questa directory ($PWD) lasciando attivi Axel e Wget se avviati\n"
+	    [ ! -z "$daemon_pid" ] && echo -e "<${BBlue} s ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
 	    read -n 1 -t 15 action
