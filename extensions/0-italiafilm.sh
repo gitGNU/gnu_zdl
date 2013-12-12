@@ -26,8 +26,8 @@
 #
 
 
-if [ "$url_in" != "${url_in//'italiafilm.tv/?do='}" ]; then
-    redir=$( wget "$url_in" -O - -q |grep dle-content ) 
+if [ "$url_in" != "${url_in//'italiafilms.tv/?do='}" ]; then
+    redir=$( wget "$url_in" -O - -q |grep "dle-content" ) 
     links_loop - "$url_in"
     url_in="${redir##*href=\"}"
     url_in="${url_in%%\"*}"
