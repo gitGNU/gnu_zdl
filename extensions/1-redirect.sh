@@ -26,7 +26,7 @@
 #
 
 
-urls_redir="italiafilm.tv/engine nowupload.net/nowdownload"
+urls_redir="italiafilms.tv/engine nowupload.net/nowdownload"
 
 for url_redir in $urls_redir; do
     if [ "$url_in" != "${url_in//$url_redir}" ]; then
