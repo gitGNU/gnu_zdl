@@ -49,7 +49,7 @@ source $path_usr/ui/ui.sh
 args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
 
-if [ "${args[*]}" == "${args[*]//--silent}" ]; then
+if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ -d "${args[$i]}" ]; then
 	    cd "${args[$i]}"
