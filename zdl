@@ -46,6 +46,21 @@ source $path_usr/ui/widgets.sh
 source $path_usr/ui/ui.sh
 
 
+args=( "$@" )
+max_args=$(( ${#args[*]}-1 ))
+
+if [ "${args[*]}" == "${args[*]//--silent}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ -d "${args[$i]}" ]; then
+	    cd "${args[$i]}"
+	    unset args[$i]
+	    break
+	fi
+    done
+fi
+
+
+
 #### MAIN
 init
 
@@ -53,8 +68,6 @@ init
 get_conf
 
 
-args=( "$@" )
-max_args=$(( ${#args[*]}-1 ))
 
 if [ "${args[*]}" != "${args[*]//--silent}" ]; then
     for i in `seq 0 $max_args`; do
