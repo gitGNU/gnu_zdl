@@ -114,6 +114,10 @@ function _log {
 		unset from_loop url_in file_in url_in_file
 	    fi
 	    ;;
+	12)
+	    echo
+	    print_c 3  "\n$2 --> Non è un URL compatibile per $name_prog" | tee -a $file_log
+	    ;;
     esac
     
 }

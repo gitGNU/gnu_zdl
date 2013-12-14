@@ -297,11 +297,17 @@ function links_loop { 	## usage with op=+|- : links_loop $op $link
 	fi
 	touch "$path_tmp/rewriting"
     fi
+
     if [ ! -z "$url_loop" ]; then
 	case $op in
-	    +)	
-		echo "$url_loop" >> "$path_tmp"/links_loop.txt
-		rm -f "$path_tmp/rewriting"
+	    +)
+		link_parser "$url_loop"
+		if [ "$?" == 1 ]; then
+		    echo "$url_loop" >> "$path_tmp"/links_loop.txt
+		    rm -f "$path_tmp/rewriting"
+		else
+		    _log 12
+		fi
 		;;
 	    -)
 		if [ -f "$path_tmp/links_loop.txt" ]; then
@@ -360,3 +366,43 @@ function init_links_loop {
 }
 
 
+function link_parser {
+    local _domain userpass ext item param
+    param="$1"
+    # extract the protocol
+    parser_proto=$(echo "$param" | grep '://' | sed -e's,^\(.*://\).*,\1,g' 2>/dev/null)
+
+    # remove the protocol
+    parser_url=$(echo "$param" | sed -e s,$parser_proto,,g 2>/dev/null)
+
+    # extract domain
+    _domain="${parser_url#*'@'}"
+    _domain="${_domain%%\/*}"
+    [ "${_domain}" != "${_domain#*:}" ] && parser_port="${_domain#*:}"
+    _domain="${_domain%:*}"
+
+    if [ ! -z "${_domain//[0-9.]}" ]; then
+	ext="${_domain%'.'*}"
+	[ "${_domain}" != "${_domain%'.'*}" ] && parser_domain="${_domain}"
+    else 
+	parser_ip="${_domain}"
+    fi
+
+    # extract the user and password (if any)
+    userpass=`echo "$parser_url" | grep @ | cut -d@ -f1`
+    parser_pass=`echo "$userpass" | grep : | cut -d: -f2`
+    if [ -n "$pass" ]; then
+	parser_user=`echo $userpass | grep : | cut -d: -f1 `
+    else
+	parser_user="$userpass"
+    fi
+
+    # extract the path (if any)
+    parser_path="$(echo $parser_url | grep / | cut -d/ -f2-)"
+
+    if [ "${parser_proto}" != "${parser_proto//ftp}" ] || [ "${parser_proto}" != "${parser_proto//http}" ]; then
+	if ( [ ! -z "$parser_domain" ] || [ ! -z "$parser_ip" ] ) && [ ! -z "$parser_path" ]; then
+	    return 1
+	fi
+    fi
+}

@@ -397,14 +397,19 @@ done
 
 if [ ! -z "${args[*]}" ]; then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
-    while true; do
 	for i in `seq 0 $max_args`; do
 	    if [ -f "${args[$i]}" ]; then
 		links=`cat "${args[$i]}"` 
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    elif [ ! -z "${args[$i]}" ]; then
-		echo -e "${args[$i]// /%20}" >> "$path_tmp"/links_loop.txt
-		links="${links}\n${args[$i]// /%20}"
+		args[$i]="${args[$i]// /%20}"
+		link_parser "${args[$i]}"
+		if [ "$?" == 1 ]; then
+		    echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
+		    links="${links}\n${args[$i]}"
+		else
+		    print_c 3  "\n${args[$i]} --> Non è un URL compatibile per $name_prog" | tee -a $file_log
+		fi
 	    fi
 	done
 	if [ -f "$path_tmp"/links_loop.txt ];then 
@@ -414,9 +419,7 @@ if [ ! -z "${args[*]}" ]; then
 	    date >> links.txt 2>/dev/null
 	    cat "$path_tmp"/links_loop.txt >> links.txt 2>/dev/null
 	    print_c 1 "L'elenco completo dei link è in links.txt"
-	    break
 	fi
-    done
 fi
 
 ###########################################
@@ -539,7 +542,13 @@ while true; do
 
 	links_in=`cat $file`
 	for url_in in $links_in; do
-
+	    link_parser "${url_in}"
+	    if [ "$?" != 1 ]; then
+		links_loop - "$url_in"
+		_log 12 "$url_in"
+		unset "$url_in"
+		break
+	    fi
 	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
 	    unset pid_in checked file_in url_in_file
 	    check_in_url
