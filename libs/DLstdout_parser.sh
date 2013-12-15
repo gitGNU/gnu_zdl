@@ -123,10 +123,9 @@ function data_stdout {
 			file_out[$i]="$file_o"
 		    fi
 		    
-		    length_out[$i]=`cat "$file_stdout"  |grep 'File size'` #2>/dev/null
+		    length_out[$i]=`cat "$file_stdout" 2>/dev/null |grep 'File size'` 
 		    length_out[$i]="${length_out[$i]#*File size: }"
 		    length_out[$i]="${length_out[$i]%% *}"
-		    
 		    unset speed	
 		    percent=`echo "$progress_data" | awk '{ print($1) }'`
 		    speed=`echo "$progress_data" | awk '{ print($2) }'`
@@ -145,6 +144,10 @@ function data_stdout {
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
 			yellow_num_percent[$i]=${num_percent[$i]}
+		    elif [ -f "${file_out[$i]}" ];then
+			num_percent[$i]=${yellow_num_percent[$i]}
+		    else
+			num_percent[$i]=0
 		    fi
 		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]}" ]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))

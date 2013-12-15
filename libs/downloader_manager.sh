@@ -112,7 +112,6 @@ function download {
 	fi
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
-	
     elif [ "$downloader_in" = "Wget" ]; then
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    COOKIES="$path_tmp/cookies.zdl"
@@ -229,18 +228,18 @@ function check_in_file { 	## return --> no_download=1 --> download=5
 
 				    [ ! -z "$url_in_file" ] && return 5
 				else
-
 				    no_newip=true
-				    
 				fi
 			    elif [ "$downloader_in" = "Axel" ]; then
 				if [ -f "${file_in}.st" ]; then 
 				    unset no_newip
-
 				    [ ! -z "$url_in_file" ] && return 5
 				else
-
-				    no_newip=true
+				    ## rinomina degli omonimi se esiste il file tmp dell'altro (solo Axel)
+				    file_in="${file_in}__BIS__${url_in//\//_}"
+				    return 5
+                                    ### versione senza rinomina degli omonimi:
+				    ## no_newip=true
 				fi
 			    fi
 			fi
@@ -254,10 +253,20 @@ function check_in_file { 	## return --> no_download=1 --> download=5
 	    
 	elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
 
+	    data_stdout
+	    if [ $? == 1 ]; then
+		for ((i=0; i<${#pid_out[$i]}; i++)); do
+		    if [ "$file_in" == "${file_out[$i]}" ] && [ "$url_in" != "${url_out[$i]}" ]; then
+			    ## rinomina degli omonimi se esiste il file tmp dell'altro (solo Axel)
+			    file_in="${file_in}__BIS__${url_in//\//_}"
+			    ### versione senza rinomina degli omonimi (sovrascrive):
+			    ## rm "$file_in" "${file_in}.st"
+		    fi
+		done    
+	    fi
 	    return 5
-	    unset no_newip
+#	    unset no_newip
 	fi
-	
     fi
     return 1
 }

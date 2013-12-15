@@ -103,8 +103,6 @@ function interactive {
 		if [ ! -z "$input" ]; then
 		    unset inputs
 		    inputs=( $input )
-		    #last_out=$(( ${#pid_out[*]}-1 ))
-		    options=`seq 0 $last_out`
 		    echo
 		    header_box "Riavvia o Elimina"
 		    print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
@@ -119,7 +117,9 @@ function interactive {
 <${BBlue} * ${Color_Off}> per tornare alla schermata principale\n"
 		    print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
 		    read input2
-		    
+		    if [ -f "$path_tmp"/links_loop.txt ]; then
+			clean_file "$path_tmp"/links_loop.txt
+		    fi		    
 		    if [ "$input2" == "r" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
@@ -131,6 +131,7 @@ function interactive {
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+
 			    links_loop - "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "t" ]; then
@@ -200,6 +201,7 @@ function make_progress {
     if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 	check_pid ${pid_out[$i]}
 	if [ $? != 1 ]; then
+
 	    if [ "${downloader_out[$i]}" == "Wget" ]; then
 		progress="Download non attivo"
 	    fi
@@ -218,16 +220,11 @@ function make_progress {
 	    speed="${num_speed[$i]}${type_speed[$i]}"
 	    eta="${eta[$i]}"
 	fi
-    else
+    else 
 	diff_bar_color="${BYellow}"
 	bar_color="${On_Yellow}"
 	speed="${diff_bar_color}attendi...${Color_Off}"
 	eta=""
-	if [ ! -z "${yellow_num_percent[$i]}" ]; then
-	    num_percent[$i]="${yellow_num_percent[$i]}"
-	else
-	    num_percent[$i]=0
-	fi
     fi		    
 
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
@@ -255,6 +252,7 @@ function sleeping {
     timer=$1
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
 	read -t $timer -n 1 action 2>/dev/null
+	echo -n -e "\r \r"
 	case $action in
 	    q) exit ;;
 	    i) zdl -i
