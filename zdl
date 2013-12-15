@@ -650,7 +650,7 @@ while true; do
 		    fi
 		    
 		fi
-		if [ "$url_in_file" == "${url_in_file//nowvideo.}" ]; then
+		if [ "$url_in_file" != "${url_in_file//nowvideo.}" ]; then
 		    axel_parts=8
 		fi
 
@@ -671,7 +671,7 @@ while true; do
 		    unset break_loop
 		    break
 		fi
-		
+
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
 		    unset test_in
