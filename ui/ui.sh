@@ -197,11 +197,6 @@ function show_downloads {
 function make_progress {
     unset progress
     size_bar=0
-    if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
-	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
-	
-    fi
-    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
     if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 	check_pid ${pid_out[$i]}
 	if [ $? != 1 ]; then
@@ -228,9 +223,17 @@ function make_progress {
 	bar_color="${On_Yellow}"
 	speed="${diff_bar_color}attendi...${Color_Off}"
 	eta=""
-	num_percent[$i]=0
+	if [ ! -z "${yellow_num_percent[$i]}" ]; then
+	    num_percent[$i]="${yellow_num_percent[$i]}"
+	else
+	    num_percent[$i]=0
+	fi
     fi		    
-    
+
+    if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
+	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
+    fi
+    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
     unset bar diff_bar
     for column in `seq 1 $size_bar`; do
 	bar="${bar_color}${bar} " 
@@ -251,7 +254,7 @@ function make_progress {
 function sleeping {
     timer=$1
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
-	read -t $timer -n 1 action
+	read -t $timer -n 1 action 2>/dev/null
 	case $action in
 	    q) exit ;;
 	    i) zdl -i

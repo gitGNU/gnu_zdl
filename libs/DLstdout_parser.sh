@@ -123,13 +123,13 @@ function data_stdout {
 			file_out[$i]="$file_o"
 		    fi
 		    
-		    length_out[$i]=`cat "$file_stdout" 2>/dev/null |grep 'File size'`
+		    length_out[$i]=`cat "$file_stdout"  |grep 'File size'` #2>/dev/null
 		    length_out[$i]="${length_out[$i]#*File size: }"
 		    length_out[$i]="${length_out[$i]%% *}"
 		    
 		    unset speed	
-		    percent=`echo $progress_data | awk '{ print($1) }'`
-		    speed=`echo $progress_data | awk '{ print($2) }'`
+		    percent=`echo "$progress_data" | awk '{ print($1) }'`
+		    speed=`echo "$progress_data" | awk '{ print($2) }'`
 		    type_speed[$i]="${speed//[0-9.,]}"
 		    num_speed[$i]="${speed//${type_speed[$i]}}"
 		    if [ -z "${num_speed[$i]//[0-9,.]}" ] && [ ! -z "${num_speed[$i]//.}" ]; then
@@ -141,23 +141,26 @@ function data_stdout {
 			KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
 			MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
-		    if [ ! -z "${num_speed[$i]}" ] && [ ! -z "${length_out[$i]}" ] && [ ! -z "${percent}" ]; then
+		    if [ ! -z "${percent}" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
+			yellow_num_percent[$i]=${num_percent[$i]}
+		    fi
+		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]}" ]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
+		    fi
+		    if [ ! -z "${num_speed[$i]}" ] && [ ${num_speed[$i]} != 0 ]; then
 			unset seconds minutes hours
-			[ ${num_speed[$i]} != 0 ] && seconds=$(( $diff_length/${num_speed[$i]} ))
-			
-			if [ ! -z "$seconds" ]; then
-			    minutes=$(( $seconds/60 ))
-			    hours=$(( $minutes/60 ))
-			    minutes=$(( $minutes-($hours*60) ))
-			    eta[$i]="${hours}h${minutes}m"
-			else
-			    eta[$i]=""
-			fi
-			
+			seconds=$(( $diff_length/${num_speed[$i]} ))
+		    fi
+		    if [ ! -z "$seconds" ]; then
+			minutes=$(( $seconds/60 ))
+			hours=$(( $minutes/60 ))
+			minutes=$(( $minutes-($hours*60) ))
+			eta[$i]="${hours}h${minutes}m"
+		    else
+			eta[$i]=""
 		    fi
 		fi
 		length_saved[$i]=0
