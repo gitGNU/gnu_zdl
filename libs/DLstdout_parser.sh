@@ -332,6 +332,7 @@ function pipe_files {
 	    else
 		denum=100
 	    fi
+	    [ -z ${num_percent[$i]} ] && num_percent[$i]=0
 	    length_down=$(( ${length_out[$i]}*${num_percent[$i]}/$denum ))
 	    case ${type_speed[$i]} in
 		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;

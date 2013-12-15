@@ -252,7 +252,7 @@ function sleeping {
     timer=$1
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
 	read -t $timer -n 1 action 2>/dev/null
-	echo -n -e "\r \r"
+	[ ! -z "${action//[0-9]}" ] && echo -n -e "\r \r"
 	case $action in
 	    q) exit ;;
 	    i) zdl -i
