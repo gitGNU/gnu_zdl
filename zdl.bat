@@ -24,23 +24,12 @@
 
 
 @echo off
-set opts="%1"
 
-if "%opts%" == "--stream" (
-	set url=%2
-	set fname="%3"
-	set folder="%4"
-	set cfile="%5"
-	set cookie=%6
-	set referer=%7
-
-	start \cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,60 -e \cygwin\bin\bash.exe --login -i -c 'zdl --stream %url% "%fname%" "%folder%" %cfile% %cookie% %referer%'
-
-    ) else (
-
-	start \cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,60 -e \cygwin\bin\bash.exe --login -i -c 'zdl "%opts%"'
-
-    )
+if "%~1" == "--stream" (
+	start \cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e \cygwin\bin\bash.exe --login -i -c 'zdl --stream "%~2" "%~3" "%~4" "%~5" "%~6" "%~7"'
+) else (
+	start \cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e \cygwin\bin\bash.exe --login -i -c 'zdl "%~1"'
+)
 
 
 
