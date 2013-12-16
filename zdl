@@ -650,10 +650,6 @@ while true; do
 		    fi
 		    
 		fi
-		if [ "$url_in_file" != "${url_in_file//nowvideo.}" ]; then
-		    axel_parts=8
-		fi
-
 		
 		file_in="${file_in// /_}"
 		file_in="${file_in//\'/_}"
