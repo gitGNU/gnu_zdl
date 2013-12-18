@@ -68,7 +68,7 @@ function init_colors {
     On_Black='\e[40m'       # Nero
     On_Red='\e[41m'         # Rosso
     On_Green='\e[42m'       # Verde
-    On_Yellow='\e[5;43m'      # Giallo
+    On_Yellow='\e[43m'      # Giallo
     On_Blue='\e[44m'        # Blu
     On_Purple='\e[45m'      # Purple
     On_Cyan='\e[46m'        # Ciano
@@ -128,7 +128,7 @@ function separator {
     if [ -z "$COLUMNS" ]; then 
 	COLUMNS=50
     fi
-    echo -n -e "${BBlue}"
+    echo -n -e "${Color_Off}${BBlue}"
     for column in `seq 1 $COLUMNS`; do echo -n -e "$1" ; done #\e[1;34m
     echo -n -e "${Color_Off}"
 }

@@ -225,6 +225,7 @@ function make_progress {
 	bar_color="${On_Yellow}"
 	speed="${diff_bar_color}attendi...${Color_Off}"
 	eta=""
+	[ -z "${num_percent[$i]}" ] && num_percent[$i]=0
     fi		    
 
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
