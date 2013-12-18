@@ -68,7 +68,7 @@ function init_colors {
     On_Black='\e[40m'       # Nero
     On_Red='\e[41m'         # Rosso
     On_Green='\e[42m'       # Verde
-    On_Yellow='\e[43m'      # Giallo
+    On_Yellow='\e[5;43m'      # Giallo
     On_Blue='\e[44m'        # Blu
     On_Purple='\e[45m'      # Purple
     On_Cyan='\e[46m'        # Ciano
