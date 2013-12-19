@@ -198,18 +198,17 @@ function show_downloads {
 function make_progress {
     unset progress
     size_bar=0
-    if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
-	check_pid ${pid_out[$i]}
-	if [ $? != 1 ]; then
-
-	    if [ "${downloader_out[$i]}" == "Wget" ]; then
-		progress="Download non attivo"
-	    fi
-	    diff_bar_color="${BRed}"
-	    bar_color="${On_Red}"
-	    speed="${diff_bar_color}non attivo${Color_Off}"
-	    eta=""
-	else
+    check_pid ${pid_out[$i]}
+    if [ $? != 1 ]; then
+	if [ "${downloader_out[$i]}" == "Wget" ]; then
+	    progress="Download non attivo"
+	fi
+	diff_bar_color="${BRed}"
+	bar_color="${On_Red}"
+	speed="${diff_bar_color}non attivo${Color_Off}"
+	eta=""
+    else
+	if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 	    diff_bar_color="${BGreen}"
 	    bar_color="${On_Green}"
 	    case ${type_speed[$i]} in
@@ -219,15 +218,15 @@ function make_progress {
 
 	    speed="${num_speed[$i]}${type_speed[$i]}"
 	    eta="${eta[$i]}"
-	fi
-    else 
-	diff_bar_color="${BYellow}"
-	bar_color="${On_Yellow}"
-	speed="${diff_bar_color}attendi...${Color_Off}"
-	eta=""
-	[ -z "${num_percent[$i]}" ] && num_percent[$i]=0
-    fi		    
 
+	else 
+	    diff_bar_color="${BYellow}"
+	    bar_color="${On_Yellow}"
+	    speed="${diff_bar_color}attendi...${Color_Off}"
+	    eta=""
+	    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
+	fi		    
+    fi
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
 	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
     fi
