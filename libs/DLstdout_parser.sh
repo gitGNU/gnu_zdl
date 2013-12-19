@@ -127,7 +127,6 @@ function data_stdout {
 		    length_out[$i]="${length_out[$i]#*File size: }"
 		    length_out[$i]="${length_out[$i]%% *}"
 		    unset speed	
-		    percent=`echo "$progress_data" | awk '{ print($1) }'`
 		    speed=`echo "$progress_data" | awk '{ print($2) }'`
 		    type_speed[$i]="${speed//[0-9.,]}"
 		    num_speed[$i]="${speed//${type_speed[$i]}}"
@@ -140,6 +139,8 @@ function data_stdout {
 			KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
 			MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
+		    unset percent
+		    percent=`echo "$progress_data" | awk '{ print($1) }'`
 		    if [ ! -z "${percent}" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
