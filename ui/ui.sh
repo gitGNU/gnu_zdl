@@ -224,9 +224,9 @@ function make_progress {
 	    bar_color="${On_Yellow}"
 	    speed="${diff_bar_color}attendi...${Color_Off}"
 	    eta=""
-	    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
 	fi		    
     fi
+    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
 	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
     fi
