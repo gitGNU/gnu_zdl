@@ -211,14 +211,8 @@ function make_progress {
 	if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 	    diff_bar_color="${BGreen}"
 	    bar_color="${On_Green}"
-	    case ${type_speed[$i]} in
-		KB/s) num_speed[$i]=$(( ${num_speed[$i]} / 1024 )) ;;
-		MB/s) num_speed[$i]=$(( ${num_speed[$i]} / (1024 * 1024) )) ;;
-	    esac
-
 	    speed="${num_speed[$i]}${type_speed[$i]}"
 	    eta="${eta[$i]}"
-
 	else 
 	    diff_bar_color="${BYellow}"
 	    bar_color="${On_Yellow}"
@@ -226,7 +220,7 @@ function make_progress {
 	    eta=""
 	fi		    
     fi
-    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
+    [ -z "${num_percent[$i]//.}" ] && num_percent[$i]=0
     if [ ! -z "${num_percent[$i]//.}" ] && [ -z "${num_percent[$i]//[0-9.]}" ];then
 	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
     fi
