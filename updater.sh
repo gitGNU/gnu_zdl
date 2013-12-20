@@ -34,33 +34,28 @@ function update_zdl-wise {
 }
 
 
-function update_zdl-conkeror {
+function install_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-    if [ -e /cygdrive ] && [ -d "${win_progfiles}/conkeror/modules/" ]; then
-	module_target="${win_progfiles}/conkeror/modules/conkerorrc.zdl"
-	rc_target="${win_home}/.conkerorrc"
-	require_target="conkerorrc.zdl"
-	cp "$SHARE/extensions/conkerorrc.zdl" "$module_target"
-    else  #if [ -e "$(which conkeror 2>/dev/null )" ]; then
-	module_target="$SHARE/extensions/conkerorrc.zdl"
-	rc_target="$HOME/.conkerorrc"
-	require_target="$module_target"
+    if [ -e /cygdrive ]; then
+	rc_path="${win_home}/.conkerorrc"
+    else
+	rc_path="$HOME/.conkerorrc"
     fi
-    if [ ! -z "$rc_target" ]; then
-	touch "$rc_target"
-	text_conkerorrc=$(cat "$rc_target")
-	if [ "$text_conkerorrc" != "${text_conkerorrc//$path_conf\/conkerorrc.zdl}" ]; then
-	    cp "$rc_target" "${rc_target}.old"
-	    echo "${text_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}" > "$rc_target"
-	fi
-	test=$(cat "$rc_target"|grep "$require_target" |tail -n 1)
-	test2=$(echo "${test#*'//'}" |grep "$require_target")
-	if [ -z "$test" ]; then
-	    echo -e "\n// ZigzagDownLoader\nrequire(\"$require_target\");" >> "$rc_target"
-	elif [ "$test" != "$test2" ] && [ ! -z "$test2" ]; then
-	    bold "\nLa funzione ZDL di Conkeror è stata disattivata dall'utente nel file \"$rc_target\": per riattivarla, cancella i simboli di commento \"\\\\\""
-	fi
+    if [ -f "$rc_path" ]; then
+	mv "$rc_path" conkerorrc.js
+	mkdir -p "$rc_path"
+	code_conkerorrc="$(cat conkerorrc.js)"
+	code_conkerorrc="${code_conkerorrc//require(\"conkerorrc.zdl\");}"
+	code_conkerorrc="${code_conkerorrc//require(\"$path_conf\/conkerorrc.zdl\");}"
+	code_conkerorrc="${code_conkerorrc//require(\"$SHARE\/extensions\/conkerorrc.zdl\");}"
+	code_conkerorrc="${code_conkerorrc//\/\/ ZigzagDownLoader}"
+	echo "${code_conkerorrc}" > "$rc_path"/conkerorrc.js
+    else
+	mkdir -p "$rc_path"
     fi
+    code_zdlmod="$(cat $SHARE/extensions/conkerorrc.zdl)"
+    code_zdlmod="${code_zdlmod//'{{{CYGDRIVE}}}'/$cygdrive}"
+    echo "${code_zdlmod}" > "$rc_path"/zdl.js
 }
 
 
@@ -89,8 +84,12 @@ function update {
 	win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
 	win_progfiles=$(cygpath -u "$PROGRAMFILES")
     fi 
+    cygdrive=$(realpath /cygdrive/?/cygwin 2>/dev/null)
+    [ -z "$cygdrive" ] && cygdrive=$(realpath /cygdrive/?/Cygwin 2>/dev/null)
+    cygdrive="${cygdrive#*cygdrive\/}"
+    cygdrive="${cygdrive%%\/*}"
+    [ -z "$cygdrive" ] && cygdrive="C"    
 
-    
     header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
 
     rm -fr "$path_tmp"/*.gz "$path_tmp"/*.sig "$prog"
@@ -118,7 +117,11 @@ function update {
 	try mv zdl zdl-xterm $BIN
 	[ "$?" != 0 ] && return
 
-	[ -e /cygdrive ] && ( mv ${prog}.bat / ) && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
+	if [ -e /cygdrive ]; then
+	    code_batch=$(cat $SHARE/zdl.bat)
+	    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
+	fi
+
 	cd ..
 
 	print_c 1 "Aggiornamento automatico in $SHARE/$prog"

@@ -68,7 +68,7 @@ catch(e) {
 }
 
 if (isWin) {
-    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "\\cygwin\\zdl.bat");
+    zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "{{{CYGDRIVE}}}:\\cygwin\\zdl.bat");
 } else {
     zdl_on_url("zdl", "Scarica da un link con ZigzagDownLoader", "zdl");
 }
