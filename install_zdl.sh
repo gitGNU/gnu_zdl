@@ -210,8 +210,7 @@ function install_zdl-conkeror {
 	mkdir -p "$rc_path"
     fi
     code_zdlmod="$(cat $SHARE/extensions/conkerorrc.zdl)"
-    code_zdlmod="${code_zdlmod//'{{{CYGDRIVE}}}'/$cygdrive}"
-    echo "${code_zdlmod}" > "$rc_path"/zdl.js
+    echo "${code_zdlmod//'{{{CYGDRIVE}}}'/$cygdrive}" > "$rc_path"/zdl.js
 }
 
 function try {

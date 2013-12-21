@@ -34,7 +34,7 @@ function update_zdl-wise {
 }
 
 
-function install_zdl-conkeror {
+function update_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
     if [ -e /cygdrive ]; then
 	rc_path="${win_home}/.conkerorrc"
@@ -54,8 +54,7 @@ function install_zdl-conkeror {
 	mkdir -p "$rc_path"
     fi
     code_zdlmod="$(cat $SHARE/extensions/conkerorrc.zdl)"
-    code_zdlmod="${code_zdlmod//'{{{CYGDRIVE}}}'/$cygdrive}"
-    echo "${code_zdlmod}" > "$rc_path"/zdl.js
+    echo "${code_zdlmod//'{{{CYGDRIVE}}}'/$cygdrive}" > "$rc_path"/zdl.js
 }
 
 
