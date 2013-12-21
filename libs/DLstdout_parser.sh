@@ -154,9 +154,15 @@ function data_stdout {
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
 		    fi
-		    if [ ! -z "${num_speed[$i]}" ] && [ ${num_speed[$i]} != 0 ]; then
+		    unset numspeed
+		    case ${type_speed[$i]} in
+			KB/s) numspeed=$(( ${num_speed[$i]} * 1024 )) ;;
+			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
+		    esac
+
+		    if [ ! -z "${numspeed}" ] && [ ${numspeed} != 0 ]; then
 			unset seconds minutes hours
-			seconds=$(( $diff_length/${num_speed[$i]} ))
+			seconds=$(( $diff_length/${numspeed} ))
 		    fi
 		    if [ ! -z "$seconds" ]; then
 			minutes=$(( $seconds/60 ))
