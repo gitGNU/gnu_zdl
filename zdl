@@ -252,9 +252,13 @@ header_z
 
 
 
-
-
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
+	    unset args[$i]
+	    rm "$path_conf"/*.sig
+	fi
+    done
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 	    unset args[$i]
@@ -262,6 +266,12 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
 	fi
     done
 elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
+	    unset args[$i]
+	    rm "$path_conf"/*.sig
+	fi
+    done
     update
 fi
 

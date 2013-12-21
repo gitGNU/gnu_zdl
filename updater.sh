@@ -73,7 +73,7 @@ function update {
     PROG=ZigzagDownLoader
     prog=zdl
     BIN="/usr/local/bin"
-    SHARE="/usr/local/share"
+    SHARE="/usr/local/share/zdl"
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
     axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
     success="Aggiornamento completato"
@@ -125,7 +125,7 @@ function update {
 
 	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
 	[ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
-	try rm -rf "$SHARE/$prog"
+	try rm -rf "$SHARE"
 	try cp -r "$prog" "$SHARE"
 
 	update_zdl-conkeror
