@@ -58,14 +58,14 @@ function set_default_conf {
     fi
     
     add_conf "skin=color"
-    add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel)"
+    add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel) or NUMBER OF SIMULTANEUS DOWNLOADS"
     add_conf "mode=single"
-    add_conf "stream_mode=multi"
+    add_conf "stream_mode=single"
+    add_conf "num_multi="
     add_conf "# modem router credentials"
     add_conf "admin="
     add_conf "passwd="
     add_conf "language=$LANG"
-    add_conf "flashgot=enabled"
     add_conf "autoupdate=enabled"
 }
 
@@ -106,58 +106,6 @@ function set_item_conf {
     fi
 }
 
-function get_conf_old {
-    if [ -e "/cygdrive" ]; then
-	print_c 1 "Attendi: lettura configurazione..."
-    fi
-    get_item_conf "downloader"
-    downloader_in="$value"
-    if [ -z "$downloader_in" ]; then
-	downloader_in=Axel
-    fi
-    
-    get_item_conf "axel_parts"
-    axel_parts_conf="$value"
-    if [ -z "$axel_parts_conf" ]; then
-	axel_parts_conf=32
-    fi
-	## CYGWIN
-    if [ -e "/cygdrive" ];then
-	if (( $axel_parts_conf>10 )); then
-	    axel_parts_conf=10
-	fi
-    fi
-    axel_parts=$axel_parts_conf
-    
-    get_item_conf "skin"
-    skin="$value"
-    if [ -z "$skin" ]; then
-	skin=color
-    fi
-    
-    get_item_conf "mode"
-    mode="$value"
-    if [ "mode" == "multi" ]; then
-	multi=1
-    else
-	multi=0
-    fi
-    
-    get_item_conf "admin"
-    admin="$value"
-    
-    get_item_conf "passwd"
-    passwd="$value"
-    
-    get_item_conf "language"
-    language="$value"
-    
-    get_item_conf "flashgot"
-    flashgot="$value"
-    
-    get_item_conf "autoupdate"
-    autoupdate="$value"
-}
 
 function get_conf {
     source "$file_conf"
@@ -181,14 +129,19 @@ function get_conf {
     if [ -z "$skin" ]; then
 	skin=color
     fi
-    
-    if [ "mode" == "multi" ]; then
-	multi=1
-    else
-	multi=0
+
+    if [[ ! "$num_multi" =~ [0-9] ]] && [[ ! -z "${num_multi//[0-9]}" ]]; then
+	unset num_multi
     fi
-    
-    if [ "stream_mode" == "multi" ]; then
+
+    if [ "$mode" == single ]; then
+	multi=false
+#	num_multi=1
+    elif [ "$mode" == multi ]; then
+	multi=true
+    fi
+	
+    if [ "$stream_mode" == "multi" ]; then
 	stream_params="-m"
     fi
 }
@@ -331,7 +284,6 @@ function init {
     file_conf="$path_conf/$prog.conf"
     mkdir -p "$path_conf/extensions"
     if [ ! -f "$file_conf" ]; then
-	touch "$path_conf/flashgot_updated"
 	echo "# ZigzagDownLoader configuration file" > "$file_conf"
     fi
     if [ -f "$path_conf/updated" ] || [ ! -f "$file_conf" ]; then
@@ -359,36 +311,28 @@ function init {
     user_lang="$LANG"
     user_language="$LANGUAGE"
     prog_lang='en_US.UTF-8:en'
-
-    max_waiting=40
     
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
-    ## skin dark
-    # echo -n -e "${White}${On_Black}\e[J"
 
-# 	if [ "$flashgot" == "enabled" ];then
-# 		flashgot_autoconf
-# 	else
-# 		restore_ffprefs
-# 	fi
     proxy_server="proxy_list"
     list_proxy_url["ip_adress"]="http://www.ip-adress.com/proxy_list/"
     list_proxy_url["proxy_list"]="http://proxy-list.org/en/index.php"
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
-    sleeping_pause=5
+    if [ -e /cygdrive ]; then
+	sleeping_pause=3
+    else
+	sleeping_pause=5
+    fi
 
+    ## massima durata tentativi di connessione (Wget)
+    max_waiting=40
+    
     ## per determinare se lo stdin è una pipe (disattivare l'interazione della funzione sleeping)
     stdin="$(ls -l /dev/fd/0)"
     stdin="${stdin/*-> /}"
-    #ftype="$(stat --printf=%F $stdin)"
-    # if   [[ "$ftype" == 'character special file' ]]; then
-	# echo Terminal
     if [ "${stdin}" != "${stdin//'pipe:['}" ]; then     # if [[ "$ftype" == 'regular file' ]]; then
-	# echo Pipe: $stdin
 	pipe=true
-    # else
-	# echo Unknown: $stdin
     fi
-    version_ffprefs_new=294
+    get_conf
 }

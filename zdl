@@ -60,13 +60,8 @@ if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//-
 fi
 
 
-
 #### MAIN
 init
-
-## get config data
-get_conf
-
 
 
 if [ "${args[*]}" != "${args[*]//--silent}" ]; then
@@ -280,7 +275,11 @@ if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
 	    unset args[$i]
-	    multi=1
+	    multi=true
+	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]; then
+		num_multi="${args[$(( $i+1 ))]}"
+		unset args[$(( $i+1 ))]
+	    fi
 	fi
     done
 fi
@@ -562,7 +561,6 @@ while true; do
 	file="$path_tmp/links_loop.txt"
 	sleeping 5
     elif [ -f "$file" ]; then
-
 	links_in=`cat $file`
 	for url_in in $links_in; do
 	    link_parser "${url_in}"
@@ -574,8 +572,9 @@ while true; do
 	    fi
 	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
 	    unset pid_in checked file_in url_in_file
+
 	    check_in_url
-	    if [ $? != 1 ];then
+	    if [ $? != 1 ]; then
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -712,26 +711,24 @@ while true; do
 		newip_add_provider
 		from_loop=true
 		[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
-		unset checked
 		noproxy
-
-		if [ "$multi" == "1" ]; then
-		    check_stdout
-		    show_downloads
+		check_stdout
+		show_downloads
+		unset checked
+		if [ "$multi" == "true" ] && ( [ -z "$num_multi" ] || (( $counter_downloading < $num_multi )) ); then
 		    checked=1
 		fi
-		while [ "$checked" != "1" ]; do #file_in
-		    check_stdout
-		    show_downloads
+		while [ "$checked" != "1" ]; do 
+		    pipe_files
 		    check_pid $pid_in
 		    test_pid=$?
-		    
 		    links_loop "in" "$url_in"
 		    test_loop_in=$?
-		    if [ $test_loop_in != 1 ] || [ $test_pid != 1 ]; then 
-			checked=1
+		    if [ $test_loop_in != 1 ] || [ $test_pid != 1 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
+			break
 		    fi
-		    pipe_files
+		    check_stdout
+		    show_downloads
 		done
 		
 		unset checked

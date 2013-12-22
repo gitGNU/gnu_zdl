@@ -45,9 +45,7 @@ function configure {
 		show_conf
 		print_c 2 "Seleziona l'elemento predefinito da modificare (1-10 | *):"
 		read opt
-		test_item=`echo "$opt"|grep [1-9]`
-		test_item="${test_item// }"
-		if [ ! -z "$test_item" ]; then # && [ "${#test_item}" == "1" ]; then
+		if [[ "$opt" =~ [0-9] ]] && [[ -z "${opt//[0-9]}" ]] && (( $opt > 0 )) && (( $opt < 11 )); then 
 		    (( opt-- ))
 		    print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
 		    if [ "${item_options[$opt]}" == "passwd" ]; then
@@ -77,19 +75,19 @@ function show_conf {
     echo -e " 2)\tNumero di parti in download parallelo per Axel: $axel_parts"
     echo -e " 3)\tModalità di download predefinita (single|multi): $mode"
     echo -e " 4)\tModalità di download predefinita per lo stream dal browser (single|multi): $stream_mode"
-    echo -e " 5)\tAspetto (color): $skin"
-    echo -e " 6)\tLingua: $language"
-    echo -e " 7)\tNome utente del modem-router: $admin"
+    echo -e " 5)\tNumero massimo di download simultanei: $num_multi"
+    echo -e " 6)\tAspetto (color): $skin"
+    echo -e " 7)\tLingua: $language"
+    echo -e " 8)\tNome utente del modem-router: $admin"
     unset p
     for i in `seq 1 ${#passwd}`; do
 	p="${p}*"
     done 
-    echo -e " 8)\tPassword del modem-router: $p"
-    echo -e " 9)\tUso di Flashgot per Firefox (enabled|*): $flashgot"
+    echo -e " 9)\tPassword del modem-router: $p"
     echo -e "10)\tAggiornamenti automatici di $PROG (enabled|*): $autoupdate"
     echo
 
-    item_options=( downloader axel_parts mode stream_mode skin language admin passwd flashgot autoupdate )
+    item_options=( downloader axel_parts mode stream_mode num_multi skin language admin passwd autoupdate )
 }
 
 function show_accounts {

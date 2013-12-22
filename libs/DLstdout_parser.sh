@@ -35,6 +35,7 @@ function data_stdout {
     if [ ! -z "$list" ]; then
 	export LANG="$prog_lang"
 	export LANGUAGE="$prog_lang"
+	counter_downloading=0
 	i=0
 	for item in $list; do
 	    
@@ -173,6 +174,10 @@ function data_stdout {
 			eta[$i]=""
 		    fi
 		fi
+		check_pid ${pid_out[$i]}
+		if [ $? == 1 ]; then
+		    (( counter_downloading++ ))
+		fi
 		length_saved[$i]=0
 		[ -f "${file_out[$i]}" ] && length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
 		(( i++ ))
@@ -230,7 +235,6 @@ function check_download {
 
 
 function check_stdout {
-    unset checked
     data_stdout
     if [ $? == 1 ]; then
 	last_stdout=$(( ${#pid_out[*]}-1 ))
