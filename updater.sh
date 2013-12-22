@@ -118,7 +118,7 @@ function update {
 
 	if [ -e /cygdrive ]; then
 	    code_batch=$(cat $SHARE/zdl.bat)
-	    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
+	    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
 	fi
 
 	cd ..
