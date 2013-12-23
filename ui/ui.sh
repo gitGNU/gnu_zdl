@@ -36,7 +36,7 @@ function show_downloads_extended {
     if [ $? == 1 ]; then
 	last_out=$(( ${#pid_out[*]}-1 ))
 	for i in `seq 0 $last_out`; do
-	    human_length ${length_out[$i]} # --> $length_H
+	    human_length ${length_out[$i]} ## --> $length_H
 	    
 	    header_dl "Numero download: $i"
 	    check_pid ${pid_out[$i]}
@@ -117,9 +117,6 @@ function interactive {
 <${BBlue} * ${Color_Off}> per tornare alla schermata principale\n"
 		    print_c 2 "Scegli cosa fare: ( r | e | t | c | * ):"
 		    read input2
-		    if [ -f "$path_tmp"/links_loop.txt ]; then
-			clean_file "$path_tmp"/links_loop.txt
-		    fi		    
 		    if [ "$input2" == "r" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
@@ -178,7 +175,7 @@ function show_downloads {
 		    make_progress
 		    print_c "" "${diff_bar_color} ${downloader_out[$i]}: ${progress}"
 		    ii=$(( $i+1 ))
-		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then # && [ "$multi" == "1" ]; then
+		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then 
 			separator "─"
 		    fi
 		fi

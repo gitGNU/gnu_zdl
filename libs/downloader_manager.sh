@@ -158,8 +158,11 @@ function check_in_url { 	## return --> no_download=1
 	if [ -z "$file_in" ]; then
 	    data_stdout
 	    if [ $? == 1 ]; then 
-		last_out=$(( ${#pid_out[*]}-1 ))
-		for i in `seq 0 $last_out`; do
+		if [ "$multi" != true ] && (( $counter_downloading > 0 )) || ( [ ! -z "$num_multi" ] && (( $counter_downloading >= $num_multi )) ); then
+		    return 1
+		fi
+		
+		for ((i=0; i<${#pid_out[*]}; i++)); do
 		    if [ "${url_out[$i]}" == "$url_in" ]; then
 			check_pid ${pid_out[$i]}
 			if [ $? == 1 ]; then
@@ -295,6 +298,8 @@ function check_instance_dl {
 }
 
 
+
+
 function links_loop { 	## usage with op=+|- : links_loop $op $link
     op="$1"             ## operator
     url_loop="$2"       ## url
@@ -312,17 +317,20 @@ function links_loop { 	## usage with op=+|- : links_loop $op $link
 	    +)
 		link_parser "$url_loop"
 		if [ "$?" == 1 ]; then
-		    echo "$url_loop" >> "$path_tmp"/links_loop.txt
-		    rm -f "$path_tmp/rewriting"
+		    links_loop "in" "$url_loop"
+		    if [ "$?" != 1 ]; then
+			echo "$url_loop" >> "$path_tmp"/links_loop.txt
+			rm -f "$path_tmp/rewriting"
+		    fi
 		else
 		    _log 12
 		fi
 		;;
 	    -)
 		if [ -f "$path_tmp/links_loop.txt" ]; then
-		    lnx=`cat "$path_tmp"/links_loop.txt`
-		    for lnk in $lnx; do
-			[ "${url_loop//$lnk}" == "${url_loop}" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
+		    for ((i=1; i<=$(wc -l < "$path_tmp/links_loop.txt"); i++)); do
+			lnk=$(sed -n ${i}p < "$path_tmp/links_loop.txt" )
+			[ "$lnk" != "$url_loop" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
 		    done
 		    rm "$path_tmp"/links_loop.txt
 		    [ -f "$path_tmp/links_loop2.txt" ] && mv "$path_tmp"/links_loop2.txt "$path_tmp"/links_loop.txt
@@ -330,41 +338,33 @@ function links_loop { 	## usage with op=+|- : links_loop $op $link
 		rm -f "$path_tmp/rewriting"
 		;;
 	    in) 
-		lnx=`cat "$path_tmp"/links_loop.txt 2>/dev/null`
-		if [ ! -z "$lnx" ];then
-		    for lnk in $lnx; do
-			if [ "${url_loop//$lnk}" != "${url_loop}" ]; then 
+		if [ -f "$path_tmp"/links_loop.txt ]; then
+		    for ((i=1; i<=$(wc -l < "$path_tmp"/links_loop.txt); i++)); do
+			url_test=$(sed -n ${i}p < "$path_tmp"/links_loop.txt)
+			if [ ! -z "${url_test}" ] && [ "${url_loop}" == "${url_test}" ]; then 
 			    return 1
 			fi
 		    done
-		    return 5
-		else
-		    return 5
 		fi
-		return
+		return 5
 		;;
 	esac
-    fi
-    if [ -f "$path_tmp/links_loop.txt" ]; then
-	clean_file "$path_tmp"/links_loop.txt
     fi
 }
 
 
 function init_links_loop {
     if [ -f $file ]; then
-	urls=`cat $file`
-	for url in $urls; do
-	    links_loop + $url
+	for ((i=1; i<=$(wc -l < "$file"); i++)); do
+	    links_loop + "$(sed -n ${i}p < $file)"
 	done
 	data_stdout
 	if [ $? == 1 ]; then
-	    last_stdout=$(( ${#pid_out[*]}-1 ))
-	    for i in `seq 0 $last_stdout`; do
+	    for ((i=0; i<${#pid_out[*]}; i++)); do 
 		length_saved=0
 		[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
 		if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
-		    links_loop - "${url_out[$i]}"
+		    links_loop - "${url_out[$i]}" 
 		else
 		    links_loop + "${url_out[$i]}"
 		fi
@@ -373,7 +373,6 @@ function init_links_loop {
 	fi
     fi
 }
-
 
 function link_parser {
     local _domain userpass ext item param
@@ -415,3 +414,4 @@ function link_parser {
 	fi
     fi
 }
+

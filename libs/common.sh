@@ -67,19 +67,16 @@ function clean_file {
     touch "$path_tmp/rewriting"
     if [ ! -z "$1" ] && [ -f "$1" ]; then
 	file_to_ck="$1"
-	last_line=`cat "$file_to_ck" |wc -l`
-	for i in `seq 1 $last_line`; do
-	    it=`cat "$file_to_ck" 2>/dev/null |sed -n "${i}p"`
-	    
+	for ((i=1; i<=$(cat "$file_to_ck" |wc -l); i++)); do
+	    it=$(sed -n "${i}p" < "$file_to_ck")
 	    if [ "${items[*]}" == "${items[*]//$it}" ]; then
-		items[${#items[*]}]=$it
+		items[${#items[*]}]="$it"
 	    fi
 	done
 	
 	rm "$file_to_ck"
-	
-	for ij in ${items[*]}; do
-	    [ ! -z "$ij" ] && echo "$ij" >> "$file_to_ck"
+	for ((i=0; i<${#items[*]}; i++)); do
+	    [ ! -z "${items[$i]}" ] && echo "${items[$i]}" >> "$file_to_ck"
 	done
     fi
     rm -f "$path_tmp/rewriting"
