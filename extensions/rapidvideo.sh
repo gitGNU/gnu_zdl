@@ -27,23 +27,26 @@
 
 
 if [ "$url_in" != "${url_in//rapidvideo}" ]; then
-    wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in"
+    # if [ "$url_in" != "${url_in%html}" ]; then
+    # 	links_loop - "$url_in"
+    # 	url_in="${url_in%\/*}"
+    # 	links_loop + "$url_in"
+    # fi
+    wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
     echo -e "...\c"
     URLaction=$(cat "$path_tmp/zdl.tmp"|grep POST)
     URLaction="${URLaction#*\'}"
     URLaction="${URLaction%\'*}"
     tmp="$path_tmp/zdl.tmp"
     input_hidden
-    
-    wget --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" --post-data="${post_data#*&}" "$URLaction" -q
-    unset post_data
+    post_data="${post_data#*&}"
+    wget --load-cookies="$path_tmp"/cookies.zdl --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl2.tmp" --post-data="${post_data}" "$URLaction" -q
+
     url_in_file=$(cat "$path_tmp/zdl2.tmp" | grep "{file:'" )
     url_in_file="${url_in_file#*file:\'}"
     url_in_file="${url_in_file%%\'*}"
-
     ext="${url_in_file##*'.'}"
     file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null | grep "Title>")
     file_in="${file_in#*'Title>'}"
     file_in="${file_in%'</Title'*}.$ext"
-
 fi
