@@ -128,8 +128,8 @@ function interactive {
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-
 			    links_loop - "${url_out[$i]}"
+			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "t" ]; then
 			for i in ${inputs[*]}; do

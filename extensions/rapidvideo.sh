@@ -48,5 +48,6 @@ if [ "$url_in" != "${url_in//rapidvideo}" ]; then
     ext="${url_in_file##*'.'}"
     file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null | grep "Title>")
     file_in="${file_in#*'Title>'}"
+    file_in="${file_in#Watch }"
     file_in="${file_in%'</Title'*}.$ext"
 fi
