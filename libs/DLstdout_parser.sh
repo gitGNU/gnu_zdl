@@ -151,7 +151,7 @@ function data_stdout {
 		    else
 			num_percent[$i]=0
 		    fi
-		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]}" ]; then
+		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
 		    fi
