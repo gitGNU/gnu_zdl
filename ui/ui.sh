@@ -136,6 +136,7 @@ function interactive {
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
+			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "c" ]; then
 			clean_completed
@@ -157,6 +158,22 @@ function interactive {
     done
     echo -e "\e[0m\e[J"
     exit
+}
+
+
+function clean_completed {
+    data_stdout
+    if [ $? == 1 ]; then
+	last_out=$(( ${#pid_out[*]}-1 ))
+	for j in `seq 0 $last_out`; do
+	    length_saved=0
+	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
+	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+		unset "${url_out[$j]}"
+		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+	    fi
+	done
+    fi
 }
 
 

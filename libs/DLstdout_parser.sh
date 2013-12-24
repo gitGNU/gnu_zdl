@@ -161,7 +161,7 @@ function data_stdout {
 			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
 
-		    if [ ! -z "${numspeed}" ] && [ ${numspeed} != 0 ]; then
+		    if [ ! -z "${numspeed}" ] && [ ${numspeed} != 0 ] && [ ! -z "$diff_length" ]; then
 			unset seconds minutes hours
 			seconds=$(( $diff_length/${numspeed} ))
 		    fi

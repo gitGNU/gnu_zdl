@@ -138,21 +138,6 @@ function download {
 }
 
 
-function clean_completed {
-    data_stdout
-    if [ $? == 1 ]; then
-	last_out=$(( ${#pid_out[*]}-1 ))
-	for j in `seq 0 $last_out`; do
-	    length_saved=0
-	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
-		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
-	    fi
-	done
-    fi
-}
-
-
 function check_in_url { 	## return --> no_download=1 
     if [ ! -z "$url_in" ]; then
 	if [ -z "$file_in" ]; then
