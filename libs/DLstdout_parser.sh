@@ -142,14 +142,15 @@ function data_stdout {
 
 		    unset percent yellow_index
 		    percent=`echo "$progress_data" | awk '{ print($1) }'`
-		    yellow_index=$(sed -e s,[\.\/:],,g <<< "$file_stdout")
+
+		    char2code="$file_stdout"
+		    yellow_index="$char_code"
 		    if [ ! -z "${percent}" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
 			yellow_num_percent["${yellow_index}"]=${num_percent[$i]}
 		    elif [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
 			num_percent[$i]=${yellow_num_percent["${yellow_index}"]}
-			#unset yellow_num_percent["${yellow_index}"]
 		    else
 			num_percent[$i]=0
 			yellow_num_percent["${yellow_index}"]=0
