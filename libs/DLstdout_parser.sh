@@ -140,22 +140,25 @@ function data_stdout {
 			num_speed[$i]=0
 		    fi
 
-		    unset percent
+		    unset percent yellow_index
 		    percent=`echo "$progress_data" | awk '{ print($1) }'`
-		    if [ ! -z "${percent}" ]; then
+		    yellow_index=$(sed -e s,[\.\/:],,g <<< "$file_stdout")
+		    if [ ! -z "${percent}" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
-			yellow_num_percent[$i]=${num_percent[$i]}
-		    elif [ -f "${file_out[$i]}" ];then
-			num_percent[$i]=${yellow_num_percent[$i]}
+			yellow_num_percent["${yellow_index}"]=${num_percent[$i]}
+		    elif [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
+			num_percent[$i]=${yellow_num_percent["${yellow_index}"]}
+			#unset yellow_num_percent["${yellow_index}"]
 		    else
 			num_percent[$i]=0
+			yellow_num_percent["${yellow_index}"]=0
 		    fi
 		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
 		    fi
-		    unset numspeed
+		    unset numspeed yellow_index
 		    case ${type_speed[$i]} in
 			KB/s) numspeed=$(( ${num_speed[$i]} * 1024 )) ;;
 			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
