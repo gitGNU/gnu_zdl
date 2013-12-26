@@ -74,7 +74,6 @@ function update {
     prog=zdl
     BIN="/usr/local/bin"
     SHARE="/usr/local/share/zdl"
-    URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
     axel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
     success="Aggiornamento completato"
     failure="Aggiornamento non riuscito"
@@ -89,53 +88,31 @@ function update {
     cygdrive="${cygdrive%%\/*}"
     [ -z "$cygdrive" ] && cygdrive="C"    
 
-    header_box "\e[1mAggiornamento automatico di ZigzagDownLoader\e[0m\n"
+    update_zdl-wise
 
-    rm -fr "$path_tmp"/*.gz "$path_tmp"/*.sig "$prog"
-    cd "$path_tmp"
-    print_c 1 "Download in corso: attendere..."
-    wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+    chmod +rx -R .
+    print_c 1 "Aggiornamento automatico in $BIN"
+    try mv zdl zdl-xterm $BIN
+    [ "$?" != 0 ] && return
     cd ..
-    if [ -f "$path_conf"/zdl.sig ]; then
-	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
+
+    print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+    [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
+    try rm -rf "$SHARE"
+    try cp -r "$prog" "$SHARE"
+    
+    if [ -e /cygdrive ]; then
+	code_batch=$(cat $SHARE/zdl.bat)
+	echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
     fi
-    if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
-	print_c 1 "$PROG è già alla versione più recente"
-    else
-	cd "$path_tmp"
-	package=$(ls *.tar.gz)
-	print_c 1 "Aggiornamento di $PROG con $package"
-	tar -xzf "$package"
 
-	mv "${package%.tar.gz}" $prog
-	cd $prog
-	update_zdl-wise
-
-	chmod +rx -R .
-	print_c 1 "Aggiornamento automatico in $BIN"
-	try mv zdl zdl-xterm $BIN
-	[ "$?" != 0 ] && return
-
-	if [ -e /cygdrive ]; then
-	    code_batch=$(cat $SHARE/zdl.bat)
-	    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
-	fi
-
-	cd ..
-
-	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
-	[ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
-	try rm -rf "$SHARE"
-	try cp -r "$prog" "$SHARE"
-
-	update_zdl-conkeror
-	
-	cp *.sig "$path_conf"/zdl.sig
-	
-	print_c 1 "Aggiornamento automatico completato"
-	pause
-	cd ..
-	$prog ${args[*]}
-	exit
-    fi
+    update_zdl-conkeror
+    
+    cp *.sig "$path_conf"/zdl.sig
+    rm -fr *.gz *.sig "$prog"
+    print_c 1 "Aggiornamento automatico completato"
+    pause
+    cd ..
+    $prog ${args[*]}
+    exit
 }

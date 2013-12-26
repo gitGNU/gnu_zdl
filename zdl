@@ -28,7 +28,6 @@
 path_usr="/usr/local/share/zdl"
 
 source $path_usr/man.sh
-source $path_usr/updater.sh
 source $path_usr/config.sh
 source $path_usr/config_manager.sh
 source $path_usr/axel_installer.sh
@@ -246,6 +245,34 @@ header_z
 ###################################
 
 
+function update_updater {
+    URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
+
+    header_box "\e[1mAggiornamento automatico di $name_prog\e[0m\n"
+
+    mkdir -p "$path_tmp"
+    cd "$path_tmp"
+    rm -fr *.gz *.sig "$prog"
+    print_c 1 "Download in corso: attendere..."
+    wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+    cd ..
+    if [ -f "$path_conf"/zdl.sig ]; then
+	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
+    fi
+    if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
+	print_c 1 "$PROG Ã¨ giÃ  alla versione piÃ¹ recente"
+    else
+	cd "$path_tmp"
+	package=$(ls *.tar.gz)
+	print_c 1 "Aggiornamento di $PROG con $package"
+	tar -xzf "$package"
+
+	mv "${package%.tar.gz}" $prog
+	cd $prog
+
+	source updater.sh
+    fi
+}
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
     for i in `seq 0 $max_args`; do
@@ -257,6 +284,7 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 	    unset args[$i]
+	    update_updater
 	    update
 	fi
     done
@@ -267,6 +295,7 @@ elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interacti
 	    rm "$path_conf"/*.sig
 	fi
     done
+    update_updater
     update
 fi
 

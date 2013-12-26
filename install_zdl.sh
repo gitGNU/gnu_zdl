@@ -260,21 +260,21 @@ cd $prog
 install_zdl-wise
 
 chmod +rx -R .
-bold "Installazione in $BIN\n"
+bold "Installazione in $BIN"
 try mv zdl zdl-xterm $BIN 
-if [ -e /cygdrive ]; then
-    code_batch=$(cat $SHARE/zdl.bat)
-    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
-fi
 cd ..
 
-bold "Installazione in $SHARE\n"
+bold "Installazione in $SHARE"
 [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
 try rm -rf "$SHARE" 
 try cp -r $prog "$SHARE"
 
-install_zdl-conkeror
+if [ -e /cygdrive ]; then
+    code_batch=$(cat $SHARE/zdl.bat)
+    echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "Script batch di avvio installato: $(cygpath -m /)/zdl.bat "
+fi
 
+install_zdl-conkeror
 
 ## Axel
 if [ -e "/cygdrive" ]; then
@@ -283,6 +283,9 @@ else
     check_downloader
     [ ! -z "$(which X 2>/dev/null )" ] && check_xterm
 fi
+
+cd
+rm -fr "$path_conf/src"
 
 bold "$success"
 bold "Per informazioni su ZigzagDownLoader (zdl): zdl --help"
