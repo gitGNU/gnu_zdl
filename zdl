@@ -254,7 +254,7 @@ function update_updater {
     cd "$path_tmp"
     rm -fr *.gz *.sig "$prog"
     print_c 1 "Download in corso: attendere..."
-    wget "$URL_ROOT" -r -l 1 -A gz,sig,txt -np -nd -q
+    wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q
     cd ..
     if [ -f "$path_conf"/zdl.sig ]; then
 	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
@@ -263,6 +263,7 @@ function update_updater {
 	print_c 1 "$PROG Ã¨ giÃ  alla versione piÃ¹ recente"
     else
 	cd "$path_tmp"
+	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
@@ -271,6 +272,7 @@ function update_updater {
 	cd $prog
 
 	source updater.sh
+	update
     fi
 }
 
@@ -285,7 +287,6 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
 	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 	    unset args[$i]
 	    update_updater
-	    update
 	fi
     done
 elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]; then
@@ -296,7 +297,6 @@ elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interacti
 	fi
     done
     update_updater
-    update
 fi
 
 
