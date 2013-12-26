@@ -275,7 +275,8 @@ function init {
     fi
     
     log=0
-    
+    check_instance_prog
+    [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     touch "$path_tmp/lock.zdl"
     file_log="${prog}_log.txt"
     rm -f $file_log
@@ -320,9 +321,9 @@ function init {
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
     if [ -e /cygdrive ]; then
-	sleeping_pause=3
+	sleeping_pause=2
     else
-	sleeping_pause=5
+	sleeping_pause=4
     fi
 
     ## massima durata tentativi di connessione (Wget)
@@ -331,7 +332,7 @@ function init {
     ## per determinare se lo stdin è una pipe (disattivare l'interazione della funzione sleeping)
     stdin="$(ls -l /dev/fd/0)"
     stdin="${stdin/*-> /}"
-    if [ "${stdin}" != "${stdin//'pipe:['}" ]; then     # if [[ "$ftype" == 'regular file' ]]; then
+    if [ "${stdin}" != "${stdin//'pipe:['}" ]; then    
 	pipe=true
     fi
     get_conf

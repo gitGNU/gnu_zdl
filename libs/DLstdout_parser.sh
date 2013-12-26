@@ -26,7 +26,7 @@
 #
 
 function data_stdout {
-    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out progress speed type_speed num_speed num_percent percent
+    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out speed type_speed num_speed num_percent percent
     if [ ! -z "$1" ];then 
 	list="$1"
     else
@@ -38,7 +38,6 @@ function data_stdout {
 	counter_downloading=0
 	i=0
 	for item in $list; do
-	    
 	    file_stdout=$item
 	    test_found=`cat "$file_stdout" 2>/dev/null |grep "404: Not Found"`
 	    if [ -z "$test_found" ]; then
@@ -58,7 +57,8 @@ function data_stdout {
 		
 		downloader_out[$i]=`head -n 3 $file_stdout 2>/dev/null |sed -n '3p'`
 		pid_prog_out[$i]=`head -n 4 $file_stdout 2>/dev/null |sed -n '4p'`
-		
+
+		unset progress_data
 		progress_data=`tail "$file_stdout" 2>/dev/null |grep K |grep % |tail -n 1`
 		progress_data="${progress_data//'..........'}"
 		progress_data="${progress_data//[\[\]]}"
@@ -140,21 +140,24 @@ function data_stdout {
 			num_speed[$i]=0
 		    fi
 
-		    unset percent yellow_index
+		    unset percent yellow_index 
 		    percent=`echo "$progress_data" | awk '{ print($1) }'`
 
-		    char2code="$file_stdout"
-		    yellow_index="$char_code"
+		    yellow_index=$(make_index "$file_stdout")
+
 		    if [ ! -z "${percent}" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ]; then
 			num_percent[$i]=${percent%'%'*}
-			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+1 ))
-			yellow_num_percent["${yellow_index}"]=${num_percent[$i]}
-		    elif [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
-			num_percent[$i]=${yellow_num_percent["${yellow_index}"]}
-		    else
-			num_percent[$i]=0
-			yellow_num_percent["${yellow_index}"]=0
+			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+0 ))
+			sed -r s/${yellow_index}[0-9]+//g -i "$path_tmp"/yellow_index 
+			sed '/^$/d' -i "$path_tmp"/yellow_index
+			echo "${yellow_index}${num_percent[$i]}" >> "$path_tmp"/yellow_index
+		    elif [  ! -z "$(cat $path_tmp/yellow_index 2>/dev/null )" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
+			num_percent[$i]=$(cat "$path_tmp"/yellow_index |grep ${yellow_index} |tail -n 1 |sed -e s/${yellow_index}//g)
 		    fi
+		    if [ -z "${num_percent[$i]}" ]; then
+			num_percent[$i]=0
+		    fi
+
 		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]//.}" ]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
