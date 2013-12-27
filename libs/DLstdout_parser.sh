@@ -148,10 +148,12 @@ function data_stdout {
 		    if [ ! -z "${percent}" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ]; then
 			num_percent[$i]=${percent%'%'*}
 			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+0 ))
+			touch "$path_tmp"/yellow_index
 			sed -r s/${yellow_index}[0-9]+//g -i "$path_tmp"/yellow_index 
 			sed '/^$/d' -i "$path_tmp"/yellow_index
 			echo "${yellow_index}${num_percent[$i]}" >> "$path_tmp"/yellow_index
 		    elif [  ! -z "$(cat $path_tmp/yellow_index 2>/dev/null )" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
+			touch "$path_tmp"/yellow_index
 			num_percent[$i]=$(cat "$path_tmp"/yellow_index |grep ${yellow_index} |tail -n 1 |sed -e s/${yellow_index}//g)
 		    fi
 		    if [ -z "${num_percent[$i]}" ]; then
