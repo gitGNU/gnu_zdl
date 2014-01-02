@@ -48,6 +48,6 @@ if [ "$url_in" != "${url_in//'putlocker.com/file/'}" ]; then
 	url_in_file="http://www.putlocker.com${url_in_file}"
     else
 	_log 3
-	break
+	break_loop=true
     fi
 fi
