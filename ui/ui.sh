@@ -76,7 +76,14 @@ function human_length { ## input in bytes
 
 function interactive {
     while true ; do
-	daemon_pid=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent" |awk '{print $1}')
+	silents=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent")
+	for ((i=1; i<=$(wc -l <<< "${silents}" ); i++)); do
+	    silent=$(sed -n ${i}p <<< "$silents" )
+	    if [[ "${silent##*silent }" =~ ^${PWD}$ ]]; then
+		daemon_pid=$(awk '{print $1}' <<< "$silent")
+		break
+	    fi
+	done
 	header_z
 	header_box "Modalità interattiva"
 	echo
@@ -129,14 +136,14 @@ function interactive {
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
-			    unset "${url_out[$i]}"
+#			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "t" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
-			    unset "${url_out[$i]}"
+#			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "c" ]; then
 			clean_completed

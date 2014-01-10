@@ -53,7 +53,7 @@ if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//-
 	if [ -d "${args[$i]}" ]; then
 	    cd "${args[$i]}"
 	    unset args[$i]
-	    break
+#	    break
 	fi
     done
 fi
