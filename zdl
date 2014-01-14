@@ -48,6 +48,20 @@ source $path_usr/ui/ui.sh
 args=( "$@" )
 max_args=$(( ${#args[*]}-1 ))
 
+if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^-[a-zA-Z]+$ ]]; then
+	    for ((j=1; j<${#args[$i]}; j++)); do
+	        args[${#args[*]}]="-${args[$i]:$j:1}"
+	    done
+	    args[$i]=${args[$(( ${#args[*]}-1 ))]}
+	    unset args[$(( ${#args[*]}-1 ))]
+	fi
+    done
+    max_args=$(( ${#args[*]}-1 ))
+fi
+
+
 if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ -d "${args[$i]}" ]; then
