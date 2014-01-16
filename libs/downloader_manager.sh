@@ -158,7 +158,7 @@ function check_in_url { 	## return --> no_download=1
 			length_saved=0
 			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
 			
-			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ]; then
+			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${num_percent[$i]}" == 100 ]; then
 			    return 1
 			fi
 			unset length_saved

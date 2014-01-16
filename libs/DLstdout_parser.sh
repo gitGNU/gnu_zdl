@@ -387,7 +387,14 @@ function _out {
 		pipe_done=1
 	    fi
 	elif [ ! -z "$print_out" ]; then
-	    cp "$path_tmp"/pipe_files.txt "$print_out"
+	    unset test_piped
+	    while read line; do
+		while read piped; do
+		    [ "$piped" == "$line" ] && test_piped=1 && break
+		done < "$print_out"
+		[ ! -z "$line" ] && [ -z "$test_piped" ] && echo "$line" >> "$print_out"
+		unset test_piped
+	    done < "$path_tmp"/pipe_files.txt
 	fi
     fi
 }

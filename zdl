@@ -397,7 +397,7 @@ if [ "${args[*]}" != "${args[*]//--out=}" ]; then
 		pipe_out="${args[$i]#'--out='}"
 	    else
 		print_c 3 "Il file in ${args[$i]} non esiste"
-		print_c 2 "Scrivo in ${args[$i]#'--out='}.txt la lista dei file scaricati? (s|*)"
+		print_c 2 "Scrivo in ${args[$i]#'--out='} la lista dei file scaricati? (s|*)"
 		read -n 1 option_out
 		if [ "$option_out" == "s" ]; then
 		    print_out="${args[$i]#'--out='}"
