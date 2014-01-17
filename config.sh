@@ -279,7 +279,7 @@ function init {
     [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     touch "$path_tmp/lock.zdl"
     file_log="${prog}_log.txt"
-    rm -f $file_log
+#    rm -f $file_log
     
     path_conf="$HOME/.${prog}"
     file_conf="$path_conf/$prog.conf"

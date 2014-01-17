@@ -37,7 +37,7 @@ function _log {
 	1)
 	    echo
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
-		print_c 3  "File $file_in già presente in $PWD: non verrà processato."  | tee -a $file_log
+		print_c 3  "File $file_in già presente in $PWD: $url_in non verrà processato."  | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
 		unset from_loop
