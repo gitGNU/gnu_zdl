@@ -136,14 +136,12 @@ function interactive {
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
-#			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "t" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null
 			    rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			    links_loop - "${url_out[$i]}"
-#			    unset "${url_out[$i]}"
 			done
 		    elif [ "$input2" == "c" ]; then
 			clean_completed
@@ -176,7 +174,7 @@ function clean_completed {
 	    length_saved=0
 	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
 	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
-		unset "${url_out[$j]}"
+#		unset "${url_out[$j]}"
 		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 	    fi
 	done
