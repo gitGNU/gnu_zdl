@@ -49,7 +49,7 @@ function _log {
 		url_in_log=" (link di download: $url_in) "
 	    fi
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
-		print_c 3  "$url_in --> File ${file_in}${link_log} non disponibile, riprovo più tardi"  | tee -a $file_log
+		print_c 3  "$url_in --> File ${file_in}${url_in_log} non disponibile, riprovo più tardi"  | tee -a $file_log
 		no_msg=true
 		unset from_loop
 	    fi
