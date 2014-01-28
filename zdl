@@ -274,7 +274,7 @@ function update_updater {
 	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
     fi
     if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
-	print_c 1 "$PROG è già  alla versione più recente"
+	print_c 1 "$PROG è già alla versione più recente"
     else
 	cd "$path_tmp"
 	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
