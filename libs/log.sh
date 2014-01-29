@@ -25,18 +25,21 @@
 # zoninoz@inventati.org
 #
 
-
-function _log {
+function init_log {
     if [ $log == 0 ]; then
-	echo -e "File log di $name_prog:\n">$file_log
+	echo -e "File log di $name_prog:\n" > $file_log
 	log=1
     fi
+    echo
     date >> $file_log
-    
+}
+
+function _log {
+    [ ! -z "$2" ] && [ -z "$file_in" ] && url_in="$2"
     case $1 in
 	1)
-	    echo
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		init_log
 		print_c 3  "File $file_in già presente in $PWD: $url_in non verrà processato."  | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
@@ -44,19 +47,19 @@ function _log {
 	    fi
 	    ;;
 	2)
-	    echo
 	    if [ ! -z "$url_in" ]; then
 		url_in_log=" (link di download: $url_in) "
 	    fi
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		init_log
 		print_c 3  "$url_in --> File ${file_in}${url_in_log} non disponibile, riprovo più tardi"  | tee -a $file_log
 		no_msg=true
 		unset from_loop
 	    fi
 	    ;;
 	3)
-	    echo
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		init_log
 		print_c 3  "$url_in --> Indirizzo errato o file non disponibile" | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
@@ -64,8 +67,8 @@ function _log {
 	    fi
 	    ;;
 	4)
-	    echo
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		init_log
 		print_c 3 "Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)" | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
@@ -73,51 +76,55 @@ function _log {
 	    fi
 	    ;;
 	5)
-	    echo
+	    init_log
 	    print_c 3 "Connessione interrotta: riprovo più tardi" | tee -a $file_log
 	    echo
 	    ;;
 	6)
-	    echo
+	    init_log
 	    print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev" | tee -a $file_log
+	    exit
 	    #links_loop - "$url_in"
 	    echo
 	    ;;
 	7)
-	    echo
+	    init_log
 	    print_c 3 "$url_in --> File $file_in già in download (${url_out[$i]})" | tee -a $file_log
 	    echo
 	    ;;
 	8)
-	    echo
+	    init_log
 	    print_c 3  "$url_in --> Indirizzo errato o file non disponibile.\nErrore nello scaricare la pagina HTML del video. Controllare che l'URL sia stato inserito correttamente o che il video non sia privato." | tee -a $file_log
 	    links_loop - "$url_in"
 	    echo
 	    ;;
 	9)
-	    echo
+	    init_log
 	    print_c 3 "$url_in --> Titolo della pagina HTML non trovato. Controlla l'URL." | tee -a $file_log
 	    links_loop - "$url_in"
 	    echo
 	    ;;
 	10)
-	    echo
+	    init_log
 	    print_c 3 "$url_in --> Firma del video non trovata" | tee -a $file_log
 	    echo
 	    ;;
 	11)
-	    echo
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
-		print_c 3  "$url_in -->File scaricabile solo da utenti \"Premium\"" | tee -a $file_log
+		init_log
+		print_c 3  "$url_in --> File scaricabile solo da utenti \"Premium\"" | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
 		unset from_loop url_in file_in url_in_file
 	    fi
 	    ;;
 	12)
-	    echo
-	    print_c 3  "\n$2 --> Non è un URL compatibile per $name_prog" | tee -a $file_log
+	    init_log
+	    print_c 3  "$url_in --> Non è un URL adatto per $name_prog" | tee -a $file_log
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+		no_msg=true
+		unset from_loop	
+	    fi
 	    ;;
     esac
-    
 }

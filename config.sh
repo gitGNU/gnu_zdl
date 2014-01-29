@@ -274,7 +274,6 @@ function init {
 	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
     fi
     
-    log=0
     check_instance_prog
     [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     touch "$path_tmp/lock.zdl"
@@ -336,4 +335,8 @@ function init {
 	pipe=true
     fi
     get_conf
+    log=0
+    if [ -f "$file_log" ]; then
+	log=1
+    fi
 }
