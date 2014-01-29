@@ -30,7 +30,7 @@ function init_log {
 	echo -e "File log di $name_prog:\n" > $file_log
 	log=1
     fi
-    echo
+    echo | tee -a $file_log
     date >> $file_log
 }
 

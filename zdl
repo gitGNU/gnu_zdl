@@ -817,8 +817,8 @@ fi
 echo
 echo
 if [ -f "$file_log" ]; then
-    print_c 3 "In questa directory è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
-    echo -e "Per leggerlo, digita:\n\n cat $file_log\n\n"
+    print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
+    echo -e "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n\n"
 fi
 
 if [ "$xterm_stop" == "true" ]; then
