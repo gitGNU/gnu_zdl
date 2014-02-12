@@ -27,6 +27,12 @@
 
 
 if [ "$url_in" != "${url_in//'putlocker.com/file/'}" ]; then
+    links_loop - "$url_in"
+    url_in="${url_in//putlocker/firedrive}"
+    links_loop + "$url_in"
+fi
+
+if [ "$url_in" != "${url_in//'firedrive.com/file/'}" ]; then
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
     echo -e "...\c"
     test_putlocker=`cat "$path_tmp/zdl.tmp" | grep "This file doesn't exist, or has been removed"`
@@ -35,17 +41,16 @@ if [ "$url_in" != "${url_in//'putlocker.com/file/'}" ]; then
 	unset post_data
 	tmp="$path_tmp/zdl.tmp"
 	input_hidden
-	post_data="${post_data}&confirm=Continue as Free User"
+	post_data="${post_data}" 
 	
-	file_in=`cat "$path_tmp/zdl.tmp" |grep ' | PutLocker</title>'`
+	file_in=`cat "$path_tmp/zdl.tmp" |grep ' | Firedrive</title>'`
 	file_in="${file_in#*'title>'}"
-	file_in="${file_in%' | PutLocker</title>'*}"
+	file_in="${file_in%' | Firedrive</title>'*}"
 	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 	
-	url_in_file=`cat "$path_tmp"/zdl2.tmp | grep "get_file.php"`
+	url_in_file=`cat "$path_tmp"/zdl2.tmp | grep external_download`
 	url_in_file="${url_in_file#*\"}"
 	url_in_file="${url_in_file%%\"*}"
-	url_in_file="http://www.putlocker.com${url_in_file}"
     else
 	_log 3
 	break_loop=true
