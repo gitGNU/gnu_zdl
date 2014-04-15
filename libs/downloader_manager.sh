@@ -222,10 +222,10 @@ function check_in_file { 	## return --> no_download=1 --> download=5
 				if [ -f "${file_in}.st" ]; then 
 				    unset no_newip
 				    [ ! -z "$url_in_file" ] && return 5
-				elif [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ] && [ "$file_in" == "${file_out[$i]}" ] && [ "${length_out[$i]}" != "100" ]; then
-				    unset no_newip
-				    rm -f "$file_in"
-				    [ ! -z "$url_in_file" ] && return 5
+				# elif [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ] && [ "$file_in" == "${file_out[$i]}" ] && [ "${length_out[$i]}" != "100" ]; then
+				#     unset no_newip
+				#     rm -f "$file_in"
+				#     [ ! -z "$url_in_file" ] && return 5
 				elif [ "$file_in" == "${file_out[$i]}" ] && [ "$url_in" != "${url_out[$i]}" ]; then 
 				    ## rinomina degli omonimi se esiste il file tmp dell'altro con url diverso (solo Axel)
 				    file_in="${file_in}__BIS__${url_in//\//_}"

@@ -723,8 +723,7 @@ while true; do
 		    if [ $? == 1 ]; then
 			echo -e "${BBlue}URL del file: $url_in_file\n"
 			print_c 1 "downloading --> $file_in ..."
-		    fi
-		    
+		    fi		    
 		    while true; do
 			show_downloads
 			check_download

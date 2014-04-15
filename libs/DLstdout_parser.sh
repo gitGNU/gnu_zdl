@@ -53,7 +53,7 @@ function data_stdout {
 		pid_out[$i]=`head -n 1 $file_stdout 2>/dev/null` 
 		
 		url_out[$i]=`cat $file_stdout 2>/dev/null |grep "link_$prog"`
-		url_out[$i]="${url_out[$i]#link_${prog}: }"
+		url_out[$i]="${url_out[$i]#link_${prog}': '}"
 		
 		downloader_out[$i]=`head -n 3 $file_stdout 2>/dev/null |sed -n '3p'`
 		pid_prog_out[$i]=`head -n 4 $file_stdout 2>/dev/null |sed -n '4p'`
