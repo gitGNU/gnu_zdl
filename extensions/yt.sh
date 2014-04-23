@@ -47,7 +47,8 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     html="${html#*url_encoded_fmt_stream_map}"
     html=$(urldecode "$html")
     html="${html%%${videoType}*}$videoType"
-    url_in_file="${html##*url=}"
+    html="${html##*url=}"
+    url_in_file="${html%%\,*}"
     file_in="$title.$videoType"
 fi
 
