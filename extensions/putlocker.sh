@@ -67,8 +67,8 @@ fi
 #     fi
 # fi
 
-# if [[ "${url_in}" =~ media.*firedrive\.com\/download ]]; then
-#     file_in="${url_in##*f=}"
-#     file_in="${file_in%%\&*}"
-#     url_in_file="$url_in"
-# fi
+if [[ "${url_in}" =~ media.*firedrive\.com\/download ]]; then
+    file_in="${url_in##*f=}"
+    file_in="${file_in%%\&*}"
+    url_in_file="$url_in"
+fi
