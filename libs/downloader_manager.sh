@@ -135,6 +135,7 @@ function download {
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
+    sleeping 3
 }
 
 

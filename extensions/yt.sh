@@ -25,7 +25,8 @@ shopt -u nullglob
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     videoType="mp4"
-    html=$(wget -q "$url_in" -O -)
+#   html=$(wget -q "$url_in" -O -)
+    html="`wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O -`" || _log 8 
 
     if [[ "$html" =~ \<title\>(.+)\<\/title\> ]]; then
 	title="${BASH_REMATCH[1]}"
@@ -34,22 +35,24 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	title=$(echo $title | sed -r 's/^_//ig')
 	title=$(echo $title | tr '[A-Z]' '[a-z]')
 	title=$(echo $title | sed -r 's/_amp//ig')
+
+	html=$(echo "$html" |grep 'url_encoded_fmt_stream_map')
+	if [ ! -z "$html" ]; then 
+	    html="${html#*url_encoded_fmt_stream_map}"
+	    html=$(urldecode "$html")
+	    html="${html%%${videoType}*}$videoType"
+	    html="${html##*url=}"
+	    url_in_file="${html%%\,*}"
+	    file_in="$title.$videoType"
+	else
+	    _log 2
+	    break_loop=true
+	fi
     else
-	_log 9 
+	_log 9
+	not_available=true
+	break_loop=true
     fi
-
-    html=$(echo "$html" |grep 'url_encoded_fmt_stream_map')
-
-    if [ -z "$html" ]; then 
-    	echo "\nURL non trovato\n"
-    fi
-
-    html="${html#*url_encoded_fmt_stream_map}"
-    html=$(urldecode "$html")
-    html="${html%%${videoType}*}$videoType"
-    html="${html##*url=}"
-    url_in_file="${html%%\,*}"
-    file_in="$title.$videoType"
 fi
 
 shopt -s nullglob
