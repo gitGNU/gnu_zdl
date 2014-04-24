@@ -26,7 +26,7 @@ shopt -u nullglob
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     videoType="mp4"
 #   html=$(wget -q "$url_in" -O -)
-    html="`wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O -`" || _log 8 
+    html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O - ) || _log 8 
 
     if [[ "$html" =~ \<title\>(.+)\<\/title\> ]]; then
 	title="${BASH_REMATCH[1]}"
@@ -44,6 +44,10 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	    html="${html##*url=}"
 	    url_in_file="${html%%\,*}"
 	    file_in="$title.$videoType"
+	    if [ -z "$url_in_file" ]; then
+		_log 2
+		break_loop=true
+	    fi
 	else
 	    _log 2
 	    break_loop=true
