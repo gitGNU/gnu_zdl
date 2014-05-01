@@ -35,6 +35,7 @@ if [ "$url_in" != "${url_in//'italia-film.org/redirect?'}" ]; then
 	links_loop + "$url_in"
     else
 	_log 2
+	break_loop=true
     fi
     unset redir
 fi
