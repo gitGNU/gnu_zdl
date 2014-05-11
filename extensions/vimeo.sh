@@ -34,11 +34,9 @@ if [ "$url_in" != "${url_in//'vimeo.com/'[0-9]}" ]; then
 	url_in_2="${url_in_2#*data-config-url=\"}"
 	url_in_2="${url_in_2%%\"*}"
 	htmldecode "${url_in_2}"
-
 	wget "$decoded_expr" -O "$path_tmp"/zdl2.tmp -q
 	url_in_file=$(cat "$path_tmp"/zdl2.tmp 2>/dev/null)
-	url_in_file="${url_in_file#*\"hd\"}"
-	url_in_file="${url_in_file#*url\":\"}"
+	url_in_file="${url_in_file#*\"url\":\"}"
 	url_in_file="${url_in_file%%\"*}"
 
 	ext="${url_in_file%'?'*}"
