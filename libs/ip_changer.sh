@@ -137,7 +137,7 @@ function proxy_list {
     proxy_type_list=$( cat "$path_tmp/proxy.tmp" |grep "li class=\"type" |grep -v Type)
     for ((i=1; i<=$(wc -l <<< "$proxy_type_list"); i++)); do
 	proxy_type_line=$(sed -n ${i}p <<< "$proxy_type_list")
-	proxy_type_line="${proxy_type_line#*<strong>}"
+	proxy_type_line="${proxy_type_line//'<strong>'}"
 	proxy_type_line="${proxy_type_line#*>}"
 	proxy_type[ ${#proxy_type[*]} ]="${proxy_type_line%%<*}"
     done
@@ -145,16 +145,19 @@ function proxy_list {
     for proxytype in ${proxy_types[*]}; do
 	for ((i=0; i<${#proxy_ip[*]}; i++)); do
 	    if [ "$proxytype" == "${proxy_type[$i]}" ]; then
-		echo "${proxy_ip[$i]}" >> "$path_tmp/proxy2.tmp"
+		echo "${proxy_ip[$i]} ${proxy_type[$i]}" >> "$path_tmp/proxy2.tmp"
 	    fi
 	done
     done
+
     if [ -f "$path_tmp/proxy2.tmp" ]; then
 	max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
-	proxy=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+	proxy=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"|awk '{print $1}'`
+	proxy_type=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"|awk '{print $2}'`
     else
-	unset proxy max
+	unset proxy proxy_type max
     fi
+
 }			
 
 
@@ -189,8 +192,8 @@ function new_ip_proxy {
 	while [ -z "$proxy" ] ; do		
 	    if [ ! -f "$path_tmp/proxy.tmp" ]; then
 		wget -q -t 1 -T 20 --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
-		rm -f "$path_tmp/proxy2.tmp"
 	    fi
+	    rm -f "$path_tmp/proxy2.tmp"
 	    $proxy_server
 	    ##
 	    ## CODICE PER  http://www.ip-adress.com/proxy_list/  ---> CON UNA SOLA "d"
