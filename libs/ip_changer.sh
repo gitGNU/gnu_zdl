@@ -106,20 +106,55 @@ function ip_adress {
     proxy="${proxy%:${proxy_type}*}"
 }
 
+# function proxy_list {
+#     ## proxy-list.org
+    
+#     proxy_tmp=$( cat "$path_tmp/proxy.tmp" |grep "ago" )
+#     proxy_tmp=${proxy_tmp//"</tr>"/"\n"}
+#     for proxy_type in ${proxy_types[*]}; do
+# 	echo -e "$proxy_tmp" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+#     done
+#     max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+    
+#     string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+
+#     proxy="${string_line#*'<td>'}"
+#     proxy="${proxy%%'</td>'*}"
+# }			
+
 function proxy_list {
     ## proxy-list.org
+    unset proxy_ip proxy_type
     
-    proxy_tmp=$( cat "$path_tmp/proxy.tmp" |grep "ago" )
-    proxy_tmp=${proxy_tmp//"</tr>"/"\n"}
-    for proxy_type in ${proxy_types[*]}; do
-	echo -e "$proxy_tmp" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
-    done
-    max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
-    
-    string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+    proxy_ip_list=$( cat "$path_tmp/proxy.tmp" |grep "li class=\"proxy" |grep -v Proxy)
 
-    proxy="${string_line#*'<td>'}"
-    proxy="${proxy%%'</td>'*}"
+    for ((i=1; i<=$(wc -l <<< "$proxy_ip_list"); i++)); do
+	proxy_ip_line=$(sed -n ${i}p <<< "$proxy_ip_list")
+	proxy_ip_line="${proxy_ip_line#*>}"
+	proxy_ip[ ${#proxy_ip[*]} ]="${proxy_ip_line%<*}"
+    done
+    
+    proxy_type_list=$( cat "$path_tmp/proxy.tmp" |grep "li class=\"type" |grep -v Type)
+    for ((i=1; i<=$(wc -l <<< "$proxy_type_list"); i++)); do
+	proxy_type_line=$(sed -n ${i}p <<< "$proxy_type_list")
+	proxy_type_line="${proxy_type_line#*<strong>}"
+	proxy_type_line="${proxy_type_line#*>}"
+	proxy_type[ ${#proxy_type[*]} ]="${proxy_type_line%%<*}"
+    done
+
+    for proxytype in ${proxy_types[*]}; do
+	for ((i=0; i<${#proxy_ip[*]}; i++)); do
+	    if [ "$proxytype" == "${proxy_type[$i]}" ]; then
+		echo "${proxy_ip[$i]}" >> "$path_tmp/proxy2.tmp"
+	    fi
+	done
+    done
+    if [ -f "$path_tmp/proxy2.tmp" ]; then
+	max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
+	proxy=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+    else
+	unset proxy max
+    fi
 }			
 
 
