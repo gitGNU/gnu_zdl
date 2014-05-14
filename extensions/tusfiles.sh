@@ -34,8 +34,8 @@ if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
     input_hidden
     post_data="${post_data#*&}"
     
-    file_in=`cat "$path_tmp/zdl.tmp" |grep 'http://lp.ncdownloader.com/tusn/?q='`
-    file_in="${file_in#*'http://lp.ncdownloader.com/tusn/?q='}"
+    file_in=`cat "$path_tmp/zdl.tmp" |grep '?q='`
+    file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"
     url_in_file=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
     
