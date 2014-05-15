@@ -92,11 +92,10 @@ function data_stdout {
 			file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
 		    fi
 		    
-
-		    eta=`echo $progress_data | awk '{ print($4) }'`
+		    eta[$i]=`echo "${progress_data//=/ }" | awk '{ print($4) }'`
 		    unset speed
-		    speed=`echo $progress_data | awk '{ print($3) }'`
-
+		    speed=`echo "${progress_data//=/ }" | awk '{ print($3) }'`
+#		    speed="${speed%=*}"
 		    speed="${speed//,/.}"
 		    type_speed[$i]="${speed//[0-9.,]}"
 		    num_speed[$i]="${speed//${type_speed[$i]}}"
