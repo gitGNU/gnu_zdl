@@ -28,15 +28,15 @@
 
 function host_login {
     unset user pass
-    if [ -z "${accounts_user_loop}" ] && [ -z "${accounts_pass_loop}" ]; then
+    if [ -z "${accounts_user_loop[*]}" ] && [ -z "${accounts_pass_loop[*]}" ]; then
 	get_accounts
 	if [ ! -z "${accounts_user[*]}" ]; then
 	    accounts_user_loop=( ${accounts_user[*]} )
 	    accounts_pass_loop=( ${accounts_pass[*]} )
 	fi
     fi	
-    
-    if [ ! -z "${accounts_user_loop}" ] && [ ! -z "${accounts_pass_loop}" ]; then
+
+    if [ ! -z "${accounts_user_loop[*]}" ] && [ ! -z "${accounts_pass_loop[*]}" ]; then
 	max=$(( ${#accounts_user_loop[*]}-1 ))
 	j=$max
 	if [ ! -z "${accounts_alive[*]}" ]; then
@@ -49,24 +49,26 @@ function host_login {
 			    (( j++ ))
 			    accounts_user_loop[$j]="${accounts_user_loop[$i]}"
 			    accounts_pass_loop[$j]="${accounts_pass_loop[$i]}"
-			    unset accounts_user_loop[$i] accounts_pass_loop[$i]
+# NON FUNZIONA! --------->  unset accounts_user_loop[$i] accounts_pass_loop[$i]
+			    accounts_user_loop[$i]=""
+			    accounts_pass_loop[$i]=""
 			fi
 		    fi
-					#done
 		done
 	    done
 	fi
+
 	accounts_user_loop=( ${accounts_user_loop[*]} )
 	accounts_pass_loop=( ${accounts_pass_loop[*]} )
 	
 	user="${accounts_user_loop[0]}"
 	pass="${accounts_pass_loop[0]}"
 	
-	accounts_user_loop[${#accounts_user_loop[*]}]="${accounts_user_loop[0]}"
-	accounts_pass_loop[${#accounts_pass_loop[*]}]="${accounts_pass_loop[0]}"
-	unset accounts_user_loop[0] accounts_pass_loop[0]
-	accounts_user_loop=( ${accounts_user_loop[*]} )
-	accounts_pass_loop=( ${accounts_pass_loop[*]} )
+	accounts_user_loop[ ${#accounts_user_loop[*]} ]="${accounts_user_loop[0]}"
+	accounts_pass_loop[ ${#accounts_pass_loop[*]} ]="${accounts_pass_loop[0]}"
+# unset non funziona!
+	accounts_user_loop[0]=""
+	accounts_pass_loop[0]=""
     fi
     if [ -z "$user" ] || [ -z "$pass" ]; then
 	print_c 3 "Nessun account disponibile"
