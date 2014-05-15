@@ -37,13 +37,13 @@ function newip_add_provider {
 }
 
 function check_ip {
-    if [ "${newip[*]}" != "${newip[*]//$1}" ]; then 
-	if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
-	    [ "$multi" == "1" ] && new_ip_proxy
-	    [ "$multi" == "0" ] && new_ip_router
-	else
+    if [ "${newip[*]}" != "${newip[*]//$1}" ]; then
+	# if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
+	#     [ "$multi" == "1" ] && new_ip_proxy
+	#     [ "$multi" == "0" ] && new_ip_router
+	# else
 	    new_ip_proxy
-	fi
+#	fi
     fi
 }
 
@@ -168,7 +168,7 @@ function new_ip_proxy {
     
     maxspeed=0
     minspeed=25
-    unset close unreached speed num_speed type_speed
+    unset close unreached speed type_speed
     rm -f "$path_tmp/proxy.tmp"
     while true; do
 	proxy=""
@@ -181,7 +181,7 @@ function new_ip_proxy {
 	#[ "$url_in" != "${url_in//mediafire.}" ] && proxy_types=( "Elite" )
 	#[ "$url_in" != "${url_in//uload.}" ] && proxy_types=( "Anonymous" "Elite" )
 	#[ "$url_in" != "${url_in//shareflare.}" ] && proxy_types=( "Transparent" )
-	#[ "$url_in" != "${url_in//easybytez.}" ] && proxy_types=( "Transparent" )
+	[ "$url_in" != "${url_in//easybytez.}" ] && proxy_types=( "Anonymous" )
 	[ "$url_in" != "${url_in//glumbouploads.}" ] && proxy_types=( "Anonymous" "Elite" )
 	ptypes="${proxy_types[*]}"
 	print_c 1 "Aggiorna proxy (${ptypes// /, }):"
@@ -227,16 +227,16 @@ function new_ip_proxy {
 		(( search_proxy++ ))
 		[ $search_proxy == 100 ] && print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" && noproxy && close=true && break
 	    fi
-	    if [ $line == $max ] || [ "$string_line" == "" ]; then
+	    if [ "$line" == "$max" ] || [ "$string_line" == "" ]; then
 		rm -f "$path_tmp/proxy.tmp"
 		line=0
 	    fi
-	    (( line++ ))
+	    [ ! -z "$line" ] && (( line++ ))
 	    [ "$proxy" != "" ] && [ "${proxy_done[*]}" == "${proxy_done[*]//$proxy}" ] && proxy_done[${#proxy_done[*]}]="$proxy"
 	done
-	unset search_proxy
-	[ ! -z $close ] && break
-	http_proxy=$proxy
+	unset search_proxy num_speed
+	[ ! -z "$close" ] && break
+	http_proxy="$proxy"
 	export http_proxy
 	echo -n "Proxy: $http_proxy ($proxy_type)"
 	echo
@@ -245,7 +245,8 @@ function new_ip_proxy {
 	i=0
 	while (( $i<3 )); do
 	    i=${#speed[*]}
-	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+#	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "${list_proxy_url[$proxy_server]}" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
 	    if [ ! -z "${speed[$i]}" ]; then
 		speed[$i]="${speed[$i]#*'('}"
 		speed[$i]="${speed[$i]%%)*}"
@@ -254,7 +255,7 @@ function new_ip_proxy {
 		num_speed[$i]="${speed[$i]//${type_speed[$i]}}"
 		num_speed[$i]="${num_speed[$i]//[ ]*}"
 		num_speed[$i]="${num_speed[$i]//[.,]*}"
-		
+
 		if [ "${type_speed[$i]}" == 'B/s' ]; then
 		    num_speed[$i]="0"
 		elif [ "${type_speed[$i]}" == 'MB/s' ]; then
@@ -265,8 +266,10 @@ function new_ip_proxy {
 		num_speed[$i]="0"
 		type_speed[$i]='KB/s'
 	    fi
-	    
 	    echo "${speed[$i]}"
+	    if [ "${num_speed[0]}" == 0 ]; then
+		break
+	    fi
 	done 2>/dev/null
 	
 	if [ -z $unreached ]; then

@@ -27,13 +27,13 @@
 
 
 if [ "$url_in" != "${url_in//easybytez}" ]; then
-    file_in=`wget -t 1 -T $max_waiting -O - $url_in -q 2>/dev/null |grep '<span class="name">'`
+    file_in=`wget -t 1 -T $max_waiting -O - "$url_in" -q 2>/dev/null |grep '<span class="name">'`
     file_in="${file_in#*>}"
     file_in="${file_in%%<*}"
     url_in_file="${url_in}"
     
     not_available=`wget -t 1 -T $max_waiting -q -O - "$url_in" |grep "File not available"`
-    if [ ! -z "$not_available" ]; then 
+    if [ ! -z "$not_available" ]; then
 	_log 3
 	break
     fi
@@ -60,6 +60,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    countdown=40
 	else
 	    check_ip easybytez
+
 	    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
 	    echo -e "...\c"
 	    

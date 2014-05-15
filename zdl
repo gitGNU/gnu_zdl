@@ -618,6 +618,7 @@ while true; do
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
+
 		## user extensions
 		if [ -d "$path_conf/extensions/" ]; then
 		    shopt -s nullglob
@@ -637,7 +638,7 @@ while true; do
 		fi
 		
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
-		
+
 		echo
 		header_box "Link da processare:"
 		echo -e "$url_in\n"
