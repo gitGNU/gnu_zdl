@@ -87,3 +87,27 @@ function htmldecode {
 
 }
 
+function urlencode {
+    char=( '+' '/' '=' )
+    encoded=( '%2B' '%2F' '%3D' )
+
+    text="$1"
+    for i in $(seq 0 $(( ${#char[*]}-1 )) ); do
+	text="${text//${char[$i]}/${encoded[$i]}}"
+    done
+    
+    echo -n "$text"
+}
+
+function add_container {
+    container=$(urlencode "$1")
+    URLlist=$(wget -q "http://dcrypt.it/decrypt/paste" --post-data="content=${container}" -O- |grep "http://")
+    unset new
+    for ((i=1; i<=$(wc -l <<< "$URLlist"); i++)); do
+	new=$(sed -n ${i}p  <<< "$URLlist" |sed -r "s|.*\"(.+)\".*|\\1|g")
+	[ "$i" == 1 ] && url_in="$new"
+	#links_loop + "$new"
+	echo -e "${new// /%20}" >> "$path_tmp"/links_loop.txt && print_c 1 "Aggiunto URL: $new"
+    done
+    unset new
+}

@@ -462,29 +462,33 @@ done
 
 if [ ! -z "${args[*]}" ]; then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
-	for i in `seq 0 $max_args`; do
-	    if [ -f "${args[$i]}" ]; then
-		links=`cat "${args[$i]}"` 
+    for i in `seq 0 $max_args`; do
+	if [ -f "${args[$i]}" ]; then
+	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]; then
+		add_container $(cat container_file)
+	    else
+		links=`cat "${args[$i]}"`
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
-	    elif [ ! -z "${args[$i]}" ]; then
-		args[$i]="${args[$i]// /%20}"
-		link_parser "${args[$i]}"
-		if [ "$?" == 1 ]; then
-		    echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
-		    links="${links}\n${args[$i]}"
-		else
-		    _log 12 "${args[$i]}"
-		fi
 	    fi
-	done
-	if [ -f "$path_tmp"/links_loop.txt ];then 
-	    file="$path_tmp/links_loop.txt"
-	    clean_file "$path_tmp"/links_loop.txt
-	    echo >> links.txt 2>/dev/null
-	    date >> links.txt 2>/dev/null
-	    cat "$path_tmp"/links_loop.txt >> links.txt 2>/dev/null
-	    print_c 1 "L'elenco completo dei link è in links.txt"
+	elif [ ! -z "${args[$i]}" ]; then
+	    args[$i]="${args[$i]// /%20}"
+	    link_parser "${args[$i]}"
+	    if [ "$?" == 1 ]; then
+		echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
+		links="${links}\n${args[$i]}"
+	    else
+		_log 12 "${args[$i]}"
+	    fi
 	fi
+    done
+    if [ -f "$path_tmp"/links_loop.txt ];then 
+	file="$path_tmp/links_loop.txt"
+	clean_file "$path_tmp"/links_loop.txt
+	echo >> links.txt 2>/dev/null
+	date >> links.txt 2>/dev/null
+	cat "$path_tmp"/links_loop.txt >> links.txt 2>/dev/null
+	print_c 1 "L'elenco completo dei link è in links.txt"
+    fi
 fi
 
 ###########################################
@@ -698,7 +702,11 @@ while true; do
 		    fi
 		    
 		fi
-		
+		if [ "$break_loop" == "true" ]; then
+		    unset break_loop
+		    break
+		fi
+
 		file_in="${file_in// /_}"
 		file_in="${file_in//\'/_}"
 		file_in="${file_in##*/}"
@@ -710,11 +718,6 @@ while true; do
 		check_in_file
 		test_in=$?
 		[ "$test_freespace" == "1" ] && unset test_in test_freespace
-
-		if [ "$break_loop" == "true" ]; then
-		    unset break_loop
-		    break
-		fi
 
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
