@@ -29,8 +29,9 @@
 if [ "$url_in" != "${url_in//'ncrypt.in/folder'}" ]; then
     links_loop - "$url_in"
     html=$(wget -q -O- "$url_in"|grep ".dlc")
-    container_url="${html#*\"}"
-    container_url="http://ncrypt.in${container_url%%\"*}"
+    html="${html%.dlc\"*}.dlc"
+    container_url="${html##*\"}"
+    container_url="http://ncrypt.in${container_url}"
     
     print_c 1 "Analisi container DLC ..."
     add_container $(wget -q -O- "$container_url")
