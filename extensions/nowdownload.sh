@@ -153,6 +153,7 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
     test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
     if [ ! -z "$test_file" ]; then
 	_log 3
+	break_loop=true
 	break
     fi
     now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
@@ -220,7 +221,7 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
     fi
     if [ ! -z "$premium" ]; then
 	_log 11
-	break
+	break_loop=true
     else
 	file_in="${url_in_file##*'/'}"
 	file_in="${file_in%'?'*}"
