@@ -159,7 +159,7 @@ function data_stdout {
 			num_percent[$i]=0
 		    fi
 
-		    if [ ! -z "${length_out[$i]}" ] && [ ! -z "${num_percent[$i]//.}" ]; then
+		    if [[ "${length_out[$i]}" =~ [0-9]+ ]] && [[ "${num_percent[$i]//.}" =~ [0-9]+ ]]; then
 			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
 			diff_length=$(( ${diff_length%[,.]*}+1 ))
 		    fi
@@ -169,7 +169,7 @@ function data_stdout {
 			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
 
-		    if [ ! -z "${numspeed}" ] && [ ${numspeed} != 0 ] && [ ! -z "$diff_length" ]; then
+		    if [[ "${numspeed//.}" =~ [0-9]+ ]] && [ ${numspeed} != 0 ] && [ ! -z "$diff_length" ]; then
 			unset seconds minutes hours
 			seconds=$(( $diff_length/${numspeed} ))
 		    fi
