@@ -32,7 +32,7 @@ function data_stdout {
     else
 	list=`ls -1 "$path_tmp"/*_stdout.tmp 2>/dev/null`
     fi
-    if [ ! -z "$list" ]; then
+    if [ ! -z "$list" ] && [ "$list" != "$(ls -1 2>/dev/null)" ]; then
 	export LANG="$prog_lang"
 	export LANGUAGE="$prog_lang"
 	counter_downloading=0

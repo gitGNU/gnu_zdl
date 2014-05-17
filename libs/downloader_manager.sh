@@ -192,8 +192,9 @@ function check_in_file { 	## return --> no_download=1 --> download=5
 	_log 2
 	unset no_newip
     fi
-    
+
     if [ ! -z "${file_in}" ]; then
+
 	if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
 	    no_newip=true
 	    data_stdout
@@ -247,7 +248,6 @@ function check_in_file { 	## return --> no_download=1 --> download=5
 	    fi
 	    
 	elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
-
 	    data_stdout
 	    if [ $? == 1 ]; then
 		for ((i=0; i<${#pid_out[$i]}; i++)); do

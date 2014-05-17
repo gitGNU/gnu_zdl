@@ -27,36 +27,34 @@
 
 
 if [ "$url_in" != "${url_in//easybytez}" ]; then
-    file_in=`wget -t 1 -T $max_waiting -O - "$url_in" -q 2>/dev/null |grep '<span class="name">'`
+    if [ "$login" == "1" ]; then
+	wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
+	echo -e "...\c"
+	tmp="$path_tmp/login.tmp"
+	input_hidden
+	
+	host="easybytez"
+	host_login
+	wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" --post-data="${post_data}&login=${user}&password=${pass}" "http://www.easybytez.com" &>/dev/null
+	unset post_data
+    fi	    
+    file_in=`wget -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies -O - "$url_in" 2>/dev/null |grep '<span class="name">'`
     file_in="${file_in#*>}"
     file_in="${file_in%%<*}"
     url_in_file="${url_in}"
-    
-    not_available=`wget -t 1 -T $max_waiting -q -O - "$url_in" |grep "File not available"`
+    not_available=`wget -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies -O - "$url_in" |grep "File not available"`
     if [ ! -z "$not_available" ]; then
 	_log 3
 	break
     fi
     check_in_file
-    
     if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
 	if [ ! -z "$exceeded_login" ]; then
 	    check_ip easybytez
 	fi
 	if [ "$login" == "1" ]; then
-	    wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
-	    echo -e "...\c"
-	    tmp="$path_tmp/login.tmp"
-	    input_hidden
-	    
-	    host="easybytez"
-	    host_login
-	    wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" --post-data="${post_data}&login=${user}&password=${pass}" "http://www.easybytez.com" &>/dev/null
-	    
-	    unset post_data
 	    wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
 	    echo -e "...\c"
-	    
 	    countdown=40
 	else
 	    check_ip easybytez
