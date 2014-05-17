@@ -240,10 +240,9 @@ function make_progress {
 	fi		    
     fi
     [ -z "${num_percent[$i]//.}" ] && num_percent[$i]=0
-    if [[ "${num_percent[$i]//.}" =~ [0-9]+ ]];then
-	size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 ))
-    fi
+    [[ "${num_percent[$i]//.}" =~ ^[0-9]+$ ]] && size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 )) || size_bar=0
     diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
+
     unset bar diff_bar
     for column in `seq 1 $size_bar`; do
 	bar="${bar_color}${bar} " 

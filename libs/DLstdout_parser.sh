@@ -60,7 +60,14 @@ function data_stdout {
 
 		unset progress_data
 		progress_data=`tail "$file_stdout" 2>/dev/null |grep K |grep % |tail -n 1`
-		progress_data="${progress_data//'..........'}"
+#		progress_data="${progress_data//'..........'}"
+		dots='..........'
+		if [[ "$progress_data" =~ \.+\.+ ]]; then
+		    for ((y=0; y<9; y++)); do
+			progress_data="${progress_data//$dots}"
+			dots="${dots#.}"
+		    done
+		fi
 		progress_data="${progress_data//[\[\]]}"
 		file_o="${file_stdout//_stdout.tmp}"
 		file_o="${file_o#$path_tmp/}"
