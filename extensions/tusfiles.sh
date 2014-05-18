@@ -27,7 +27,7 @@
 
 
 if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
-    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+    wget -q -t 1 -T $max_waiting --no-check-certificate --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
     echo -e "...\c"
     unset post_data
     tmp="$path_tmp/zdl.tmp"
