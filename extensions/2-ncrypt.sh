@@ -36,5 +36,4 @@ if [ "$url_in" != "${url_in//'ncrypt.in/folder'}" ]; then
     print_c 1 "Analisi container DLC ..."
     add_container $(wget -q -O- "$container_url")
     break_loop=true
-    unset url_in
 fi

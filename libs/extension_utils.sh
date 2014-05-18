@@ -101,7 +101,7 @@ function urlencode {
 
 function add_container {
     container=$(urlencode "$1")
-    URLlist=$(wget -q "http://dcrypt.it/decrypt/paste" --post-data="content=${container}" -O- |grep "http://")
+    URLlist=$(wget -q "http://dcrypt.it/decrypt/paste" --post-data="content=${container}" -O- |egrep -e "http" -e "://")
     unset new
     for ((i=1; i<=$(wc -l <<< "$URLlist"); i++)); do
 	new=$(sed -n ${i}p  <<< "$URLlist" |sed -r "s|.*\"(.+)\".*|\\1|g")
