@@ -76,7 +76,7 @@ function download {
 		    if [ $s == 0 ] || [ $s == $max_waiting ] || [ $s == $(( $max_waiting*2 )) ]; then 
 			kill "$wpid" 2>/dev/null
 			rm -f "$path_tmp/redirect"
-			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
+			wget -t 1 -T $max_waiting --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
 			wpid=$!
 		    fi
 		    url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
