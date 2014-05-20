@@ -261,6 +261,7 @@ install_zdl-wise
 
 chmod +rx -R .
 bold "Installazione in $BIN"
+try mkdir -p $BIN
 try mv zdl zdl-xterm $BIN 
 cd ..
 
