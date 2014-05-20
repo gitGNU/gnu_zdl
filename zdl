@@ -519,7 +519,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     if [ -z "$pipe" ]; then
 	header_box "Links"
 	header_dl "Servizi"
-	echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\nVimeo (HD), Speedvideo (HD), Youtube, Nowvideo, Movshare, Dailymotion, Metacafe, Topvideo, Rapidvideo, VK, Rai.tv, Portalevideo.unimi.it\n\n${BBlue}File hosting (link della prima pagina web, anche da Italiafilm):${Color_Off}\nNowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Uload, Easybytez e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot (Firefox/Iceweasel/Icecat), Download Assistant e Simple Get (Chrome/Chromium)\n" 
+	echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\nVimeo (HD), Speedvideo (HD), Youtube, Nowvideo, Movshare, Dailymotion, Metacafe, Topvideo, Rapidvideo, VK, Rai.tv, Tvdigit.it, Portalevideo.unimi.it\n\n${BBlue}File hosting (link della prima pagina web, anche da Italiafilm):${Color_Off}\nNowdownload, Likeupload, Rapidshare, Cyberlocker, Tusfiles, BillionUploads, Glumbouploads, Mediafire, Uload, Easybytez e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot (Firefox/Iceweasel/Icecat), Download Assistant e Simple Get (Chrome/Chromium)\n" 
 	header_dl "Comandi"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
