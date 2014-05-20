@@ -313,6 +313,14 @@ elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interacti
     update_updater
 fi
 
+if [ "${args[*]}" != "${args[*]//--reconnect}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--reconnect" ]; then
+	    unset args[$i]
+	    reconnect_sh=true
+	fi
+    done
+fi
 
 if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
     for i in `seq 0 $max_args`; do

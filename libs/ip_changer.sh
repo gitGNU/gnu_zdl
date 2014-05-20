@@ -42,8 +42,13 @@ function check_ip {
 	#     [ "$multi" == "1" ] && new_ip_proxy
 	#     [ "$multi" == "0" ] && new_ip_router
 	# else
-	    new_ip_proxy
+#	    new_ip_proxy
 #	fi
+	if [ "$reconnect_sh" == true ] && [ ! -z "$(which reconnect.sh 2>/dev/null)" ]; then
+	    reconnect.sh
+	else
+	    new_ip_proxy
+	fi
     fi
 }
 
@@ -181,7 +186,7 @@ function new_ip_proxy {
 	#[ "$url_in" != "${url_in//mediafire.}" ] && proxy_types=( "Elite" )
 	#[ "$url_in" != "${url_in//uload.}" ] && proxy_types=( "Anonymous" "Elite" )
 	#[ "$url_in" != "${url_in//shareflare.}" ] && proxy_types=( "Transparent" )
-	[ "$url_in" != "${url_in//easybytez.}" ] && proxy_types=( "Anonymous" )
+	[ "$url_in" != "${url_in//easybytez.}" ] && proxy_types=( "Transparent" "Anonymous" "Elite" )
 	[ "$url_in" != "${url_in//glumbouploads.}" ] && proxy_types=( "Anonymous" "Elite" )
 	ptypes="${proxy_types[*]}"
 	print_c 1 "Aggiorna proxy (${ptypes// /, }):"
@@ -245,8 +250,8 @@ function new_ip_proxy {
 	i=0
 	while (( $i<3 )); do
 	    i=${#speed[*]}
-#	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
-	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "${list_proxy_url[$proxy_server]}" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+#	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "${list_proxy_url[$proxy_server]}" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
 	    if [ ! -z "${speed[$i]}" ]; then
 		speed[$i]="${speed[$i]#*'('}"
 		speed[$i]="${speed[$i]%%)*}"
