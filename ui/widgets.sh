@@ -130,7 +130,7 @@ function separator {
     fi
     echo -n -e "${Color_Off}${BBlue}"
     for column in `seq 1 $COLUMNS`; do echo -n -e "$1" ; done #\e[1;34m
-    echo -n -e "${Color_Off}"
+    echo -n -e "${Color_Off}\n"
 }
 
 # function header {
