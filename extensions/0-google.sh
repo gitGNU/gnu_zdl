@@ -24,11 +24,12 @@
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
+
 		
 if [ "$url_in" != "${url_in//'google.com/url?q='}" ]; then
     url_in_old="$url_in"
-    url_in="${url_in_old#*'google.com/url?q='}"
-    url_in="${url_in%'&sa=U'*}"
+    url_in="${url_in_old#*'?q='}"
+    url_in="${url_in%'&sa='*}"
     links_loop - "$url_in_old"
     links_loop + "$url_in"
 fi

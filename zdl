@@ -664,7 +664,7 @@ while true; do
 		    shopt -u nullglob
 		fi
 		###################
-		
+
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 		    if [ "$update_proxy_others_list" == "true" ]; then
 			new_ip_proxy
