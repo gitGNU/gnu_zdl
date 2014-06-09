@@ -30,6 +30,7 @@ if [ "$url_in" != "${url_in//'google.com/url?q='}" ]; then
     url_in_old="$url_in"
     url_in="${url_in_old#*'?q='}"
     url_in="${url_in%'&sa='*}"
+    url_in=$(urldecode "$url_in")
     links_loop - "$url_in_old"
     links_loop + "$url_in"
 fi

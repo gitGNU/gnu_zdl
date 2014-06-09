@@ -51,7 +51,7 @@ if [ "$url_in" != "${url_in//'speedvideo.net'}" ]; then
 	url_in_file="${url_in_file#*\'}"
 	url_in_file="${url_in_file%\'*}"
 	url_in_file="${url_in_file%\.*}.$ext"
-	if [ -z "$url_in_file" ]; then
+	if [ -z "$url_in_file" ] || [ "$url_in_file" == "${url_in_file#http}" ]; then
 	    links_loop - "$url_in"
 	    print_c 3 "$url_in --> $name_prog non è riuscito ad estrarre l'URL del file $file_in" | tee -a $file_log
 	    break_loop=true
