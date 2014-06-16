@@ -45,6 +45,7 @@ function check_ip {
 #	    new_ip_proxy
 #	fi
 	if [ "$reconnect_sh" == true ] && [ ! -z "$(which reconnect.sh 2>/dev/null)" ]; then
+	    noproxy
 	    reconnect.sh
 	else
 	    new_ip_proxy

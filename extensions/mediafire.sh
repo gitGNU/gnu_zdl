@@ -31,9 +31,9 @@ if [ "$url_in" != "${url_in//mediafire.}" ]; then
     get_tmps
     url_in_file=`cat "$path_tmp"/zdl.tmp |grep 'kNO = '`
     url_in_file=${url_in_file#*'kNO = "'}
-    url_in_file=${url_in_file//\" onclick=\"avh*/}
-    url_in_file=${url_in_file%'"'*}
-    
+#    url_in_file=${url_in_file//\" onclick=\"avh*/}
+    url_in_file=${url_in_file%%\"*}
+    [ -z "$url_in_file" ] && break_loop=true && newip[${#newip[*]}]=mediafire
     file_in=${url_in_file##*'/'}
     axel_parts=4
 fi
