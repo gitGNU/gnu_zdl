@@ -30,8 +30,8 @@
 if [ "$url_in" != "${url_in//'rai.tv'}" ]; then
     if [ "${url_in}" == "${url_in//dirette}" ]; then 
 	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
-	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "videourl_mp4")
-	url_in_file="${url_in_file#*content=\"}"
+	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "videoURL_MP4")
+	url_in_file="${url_in_file#*\"}"
 	url_in_file="${url_in_file%%\"*}"
 	file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "title>")
 	file_in="${file_in#*'title>'}"
