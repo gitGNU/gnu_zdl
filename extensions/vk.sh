@@ -26,25 +26,18 @@
 #
 
 
-if [ "$url_in" != "${url_in//vk.com\/video_ext}" ]; then
+if [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
-    echo -e "...\c"
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep flashvars |head -n 1)
- 
-    url_in_file="${data_in_file%'&amp;jpg='*}"
-    url_in_file="${url_in_file##*'='}"
+
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache)
+    url_in_file="${data_in_file##*cache}"
+    url_in_file="${url_in_file#*'\":\"'}"
+    url_in_file="${url_in_file%%'\"'*}"
+    url_in_file="${url_in_file//'\\\'}"
 
     ext="${url_in_file##*'.'}"
-    echo "${url_in_file}"
-
-    referer="${data_in_file#*referrer=}"
-    referer=$(urldecode "${referer%%'&amp;'*}" )
-    if [ ! -z "$referer" ]; then
-	wget "$referer" -O "$path_tmp"/zdl2.tmp -q 
-	file_in=$(cat "$path_tmp"/zdl2.tmp 2>/dev/null | grep "title>")
-	file_in="${file_in#*'title>'}"
-	file_in="${file_in%'</title'*}.$ext"
-    else
-	file_in="${url_in_file##*\/}"
-    fi
+    ext="${ext%'?'*}"
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
+    file_in="${data_in_file##*title\":\"}"
+    file_in="${file_in%%\"*}.$ext"
 fi
