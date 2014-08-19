@@ -25,8 +25,21 @@
 # zoninoz@inventati.org
 #
 
+if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
+    wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
-if [ "$url_in" != "${url_in//vk.com\/video}" ]; then
+    data_in_file=$(wget -O- "$url_in" -q |grep cache | head -n 3 | tail -n 1)
+    url_in_file="${data_in_file##*cache}"
+    url_in_file="${url_in_file#*\":\"}"
+    url_in_file="${url_in_file%%\"*}"
+    url_in_file="${url_in_file//'\'}"
+
+    ext="${url_in_file##*'.'}"
+    ext="${ext%'?'*}"
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
+    file_in="${data_in_file##*title\":\"}"
+    file_in="${file_in%%\"*}.$ext"
+elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
     data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache)
