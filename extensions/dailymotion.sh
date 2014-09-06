@@ -26,27 +26,19 @@
 #
 
 if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]; then
-    get_tmps
-    urldecode "$(cat $path_tmp/zdl.tmp | grep flashvars)" > $path_tmp/zdl2.tmp
-    urldecode "$(cat $path_tmp/zdl2.tmp )" > $path_tmp/zdl3.tmp
-    code="$(cat $path_tmp/zdl3.tmp )"
-    code="${code##*video_url\":\"}"
-    test="$(cat $path_tmp/zdl3.tmp |grep video_url)"
-    if [ -z "$test" ]; then
-	#############
-	## da continuare:
-	##
-	# video_url="${code##*autoURL\":\"}"
-	# video_url="${video_url//'\'}"
-	#fi
-        #################
-	
-	print_c 3 "Filmato non ancora estraibile da $url_in" | tee -a $file_log
-	not_available=true
-    else
-	url_in_file="${code%%\"*}"
-	file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
-	file_in="${file_in#*'<title>'}"
-	file_in="${file_in%'</title>'*}.mp4"
-    fi
+    wget -q "$url_in" -O $path_tmp/zdl.tmp
+    file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
+    file_in="${file_in#*'<title>'}"
+    file_in="${file_in%'</title>'*}.mp4"
+
+    url_in2="${url_in//'/video/'//embed/video/}"
+    url_in2="${url_in2%%_*}"
+
+    code=$(urldecode "$(wget -q $url_in2 -O -)" | grep mp4\?auth)
+    auth="${code##*'mp4?auth='}"
+    auth="${auth%%\"*}"
+    url_in_file="${code%$auth*}$auth"
+    url_in_file="${url_in_file##*\"}"
+    url_in_file="${url_in_file//'\/'//}"
+    
 fi
