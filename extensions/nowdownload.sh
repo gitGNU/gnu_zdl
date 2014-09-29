@@ -226,6 +226,10 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 	file_in="${url_in_file##*'/'}"
 	file_in="${file_in%'?'*}"
     fi
+
+    if [ -z "$file_in" ]; then
+	break_loop=true
+    fi
     unset preurl_in_file 
 fi
 
