@@ -151,6 +151,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    fi
 	    file_in="${file_in// /_}"
 	    file_in="${file_in##*/}"
+	    file_in="${file_in::240}"
 	    cfile="$5"
 	    cookie="$6"
 	    referer="$7"
@@ -160,6 +161,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		ext="${file_in##*.}"
 		file_in2=`wget "$referer" -O - -q | grep "&amp;title="`
 		file_in2="${file_in2#*'&amp;title='}"
+		file_in2="${file_in2::240}"
 		[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
 	    fi
 
@@ -675,7 +677,7 @@ while true; do
 			last_out=$(( ${#pid_out[*]}-1 ))
 			for j in `seq 0 $last_out`; do
 			    if [ "$url_in" == "${url_out[$j]}" ]; then
-				file_in="${file_out[$j]}"
+				file_in="${file_out[$j]::240}"
 				break
 			    fi
 			done
@@ -690,6 +692,7 @@ while true; do
 			    if [ "${url%% }" == "$url_in" ]; then
 				item="${item// /_}"
 				file_in="${item#*filename_}"
+				file_in="${file_in::240}"
 				file_in="${file_in%.txt}"
 				break
 			    fi
@@ -702,6 +705,7 @@ while true; do
 			file_in="${file_in%'?'*}"
 			file_in="${file_in%%'&'*}"
 		    fi
+		    file_in="${file_in::240}"
 		    url_in_file="${url_in%% }"
 		    url_in_file="${url_in_file## }"
 		    
@@ -718,7 +722,7 @@ while true; do
 		file_in="${file_in// /_}"
 		file_in="${file_in//\'/_}"
 		file_in="${file_in##*/}"
-
+		file_in="${file_in::255}"
        		#### CHECK $url_in_file & $file_in:
 
 		check_freespace
