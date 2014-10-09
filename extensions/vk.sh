@@ -26,14 +26,20 @@
 #
 
 if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
-    wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
+    wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
-    data_in_file=$(wget -O- "$url_in" -q |grep cache | head -n 3 | tail -n 1)
-    url_in_file="${data_in_file##*cache}"
-    url_in_file="${url_in_file#*\":\"}"
-    url_in_file="${url_in_file%%\"*}"
-    url_in_file="${url_in_file//'\'}"
-
+    data_in_file=$(cat "$path_tmp/zdl.tmp" |grep cache | head -n 3 | tail -n 1)
+    if [[ "$data_in_file" =~ http ]]; then
+	url_in_file="${data_in_file##*cache}"
+	url_in_file="${url_in_file#*\":\"}"
+	url_in_file="${url_in_file%%\"*}"
+	url_in_file="${url_in_file//'\'}"
+    else
+	data_in_file=$(cat "$path_tmp/zdl.tmp" |grep flashvars)
+	url_in_file="${data_in_file##*url[0-9]}"
+	url_in_file="${url_in_file#*\=}"
+	url_in_file="${url_in_file%%\?*}"
+    fi
     ext="${url_in_file##*'.'}"
     ext="${ext%'?'*}"
     data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
@@ -41,7 +47,7 @@ if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
     file_in="${file_in%%\"*}"
     file_in="${file_in::240}.$ext"
 elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
-    wget --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
+    wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
     data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache)
     url_in_file="${data_in_file##*cache}"
