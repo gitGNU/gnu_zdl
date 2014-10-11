@@ -62,3 +62,5 @@ elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     file_in="${file_in%%\"*}"
     file_in="${file_in::240}.$ext"
 fi
+
+[ ! -z "$file_in" ] && file_in=$(urldecode "$file_in")
