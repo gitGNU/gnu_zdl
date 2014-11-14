@@ -475,7 +475,7 @@ if [ ! -z "${args[*]}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ -f "${args[$i]}" ]; then
 	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]; then
-		add_container $(cat container_file)
+		add_container $(cat "${args[$i]}") # container_file)
 	    else
 		links=`cat "${args[$i]}"`
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
