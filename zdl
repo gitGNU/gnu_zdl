@@ -700,7 +700,7 @@ while true; do
 		    fi
 		    
 		## universal downloader
-		    if [ -z "$file_in" ]; then
+		    if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
 			file_in="${url_in##*'/'}"
 			file_in="${file_in%'?'*}"
 			file_in="${file_in%%'&'*}"
