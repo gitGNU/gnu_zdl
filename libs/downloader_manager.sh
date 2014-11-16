@@ -121,7 +121,7 @@ function download {
 	if [ ! -z "${post_data}" ]; then
 	    method_post="--post-data=${post_data}"
 	fi
-	[ "$file_in" != "" ] && argout="-O" && fileout="$file_in"
+	[ "$file_in" != "" ] && argout="--trust-server-names" #argout="-O" && fileout="$file_in"
 	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES "$method_post" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
