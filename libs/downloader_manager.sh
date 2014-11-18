@@ -65,37 +65,41 @@ function download {
     export LANGUAGE="$prog_lang"
     unset headers
     rm -f "$path_tmp/${file_in}_stdout.tmp"
+    if [ "$redirected" == "true" ]; then
+	k=`date +"%s"`
+	s=0
+	while true; do
+	    if [ $s == 0 ] || [ $s == $max_waiting ] || [ $s == $(( $max_waiting*2 )) ]; then 
+		kill "$wpid" 2>/dev/null
+		rm -f "$path_tmp/redirect"
+		wget -t 1 -T $max_waiting --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
+		wpid=$!
+	    fi
+	    url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
+	    check_pid "$wpid"
+	    if [ ! -z "$url_redirect" ] || [ $? != 1 ]; then 
+		kill "$wpid" 2>/dev/null
+		break
+	    elif (( $s>90 )); then
+		kill "$wpid" 2>/dev/null
+		return
+	    else
+		[ $s == 0 ] && print_c 2 "Redirezione (attendi massimo 90 secondi):"
+		sleeping 1
+		s=`date +"%s"`
+		s=$(( $s-$k ))
+		echo -e $s"\r\c"
+	    fi
+	done
+	url_in_file="$url_redirect"
+	unset redirected url_redirect
+	rm -f "$path_tmp/redirect"
+    fi
+
     if [ "$downloader_in" = "Axel" ]; then
 	[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
-	    if [ "$redirected" == "true" ]; then
-		k=`date +"%s"`
-		s=0
-		while true; do
-		    if [ $s == 0 ] || [ $s == $max_waiting ] || [ $s == $(( $max_waiting*2 )) ]; then 
-			kill "$wpid" 2>/dev/null
-			rm -f "$path_tmp/redirect"
-			wget -t 1 -T $max_waiting --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
-			wpid=$!
-		    fi
-		    url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
-		    check_pid "$wpid"
-		    if [ ! -z "$url_redirect" ] || [ $? != 1 ] || (( $s>90 )); then 
-			kill "$wpid" 2>/dev/null
-			break
-		    else
-			[ $s == 0 ] && print_c 2 "Attendi massimo 90 secondi:"
-			sleeping 1
-			s=`date +"%s"`
-			s=$(( $s-$k ))
-			echo -e $s"\r\c"
-		    fi
-		done
-		url_in_file="$url_redirect"
-		unset redirected url_redirect
-		rm -f "$path_tmp/redirect"
-	    fi
 	    sleeping 3
 	    axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	elif [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
@@ -173,7 +177,7 @@ function check_in_url { 	## return --> no_download=1
 }
 
 
-function check_in_file { 	## return --> no_download=1 --> download=5
+function check_in_file { 	## return --> no_download=1 / download=5
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"
     if [ ! -z "$exceeded" ]; then
@@ -188,14 +192,14 @@ function check_in_file { 	## return --> no_download=1 --> download=5
     elif [ "$url_in_file" != "${url_in_file//{\"err\"/}" ]; then
 	_log 2
 	unset no_newip
-    elif [ -z "$url_in_file" ] || [ -z "${file_in}" ]; then
+    elif [ -z "$url_in_file" ] || ( [ -z "${file_in}" ] && [ "$downloader_in" == "Axel" ] ); then
 	_log 2
 	unset no_newip
     fi
 
     if [ ! -z "${file_in}" ]; then
 
-	if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" = "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
+	if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" == "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
 	    no_newip=true
 	    data_stdout
 	    if [ $? == 1 ]; then

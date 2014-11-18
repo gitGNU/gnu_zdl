@@ -53,13 +53,13 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    check_ip easybytez
 	fi
 	if [ "$login" == "1" ]; then
-	    wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
+	    wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
 	    echo -e "...\c"
 	    countdown=40
 	else
 	    check_ip easybytez
 
-	    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in_file &>/dev/null
+	    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
 	    echo -e "...\c"
 	    
 	    countdown=60
@@ -68,7 +68,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	tmp="$path_tmp/zdl.tmp"
 	input_hidden
 	
-	wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in_file -O "$path_tmp"/zdl2.tmp &>/dev/null
+	wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 	echo -e "...\c"
 
 	exceeded=`cat "$path_tmp"/zdl2.tmp |grep "Upgrade your account to download bigger files"`
@@ -81,7 +81,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    tmp="$path_tmp/zdl2.tmp"
 	    input_hidden
 	    
-	    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in_file -O "$path_tmp"/zdl3.tmp &>/dev/null
+	    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
 	    echo -e "...\c"
 	    unset post_data
 	    
@@ -96,9 +96,10 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`
 	    length_in="${length_in#*\(}"
 	    length_in="${length_in%% *}"
-	    
-	    url_in_file="$url_in_file"
 	    post_data="${post_data}&btn_download=Download File"
+
+	    url_in_file="$url_in"
+	    redirected=true
 	fi
     fi
 fi
