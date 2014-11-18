@@ -46,7 +46,8 @@ function check_ip {
 #	fi
 	if [ "$reconnect_sh" == true ] && [ ! -z "$(which reconnect.sh 2>/dev/null)" ]; then
 	    noproxy
-	    reconnect.sh
+	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
+	    $reconnecter 
 	else
 	    new_ip_proxy
 	fi

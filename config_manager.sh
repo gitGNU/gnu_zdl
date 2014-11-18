@@ -43,27 +43,31 @@ function configure {
 		header_box "Configurazione di $name_prog"
 		get_conf
 		show_conf
-		print_c 2 "Seleziona l'elemento predefinito da modificare (1-10 | *):"
+		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-9 | *):"
 		read opt
-		if [[ "$opt" =~ [0-9] ]] && [[ -z "${opt//[0-9]}" ]] && (( $opt > 0 )) && (( $opt < 11 )); then 
+		if [[ "$opt" =~ [0-9] ]] && [[ -z "${opt//[0-9]}" ]] && (( $opt > 0 )) && (( $opt <= ${#key_conf[*]} )); then 
 		    (( opt-- ))
-		    print_c 2 "Scrivi il nuovo valore per <${item_options[$opt]}>:"
-		    if [ "${item_options[$opt]}" == "passwd" ]; then
-			read -ers new_value
+		    header_box "Scrivi il nuovo valore"
+		    if [ "${key_conf[$opt]}" == "$reconnecter" ]; then
+			extra_string=" [è necessario indicare il path completo e valido]"
+		    fi
+		    print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
+		    read new_value
+		    
+		    if [ "${key_conf[$opt]}" == "reconnecter" ] && [ ! -f "$new_value" ]; then
+			print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
+			pause
 		    else
-			read new_value
+			set_item_conf ${key_conf[$opt]} "$new_value"
 		    fi
-		    set_item_conf ${item_options[$opt]} $new_value
 		    touch "$path_conf/updated"
-		    if [ "${item_options[$opt]}" == "flashgot" ]; then
-			touch "$path_conf/flashgot_updated"
-		    fi
 		fi
 		;;
 	    2)	
 		configure_accounts
 		;;
 	    3) 	echo -e -n "\e[0m\e[J"
+		fclear
 		exit
 		;;
 	esac
@@ -71,23 +75,9 @@ function configure {
 }
 
 function show_conf {
-    echo -e " 1)\tDownloader predefinito (Axel|Wget): $downloader_in"
-    echo -e " 2)\tNumero di parti in download parallelo per Axel: $axel_parts"
-    echo -e " 3)\tModalità di download predefinita (single|multi): $mode"
-    echo -e " 4)\tModalità di download predefinita per lo stream dal browser (single|multi): $stream_mode"
-    echo -e " 5)\tNumero massimo di download simultanei: $num_multi"
-    echo -e " 6)\tAspetto (color): $skin"
-    echo -e " 7)\tLingua: $language"
-    echo -e " 8)\tNome utente del modem-router: $admin"
-    unset p
-    for i in `seq 1 ${#passwd}`; do
-	p="${p}*"
-    done 
-    echo -e " 9)\tPassword del modem-router: $p"
-    echo -e "10)\tAggiornamenti automatici di $PROG (enabled|*): $autoupdate"
-    echo
-
-    item_options=( downloader axel_parts mode stream_mode num_multi skin language admin passwd autoupdate )
+    for ((i=0; i<${#key_conf[*]}; i++)); do
+	echo -e "\t< ${IBlue}$(( $i+1 ))$Color_Off > ${string_conf[$i]}: ${IBlue}$(eval echo \$${key_conf[$i]})$Color_Off"
+    done
 }
 
 function show_accounts {

@@ -25,6 +25,18 @@
 # zoninoz@inventati.org
 #
 
+# chiavi di configurazione -- valori predefiniti  --          descrizione per il config-manager
+key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Downloader predefinito (Axel|Wget)"
+key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
+key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
+key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
+key_conf[4]=num_multi;        val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
+key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="Aspetto (color)"
+key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
+key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
+key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
+
+#unset autoupdate
 
 function add_conf { #only if item doesn't exist
     item="$1"
@@ -50,23 +62,25 @@ function add_conf { #only if item doesn't exist
 function set_default_conf {
     mkdir -p "$path_conf"
     touch "$file_conf"
-    add_conf "downloader=Axel"
+    add_conf "${key_conf[0]}=${val_conf[0]}"
     if [ ! -e "/cygdrive" ]; then
-	add_conf "axel_parts=32"
+	add_conf "${key_conf[1]}=32"
     else
-	add_conf "axel_parts=10"
+	add_conf "${key_conf[1]}=10"
     fi
     
-    add_conf "skin=color"
     add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel) or NUMBER OF SIMULTANEUS DOWNLOADS"
-    add_conf "mode=single"
-    add_conf "stream_mode=single"
-    add_conf "num_multi="
-    add_conf "# modem router credentials"
-    add_conf "admin="
-    add_conf "passwd="
-    add_conf "language=$LANG"
-    add_conf "autoupdate=enabled"
+    add_conf "${key_conf[2]}=${val_conf[2]}" #"mode=single"
+    add_conf "${key_conf[3]}=${val_conf[3]}" #"stream_mode=single"
+    add_conf "${key_conf[4]}=" #"num_multi="
+    add_conf "${key_conf[5]}=${val_conf[5]}" #skin
+
+#    add_conf "# modem router credentials"
+#    add_conf "admin="
+#    add_conf "passwd="
+    add_conf "${key_conf[6]}=${val_conf[6]}" #"language=$LANG"
+    add_conf "${key_conf[7]}=${val_conf[7]}" #"reconnect="
+    add_conf "${key_conf[8]}=${val_conf[8]}" #"autoupdate=enabled"
 }
 
 function get_item_conf {
@@ -111,7 +125,7 @@ function get_conf {
     source "$file_conf"
     downloader_in="$downloader"
     if [ -z "$downloader_in" ]; then
-	downloader_in=Axel
+	downloader_in=${val_conf[0]}
     fi
     
     axel_parts_conf="$axel_parts"
@@ -127,7 +141,7 @@ function get_conf {
     axel_parts=$axel_parts_conf
     
     if [ -z "$skin" ]; then
-	skin=color
+	skin=${val_conf[5]}
     fi
 
     if [[ ! "$num_multi" =~ [0-9] ]] && [[ ! -z "${num_multi//[0-9]}" ]]; then

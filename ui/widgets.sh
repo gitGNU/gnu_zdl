@@ -117,6 +117,10 @@ function print_c {
 	    3)
 		echo -n -e '\e[1;31m' #rosso
 		;;	
+	    4)
+		echo -n -e "$IBlue"
+		;;	
+
 	esac
 	echo -n -e "$2\n"
 	echo -n -e "${Color_Off}"
