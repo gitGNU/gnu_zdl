@@ -118,7 +118,7 @@ function print_c {
 		echo -n -e '\e[1;31m' #rosso
 		;;	
 	    4)
-		echo -n -e "$IBlue"
+		echo -n -e "$BBlue"
 		;;	
 
 	esac

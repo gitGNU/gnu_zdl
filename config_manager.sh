@@ -43,7 +43,7 @@ function configure {
 		header_box "Configurazione di $name_prog"
 		get_conf
 		show_conf
-		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-9 | *):"
+		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-${#key_conf[*]} | *):"
 		read opt
 		if [[ "$opt" =~ [0-9] ]] && [[ -z "${opt//[0-9]}" ]] && (( $opt > 0 )) && (( $opt <= ${#key_conf[*]} )); then 
 		    (( opt-- ))
@@ -76,7 +76,7 @@ function configure {
 
 function show_conf {
     for ((i=0; i<${#key_conf[*]}; i++)); do
-	echo -e "\t< ${IBlue}$(( $i+1 ))$Color_Off > ${string_conf[$i]}: ${IBlue}$(eval echo \$${key_conf[$i]})$Color_Off"
+	echo -e "\t< ${BBlue}$(( $i+1 ))$Color_Off > ${string_conf[$i]}: ${BBlue}$(eval echo \$${key_conf[$i]})$Color_Off"
     done
 }
 
