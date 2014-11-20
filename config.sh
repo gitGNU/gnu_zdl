@@ -329,7 +329,7 @@ function init {
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
 
     ## elenco chiavi proxy_server: proxy_list, ip_adress
-    proxy_server='ip-adress'
+    proxy_server='ip_adress'
     declare -g -A list_proxy_url
 
     ### "http://www.ip-adress.com/proxy_list/"
