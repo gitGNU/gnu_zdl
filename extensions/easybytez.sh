@@ -56,6 +56,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
 	    echo -e "...\c"
 	    countdown=40
+	    redirected=true
 	else
 	    check_ip easybytez
 
@@ -99,7 +100,6 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    post_data="${post_data}&btn_download=Download File"
 
 	    url_in_file="$url_in"
-	    redirected=true
 	fi
     fi
 fi

@@ -328,9 +328,14 @@ function init {
     
     newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
 
-    proxy_server="proxy_list"
-    list_proxy_url["ip_adress"]="http://www.ip-adress.com/proxy_list/"
-    list_proxy_url["proxy_list"]="http://proxy-list.org/en/index.php"
+    ## elenco chiavi proxy_server: proxy_list, ip_adress
+    proxy_server='ip-adress'
+    declare -g -A list_proxy_url
+
+    ### "http://www.ip-adress.com/proxy_list/"
+    #list_proxy_url["ip_adress"]="http://zoninoz.hostoi.com/proxy-list.php"
+    list_proxy_url['ip_adress']="http://zoninoz.hostoi.com/new-proxy.php" 
+    list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
     if [ -e /cygdrive ]; then
