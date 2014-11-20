@@ -334,7 +334,7 @@ function init {
 
     ### "http://www.ip-adress.com/proxy_list/"
     #list_proxy_url["ip_adress"]="http://zoninoz.hostoi.com/proxy-list.php"
-    list_proxy_url['ip_adress']="http://zoninoz.hostoi.com/new-proxy.php" 
+    list_proxy_url['ip_adress']="http://zoninoz.hostoi.com" 
     list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
