@@ -198,7 +198,7 @@ function new_ip_proxy {
 	line=1
 	while [ -z "$proxy" ] ; do		
 	    if [ ! -f "$path_tmp/proxy.tmp" ]; then
-		wget -q -t 1 -T 20 --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
+		wget -q -t 1 -T 20 --post-data="cmd=pr0xylist" --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
 		print_c 4 "Ricerca lista proxy $proxy_server: ${list_proxy_url[$proxy_server]}"
 	    fi
 	    rm -f "$path_tmp/proxy2.tmp"
