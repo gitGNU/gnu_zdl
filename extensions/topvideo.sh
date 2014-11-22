@@ -25,39 +25,39 @@
 # zoninoz@inventati.org
 #
 
-function packed {
-    p=$1
-    a=$2
-    c=$3
+# function packed {
+#     p=$1
+#     a=$2
+#     c=$3
 
-    IFS="|"
-    k=( $4 )
-    unset IFS
+#     IFS="|"
+#     k=( $4 )
+#     unset IFS
 
-    e=$5 #non esiste
-    d=$6 #non esiste
+#     e=$5 #non esiste
+#     d=$6 #non esiste
 
-    while [ $c != 0 ]; do
-	 (( c-- ))
-	 base36 "$c"
-	 if [ ! -z "${k[$c]}" ] && [ "${k[$c]}" != 0 ]; then
-	     p=$(echo "$p" |sed s/\\b$int\\b/${k[$c]}/g)
-	     unset int
-	 fi
-    done
-    echo "$p"
-}
+#     while [ $c != 0 ]; do
+# 	 (( c-- ))
+# 	 base36 "$c"
+# 	 if [ ! -z "${k[$c]}" ] && [ "${k[$c]}" != 0 ]; then
+# 	     p=$(echo "$p" |sed s/\\b$int\\b/${k[$c]}/g)
+# 	     unset int
+# 	 fi
+#     done
+#     echo "$p"
+# }
 
-function packed_args {
-    code="${1#*\}\(\'}"
-    code="${code%%\'.split*}"
-    code_p="${code//\}\'*}}"
-    code_a1="${code#*\}\',}"
-    code_a="${code_a1%%,*}"
-    code_c="${code_a1#$code_a,}"
-    code_c="${code_c%%,*}"
-    code_k="${code_a1#*$code_c,\'}"
-}
+# function packed_args {
+#     code="${1#*\}\(\'}"
+#     code="${code%%\'.split*}"
+#     code_p="${code//\}\'*}}"
+#     code_a1="${code#*\}\',}"
+#     code_a="${code_a1%%,*}"
+#     code_c="${code_a1#$code_a,}"
+#     code_c="${code_c%%,*}"
+#     code_k="${code_a1#*$code_c,\'}"
+# }
 
 
 if [ "$url_in" != "${url_in//'topvideo.'}" ]; then

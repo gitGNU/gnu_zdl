@@ -36,8 +36,14 @@ if [ "$url_in" != "${url_in//rapidvideo}" ]; then
     input_hidden
     post_data="${post_data#*&}"
     post_data="${post_data// /%20}"
+
+    wget --load-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl2.tmp" --post-data="${post_data}&imhuman=Continue" "$URLaction" 
+
+    # packed_args "$(cat $path_tmp/zdl2.tmp|grep eval)"
+    # packed_code=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
     
-    wget --load-cookies="$path_tmp"/cookies.zdl --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl2.tmp" --post-data="${post_data}" "$URLaction" -q
+    # url_in_file="${packed_code%%.mp4*}.mp4"
+    # url_in_file="${url_in_file##*\"}"
 
     url_in_file=$(cat "$path_tmp/zdl2.tmp" | grep "{file:'" )
     url_in_file="${url_in_file#*file:\'}"
