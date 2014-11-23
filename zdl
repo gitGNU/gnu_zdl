@@ -501,23 +501,6 @@ if [ ! -z "${args[*]}" ]; then
     fi
 fi
 
-###########################################
-## FLASHGOT AVVIO CONFIGURAZIONE AUTOMATICA
-##
-# local_version=`cat "$path_conf/version.txt" 2>/dev/null`
-# num1=${local_version//*[.,]}
-# num2=${local_version//[.,]*}
-# if [ -f "$path_conf/flashgot_updated" ] || ( [ -f "$path_conf/updated" ] && (( $num1<$version_ffprefs_new )) ); then
-#     if [ "$flashgot" == "enabled" ];then
-# 	flashgot_autoconf
-#     elif [ "$flashgot" != "enabled" ];then
-# 	restore_ffprefs
-#     fi
-# fi
-# rm -f "$path_conf/updated" "$path_conf/flashgot_updated"
-###########################################
-
-
 echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
 
@@ -620,7 +603,7 @@ while true; do
 	    if [ "$?" != 1 ]; then
 		links_loop - "$url_in"
 		_log 12 "$url_in"
-		unset "$url_in"
+		unset url_in
 		break
 	    fi
 	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
