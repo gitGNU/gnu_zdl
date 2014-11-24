@@ -35,8 +35,7 @@ if [ "$url_in" != "${url_in//'speedvideo.net'}" ]; then
     
     if [ -z "$test_speedvideo" ]; then
 	unset post_data
-	tmp="$path_tmp/zdl.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl.tmp"
 	post_data="${post_data}" 
 
 	file_in=`cat "$path_tmp/zdl.tmp" |grep 'fname'`

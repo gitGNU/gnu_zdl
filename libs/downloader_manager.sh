@@ -101,7 +101,7 @@ function download {
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
 	    sleeping 3
-	    axel -n $axel_parts ${url_in_file} $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+	    axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	elif [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
 	    COOKIES=`cat "$path_tmp"/flashgot_cookie.zdl`
 	    if [ ! -z "$COOKIES" ] ; then
@@ -112,6 +112,7 @@ function download {
 	    fi
 	    
 	else
+	    sleeping 2
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
 	pid_in=$!
@@ -131,7 +132,7 @@ function download {
 	else
 	    argout="--trust-server-names"
 	fi
-	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES "$method_post" "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
     fi

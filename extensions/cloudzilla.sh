@@ -25,11 +25,14 @@
 # zoninoz@inventati.org
 #
 
-if [[ "$url_in" =~ (dailymotion\/cdn|dmcdn.net|uploaded\.|easybytez\.|rapidgator\.|cloudzilla.) ]]; then 
-    if [ "$downloader_in" == "Axel" ]; then
-	dler=$downloader_in
-	downloader_in=Wget
-	ch_dler=1
-	print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+if [ "$url_in" != "${url_in//'cloudzilla.to/share/file'}" ]; then
+    file_in=$(sed -r "s|^.+title=\"([^\"]+)\".+$|\1|" <<< $(wget -O- "$url_in" -q |grep download_hdr))
+    link_parser "$url_in"
+    file_id=${parser_path##*\/}
+    tags2vars $(sed -r "s|<[/]{,1}result>||g" <<< $(wget -q -O - "${parser_proto}$parser_domain/generateticket/" --post-data="file_id=$file_id"))
+    if [[ $status == ok ]]; then
+	countdown+ $wait
+	url_in_file="http://$server/download/$file_id/$ticket_id"
+	countdown+ $wait
     fi
 fi

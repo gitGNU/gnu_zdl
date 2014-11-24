@@ -25,11 +25,16 @@
 # zoninoz@inventati.org
 #
 
-if [[ "$url_in" =~ (dailymotion\/cdn|dmcdn.net|uploaded\.|easybytez\.|rapidgator\.|cloudzilla.) ]]; then 
-    if [ "$downloader_in" == "Axel" ]; then
-	dler=$downloader_in
-	downloader_in=Wget
-	ch_dler=1
-	print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+if [ "$url_in" != "${url_in//cineblog01}" ]; then
+    if [[ $(which curl) ]]; then
+	new_url=$(curl "$url_in" -s |grep window.location.href | sed -r 's|^.+\"([^"]+)\".+$|\1|')
+	link_parser "$new_url"
+	if [[ $? == 1 ]]; then
+	    links_loop - "$url_in"
+	    url_in="$new_url"
+	    links_loop + "$url_in"
+	fi
     fi
 fi
+
+

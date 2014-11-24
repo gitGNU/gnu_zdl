@@ -28,14 +28,12 @@
 ## ZDL add-on
 
 if [ "$url_in" != "${url_in//'vimeo.com/'[0-9]}" ]; then
-
 	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
-	url_in_2=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "data-config-url")
-	url_in_2="${url_in_2#*data-config-url=\"}"
-	url_in_2="${url_in_2%%\"*}"
-	htmldecode "${url_in_2}"
-	wget "$decoded_expr" -O "$path_tmp"/zdl2.tmp -q
-	url_in_file=$(cat "$path_tmp"/zdl2.tmp 2>/dev/null)
+	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "data-config-url")
+	url_in_file="${url_in_file#*data-config-url=\"}"
+	url_in_file="${url_in_file%%\"*}"
+	url_in_file=$(htmldecode "${url_in_file}")
+	url_in_file=$(wget "$url_in_file" -O- -q)
 	url_in_file="${url_in_file#*\"url\":\"}"
 	url_in_file="${url_in_file%%\"*}"
 
@@ -45,6 +43,5 @@ if [ "$url_in" != "${url_in//'vimeo.com/'[0-9]}" ]; then
 	file_in="${file_in#*'title>'}"
 	file_in="${file_in%%'</title'*}"
 	file_in="${file_in//\//-}.$ext"
-	htmldecode "$file_in"
-	file_in="$decoded_expr"
+	file_in=$(htmldecode "$file_in")
 fi

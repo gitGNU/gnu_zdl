@@ -35,31 +35,36 @@ function get_tmps {
 }
 
 function input_hidden {
-    j=1
-    cat $tmp | grep input | grep hidden > "$path_tmp"/data.tmp
-    max=`wc -l "$path_tmp/data.tmp" | awk '{ print($1) }'`
-    max=$(( $max+1 ))
-    
-    while [ $j != $max ]; do
-	data=`cat "$path_tmp"/data.tmp |sed -n "${j}p"`
-	name=${data#*name=\"}
-	name=${name%%\"*}
-	value=${data#*value=\"}
-	value=${value%%\"*}
-	
-	if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
-	    file_in="$value"
-	fi
-
-	if [ "$post_data" == "" ]; then
-	    post_data="${name}=${value}"
+    if [ ! -z "$1" ]; then
+	unset post_data datatmp data value name post
+	if [ -f "$1" ]; then
+	    datatmp=$(grep -P "input(.+)hidden" < "$1")
 	else
-	    post_data="${post_data}&${name}=${value}"
+	    datatmp=$(grep -P "input(.+)hidden" <<< "$1")
 	fi
-	(( j++ ))
-    done
-}
 
+	declare -g -A post
+	for ((i=1; i<=$(wc -l <<< "$datatmp"); i++)); do
+	    data=$(sed -n "${i}p" <<< "$datatmp")
+	    name=${data#*name=\"}
+	    name=${name%%\"*}
+	    value=${data#*value=\"}
+	    value=${value%%\"*}
+
+	    [ ! -z "$name" ] && post[$name]="$value"
+	    
+	    if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
+		file_in="$value"
+	    fi
+	    
+	    if [ -z "$post_data" ]; then
+		post_data="${name}=${value}"
+	    else
+		post_data="${post_data}&${name}=${value}"
+	    fi
+	done
+    fi
+}
 
 function pseudo_captcha { #per implementarla, analizzare ../extensions/frozen/sharpfile.sh
     j=0
@@ -83,7 +88,7 @@ function htmldecode {
     for i in $(seq 0 $(( ${#entity[*]}-1 )) ); do
 	decoded_expr="${decoded_expr//${entity[$i]}/${entity_decoded[$i]}}"
     done
-
+    echo "$decoded_expr"
 }
 
 function urlencode {
@@ -94,7 +99,6 @@ function urlencode {
     for i in $(seq 0 $(( ${#char[*]}-1 )) ); do
 	text="${text//${char[$i]}/${encoded[$i]}}"
     done
-    
     echo -n "$text"
 }
 
@@ -111,6 +115,14 @@ function add_container {
     unset new
 }
 
+function base36 {
+    b36arr=( 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z )
+    for i in $(echo "obase=36; $1"| bc); do
+        int="$int${b36arr[${i#0}]}"
+    done
+    echo $int
+}
+
 function packed {
     p=$1
     a=$2
@@ -125,7 +137,7 @@ function packed {
 
     while [ $c != 0 ]; do
 	 (( c-- ))
-	 base36 "$c"
+	 int=$(base36 "$c")
 	 if [ ! -z "${k[$c]}" ] && [ "${k[$c]}" != 0 ]; then
 	     p=$(echo "$p" |sed s/\\b$int\\b/${k[$c]}/g)
 	     unset int
@@ -143,4 +155,44 @@ function packed_args {
     code_c="${code_a1#$code_a,}"
     code_c="${code_c%%,*}"
     code_k="${code_a1#*$code_c,\'}"
+}
+
+function countdown+ {
+    max=$1
+    print_c 2 "Attendi $max secondi:"
+    k=`date +"%s"`
+    s=0
+    while (( $s<$max )); do
+	sleeping 1
+	s=`date +"%s"`
+	s=$(( $s-$k ))
+	echo -e $s"\r\c"
+    done 
+}
+
+function tags2vars {
+    if [[ ! -z $1 ]]; then
+	 eval $(sed -r "s|<([^/<>]+)>([^/<>]+)</([^<>]+)>|\1=\2; |g" <<< "$1")
+    fi
+}
+
+function char2code {
+    char=$1
+    printf "%d" "'$char"
+}
+
+function code2char {
+    code=$1
+    printf \\$(printf "%03o" "$code" )
+}
+
+function parse_int {
+    num_based="${1%% *}"
+    base=$2
+    echo $(( $base#${num_based##0} )) #conversione di $int da base 36 a base decimale
+}
+
+function make_index {
+    string="$1"
+    sed -e s,[^a-zA-Z0-9],,g <<< "$string"
 }

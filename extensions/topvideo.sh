@@ -25,48 +25,15 @@
 # zoninoz@inventati.org
 #
 
-# function packed {
-#     p=$1
-#     a=$2
-#     c=$3
-
-#     IFS="|"
-#     k=( $4 )
-#     unset IFS
-
-#     e=$5 #non esiste
-#     d=$6 #non esiste
-
-#     while [ $c != 0 ]; do
-# 	 (( c-- ))
-# 	 base36 "$c"
-# 	 if [ ! -z "${k[$c]}" ] && [ "${k[$c]}" != 0 ]; then
-# 	     p=$(echo "$p" |sed s/\\b$int\\b/${k[$c]}/g)
-# 	     unset int
-# 	 fi
-#     done
-#     echo "$p"
-# }
-
-# function packed_args {
-#     code="${1#*\}\(\'}"
-#     code="${code%%\'.split*}"
-#     code_p="${code//\}\'*}}"
-#     code_a1="${code#*\}\',}"
-#     code_a="${code_a1%%,*}"
-#     code_c="${code_a1#$code_a,}"
-#     code_c="${code_c%%,*}"
-#     code_k="${code_a1#*$code_c,\'}"
-# }
-
 
 if [ "$url_in" != "${url_in//'topvideo.'}" ]; then
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
     echo -e "...\c"
+
     unset post_data
-    tmp="$path_tmp/zdl.tmp"
-    input_hidden
+    input_hidden "$path_tmp/zdl.tmp"
     post_data="${post_data#*&}"
+
     url=$(cat "$path_tmp/zdl.tmp" |grep Form| grep action)
     url="${url%\'*}"
     url="${url##*\'}"

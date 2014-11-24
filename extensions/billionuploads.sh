@@ -35,8 +35,7 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
     echo -e "...\c"
     
     unset post_data
-    tmp="$path_tmp/zdl.tmp"
-    input_hidden
+    input_hidden "$path_tmp/zdl.tmp"
     post_data="${post_data%&cmt_type=*}"
     
     if [ -z "$file_in" ]; then

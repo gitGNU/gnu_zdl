@@ -30,8 +30,7 @@ if [ "$url_in" != "${url_in//uload.}" ]; then
     check_ip uload
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
     echo -e "...\c"
-    
-					#exceeded
+
     test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
     if [ ! -z "$test_exceeded" ]; then
 	test_exceeded="${test_exceeded#*- }"
@@ -44,17 +43,13 @@ if [ "$url_in" != "${url_in//uload.}" ]; then
     
     if [ -z "$exceeded" ]; then
 	unset post_data
-	tmp="$path_tmp/zdl.tmp"
-	input_hidden
-	
+	input_hidden "$path_tmp/zdl.tmp"
 	post_data="${post_data//'op=catalogue&'}"
 	
 	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 	
-	
 	unset post_data
-	tmp="$path_tmp/zdl2.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl2.tmp"
 	post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
 	
 	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null

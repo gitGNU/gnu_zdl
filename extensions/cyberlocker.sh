@@ -40,8 +40,7 @@ if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; th
     echo -e "...\c"
     
     unset post_data
-    tmp="$path_tmp/zdl.tmp"
-    input_hidden
+    input_hidden "$path_tmp/zdl.tmp"
     
     post_data="${post_data//'op=login&redirect=&'}"
     post_data="$post_data&method_free=Free Download"
@@ -55,8 +54,7 @@ if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; th
     wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
     
     unset post_data
-    tmp="$path_tmp/zdl2.tmp"
-    input_hidden
+    input_hidden "$path_tmp/zdl2.tmp"
     post_data="${post_data//'op=login&'}"
     post_data="${post_data//'redirect=&'}"
     post_data="${post_data%&op=register_save*}"

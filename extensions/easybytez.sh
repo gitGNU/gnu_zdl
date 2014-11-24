@@ -30,8 +30,8 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
     if [ "$login" == "1" ]; then
 	wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
 	echo -e "...\c"
-	tmp="$path_tmp/login.tmp"
-	input_hidden
+
+	input_hidden "$path_tmp/login.tmp"
 	
 	host="easybytez"
 	host_login
@@ -66,8 +66,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    countdown=60
 	fi
 	
-	tmp="$path_tmp/zdl.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl.tmp"
 	
 	wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 	echo -e "...\c"
@@ -79,8 +78,7 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	fi
 	unset post_data
 	if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
-	    tmp="$path_tmp/zdl2.tmp"
-	    input_hidden
+	    input_hidden "$path_tmp/zdl2.tmp"
 	    
 	    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
 	    echo -e "...\c"
@@ -92,8 +90,8 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 		sleeping 1
 	    done
 	    echo -e "  \r\c"
-	    tmp="$path_tmp/zdl3.tmp"
-	    input_hidden
+
+	    input_hidden "$path_tmp/zdl3.tmp"
 	    length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`
 	    length_in="${length_in#*\(}"
 	    length_in="${length_in%% *}"

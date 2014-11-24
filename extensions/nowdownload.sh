@@ -78,13 +78,13 @@ function wise {
     for lIll in $(seq 0 2 $max); do
 	ll11=-1;
 
-	char2code ${I1lI:$ll1I:1}
+	char_code=$(char2code ${I1lI:$ll1I:1})
 	if (( $char_code%2 )); then 
 	    ll11=1
 	fi
 	
-	parse_int "${lI1l:$lIll:2}" 36
-	code2char $(( $int-$ll11 ))
+	int=$(parse_int "${lI1l:$lIll:2}" 36)
+	code_char=$(code2char $(( $int-$ll11 )))
 	l1ll+=( "$code_char" )
 
 	(( ll1I++ ))
@@ -107,13 +107,13 @@ function wise_2 {
     for lIll in $(seq 0 2 $max); do
 	ll11=-1;
 
-	char2code ${I1lI:$ll1I:1}
+	char_code=$(char2code ${I1lI:$ll1I:1})
 	if (( $char_code%2 )); then 
 	    ll11=1
 	fi
 	
-	parse_int "${lI1l:$lIll:2}" 36
-	code2char $(( $int-$ll11 ))
+	int=$(parse_int "${lI1l:$lIll:2}" 36)
+	code_char=$(code2char $(( $int-$ll11 )))
 	l1ll+=( "$code_char" )
 
 	(( ll1I++ ))

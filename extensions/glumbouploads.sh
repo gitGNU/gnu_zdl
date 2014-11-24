@@ -48,8 +48,7 @@ if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
     
     if [ -z "$exceeded" ]; then
 	unset post_data
-	tmp="$path_tmp/zdl.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl.tmp"
 	
 	post_data="${post_data//'op=login&redirect=&'}"
 	if [ -z "$file_in" ]; then
@@ -63,8 +62,7 @@ if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
 	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
 	
 	unset post_data
-	tmp="$path_tmp/zdl2.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl2.tmp"
 	post_data="${post_data//'op=login&redirect=&'}"
 	print_c 2 "Attendi 100 secondi:"
 	for s in `seq 0 100`; do

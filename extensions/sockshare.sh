@@ -34,8 +34,7 @@ if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]; then
     
     if [ -z "$test_putlocker" ]; then
 	unset post_data
-	tmp="$path_tmp/zdl.tmp"
-	input_hidden
+	input_hidden "$path_tmp/zdl.tmp"
 	post_data="${post_data}&confirm=Continue as Free User" 
 
 	file_in=`cat "$path_tmp/zdl.tmp" |grep ' | Sockshare</title>'`

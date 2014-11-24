@@ -74,10 +74,6 @@ function set_default_conf {
     add_conf "${key_conf[3]}=${val_conf[3]}" #"stream_mode=single"
     add_conf "${key_conf[4]}=" #"num_multi="
     add_conf "${key_conf[5]}=${val_conf[5]}" #skin
-
-#    add_conf "# modem router credentials"
-#    add_conf "admin="
-#    add_conf "passwd="
     add_conf "${key_conf[6]}=${val_conf[6]}" #"language=$LANG"
     add_conf "${key_conf[7]}=${val_conf[7]}" #"reconnect="
     add_conf "${key_conf[8]}=${val_conf[8]}" #"autoupdate=enabled"

@@ -40,6 +40,5 @@ if [ "$url_in" != "${url_in//'tvdigit.it'}" ]; then
 	file_in="${file_in#*'title>'}"
 	file_in="${file_in%%'</title'*}"
 	file_in="${file_in//\//-}.$ext"
-	htmldecode "$file_in"
-	file_in="$decoded_expr"
+	file_in=$(htmldecode "$file_in")
 fi
