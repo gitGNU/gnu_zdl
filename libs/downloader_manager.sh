@@ -75,10 +75,13 @@ function download {
 		wget -t 1 -T $max_waiting --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
 		wpid=$!
 	    fi
-	    url_redirect=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
+	    [ -f "$path_tmp/redirect" ] && url_redirect=$(grep Location: < "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
+	    link_parser "$url_redirect"
+	    test_link=$?
 	    check_pid "$wpid"
-	    if [ ! -z "$url_redirect" ] || [ $? != 1 ]; then 
+	    if [[ $test_link == 1 ]] || [ $? != 1 ]; then 
 		kill "$wpid" 2>/dev/null
+		url_in_file="$url_redirect"
 		break
 	    elif (( $s>90 )); then
 		kill "$wpid" 2>/dev/null
@@ -91,7 +94,7 @@ function download {
 		echo -e $s"\r\c"
 	    fi
 	done
-	url_in_file="$url_redirect"
+
 	unset redirected url_redirect
 	rm -f "$path_tmp/redirect"
     fi
@@ -132,7 +135,8 @@ function download {
 	else
 	    argout="--trust-server-names"
 	fi
-	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+	wget --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+#	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
     fi

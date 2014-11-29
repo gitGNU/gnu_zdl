@@ -37,8 +37,7 @@ if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
     file_in=`cat "$path_tmp/zdl.tmp" |grep '?q='`
     file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"
-    url_in_file=$( cat "$path_tmp/redirect" 2>/dev/null |grep "Location:" | awk '{print $2}' )
-    
+
     if [ ! -f "$path_tmp"/cookies.zdl ]; then touch "$path_tmp"/cookies.zdl ; fi
     url_in_file="${url_in}"
     redirected="true"

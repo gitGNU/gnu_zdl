@@ -609,13 +609,13 @@ while true; do
 	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
 	    unset pid_in checked file_in url_in_file
 
-	    check_ip
 	    check_in_url
 	    if [ $? != 1 ]; then
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
+		check_ip
 		## user extensions
 		if [ -d "$path_conf/extensions/" ]; then
 		    shopt -s nullglob
@@ -626,14 +626,6 @@ while true; do
 		fi
 		##################
 
-		if [ "$update_proxy" == "true" ];then
-		    unset newip update_proxy
-		    new_ip_proxy
-		    update_proxy_others="true"
-		elif [ "$update_defined_proxy" == "true" ];then
-		    export http_proxy=$defined_proxy
-		fi
-		
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
 		echo
