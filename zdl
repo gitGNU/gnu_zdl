@@ -609,6 +609,7 @@ while true; do
 	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
 	    unset pid_in checked file_in url_in_file
 
+	    check_ip
 	    check_in_url
 	    if [ $? != 1 ]; then
 		axel_parts=$axel_parts_conf

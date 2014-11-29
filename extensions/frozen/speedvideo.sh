@@ -36,17 +36,19 @@ if [ "$url_in" != "${url_in//'speedvideo.net'}" ]; then
     if [ -z "$test_speedvideo" ]; then
 	unset post_data
 	input_hidden "$path_tmp/zdl.tmp"
-	post_data="${post_data}" 
+	post_data="${post_data}&imhuman=Proceed to video" 
 
-	file_in=`cat "$path_tmp/zdl.tmp" |grep 'fname'`
-	file_in="${file_in%\"*}"
-	file_in="${file_in##*\"}"
+	# file_in=`cat "$path_tmp/zdl.tmp" |grep 'fname'`
+	# file_in="${file_in%\"*}"
+	# file_in="${file_in##*\"}"
 	ext="${file_in%*\.}"
 
 	wget -p -t 1 -T $max_waiting --load-cookies="$path_tmp/cookies.zdl" --save-cookies="$path_tmp/cookies.zdl" --post-data="$post_data" "${url_in}" -O "$path_tmp"/zdl2.tmp &>/dev/null
 #exit
 
-	url_in_file=`cat "$path_tmp"/zdl2.tmp | grep linkfile | head -n 1`
+	url_in_file=`cat "$path_tmp"/zdl2.tmp | grep -C 20 linkfile` # | head -n 1`
+echo "$url_in_file"
+exit
 	url_in_file="${url_in_file#*\'}"
 	url_in_file="${url_in_file%\'*}"
 	url_in_file="${url_in_file%\.*}.$ext"
