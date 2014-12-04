@@ -43,9 +43,9 @@ if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
     ext="${url_in_file##*'.'}"
     ext="${ext%'?'*}"
     data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
-    file_in="${data_in_file##*title\":\"}"
-    file_in="${file_in%%\"*}"
-    file_in="${file_in::240}.$ext"
+    # file_in="${data_in_file##*title\":\"}"
+    # file_in="${file_in%%\"*}"
+    # file_in="${file_in::240}.$ext"
 elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
@@ -63,4 +63,8 @@ elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     file_in="${file_in::240}.$ext"
 fi
 
-[ ! -z "$file_in" ] && file_in=$(urldecode "$file_in")
+if [ ! -z "$file_in" ]; then
+    file_in=$(urldecode "$file_in")
+else
+    file_in=$(sed -r 's|.+\/([^/?]+).*$|\1|' <<< "$url_in_file")
+fi
