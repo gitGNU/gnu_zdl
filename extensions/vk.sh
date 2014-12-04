@@ -65,7 +65,7 @@ fi
 
 if [ "$url_in" != "${url_in//vk.com}" ]; then
     if [ ! -z "$file_in" ]; then
-	file_in=$(urldecode "$file_in").$ext
+	file_in=$(urldecode "$file_in" |sed -r 's|/||g').$ext
     else
 	file_in=$(sed -r 's|.+\/([^/?]+).*$|\1|' <<< "$url_in_file")
     fi
