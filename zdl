@@ -459,11 +459,11 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--bis}" ]; then
+if [ "${args[*]}" != "${args[*]//--overwrite}" ]; then
     for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--bis" ]; then 
+	if [ "${args[$i]}" == "--overwrite" ]; then 
 	    unset args[$i]
-	    bis=true
+	    overwrite=true
 	fi
     done
 fi
@@ -719,8 +719,11 @@ while true; do
 		    download #|| usage
 		    check_pid ${pid_in}
 		    if [ $? == 1 ]; then
-			echo -e "${BBlue}URL del file: $url_in_file\n"
+			print_c 4 "URL del file: $url_in_file"
 			print_c 1 "downloading --> $file_in ..."
+		    else
+			print_c 4 "URL del file: $url_in_file"
+			print_c 3 "\n$file_in: connessione non riuscita (riprovo più tardi)"
 		    fi		    
 		    while true; do
 			show_downloads

@@ -28,8 +28,8 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     url_in=$(urldecode "$url_in")
     links_loop + "$url_in"
     videoType="mp4"
-#   html=$(wget -q "$url_in" -O -)
-    html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O - ) || _log 8 
+    html=$(wget -q "$url_in" -O -)
+    #html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O - ) || _log 8 
 
     if [[ "$html" =~ \<title\>(.+)\<\/title\> ]]; then
 	title="${BASH_REMATCH[1]}"
@@ -43,8 +43,11 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	if [ ! -z "$html" ]; then 
 	    html="${html#*url_encoded_fmt_stream_map}"
             ## quality: large -> medium -> small (il più alto disponibile è nella prima riga)
-	    url_in_file=$(urldecode "$html" |sed -r 's|codecs|\ncodecs|g' | grep mp4 | grep quality | head -n1 |sed -r 's|.+url=([^,]+)\,.+|\1|g')
+	    url_in_file=$(urldecode "$html" |sed -r 's|codecs|\ncodecs|g' | grep mp4 | grep quality | head -n1 |sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g')
+	    url_in_file=$(urldecode "$url_in_file")
 	    file_in="$title.$videoType"
+
+	    unset break_loop
 	    if [ -z "$url_in_file" ]; then
 		_log 2
 		break_loop=true
@@ -58,6 +61,7 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	not_available=true
 	break_loop=true
     fi
+    axel_parts=4
 fi
 
 shopt -s nullglob
