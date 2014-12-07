@@ -72,7 +72,6 @@ if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//-
     done
 fi
 
-
 #### MAIN
 init
 
@@ -460,7 +459,14 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
     done
 fi
 
-
+if [ "${args[*]}" != "${args[*]//--bis}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--bis" ]; then 
+	    unset args[$i]
+	    bis=true
+	fi
+    done
+fi
 
 for i in `seq 0 $max_args`; do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then
@@ -469,6 +475,7 @@ for i in `seq 0 $max_args`; do
 	usage
     fi
 done
+
 
 if [ ! -z "${args[*]}" ]; then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
@@ -709,7 +716,7 @@ while true; do
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
 		    unset test_in
-		    download || usage
+		    download #|| usage
 		    check_pid ${pid_in}
 		    if [ $? == 1 ]; then
 			echo -e "${BBlue}URL del file: $url_in_file\n"

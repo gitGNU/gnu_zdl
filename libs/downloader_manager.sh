@@ -187,6 +187,8 @@ function check_in_url { 	## return --> no_download=1
 }
 
 
+
+
 function check_in_file { 	## return --> no_download=1 / download=5
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"
@@ -208,75 +210,79 @@ function check_in_file { 	## return --> no_download=1 / download=5
     fi
 
     if [ ! -z "${file_in}" ]; then
-
-	if ( [ ! -f "${file_in}.st" ] && [ -f "${file_in}" ] && [ "$downloader_in" == "Axel" ] ) || ( ( [ -f "${file_in}" ] || [ -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ); then
-	    no_newip=true
-	    data_stdout
-	    if [ $? == 1 ]; then
-		last_stdout=$(( ${#pid_out[*]}-1 ))
-		for i in `seq 0 $last_stdout`; do
-		    if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
-			check_pid ${pid_out[$i]}
-			if [ $? == 1 ]; then
-			    return 1
-			else
-			    if [ "$downloader_in" = "Wget" ]; then
-				length_saved=0
-				length_alias_saved=0
-				length_saved=`ls -l "./${file_in}" | awk '{ print($5) }'`
-				[ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "./${alias_file_out[$i]}" | awk '{ print($5) }'`
-				
-				if [ "${length_out[$i]//[0-9]}" == "${length_out[$i]}" ] || [ "${length_out[$i]}" == "0" ] || [ "${length_out[$i]}" == "unspecified" ] || ( [ ! -z "${length_out[$i]}" ] && (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
-				    rm -f "$file_in" "${file_in}.st" 
-				    unset no_newip
-
-				    [ ! -z "$url_in_file" ] && return 5
-				else
-				    no_newip=true
-				fi
-			    elif [ "$downloader_in" = "Axel" ]; then
-				if [ -f "${file_in}.st" ]; then 
-				    unset no_newip
-				    [ ! -z "$url_in_file" ] && return 5
-				# elif [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ] && [ "$file_in" == "${file_out[$i]}" ] && [ "${length_out[$i]}" != "100" ]; then
-				#     unset no_newip
-				#     rm -f "$file_in"
-				#     [ ! -z "$url_in_file" ] && return 5
-				elif [ "$file_in" == "${file_out[$i]}" ] && [ "$url_in" != "${url_out[$i]}" ]; then 
-				    ## rinomina degli omonimi se esiste il file tmp dell'altro con url diverso (solo Axel)
-				    file_in="${file_in}__BIS__${url_in//\//_}"
-				    return 5
-                                    ### versione senza rinomina degli omonimi:
-				    ## no_newip=true
-				else
-				    _log 1
-				fi
-			    fi
-			fi
+	length_saved=0
+	length_alias_saved=0
+		    
+	no_newip=true
+	data_stdout
+	if [ $? == 1 ]; then
+	    for ((i=0; i<${#pid_out[*]}; i++)); do
+		if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
+		    check_pid ${pid_out[$i]}
+		    [ $? == 1 ] && return 1
+		    length_saved=${length_saved[$i]} #`ls -l "./${file_in}" | awk '{ print($5) }'`
+		    [ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "./${alias_file_out[$i]}" | awk '{ print($5) }'` || length_alias_saved=0
+		    if [[ "${length_out[$i]}" =~ ^[0-9]+$ ]] && ( (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
+			length_check="${length_out[$i]}"
+		    else
+			unset length_check
 		    fi
-		done
-		
+		    if [ "${file_out[$i]}" == "$file_in" ] && [ "$url_in" == "${url_out[$i]}" ]; then
+			no_bis=true
+		    fi
+		    break
+		elif [ "$file_in" != "${file_out[$i]}" ] && [ "$url_in" == "${url_out[$i]}" ]; then
+		    rm -f "$path_tmp/${file_out[$i]}_stdout.tmp" "${file_out[$i]}" "${file_out[$i]}.st"
+		fi
+	    done
+	fi
+
+	if [ -f "${file_in}" ]; then
+	    ## --bis abilitato di default
+	    bis=true
+	    if [ "$bis" == true ]; then
+		homonymy_treating=( resume_dl rewrite_dl bis_dl )
 	    else
-		_log 1
-		no_newip=true
+		homonymy_treating=( resume_dl rewrite_dl )
 	    fi
 	    
-	elif  [ ! -z "$url_in_file" ] && ( ( ( [ -f "${file_in}.st" ] || [ ! -f "${file_in}" ] ) && [ "$downloader_in" = "Axel" ] ) || ( ( [ ! -f "${file_in}" ] && [ ! -f "${path_tmp}/${file_in}" ] ) && [ "$downloader_in" = "Wget" ] ) ); then
-	    data_stdout
-	    if [ $? == 1 ]; then
-		for ((i=0; i<${#pid_out[$i]}; i++)); do
-		    if [ "$file_in" != "${file_out[$i]}" ] && [ "$url_in" == "${url_out[$i]}" ]; then
-			rm -f "$path_tmp/${file_out[$i]}_stdout.tmp" "${file_out[$i]}" "${file_out[$i]}.st"
-		    elif [ "$file_in" == "${file_out[$i]}" ] && [ "$url_in" != "${url_out[$i]}" ]; then
-			## rinomina degli omonimi se esiste il file tmp dell'altro (solo Axel)
-			file_in="${file_in}__BIS__${url_in//\//_}"
-			### versione senza rinomina degli omonimi (sovrascrive):
-			## rm "$file_in" "${file_in}.st"
-		    fi
-		done    
-	    fi
+	    for i in ${homonymy_treating[*]}; do
+		if [ "$downloader_in" == Wget ]; then
+		    case "$i" in
+			resume_dl|rewrite_dl) 
+			    if [ ! -z "$length_check" ] && (( $length_check>$length_saved )) && ( [ -z "$bis" ] || [ "$no_bis" == true ] ); then
+				rm -f "$file_in" "${file_in}.st" 
+	 			unset no_newip
+	 			[ ! -z "$url_in_file" ] && return 5
+			    fi
+			    ;;
+		    esac
+		elif [ "$downloader_in" == Axel ]; then
+		    case "$i" in
+			resume_dl) 
+			    if [ -f "${file_in}.st" ] && ( [ -z "$bis" ] || [ "$no_bis" == true ] ); then 
+				unset no_newip
+				[ ! -z "$url_in_file" ] && return 5
+			    fi
+			    ;;
+			rewrite_dl)
+			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) && [ ! -z "$length_check" ] && (( $length_check>$length_saved )); then
+				rm -f "$file_in" "${file_in}.st" 
+	 			unset no_newip
+	 			[ ! -z "$url_in_file" ] && return 5
+			    fi
+			    ;;
+		    esac
+		fi
+		## case bis_dl
+		[ $i == bis_dl ] && [ -z "$no_bis" ] && file_in="${file_in}__BIS__${url_in//\//_}" && return 5
+	    done
+	    
+	    ## ignore link
+	    _log 1
+	    no_newip=true
+	elif [ ! -z "$url_in_file" ]; then
 	    return 5
-#	    unset no_newip
 	fi
     fi
     return 1
@@ -286,8 +292,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 function check_instance_dl {	
     data_stdout
     if [ $? == 1 ]; then
-	last_stdout=$(( ${#pid_out[*]}-1 ))
-	for i in `seq 0 $last_stdout`; do
+	for ((i=0; i<${#pid_out[*]}; i++)); do
 	    check_pid ${pid_prog_out[$i]}
 	    if [ $? == 1 ]; then
 		pss=`ps ax |grep "${pid_prog_out[$i]}"`
