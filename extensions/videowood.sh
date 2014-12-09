@@ -25,11 +25,10 @@
 # zoninoz@inventati.org
 #
 
-if [[ "$url_in" =~ (dailymotion\/cdn|dmcdn.net|uploaded\.|easybytez\.|rapidgator\.|cloudzilla.|videowood.) ]]; then 
-    if [ "$downloader_in" == "Axel" ]; then
-	dler=$downloader_in
-	downloader_in=Wget
-	ch_dler=1
-	print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
-    fi
+
+if [ "$url_in" != "${url_in//'videowood.'}" ]; then
+    html=$(wget -q -O - "${url_in//'/video/'//embed/}")
+    url_in_file=$(grep file: <<< "$html" | head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
+    ext=${url_in_file##*.}
+    file_in=$(grep title: <<< "$html" |sed -r 's|.+\"([^"]+)\".+|\1|g').$ext
 fi
