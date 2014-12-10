@@ -275,7 +275,10 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		    esac
 		fi
 		## case bis_dl
-		[ $i == bis_dl ] && [ -z "$no_bis" ] && file_in="${file_in}__BIS__${url_in//\//_}" && return 5
+		[ $i == bis_dl ] && \
+		    [ -z "$no_bis" ] && \
+		    [ -f "${file_in}__BIS__${url_in//\//_}" ] && \
+		    file_in="${file_in}__BIS__${url_in//\//_}${file_in##*.}" && return 5
 	    done
 	    
 	    ## ignore link

@@ -208,9 +208,11 @@ if [ "${args[*]}" != "${args[*]//--mp3}" ]; then
 	    echo
 	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
 		line=$(sed -n ${i}p < $file_output)
-		print_c 4 "Conversione del file: $line"
-		$convert2mp3 -i "$line" "${line%mp4}mp3" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}mp3" || print_c 3 "Conversione NON riuscita: $line"
-		echo
+		if [[ "$(mimetype $line)" =~ (audio|video) ]]; then
+		    print_c 4 "Conversione del file: $line"
+		    $convert2mp3 -i "$line" "${line%mp4}mp3" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}mp3" || print_c 3 "Conversione NON riuscita: $line"
+		    echo
+		fi
 	    done
 	    rm $file_output
 	    exit
