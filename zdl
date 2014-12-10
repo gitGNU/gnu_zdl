@@ -190,6 +190,33 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     done 
 fi
 
+if [ "${args[*]}" != "${args[*]//--mp3}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--mp3" ]; then 
+	    if [ -z "$(which ffmpeg)$(which avconv)" ]; then
+		print_c 3 "La funzione di conversione in formato mp3 dipende da ffmpeg o da avconv, non trovati"
+		exit
+	    fi
+	    unset args[$i]
+	    file_output=.file_output.zdl
+	    $prog ${args[*]} --out=$file_output
+
+	    [ ! -z "$(which avconv)" ] && convert2mp3=avconv
+	    [ ! -z "$(which ffmpeg)" ] && convert2mp3=ffmpeg
+	    echo
+	    header_box "Conversione in mp3 ($convert2mp3)"
+	    echo
+	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
+		line=$(sed -n ${i}p < $file_output)
+		print_c 4 "Conversione del file: $line"
+		$convert2mp3 -i "$line" "${line%mp4}mp3" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}mp3" || print_c 3 "Conversione NON riuscita: $line"
+		echo
+	    done
+	    rm $file_output
+	    exit
+	fi
+    done
+fi
 
 if [ "${args[*]}" != "${args[*]//--stop}" ]; then
     for i in `seq 0 $max_args`; do
@@ -405,12 +432,16 @@ if [ "${args[*]}" != "${args[*]//--out=}" ]; then
 	    if [ -e "$(which $(echo ${args[$i]#'--out='} | awk '{print $1}') )" ]; then
 		pipe_out="${args[$i]#'--out='}"
 	    else
-		print_c 3 "Il file in ${args[$i]} non esiste"
-		print_c 2 "Scrivo in ${args[$i]#'--out='} la lista dei file scaricati? (s|*)"
-		read -n 1 option_out
-		if [ "$option_out" == "s" ]; then
-		    print_out="${args[$i]#'--out='}"
-		    print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		file_output=.file_output.zdl
+		print_out="${args[$i]#'--out='}"
+
+		if [ "$print_out" != "$file_output" ]; then
+		    print_c 3 "Il file in ${print_out} non esiste"
+		    print_c 2 "Scrivo in ${print_out} la lista dei file scaricati? (s|*)"
+		    read -n 1 option_out
+		fi
+		if [ "$print_out" == "$file_output" ] || [ "$option_out" == "s" ]; then
+		    [ "$print_out" != "$file_output" ] && print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
 		    touch "$print_out"
 		    unset option_out
 		fi
