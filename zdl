@@ -411,6 +411,7 @@ if [ "${args[*]}" != "${args[*]//--out=}" ]; then
 		if [ "$option_out" == "s" ]; then
 		    print_out="${args[$i]#'--out='}"
 		    print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		    touch "$print_out"
 		    unset option_out
 		fi
 	    fi
