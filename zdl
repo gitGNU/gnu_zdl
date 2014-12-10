@@ -190,27 +190,28 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     done 
 fi
 
-if [ "${args[*]}" != "${args[*]//--mp3}" ]; then
+if [[ "${args[*]}" =~ ^(--mp3|--flac)$ ]]; then
     for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--mp3" ]; then 
+	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
 	    if [ -z "$(which ffmpeg)$(which avconv)" ]; then
-		print_c 3 "La funzione di conversione in formato mp3 dipende da ffmpeg o da avconv, non trovati"
+		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
 		exit
 	    fi
+	    format=${args[$i]##*-}
 	    unset args[$i]
 	    file_output=.file_output.zdl
 	    $prog ${args[*]} --out=$file_output
 
-	    [ ! -z "$(which avconv)" ] && convert2mp3=avconv
-	    [ ! -z "$(which ffmpeg)" ] && convert2mp3=ffmpeg
+	    [ ! -z "$(which avconv)" ] && convert2format=avconv
+	    [ ! -z "$(which ffmpeg)" ] && convert2format=ffmpeg
 	    echo
-	    header_box "Conversione in mp3 ($convert2mp3)"
+	    header_box "Conversione in $format ($convert2format)"
 	    echo
 	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
 		line=$(sed -n ${i}p < $file_output)
 		if [[ "$(mimetype $line)" =~ (audio|video) ]]; then
 		    print_c 4 "Conversione del file: $line"
-		    $convert2mp3 -i "$line" "${line%mp4}mp3" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}mp3" || print_c 3 "Conversione NON riuscita: $line"
+		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
 		fi
 	    done
