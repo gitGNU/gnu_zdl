@@ -190,7 +190,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     done 
 fi
 
-if [[ "${args[*]}" =~ ^(--mp3|--flac)$ ]]; then
+if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
     for i in `seq 0 $max_args`; do
 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
 	    if [ -z "$(which ffmpeg)$(which avconv)" ]; then
