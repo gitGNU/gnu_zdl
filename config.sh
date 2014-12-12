@@ -36,6 +36,9 @@ key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Li
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
 
+declare -A list_proxy_url
+declare -A post
+
 #unset autoupdate
 
 function add_conf { #only if item doesn't exist
@@ -326,13 +329,12 @@ function init {
 
     ## elenco chiavi proxy_server: proxy_list, ip_adress
     proxy_server='ip_adress'
-    declare -A list_proxy_url
+
 
     ### "http://www.ip-adress.com/proxy_list/"
     #list_proxy_url["ip_adress"]="http://zoninoz.hostoi.com/proxy-list.php"
     list_proxy_url['ip_adress']="http://zoninoz.hostoi.com" 
     list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
-    export list_proxy_url
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
     if [ -e /cygdrive ]; then

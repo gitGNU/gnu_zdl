@@ -43,7 +43,6 @@ function input_hidden {
 	    datatmp=$(grep -P "input.+type\=.+hidden" <<< "$1")
 	fi
 
-	declare -A post
 	for ((i=1; i<=$(wc -l <<< "$datatmp"); i++)); do
 	    data=$(sed -n "${i}p" <<< "$datatmp")
 	    name=${data#*name=\"}
@@ -51,7 +50,7 @@ function input_hidden {
 	    value=${data#*value=\"}
 	    value=${value%%\"*}
 
-	    [ ! -z "$name" ] && export post[$name]="$value"
+	    [ ! -z "$name" ] && post[$name]="$value"
 	    
 	    if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
 		file_in="$value"
