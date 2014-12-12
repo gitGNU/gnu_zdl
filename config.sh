@@ -326,12 +326,13 @@ function init {
 
     ## elenco chiavi proxy_server: proxy_list, ip_adress
     proxy_server='ip_adress'
-    declare -g -A list_proxy_url
+    declare -A list_proxy_url
 
     ### "http://www.ip-adress.com/proxy_list/"
     #list_proxy_url["ip_adress"]="http://zoninoz.hostoi.com/proxy-list.php"
     list_proxy_url['ip_adress']="http://zoninoz.hostoi.com" 
     list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
+    export list_proxy_url
 
     ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
     if [ -e /cygdrive ]; then

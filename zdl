@@ -193,7 +193,7 @@ fi
 if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
     for i in `seq 0 $max_args`; do
 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
-	    if [ -z "$(which ffmpeg)$(which avconv)" ]; then
+	    if [ -z "$(which ffmpeg 2>/dev/null)$(which avconv 2>/dev/null)" ]; then
 		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
 		exit
 	    fi
@@ -202,14 +202,14 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	    file_output=.file_output.zdl
 	    $prog ${args[*]} --out=$file_output
 
-	    [ ! -z "$(which avconv)" ] && convert2format=avconv
-	    [ ! -z "$(which ffmpeg)" ] && convert2format=ffmpeg
+	    [ ! -z "$(which avconv 2>/dev/null)" ] && convert2format=avconv
+	    [ ! -z "$(which ffmpeg 2>/dev/null)" ] && convert2format=ffmpeg
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
 	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
 		line=$(sed -n ${i}p < $file_output)
-		if [[ "$(mimetype $line)" =~ (audio|video) ]]; then
+		if [ -z "$(mimetype $line 2>/dev/null)" ] || [[ "$(mimetype $line)" =~ (audio|video) ]]; then
 		    print_c 4 "Conversione del file: $line"
 		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
@@ -432,7 +432,7 @@ fi
 if [ "${args[*]}" != "${args[*]//--out=}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]; then
-	    if [ -e "$(which $(echo ${args[$i]#'--out='} | awk '{print $1}') )" ]; then
+	    if [ -e "$(which $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]; then
 		pipe_out="${args[$i]#'--out='}"
 	    else
 		file_output=.file_output.zdl
