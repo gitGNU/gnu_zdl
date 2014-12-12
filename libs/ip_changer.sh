@@ -121,7 +121,6 @@ function proxy_list {
     ## proxy-list.org
     for proxy_type in ${proxy_types[*]}; do
 	html=$(cat  "$path_tmp/proxy.tmp" | grep -B 4 "${proxy_type}" |grep class)
-	
     done
     n=$(( $(wc -l <<< "$html")/4 ))
     proxy_type=$(sed -n $(( ${line}*4 ))p <<< "$html")
@@ -206,7 +205,7 @@ function new_ip_proxy {
 		print_c 4 "Ricerca lista proxy $proxy_server: ${list_proxy_url[$proxy_server]}"
 	    fi
 	    rm -f "$path_tmp/proxy2.tmp"
-	    $proxy_server
+	    [ -f "$path_tmp/proxy.tmp" ] && $proxy_server
 
 	    z=$(( ${#proxy_done[*]}-1 ))
 	    if (( $z<0 )) || [ "$z" == "" ]; then z=0 ; fi
