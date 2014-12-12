@@ -26,7 +26,7 @@
 #
 
 if [ "$url_in" != "${url_in//cineblog01}" ]; then
-    if [[ $(which curl) ]]; then
+    if [ ! -z "$(which curl 2>/dev/null)" ]; then
 	new_url=$(curl "$url_in" -s |grep window.location.href | sed -r 's|^.+\"([^"]+)\".+$|\1|')
 	link_parser "$new_url"
 	if [[ $? == 1 ]]; then
