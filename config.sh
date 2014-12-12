@@ -37,7 +37,6 @@ key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Sc
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
 
 declare -A list_proxy_url
-declare -A post
 
 #unset autoupdate
 
