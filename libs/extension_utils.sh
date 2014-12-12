@@ -74,8 +74,7 @@ function pseudo_captcha { #per implementarla, analizzare ../extensions/frozen/sh
 }
 
 function urldecode {
-    local data=${1//+/ }
-    printf '%b' "${data//%/\x}" 2>/dev/null
+    printf '%b' "${1//%/\\x}" 2>/dev/null
 }
 
 function htmldecode {

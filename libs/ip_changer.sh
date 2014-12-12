@@ -37,7 +37,7 @@ function newip_add_provider {
 }
 
 function check_ip {
-    if [ "$reconnect_sh" == true ] && [ ! -z "$(which $reconnecter 2>/dev/null)" ]; then
+    if [ "$reconnect_sh" == true ] && [ ! -z "$(command -v $reconnecter 2>/dev/null)" ]; then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 	    $reconnecter 
@@ -46,7 +46,7 @@ function check_ip {
 	new_ip_proxy
 	update_proxy_others="true"
     elif [ "${newip[*]}" != "${newip[*]//$1}" ]; then
-	if [ "$reconnect_sh" == true ] && [ ! -z "$(which reconnect.sh 2>/dev/null)" ]; then
+	if [ "$reconnect_sh" == true ] && [ ! -z "$(command -v reconnect.sh 2>/dev/null)" ]; then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 	    $reconnecter 

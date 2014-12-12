@@ -36,7 +36,6 @@ source $path_usr/libs/common.sh
 source $path_usr/libs/downloader_manager.sh
 source $path_usr/libs/DLstdout_parser.sh
 source $path_usr/libs/extension_utils.sh
-source $path_usr/libs/firefox.sh
 source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
@@ -193,7 +192,7 @@ fi
 if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
     for i in `seq 0 $max_args`; do
 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
-	    if [ -z "$(which ffmpeg 2>/dev/null)$(which avconv 2>/dev/null)" ]; then
+	    if [ -z "$(command -v ffmpeg 2>/dev/null)$(command -v avconv 2>/dev/null)" ]; then
 		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
 		exit
 	    fi
@@ -202,8 +201,8 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	    file_output=.file_output.zdl
 	    $prog ${args[*]} --out=$file_output
 
-	    [ ! -z "$(which avconv 2>/dev/null)" ] && convert2format=avconv
-	    [ ! -z "$(which ffmpeg 2>/dev/null)" ] && convert2format=ffmpeg
+	    [ ! -z "$(command -v avconv 2>/dev/null)" ] && convert2format=avconv
+	    [ ! -z "$(command -v ffmpeg 2>/dev/null)" ] && convert2format=ffmpeg
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
@@ -432,7 +431,7 @@ fi
 if [ "${args[*]}" != "${args[*]//--out=}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]; then
-	    if [ -e "$(which $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]; then
+	    if [ -e "$(command -v $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]; then
 		pipe_out="${args[$i]#'--out='}"
 	    else
 		file_output=.file_output.zdl
