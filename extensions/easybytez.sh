@@ -29,7 +29,6 @@
 if [ "$url_in" != "${url_in//easybytez}" ]; then
     if [ "$login" == "1" ]; then
 	wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
-	echo -e "...\c"
 
 	input_hidden "$path_tmp/login.tmp"
 	
@@ -61,23 +60,20 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    check_ip easybytez
 
 	    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-	    echo -e "...\c"
-	    
 	    countdown=60
 	fi
 	
 	input_hidden "$path_tmp/zdl.tmp"
-	
 	wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
-	echo -e "...\c"
 
 	exceeded=`cat "$path_tmp"/zdl2.tmp |grep "Upgrade your account to download bigger files"`
-	
+
 	if [ -z "$exceeded_login" ]; then
 	    exceeded_login=`cat "$path_tmp"/zdl2.tmp |grep 'You have reached the download-limit:'`
 	fi
 	unset post_data
-	if [ -z "$not_available" ] && [ -z "$exceeded" ]; then
+	check_in_file
+	if [ $? != 1 ] && [ -z "$not_available" ] && [ -z "$exceeded" ]; then
 	    input_hidden "$path_tmp/zdl2.tmp"
 	    
 	    wget -t 1 -T $max_waiting -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
@@ -98,6 +94,8 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    post_data="${post_data}&btn_download=Download File"
 
 	    url_in_file="$url_in"
+	else
+	    break_loop=true
 	fi
     fi
 fi

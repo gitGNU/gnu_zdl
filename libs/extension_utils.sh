@@ -50,7 +50,7 @@ function input_hidden {
 	    value=${data#*value=\"}
 	    value=${value%%\"*}
 
-	    [ ! -z "$name" ] && eval postdata_$name="$value"
+	    [ ! -z "$name" ] && eval postdata_$name=\"${value}\"
 	    
 	    if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
 		file_in="$value"

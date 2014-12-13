@@ -730,6 +730,7 @@ while true; do
 		    fi
 		    
 		fi
+
 		if [ "$break_loop" == "true" ]; then
 		    unset break_loop
 		    break

@@ -73,6 +73,7 @@ function _log {
 		links_loop - "$url_in"
 		no_msg=true
 		unset from_loop
+		break_loop=true
 	    fi
 	    ;;
 	5)

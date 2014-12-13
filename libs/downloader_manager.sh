@@ -194,16 +194,19 @@ function check_in_file { 	## return --> no_download=1 / download=5
     file_in="${file_in//\'/_}"
     if [ ! -z "$exceeded" ]; then
 	_log 4
+	break_loop=true
 	no_newip=true
 	unset exceeded
+	return 1
     elif [ ! -z "$not_available" ]; then
 	[ ! -z "$url_in_file" ] && _log 3
 	no_newip=true
 	unset not_available
-	
+	return 1
     elif [ "$url_in_file" != "${url_in_file//{\"err\"/}" ]; then
 	_log 2
 	unset no_newip
+	return 1
     elif [ -z "$url_in_file" ] || ( [ -z "${file_in}" ] && [ "$downloader_in" == "Axel" ] ); then
 	_log 2
 	unset no_newip
