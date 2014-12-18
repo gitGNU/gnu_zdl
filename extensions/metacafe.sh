@@ -26,22 +26,30 @@
 #
 
 if [ "$url_in" != "${url_in//metacafe.com\/watch}" ]; then
-    get_tmps
-    cat $path_tmp/zdl.tmp | grep flashVars > $path_tmp/zdl2.tmp
-    urldecode "$(cat $path_tmp/zdl2.tmp )" > $path_tmp/zdl3.tmp
-    urldecode "$(cat $path_tmp/zdl3.tmp )" > $path_tmp/zdl2.tmp
-    code="$(cat $path_tmp/zdl2.tmp )"
-    code="${code##*mediaURL\":\"}"
-    code="${code%%\"*}"
-    code="${code//'\'}"
-    code="${code//'[From www.metacafe.com] '}"
-    url_in_file="$code"
-    ext="${url_in_file##*'.'}"
-    file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
-    file_in="${file_in#*'<title>'}"
-    file_in="${file_in%'</title>'*}.$ext"
-    if [ "$file_in" == "Family Filter Disclamer." ]; then
+    wget "$url_in" -q -O "$path_tmp/zdl.tmp"
+    if [ -z $(grep isFamilyFilterOn\:true < "$path_tmp"/zdl.tmp) ]; then
+	cat $path_tmp/zdl.tmp | grep flashVars |grep mediaURL> $path_tmp/zdl2.tmp
+	urldecode "$(cat $path_tmp/zdl2.tmp )" > $path_tmp/zdl3.tmp
+	urldecode "$(cat $path_tmp/zdl3.tmp )" > $path_tmp/zdl2.tmp
+	code="$(cat $path_tmp/zdl2.tmp )"
+	code="${code##*mediaURL\":\"}"
+	code="${code%%\"*}"
+	code="${code//'\'}"
+	code="${code//'[From www.metacafe.com] '}"
+	url_in_file="$code"
+	ext="${url_in_file##*'.'}"
+	file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
+	file_in="${file_in#*'<title>'}"
+	file_in="${file_in%'</title>'*}.$ext"
+    else
 	not_available=true
 	print_c 3 "Filmato non ancora estraibile da $url_in: filtro \"famiglia\" di Metacafe" | tee -a $file_log
+
+	### sistema per disattivare il filtro-famiglia via cookie (funziona), ma poi c'è il problema dell'estrazione di url_in_file, che è diversa e "misteriosa"
+	#
+	# rm -f "$path_tmp/cookies.zdl"
+	# wget --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" "http://www.metacafe.com/f/index.php?inputType=filter&controllerGroup=user" --post-data="filters=0" -q -O out.html
+
+	# wget --load-cookies="$path_tmp/cookies.zdl" "$url_in" -q -O "$path_tmp/zdl.tmp"
     fi
 fi

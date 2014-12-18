@@ -26,7 +26,9 @@
 #
 
 if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]; then
-    wget -q "$url_in" -O $path_tmp/zdl.tmp
+    echo -e ".dailymotion.com\tTRUE\t/\tFALSE\t0\tff\toff" > "$path_tmp"/cookies.zdl
+    wget --load-cookies="$path_tmp"/cookies.zdl -q "$url_in" -O $path_tmp/zdl.tmp
+
     file_in=$(cat $path_tmp/zdl.tmp | grep "title>")
     file_in="${file_in#*'<title>'}"
     file_in="${file_in%'</title>'*}.mp4"
