@@ -40,10 +40,6 @@ function data_stdout {
 	for item in $list; do
 	    file_stdout=$item
 	    test_found=`cat "$file_stdout" 2>/dev/null |grep "404: Not Found"`
-	    if [ -z "$test_found" ]; then
-		test_found=`cat "$file_stdout" 2>/dev/null |grep "404 Not Found"`
-	    fi
-	    
 	    if [ ! -z "$test_found" ]; then
 		_log 3
 		if [ ! -f "${file_in}.st" ]; then
@@ -74,6 +70,7 @@ function data_stdout {
 		if [ "${downloader_out[$i]}" == "Wget" ]; then
 		    length_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'|grep "length_in="`
 		    length_out[$i]="${length_out[$i]#length_in=}"
+		    url_out_file[$i]=`head -n 6 $file_stdout 2>/dev/null |sed -n '6p'`
 		    if [ -z "${length_out[$i]}" ];then
 			length_out[$i]=`cat $file_stdout 2>/dev/null |grep "Length:" |tail -n 1`
 			length_out[$i]="${length_out[$i]#*Length: }"
@@ -117,9 +114,16 @@ function data_stdout {
 		    num_percent[$i]=0
 		    num_percent[$i]=${percent%'%'*}
 		    num_percent[$i]=${num_percent[$i]%'.'*}
-
+		elif [ "${downloader_out[$i]}" == "cURL" ]; then
+		    file_out[$i]=$(sed -n 5p < "$file_stdout" 2>/dev/null)
+		    progress_out[$i]=$(tail -n1 "$file_stdout")
+		    speed_out[$i]="${progress_out[$i]##* }"
+		    length_out[$i]=0
+		    streamer_out[$i]=$(sed -n 6p < "$file_stdout" 2>/dev/null)
+		    playpath_out[$i]=$(sed -n 7p < "$file_stdout" 2>/dev/null)
 		elif [ "${downloader_out[$i]}" == "Axel" ]; then
 		    axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
+		    url_out_file[$i]=`head -n 6 $file_stdout 2>/dev/null |sed -n '6p'`
 		    file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
 		    file_out[$i]="${file_out[$i]#*Opening output file }"
 		    
@@ -254,52 +258,51 @@ function check_stdout {
     if [ $? == 1 ]; then
 	last_stdout=$(( ${#pid_out[*]}-1 ))
 	for ck in `seq 0 $last_stdout`; do
-	    
-	    
-	    check_pid ${pid_out[$ck]}
-	    if [ $? == 1 ]; then
-		if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
-		    rm -f "${alias_file_out[$ck]}"
-		fi
-		
-		test_repeated="${repeated[${pid_out[$ck]}]}"
-		repeated[${pid_out[$ck]}]=`tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
-		if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
-		    kill ${pid_out[$ck]}
-		fi
-		
-		
-		if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
-		    kill ${pid_out[$ck]}
-		fi
-	    fi
-	    
-	    check_pid ${pid_out[$ck]}
-	    if [ $? != 1 ]; then
-		length_saved=0
-		[ -f "${file_out[$ck]}" ] && length_saved=`ls -l "./${file_out[$ck]}" | awk '{ print($5) }'`
-		
-		already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
-		if [ -z "$already_there" ]; then 
-		    unset already_there
+	    is_rtmp "${url_out[$ck]}"
+	    if [ $? == 0 ]; then
+
+		check_pid ${pid_out[$ck]}
+		if [ $? == 1 ]; then
+		    if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
+			rm -f "${alias_file_out[$ck]}"
+		    fi
 		    
-		    if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
-			[ ! -f "${file_out[$ck]}.st" ] && rm -f "${file_out[$ck]}"
+		    test_repeated="${repeated[${pid_out[$ck]}]}"
+		    repeated[${pid_out[$ck]}]=`tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
+		    if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
+			kill ${pid_out[$ck]}
 		    fi
-		    if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ); then 
-			[ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
+		    
+		    if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
+			kill ${pid_out[$ck]}
 		    fi
-
-		else ## file exists: don't loop its url_out
-
-		    print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
-		    read -p "ATTENZIONE!"
-		    rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
-
 		fi
-		
+
+		check_pid ${pid_out[$ck]}
+		if [ $? != 1 ]; then
+		    length_saved=0
+		    [ -f "${file_out[$ck]}" ] && length_saved=`ls -l "./${file_out[$ck]}" | awk '{ print($5) }'`
+		    
+		    already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
+		    if [ ! -z "$already_there" ]; then 
+			unset already_there
+			print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
+			read -p "ATTENZIONE!"
+			rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
+		    else
+			if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
+			    if [ ! -f "${file_out[$ck]}.st" ]; then
+				rm -f "${file_out[$ck]}"
+			    fi
+			fi
+			if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ) || [ "$test_rtmp" == 1 ]; then 
+			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
+			fi
+		    fi
+		fi
 	    fi
 	done
+	unset test_rtmp
 	return 1
     fi
 }

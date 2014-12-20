@@ -735,11 +735,8 @@ while true; do
 		    unset break_loop
 		    break
 		fi
+		sanitize_file_in
 
-		file_in="${file_in// /_}"
-		file_in="${file_in//\'/_}"
-		file_in="${file_in##*/}"
-		file_in="${file_in::255}"
        		#### CHECK $url_in_file & $file_in:
 
 		check_freespace
@@ -751,13 +748,17 @@ while true; do
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
 		    unset test_in
-		    download #|| usage
-		    check_pid ${pid_in}
-		    if [ $? == 1 ]; then
-			print_c 4 "URL del file: $url_in_file"
-			print_c 1 "downloading --> $file_in ..."
+		    download
+		    is_rtmp "$url_in"
+		    if [ "$?" == 1 ]; then
+			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"
 		    else
 			print_c 4 "URL del file: $url_in_file"
+		    fi
+		    check_pid ${pid_in}
+		    if [ $? == 1 ]; then
+			print_c 1 "downloading --> $file_in ..."
+		    else
 			print_c 3 "\n$file_in: connessione non riuscita (riprovo più tardi)"
 		    fi		    
 		    while true; do

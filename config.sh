@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+#unset autoupdate
+
 # chiavi di configurazione -- valori predefiniti  --          descrizione per il config-manager
 key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Downloader predefinito (Axel|Wget)"
 key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
@@ -38,7 +40,8 @@ key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Ag
 
 declare -A list_proxy_url
 
-#unset autoupdate
+rtmp=( zinwa. streamin. )
+
 
 function add_conf { #only if item doesn't exist
     item="$1"

@@ -99,7 +99,7 @@ function download {
 	rm -f "$path_tmp/redirect"
     fi
 
-    if [ "$downloader_in" = "Axel" ]; then
+    if [ "$downloader_in" == "Axel" ]; then
 	[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
@@ -119,8 +119,8 @@ function download {
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
-    elif [ "$downloader_in" = "Wget" ]; then
+	echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+    elif [ "$downloader_in" == "Wget" ]; then
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    COOKIES="$path_tmp/cookies.zdl"
 	elif [ -f "$path_tmp"/flashgot_cfile.zdl ]; then
@@ -138,7 +138,11 @@ function download {
 	wget --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 #	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in" > "$path_tmp/${file_in}_stdout.tmp"
+	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+    elif [ "$downloader_in" == "cURL" ]; then
+	( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
+	pid_in=$!
+	echo -e "${pid_in}\nlink_${prog}: $url_in\ncURL\n${pid_prog}\n$file_in\n$streamer\n$playpath" > "$path_tmp/${file_in}_stdout.tmp"
     fi
     
     if [ ! -z "$user" ] && [ ! -z "$host" ]; then
@@ -168,7 +172,7 @@ function check_in_url { 	## return --> no_download=1
 			if [ $? == 1 ]; then
 			    return 1
 			fi
-			
+
 			file_in="${file_out[$i]}"
 			length_saved=0
 			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
@@ -190,8 +194,8 @@ function check_in_url { 	## return --> no_download=1
 
 
 function check_in_file { 	## return --> no_download=1 / download=5
-    file_in="${file_in// /_}"
-    file_in="${file_in//\'/_}"
+    sanitize_file_in
+    file_in_bis="${file_in}__BIS__${url_in//\//_}.${file_in##*.}"
     if [ ! -z "$exceeded" ]; then
 	_log 4
 	break_loop=true
@@ -222,7 +226,9 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	    for ((i=0; i<${#pid_out[*]}; i++)); do
 		if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
 		    check_pid ${pid_out[$i]}
-		    [ $? == 1 ] && return 1
+		    if [ $? == 1 ]; then
+			return 1
+		    fi
 		    length_saved=${length_saved[$i]} #`ls -l "./${file_in}" | awk '{ print($5) }'`
 		    [ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "./${alias_file_out[$i]}" | awk '{ print($5) }'` || length_alias_saved=0
 		    if [[ "${length_out[$i]}" =~ ^[0-9]+$ ]] && ( (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
@@ -234,8 +240,8 @@ function check_in_file { 	## return --> no_download=1 / download=5
 			no_bis=true
 		    fi
 		    break
-		elif [ "$file_in" != "${file_out[$i]}" ] && [ "$url_in" == "${url_out[$i]}" ]; then
-		    rm -f "$path_tmp/${file_out[$i]}_stdout.tmp" "${file_out[$i]}" "${file_out[$i]}.st"
+		elif [ "$file_in" != "${file_out[$i]}" ] && [ "$url_in" == "${url_out[$i]}" ] && [ "$file_in_bis" != "${file_out[$i]}" ]; then
+		    rm -f "$path_tmp/${file_out[$i]}_stdout.tmp" "${file_out[$i]}" "${file_out[$i]}.st" 
 		fi
 	    done
 	fi
@@ -278,16 +284,21 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		    esac
 		fi
 		## case bis_dl
-		[ $i == bis_dl ] && \
-		    [ -z "$no_bis" ] && \
-		    [ -f "${file_in}__BIS__${url_in//\//_}" ] && \
-		    file_in="${file_in}__BIS__${url_in//\//_}${file_in##*.}" && return 5
+	        if [ $i == bis_dl ] && [ -z "$no_bis" ]; then
+
+		    if [ ! -f "${file_in_bis}" ]; then
+			file_in="${file_in_bis}"
+			return 5
+		    elif [ -f "${file_in_bis}" ]; then
+			links_loop - "$url_in"
+		    fi
+		fi
 	    done
 	    
 	    ## ignore link
 	    _log 1
 	    no_newip=true
-	elif [ ! -z "$url_in_file" ]; then
+	elif [ ! -z "$url_in_file" ] || ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] ); then
 	    return 5
 	fi
     fi

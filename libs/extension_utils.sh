@@ -191,3 +191,4 @@ function make_index {
     string="$1"
     sed -e s,[^a-zA-Z0-9],,g <<< "$string"
 }
+

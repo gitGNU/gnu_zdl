@@ -128,3 +128,16 @@ function check_instance_daemon {
 }
 
 
+function is_rtmp {
+    for h in ${rtmp[*]}; do
+	[ "$1" != "${1//$h}" ] && return 1
+    done
+    return 0
+}
+
+function sanitize_file_in {
+    file_in="${file_in// /_}"
+    file_in="${file_in//\'/_}"
+    file_in="${file_in##*/}"
+    file_in="${file_in::255}"
+}

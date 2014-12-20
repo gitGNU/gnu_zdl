@@ -43,12 +43,36 @@ function show_downloads_extended {
 	    if [ $? == 1 ] && [ ! -f "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ]; then
 		print_c 3 "${downloader_out[$i]} sta scaricando a vuoto: ${file_out[$i]} non esiste"
 	    fi
-	    
-	    echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
-	    [ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
-	    echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
-	    make_progress
-	    print_c "" "${BBlue}Stato:${diff_bar_color} ${progress}"
+	    is_rtmp "${url_out[$i]}"
+	    if [ $? == 1 ]; then
+		echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
+		echo -e "${BBlue}Downloader:${Color_Off} ${downloader_out[$i]} ${BYellow}protocollo RTMP$Color_Off\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+		echo -e "${BBlue}Streamer:${Color_Off} ${streamer_out[$i]}"
+		echo -e "${BBlue}Playpath:${Color_Off} ${playpath_out[$i]}" 
+		check_pid ${pid_out[$i]}
+		if [ $? == 1 ]; then
+		    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
+		    [ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
+		    [ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
+		    human_length ${length_saved[$i]}
+		    echo -n -e "${BBlue}Stato:${Color_Off} "
+		    print_c 1 "${length_saved[$i]} ($length_H) ${BBlue}${speed}"
+		elif [ -f "${file_out[$i]}" ]; then
+		    human_length ${length_saved[$i]}
+		    echo -n -e "${BBlue}Stato:${Color_Off} "
+		    print_c 1 "${length_saved[$i]} ($length_H) terminato"
+		else
+		    echo -n -e "${BBlue}Stato:${Color_Off} "
+		    print_c 3 "Download non attivo"
+		fi
+	    else
+		echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
+		[ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
+		echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+		echo -e "${BBlue}Url del file:${Color_Off} ${url_out_file[$i]}" 
+		make_progress
+		print_c "" "${BBlue}Stato:${diff_bar_color} ${progress}"
+	    fi
 	    echo
 	done
 	return 1
@@ -64,9 +88,9 @@ function human_length { ## input in bytes
 	length_K=$(( $length_B/1024 ))
 	length_M=$(( $length_K/1024 ))
 	if (( $length_M>0 )); then
-	    length_H="${length_M} M"
+	    length_H="${length_M} MB"
 	elif (( $length_K>0 )); then
-	    length_H="${length_K} K"
+	    length_H="${length_K} KB"
 	else
 	    length_H="${length_B} B"
 	fi
@@ -174,8 +198,14 @@ function clean_completed {
 	    length_saved=0
 	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
 	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
-#		unset "${url_out[$j]}"
 		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+	    fi
+	    is_rtmp "${url_out[$j]}"
+	    if [ $? == 1 ] && [ ! -z "${length_saved[$j]}" ] && (( "${length_saved[$j]}">0 )); then
+		check_pid "${pid_out[$j]}"
+		if [ $? != 1 ]; then
+		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+		fi
 	    fi
 	done
     fi
@@ -193,9 +223,25 @@ function show_downloads {
 		if [ ! -z "${url_out[$i]}" ]; then
 		    echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
 		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
-
-		    make_progress
-		    print_c "" "${diff_bar_color} ${downloader_out[$i]}: ${progress}"
+		    is_rtmp "${url_out[$i]}"
+		    if [ $? == 1 ]; then
+			check_pid ${pid_out[$i]}
+			if [ $? == 1 ]; then
+			    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
+			    [ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
+			    [ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
+			    human_length ${length_saved[$i]}
+			    print_c 1 " ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) ${BBlue}${speed}"
+			elif [ -f "${file_out[$i]}" ]; then
+			    human_length ${length_saved[$i]}
+			    print_c 1 " ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) terminato"
+			else
+			    print_c 3 " ${downloader_out[$i]}: Download non attivo"
+			fi
+		    else
+			make_progress
+			print_c "" "${diff_bar_color} ${downloader_out[$i]}: ${progress}"
+		    fi
 		    ii=$(( $i+1 ))
 		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then 
 			separator "─"
