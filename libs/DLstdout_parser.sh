@@ -114,6 +114,33 @@ function data_stdout {
 		    num_percent[$i]=0
 		    num_percent[$i]=${percent%'%'*}
 		    num_percent[$i]=${num_percent[$i]%'.'*}
+		elif [ "${downloader_out[$i]}" == "RTMPDump" ]; then
+		    progress_line=$(grep \([0-9] "$file_stdout" |tail -n1)
+		    start_time=$(sed -n 8p < "$file_stdout" 2>/dev/null)
+		    this_time=$(date +%s)
+		    elapsed_time=$(( $this_time-$start_time ))
+		    
+		    file_out[$i]=$(sed -n 5p < "$file_stdout" 2>/dev/null)
+		    streamer_out[$i]=$(sed -n 6p < "$file_stdout" 2>/dev/null)
+		    playpath_out[$i]=$(sed -n 7p < "$file_stdout" 2>/dev/null)
+
+		    if [ ! -z "$progress_line" ]; then
+			num_percent[$i]="${progress_line##*\(}"
+			num_percent[$i]="${num_percent[$i]%%\%*}"
+			num_percent[$i]="${num_percent[$i]%%.*}"
+			if [ ! -z "${num_percent[$i]}" ] && [ "${num_percent[$i]}" != 0 ]; then
+			    duration=$(( $elapsed_time*100/${num_percent[$i]} ))
+			    eta_secs=$(( ${duration%%.*}-$elapsed_time ))
+			    eta[$i]=$(human_eta "$eta_secs")
+			    if [ -f "${file_out[$i]}" ]; then
+				length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
+			    else
+				length_saved[$i]=0
+			    fi
+			    num_speed[$i]=$(( (${length_saved[$i]}/1024)/${elapsed_time} ))
+			    type_speed[$i]="KB/s"
+			fi
+		    fi
 		elif [ "${downloader_out[$i]}" == "cURL" ]; then
 		    file_out[$i]=$(sed -n 5p < "$file_stdout" 2>/dev/null)
 		    progress_out[$i]=$(tail -n1 "$file_stdout")
@@ -184,14 +211,7 @@ function data_stdout {
 			unset seconds minutes hours
 			seconds=$(( $diff_length/${numspeed} ))
 		    fi
-		    if [ ! -z "$seconds" ]; then
-			minutes=$(( $seconds/60 ))
-			hours=$(( $minutes/60 ))
-			minutes=$(( $minutes-($hours*60) ))
-			eta[$i]="${hours}h${minutes}m"
-		    else
-			eta[$i]=""
-		    fi
+		    eta[$i]=$(human_eta "$seconds")
 		fi
 		check_pid ${pid_out[$i]}
 		if [ $? == 1 ]; then
@@ -295,9 +315,19 @@ function check_stdout {
 				rm -f "${file_out[$ck]}"
 			    fi
 			fi
-			if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ) || [ "$test_rtmp" == 1 ]; then 
+			if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ); then 
 			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
 			fi
+		    fi
+		fi
+	    elif [ ${downloader_out[$ck]} == RTMPDump ]; then
+		test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")
+		check_pid "${pid_out[$ck]}"
+		if [ $? != 1 ]; then
+		    if [ -z "$test_completed" ]; then
+			rm -f "${file_out[$ck]}"
+		    else
+			links_loop - "${url_out[$ck]}"
 		    fi
 		fi
 	    fi

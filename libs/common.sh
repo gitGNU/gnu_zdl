@@ -141,3 +141,13 @@ function sanitize_file_in {
     file_in="${file_in##*/}"
     file_in="${file_in::255}"
 }
+
+function human_eta {
+    if [ ! -z "$1" ]; then
+	minutes=$(( $1/60 ))
+	hours=$(( $minutes/60 ))
+	minutes=$(( $minutes-($hours*60) ))
+	echo "${hours}h${minutes}m"
+    fi
+}
+

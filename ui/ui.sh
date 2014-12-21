@@ -49,6 +49,13 @@ function show_downloads_extended {
 		echo -e "${BBlue}Downloader:${Color_Off} ${downloader_out[$i]} ${BYellow}protocollo RTMP$Color_Off\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
 		echo -e "${BBlue}Streamer:${Color_Off} ${streamer_out[$i]}"
 		echo -e "${BBlue}Playpath:${Color_Off} ${playpath_out[$i]}" 
+	    else
+		echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
+		[ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
+		echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
+		echo -e "${BBlue}Url del file:${Color_Off} ${url_out_file[$i]}" 
+	    fi
+	    if [ ${downloader_out[$i]} == cURL ]; then
 		check_pid ${pid_out[$i]}
 		if [ $? == 1 ]; then
 		    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
@@ -66,10 +73,6 @@ function show_downloads_extended {
 		    print_c 3 "Download non attivo"
 		fi
 	    else
-		echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
-		[ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
-		echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
-		echo -e "${BBlue}Url del file:${Color_Off} ${url_out_file[$i]}" 
 		make_progress
 		print_c "" "${BBlue}Stato:${diff_bar_color} ${progress}"
 	    fi
@@ -200,13 +203,21 @@ function clean_completed {
 	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
 		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 	    fi
-	    is_rtmp "${url_out[$j]}"
-	    if [ $? == 1 ] && [ ! -z "${length_saved[$j]}" ] && (( "${length_saved[$j]}">0 )); then
+
+	    if [ ${downloader_out[$j]} == cURL ] && [ ! -z "${length_saved[$j]}" ] && (( "${length_saved[$j]}">0 )); then
 		check_pid "${pid_out[$j]}"
 		if [ $? != 1 ]; then
 		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
+	    if [ ${downloader_out[$j]} == RTMPDump ]; then
+		test_completed=$(tail -n1 "$path_tmp"/"${file_out[$j]}_stdout.tmp")
+		check_pid "${pid_out[$j]}"
+		if [ $? != 1 ] && [ "$test_completed" == "Download complete" ]; then
+		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+		fi
+	    fi
+
 	done
     fi
 }
@@ -223,8 +234,8 @@ function show_downloads {
 		if [ ! -z "${url_out[$i]}" ]; then
 		    echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
 		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
-		    is_rtmp "${url_out[$i]}"
-		    if [ $? == 1 ]; then
+
+		    if [ ${downloader_out[$i]} == cURL ]; then
 			check_pid ${pid_out[$i]}
 			if [ $? == 1 ]; then
 			    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
@@ -265,7 +276,7 @@ function make_progress {
     size_bar=0
     check_pid ${pid_out[$i]}
     if [ $? != 1 ]; then
-	if [ "${downloader_out[$i]}" == "Wget" ]; then
+	if [[ "${downloader_out[$i]}" =~ ^(Wget|RTMPDump)$ ]]; then
 	    progress="Download non attivo"
 	fi
 	diff_bar_color="${BRed}"
@@ -298,7 +309,8 @@ function make_progress {
     done
     bar="${bar}${diff_bar}"
 
-    if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "${length_saved[$i]}" == "${length_out[$i]}" ] && [ "${length_out[$i]}" != 0 ] && [ ! -z "${length_out[$i]}" ];then
+    test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$i]}_stdout.tmp")
+    if ( [ ! -z "$test_completed" ] && [ ${downloader_out[$i]} == RTMPDump ] ) || ( [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "${length_saved[$i]}" == "${length_out[$i]}" ] && [ "${length_out[$i]}" != 0 ] && [ ! -z "${length_out[$i]}" ] );then
 	progress="Download completato"
 	diff_bar_color="${BGreen}"
     fi

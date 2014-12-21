@@ -139,6 +139,10 @@ function download {
 #	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+    elif [ "$downloader_in" == "RTMPDump" ]; then
+	rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
+	pid_in=$!
+	echo -e "${pid_in}\nlink_${prog}: $url_in\nRTMPDump\n${pid_prog}\n$file_in\n$streamer\n$playpath\n$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
     elif [ "$downloader_in" == "cURL" ]; then
 	( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
 	pid_in=$!
@@ -266,6 +270,16 @@ function check_in_file { 	## return --> no_download=1 / download=5
 			    fi
 			    ;;
 		    esac
+		elif [ "$downloader_in" == RTMPDump ]; then
+		    case "$i" in
+			resume_dl|rewrite_dl) 
+			    [ -f "$path_tmp/${file_out[$i]}_stdout.tmp" ] && test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$i]}_stdout.tmp")
+			    if [ -f "${file_in}" ] && [ -z "$test_completed" ] && ( [ -z "$bis" ] || [ "$no_bis" == true ] ); then 
+				unset no_newip
+				[ ! -z "$url_in_file" ] && return 5
+			    fi
+			    ;;
+		    esac
 		elif [ "$downloader_in" == Axel ]; then
 		    case "$i" in
 			resume_dl) 
@@ -285,11 +299,10 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		fi
 		## case bis_dl
 	        if [ $i == bis_dl ] && [ -z "$no_bis" ]; then
-
+		    file_in="${file_in_bis}"
 		    if [ ! -f "${file_in_bis}" ]; then
-			file_in="${file_in_bis}"
 			return 5
-		    elif [ -f "${file_in_bis}" ]; then
+		    elif [ -f "${file_in_bis}" ] || ( [ ${downloader_out[$i]} == RTMPDump ] && [ ! -z "$test_completed" ] ); then
 			links_loop - "$url_in"
 		    fi
 		fi
