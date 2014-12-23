@@ -26,6 +26,8 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Nowvideo
 
 if [ "$url_in" != "${url_in//'nowvideo.'}" ] && [ "$url_in" != "${url_in//video}" ]; then
     myip="$(wget -q -O - http://indirizzo-ip.com/ip.php)"

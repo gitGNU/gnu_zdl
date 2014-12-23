@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming
+## zdl-extension name: Videowood
+
 
 if [ "$url_in" != "${url_in//'videowood.'}" ]; then
     html=$(wget -q -O - "${url_in//'/video/'//embed/}")

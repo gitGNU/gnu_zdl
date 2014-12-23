@@ -26,6 +26,8 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Tvdigit.it
 
 if [ "$url_in" != "${url_in//'tvdigit.it'}" ]; then
 

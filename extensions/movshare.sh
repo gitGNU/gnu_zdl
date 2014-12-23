@@ -26,6 +26,8 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Movshare
 
 if [ "$url_in" != "${url_in//'movshare.'}" ] && [ "$url_in" != "${url_in//video}" ]; then
     wget "$url_in" -O "$path_tmp"/zdl.tmp -q

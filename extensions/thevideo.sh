@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming download
+## zdl-extension name: Thevideo
 
 if [ "$url_in" != "${url_in//'thevideo.'}" ]; then
     html=$(wget "$url_in" -O- -q)

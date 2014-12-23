@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Glumbouploads
+
 
 if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
     [ "$multi" == "0" ] && [ -f "$file_data" ] && check_ip glumbouploads

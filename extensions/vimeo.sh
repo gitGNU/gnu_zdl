@@ -25,7 +25,9 @@
 # zoninoz@inventati.org
 #
 
-## ZDL add-on
+
+## zdl-extension types: streaming
+## zdl-extension name: Vimeo (HD)
 
 if [ "$url_in" != "${url_in//'vimeo.com/'[0-9]}" ]; then
 	wget "$url_in" -O "$path_tmp"/zdl.tmp -q

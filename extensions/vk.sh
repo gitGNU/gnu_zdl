@@ -25,6 +25,10 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming
+## zdl-extension name: VK (HD)
+
+
 if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 

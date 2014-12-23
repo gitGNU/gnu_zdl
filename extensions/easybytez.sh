@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Easybytez
+
 
 if [ "$url_in" != "${url_in//easybytez}" ]; then
     if [ "$login" == "1" ]; then

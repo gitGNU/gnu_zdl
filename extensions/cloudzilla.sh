@@ -25,6 +25,10 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Cloudzilla
+
+
 if [ "$url_in" != "${url_in//'cloudzilla.to/share/file'}" ]; then
     file_in=$(sed -r "s|^.+title=\"([^\"]+)\".+$|\1|" <<< $(wget -O- "$url_in" -q |grep download_hdr))
     link_parser "$url_in"

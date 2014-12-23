@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Nowdownload
 
 # Nowdownload /Nowvideo
 function wise {

@@ -25,7 +25,9 @@
 # zoninoz@inventati.org
 #
 
-## ZDL add-on
+
+## zdl-extension types: streaming
+## zdl-extension name: Exashare
 
 
 if [ "$url_in" != "${url_in//exashare.}" ]; then

@@ -25,6 +25,10 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming
+## zdl-extension name: Streamin (RTMP)
+
+
 if [ "$url_in" != "${url_in//'streamin.to'}" ]; then
     input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
     file_in="$postdata_fname"

@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Billionuploads
+
 
 if [ "$url_in" != "${url_in//billionuploads}" ]; then
     cookies="$path_tmp/cookies.zdl"

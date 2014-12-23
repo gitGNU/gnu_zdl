@@ -26,6 +26,8 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Zinwa (RTMP)
 
 function decodejs_zinwa {
     instr="${1//\'}"

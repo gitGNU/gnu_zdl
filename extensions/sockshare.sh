@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming download
+## zdl-extension name: Sockshare (HD)
+
 
 if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]; then
     url_in="${url_in%\#}"

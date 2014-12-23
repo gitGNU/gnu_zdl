@@ -25,6 +25,10 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download streaming
+## zdl-extension name: Junkyvideo (HD)
+
+
 if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]; then
     input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
     echo -n -e "${BBlue}1/2) "

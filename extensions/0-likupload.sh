@@ -24,6 +24,10 @@
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
+
+## zdl-extension types: download
+## zdl-extension name: Likeupload
+
 		
 if [ "$url_in" != "${url_in//'likeupload.org'}" ]; then
     url_in_old="$url_in"

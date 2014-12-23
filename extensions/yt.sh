@@ -21,6 +21,9 @@
 # https://savannah.nongnu.org/projects/zdl
 # 
 
+## zdl-extension types: streaming
+## zdl-extension name: Youtube
+
 shopt -u nullglob
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then

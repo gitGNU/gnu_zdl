@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Mediafire
+
 
 if [ "$url_in" != "${url_in//mediafire.}" ]; then
     check_ip mediafire

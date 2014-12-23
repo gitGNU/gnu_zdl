@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Rapidshare
 
 if [ "$url_in" != "${url_in//'rapidshare.'}" ]; then
     if [ "$url_in" != "${url_in//'rapidshare.com/files'}" ]; then

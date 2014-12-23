@@ -26,6 +26,7 @@
 #
 
 
+
 if [ "$url_in" != "${url_in//'ncrypt.in/folder'}" ]; then
     links_loop - "$url_in"
     html=$(wget -q -O- "$url_in"|grep ".dlc")

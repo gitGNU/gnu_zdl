@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Uload
 
 if [ "$url_in" != "${url_in//uload.}" ]; then
     check_ip uload

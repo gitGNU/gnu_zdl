@@ -26,6 +26,10 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Portalevideo.unimi.it
+
+
 
 if [ "$url_in" != "${url_in//'http://portalevideo.unimi.it'}" ]; then
     url_in_HD="${url_in//def=L/def=H}"

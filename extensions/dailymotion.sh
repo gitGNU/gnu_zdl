@@ -25,6 +25,10 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming
+## zdl-extension name: Dailymotion
+
+
 if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]; then
     echo -e ".dailymotion.com\tTRUE\t/\tFALSE\t0\tff\toff" > "$path_tmp"/cookies.zdl
     wget --load-cookies="$path_tmp"/cookies.zdl -q "$url_in" -O $path_tmp/zdl.tmp

@@ -25,6 +25,8 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: download
+## zdl-extension name: Tusfiles
 
 if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
     wget -q -t 1 -T $max_waiting --no-check-certificate --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null

@@ -25,6 +25,9 @@
 # zoninoz@inventati.org
 #
 
+## zdl-extension types: streaming
+## zdl-extension name: Metacafe
+
 if [ "$url_in" != "${url_in//metacafe.com\/watch}" ]; then
     wget "$url_in" -q -O "$path_tmp/zdl.tmp"
     if [ -z $(grep isFamilyFilterOn\:true < "$path_tmp"/zdl.tmp) ]; then

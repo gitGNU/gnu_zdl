@@ -26,6 +26,8 @@
 #
 
 ## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Rai.tv
 
 if [ "$url_in" != "${url_in//'rai.tv'}" ]; then
     if [ "${url_in}" == "${url_in//dirette}" ]; then 
