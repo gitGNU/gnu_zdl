@@ -165,6 +165,19 @@ function countdown+ {
     done 
 }
 
+function countdown- {
+    max=$1
+    start=`date +"%s"`
+    stop=$(( $start+$max ))
+    diff=$max
+    while (( $diff>0 )); do
+	this=`date +"%s"`
+	diff=$(( $stop-$this ))
+	echo -e $diff"\r\c"
+	sleep 1
+    done 
+}
+
 function tags2vars {
     if [[ ! -z $1 ]]; then
 	 eval $(sed -r "s|<([^/<>]+)>([^/<>]+)</([^<>]+)>|\1=\2; |g" <<< "$1")

@@ -46,7 +46,7 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
 	if [ ! -z "$html" ]; then 
 	    html="${html#*url_encoded_fmt_stream_map}"
             ## quality: large -> medium -> small (il più alto disponibile è nella prima riga)
-	    url_in_file=$(urldecode "$html" |sed -r 's|codecs|\ncodecs|g' | grep mp4 | grep quality | head -n1 |sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g')
+	    url_in_file=$(urldecode "$html" |sed -r 's|codecs|\ncodecs|g' | grep mp4 2>/dev/null | grep quality 2>/dev/null | head -n1 2>/dev/null |sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g' 2>/dev/null)
 	    url_in_file=$(urldecode "$url_in_file")
 	    file_in="$title.$videoType"
 
