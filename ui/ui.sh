@@ -172,6 +172,10 @@ function interactive {
 			done
 		    elif [ "$input2" == "c" ]; then
 			clean_completed
+		    elif [ "$input2" == "p" ]; then
+			for i in ${inputs[*]}; do
+			    zp "${file_out[$i]}"
+			done
 		    fi
 		fi
 	    elif [ "$action" == "c" ]; then

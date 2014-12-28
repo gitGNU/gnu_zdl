@@ -50,7 +50,7 @@ if [ "$url_in" != "${url_in//'zinwa.'}" ]; then
     html=$(wget -q "$url_in" -O-)
     args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
     code=$(decodejs_zinwa "${args%,*}" "${args##*,}")
-    playpath=$(sed -r 's|.+file: \"([^"]+)\".+|\1|' <<< "$code")
+    playpath=$(sed -r "s|.+file: \"([^\"]+)\".+|\1|g" <<< "$code")
     streamer=$(sed -r 's|.+streamer: \"([^"]+)\".+|\1|' <<< "$code")
     file_in=$(grep '<title>' <<< "$html" |sed -r 's|.+>([^<>]+)<.+|\1|g').$(sed -r 's|.+\.([^.]+)\?.*$|\1|g' <<< "$playpath")
 fi
