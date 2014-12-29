@@ -179,7 +179,7 @@ function interactive {
 			fi
 			if [ ! -z "$player" ]; then
 			    for i in ${inputs[*]}; do
-				$player "${file_out[$i]}"
+				$player "${file_out[$i]}" &>/dev/null &
 			    done
 			fi
 		    fi
