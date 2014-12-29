@@ -25,9 +25,28 @@
 # zoninoz@inventati.org
 #
 
+function configure_key {
+    opt=$1
+    if [[ "$opt" =~ ^[0-9]+$ ]] && (( $opt > 0 )) && (( $opt <= ${#key_conf[*]} )); then 
+	(( opt-- ))
+	header_box "Scrivi il nuovo valore"
+	if [ "${key_conf[$opt]}" == "$reconnecter" ]; then
+	    extra_string=" [è necessario indicare il path completo e valido]"
+	fi
+	print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
+	read new_value
+	
+	if [[ "${key_conf[$opt]}" =~ (reconnecter|player) ]] && [[ -z $(command -v "$new_value" 2>/dev/null) ]]; then
+	    print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
+	    pause
+	else
+	    set_item_conf ${key_conf[$opt]} "$new_value"
+	fi
+	touch "$path_conf/updated"
+    fi
+}
 
 function configure {
-    
     while true; do
 	header_z
 	header_box "Preferenze"
@@ -45,23 +64,7 @@ function configure {
 		show_conf
 		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-${#key_conf[*]} | *):"
 		read opt
-		if [[ "$opt" =~ [0-9] ]] && [[ -z "${opt//[0-9]}" ]] && (( $opt > 0 )) && (( $opt <= ${#key_conf[*]} )); then 
-		    (( opt-- ))
-		    header_box "Scrivi il nuovo valore"
-		    if [ "${key_conf[$opt]}" == "$reconnecter" ]; then
-			extra_string=" [è necessario indicare il path completo e valido]"
-		    fi
-		    print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
-		    read new_value
-		    
-		    if [ "${key_conf[$opt]}" == "reconnecter" ] && [ ! -f "$new_value" ]; then
-			print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
-			pause
-		    else
-			set_item_conf ${key_conf[$opt]} "$new_value"
-		    fi
-		    touch "$path_conf/updated"
-		fi
+		configure_key $opt
 		;;
 	    2)	
 		configure_accounts

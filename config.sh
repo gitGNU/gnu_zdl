@@ -37,6 +37,7 @@ key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="As
 key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
+key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
 
 declare -A list_proxy_url
 
@@ -82,6 +83,7 @@ function set_default_conf {
     add_conf "${key_conf[6]}=${val_conf[6]}" #"language=$LANG"
     add_conf "${key_conf[7]}=${val_conf[7]}" #"reconnect="
     add_conf "${key_conf[8]}=${val_conf[8]}" #"autoupdate=enabled"
+    add_conf "${key_conf[9]}=${val_conf[9]}" # player
 }
 
 function get_item_conf {

@@ -118,21 +118,21 @@ function interactive {
 	show_downloads_extended
 	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
 	    header_box "Opzioni"
-	    echo -e "<${BRed} r ${Color_Off}> riavvia o elimina un download dalla gestione di $name_prog"
+	    echo -e "<${BYellow} s ${Color_Off}> seleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)"
 	    echo -e "<${BGreen} c ${Color_Off}> cancella i file temporanei dei download completati\n"
 	    echo -e "<${BBlue} q ${Color_Off}> esci da $PROG --interactive"
-	    [ ! -z "$daemon_pid" ] && echo -e "<${BBlue} s ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati\n"
+	    [ ! -z "$daemon_pid" ] && echo -e "<${BBlue} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati\n"
 	    echo -e "<${BBlue} * ${Color_Off}> aggiorna lo stato\n"
 	    cursor off
 	    read -n 1 -t 15 action
 	    cursor on
-	    if [ "$action" == "r" ]; then
+	    if [ "$action" == "s" ]; then
 		fclear
 		header_z
 		echo
 		show_downloads_extended
-		header_box "Seleziona (Riavvia o Elimina)"
-		print_c 2 "Seleziona i numeri dei download da eliminare o (solo se attivi) da riavviare, separati da spazi (puoi non scegliere):"
+		header_box "Seleziona (Riavvia, Elimina, Riproduci audio/video)"
+		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
 		read input
 		if [ ! -z "$input" ]; then
 		    unset inputs
@@ -142,9 +142,9 @@ function interactive {
 		    print_c 2 "Vuoi che i download selezionati siano terminati definitivamente oppure che siano riavviati automaticamente più tardi?"
 		    echo
 		    echo -e "<${BYellow} r ${Color_Off}> per riavviarli
-
 <${BRed} e ${Color_Off}> per eliminarli definitivamente (e cancellare il file scaricato)
 <${BRed} t ${Color_Off}> per terminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
+<${BGreen} p ${Color_Off}> per riprodurre i file audio/video
 
 <${BGreen} c ${Color_Off}> per cancellare i file temporanei dei download completati
 
@@ -173,9 +173,15 @@ function interactive {
 		    elif [ "$input2" == "c" ]; then
 			clean_completed
 		    elif [ "$input2" == "p" ]; then
-			for i in ${inputs[*]}; do
-			    zp "${file_out[$i]}"
-			done
+			if [ -z "$player" ]; then
+			    configure_key 10
+			    get_conf
+			fi
+			if [ ! -z "$player" ]; then
+			    for i in ${inputs[*]}; do
+				$player "${file_out[$i]}"
+			    done
+			fi
 		    fi
 		fi
 	    elif [ "$action" == "c" ]; then
@@ -183,7 +189,7 @@ function interactive {
 	    elif [ "$action" == "q" ]; then
 		fclear
 		break
-	    elif [ "$action" == "s" ]; then
+	    elif [ "$action" == "Q" ]; then
 		kill $daemon_pid 2>/dev/null
 		fclear
 		break
