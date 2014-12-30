@@ -181,7 +181,7 @@ function check_in_url { 	## return --> no_download=1
 			length_saved=0
 			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
 			
-			if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${num_percent[$i]}" == 100 ]; then
+			if [ "$length_saved" != 0 ] && [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${num_percent[$i]}" == 100 ]; then
 			    return 1
 			fi
 			unset length_saved
@@ -430,7 +430,7 @@ function link_parser {
     _domain="${parser_url#*'@'}"
     _domain="${_domain%%\/*}"
     [ "${_domain}" != "${_domain#*:}" ] && parser_port="${_domain#*:}"
-    _domain="${_domain%:*}"
+    parser_domain="${_domain%:*}"
 
     if [ ! -z "${_domain//[0-9.]}" ]; then
 	ext="${_domain%'.'*}"
