@@ -32,6 +32,7 @@
 if [[ "$url_in" =~ (fastvideo.|rapidvideo.) ]] && [[ ! "$url_in" =~ embed ]]; then
     link_parser "$url_in"
     links_loop - "$url_in"
+    parser_path="${parser_path%%\/*}"
     url_in="${parser_proto}${parser_domain}/embed-${parser_path}-607x360.html"
     links_loop + "$url_in"
 fi

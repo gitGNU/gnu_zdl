@@ -32,28 +32,28 @@
 if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
-    data_in_file=$(cat "$path_tmp/zdl.tmp" |grep cache | head -n 3 | tail -n 1)
+    data_in_file=$(cat "$path_tmp/zdl.tmp" |grep cache 2>/dev/null | head -n 3 | tail -n 1)
     if [[ "$data_in_file" =~ http ]]; then
 	url_in_file="${data_in_file##*cache}"
 	url_in_file="${url_in_file#*\":\"}"
 	url_in_file="${url_in_file%%\"*}"
 	url_in_file="${url_in_file//'\'}"
     else
-	data_in_file=$(cat "$path_tmp/zdl.tmp" |grep flashvars)
+	data_in_file=$(cat "$path_tmp/zdl.tmp" |grep flashvars 2>/dev/null)
 	url_in_file="${data_in_file##*url[0-9]}"
 	url_in_file="${url_in_file#*\=}"
 	url_in_file="${url_in_file%%\?*}"
     fi
     ext="${url_in_file##*'.'}"
     ext="${ext%'?'*}"
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
     file_in="${data_in_file##*title\":\"}"
     file_in="${file_in%%\"*}"
     file_in="${file_in::240}"
 elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
 
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache)
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache 2>/dev/null)
     url_in_file="${data_in_file##*cache}"
     url_in_file="${url_in_file#*'\":\"'}"
     url_in_file="${url_in_file%%'\"'*}"
@@ -61,7 +61,7 @@ elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
 
     ext="${url_in_file##*'.'}"
     ext="${ext%'?'*}"
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title)
+    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
     file_in="${data_in_file##*title\":\"}"
     file_in="${file_in%%\"*}"
     file_in="${file_in::240}"
@@ -69,8 +69,8 @@ fi
 
 if [ "$url_in" != "${url_in//vk.com}" ]; then
     if [ ! -z "$file_in" ]; then
-	file_in=$(urldecode "$file_in" |sed -r 's|/||g').$ext
+	file_in=$(urldecode "$file_in" |sed -r 's|/||g' 2>/dev/null).$ext
     else
-	file_in=$(sed -r 's|.+\/([^/?]+).*$|\1|' <<< "$url_in_file")
+	file_in=$(sed -r 's|.+\/([^/?]+).*$|\1|' <<< "$url_in_file" 2>/dev/null)
     fi
 fi
