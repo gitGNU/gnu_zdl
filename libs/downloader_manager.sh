@@ -30,7 +30,7 @@ function check_freespace {
     fsize=0
     if [ -f "$path_tmp"/${file_in}_stdout.tmp ]; then
 	data_stdout "$path_tmp"/${file_in}_stdout.tmp
-	if [ $? == 1 ] && [ ! -z ${length_out[0]} ]; then
+	if [ $? == 1 ] && [ ! -z "${length_out[0]}" ]; then
 	    fsize=$(( ${length_out[0]}/1024 ))
 	fi
     else
@@ -49,7 +49,7 @@ function check_freespace {
 	    if (( $freespace<50000 )); then
 		print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 		exit
-	    elif [ ! -f "${file_in}.st" ] && [ $fsize != 0 ] && (( $freespace<$fsize )); then
+	    elif [ ! -f "${file_in}.st" ] && [ "$fsize" != 0 ] && (( $freespace<$fsize )); then
 		kill $pid_in 2>/dev/null
 		_log 6
 		return 1
@@ -298,7 +298,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		    esac
 		fi
 		## case bis_dl
-	        if [ $i == bis_dl ] && [ -z "$no_bis" ]; then
+	        if [ "$i" == bis_dl ] && [ -z "$no_bis" ]; then
 		    file_in="${file_in_bis}"
 		    if [ ! -f "${file_in_bis}" ]; then
 			return 5
@@ -397,7 +397,7 @@ function links_loop { 	## usage with op=+|- : links_loop $op $link
 
 
 function init_links_loop {
-    if [ -f $file ]; then
+    if [ -f "$file" ]; then
 	for ((i=1; i<=$(wc -l < "$file"); i++)); do
 	    links_loop + "$(sed -n ${i}p < $file)"
 	done

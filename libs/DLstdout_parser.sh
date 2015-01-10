@@ -207,7 +207,7 @@ function data_stdout {
 			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
 		    esac
 
-		    if [[ "${numspeed//.}" =~ [0-9]+ ]] && [ ${numspeed} != 0 ] && [ ! -z "$diff_length" ]; then
+		    if [[ "${numspeed//.}" =~ ^[0-9]+$ ]] && [ ${numspeed} != 0 ] && [ ! -z "$diff_length" ]; then
 			unset seconds minutes hours
 			seconds=$(( $diff_length/${numspeed} ))
 		    fi
@@ -385,13 +385,13 @@ function check_alias {
 
 function pipe_files {
     for i in $(seq 0 ${#file_out[*]}); do
-	if [ ! -z ${length_out[$i]} ]; then
+	if [ ! -z "${length_out[$i]}" ]; then
 	    if [ "${downloader_out[$i]}" == "Axel" ]; then
 		denum=$(( $axel_parts*100 ))
 	    else
 		denum=100
 	    fi
-	    [ -z ${num_percent[$i]} ] && num_percent[$i]=0
+	    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
 	    length_down=$(( ${length_out[$i]}*${num_percent[$i]}/$denum ))
 	    case ${type_speed[$i]} in
 		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
