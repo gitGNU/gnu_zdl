@@ -173,6 +173,7 @@ function countdown- {
     while (( $diff>0 )); do
 	this=`date +"%s"`
 	diff=$(( $stop-$this ))
+	echo -e "           \r\c"
 	echo -e $diff"\r\c"
 	sleep 1
     done 
@@ -205,3 +206,38 @@ function make_index {
     sed -e s,[^a-zA-Z0-9],,g <<< "$string"
 }
 
+function base64_decode {
+    arg1=$1
+    arg2=$2
+    var_4=${arg1:0:$arg2}
+    var_5=${arg1:$(( $arg2+10 ))} 
+    arg1="$var_4$var_5"
+    var_6='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+    var_f=0
+    var_10=0
+    while true; do
+	var_a=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 ))
+	(( var_f++ ))
+	var_b=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 )) 
+	(( var_f++ ))
+	var_c=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 )) 
+	(( var_f++ ))
+	var_d=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 )) 
+	(( var_f++ ))
+	var_e=$(( $var_a << 18 | $var_b << 12 | $var_c << 6 | $var_d ))
+	var_7=$(( $var_e >> 16 & 0xff ))
+	var_8=$(( $var_e >> 8 & 0xff ))
+	var_9=$(( $var_e & 0xff ))
+	if (( $var_c == 64 )); then
+	    var_12[$(( var_10++ ))]=$(code2char $var_7)
+	else
+	    if (( $var_d == 64 )); then
+		var_12[$(( var_10++ ))]=$(code2char $var_7)$(code2char $var_8)
+	    else
+		var_12[$(( var_10++ ))]=$(code2char $var_7)$(code2char $var_8)$(code2char $var_9)
+	    fi
+	fi
+	if (( $var_f>=${#arg1} )); then break; fi
+    done
+    sed -r 's| ||g' <<< "${var_12[*]}"
+}

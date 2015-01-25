@@ -41,7 +41,7 @@ key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Sc
 
 declare -A list_proxy_url
 
-rtmp=( zinwa. streamin. )
+rtmp=( zinwa. streamin. vidhappy. )
 
 
 function add_conf { #only if item doesn't exist
