@@ -26,7 +26,7 @@
 #
 
 ## zdl-extension types: streaming
-## zdl-extension name: Vidhappy
+## zdl-extension name: Vidhappy (RTMP)
 
 
 if [[ "$url_in" =~ (vidhappy.) ]]; then
