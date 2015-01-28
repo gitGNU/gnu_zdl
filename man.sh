@@ -143,8 +143,7 @@ ${BBlue}Video in streaming saltando il player del browser:${Color_Off}
 ${extensions_streaming}
 
 ${BBlue}File hosting (per link Cineblog01 dipende da cURL):${Color_Off}
-${extensions_download} e, dopo aver risolto il captcha e generato il link, 
-anche Sharpfile, Depositfiles ed altri servizi
+${extensions_download} e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
 ${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
 Flashgot (Firefox/Iceweasel/Icecat)
@@ -166,6 +165,7 @@ ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
 
 
 ${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
+http://nongnu.org/zdl
 https://savannah.nongnu.org/projects/zdl
 
 
