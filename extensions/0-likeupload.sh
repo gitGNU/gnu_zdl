@@ -31,9 +31,8 @@
 		
 if [ "$url_in" != "${url_in//'likeupload.org'}" ]; then
     url_in_old="$url_in"
-    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location")
+    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location" |head -n1)
     url_in="${url_in#*'Location: '}"
     links_loop - "$url_in_old"
     links_loop + "$url_in"
-
 fi

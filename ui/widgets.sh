@@ -127,30 +127,14 @@ function print_c {
     fi
 }
 
-function separator {
-	#COLUMNS=$( tput cols ) 2>/dev/null
-    if [ -z "$COLUMNS" ]; then 
-	COLUMNS=50
-    fi
-    echo -n -e "${Color_Off}${BBlue}"
-    for column in `seq 1 $COLUMNS`; do echo -n -e "$1" ; done #\e[1;34m
-    echo -n -e "${Color_Off}\n"
-}
-
-# function header {
-# 	echo -n -e "\e[1;34m"ZigzagDownLoader [$PROG]"${Color_Off}\n"
-# }
-
 function separator- {
     if [ -z "$daemon" ]; then
-	separator "─"
+	header "" "$BBlue" "─"
     fi
 }
 
 function fclear {
     if [ -z "$daemon" ]; then
-	#echo -n -e "\e[0;37m\e[40m\ec"
-	#echo -n -e "\ec\e[37m\e[40m\e[J"
 	echo -n -e "\ec${White}${On_Black}\e[J"
     fi
 }
@@ -167,23 +151,16 @@ function cursor {
     fi
 }
 
-function header { # $1=label ; $2=colors ; $3=header pattern
-	# echo -n -e "\e[1;34m $1 ${Color_Off}\n"
+function header { # $1=label ; $2=color ; $3=header pattern
     if [ -z "$daemon" ]; then
 	text="$1"
-	length_text=$(( ${#text}+2 ))
-
+	[ ! -z "$text" ] && text=" $text " 
+	color="$2"
 	hpattern="$3"
-	[ -z "$hpattern" ] && hpattern=" "
-	echo -n -e "${2}"
-	for column in `seq 1 $COLUMNS`; do
-	    echo -n -e "$hpattern" 
-	done 
-	if [ ! -z "$length_text" ] && [ ! -z "$COLUMNS" ] && (( $length_text<=$COLUMNS )); then
-	    echo -n -e "\r$text${Color_Off}\n"
-	elif [ ! -z "$length_text" ] && [ ! -z "$COLUMNS" ]; then
-	    echo -n -e "\r${text:0:$COLUMNS}${Color_Off}${text:$COLUMNS}\n"
-	fi
+	[ -z "$hpattern" ] && hpattern="\ "
+
+	eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
+	echo -e "${color}${text}$line${Color_Off}"
     fi
 }
 
@@ -191,20 +168,22 @@ function header { # $1=label ; $2=colors ; $3=header pattern
 function header_z {
     if [ -z "$daemon" ]; then
 	fclear
-	zclock
-	header " $name_prog ($prog) $zclock" "$On_Blue" " "
+	text_start="$name_prog ($prog)"
+	text_end="$(zclock)"
+	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
+	header "$text_start$text_space$text_end" "$On_Blue" 
     fi
 }
 
 function header_box {
     if [ -z "$daemon" ]; then
-	header " $1 " "$Black${On_White}" "─" #"-" 
+	header "$1" "$Black${On_White}" "─"
     fi
 }
 
 function header_dl {
     if [ -z "$daemon" ]; then
-	header " $1 " "$White${On_Blue}" " "
+	header "$1 " "$White${On_Blue}" 
     fi
 }
 
@@ -227,7 +206,8 @@ function xterm_stop {
 	cursor on
     fi
 }
+
 function zclock {
     week=( "dom" "lun" "mar" "mer" "gio" "ven" "sab" )
-    zclock="\033[1;$((COLUMNS-22))f$(date +%R) │ ${week[$( date +%w )]} $(date +%d·%m·%Y)"
+    echo -n -e "$(date +%R) │ ${week[$( date +%w )]} $(date +%d·%m·%Y)"
 }

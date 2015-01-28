@@ -27,6 +27,158 @@
 
 
 function usage {
+    while read line; do
+	extensions_download="$extensions_download$line, "
+    done <<< "$(zdl-extensions download)"
+    extensions_download=${extensions_download%\, }
+
+    while read line; do
+	extensions_streaming="$extensions_streaming$line, "
+    done <<< "$(zdl-extensions streaming)"
+    extensions_streaming=${extensions_streaming%\, }
+
+echo -e -n "$(header_z)
+${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
+\tzdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
+
+FILE_n                          Nomi dei file da cui estrarre i LINK.
+                                I file devono essere testuali
+                                oppure container DLC.
+                                Se omessi, $PROG processa i LINK in memoria 
+                                nella DIR e quelli indicati
+
+LINK_n                          URL del file oppure della pagina web 
+                                del servizio di hosting, streaming 
+                                o di collegamento 
+                                (link brevi, per occultamento, generati...).
+                                Se omessi, $PROG processa quelli in memoria 
+                                nella DIR e nei FILE
+
+DIR                             Directory di avvio di $PROG 
+                                e di destinazione dei download (se omessa,
+                                è quella corrente)
+
+
+$(header_box Opzioni)${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-u -f -m -d' equivale a '-ufdm'
+
+-h,     --help                  Help di ZigzagDownLoader (ZDL)
+
+        --wget                  Forza l'uso di Wget
+        --axel                  Forza l'uso di Axel
+
+-m [N], --multi [NUM]	        Download parallelo. È possibile indicare
+                                il numero massimo di download da effettuare
+                                contemporaneamente
+        
+	--login		        Utilizza eventuali account registrati per i
+                                servizi abilitati (configurare ${PROG})
+
+-u,     --update   	        Aggiorna $PROG
+-f,     --force                 Forza l'aggiornamento manuale di $PROG
+
+        --clean    	        Cancella eventuali file temporanei dalla
+	           	        directory di destinazione, prima di effettuare
+	           	        il download 
+
+-i,     --interactive           Avvia l'interfaccia interattiva di ZDL per i
+			        download che hanno come destinazione la
+			        directory attuale. I download gestiti possono
+			        essere attivi o registrati nei file temporanei
+			        della directory
+
+        --out=<PROG|FILE>       Restituisce in output i nomi dei file 
+                                dei download completati in due diversi modi:
+                                PROG è un programma che può \"aprire\" il file 
+                                scaricato oppure FILE è un file testuale 
+                                in cui sono registrati i nomi dei file
+
+        --mp3                   
+        --flac                  Converte i file (anche da video in audio) 
+                                in mp3 oppure in flac: dipende da ffmpeg/avconv
+
+-d,	--daemon 	        Avvia ZDL in modalità \"demone\" (può essere
+                                controllato attraverso l'interfaccia
+                                interattiva) 
+
+	--ip 		        Scrive l'indirizzo IP attuale, prima di
+			        effettuare altre operazioni
+
+        --reconnect             Forza la riconnessione del modem al termine
+                                di ogni download, utilizzando
+                                uno script/comando/programma (configurare ${PROG})
+                         
+
+
+${BBlue}Avvio con proxy:${Color_Off}
+	--proxy			Avvia ZDL attivando un proxy
+				automaticamente (il tipo di proxy
+				predefinito è Transparent) 
+
+	--proxy=[t|a|e]     	Avvia ZDL attivando un proxy del tipo
+			    	definito dall'utente:
+			    		 t = Transparent
+			    		 a = Anonymous
+			    		 e = Elite
+			
+	--proxy=IP:PORTA	Avvia ZDL attivando il proxy indicato
+				dall'utente, per l'intera durata del
+				download (il proxy viene sostituito
+				automaticamente solo per i link dei
+				servizi abilitati che necessitano di
+				un nuovo indirizzo IP) 
+
+${BBlue}Configurazione:${Color_Off} 
+-c,	--configure		Interfaccia di configurazione di ZDL, 
+			  	permette anche di salvare eventuali
+				account dei servizi di hosting
+
+
+${BBlue}Per scaricare lo stream incorporando ${PROG} in nuovi script${Color_Off}, 
+il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
+	--stream [PARAMETRI] [--noXterm]
+
+
+$(header_box Servizi)
+${BBlue}Video in streaming saltando il player del browser:${Color_Off}
+${extensions_streaming}
+
+${BBlue}File hosting (per link Cineblog01 dipende da cURL):${Color_Off}
+${extensions_download} e, dopo aver risolto il captcha e generato il link, 
+anche Sharpfile, Depositfiles ed altri servizi
+
+${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
+Flashgot (Firefox/Iceweasel/Icecat)
+
+
+$(header_box 'Dipendenze consigliate')
+Axel                            Accelerazione download
+FFmpeg/avconv                   Conversione mp3/flac
+cURL/RTMPDump                   Servizi RTMP
+XTerm                           Terminale grafico predefinito
+Flashgot                        Estensione di Firefox/Iceweasel/Icecat
+
+$PROG è compatibile con XXXTerm/Xombrero (script 'zdl-xterm') e Conkeror (funzione 'M-x zdl' autoinstallata)
+
+
+$(header_box 'Altre info')
+${BBlue}LICENZA:${Color_Off}
+ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
+
+
+${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
+https://savannah.nongnu.org/projects/zdl
+
+
+Gianluca Zoni (zoninoz)
+http://inventati.org/zoninoz" | less --RAW-CONTROL-CHARS 	
+    echo
+    echo
+    exit 1
+
+}
+
+
+function usage_man {
     echo -e -n '\e[0m\e[J'
     echo -e -n "\e[0m\e[J
 ZigzagDownLoader ($PROG) - Download manager
