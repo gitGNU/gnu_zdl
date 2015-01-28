@@ -59,7 +59,8 @@ DIR                             Directory di avvio di $PROG
                                 è quella corrente)
 
 
-$(header_box Opzioni)${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-u -f -m -d' equivale a '-ufdm'
+$(header_box Opzioni)
+${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-u -f -m -d' equivale a '-ufdm'
 
 -h,     --help                  Help di ZigzagDownLoader (ZDL)
 
