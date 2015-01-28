@@ -848,9 +848,9 @@ done
 rm -f "$path_tmp/lock.zdl"
 noproxy
 
-separator "─"
+separator-
 print_c 1 "Download completato"
-separator "─"
+separator-
 
 if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
     data_stdout

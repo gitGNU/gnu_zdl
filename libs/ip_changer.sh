@@ -62,13 +62,13 @@ function my_ip {
     #myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
     myip=$(wget -q -O - -t 1 -T 20 http://indirizzo-ip.com/ip.php)
     echo
-    separator "─"
+    separator-
     if [ ! -z "$myip" ]; then
 	print_c 1 "Indirizzo IP: $myip"
     else
 	print_c 3 "Indirizzo IP non rilevato"
     fi
-    separator "─"
+    separator-
     echo
 }
 

@@ -109,7 +109,7 @@ function redirect_links {
     header_box "Links da processare"
     links="${links##\\n}"
     echo -e "${links//'\n'/\n\n}\n"
-    separator "─"
+    separator-
     print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
     rm -f "$path_tmp/lock.zdl\n"
     [ ! -z "$xterm_stop" ] && xterm_stop

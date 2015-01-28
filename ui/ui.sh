@@ -265,7 +265,7 @@ function show_downloads {
 		    fi
 		    ii=$(( $i+1 ))
 		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then 
-			separator "─"
+			separator-
 		    fi
 		fi
 	    done
@@ -274,7 +274,7 @@ function show_downloads {
 	    print_c 3 " Nessun download rilevato"
 	    echo
 	fi
-	separator "─"
+	separator-
 	echo -e "\n\n\n"
     fi
     sleeping $sleeping_pause
