@@ -154,7 +154,7 @@ Axel                            Acceleratore di download
 
 FFmpeg/AVConv                   Convertitore per MP3/FLAC
 
-cURL/RTMPDump                   Downloader per servizi RTMP
+cURL e RTMPDump                 Downloader per i servizi RTMP       
 
 XTerm                           Terminale grafico predefinito per GNU/Linux
 
