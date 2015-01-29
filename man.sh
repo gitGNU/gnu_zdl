@@ -166,7 +166,7 @@ XXXTerm/Xombrero                Script 'zdl-xterm' in /usr/local/bin
 Conkeror                        Funzione 'M-x zdl' autoinstallata
 
 ${BBlue}Dipendenze per Windows:${Color_Off} 
-Cygwin                          Distribuzione per il porting di software
+Cygwin (x86 32-bit)             Distribuzione per il porting di software
                                 di sistemi POSIX su Microsoft Windows
 
 Wget                            Downloader principale di $PROG, 
