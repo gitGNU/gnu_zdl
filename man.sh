@@ -47,10 +47,9 @@ FILE_n                          Nomi dei file da cui estrarre i LINK.
                                 Se omessi, $PROG processa i LINK in memoria 
                                 nella DIR e quelli indicati
 
-LINK_n                          URL del file oppure della pagina web 
-                                del servizio di hosting, streaming 
-                                o di collegamento 
-                                (link brevi, per occultamento, generati...).
+LINK_n                          URL dei file oppure delle pagine web 
+                                dei servizio di hosting, streaming 
+                                o di reindirizzamento. 
                                 Se omessi, $PROG processa quelli in memoria 
                                 nella DIR e nei FILE
 
@@ -88,14 +87,15 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
 			        della directory
 
         --out=<PROG|FILE>       Restituisce in output i nomi dei file 
-                                dei download completati in due diversi modi:
-                                PROG è un programma che può \"aprire\" il file 
-                                scaricato oppure FILE è un file testuale 
-                                in cui sono registrati i nomi dei file
+                                dei download completati, in due modi alternativi:
+                                    PROG: programma che può \"aprire\" il file 
+                                          scaricato
+                                    FILE: file testuale in cui sono registrati 
+                                          i nomi dei file
 
         --mp3                   
-        --flac                  Converte i file (anche da video in audio) 
-                                in mp3 oppure in flac: dipende da ffmpeg/avconv
+        --flac                  Convertono i file (anche da video in audio) 
+                                in MP3 oppure in FLAC: dipende da FFMpeg/avconv
 
 -d,	--daemon 	        Avvia ZDL in modalità \"demone\" (può essere
                                 controllato attraverso l'interfaccia
