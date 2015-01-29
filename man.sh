@@ -39,27 +39,27 @@ function usage {
 
 echo -e -n "$(header_z)
 ${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
-\tzdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
+\t${BWhite}zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]${Color_Off}
 
 FILE_n                          Nomi dei file da cui estrarre i LINK.
                                 I file devono essere testuali
-                                oppure container DLC.
-                                Se omessi, $PROG processa i LINK in memoria 
-                                nella DIR e quelli indicati
+                                oppure container DLC (se omessi, 
+                                $PROG processa i LINK in memoria 
+                                nella DIR e quelli in input)
 
 LINK_n                          URL dei file oppure delle pagine web 
-                                dei servizio di hosting, streaming 
-                                o di reindirizzamento. 
-                                Se omessi, $PROG processa quelli in memoria 
-                                nella DIR e nei FILE
+                                dei servizi di hosting, streaming 
+                                o di reindirizzamento (se omessi, 
+                                $PROG processa quelli in memoria 
+                                nella DIR e nei FILE)
 
 DIR                             Directory di avvio di $PROG 
-                                e di destinazione dei download (se omessa,
-                                è quella corrente)
+                                e di destinazione dei download 
+                                (se omessa, è quella corrente)
 
 
 $(header_box Opzioni)
-${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-u -f -m -d' equivale a '-ufdm'
+${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-ufmd' equivale a '-u -f -m -d'
 
 -h,     --help                  Help di ZigzagDownLoader (ZDL)
 
@@ -93,10 +93,9 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                     FILE: file testuale in cui sono registrati 
                                           i nomi dei file
 
-        --mp3                   
-        --flac                  Convertono i file (anche da video in audio) 
-                                in MP3 oppure in FLAC: dipende da FFMpeg/avconv
-
+        --mp3                   Convertono i file (anche da video in audio) 
+        --flac                  in MP3 oppure in FLAC: dipende da FFMpeg/AVConv
+                                
 -d,	--daemon 	        Avvia ZDL in modalità \"demone\" (può essere
                                 controllato attraverso l'interfaccia
                                 interattiva) 
@@ -108,7 +107,6 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                 di ogni download, utilizzando
                                 uno script/comando/programma (configurare ${PROG})
                          
-
 
 ${BBlue}Avvio con proxy:${Color_Off}
 	--proxy			Avvia ZDL attivando un proxy
@@ -127,6 +125,7 @@ ${BBlue}Avvio con proxy:${Color_Off}
 				automaticamente solo per i link dei
 				servizi abilitati che necessitano di
 				un nuovo indirizzo IP) 
+
 
 ${BBlue}Configurazione:${Color_Off} 
 -c,	--configure		Interfaccia di configurazione di ZDL, 
@@ -151,24 +150,37 @@ Flashgot (Firefox/Iceweasel/Icecat)
 
 
 $(header_box 'Dipendenze consigliate')
-Axel                            Accelerazione download
-FFmpeg/avconv                   Conversione mp3/flac
-cURL/RTMPDump                   Servizi RTMP
-XTerm                           Terminale grafico predefinito
+Axel                            Acceleratore di download
+
+FFmpeg/AVConv                   Convertitore per MP3/FLAC
+
+cURL/RTMPDump                   Downloader per servizi RTMP
+
+XTerm                           Terminale grafico predefinito per GNU/Linux
+
 Flashgot                        Estensione di Firefox/Iceweasel/Icecat
 
-$PROG è compatibile con XXXTerm/Xombrero (script 'zdl-xterm') e Conkeror (funzione 'M-x zdl' autoinstallata)
+${BBlue}$PROG è compatibile con:${Color_Off} 
+XXXTerm/Xombrero                Script 'zdl-xterm' in /usr/local/bin
+
+Conkeror                        Funzione 'M-x zdl' autoinstallata
+
+${BBlue}Dipendenze per Windows:${Color_Off} 
+Cygwin                          Distribuzione per il porting di software
+                                di sistemi POSIX su Microsoft Windows
+
+Wget                            Downloader principale di $PROG, 
+                                da installare su Cygwin
 
 
 $(header_box 'Altre info')
-${BBlue}LICENZA:${Color_Off}
+${BBlue}Licenza:${Color_Off}
 ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
 
 ${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
 http://nongnu.org/zdl
 https://savannah.nongnu.org/projects/zdl
-
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz" | less --RAW-CONTROL-CHARS 	
