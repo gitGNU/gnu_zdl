@@ -292,7 +292,7 @@ header_z
 function update_updater {
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
 
-    header_box "\e[1mAggiornamento automatico di $name_prog\e[0m\n"
+    header_box "Aggiornamento automatico di $name_prog"
 
     mkdir -p "$path_tmp"
     cd "$path_tmp"

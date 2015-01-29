@@ -190,7 +190,7 @@ function header_dl {
 function pause {
     if [ -z "$daemon" ]; then
 	echo
-	header ">>>>>>>> Digita un tasto per continuare " "$On_Blue$BWhite" "<"
+	header ">>>>>>>> Digita un tasto per continuare " "$On_Blue$BWhite" "\<"
 	cursor off
 	read -n 1
 	cursor on
@@ -200,7 +200,7 @@ function pause {
 function xterm_stop {
     if [ -z "$daemon" ]; then
 	echo
-	header ">>>>>>>> Digita < Enter > per chiudere Xterm " "$On_Blue$BWhite" "<"
+	header ">>>>>>>> Digita < Enter > per chiudere Xterm " "$On_Blue$BWhite" "\<"
 	cursor off
 	read -n 1
 	cursor on
