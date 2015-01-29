@@ -181,6 +181,7 @@ ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori).
 ${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
 http://nongnu.org/zdl
 https://savannah.nongnu.org/projects/zdl
+https://joindiaspora.com/tags/zdl
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz" | less --RAW-CONTROL-CHARS 	
