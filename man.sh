@@ -146,7 +146,7 @@ ${BBlue}File hosting (per link Cineblog01 dipende da cURL):${Color_Off}
 ${extensions_download} e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
 ${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
-Flashgot (Firefox/Iceweasel/Icecat)
+Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
 
 
 $(header_box 'Dipendenze consigliate')
@@ -161,6 +161,8 @@ XTerm                           Terminale grafico predefinito per GNU/Linux
 Flashgot                        Estensione di Firefox/Iceweasel/Icecat
 
 ${BBlue}$PROG è compatibile con:${Color_Off} 
+Firefox/Iceweasel/Icecat        Attraverso l'estensione Flashgot
+
 XXXTerm/Xombrero                Script 'zdl-xterm' in /usr/local/bin
 
 Conkeror                        Funzione 'M-x zdl' autoinstallata
