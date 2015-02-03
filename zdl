@@ -554,17 +554,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
 	header_box "Links"
 	header_dl "Servizi"
 
-	while read line; do
-	    extensions_download="$extensions_download$line, "
-	done <<< "$(zdl-extensions download)"
-	extensions_download=${extensions_download%\, }
-
-	while read line; do
-	    extensions_streaming="$extensions_streaming$line, "
-	done <<< "$(zdl-extensions streaming)"
-	extensions_streaming=${extensions_streaming%\, }
-
-	echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n${extensions_streaming}\n\n${BBlue}File hosting (per link Cineblog01 dipende da curl):${Color_Off}\n${extensions_download} e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
+	echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(zdl-ext-sorted streaming)\n\n${BBlue}File hosting (per link Cineblog01 dipende da curl):${Color_Off}\n$(zdl-ext-sorted download) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
 	header_dl "Comandi"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
 	echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"

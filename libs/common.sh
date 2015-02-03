@@ -151,12 +151,22 @@ function human_eta {
     fi
 }
 
-function zdl-extensions {
+function zdl-ext {
     ## $1 == (download|streaming)
     while read line; do
 	test_ext_type=$(grep "## zdl-extension types:" < $path_usr/extensions/$line 2>/dev/null |grep "$1")
 	if [ ! -z "$test_ext_type" ]; then
-	    grep '## zdl-extension name:' < $path_usr/extensions/$line 2>/dev/null | sed -r 's|.*(## zdl-extension name: )(.+)|\2|g'
+	    grep '## zdl-extension name:' < $path_usr/extensions/$line 2>/dev/null | sed -r 's|.*(## zdl-extension name: )(.+)|\2|g' |sed -r 's|\, |\n|g'
 	fi
     done <<< "$(ls -1 $path_usr/extensions/)"
+}
+
+function zdl-ext-sorted {
+    local extensions
+    while read line; do
+	extensions="${extensions}$line\n"
+    done <<< "$(zdl-ext $1)"
+    extensions=${extensions%\\n}
+
+    echo $(sed -r 's|$|, |g' <<< "$(echo -e "${extensions}" |sort)") |sed -r 's|(.+)\,$|\1|g'
 }
