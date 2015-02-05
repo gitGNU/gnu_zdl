@@ -28,12 +28,17 @@
 if [ "$url_in" != "${url_in//cineblog01}" ]; then
     if [ ! -z "$(command -v curl 2>/dev/null)" ]; then
 	new_url=$(curl "$url_in" -s |grep window.location.href | sed -r 's|^.+\"([^"]+)\".+$|\1|')
+	[ -z "$new_url" ] && new_url=$(wget "$url_in" -q -O- |grep 'Clicca per proseguire' |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 	link_parser "$new_url"
 	if [[ $? == 1 ]]; then
 	    links_loop - "$url_in"
 	    url_in="$new_url"
 	    links_loop + "$url_in"
+	else
+	    break_loop=true
+	    _log 2
 	fi
+
     fi
 fi
 

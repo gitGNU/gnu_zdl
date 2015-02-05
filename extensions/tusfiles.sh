@@ -29,13 +29,13 @@
 ## zdl-extension name: Tusfiles
 
 if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
-    wget -q -t 1 -T $max_waiting --no-check-certificate --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+    wget -q -t 1 -T $max_waiting --no-check-certificate --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
     echo -e "...\c"
 
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
     post_data="${post_data#*&}"
-    
+
     file_in=`cat "$path_tmp/zdl.tmp" |grep '?q='`
     file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"

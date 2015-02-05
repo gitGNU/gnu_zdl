@@ -44,9 +44,10 @@ function input_hidden {
 	fi
 
 	for ((i=1; i<=$(wc -l <<< "$datatmp"); i++)); do
-	    data=$(sed -n "${i}p" <<< "$datatmp")
+	    data=$(sed -n "${i}p" <<< "$datatmp" |grep name)
 	    name=${data#*name=\"}
 	    name=${name%%\"*}
+
 	    value=${data#*value=\"}
 	    value=${value%%\"*}
 
