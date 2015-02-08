@@ -30,7 +30,7 @@ function usage {
 
 echo -e -n "$(header_z)
 ${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
-\t${BWhite}zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]${Color_Off}
+  ${BWhite}zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]${Color_Off}
 
          FILE_n                Nomi dei file da cui estrarre i LINK.
                                I file devono essere testuali
