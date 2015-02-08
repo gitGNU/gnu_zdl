@@ -27,163 +27,154 @@
 
 
 function usage {
-    while read line; do
-	extensions_download="$extensions_download$line, "
-    done <<< "$(zdl-extensions download)"
-    extensions_download=${extensions_download%\, }
-
-    while read line; do
-	extensions_streaming="$extensions_streaming$line, "
-    done <<< "$(zdl-extensions streaming)"
-    extensions_streaming=${extensions_streaming%\, }
 
 echo -e -n "$(header_z)
 ${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
 \t${BWhite}zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]${Color_Off}
 
-FILE_n                          Nomi dei file da cui estrarre i LINK.
-                                I file devono essere testuali
-                                oppure container DLC (se omessi, 
-                                $PROG processa i LINK in memoria 
-                                nella DIR e quelli in input)
+         FILE_n                Nomi dei file da cui estrarre i LINK.
+                               I file devono essere testuali
+                               oppure container DLC (se omessi, 
+                               $PROG processa i LINK in memoria
+                               nella DIR e quelli in input)
 
-LINK_n                          URL dei file oppure delle pagine web 
-                                dei servizi di hosting, streaming 
-                                o di reindirizzamento (se omessi, 
-                                $PROG processa quelli in memoria 
-                                nella DIR e nei FILE)
+         LINK_n                URL dei file oppure delle pagine web 
+                               dei servizi di hosting, streaming 
+                               o di reindirizzamento (se omessi, 
+                               $PROG processa quelli in memoria 
+                               nella DIR e nei FILE)
 
-DIR                             Directory di avvio di $PROG 
-                                e di destinazione dei download 
-                                (se omessa, è quella corrente)
-
+         DIR                   Directory di avvio di $PROG 
+                               e di destinazione dei download 
+                               (se omessa, è quella corrente)
+  
 
 $(header_box Opzioni)
 ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-ufmd' equivale a '-u -f -m -d'
 
--h,     --help                  Help di ZigzagDownLoader (ZDL)
+  -h,  --help                  Help di ZigzagDownLoader (ZDL)
 
-        --wget                  Forza l'uso di Wget
-        --axel                  Forza l'uso di Axel
+       --wget                  Forza l'uso di Wget
+       --axel                  Forza l'uso di Axel
 
--m [N], --multi [NUM]	        Download parallelo. È possibile indicare
-                                il numero massimo di download da effettuare
-                                contemporaneamente
-        
-	--login		        Utilizza eventuali account registrati per i
-                                servizi abilitati (configurare ${PROG})
+  -m [N], --multi [NUM]        Download parallelo. È possibile indicare
+                               il numero massimo di download da effettuare
+                               contemporaneamente
+       
+       --login	               Utilizza eventuali account registrati per i
+                               servizi abilitati (configurare ${PROG})
 
--u,     --update   	        Aggiorna $PROG
--f,     --force                 Forza l'aggiornamento manuale di $PROG
+  -u,  --update   	       Aggiorna $PROG
+  -f,  --force                 Forza l'aggiornamento manuale di $PROG
 
-        --clean    	        Cancella eventuali file temporanei dalla
-	           	        directory di destinazione, prima di effettuare
-	           	        il download 
+       --clean  	       Cancella eventuali file temporanei dalla
+	                       directory di destinazione, prima di effettuare
+	         	       il download 
 
--i,     --interactive           Avvia l'interfaccia interattiva di ZDL per i
-			        download che hanno come destinazione la
-			        directory attuale. I download gestiti possono
-			        essere attivi o registrati nei file temporanei
-			        della directory
+  -i,  --interactive           Avvia l'interfaccia interattiva di ZDL per i
+	     	               download che hanno come destinazione la
+			       directory attuale. I download gestiti possono
+			       essere attivi o registrati nei file temporanei
+			       della directory
 
-        --out=<PROG|FILE>       Restituisce in output i nomi dei file 
-                                dei download completati, in due modi alternativi:
-                                    PROG: programma che può \"aprire\" il file 
-                                          scaricato
-                                    FILE: file testuale in cui sono registrati 
-                                          i nomi dei file
+       --out=<PROG|FILE>       Restituisce in output i nomi dei file 
+                               dei download completati, in due modi alternativi:
+                                 PROG: programma che può \"aprire\" il file 
+                                       scaricato
+                                 FILE: file testuale in cui sono registrati 
+                                       i nomi dei file
 
-        --mp3                   Convertono i file (anche da video in audio) 
-        --flac                  in MP3 oppure in FLAC: dipende da FFMpeg/AVConv
+       --mp3                   Convertono i file (anche da video in audio) 
+       --flac                  in MP3 oppure in FLAC: dipende da FFMpeg/AVConv
                                 
--d,	--daemon 	        Avvia ZDL in modalità \"demone\" (può essere
-                                controllato attraverso l'interfaccia
-                                interattiva) 
+  -d,  --daemon 	       Avvia ZDL in modalità \"demone\" (può essere
+                               controllato attraverso l'interfaccia
+                               interattiva) 
 
-	--ip 		        Scrive l'indirizzo IP attuale, prima di
-			        effettuare altre operazioni
+       --ip		       Scrive l'indirizzo IP attuale, prima di
+                               effettuare altre operazioni
 
-        --reconnect             Forza la riconnessione del modem al termine
-                                di ogni download, utilizzando
-                                uno script/comando/programma (configurare ${PROG})
+       --reconnect             Forza la riconnessione del modem al termine
+                               di ogni download, utilizzando
+                               uno script/comando/programma (configurare ${PROG})
                          
 
 ${BBlue}Avvio con proxy:${Color_Off}
-	--proxy			Avvia ZDL attivando un proxy
-				automaticamente (il tipo di proxy
-				predefinito è Transparent) 
+       --proxy		       Avvia ZDL attivando un proxy
+		               automaticamente (il tipo di proxy
+		               predefinito è Transparent) 
 
-	--proxy=[t|a|e]     	Avvia ZDL attivando un proxy del tipo
-			    	definito dall'utente:
-			    		 t = Transparent
-			    		 a = Anonymous
-			    		 e = Elite
+       --proxy=[t|a|e]         Avvia ZDL attivando un proxy del tipo
+		               definito dall'utente:
+			    	 t = Transparent
+			    	 a = Anonymous
+			    	 e = Elite
 			
-	--proxy=IP:PORTA	Avvia ZDL attivando il proxy indicato
-				dall'utente, per l'intera durata del
-				download (il proxy viene sostituito
-				automaticamente solo per i link dei
-				servizi abilitati che necessitano di
-				un nuovo indirizzo IP) 
+	--proxy=IP:PORTA       Avvia ZDL attivando il proxy indicato
+		               all'utente, per l'intera durata del
+		               download (il proxy viene sostituito
+			       automaticamente solo per i link dei
+			       servizi abilitati che necessitano di
+			       un nuovo indirizzo IP) 
 
 
 ${BBlue}Configurazione:${Color_Off} 
--c,	--configure		Interfaccia di configurazione di ZDL, 
-			  	permette anche di salvare eventuali
-				account dei servizi di hosting
+  -c,  --configure	       Interfaccia di configurazione di ZDL, 
+			       permette anche di salvare eventuali
+			       account dei servizi di hosting
 
 
 ${BBlue}Per scaricare lo stream incorporando ${PROG} in nuovi script${Color_Off}, 
 il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
-	--stream [PARAMETRI] [--noXterm]
+       --stream [PARAMETRI] [--noXterm]
 
 
 $(header_box Servizi)
 ${BBlue}Video in streaming saltando il player del browser:${Color_Off}
-${extensions_streaming}
+$(zdl-ext-sorted streaming)
 
-${BBlue}File hosting (per link Cineblog01 dipende da cURL):${Color_Off}
-${extensions_download} e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
+${BBlue}File hosting:${Color_Off}
+$(zdl-ext-sorted download) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
 ${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
 Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
 
 
-$(header_box 'Dipendenze consigliate')
-Axel                            Acceleratore di download
+$(header_box 'Software consigliato')
+  Axel                         Acceleratore di download
 
-FFmpeg/AVConv                   Convertitore per MP3/FLAC
+  FFmpeg/AVConv                Convertitore per MP3/FLAC
 
-cURL e RTMPDump                 Downloader per i servizi RTMP       
+  cURL e RTMPDump              Downloader per i servizi RTMP       
 
-XTerm                           Terminale grafico predefinito per GNU/Linux
+  XTerm                        Terminale grafico predefinito per GNU/Linux
 
-Flashgot                        Estensione di Firefox/Iceweasel/Icecat
+  Flashgot                     Estensione di Firefox/Iceweasel/Icecat
 
 ${BBlue}$PROG è compatibile con:${Color_Off} 
-Firefox/Iceweasel/Icecat        Attraverso l'estensione Flashgot
+  Firefox/Iceweasel/Icecat     Attraverso l'estensione Flashgot
 
-XXXTerm/Xombrero                Script 'zdl-xterm' in /usr/local/bin
+  XXXTerm/Xombrero             Script 'zdl-xterm' in /usr/local/bin
 
-Conkeror                        Funzione 'M-x zdl' autoinstallata
+  Conkeror                     Funzione 'M-x zdl' autoinstallata
 
 ${BBlue}Dipendenze per Windows:${Color_Off} 
-Cygwin (x86 32-bit)             Distribuzione per il porting di software
-                                di sistemi POSIX su Microsoft Windows
+  Cygwin (x86 32-bit)          Distribuzione per il porting di software
+                               di sistemi POSIX su Microsoft Windows
 
-Wget                            Downloader principale di $PROG, 
-                                da installare su Cygwin
+  Wget                         Downloader principale di $PROG, 
+                               da installare su Cygwin
 
 
 $(header_box 'Altre info')
 ${BBlue}Licenza:${Color_Off}
-ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
+  ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
 
 ${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
-http://nongnu.org/zdl
-https://savannah.nongnu.org/projects/zdl
-https://joindiaspora.com/tags/zdl
+  - http://nongnu.org/zdl
+  - https://savannah.nongnu.org/projects/zdl
+  - https://joindiaspora.com/tags/zdl
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz" | less --RAW-CONTROL-CHARS 	
