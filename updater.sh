@@ -99,7 +99,13 @@ function update {
     print_c 1 "Aggiornamento automatico in $SHARE/$prog"
     [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
     try rm -rf "$SHARE"
-    try cp -r "$prog" "$SHARE"
+    try mkdir -p /usr/share/info
+    try mkdir -p /usr/share/man/it/man1
+    try install zdl/docs/zdl.1 /usr/share/man/it/man1/
+    try ln -s /usr/share/man/it/man1/zdl.1 /usr/share/man/man1/zdl.1
+    try install -m 644 docs/zdl.info /usr/share/info/
+    try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info
+    try mv "$prog" "$SHARE"
     
     if [ -e /cygdrive ]; then
 	code_batch=$(cat $SHARE/zdl.bat)

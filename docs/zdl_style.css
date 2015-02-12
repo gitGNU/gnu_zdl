@@ -1,0 +1,240 @@
+/*******************************************************************************
+
+ZigzagDownLoader (ZDL)
+
+This program is free software: you can redistribute it and/or modify it 
+under the terms of the GNU General Public License as published 
+by the Free Software Foundation; either version 3 of the License, 
+or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License 
+along with this program. If not, see http://www.gnu.org/licenses/. 
+
+Copyright @copyright{} 2011
+Gianluca Zoni (zoninoz@@inventati.org)
+
+Copyright @copyright{} 2012
+Gianluca Zoni (zoninoz@@inventati.org)
+Free Software Foundation, Inc.
+
+For information or to collaborate on the project:
+@url{https://savannah.nongnu.org/projects/zdl}
+
+Gianluca Zoni
+http://inventati.org/zoninoz
+zoninoz@@inventati.org
+
+
+*******************************************************************************/
+
+/**************************** HTML elements ***********************************/
+body, html {
+    background: black;
+    color: black;
+    margin: 0em;
+    font: 13px "Verdana", sans-serif;
+    text-align: center;
+    /*width: 750px;
+    display: block;*/
+    padding: 0px;
+/*background-image: url(vert_grad.png);
+  background-position: top center;
+  background-repeat: repeat-x;*/
+}
+
+
+p {
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 2em;
+}
+
+a {
+    color: black; /*white;*/
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+ul {
+    margin-left: 0em;
+    list-style-type: square;
+}
+
+ol {
+    margin-left: 0em;
+}
+
+li {
+    margin-bottom: 1em;
+}
+
+dl {
+    display: block;
+    margin-top: 0em;
+    margin-bottom: 0em;
+    margin-left: 3em;
+    margin-right: 0em;
+}
+
+dt {
+    margin-top: 0em;
+}
+
+dd {
+    margin-bottom: 1em;
+}
+
+
+h1 {
+    text-align: left;
+    color: #343434;
+    margin-bottom: 1em;
+}
+
+h2 {
+    text-align: left;
+    color: #343434;
+    margin-bottom: 1em;
+
+}
+
+.nav h2 {
+    color: #000;
+}
+
+.nav a {
+    color: white;
+}
+
+.nav {
+    color: #9A9A9A;
+}
+
+h3 {
+    text-align: left;
+    color: black;
+    margin-bottom: 1em;
+    margin-top: 3em;
+    font-size: 16px;
+}
+
+h4 {
+    text-align: left;
+    color: black;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-size: 14px;
+}
+
+h5 {
+    text-align: left;
+    color: black;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-size: 13px;
+}
+
+hr {
+    border:0px;
+}
+
+div {
+    padding: 0px;
+    text-align: left;
+}
+
+.left {
+    padding:0px;
+    margin:0px;
+    float: left;
+    background: black;
+    color: #9A9A9A;
+    border:0px;
+}
+
+.nav {
+    padding: 1px;
+    margin:0px;
+    border:0px solid;
+    background: #343434;
+    width: 335px;
+    float: top;
+    border-right:1em solid;
+}
+
+.contents {
+    padding:2em;
+}
+
+.content {
+    background-color: white;
+    width: 605px;
+    float: left;
+    border-right: 1em solid #343434;
+    padding: 16px;
+}
+
+
+.container {
+    text-align: center;
+    border: 0px;
+    display: inline-block;
+    width: 1000px;
+    background: black;
+}
+
+.header {
+    background-image: url("header.gif");    
+    background-color: #343434;
+    text-align: left;
+    border: 0px;
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+}
+
+
+.footer {
+    background: #343434;
+    text-align: left;
+    border: 0px;
+    display: inline-block;
+    width: 1000px;
+    height: 200px;
+}
+
+div.node {
+    padding:0px;
+    background: #000000;
+    width: 100%;
+    eigth: 2em;
+    float: right;
+    color: #9A9A9A;
+    font-weight: bold;
+}
+
+.node p {
+    text-align: right;
+    margin-right: 4em;
+}
+
+.node a {
+    color:white;
+}
+
+.index-cp a {
+    font-weight: normal;
+}
+.index-pg a {
+    font-weight: normal;
+}

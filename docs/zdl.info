@@ -1,0 +1,806 @@
+This is zdl.info, produced by makeinfo version 4.13 from
+/tmp/zdl.texi.tmp.
+
+ZigzagDownLoader (ZDL)
+
+   This program is free software: you can redistribute it and/or modify
+it  under the terms of the GNU General Public License as published  by
+the Free Software Foundation; either version 3 of the License,  or (at
+your option) any later version.
+
+   This program is distributed in the hope that it will be useful,  but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+
+   Copyright (C) 2011  Gianluca Zoni (<zoninoz@inventati.org>)
+
+   Copyright (C) 2012  Gianluca Zoni ( <zoninoz@inventati.org> )  Free
+Software Foundation, Inc.
+
+   For information or to collaborate on the project:
+`https://savannah.nongnu.org/projects/zdl'
+
+   Gianluca Zoni  `http://inventati.org/zoninoz'
+<zoninoz@inventati.org>
+
+INFO-DIR-SECTION Network Applications
+START-INFO-DIR-ENTRY
+* ZigzagDownLoader: (zdl). Download manager per Wget, Axel, cURL e RTMPDump. Ha estensioni per servizi di file hosting e video streaming.
+END-INFO-DIR-ENTRY
+
+
+File: zdl.info,  Node: Top,  Next: Il comando ZDL,  Up: (dir)
+
+ZigzagDownLoader (ZDL)
+**********************
+
+_ZigzagDownLoader_ gestisce scaricamenti per conto di alcuni downloader
+come _Wget_, _Axel_, _RTMPDump_ o _cURL_. Può estrarre l'URL dei file
+da scaricare da servizi di file hosting e video streaming. È
+compatibile con _Conkeror_, _XXXTerm/Xombrero_, _Firefox_ (attraverso
+l'estensione _Flashgot_) e _Microsoft Windows_ (tramite _Cygwin_).
+
+Perché questo programma
+************************
+
+L'esecuzione di downloader come Wget e Axel può richiedere assistenza:
+la connessione può interrompersi, l'indirizzo IP cambiare, i download
+incepparsi, i nomi dei file scaricati possono non essere intelligibili
+o possono coincidere con altri di file già salvati, ecc.  In primo
+luogo, ZigzagDownLoader serve ad automatizzare la gestione dei download
+e a semplificarne eventuali recuperi manuali. ZDL è pensato,
+soprattutto, per il download di grossi file.
+
+   In secondo luogo, la gestione automatica è estesa a servizi di file
+hosting e video streaming: ZDL si sostituisce all'utente nelle
+operazioni inutili e noiose, riducendole all'unico atto di avvio del
+programma.
+
+   Un terzo obiettivo del progetto ZDL consiste nel fornire nuove
+articolazioni e modalità d'uso, allo scopo di costruire interazioni fra
+programmi e di rendere possibile un'automazione potenzialmente
+illimitata.  La gestione dei download può essere controllata da
+terminali distinti in modalità diverse. Per esempio, ZDL può essere
+avviato in modalità _demone_ e controllato in modalità _interattiva_.
+Anche l'invocazione _standard_ del programma offre diversi modi di
+interazione. ZDL, inoltre, può essere integrato e collegato con altri
+programmi.
+
+   Infine, una peculiarità del progetto ZDL consiste nella ricerca di
+efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash
+ne rende possibile l'esecuzione su hardware di limitate capacità e su
+sistemi operativi differenti.
+
+* Menu:
+
+* Home:Top. ZigzagDownLoader
+* Il comando ZDL::
+Sintassi, opzioni e altri argomenti
+* Servizi streaming/hosting::
+Estensioni di ZDL e consigli pratici
+* Installazione e aggiornamento::
+Per GNU/Linux e Microsoft Windows/Cygwin
+* Avviare ZDL::
+Modalità di esecuzione del programma e avvio dei download
+* Arrestare ZDL::
+Modalità di arresto del programma
+* Controllare i download::
+Modalità di controllo dei processi avviati, in coda o sospesi
+* Manuali d'uso::
+Documentazione disponibile per ZDL
+* Creare nuove estensioni::
+Estensioni Bash di ZDL personalizzate e per nuovi servizi
+* Software consigliati::
+Programmi utili a ZDL
+* Conkeror::
+Comando `zdl' per il browser
+* zdl-xterm e XXXTerm/Xombrero::
+Uno script per collegare ZDL ad altri programmi
+   * Aggiornamenti in Diaspora*
+
+   * Progetto di sviluppo in Savannah/GNU
+
+   * Pacchetti rilasciati di ZDL
+
+   * Repository Git (controllo versione sorgenti)
+
+* Tags::Indici analitici
+
+
+File: zdl.info,  Node: Il comando ZDL,  Next: Servizi streaming/hosting,  Prev: Top,  Up: Top
+
+Il comando ZDL
+**************
+
+ZDL è un programma per la Bash, scritto prevalentemente con il
+linguaggio della Bash. Di seguito, l'esposizione sintetica della
+sintassi, delle opzioni e degli altri argomenti del comando `zdl'. Per
+maggiori informazioni, consulta le sezioni specializzate.
+
+Sintassi
+========
+
+`zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR] '
+
+Argomenti
+=========
+
+L'ordine delle opzioni e degli altri argomenti non è importante:
+
+FILE
+     Nomi dei file da cui estrarre i LINK. I file devono essere
+     testuali oppure container DLC (se omessi, ZDL processa i LINK in
+     memoria nella DIR e quelli in input)
+
+LINK
+     URL dei file oppure delle pagine web dei servizi di hosting,
+     streaming o di reindirizzamento (se omessi, ZDL processa quelli in
+     memoria nella DIR e nei FILE)
+
+DIR
+     Directory di avvio di ZDL e di destinazione dei download (se
+     omessa, è quella corrente)
+
+   
+Opzioni
+-------
+
+Le opzioni brevi non seguite da valori possono essere contratte:
+`-ufmd' equivale a `-u' `-f' `-m' `-d'
+
+`-h, --help'
+     Help di _ZigzagDownLoader (ZDL)_
+
+`--wget'
+     Forza l'uso di _Wget_
+
+`--axel'
+     Forza l'uso di _Axel_
+
+`-m [NUM], --multi [NUM]'
+     Download parallelo. È possibile indicare il numero massimo di
+     download da effettuare contemporaneamente
+
+`--login'
+     Utilizza eventuali account registrati per i servizi abilitati
+     (configurare ZDL)
+
+`-u, --update'
+     Aggiorna ZDL
+
+`-f, --force'
+     Forza l'aggiornamento manuale di ZDL
+
+`--clean'
+     Cancella eventuali file temporanei dalla directory di
+     destinazione, prima di effettuare il download
+
+`-d, -daemon'
+     Avvia ZDL in modalità "demone" (può essere controllato attraverso
+     l'interfaccia interattiva)
+
+`-i, --interactive'
+     Avvia l'interfaccia interattiva di ZDL per i download che hanno
+     come destinazione la directory attuale. I download gestiti possono
+     essere attivi o registrati nei file temporanei della directory
+
+`--out=<PROG|FILE>'
+     Restituisce in output i nomi dei file dei download completati, in
+     due modi alternativi:
+
+    PROG
+          programma che può "aprire" il file scaricato
+
+    FILE
+          file testuale in cui sono registrati i nomi dei file
+
+`--mp3'
+`--flac'
+     Convertono i file (anche da video in audio) in MP3 oppure in FLAC:
+     dipendono da _FFMpeg/AVConv_
+
+`--ip'
+     Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
+
+`--reconnect'
+     Forza la riconnessione del modem al termine di ogni download,
+     utilizzando uno script/comando/programma (configurare ZDL)
+
+
+Avvio con Proxy:
+................
+
+`--proxy'
+     Avvia ZDL attivando un proxy automaticamente (il tipo di proxy
+     predefinito è Transparent)
+
+`--proxy=<t|a|e>'
+     Avvia ZDL attivando un proxy del tipo definito dall'utente:
+
+          `t' = Transparent
+
+          `a' = Anonymous
+
+          `e' = Elite
+
+`--proxy=<IP:PORTA>'
+     Avvia ZDL attivando il proxy indicato dall'utente, per l'intera
+     durata del download (il proxy viene sostituito automaticamente
+     solo per i link dei servizi abilitati che necessitano di un nuovo
+     indirizzo IP)
+
+
+Configurazione:
+...............
+
+`-c, --configure'
+     Interfaccia di configurazione di ZDL, permette anche di salvare
+     eventuali account dei servizi di hosting
+
+`--stream [PARAMETRI] [--noXterm]'
+     Per scaricare lo stream incorporando ZDL in nuovi script, il
+     modello generico dei parametri per le componenti aggiuntive
+     (rispettare l'ordine):
+
+
+
+File: zdl.info,  Node: Servizi streaming/hosting,  Next: Avviare ZDL,  Prev: Il comando ZDL,  Up: Top
+
+Scaricare da servizi di _video streaming_ e di _file hosting_
+*************************************************************
+
+ZDL è abilitato per il download da ogni tipo di link valido, compresi
+lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di
+estensioni dei browser, ed i file condivisi attraverso i seguenti
+servizi di hosting e di streaming, direttamente dal link (bypassando il
+player delle pagine web):
+
+_Video in streaming saltando il player del browser:_
+     Akstream, Dailymotion, Exashare, Fastvideo, Junkyvideo (HD),
+     Metacafe, Movshare, Nowvideo, Portalevideo.unimi.it, Putstream,
+     Rai.tv, Rapidvideo, Shortlink, Sockshare (HD), Speedvideo,
+     Streamin (RTMP), Thevideo, Tvdigit.it, Videowood, Vidhappy (RTMP),
+     Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
+
+_File hosting:_
+     Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
+     Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Rapidshare,
+     Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload e, dopo aver
+     risolto il captcha e generato il link, anche Sharpfile,
+     Depositfiles ed altri servizi
+
+_Tutti i file scaricabili con le seguenti estensioni dei browser:_
+     _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
+     _Conkeror_ e script `zdl-xterm' (_XXXTerm/Xombrero_ e altri)
+
+
+Altre informazioni utili.
+=========================
+
+Per i servizi di hosting seguenti è consigliato l'uso della funzione
+_multi_ (aggiungere l'opzione `-m' alle istruzioni sopra elencate,
+eventualmente indicando il massimo numero di download da effettuare in
+contemporanea) per procedere con il download in parallelo,
+eventualmente attraverso l'uso di proxy: Easybytez, Sharpfile e
+Mediafire
+
+   I servizi seguenti sono abilitati solo per il download con Wget:
+Easybytez, Dailymotion. Gli altri servizi sono abilitati in modo
+predefinito per Axel.
+
+   Per scaricare da Sharpfile, Depositfiles e da altri servizi,
+attualmente è necessario utilizzare il browser per risolvere il
+captcha, generare il link ed avviare il download attraverso le
+componenti aggiuntive compatibili dei browser oppure con ZDL avviato
+dal terminale.
+
+   L'opzione `--login' attiva il login automatico nel caso la
+configurazione di ZDL comprenda uno o più account per l'uso di un
+servizio di hosting. In particolare, la registrazione di molti account
+per Easybytez non solo permette il download di file di grandezza fino a
+600 MB, ma consente anche lo scaricamento in parallelo di più file
+senza l'uso di proxy (in questo caso è necessario specificare anche
+`-m' oppure `--multi'). Per configurare l'uso di account: `zdl
+[-c|--configure]'
+
+
+File: zdl.info,  Node: Avviare ZDL,  Next: Arrestare ZDL,  Prev: Servizi streaming/hosting,  Up: Top
+
+Modalità di avvio
+******************
+
+ZDL può essere avviato in diversi modi:
+
+_A) Per immettere link e avviare nuovi download:_
+       1. generando automaticamente la lista dei link per il download:
+
+             - apri un terminale ed entra nella directory che dovrà
+               contenere i file scaricati
+
+             - avvia ZDL digitando il comando seguito da eventuali
+               opzioni
+
+             - copia i link dei file da scaricare e incollali nel
+               terminale (vai a capo dopo ogni link)
+
+             - premi la chiocciolina "@"
+
+
+       2. Utilizzando uno o più file preparati con un editor di testi
+          (andare a capo dopo ogni link) e raggiungibili dalla
+          directory di destinazione (indica un path valido):
+
+             - apri un terminale ed entra nella directory che dovrà
+               contenere i file scaricati (in alternativa, puoi
+               indicare a _ZDL_ la directory di lavoro)
+
+             - digita il comando `zdl' seguito dai nomi dei file che
+               contengono la lista dei link: `zdl path/file_1
+               path/file_2 ... path/file_n'
+
+       3. Indicando direttamente a ZDL i link da processare (se link
+          validi dovessero essere dichiarati non validi, prova con il
+          modo _1_): `zdl link_1 link_2 ... link_n'
+
+       4. Dal browser web, attraverso l'uso di componenti aggiuntive
+          (_Flashgot_ per _Firefox_, lo script `zdl-xterm', il comando
+          `zdl' di Conkeror, ...), allo scopo di catturare e salvare lo
+          stream di un video o un altro file di qualsiasi tipo.
+
+       5. In modalità "demone"
+
+     I file, la directory di lavoro e i link possono essere immessi in
+     qualsiasi ordine. Tutti i link degli input sono salvati nel file
+     `links.txt', nella directory di destinazione.
+
+_B) Per gestire download già avviati nelle modalità "non interattiva" e "demone":_
+     avviando la modalità interattiva in due modi:
+
+       1. in console dalla directory di destinazione dei download, con
+          il comando `zdl -i' oppure `zdl --interactive'
+
+       2. nella modalità "non interattiva" (standard), digitando il
+          tasto `i'
+
+
+File: zdl.info,  Node: Arrestare ZDL,  Next: Controllare i download,  Prev: Avviare ZDL,  Up: Top
+
+Modalità di arresto
+********************
+
+ZDL può essere fermato in diversi modi:
+   * Se i download sono gestiti dalla modalità "non
+     interattiva"/standard:
+
+       1. digitando `Control+c' (in questo caso saranno interrotti
+          anche i download di _Axel_)
+
+       2. digitando il tasto `q' (tutti i download già avviati nella
+          directory corrente con _Wget_ e _Axel_ non saranno
+          interrotti, ma non verranno più gestiti da ZDL)
+
+   * Se i download sono gestiti dalla modalità "demone": attraverso la
+     modalità interattiva `zdl -i' avviata nella directory gestita dal
+     demone, digitando il tasto di uscita "Quit" (in maiuscolo): `Q'
+     (in questo caso i download avviati con _Axel_ e _Wget_ non sarano
+     interrotti, ma non verranno gestiti da ZDL a meno che non sia
+     riavviato per gestire gli stessi download)
+
+
+File: zdl.info,  Node: Controllare i download,  Next: Manuali d'uso,  Prev: Arrestare ZDL,  Up: Top
+
+Controllare i download: recupero, eliminazione, arresto, riavvio...
+*******************************************************************
+
+In caso di interruzione dei download (per esempio a causa di
+disconnessione), i file scaricati attraverso Axel possono riprendere lo
+scaricamento dal punto di interruzione (solo se nella cartella che
+contiene il file scaricato è ancora presente il file omonimo con
+estensione `.st'). Se i file interrotti sono stati scaricati con Wget,
+non possono essere recuperati e verranno riscaricati automaticamente da
+capo.
+
+   Il file `links.txt' contiene tutti i link processati da ZDL, da ogni
+input possibile: i file ed i link passati a ZDL come argomenti o
+attraverso liste contenute in file di testo o passati attraverso
+componenti aggiuntive dei browser oppure, in mancanza di tali dati, i
+link incollati al terminale, prima di avviare il download digitando
+"@". Il file `links.txt' serve soprattutto al recupero manuale dei link
+di download interrotti, nel caso in cui non fossero più disponibili i
+file temporanei di ZDL (per esempio, nel caso di errato utilizzo
+dell'opzione `--clean')
+
+   In ogni caso ZDL provvederà automaticamente a recuperare il download
+o a rieseguirlo da capo. Nel caso in cui anche ZDL è stato terminato,
+il recupero manuale è possibile riavviando ZDL e digitando la
+chiocciolina "@".
+
+Controllo attraverso l'uso di opzioni:
+--------------------------------------
+
+Il downloader
+.............
+
+Le opzioni `--wget' e `--axel' consentono la scelta del downloader.
+_Axel_ è un acceleratore di download fortemente consigliato e abilitato
+in modo predefinito per tutti i link e per quasi tutti i servizi di
+hosting. È possibile configurare il downloader di default avviando la
+modalità di configurazione (opzione `-c', `--configure').
+
+Cancellare i file temporanei
+............................
+
+L'argomento `--clean' cancella eventuali residui di file temporanei di
+ZDL nella directory di destinazione, prima di iniziare a processare i
+link immessi dall'utente.
+
+Controllo da interfaccia interattiva
+------------------------------------
+
+L'opzione `-i, --interactive' permette di visualizzare i download di
+ZDL utilizzando un altro terminale oppure dallo stesso terminale di
+avvio dei download di Wget nel caso in cui ZDL è terminato (per
+decisione dell'utente, premendo `Ctrl+c', oppure accidentalmente).
+Infatti, i download di Wget procedono in background e non muoiono
+insieme a ZDL (tecnicamente possono essere tutti uccisi "terminando il
+terminale"). Per uccidere uno o più processi già avviati
+(definitivamente oppure per riavviarli automaticamente), anche con ZDL
+perfettamente attivo, da un altro terminale entrare nella directory di
+destinazione e digitare `zdl -i' o `zdl --interactive': comparirà
+un'interfaccia con cui poter interagire con i processi di ZDL.
+
+Immissione di nuovi link
+------------------------
+
+ZDL accetta come argomenti un numero illimitato di file di testo
+contenenti link e container DLC.  Inoltre, è stato progettato anche per
+scaricare file di video streaming. Per quest'ultima operazione è
+particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo
+di _Firefox/Iceweasel/Icecat_ (`http://flashgot.net').  Avviando ZDL
+con _Flashgot_ è possibile scaricare filmati anche da servizi di video
+streaming non ancora abilitati da ZDL. In genere, però, i link ricavati
+da _Flashgot_ sono temporanei e possono scadere dopo un certo periodo
+di tempo o a causa di una variazione dell'indirizzo IP dell'utente (per
+esempio, dovuta a una disconnessione del modem dal proprio provider)
+
+Immissione di nuove opzioni
+---------------------------
+
+Aggiungere opzioni a download avviati dal browser.
+
+Un esempio, partendo da un problema pratico
+...........................................
+
+_Problema:_
+     voglio scaricare dei file da Easybytez usando _Flashgot_, ma voglio
+     anche usare le opzioni `--login', `--multi' e `--clean', che non
+     sono impostate di default. Come posso utilizzare queste funzioni
+     aggiuntive usando il browser (con _Flashgot_), se queste possono
+     essere attivate solo dal terminale?
+
+_Soluzione:_
+        - avvio zdl in un terminale, dalla directory di destinazione,
+           utilizzando tutte le opzioni di cui ho bisogno:
+           `zdl -m --login --clean'
+
+        - usando _Firefox_, clicco con il tasto destro del mouse sui
+          link dei     file da scaricare e avvio il download con
+          _Flashgot_: il download     non viene effettuato subito e i
+          link vengono registrati da zdl per     essere processati da
+          un'altra istanza attiva del programma (quella     nel
+          terminale)
+
+        - quando ho finito di registrare i link, torno al terminale e,
+          senza     scrivere nulla, digito la chiocciolina
+
+
+File: zdl.info,  Node: Manuali d'uso,  Next: Creare nuove estensioni,  Prev: Controllare i download,  Up: Top
+
+Manuali d'uso
+*************
+
+Documentazione attualmente disponibile:
+   * ipertesto online: `http://nongnu.org/zdl'
+
+   * ipertesto in formato _info_, consultabile con il comando `info
+     zdl' (per migliorarne la navigazione, si consigliano `pinfo'
+     oppure `emacs')
+
+   * pagina di manuale in stile UNIX: `man zdl'
+
+
+File: zdl.info,  Node: Creare nuove estensioni,  Next: Software consigliati,  Prev: Manuali d'uso,  Up: Top
+
+Creare nuove estensioni
+***********************
+
+Come aggiungere estensioni personalizzate e sperimentali.
+=========================================================
+
+ZDL incorpora il codice che trova in tutti gli script bash con
+estensione `.sh' nella directory `$HOME/.zdl/extensions/'
+
+   Script bash di esempio:
+
+     if [[ "$url_in" =~ PATTERN ]]; then
+        url_in_file=$(sed -r 's|http://(.+)|http://USER:PASSWORD@\1|g' \
+                          <<< "$url_in")
+        file_in="NOME_DEL_FILE"
+        unset multi
+        axel_parts=3
+     fi
+
+   L'esempio può essere usato come modello per un link riconosciuto
+attraverso una regex nel PATTERN.  Lo script modifica il link del
+download in `$url_in' per ottenere l'URL del file in `$url_in_file',
+aggiungendo USER e PASSWORD per accedere al server.  Inoltre, indica
+come ricavare il nome del file da scaricare (variabile `$file_in') e
+aggiunge o modifica opzioni: disattiva l'opzione `--multi' se applicata
+al comando e stabilisce il numero di parti da scaricare con Axel (il
+grado di accelerazione, che per default è 32 ma che per diversi server
+può essere eccessivo o insufficiente, peggiorando le prestazioni).
+
+   In questo modo, è possibile estendere ZDL ad altri servizi di file
+hosting (anche a scopo sperimentale), aggiungere opzioni mirate e
+personalizzate o implementare il funzionamento del programma,
+utilizzando le variabili e le funzioni disponibili in ZDL senza
+modificare il sorgente
+
+
+File: zdl.info,  Node: Software consigliati,  Next: Conkeror,  Prev: Creare nuove estensioni,  Up: Top
+
+Software consigliati
+********************
+
+_Axel_
+     Acceleratore di download
+
+_FFmpeg/AVConv_
+     Convertitore per MP3/FLAC
+
+_cURL e RTMPDump_
+     Downloader per i servizi RTMP
+
+_XTerm_
+     Terminale grafico predefinito per GNU/Linux
+
+_Flashgot_
+     Estensione di Firefox/Iceweasel/Icecat
+
+ZDL è compatibile con:
+-----------------------
+
+_Firefox/Iceweasel/Icecat_
+     Attraverso l'estensione _Flashgot_
+
+_XXXTerm/Xombrero_
+     Script `zdl-xterm' in `/usr/local/bin'
+
+_Conkeror_
+     Funzione `M-x zdl' autoinstallata
+
+
+Dipendenze per Windows:
+-----------------------
+
+_Cygwin (x86 32-bit)_
+     Distribuzione per il porting di software di sistemi POSIX su
+     Microsoft Windows
+
+_Wget_
+     Downloader principale di ZDL, da installare su Cygwin
+
+
+
+File: zdl.info,  Node: Conkeror,  Next: zdl-xterm e XXXTerm/Xombrero,  Prev: Software consigliati,  Up: Top
+
+Conkeror: comando `zdl'
+***********************
+
+ZDL implementa automaticamente il browser Conkeror con un nuovo comando.
+Per usarlo, digita: `M-x zdl'
+
+_Dopo aver avviato il comando, il minibuffer di Conkeror_
+        - chiede di selezionare la _directory_ di destinazione
+
+        - offre la  possibilità di utilizzare le _opzioni_ di ZDL
+          (lasciare il campo vuoto per non selezionarle)
+
+        - mostra e indicizza i _link_ nel buffer corrente (per
+          esempio la pagina web), per procedere nella selezione del
+          link da immettere in ZDL        (il link della pagina
+          corrente corrisponde all'indice 0)
+
+        - avvia ZDL in un terminale xterm oppure, se è stata selezionata
+                l'opzione `--daemon' (oppure `-d'), in background. In
+          ogni caso è        possibile gestire i download utilizzando
+          l'interfaccia        interattiva
+
+
+File: zdl.info,  Node: zdl-xterm e XXXTerm/Xombrero,  Next: Installazione e aggiornamento,  Prev: Conkeror,  Up: Top
+
+Lo script `zdl-xterm': XXXTerm/Xombrero e altri software
+********************************************************
+
+ZDL può essere avviato da XXXTerm/Xombrero e da altri software
+attraverso lo script `/usr/local/bin/zdl-xterm', che può essere avviato
+da qualunque applicazione e da un terminale. È stato pensato per
+rendere possibile l'avvio di ZDL in contesti diversi da quelli previsti
+dal programma. In particolare, XXXTerm può avviare uno script bash,
+utilizzando il comando `:run_script', passandogli un solo argomento: il
+link della pagina corrente. Questo rende impossibile l'avvio standard
+di zdl in un'istanza di xterm, perché `:run_script' non accetta
+ulteriori parametri. L'avvio di zdl in un nuovo terminale virtuale
+xterm è reso possibile, appunto, da `zdl-xterm'.
+
+Uso in XXXTerm:
+===============
+
+   - comando `:run_script'
+
+   - digita: `zdl-xterm'
+
+   - il programma avvia un'istanza di xterm che:
+        * chiede in quale _directory_ scaricare il file (è
+          possibile evitare questa interazione configurando zdl-xterm:
+             	 inserisci in `/usr/local/bin/zdl-xterm', come valore
+            	 della variabile `default_directory' all'inizio dello
+            	 script, il path di una _directory valida_)
+
+        * zdl-xterm avvia zdl sull'_URL corrente_
+
+Semplificazione per XXXTerm.
+----------------------------
+
+Per utilizzare zdl-xterm con più rapidità, XXXTerm può essere
+configurato in molti modi.
+
+   Un suggerimento:
+   - apri il file `$HOME/.xxxterm.conf'
+
+   - inserisci il seguente testo:
+          default_script = zdl-xterm
+          keybinding = run_script,C-z
+
+   Con la configurazione suggerita, digitando `Ctrl-z' si avvia il
+prompt di `:run_script' con il campo già occupato dal nome dello script
+`zdl-xterm': è sufficiente premere `invio'.
+
+
+File: zdl.info,  Node: Installazione e aggiornamento,  Next: Tags,  Prev: zdl-xterm e XXXTerm/Xombrero,  Up: Top
+
+Installazione e aggiornamento di ZDL
+************************************
+
+ZDL si installa automaticamente con uno script per la _Bash_.
+
+Installazione per GNU/Linux
+===========================
+
+  1. Scarica l'installatore (è uno script per la Bash):
+     `http://download.savannah.gnu.org/releases/zdl/install_zdl.sh'
+
+  2. Attribuisci i diritti di esecuzione allo script:    `chmod +x
+     install_zdl.sh'
+
+  3. esegui lo script: `./install_zdl.sh'
+
+Installazione per Microsoft Windows
+===================================
+
+ZDL funziona anche su Windows, ma attraverso _Cygwin_
+
+   Installazione su Windows in due fasi:
+_FASE 1) Installazione di Cygwin 32 bit_
+       1. installatore automatico di Cygwin (serve anche ad aggiornare
+          il sistema emulato e ad installare nuovi pacchetti):
+          `http://cygwin.com/setup_x86.exe'
+
+       2. con l'installatore di Cygwin, installa il pacchetto _Wget_
+
+_FASE 2) Installazione di ZDL_
+       1. salva nella cartella `C:\cygwin' (la cartella potrebbe
+          trovarsi in un altro _device_: controlla eventualmente anche
+          in `D:', `E:', ecc.) il seguente file:
+          `http://download.savannah.gnu.org/releases/zdl/install_zdl.sh'
+
+       2. avvia _Cygwin_ installato nella fase 1
+
+       3. digita il seguente comando: `/install_zdl.sh'
+
+   Modo d'uso di ZDL su Windows: avvia Cygwin e utilizza ZDL nel
+terminale avviato, come descritto in questa guida. Puoi avviare
+download con ZDL anche da _Flashgot_ di _Firefox_ e da _Conkeror_
+eseguiti da MS-Windows: Cygwin si avvia automaticamente.
+
+Aggiornare ZDL
+==============
+
+Se è disponibile una nuova versione del programma, ZDL si aggiorna
+automaticamente. È possibile disabilitare l'aggiornamento automatico
+modificando la configurazione con `zdl --configure'.
+
+   Per aggiornare manualmente ZDL è sufficiente usare l'opzione `-u'
+(`--update').
+
+   L'aggiornamento manuale può essere forzato aggiungendo l'opzione
+`-f' (`--force')
+
+Disinstallare ZDL
+=================
+
+È disponibile uno script di disinstallazione:
+`http://download.savannah.gnu.org/releases/zdl/uninstall_zdl.sh'.
+
+
+File: zdl.info,  Node: Tags,  Prev: Installazione e aggiornamento,  Up: Top
+
+Tags/indici analitici
+*********************
+
+Indice analitico generale
+=========================
+
+ [index ]
+* Menu:
+
+* argomenti:                             Il comando ZDL.       (line 16)
+* comando zdl:                           Il comando ZDL.       (line  6)
+* download:                              Servizi streaming/hosting.
+                                                               (line 17)
+* file hosting:                          Servizi streaming/hosting.
+                                                               (line 17)
+* opzioni:                               Il comando ZDL.       (line 35)
+* perché zdl:                            Top.                  (line  6)
+* sintassi:                              Il comando ZDL.       (line 11)
+* streaming:                             Servizi streaming/hosting.
+                                                               (line 12)
+* video:                                 Servizi streaming/hosting.
+                                                               (line 12)
+
+Indice dei programmi
+====================
+
+ [index ]
+* Menu:
+
+* avconv:                                Software consigliati. (line  9)
+* axel:                                  Software consigliati. (line  6)
+* conkeror:                              Software consigliati. (line 30)
+* ffmpeg:                                Software consigliati. (line  9)
+* firefox:                               Software consigliati. (line 24)
+* flashgot:                              Software consigliati. (line 18)
+* icecat:                                Software consigliati. (line 24)
+* iceweasel:                             Software consigliati. (line 24)
+* rtmpdump:                              Software consigliati. (line 12)
+* xombrero:                              Software consigliati. (line 27)
+* xterm:                                 Software consigliati. (line 15)
+* xxxterm:                               Software consigliati. (line 27)
+
+
+
+Tag Table:
+Node: Top1274
+Node: Il comando ZDL4211
+Node: Servizi streaming/hosting7824
+Node: Avviare ZDL10581
+Node: Arrestare ZDL12868
+Node: Controllare i download13832
+Node: Manuali d'uso18732
+Node: Creare nuove estensioni19167
+Node: Software consigliati20742
+Node: Conkeror21607
+Node: zdl-xterm e XXXTerm/Xombrero22618
+Node: Installazione e aggiornamento24542
+Node: Tags26766
+
+End Tag Table
+
+
+Local Variables:
+coding: utf-8
+End:

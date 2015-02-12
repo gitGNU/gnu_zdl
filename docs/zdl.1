@@ -1,0 +1,522 @@
+.TH "ZigzagDownLoader (ZDL)" "1" "Thu Feb 12 23:15:21 2015" "GNU" "User Commands"
+.SH NOME\	
+\fIZigzagDownLoader\fP (\fBzdl\fP) è un download manager per \fIGNU/Linux\fP e \fIMicrosoft Windows + Cygwin\fP.\
+
+
+.SH SINTASSI\	
+\fBzdl [\fP\fIOPZIONI\fP\fB] [\fP\fIFILE_1\fP\fB \fP\fIFILE_2\fP\fB \&...] [\fP\fILINK_1\fP\fB \fP\fILINK_2\fP\fB \&...] [\fP\fIDIR\fP\fB] \fP
+
+ 
+.SH DESCRIZIONE\	
+\fIZigzagDownLoader\fP gestisce scaricamenti per conto di alcuni downloader come \fIWget\fP, \fIAxel\fP, \fIRTMPDump\fP o \fIcURL\fP\&. Può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con \fIConkeror\fP, \fIXXXTerm/Xombrero\fP, \fIFirefox\fP (attraverso l'estensione \fIFlashgot\fP) e \fIMicrosoft Windows\fP (tramite \fICygwin\fP).
+
+.SS Argomenti\	
+L'ordine delle opzioni e degli altri argomenti non è importante:
+
+
+.RS 5
+
+.RS -5
+\fBFILE\fP
+.RS 5
+Nomi dei file da cui estrarre i \fILINK\fP\&. I file devono essere testuali oppure container DLC (se omessi, ZDL processa i \fILINK\fP in memoria nella \fIDIR\fP e quelli in input)
+
+.RS -5
+\fBLINK\fP
+.RS 5
+URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella \fIDIR\fP e nei \fIFILE\fP)
+
+.RS -5
+\fBDIR\fP
+.RS 5
+Directory di avvio di ZDL e di destinazione dei download (se omessa, è quella corrente)
+
+
+.RS -5
+
+
+.SH OPZIONI\	
+Le opzioni brevi non seguite da valori possono essere contratte: 
+\fB-ufmd\fP equivale a \fB-u\fP \fB-f\fP \fB-m\fP \fB-d\fP
+
+
+.RS 5
+
+.RS -5
+\fB-h, --help\fP
+.RS 5
+Help di \fIZigzagDownLoader (ZDL)\fP
+
+.RS -5
+\fB--wget                  \fP
+.RS 5
+Forza l'uso di \fIWget\fP
+
+.RS -5
+\fB--axel\fP
+.RS 5
+Forza l'uso di \fIAxel\fP
+
+.RS -5
+\fB-m [\fP\fINUM\fP\fB], --multi [\fP\fINUM\fP\fB]\fP
+.RS 5
+Download parallelo\&. È possibile indicare il numero massimo di download da effettuare contemporaneamente 
+
+.RS -5
+\fB--login\fP
+.RS 5
+Utilizza eventuali account registrati per i servizi abilitati (configurare ZDL)
+
+.RS -5
+\fB-u, --update\fP
+.RS 5
+Aggiorna ZDL
+
+.RS -5
+\fB-f, --force\fP
+.RS 5
+Forza l'aggiornamento manuale di ZDL
+
+
+.RS -5
+\fB--clean\fP
+.RS 5
+Cancella eventuali file temporanei dalla directory di destinazione, prima di effettuare il download 
+
+.RS -5
+\fB-d, -daemon\fP
+.RS 5
+Avvia ZDL in modalità "demone" (può essere controllato attraverso l'interfaccia interattiva) 
+
+.RS -5
+\fB-i, --interactive\fP
+.RS 5
+Avvia l'interfaccia interattiva di ZDL per i download che hanno come destinazione la directory attuale\&. I download gestiti possono essere attivi o registrati nei file temporanei della directory
+
+.RS -5
+\fB--out=<\fP\fIPROG\fP\fB|\fP\fIFILE\fP\fB>\fP
+.RS 5
+Restituisce in output i nomi dei file dei download completati, in due modi alternativi: 
+
+
+.RS 5
+
+.RS -5
+\fBPROG \fP
+.RS 5
+programma che può "aprire" il file scaricato
+
+.RS -5
+\fBFILE\fP
+.RS 5
+file testuale in cui sono registrati i nomi dei file
+
+.RS -5
+
+
+.RS -5
+\fB--mp3\fP
+.RS 5
+.RS -5
+\fB--flac\fP
+.RS 5
+Convertono i file (anche da video in audio) in \fIMP3\fP oppure in \fIFLAC\fP: dipendono da \fIFFMpeg/AVConv\fP
+                                
+.RS -5
+\fB--ip\fP
+.RS 5
+Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
+
+.RS -5
+\fB--reconnect\fP
+.RS 5
+Forza la riconnessione del modem al termine di ogni download, utilizzando uno script/comando/programma (configurare ZDL)
+                         
+
+.RS -5
+
+
+.SS Avvio con proxy:\	
+
+.RS 5
+
+
+.RS -5
+\fB--proxy\fP
+.RS 5
+Avvia ZDL attivando un proxy automaticamente (il tipo di proxy predefinito è Transparent) 
+
+.RS -5
+\fB--proxy=<t|a|e>\fP
+.RS 5
+Avvia ZDL attivando un proxy del tipo definito dall'utente:
+
+
+.RS 5
+
+.RS 0
+.IP "\fI \fP" 2 
+\fBt\fP = Transparent
+
+.RS 0
+.IP "\fI \fP" 2 
+\fBa\fP = Anonymous
+
+.RS 0
+.IP "\fI \fP" 2
+\fBe\fP = Elite
+
+.RS -5
+
+	
+.RS -5
+\fB--proxy=<\fP\fIIP\fP\fB:\fP\fIPORTA\fP\fB>\fP
+.RS 5
+Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del download (il proxy viene sostituito automaticamente solo per i link dei servizi abilitati che necessitano di un nuovo indirizzo IP) 
+
+
+.RS -5
+
+
+
+.SS Configurazione:\	
+
+.RS 5
+
+
+.RS -5
+\fB-c, --configure		\fP
+.RS 5
+Interfaccia di configurazione di ZDL, permette anche di salvare eventuali account dei servizi di hosting
+
+.RS -5
+\fB--stream [PARAMETRI] [--noXterm]\fP
+.RS 5
+Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
+
+
+.RS -5
+
+
+.SH PANORAMICA\	
+
+.SS Servizi\	
+ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion\&...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
+
+
+.RS 5
+
+
+
+.RS -5
+\fBVideo in streaming saltando il player del browser:\fP
+.RS 5
+Akstream, Dailymotion, Exashare, Fastvideo, Junkyvideo (HD), Metacafe, Movshare, Nowvideo, Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Shortlink, Sockshare (HD), Speedvideo, Streamin (RTMP), Thevideo, Tvdigit.it, Videowood, Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP)
+
+
+.RS -5
+\fBFile hosting:\fP
+.RS 5
+Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads, Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Rapidshare, Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
+
+
+.RS -5
+\fBTutti i file scaricabili con le seguenti estensioni dei browser:\fP
+.RS 5
+\fIFlashgot\fP di \fIFirefox/Iceweasel/Icecat\fP, funzione \fBM-x zdl\fP di \fIConkeror\fP e script \fBzdl-xterm\fP (\fIXXXTerm/Xombrero\fP e altri)
+
+
+.RS -5
+
+
+
+.SS Avvio\	
+ZDL può essere avviato in diversi modi:
+
+
+.RS 5
+
+.RS -5
+\fBA) Per immettere link e avviare nuovi download:\fP
+.RS 5
+
+
+.RS 5
+
+.RS 0
+.IP "\fI1.\fP" 3
+generando automaticamente la lista dei link per il download:
+
+
+.RS 5
+
+.RS 0
+.IP "\fI-\fP" 2
+apri un terminale ed entra nella directory che dovrà contenere i file scaricati
+
+.RS 0
+.IP "\fI-\fP" 2
+avvia ZDL digitando il comando seguito da eventuali opzioni 
+
+.RS 0
+.IP "\fI-\fP" 2 
+copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
+
+.RS 0
+.IP "\fI-\fP" 2
+premi la chiocciolina "@"
+
+
+.RS -5
+
+
+.RS 0
+.IP "\fI2.\fP" 3
+Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indica un path valido):
+
+
+.RS 5
+
+.RS 0
+.IP "\fI-\fP" 2
+apri un terminale ed entra nella directory che dovrà contenere i file scaricati (in alternativa, puoi indicare a \fIZDL\fP la directory di lavoro)
+
+.RS 0
+.IP "\fI-\fP" 2
+digita il comando \fBzdl\fP seguito dai nomi dei file che contengono la lista dei link: \fBzdl path/file_1 path/file_2 \&..\&. path/file_n\fP
+
+.RS -5
+
+
+.RS 0
+.IP "\fI3.\fP" 3
+Indicando direttamente a ZDL i link da processare (se link validi dovessero essere dichiarati non validi, prova con il modo \fI1\fP):
+\fBzdl link_1 link_2 \&..\&. link_n\fP
+
+.RS 0
+.IP "\fI4.\fP" 3
+Dal browser web, attraverso l'uso di componenti aggiuntive (\fIFlashgot\fP per \fIFirefox\fP, lo script \fBzdl-xterm\fP, il comando \fBzdl\fP di Conkeror, \&...), allo scopo di catturare e salvare lo stream di un video o un altro file di qualsiasi tipo\&. 
+
+.RS 0
+.IP "\fI5.\fP" 3
+In modalità "demone"
+
+.RS -5
+
+
+I file, la directory di lavoro e i link possono essere immessi in qualsiasi ordine\&. Tutti i link degli input sono salvati nel file \fIlinks.txt\fP, nella directory di destinazione. 
+
+.RS -5
+\fBB) Per gestire download già avviati nelle modalità "non interattiva" e "demone":\fP
+.RS 5
+avviando la modalità interattiva in due modi:
+
+
+.RS 5
+
+.RS 0
+.IP "\fI1.\fP" 3
+in console dalla directory di destinazione dei download, con il comando \fBzdl -i\fP oppure \fBzdl --interactive\fP
+
+.RS 0
+.IP "\fI2.\fP" 3
+nella modalità "non interattiva" (standard), digitando il tasto \fBi\fP
+
+.RS -5
+
+
+.RS -5
+
+
+
+
+.SS Arresto\	
+ZDL può essere fermato in diversi modi:
+
+.RS 5
+
+.RS 0
+.IP "\fI*\fP" 2 
+Se i download sono gestiti dalla modalità "non interattiva"/standard:
+
+
+.RS 5
+
+.RS 0
+.IP "\fI1.\fP" 3
+digitando \fBControl+c\fP (in questo caso saranno interrotti anche i download di \fIAxel\fP)
+
+.RS 0
+.IP "\fI2.\fP" 3
+digitando il tasto \fBq\fP (tutti i download già avviati nella directory corrente con \fIWget\fP e \fIAxel\fP non saranno interrotti, ma non verranno più gestiti da ZDL)
+
+.RS -5
+
+
+.RS 0
+.IP "\fI*\fP" 2 
+Se i download sono gestiti dalla modalità "demone": 
+attraverso la modalità interattiva \fBzdl -i\fP avviata nella directory gestita dal demone, digitando il tasto di uscita "Quit" (in maiuscolo): \fBQ\fP (in questo caso i download avviati con \fIAxel\fP e \fIWget\fP non sarano interrotti, ma non verranno gestiti da ZDL a meno che non sia riavviato per gestire gli stessi download)
+
+.RS -5
+
+
+
+
+.SS Software consigliati\	
+
+.RS 5
+
+
+.RS -5
+\fBAxel                            \fP
+.RS 5
+Acceleratore di download
+
+
+
+.RS -5
+\fBFFmpeg/AVConv\fP
+.RS 5
+Convertitore per MP3/FLAC
+
+
+.RS -5
+\fBcURL e RTMPDump\fP
+.RS 5
+Downloader per i servizi RTMP       
+
+
+.RS -5
+\fBXTerm\fP
+.RS 5
+Terminale grafico predefinito per GNU/Linux
+
+
+.RS -5
+\fBFlashgot\fP
+.RS 5
+Estensione di Firefox/Iceweasel/Icecat
+
+.RS -5
+
+
+
+.SS ZDL è compatibile con: 	
+
+.RS 5
+
+
+
+
+.RS -5
+\fBFirefox/Iceweasel/Icecat\fP
+.RS 5
+Attraverso l'estensione \fIFlashgot\fP
+
+
+
+.RS -5
+\fBXXXTerm/Xombrero\fP
+.RS 5
+Script \fIzdl-xterm\fP in \fI/usr/local/bin\fP
+
+
+.RS -5
+\fBConkeror\fP
+.RS 5
+Funzione \fBM-x zdl\fP autoinstallata
+
+
+.RS -5
+
+
+
+.SS Dipendenze per Windows: 	
+
+.RS 5
+
+.RS -5
+\fBCygwin (x86 32-bit)\fP
+.RS 5
+Distribuzione per il porting di software di sistemi POSIX su Microsoft Windows
+
+.RS -5
+\fBWget\fP
+.RS 5
+Downloader principale di ZDL, da installare su Cygwin
+
+
+.RS -5
+
+
+
+.SH MANUALI	
+Oltre alla presente guida, puoi consultare:
+
+.RS 5
+
+.RS -5
+\fBinfo zdl\fP
+.RS 5
+Documentazione ipertestuale che puoi leggere più comodamente usando \fIpinfo\fP oppure \fIEmacs\fP
+
+.RS -5
+\fBhttp://nongnu.org/zdl\fP
+.RS 5
+Sito web di \fIZigzagDownLoader\fP
+
+.RS -5
+
+
+
+.SH FILE	
+I file di configurazione si trovano in \fI$HOME/.zdl/\fP\&. In particolare, il file di configurazione modificato da \fBzdl -c\fP è \fI$HOME/.zdl/zdl.conf\fP.
+Puoi creare liberamente nuove estensioni in \fI$HOME/.zdl/extensions/\fP\&. Il programma si trova in \fI/usr/local/bin/\fP (\fIzdl\fP e \fIzdl-xterm\fP) e in \fI/usr/local/share/zdl/\fP.
+
+Nella directory di download, ZDL produce file temporanei in \fI.zdl_tmp/\fP e salva la lista dei \fILINK\fP in \fIlinks.txt\fP\&. Inoltre, ZDL registra eventuali problemi nel file \fIzdl_log.txt\fP.
+
+
+.SH VEDERE ANCHE	
+\fBxterm\fP(1), \fBconkeror\fP(1), \fBaxel\fP(1), \fBwget\fP(1), \fBcurl\fP(1), \fBrtmpdump\fP(1), \fBffmpeg\fP(1), \fBavconv\fP(1)
+
+
+.SH COPYING	
+Copyright di:
+
+.RS 5
+
+.RS 0
+.IP "\fI*\fP" 2
+2011 - zoninoz (Gianluca Zoni)
+.RS 0
+.IP "\fI*\fP" 2
+2012 - Free Software Foundation
+
+.RS -5
+
+ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori)\&. 
+
+
+.SH AUTORI	
+
+.SS Per informazioni e per collaborare al progetto:	
+
+.RS 5
+
+.RS 0
+.IP "\fI*\fP" 2
+\fBhttp://nongnu.org/zdl\fP
+.RS 0
+.IP "\fI*\fP" 2
+\fBhttps://savannah.nongnu.org/projects/zdl\fP
+.RS 0
+.IP "\fI*\fP" 2
+\fBhttps://joindiaspora.com/tags/zdl\fP
+
+.RS -5
+
+
+Gianluca Zoni (zoninoz)
+\fBhttp://inventati.org/zoninoz\fP
+

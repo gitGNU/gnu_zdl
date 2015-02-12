@@ -27,7 +27,7 @@
 
 path_usr="/usr/local/share/zdl"
 
-source $path_usr/man.sh
+source $path_usr/docs/help.sh
 source $path_usr/config.sh
 source $path_usr/config_manager.sh
 source $path_usr/axel_installer.sh
