@@ -27,7 +27,7 @@
  Gianluca Zoni (@email{zoninoz@@inventati.org})
 
  Copyright @copyright{} 2012
- Gianluca Zoni ( @email{zoninoz@@inventati.org} )
+ Gianluca Zoni (@email{zoninoz@@inventati.org}),
  Free Software Foundation, Inc.
  
  For information or to collaborate on the project:
