@@ -16,9 +16,9 @@ General Public License for more details.
    You should have received a copy of the GNU General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 
-   Copyright (C) 2011  Gianluca Zoni (<zoninoz@inventati.org>)
+   Copyright (C) 2011  Gianluca Zoni <zoninoz@inventati.org>
 
-   Copyright (C) 2012  Gianluca Zoni (<zoninoz@inventati.org>),  Free
+   Copyright (C) 2012  Gianluca Zoni <zoninoz@inventati.org>,  Free
 Software Foundation, Inc.
 
    For information or to collaborate on the project:
@@ -179,7 +179,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      Cancella eventuali file temporanei dalla directory di
      destinazione, prima di effettuare il download
 
-`-d, -daemon'
+`-d, --daemon'
      Avvia ZDL in modalità "demone" (può essere controllato attraverso
      l'interfaccia interattiva)
 
@@ -784,19 +784,19 @@ Indice dei programmi
 
 
 Tag Table:
-Node: Top1273
-Node: Il comando ZDL4210
-Node: Servizi streaming/hosting7823
-Node: Avviare ZDL10580
-Node: Arrestare ZDL12867
-Node: Controllare i download13831
-Node: Manuali d'uso18731
-Node: Creare nuove estensioni19166
-Node: Software consigliati20741
-Node: Conkeror21606
-Node: zdl-xterm e XXXTerm/Xombrero22617
-Node: Installazione e aggiornamento24541
-Node: Tags26765
+Node: Top1269
+Node: Il comando ZDL4206
+Node: Servizi streaming/hosting7820
+Node: Avviare ZDL10577
+Node: Arrestare ZDL12864
+Node: Controllare i download13828
+Node: Manuali d'uso18728
+Node: Creare nuove estensioni19163
+Node: Software consigliati20738
+Node: Conkeror21603
+Node: zdl-xterm e XXXTerm/Xombrero22614
+Node: Installazione e aggiornamento24538
+Node: Tags26762
 
 End Tag Table
 

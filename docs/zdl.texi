@@ -24,10 +24,10 @@
  along with this program. If not, see http://www.gnu.org/licenses/. 
  
  Copyright @copyright{} 2011
- Gianluca Zoni (@email{zoninoz@@inventati.org})
+ Gianluca Zoni @email{zoninoz@@inventati.org}
 
  Copyright @copyright{} 2012
- Gianluca Zoni (@email{zoninoz@@inventati.org}),
+ Gianluca Zoni @email{zoninoz@@inventati.org},
  Free Software Foundation, Inc.
  
  For information or to collaborate on the project:
@@ -282,7 +282,7 @@ Forza l'aggiornamento manuale di ZDL
 @item --clean
 Cancella eventuali file temporanei dalla directory di destinazione, prima di effettuare il download 
 
-@item -d, -daemon
+@item -d, --daemon
 Avvia ZDL in modalità "demone" (può essere controllato attraverso l'interfaccia interattiva) 
 
 @item -i, --interactive
@@ -932,11 +932,11 @@ Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e s
 
 @unnumberedsec COPYING
 Copyright di:
-@itemize @bullet
+@itemize @w{}
 @item
-2011 - zoninoz (Gianluca Zoni)
+2011 - Gianluca Zoni @email{zoninoz@@inventati.org}
 @item
-2012 - Free Software Foundation
+2012 - Free Software Foundation, Inc. e Gianluca Zoni
 @end itemize
 ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
