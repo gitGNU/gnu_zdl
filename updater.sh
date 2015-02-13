@@ -69,6 +69,7 @@ function try {
     fi
 }
 
+
 function update {
     PROG=ZigzagDownLoader
     prog=zdl
@@ -122,4 +123,36 @@ function update {
     cd ..
     $prog ${args[*]}
     exit
+}
+
+
+function update_updater {
+    URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
+
+    header_box "Aggiornamento automatico di $name_prog"
+
+    mkdir -p "$path_tmp"
+    cd "$path_tmp"
+    rm -fr *.gz *.sig "$prog"
+    print_c 1 "Download in corso: attendere..."
+    wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q
+    cd ..
+    if [ -f "$path_conf"/zdl.sig ]; then
+	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
+    fi
+    if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
+	print_c 1 "$PROG è già alla versione più recente"
+    else
+	cd "$path_tmp"
+	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+	package=$(ls *.tar.gz)
+	print_c 1 "Aggiornamento di $PROG con $package"
+	tar -xzf "$package"
+
+	mv "${package%.tar.gz}" $prog
+	cd $prog
+
+	source updater.sh
+	update
+    fi
 }
