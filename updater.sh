@@ -102,8 +102,9 @@ function update {
     try mkdir -p /usr/share/info
     try mkdir -p /usr/share/man/it/man1
     try install zdl/docs/zdl.1 /usr/share/man/it/man1/
+    try rm /usr/share/man/man1/zdl.1
     try ln -s /usr/share/man/it/man1/zdl.1 /usr/share/man/man1/zdl.1
-    try install -m 644 docs/zdl.info /usr/share/info/
+    try install -m 644 zdl/docs/zdl.info /usr/share/info/
     try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info
     try mv "$prog" "$SHARE"
     
