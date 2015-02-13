@@ -205,12 +205,20 @@ div {
 
 
 .footer {
-    background: #343434;
+    background: #959595;
     text-align: left;
     border: 0px;
     display: inline-block;
     width: 1000px;
     height: 200px;
+}
+
+.contentfooter {
+    background: #959595;
+    width: 455px;
+    float: left;
+    border-right: 1em solid #343434;
+    padding: 16px;
 }
 
 div.node {
