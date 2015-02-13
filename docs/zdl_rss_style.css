@@ -1,4 +1,38 @@
+body, html {
+    background: #343434;
+    color: #959595;
+    margin: 0em;
+    font: 13px "Verdana", sans-serif;
+    text-align: left;
+    /*width: 750px;
+    display: block;*/
+    padding: 0px;
+/*background-image: url(vert_grad.png);
+  background-position: top center;
+  background-repeat: repeat-x;*/
+}
 
 a {
     color: white;
+    text-decoration: none;
+    font-weight: bold;
 }
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+ul {
+    margin-left: 0em;
+    list-style-type: square;
+}
+
+ol {
+    margin-left: 0em;
+}
+
+li {
+    margin-bottom: 1em;
+}
+
