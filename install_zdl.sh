@@ -267,15 +267,15 @@ cd ..
 
 bold "Installazione in $SHARE"
 [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
-try rm -rf "$SHARE" 
-
+try rm -rf "$SHARE"
 try mkdir -p /usr/share/info
 try mkdir -p /usr/share/man/it/man1
 try install zdl/docs/zdl.1 /usr/share/man/it/man1/
 try rm /usr/share/man/man1/zdl.1
 try ln -s /usr/share/man/it/man1/zdl.1 /usr/share/man/man1/zdl.1
+try mandb -q
 try install -m 644 zdl/docs/zdl.info /usr/share/info/
-try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info
+try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info &>/dev/null
 try mv "$prog" "$SHARE"
 
 if [ -e /cygdrive ]; then
