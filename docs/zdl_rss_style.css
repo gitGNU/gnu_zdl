@@ -4,12 +4,8 @@ body, html {
     margin: 0em;
     font: 13px "Verdana", sans-serif;
     text-align: left;
-    /*width: 750px;
-    display: block;*/
     padding: 0px;
-/*background-image: url(vert_grad.png);
-  background-position: top center;
-  background-repeat: repeat-x;*/
+    margin-left: 2em;
 }
 
 a {
@@ -33,6 +29,6 @@ ol {
 }
 
 li {
-    margin-bottom: 1em;
+    margin-bottom: 0em;
 }
 
