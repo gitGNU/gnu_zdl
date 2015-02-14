@@ -32,3 +32,6 @@ li {
     margin-bottom: 0em;
 }
 
+.feed_item_date {
+    font-size: 10px;
+}
