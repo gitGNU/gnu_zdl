@@ -229,7 +229,7 @@ ZDL è un programma per la Bash, scritto prevalentemente con il linguaggio della
 @unnumberedsec Sintassi
 
 @c @man{2}
-@command{zdl [@var{OPZIONI}] [@var{FILE_1} @var{FILE_2} ...] [@var{LINK_1} @var{LINK_2} ...] [@var{DIR}] }
+@command{zdl [@emph{OPZIONI}] [@emph{file} ...] [@emph{link} ...] [@emph{directory}] }
 @c @end man 
 
 @cindex argomenti
@@ -238,14 +238,14 @@ ZDL è un programma per la Bash, scritto prevalentemente con il linguaggio della
 @c @ifman @unnumberedsubsec Argomenti
 L'ordine delle opzioni e degli altri argomenti non è importante:
 
-@table @var
-@item FILE
-Nomi dei file da cui estrarre i @var{LINK}. I file devono essere testuali oppure container DLC (se omessi, ZDL processa i @var{LINK} in memoria nella @var{DIR} e quelli in input)
+@table @emph
+@item file
+Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC (se omessi, ZDL processa i @emph{link} in memoria nella @emph{directory} e quelli in input)
 
-@item LINK
-URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @var{DIR} e nei @var{FILE})
+@item link
+URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file})
 
-@item DIR
+@item directory
 Directory di avvio di ZDL e di destinazione dei download (se omessa, è quella corrente)
 
 @end table
@@ -267,7 +267,7 @@ Forza l'uso di @emph{Wget}
 @item --axel
 Forza l'uso di @emph{Axel}
 
-@item -m [@var{NUM}], --multi [@var{NUM}]
+@item -m [@emph{numero}], --multi [@emph{numero}]
 Download parallelo. È possibile indicare il numero massimo di download da effettuare contemporaneamente 
 
 @item --login
@@ -289,14 +289,14 @@ Avvia ZDL in modalità "demone" (può essere controllato attraverso l'interfacci
 @item -i, --interactive
 Avvia l'interfaccia interattiva di ZDL per i download che hanno come destinazione la directory attuale. I download gestiti possono essere attivi o registrati nei file temporanei della directory
 
-@item --out=<@var{PROG}|@var{FILE}>
+@item --out=@emph{programma}|@emph{file}
 Restituisce in output i nomi dei file dei download completati, in due modi alternativi: 
 
-@table @var
-@item PROG 
+@table @emph
+@item programma
 programma che può "aprire" il file scaricato
 
-@item FILE
+@item file
 file testuale in cui sono registrati i nomi dei file
 @end table
 
@@ -321,7 +321,7 @@ Forza la riconnessione del modem al termine di ogni download, utilizzando uno sc
 @item --proxy
 Avvia ZDL attivando un proxy automaticamente (il tipo di proxy predefinito è Transparent) 
 
-@item --proxy=<t|a|e>
+@item --proxy=t|a|e
 Avvia ZDL attivando un proxy del tipo definito dall'utente:
 
 @itemize @w{}
@@ -335,7 +335,7 @@ Avvia ZDL attivando un proxy del tipo definito dall'utente:
 @option{e} = Elite
 @end itemize
 	
-@item --proxy=<@var{IP}:@var{PORTA}>
+@item --proxy=@emph{IP}:@emph{PORTA}
 Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del download (il proxy viene sostituito automaticamente solo per i link dei servizi abilitati che necessitano di un nuovo indirizzo IP) 
 
 @end table
@@ -350,7 +350,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @item -c, --configure		
 Interfaccia di configurazione di ZDL, permette anche di salvare eventuali account dei servizi di hosting
 
-@item --stream [PARAMETRI] [--noXterm]
+@item --stream [@emph{parametri}] [--noXterm]
 Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
 
 @end table
@@ -453,12 +453,12 @@ Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo
 apri un terminale ed entra nella directory che dovrà contenere i file scaricati (in alternativa, puoi indicare a @emph{ZDL} la directory di lavoro)
 
 @item
-digita il comando @command{zdl} seguito dai nomi dei file che contengono la lista dei link: @command{zdl path/file_1 path/file_2 ... path/file_n}
+digita il comando @command{zdl} seguito dai nomi dei file che contengono la lista dei link: @command{zdl} @emph{path/file ...} 
 @end itemize
 
 @item
 Indicando direttamente a ZDL i link da processare (se link validi dovessero essere dichiarati non validi, prova con il modo @emph{1}):
-@command{zdl link_1 link_2 ... link_n}
+@command{zdl} @emph{link ...}
 
 @item
 Dal browser web, attraverso l'uso di componenti aggiuntive (@emph{Flashgot} per @emph{Firefox}, lo script @command{zdl-xterm}, il comando @command{zdl} di Conkeror, ...), allo scopo di catturare e salvare lo stream di un video o un altro file di qualsiasi tipo. 
@@ -926,7 +926,7 @@ Sito web di @emph{ZigzagDownLoader}
 I file di configurazione si trovano in @file{$HOME/.zdl/}. In particolare, il file di configurazione modificato da @command{zdl -c} è @file{$HOME/.zdl/zdl.conf}.
 Puoi creare liberamente nuove estensioni in @file{$HOME/.zdl/extensions/}. Il programma si trova in @file{/usr/local/bin/} (@file{zdl} e @file{zdl-xterm}) e in @file{/usr/local/share/zdl/}.
 
-Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e salva la lista dei @var{LINK} in @file{links.txt}. Inoltre, ZDL registra eventuali problemi nel file @file{zdl_log.txt}.
+Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e salva la lista dei @emph{link} in @file{links.txt}. Inoltre, ZDL registra eventuali problemi nel file @file{zdl_log.txt}.
 
 @unnumberedsec VEDERE ANCHE
 @command{xterm}(1), @command{conkeror}(1), @command{axel}(1), @command{wget}(1), @command{curl}(1), @command{rtmpdump}(1), @command{ffmpeg}(1), @command{avconv}(1)

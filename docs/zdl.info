@@ -124,24 +124,24 @@ maggiori informazioni, consulta le sezioni specializzate.
 Sintassi
 ========
 
-`zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR] '
+`zdl [_OPZIONI_] [_file_ ...] [_link_ ...] [_directory_] '
 
 Argomenti
 =========
 
 L'ordine delle opzioni e degli altri argomenti non è importante:
 
-FILE
-     Nomi dei file da cui estrarre i LINK. I file devono essere
-     testuali oppure container DLC (se omessi, ZDL processa i LINK in
-     memoria nella DIR e quelli in input)
+_file_
+     Nomi dei file da cui estrarre i _link_. I file devono essere
+     testuali oppure container DLC (se omessi, ZDL processa i _link_ in
+     memoria nella _directory_ e quelli in input)
 
-LINK
+_link_
      URL dei file oppure delle pagine web dei servizi di hosting,
      streaming o di reindirizzamento (se omessi, ZDL processa quelli in
-     memoria nella DIR e nei FILE)
+     memoria nella _directory_ e nei _file_)
 
-DIR
+_directory_
      Directory di avvio di ZDL e di destinazione dei download (se
      omessa, è quella corrente)
 
@@ -161,7 +161,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `--axel'
      Forza l'uso di _Axel_
 
-`-m [NUM], --multi [NUM]'
+`-m [_numero_], --multi [_numero_]'
      Download parallelo. È possibile indicare il numero massimo di
      download da effettuare contemporaneamente
 
@@ -188,14 +188,14 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      come destinazione la directory attuale. I download gestiti possono
      essere attivi o registrati nei file temporanei della directory
 
-`--out=<PROG|FILE>'
+`--out=_programma_|_file_'
      Restituisce in output i nomi dei file dei download completati, in
      due modi alternativi:
 
-    PROG
+    _programma_
           programma che può "aprire" il file scaricato
 
-    FILE
+    _file_
           file testuale in cui sono registrati i nomi dei file
 
 `--mp3'
@@ -218,7 +218,7 @@ Avvio con Proxy:
      Avvia ZDL attivando un proxy automaticamente (il tipo di proxy
      predefinito è Transparent)
 
-`--proxy=<t|a|e>'
+`--proxy=t|a|e'
      Avvia ZDL attivando un proxy del tipo definito dall'utente:
 
           `t' = Transparent
@@ -227,7 +227,7 @@ Avvio con Proxy:
 
           `e' = Elite
 
-`--proxy=<IP:PORTA>'
+`--proxy=_IP_:_PORTA_'
      Avvia ZDL attivando il proxy indicato dall'utente, per l'intera
      durata del download (il proxy viene sostituito automaticamente
      solo per i link dei servizi abilitati che necessitano di un nuovo
@@ -241,7 +241,7 @@ Configurazione:
      Interfaccia di configurazione di ZDL, permette anche di salvare
      eventuali account dei servizi di hosting
 
-`--stream [PARAMETRI] [--noXterm]'
+`--stream [_parametri_] [--noXterm]'
      Per scaricare lo stream incorporando ZDL in nuovi script, il
      modello generico dei parametri per le componenti aggiuntive
      (rispettare l'ordine):
@@ -339,12 +339,11 @@ _A) Per immettere link e avviare nuovi download:_
                indicare a _ZDL_ la directory di lavoro)
 
              - digita il comando `zdl' seguito dai nomi dei file che
-               contengono la lista dei link: `zdl path/file_1
-               path/file_2 ... path/file_n'
+               contengono la lista dei link: `zdl' _path/file ..._
 
        3. Indicando direttamente a ZDL i link da processare (se link
           validi dovessero essere dichiarati non validi, prova con il
-          modo _1_): `zdl link_1 link_2 ... link_n'
+          modo _1_): `zdl' _link ..._
 
        4. Dal browser web, attraverso l'uso di componenti aggiuntive
           (_Flashgot_ per _Firefox_, lo script `zdl-xterm', il comando
@@ -786,17 +785,17 @@ Indice dei programmi
 Tag Table:
 Node: Top1269
 Node: Il comando ZDL4206
-Node: Servizi streaming/hosting7820
-Node: Avviare ZDL10577
-Node: Arrestare ZDL12864
-Node: Controllare i download13828
-Node: Manuali d'uso18728
-Node: Creare nuove estensioni19163
-Node: Software consigliati20738
-Node: Conkeror21603
-Node: zdl-xterm e XXXTerm/Xombrero22614
-Node: Installazione e aggiornamento24538
-Node: Tags26762
+Node: Servizi streaming/hosting7878
+Node: Avviare ZDL10635
+Node: Arrestare ZDL12869
+Node: Controllare i download13833
+Node: Manuali d'uso18733
+Node: Creare nuove estensioni19168
+Node: Software consigliati20743
+Node: Conkeror21608
+Node: zdl-xterm e XXXTerm/Xombrero22619
+Node: Installazione e aggiornamento24543
+Node: Tags26767
 
 End Tag Table
 
