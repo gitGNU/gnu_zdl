@@ -101,9 +101,9 @@ function download {
 
     if [ "$downloader_in" == "Axel" ]; then
 	[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
+	sleeping 2
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
-	    sleeping 3
 	    axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	elif [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
 	    COOKIES=`cat "$path_tmp"/flashgot_cookie.zdl`
@@ -113,9 +113,8 @@ function download {
 	    else
 		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
-	    
+	     
 	else
-	    sleeping 2
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
 	pid_in=$!

@@ -20,7 +20,7 @@
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (project administrator and first inventor)
+# Gianluca Zoni (author)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
@@ -113,7 +113,7 @@ function _log {
 	11)
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
 		init_log
-		print_c 3  "$url_in --> File scaricabile solo da utenti \"Premium\"" | tee -a $file_log
+		print_c 3  "$url_in --> File scaricabile solo da utenti \"Premium\" o registrati" | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
 		unset from_loop url_in file_in url_in_file

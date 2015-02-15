@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program. If not, see http://www.gnu.org/licenses/. 
 # 
-# Copyright (C) 2012
-# Free Software Foundation, Inc.
+# Copyright (C) 2011: Gianluca Zoni <zoninoz@inventati.org>
+# Copyright (C) 2012: Free Software Foundation, Inc. and Gianluca Zoni
 # 
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (project administrator and first inventor)
+# Gianluca Zoni (author)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
@@ -31,40 +31,49 @@
 
 if [ "$url_in" != "${url_in//vk.com\/video_ext.php}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
-
-    data_in_file=$(cat "$path_tmp/zdl.tmp" |grep cache 2>/dev/null | head -n 3 | tail -n 1)
-    if [[ "$data_in_file" =~ http ]]; then
-	url_in_file="${data_in_file##*cache}"
-	url_in_file="${url_in_file#*\":\"}"
-	url_in_file="${url_in_file%%\"*}"
-	url_in_file="${url_in_file//'\'}"
+    if [[ $(grep prohibited "$path_tmp/zdl.tmp") ]]; then
+	_log 11
+	break_loop=true
     else
-	data_in_file=$(cat "$path_tmp/zdl.tmp" |grep flashvars 2>/dev/null)
-	url_in_file="${data_in_file##*url[0-9]}"
-	url_in_file="${url_in_file#*\=}"
-	url_in_file="${url_in_file%%\?*}"
+	data_in_file=$(cat "$path_tmp/zdl.tmp" |grep cache 2>/dev/null | head -n 3 | tail -n 1)
+	if [[ "$data_in_file" =~ http ]]; then
+	    url_in_file="${data_in_file##*cache}"
+	    url_in_file="${url_in_file#*\":\"}"
+	    url_in_file="${url_in_file%%\"*}"
+	    url_in_file="${url_in_file//'\'}"
+	else
+	    data_in_file=$(cat "$path_tmp/zdl.tmp" |grep flashvars 2>/dev/null)
+	    url_in_file="${data_in_file##*url[0-9]}"
+	    url_in_file="${url_in_file#*\=}"
+	    url_in_file="${url_in_file%%\?*}"
+	fi
+	ext="${url_in_file##*'.'}"
+	ext="${ext%'?'*}"
+	data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
+	file_in="${data_in_file##*title\":\"}"
+	file_in="${file_in%%\"*}"
+	file_in="${file_in::240}"
     fi
-    ext="${url_in_file##*'.'}"
-    ext="${ext%'?'*}"
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
-    file_in="${data_in_file##*title\":\"}"
-    file_in="${file_in%%\"*}"
-    file_in="${file_in::240}"
 elif [ "$url_in" != "${url_in//vk.com\/video}" ]; then
     wget -t 1 --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl -O "$path_tmp/zdl.tmp" "$url_in" -q
+    if [[ $(grep prohibited "$path_tmp/zdl.tmp") ]]; then
+	_log 11
+	break_loop=true
+    else
 
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache 2>/dev/null)
-    url_in_file="${data_in_file##*cache}"
-    url_in_file="${url_in_file#*'\":\"'}"
-    url_in_file="${url_in_file%%'\"'*}"
-    url_in_file="${url_in_file//'\\\'}"
+	data_in_file=$(cat "$path_tmp/zdl.tmp" | grep cache 2>/dev/null)
+	url_in_file="${data_in_file##*cache}"
+	url_in_file="${url_in_file#*'\":\"'}"
+	url_in_file="${url_in_file%%'\"'*}"
+	url_in_file="${url_in_file//'\\\'}"
 
-    ext="${url_in_file##*'.'}"
-    ext="${ext%'?'*}"
-    data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
-    file_in="${data_in_file##*title\":\"}"
-    file_in="${file_in%%\"*}"
-    file_in="${file_in::240}"
+	ext="${url_in_file##*'.'}"
+	ext="${ext%'?'*}"
+	data_in_file=$(cat "$path_tmp/zdl.tmp" | grep title 2>/dev/null)
+	file_in="${data_in_file##*title\":\"}"
+	file_in="${file_in%%\"*}"
+	file_in="${file_in::240}"
+    fi
 fi
 
 if [ "$url_in" != "${url_in//vk.com}" ]; then
