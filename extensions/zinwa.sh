@@ -50,6 +50,9 @@ if [ "$url_in" != "${url_in//'zinwa.'}" ]; then
     if [[ $(grep 'Premium users only' <<< "$html") ]]; then
 	_log 11
 	break_loop=true
+    elif [[ $(grep 'File Not Found' <<< "$html") ]]; then
+	_log 3
+	break_loop=true
     else
 	args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
 	if [[ "$args" ]]; then
