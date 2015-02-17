@@ -57,10 +57,10 @@
 @html
 @end html
 @end ifhtml
-* Home:Top. ZigzagDownLoader
-* Il comando ZDL::@*Sintassi, opzioni e altri argomenti
-* Servizi streaming/hosting::@*Estensioni di ZDL e consigli pratici
-* Installazione e aggiornamento::@*Per GNU/Linux e Microsoft Windows/Cygwin
+* Home:Top. ZigzagDownLoader@*
+* Il comando ZDL::@*Sintassi, opzioni e altri argomenti@*
+* Servizi streaming/hosting::@*Estensioni di ZDL e consigli pratici@*
+* Installazione e aggiornamento::@*Per GNU/Linux e Microsoft Windows/Cygwin@*
 @end macro
 
 @macro menuUso
@@ -68,10 +68,10 @@
 @html
 @end html
 @end ifhtml
-* Avviare ZDL::@*Modalità di esecuzione del programma e avvio dei download
-* Arrestare ZDL::@*Modalità di arresto del programma
-* Controllare i download::@*Modalità di controllo dei processi avviati, in coda o sospesi
-* Manuali d'uso::@*Documentazione disponibile per ZDL
+* Avviare ZDL::@*Modalità di esecuzione del programma e avvio dei download@*
+* Arrestare ZDL::@*Modalità di arresto del programma@*
+* Controllare i download::@*Modalità di controllo dei processi avviati, in coda o sospesi@*
+* Manuali d'uso::@*Documentazione disponibile per ZDL@*
 @end macro
 
 @macro menuExt
@@ -79,10 +79,10 @@
 @html
 @end html
 @end ifhtml
-* Creare nuove estensioni::@*Estensioni Bash di ZDL personalizzate e per nuovi servizi
-* Software consigliati::@*Programmi utili a ZDL
-* Conkeror::@*Comando @command{zdl} per il browser
-* zdl-xterm e XXXTerm/Xombrero::@*Uno script per collegare ZDL ad altri programmi
+* Creare nuove estensioni::@*Estensioni Bash di ZDL personalizzate e per nuovi servizi@*
+* Software consigliati::@*Programmi utili a ZDL@*
+* Conkeror::@*Comando @command{zdl} per il browser@*
+* zdl-xterm e XXXTerm/Xombrero::@*Uno script per collegare ZDL ad altri programmi@*
 @end macro
 
 @macro menuDev
@@ -103,7 +103,11 @@
 @html
 @end html
 @end ifhtml
-* Tags::Indici analitici
+* Tags::Indici analitici@*
+
+* Copying::Autori e Licenza@*
+
+* Contatti::Per assistenza o per partecipare
 @end macro
 
 @macro htmlstart
@@ -197,10 +201,15 @@ Infine, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e
 
 @ifinfo
 @menu
+@emph{ZDL}
 @menuZdl
+
+@emph{Come si usa ZDL}
 @menuUso
+
+@emph{Espandere ZDL}
 @menuExt
-@menuDev
+
 @menuFooter
 @end menu
 @end ifinfo
@@ -888,7 +897,7 @@ L'aggiornamento manuale può essere forzato aggiungendo l'opzione
 
 @htmlend
 
-@node Tags,,Installazione e aggiornamento,Top
+@node Tags,Copying,Installazione e aggiornamento,Top
 @htmlstart
 @unnumbered Tags/indici analitici
 @unnumberedsec Indice analitico generale
@@ -899,13 +908,50 @@ L'aggiornamento manuale può essere forzato aggiungendo l'opzione
 
 @htmlend
 
-@bye
-@ifinfo
-@ifhtml
-@bye
 
-@end ifhtml
-@end ifinfo
+@node Copying,Contatti,Tags,Top
+@htmlstart
+@unnumbered Copying
+@unnumberedsec Autori
+Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
+
+@unnumberedsec Copyright
+ Copyright @copyright{} 2011@*
+ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}@*
+
+ For information or to collaborate on the project:@*
+ @url{https://savannah.nongnu.org/projects/zdl}
+
+@unnumberedsec Licenza di ZigzagDownLoader (ZDL)
+ 
+ This program is free software: you can redistribute it and/or modify it 
+ under the terms of the GNU General Public License as published 
+ by the Free Software Foundation; either version 3 of the License, 
+ or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License 
+ along with this program. If not, see @url{http://www.gnu.org/licenses/gpl.html} 
+ 
+@htmlend
+
+@node Contatti,,Copying,Top
+@htmlstart
+@unnumbered Contatti
+@unnumberedsec Riporta un bug (o una richiesta di supporto)
+@url{https://savannah.nongnu.org/bugs/?func=additem&group=zdl}
+
+@unnumberedsec Mailing list del progetto
+@emph{zdl-users - Lista degli utenti}:@* @url{https://lists.nongnu.org/mailman/listinfo/zdl-users}@*@*
+@emph{zdl-devel - Lista di sviluppo}:@* @url{https://lists.nongnu.org/mailman/listinfo/zdl-devel}
+
+@htmlend
+
+
+@bye
 
 @c @man{11}
 @unnumberedsec MANUALI

@@ -74,38 +74,54 @@ sistemi operativi differenti.
 
 * Menu:
 
+_ZDL_
 * Home:Top. ZigzagDownLoader
+
 * Il comando ZDL::
 Sintassi, opzioni e altri argomenti
+
 * Servizi streaming/hosting::
 Estensioni di ZDL e consigli pratici
+
 * Installazione e aggiornamento::
 Per GNU/Linux e Microsoft Windows/Cygwin
+
+
+_Come si usa ZDL_
 * Avviare ZDL::
 Modalità di esecuzione del programma e avvio dei download
+
 * Arrestare ZDL::
 Modalità di arresto del programma
+
 * Controllare i download::
 Modalità di controllo dei processi avviati, in coda o sospesi
+
 * Manuali d'uso::
 Documentazione disponibile per ZDL
+
+
+_Espandere ZDL_
 * Creare nuove estensioni::
 Estensioni Bash di ZDL personalizzate e per nuovi servizi
+
 * Software consigliati::
 Programmi utili a ZDL
+
 * Conkeror::
 Comando `zdl' per il browser
+
 * zdl-xterm e XXXTerm/Xombrero::
 Uno script per collegare ZDL ad altri programmi
-   * Aggiornamenti in Diaspora*
 
-   * Progetto di sviluppo in Savannah/GNU
-
-   * Pacchetti rilasciati di ZDL
-
-   * Repository Git (controllo versione sorgenti)
 
 * Tags::Indici analitici
+
+
+* Copying::Autori e Licenza
+
+
+* Contatti::Per assistenza o per partecipare
 
 
 File: zdl.info,  Node: Il comando ZDL,  Next: Servizi streaming/hosting,  Prev: Top,  Up: Top
@@ -733,7 +749,7 @@ Disinstallare ZDL
 `http://download.savannah.gnu.org/releases/zdl/uninstall_zdl.sh'.
 
 
-File: zdl.info,  Node: Tags,  Prev: Installazione e aggiornamento,  Up: Top
+File: zdl.info,  Node: Tags,  Next: Copying,  Prev: Installazione e aggiornamento,  Up: Top
 
 Tags/indici analitici
 *********************
@@ -777,22 +793,79 @@ Indice dei programmi
 * xterm:                                 Software consigliati. (line 15)
 * xxxterm:                               Software consigliati. (line 27)
 
+
+File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
+
+Copying
+*******
+
+Autori
+======
+
+Gianluca Zoni (zoninoz): `http://inventati.org/zoninoz'
+
+Copyright
+=========
+
+Copyright (C) 2011
+Gianluca Zoni (zoninoz): `http://inventati.org/zoninoz'
+For information or to collaborate on the project:
+`https://savannah.nongnu.org/projects/zdl'
+
+Licenza di ZigzagDownLoader (ZDL)
+=================================
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published  by the
+Free Software Foundation; either version 3 of the License,  or (at your
+option) any later version.
+
+   This program is distributed in the hope that it will be useful,  but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+along with this program. If not, see
+`http://www.gnu.org/licenses/gpl.html'
+
+
+File: zdl.info,  Node: Contatti,  Prev: Copying,  Up: Top
+
+Contatti
+********
+
+Riporta un bug (o una richiesta di supporto)
+============================================
+
+`https://savannah.nongnu.org/bugs/?func=additem&group=zdl'
+
+Mailing list del progetto
+=========================
+
+_zdl-users - Lista degli utenti_:
+`https://lists.nongnu.org/mailman/listinfo/zdl-users'
+_zdl-devel - Lista di sviluppo_:
+`https://lists.nongnu.org/mailman/listinfo/zdl-devel'
+
 
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL4122
-Node: Servizi streaming/hosting7794
-Node: Avviare ZDL10551
-Node: Arrestare ZDL12785
-Node: Controllare i download13749
-Node: Manuali d'uso18649
-Node: Creare nuove estensioni19084
-Node: Software consigliati20659
-Node: Conkeror21524
-Node: zdl-xterm e XXXTerm/Xombrero22535
-Node: Installazione e aggiornamento24459
-Node: Tags26683
+Node: Il comando ZDL4093
+Node: Servizi streaming/hosting7765
+Node: Avviare ZDL10522
+Node: Arrestare ZDL12756
+Node: Controllare i download13720
+Node: Manuali d'uso18620
+Node: Creare nuove estensioni19055
+Node: Software consigliati20630
+Node: Conkeror21495
+Node: zdl-xterm e XXXTerm/Xombrero22506
+Node: Installazione e aggiornamento24430
+Node: Tags26654
+Node: Copying28740
+Node: Contatti29790
 
 End Tag Table
 
