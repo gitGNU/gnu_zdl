@@ -14,18 +14,15 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program. If not, see http://www.gnu.org/licenses/. 
 # 
-# Copyright (C) 2012
-# Free Software Foundation, Inc.
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
 # 
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (project administrator and first inventor)
+# Gianluca Zoni (author)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
-
-
 
 #### layout
 
@@ -211,3 +208,9 @@ function zclock {
     week=( "dom" "lun" "mar" "mer" "gio" "ven" "sab" )
     echo -n -e "$(date +%R) │ ${week[$( date +%w )]} $(date +%d·%m·%Y)"
 }
+
+function readlw {
+    unset $1
+    eval $1=$(rlwrap -m bash -c 'read input ; echo "$input"')
+}
+

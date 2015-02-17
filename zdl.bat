@@ -11,14 +11,13 @@
 ::
 :: You should have received a copy of the GNU General Public License 
 :: along with this program. If not, see http://www.gnu.org/licenses/. 
-:: 
-:: Copyright (C) 2012
-:: Free Software Foundation, Inc.
+::
+:: Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
 :: 
 :: For information or to collaborate on the project:
 :: https://savannah.nongnu.org/projects/zdl
 :: 
-:: Gianluca Zoni
+:: Gianluca Zoni (author)
 :: http://inventati.org/zoninoz
 :: zoninoz@inventati.org
 

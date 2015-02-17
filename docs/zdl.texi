@@ -24,16 +24,12 @@
  along with this program. If not, see http://www.gnu.org/licenses/. 
  
  Copyright @copyright{} 2011
- Gianluca Zoni @email{zoninoz@@inventati.org}
+ Gianluca Zoni <@email{zoninoz@@inventati.org}>
 
- Copyright @copyright{} 2012
- Gianluca Zoni @email{zoninoz@@inventati.org},
- Free Software Foundation, Inc.
- 
  For information or to collaborate on the project:
  @url{https://savannah.nongnu.org/projects/zdl}
  
- Gianluca Zoni
+ Gianluca Zoni (author)
  @url{http://inventati.org/zoninoz}
  @email{zoninoz@@inventati.org}
 
@@ -932,14 +928,12 @@ Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e s
 @command{xterm}(1), @command{conkeror}(1), @command{axel}(1), @command{wget}(1), @command{curl}(1), @command{rtmpdump}(1), @command{ffmpeg}(1), @command{avconv}(1)
 
 @unnumberedsec COPYING
-Copyright di:
 @itemize @w{}
 @item
-2011 - Gianluca Zoni @email{zoninoz@@inventati.org}
+Copyright @copyright{} 2011: Gianluca Zoni (zoninoz) <@email{zoninoz@@inventati.org}>
 @item
-2012 - Free Software Foundation, Inc. e Gianluca Zoni
+ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e successive). 
 @end itemize
-ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
 @unnumberedsec AUTORI
 @unnumberedsubsec Per informazioni e per collaborare al progetto:

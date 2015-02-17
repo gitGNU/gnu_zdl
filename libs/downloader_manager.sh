@@ -14,17 +14,15 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program. If not, see http://www.gnu.org/licenses/. 
 # 
-# Copyright (C) 2012
-# Free Software Foundation, Inc.
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
 # 
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (project administrator and first inventor)
+# Gianluca Zoni (author)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
-
 
 function check_freespace {
     fsize=0
@@ -370,23 +368,28 @@ function links_loop { 	## usage with op=+|- : links_loop $op $link
 		;;
 	    -)
 		if [ -f "$path_tmp/links_loop.txt" ]; then
-		    for ((i=1; i<=$(wc -l < "$path_tmp/links_loop.txt"); i++)); do
-			lnk=$(sed -n ${i}p < "$path_tmp/links_loop.txt" )
-			[ "$lnk" != "$url_loop" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
-		    done
-		    rm "$path_tmp"/links_loop.txt
-		    [ -f "$path_tmp/links_loop2.txt" ] && mv "$path_tmp"/links_loop2.txt "$path_tmp"/links_loop.txt
+		    # for ((i=1; i<=$(wc -l < "$path_tmp/links_loop.txt"); i++)); do
+		    # 	lnk=$(sed -n ${i}p < "$path_tmp/links_loop.txt" )
+		    # 	[ "$lnk" != "$url_loop" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
+		    # done
+		    # rm "$path_tmp"/links_loop.txt
+		    # [ -f "$path_tmp/links_loop2.txt" ] && mv "$path_tmp"/links_loop2.txt "$path_tmp"/links_loop.txt
+		    sed -e "s|^$url_loop$||g" \
+			-e '/^$/d' -i "$path_tmp"/links_loop.txt
+		    if (( $(wc -l < "$path_tmp"/links_loop.txt) == 0 )); then
+			rm "$path_tmp"/links_loop.txt
+		    fi
 		fi
 		rm -f "$path_tmp/rewriting"
 		;;
 	    in) 
 		if [ -f "$path_tmp"/links_loop.txt ]; then
-		    for ((i=1; i<=$(wc -l < "$path_tmp"/links_loop.txt); i++)); do
-			url_test=$(sed -n ${i}p < "$path_tmp"/links_loop.txt)
-			if [ ! -z "${url_test}" ] && [ "${url_loop}" == "${url_test}" ]; then 
+		    # for ((i=1; i<=$(wc -l < "$path_tmp"/links_loop.txt); i++)); do
+		    # 	url_test=$(sed -n ${i}p < "$path_tmp"/links_loop.txt)
+			if [[ $(grep "^${url_loop}$" "$path_tmp"/links_loop.txt) ]]; then 
 			    return 1
 			fi
-		    done
+#		    done
 		fi
 		return 5
 		;;
@@ -419,20 +422,20 @@ function init_links_loop {
 function link_parser {
     local _domain userpass ext item param
     param="$1"
+
     # extract the protocol
-    parser_proto=$(echo "$param" | grep '://' | sed -e's,^\(.*://\).*,\1,g' 2>/dev/null)
+    parser_proto=$(echo "$param" | grep '://' | sed -r 's,^([^:\/]+\:\/\/).+,\1,g' 2>/dev/null)
 
     # remove the protocol
-    parser_url=$(echo "$param" | sed -e s,$parser_proto,,g 2>/dev/null)
+    parser_url="${param#$parser_proto}"
 
     # extract domain
     _domain="${parser_url#*'@'}"
     _domain="${_domain%%\/*}"
     [ "${_domain}" != "${_domain#*:}" ] && parser_port="${_domain#*:}"
-    parser_domain="${_domain%:*}"
+    _domain="${_domain%:*}"
 
     if [ ! -z "${_domain//[0-9.]}" ]; then
-	ext="${_domain%'.'*}"
 	[ "${_domain}" != "${_domain%'.'*}" ] && parser_domain="${_domain}"
     else 
 	parser_ip="${_domain}"

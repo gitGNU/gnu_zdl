@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program. If not, see http://www.gnu.org/licenses/. 
 # 
-# Copyright (C) 2011: Gianluca Zoni <zoninoz@inventati.org>
-# Copyright (C) 2012: Free Software Foundation, Inc. and Gianluca Zoni
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
 # 
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
@@ -568,7 +567,7 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
 	print_c 3 "Le funzioni interattive non sono disponibili in questa istanza del programma, perché lo standard input è una PIPE. Puoi avviare l'interfaccia interattiva in questa stessa directory da un altro terminale\n"
     fi
     read -d @ links
-    
+
     if [ -f "$path_tmp/rewriting" ];then
 	while [ -f "$path_tmp/rewriting" ]; do
 	    sleeping 0.1
@@ -813,6 +812,7 @@ while true; do
 		unset post_data goal not_available exceeded 
 	    fi
 	done
+	[[ -z $(wget -O- -q "$url_in") ]] && sleeping 3
 	pipe_files
 	if [ -f "$path_tmp/links_loop.txt" ]; then
 	    file="$path_tmp/links_loop.txt"

@@ -14,13 +14,12 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program. If not, see http://www.gnu.org/licenses/. 
 # 
-# Copyright (C) 2012
-# Free Software Foundation, Inc.
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
 # 
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (project administrator and first inventor)
+# Gianluca Zoni (author)
 # http://inventati.org/zoninoz
 # zoninoz@inventati.org
 #
@@ -48,10 +47,20 @@ function decodejs_zinwa {
 if [ "$url_in" != "${url_in//'zinwa.'}" ]; then
     print_c 2 "Attendi...\n"
     html=$(wget -q "$url_in" -O-)
-    args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
-    code=$(decodejs_zinwa "${args%,*}" "${args##*,}")
-    playpath=$(sed -r "s|.+file: \"([^\"]+)\".+|\1|g" <<< "$code")
-    streamer=$(sed -r 's|.+streamer: \"([^"]+)\".+|\1|' <<< "$code")
-    file_in=$(grep '<title>' <<< "$html" |sed -r 's|.+>([^<>]+)<.+|\1|g').$(sed -r 's|.+\.([^.]+)\?.*$|\1|g' <<< "$playpath")
+    if [[ $(grep 'Premium users only' <<< "$html") ]]; then
+	_log 11
+	break_loop=true
+    else
+	args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
+	if [[ "$args" ]]; then
+	    code=$(decodejs_zinwa "${args%,*}" "${args##*,}")
+	    playpath=$(sed -r "s|.+file: \"([^\"]+)\".+|\1|g" <<< "$code")
+	    streamer=$(sed -r 's|.+streamer: \"([^"]+)\".+|\1|' <<< "$code")
+	    file_in=$(grep '<title>' <<< "$html" |sed -r 's|.+>([^<>]+)<.+|\1|g').$(sed -r 's|.+\.([^.]+)\?.*$|\1|g' <<< "$playpath")
+	else
+	    _log 2
+	    break_loop=true
+	fi
+    fi
 fi
 
