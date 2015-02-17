@@ -189,15 +189,25 @@
 @c @end man
 
 @unnumbered Perché questo programma
-L'esecuzione di downloader come Wget e Axel può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o possono coincidere con altri di file già salvati, ecc. 
-In primo luogo, ZigzagDownLoader serve ad automatizzare la gestione dei download e a semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto, per il download di grossi file. 
+ZigzagDownLoader esiste perché serve un gestore di download, indefinitamente estensibile e robusto, che sia pienamente controllabile da terminale.
+È nato come script specifico per la Bash e si è trasformato in un gestore per downloader che ne avevavo bisogno (in particolare, Wget e Axel), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni.
+Nonostante i suoi limiti strutturali, il linguaggio della Bash si è rivelato molto adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Ad ogni modo, al fine di migliorarne l'efficienza e di potenziarlo, è in cantiere la riprogettazione e la riscrittura del software in linguaggio Perl.
 
-In secondo luogo, la gestione automatica è estesa a servizi di file hosting e video streaming: ZDL si sostituisce all'utente nelle operazioni inutili e noiose, riducendole all'unico atto di avvio del programma.
+@unnumberedsubsec Almeno quattro direttrici di sviluppo
+L'esecuzione di downloader come Wget e Axel può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o coincidere con altri di file già salvati, ecc. 
+@emph{In primo luogo}, ZigzagDownLoader serve ad automatizzare la gestione dei download e a semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto, per il download di grossi file. 
 
-Un terzo obiettivo del progetto ZDL consiste nel fornire nuove articolazioni e modalità d'uso, allo scopo di costruire interazioni fra programmi e di rendere possibile un'automazione potenzialmente illimitata. 
+@emph{In secondo luogo}, la gestione automatica è estesa a servizi di file hosting e video streaming: ZDL si sostituisce all'utente nelle operazioni inutili e noiose, riducendole all'unico atto di avvio del programma.
+
+@emph{Un terzo obiettivo} del progetto ZDL consiste nel fornire nuove articolazioni e modalità d'uso, allo scopo di costruire interazioni fra programmi e di rendere possibile un'automazione potenzialmente illimitata. 
 La gestione dei download può essere controllata da terminali distinti in modalità diverse. Per esempio, ZDL può essere avviato in modalità @emph{demone} e controllato in modalità @emph{interattiva}. Anche l'invocazione @emph{standard} del programma offre diversi modi di interazione. ZDL, inoltre, può essere integrato e collegato con altri programmi. 
 
-Infine, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash ne rende possibile l'esecuzione su hardware di limitate capacità e su sistemi operativi differenti.
+@emph{Infine}, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash ne rende possibile l'esecuzione su hardware di limitate capacità e su sistemi operativi differenti.
+
+@unnumbered Software Libero
+ZDL è software libero, rilasciato con licenza GPL (General Public License): @url{http://www.gnu.org/licenses/gpl.html}
+
+@xref{Copying}.
 
 @ifinfo
 @menu

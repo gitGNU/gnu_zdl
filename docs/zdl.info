@@ -44,20 +44,35 @@ l'estensione _Flashgot_) e _Microsoft Windows_ (tramite _Cygwin_).
 Perché questo programma
 ************************
 
+ZigzagDownLoader esiste perché serve un gestore di download,
+indefinitamente estensibile e robusto, che sia pienamente controllabile
+da terminale.  È nato come script specifico per la Bash e si è
+trasformato in un gestore per downloader che ne avevavo bisogno (in
+particolare, Wget e Axel), estendendosi a servizi di video streaming e
+file hosting e integrandosi con altre applicazioni.  Nonostante i suoi
+limiti strutturali, il linguaggio della Bash si è rivelato molto adatto
+allo scopo, soprattutto per la flessibilità d'uso nella gestione dei
+processi di altri programmi. Ad ogni modo, al fine di migliorarne
+l'efficienza e di potenziarlo, è in cantiere la riprogettazione e la
+riscrittura del software in linguaggio Perl.
+
+Almeno quattro direttrici di sviluppo
+-------------------------------------
+
 L'esecuzione di downloader come Wget e Axel può richiedere assistenza:
 la connessione può interrompersi, l'indirizzo IP cambiare, i download
 incepparsi, i nomi dei file scaricati possono non essere intelligibili
-o possono coincidere con altri di file già salvati, ecc.  In primo
-luogo, ZigzagDownLoader serve ad automatizzare la gestione dei download
-e a semplificarne eventuali recuperi manuali. ZDL è pensato,
-soprattutto, per il download di grossi file.
+o coincidere con altri di file già salvati, ecc.  _In primo luogo_,
+ZigzagDownLoader serve ad automatizzare la gestione dei download e a
+semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto,
+per il download di grossi file.
 
-   In secondo luogo, la gestione automatica è estesa a servizi di file
-hosting e video streaming: ZDL si sostituisce all'utente nelle
+   _In secondo luogo_, la gestione automatica è estesa a servizi di
+file hosting e video streaming: ZDL si sostituisce all'utente nelle
 operazioni inutili e noiose, riducendole all'unico atto di avvio del
 programma.
 
-   Un terzo obiettivo del progetto ZDL consiste nel fornire nuove
+   _Un terzo obiettivo_ del progetto ZDL consiste nel fornire nuove
 articolazioni e modalità d'uso, allo scopo di costruire interazioni fra
 programmi e di rendere possibile un'automazione potenzialmente
 illimitata.  La gestione dei download può essere controllata da
@@ -67,10 +82,18 @@ Anche l'invocazione _standard_ del programma offre diversi modi di
 interazione. ZDL, inoltre, può essere integrato e collegato con altri
 programmi.
 
-   Infine, una peculiarità del progetto ZDL consiste nella ricerca di
+   _Infine_, una peculiarità del progetto ZDL consiste nella ricerca di
 efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash
 ne rende possibile l'esecuzione su hardware di limitate capacità e su
 sistemi operativi differenti.
+
+Software Libero
+***************
+
+ZDL è software libero, rilasciato con licenza GPL (General Public
+License): `http://www.gnu.org/licenses/gpl.html'
+
+   *Note Copying::.
 
 * Menu:
 
@@ -852,20 +875,20 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL4093
-Node: Servizi streaming/hosting7765
-Node: Avviare ZDL10522
-Node: Arrestare ZDL12756
-Node: Controllare i download13720
-Node: Manuali d'uso18620
-Node: Creare nuove estensioni19055
-Node: Software consigliati20630
-Node: Conkeror21495
-Node: zdl-xterm e XXXTerm/Xombrero22506
-Node: Installazione e aggiornamento24430
-Node: Tags26654
-Node: Copying28740
-Node: Contatti29790
+Node: Il comando ZDL5075
+Node: Servizi streaming/hosting8747
+Node: Avviare ZDL11504
+Node: Arrestare ZDL13738
+Node: Controllare i download14702
+Node: Manuali d'uso19602
+Node: Creare nuove estensioni20037
+Node: Software consigliati21612
+Node: Conkeror22477
+Node: zdl-xterm e XXXTerm/Xombrero23488
+Node: Installazione e aggiornamento25412
+Node: Tags27636
+Node: Copying29722
+Node: Contatti30772
 
 End Tag Table
 
