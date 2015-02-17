@@ -16,15 +16,12 @@ General Public License for more details.
    You should have received a copy of the GNU General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 
-   Copyright (C) 2011  Gianluca Zoni <zoninoz@inventati.org>
-
-   Copyright (C) 2012  Gianluca Zoni <zoninoz@inventati.org>,  Free
-Software Foundation, Inc.
+   Copyright (C) 2011  Gianluca Zoni <<zoninoz@inventati.org>>
 
    For information or to collaborate on the project:
 `https://savannah.nongnu.org/projects/zdl'
 
-   Gianluca Zoni  `http://inventati.org/zoninoz'
+   Gianluca Zoni (author)  `http://inventati.org/zoninoz'
 <zoninoz@inventati.org>
 
 INFO-DIR-SECTION Network Applications
@@ -783,19 +780,19 @@ Indice dei programmi
 
 
 Tag Table:
-Node: Top1269
-Node: Il comando ZDL4206
-Node: Servizi streaming/hosting7878
-Node: Avviare ZDL10635
-Node: Arrestare ZDL12869
-Node: Controllare i download13833
-Node: Manuali d'uso18733
-Node: Creare nuove estensioni19168
-Node: Software consigliati20743
-Node: Conkeror21608
-Node: zdl-xterm e XXXTerm/Xombrero22619
-Node: Installazione e aggiornamento24543
-Node: Tags26767
+Node: Top1185
+Node: Il comando ZDL4122
+Node: Servizi streaming/hosting7794
+Node: Avviare ZDL10551
+Node: Arrestare ZDL12785
+Node: Controllare i download13749
+Node: Manuali d'uso18649
+Node: Creare nuove estensioni19084
+Node: Software consigliati20659
+Node: Conkeror21524
+Node: zdl-xterm e XXXTerm/Xombrero22535
+Node: Installazione e aggiornamento24459
+Node: Tags26683
 
 End Tag Table
 
