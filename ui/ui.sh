@@ -368,14 +368,14 @@ function sleeping {
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
 	read -e -t $timer -n 1 action 2>/dev/null
 	[ ! -z "${action//[0-9]}" ] && echo -n -e "\r \r"
-	case $action in
-	    q) exit ;;
-	    i) zdl -i
-		header_z
-		print_c 1 "\nModalità interattiva terminata: di seguito l'output di gestione dei download\n"
-		header_box "Modalità non interattiva/standard"
-		;;
-	esac
+	# case $action in
+	#     q) exit ;;
+	#     i) zdl -i
+	# 	header_z
+	# 	print_c 1 "\nModalità interattiva terminata: di seguito l'output di gestione dei download\n"
+	# 	header_box "Modalità non interattiva/standard"
+	# 	;;
+	# esac
     else
 	/bin/sleep $timer
     fi
