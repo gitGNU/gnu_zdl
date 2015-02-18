@@ -48,8 +48,10 @@ ${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
                                (se omessa, è quella corrente)
   
 
-$(header_box Opzioni)
-${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off} '-ufmd' equivale a '-u -f -m -d'
+${BWhite}Opzioni${Color_Off}
+${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off}
+  '-ufmd' equivale a '-u -f -m -d'
+
 
   -h,  --help                  Help di ZigzagDownLoader (ZDL)
 
@@ -98,6 +100,17 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                uno script/comando/programma (configurare ${PROG})
                          
 
+${BBlue}Editor per i link (può essere usato in qualunque momento con Control-e):${Color_Off}
+  sostituisce l'interfaccia iniziale per l'immissione dei link
+
+  -e,  --editor                Editor predefinito (si può configurare con 'zdl -c')
+
+       --vi, --vim             Vi e Vim
+       --nano                  Nano
+       --mcedit                Midnight Commander Editor
+       --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
+
+
 ${BBlue}Avvio con proxy:${Color_Off}
        --proxy		       Avvia ZDL attivando un proxy
 		               automaticamente (il tipo di proxy
@@ -109,7 +122,7 @@ ${BBlue}Avvio con proxy:${Color_Off}
 			    	 a = Anonymous
 			    	 e = Elite
 			
-	--proxy=IP:PORTA       Avvia ZDL attivando il proxy indicato
+       --proxy=IP:PORTA        Avvia ZDL attivando il proxy indicato
 		               all'utente, per l'intera durata del
 		               download (il proxy viene sostituito
 			       automaticamente solo per i link dei
@@ -128,7 +141,7 @@ il modello generico dei parametri per le componenti aggiuntive (rispettare l'ord
        --stream [PARAMETRI] [--noXterm]
 
 
-$(header_box Servizi)
+${BWhite}Servizi${Color_Off}
 ${BBlue}Video in streaming saltando il player del browser:${Color_Off}
 $(zdl-ext-sorted streaming)
 
@@ -139,12 +152,13 @@ ${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_
 Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
 
 
-$(header_box 'Documentazione')
+${BWhite}Documentazione${Color_Off}
   - ipertesto in formato info, consultabile con: ${BWhite}info zdl${Color_Off}
   - ipertesto in formato html: ${BWhite}http://nongnu.org/zdl${Color_Off}
   - pagina di manuale in stile Unix: ${BWhite}man zdl${Color_Off}
 
-$(header_box 'Altre info')
+
+${BWhite}Altre info${Color_Off}
 ${BBlue}Licenza:${Color_Off}
   ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 

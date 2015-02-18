@@ -254,6 +254,10 @@ function data_alive {
     fi
 }
 
+function kill_downloads {
+    data_alive
+    [ ! -z "${pid_alive[*]}" ] && kill ${pid_alive[*]} 2>/dev/null
+}
 
 function check_download {
     data_stdout

@@ -37,6 +37,7 @@ key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Li
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
 key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
+key_conf[10]=editor;          val_conf[10]="";                string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
 
 declare -A list_proxy_url
 
@@ -83,6 +84,7 @@ function set_default_conf {
     add_conf "${key_conf[7]}=${val_conf[7]}" #"reconnect="
     add_conf "${key_conf[8]}=${val_conf[8]}" #"autoupdate=enabled"
     add_conf "${key_conf[9]}=${val_conf[9]}" # player
+    add_conf "${key_conf[10]}=${val_conf[10]}" # editor
 }
 
 function get_item_conf {
@@ -103,8 +105,8 @@ function get_item_conf {
 
 function set_item_conf {
     if [ -f  "$file_conf" ]; then
-	item=$1
-	value=$2
+	item="$1"
+	value="\"$2\""
 	lines=`cat "$file_conf" |wc -l`
 	for line in `seq 1 $lines`; do
 	    text=`cat "$file_conf" | sed -n "${line}p"`
@@ -277,6 +279,14 @@ function configure_accounts {
     done
 }
 
+function check_editor {
+    [ ! -z "$EDITOR" ] && editor="$EDITOR" && return
+    [[ ! -z $(ls -L /usr/bin/editor 2>/dev/null) ]] && editor=/usr/bin/editor && return
+    for cmd in nano "emacs -nw" nano mcedit vim vi; do
+	[[ ! -z $(command -v $cmd) ]] && editor=$cmd && return
+    done
+}
+
 function init {
     prog=`basename $0`
     name_prog="ZigzagDownLoader"
@@ -360,4 +370,9 @@ function init {
     if [ -f "$file_log" ]; then
 	log=1
     fi
+    [ -z "$editor" ] && check_editor
+    bind -x "\"\ee\":\"$editor $path_tmp/links_loop.txt\"" 2>/dev/null
+    bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
+    bind -x "\"\ek\":\"kill_downloads; kill -9 $pid_prog\"" 2>/dev/null
+    bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
 }

@@ -56,38 +56,11 @@ function check_instance_prog {
 }
 
 
-function clean_file {
-    unset items
-    if [ -f "$path_tmp/rewriting" ];then
-	while [ -f "$path_tmp/rewriting" ]; do
-	    sleeping 0.1
-	done
-    fi
-    touch "$path_tmp/rewriting"
-    if [ ! -z "$1" ] && [ -f "$1" ]; then
-	file_to_ck="$1"
-	for ((i=1; i<=$(cat "$file_to_ck" |wc -l); i++)); do
-	    it=$(sed -n "${i}p" < "$file_to_ck")
-	    if [ "${items[*]}" == "${items[*]//$it}" ]; then
-		items[${#items[*]}]="$it"
-	    fi
-	done
-	
-	rm "$file_to_ck"
-	for ((i=0; i<${#items[*]}; i++)); do
-	    [ ! -z "${items[$i]}" ] && echo "${items[$i]}" >> "$file_to_ck"
-	done
-    fi
-    rm -f "$path_tmp/rewriting"
-    unset items
-}
-
 
 function check_lock {
     test_lock=`ls "$path_tmp"/${prog}_lock_* 2>/dev/null`
     echo "lockfile=$lock_file"
     read -p "test=$test_lock"
-    
     
     if [ ! -z "$test_lock" ]; then
 	pid="${test_lock#*_lock_}"
@@ -168,4 +141,63 @@ function zdl-ext-sorted {
     extensions=${extensions%\\n}
 
     echo $(sed -r 's|$|, |g' <<< "$(echo -e "${extensions}" |sort)") |sed -r 's|(.+)\,$|\1|g'
+}
+
+function line_file { 	## usage with op=+|- : links_loop $op $link
+    op="$1"                    ## operator
+    item="$2"                  ## line
+    file_target="$3"           ## file target
+    rewriting="$3-rewriting"   ## to linearize parallel rewriting file target
+    if [ "$op" != "in" ]; then
+	if [ -f "$rewriting" ];then
+	    while [ -f "$rewriting" ]; do
+		sleeping 0.1
+	    done
+	fi
+	touch "$rewriting"
+    fi
+
+    if [ ! -z "$item" ]; then
+	case $op in
+	    +)
+		run_in_dir "in" "$item"
+		if [ "$?" != 1 ]; then
+		    echo "$item" >> "$file_target"
+		fi
+		rm -f "$rewriting"
+		;;
+	    -)
+		if [ -f "$file_target" ]; then
+		    sed -e "s|^$item$||g" \
+			-e '/^$/d' -i "$file_target"
+
+		    if (( $(wc -l < "$file_target") == 0 )); then
+			rm "$file_target"
+		    fi
+		fi
+		rm -f "$rewriting"
+		;;
+	    in) 
+		if [ -f "$file_target" ]; then
+		    if [[ $(grep "^${item}$" "$file_target") ]]; then 
+			return 1
+		    fi
+		fi
+		return 5
+		;;
+	esac
+    fi
+}
+
+function run_in_dir {
+    line_file "$1" "$2" "/tmp/.stdrun.zdl"
+}
+
+function pidprog_in_dir { ## $1 = testing directory
+    if [ -f /tmp/.stdrun.zdl ]; then
+	grep "$1" /tmp/.stdrun.zdl | awk '{print $1}' | while read line; do
+	    check_pid $line
+	    [ $? == 1 ] && echo $line
+	done
+    fi
 }

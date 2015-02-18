@@ -111,8 +111,8 @@ function download {
 	    else
 		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
-	     
 	else
+
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
 	pid_in=$!
@@ -338,65 +338,41 @@ function check_instance_dl {
 }
 
 
-
-
-function links_loop { 	## usage with op=+|- : links_loop $op $link
-    op="$1"             ## operator
-    url_loop="$2"       ## url
-    if [ "$op" != "in" ]; then
-	if [ -f "$path_tmp/rewriting" ];then
-	    while [ -f "$path_tmp/rewriting" ]; do
-		sleeping 0.1
-	    done
-	fi
-	touch "$path_tmp/rewriting"
+function clean_file {
+    unset items
+    if [ -f "$path_tmp/rewriting" ];then
+	while [ -f "$path_tmp/rewriting" ]; do
+	    sleeping 0.1
+	done
     fi
-
-    if [ ! -z "$url_loop" ]; then
-	case $op in
-	    +)
-		link_parser "$url_loop"
-		if [ "$?" == 1 ]; then
-		    links_loop "in" "$url_loop"
-		    if [ "$?" != 1 ]; then
-			echo "$url_loop" >> "$path_tmp"/links_loop.txt
-			rm -f "$path_tmp/rewriting"
-		    fi
-		else
-		    _log 12
-		fi
-		;;
-	    -)
-		if [ -f "$path_tmp/links_loop.txt" ]; then
-		    # for ((i=1; i<=$(wc -l < "$path_tmp/links_loop.txt"); i++)); do
-		    # 	lnk=$(sed -n ${i}p < "$path_tmp/links_loop.txt" )
-		    # 	[ "$lnk" != "$url_loop" ] && echo "$lnk" >> "$path_tmp"/links_loop2.txt
-		    # done
-		    # rm "$path_tmp"/links_loop.txt
-		    # [ -f "$path_tmp/links_loop2.txt" ] && mv "$path_tmp"/links_loop2.txt "$path_tmp"/links_loop.txt
-		    sed -e "s|^$url_loop$||g" \
-			-e '/^$/d' -i "$path_tmp"/links_loop.txt
-		    if (( $(wc -l < "$path_tmp"/links_loop.txt) == 0 )); then
-			rm "$path_tmp"/links_loop.txt
-		    fi
-		fi
-		rm -f "$path_tmp/rewriting"
-		;;
-	    in) 
-		if [ -f "$path_tmp"/links_loop.txt ]; then
-		    # for ((i=1; i<=$(wc -l < "$path_tmp"/links_loop.txt); i++)); do
-		    # 	url_test=$(sed -n ${i}p < "$path_tmp"/links_loop.txt)
-			if [[ $(grep "^${url_loop}$" "$path_tmp"/links_loop.txt) ]]; then 
-			    return 1
-			fi
-#		    done
-		fi
-		return 5
-		;;
-	esac
+    touch "$path_tmp/rewriting"
+    if [ ! -z "$1" ] && [ -f "$1" ]; then
+	file_to_ck="$1"
+	for ((i=1; i<=$(wc -l < "$file_to_ck"); i++)); do
+	    it=$(sed -n "${i}p" < "$file_to_ck")
+	    if [ "${items[*]}" == "${items[*]//$it}" ]; then
+		items[${#items[*]}]="$it"
+	    fi
+	done
+	
+	rm "$file_to_ck"
+	for ((i=0; i<${#items[*]}; i++)); do
+	    [ ! -z "${items[$i]}" ] && echo "${items[$i]}" >> "$file_to_ck"
+	done
     fi
+    rm -f "$path_tmp/rewriting"
+    unset items
 }
 
+
+function links_loop {
+    link_parser "$2"
+    if [ "$?" == 1 ]; then
+	line_file "$1" "$2" "$path_tmp/links_loop.txt"
+    else
+	_log 12 "$2"
+    fi
+}
 
 function init_links_loop {
     if [ -f "$file" ]; then

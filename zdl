@@ -105,6 +105,20 @@ fi
 #### MAIN
 init
 
+for i in $(seq 0 $max_args); do
+    if [[ "${args[*]}" =~ ^\-\-(nano|mcedit|vi|vim|emacs|emacs-nw)$ ]]; then
+	[[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
+	unset args[$i]
+	from_editor=true
+    fi
+done
+
+for i in $(seq 0 $max_args); do
+    if [[ "${args[*]}" =~ ^(--editor|-e)$ ]]; then
+	unset args[$i]
+	from_editor=true
+    fi
+done
 
 if [ "${args[*]}" != "${args[*]//--silent}" ]; then
     for i in `seq 0 $max_args`; do
@@ -533,11 +547,11 @@ if [ ! -z "${args[*]}" ]; then
 	fi
     done
     if [ -f "$path_tmp"/links_loop.txt ];then 
-	file="$path_tmp/links_loop.txt"
-	clean_file "$path_tmp"/links_loop.txt
+	start_file="$path_tmp/links_loop.txt"
+	clean_file "$start_file"
 	echo >> links.txt 2>/dev/null
 	date >> links.txt 2>/dev/null
-	cat "$path_tmp"/links_loop.txt >> links.txt 2>/dev/null
+	cat "$start_file" >> links.txt 2>/dev/null
 	print_c 1 "L'elenco completo dei link è in links.txt"
     fi
 fi
@@ -545,52 +559,40 @@ fi
 echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
 
-if [ -z "$file" ] && [ "$daemon" != "true" ]; then
+if [ -z "$start_file" ] && [ "$daemon" != "true" ]; then
+    start_file="$path_tmp/links_loop.txt"
     check_instance_prog
     if [ "$?" != "1" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
-    if [ -z "$pipe" ]; then
-	header_box "Links"
-	header_dl "Servizi"
-
-	echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(zdl-ext-sorted streaming)\n\n${BBlue}File hosting:${Color_Off}\n$(zdl-ext-sorted download) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
-	header_dl "Comandi"
-	echo -e "<${BGreen} @ ${Color_Off}>\t\tavvia nuovi download (prima incolla qua sotto i link, andando a capo dopo ciascuno)"
-	echo -e "<${BGreen} @ ${Color_Off}>\t\trecupera i download lasciati in sospeso"
-	echo -e "\n<${BYellow} i ${Color_Off}>\t\tmodalità interattiva (attivo dopo ${BGreen}@${Color_Off})"
-	echo -e "<${BRed} q ${Color_Off}>\t\tuscita da ZDL (attivo dopo ${BGreen}@${Color_Off})"
-	echo -e "<${BRed} Ctrl+c ${Color_Off}>\ttermina ZDL e i download di Axel (attivo anche ora)"
-	separator-
-	echo
-    else
-	print_c 3 "Le funzioni interattive non sono disponibili in questa istanza del programma, perché lo standard input è una PIPE. Puoi avviare l'interfaccia interattiva in questa stessa directory da un altro terminale\n"
-    fi
-    read -d @ links
-
-    if [ -f "$path_tmp/rewriting" ];then
-	while [ -f "$path_tmp/rewriting" ]; do
-	    sleeping 0.1
-	done
-    fi
-    touch "$path_tmp/rewriting"
-    echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
-    file="$path_tmp/links_loop.txt"
-    if [ -f "$file" ];then
-	rm -f "$path_tmp/rewriting"
-	clean_file "$file"
-	if [ -f "$path_tmp/rewriting" ];then
-	    while [ -f "$path_tmp/rewriting" ]; do
-		sleeping 0.1
-	    done
-	fi
-	touch "$path_tmp/rewriting"
-	if [ -f "$file" ];then
-	    cat $file >> links.txt
-	    rm -f "$path_tmp/rewriting"
+    if [ -z "$from_editor" ]; then
+	if [ -z "$pipe" ]; then
+	    links_box
 	else
-	    rm -f "$path_tmp/rewriting"
-	    
+	    print_c 3 "Le funzioni interattive non sono disponibili in questa istanza del programma, perché lo standard input è una PIPE. Puoi avviare l'interfaccia interattiva in questa stessa directory da un altro terminale\n"
+	fi
+
+	bind -x "\"\C-l\":\"\"" 2>/dev/null
+	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
+	while true; do
+	    case $binding in
+		1) unset binding; break ;;
+	    esac
+	    read -e links[${#links[*]}]
+	done
+    
+	for ((i=0; i<${#links[*]}; i++)); do
+	    [ ! -z "${links[$i]// }" ] && links_loop + "${links[$i]// /%20}"
+	done
+    else
+	$editor "$start_file"
+    fi
+
+    if [ -f "$start_file" ];then
+	clean_file "$start_file"
+	if [ -f "$start_file" ];then
+	    cat "$start_file" >> links.txt
+	else
 	    if [ "$daemon" != "true" ]; then
 		print_c 3 "$name_prog: nessun link da processare in $PWD"
 		rm -r "$path_tmp"
@@ -603,22 +605,6 @@ if [ -z "$file" ] && [ "$daemon" != "true" ]; then
     fi
 fi
 
-##converti UL.TO in UPLOADED.TO/FILE --> FROZEN
-# if [ -f $file ]; then
-# 	lnks=`cat $file`
-# 	rm $file
-# 	
-# 	echo -e "${lnks// /\n}" | while read line ; do 
-# 		if [ "$line" != "${line//http:\/\/ul.to/}" ]; then
-# 			line=${line//ul.to/uploaded.to/file}
-# 			
-# 			
-# 		fi
-# 		echo $line >> $file
-# 	done
-# 	init_links_loop
-# fi
-##
 
 check_instance_prog
 if [ "$?" == "1" ]; then
@@ -635,11 +621,12 @@ rm -f "$path_tmp/lock.zdl"
 
 
 while true; do
-    if [ "$daemon" == "true" ] && [ ! -f "$file" ]; then
-	file="$path_tmp/links_loop.txt"
+    if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]; then
+	start_file="$path_tmp/links_loop.txt"
 	sleeping 5
-    elif [ -f "$file" ]; then
-	links_in=`cat $file`
+    elif [ -f "$start_file" ]; then
+	links_in=$(cat "$start_file")
+##	run_in_dir + "$pid_prog $PWD" ## con pidprog_in_dir, funzione alternativa a check_instance_prog + $path_tmp/pid.zdl
 	for url_in in $links_in; do
 	    link_parser "${url_in}"
 	    if [ "$?" != 1 ]; then
@@ -812,10 +799,12 @@ while true; do
 		unset post_data goal not_available exceeded 
 	    fi
 	done
-	[[ -z $(wget -O- -q "$url_in") ]] && sleeping 3
+	print_c 4 "Riavvio la lista dei link in coda..."
+	sleeping 3
+	clean_file "$path_tmp"/links_loop.txt
 	pipe_files
 	if [ -f "$path_tmp/links_loop.txt" ]; then
-	    file="$path_tmp/links_loop.txt"
+	    start_file="$path_tmp/links_loop.txt"
 	fi
 	check_stdout
 	[ -z "$no_msg" ] && show_downloads
@@ -832,8 +821,7 @@ while true; do
 	unset no_msg
 	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && [ "$daemon" != "true" ] && break
     else 
-	usage
-	exit
+	break
     fi
 done
 rm -f "$path_tmp/lock.zdl"
