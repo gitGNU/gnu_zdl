@@ -100,7 +100,7 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                uno script/comando/programma (configurare ${PROG})
                          
 
-${BBlue}Editor per i link (può essere usato in qualunque momento con Control-e):${Color_Off}
+${BBlue}Editor per i link (può essere usato in qualunque momento con Meta-e):${Color_Off}
   sostituisce l'interfaccia iniziale per l'immissione dei link
 
   -e,  --editor                Editor predefinito (si può configurare con 'zdl -c')
