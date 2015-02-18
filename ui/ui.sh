@@ -179,6 +179,9 @@ function interactive {
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
 		    print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
 		    read input2
+		    for ((i=0; i<${#inputs[*]}; i++)); do
+			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
+		    done
 		    if [ "$input2" == "r" ]; then
 			for i in ${inputs[*]}; do
 			    kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )

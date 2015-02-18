@@ -121,6 +121,7 @@ function _log {
 	12)
 	    init_log
 	    print_c 3  "$url_in --> Non è un URL adatto per $name_prog" | tee -a $file_log
+
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
 		no_msg=true
 		unset from_loop	

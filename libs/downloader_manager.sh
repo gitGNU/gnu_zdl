@@ -367,10 +367,11 @@ function clean_file {
 
 function links_loop {
     link_parser "$2"
-    if [ "$?" == 1 ]; then
-	line_file "$1" "$2" "$path_tmp/links_loop.txt"
-    else
+    if [ "$?" != 1 ] && [ "$1" == "+" ]; then
 	_log 12 "$2"
+	links_loop - "$2"
+    else
+	line_file "$1" "$2" "$path_tmp/links_loop.txt"
     fi
 }
 
