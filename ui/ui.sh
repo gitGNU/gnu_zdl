@@ -45,6 +45,13 @@ function interactive_and_return {
     links_box
 }
 
+function run_editor {
+    $editor $path_tmp/links_loop.txt
+    header_z
+    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+    links_box
+}
+
 function show_downloads_extended {
     header_z
     header_box "Modalità interattiva"

@@ -371,7 +371,7 @@ function init {
 	log=1
     fi
     [ -z "$editor" ] && check_editor
-    bind -x "\"\ee\":\"$editor $path_tmp/links_loop.txt\"" 2>/dev/null
+    bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
     bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
     bind -x "\"\ek\":\"kill_downloads; kill -9 $pid_prog\"" 2>/dev/null
     bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
