@@ -160,7 +160,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
     if [ ! -z "$item" ]; then
 	case $op in
 	    +)
-		run_in_dir "in" "$item"
+		line_file "in" "$item" "$file_target"
 		if [ "$?" != 1 ]; then
 		    echo "$item" >> "$file_target"
 		fi

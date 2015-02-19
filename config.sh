@@ -370,6 +370,8 @@ function init {
     if [ -f "$file_log" ]; then
 	log=1
     fi
+
+    rm -rf "$path_tmp/links_loop.txt-rewriting"
     [ -z "$editor" ] && check_editor
     bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
     bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
