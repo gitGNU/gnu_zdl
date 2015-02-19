@@ -223,9 +223,10 @@ function interactive {
 			    get_conf
 			fi
 			if [ ! -z "$player" ]; then
-			    for i in ${inputs[*]}; do
-				playing_files="$playing_files \"${file_out[$i]}\""
+			    for ii in ${inputs[*]}; do
+				playing_files="$playing_files ${file_out[$ii]// /\\ }"
 			    done
+			    echo "ecco:$player $playing_files"
 			    $player $playing_files &>/dev/null &
 			fi
 		    fi

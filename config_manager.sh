@@ -35,7 +35,7 @@ function configure_key {
 	print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
 	read new_value
 	
-	if [[ "${key_conf[$opt]}" =~ (reconnecter|player) ]] && [[ -z $(command -v "$new_value" 2>/dev/null) ]]; then
+	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] && [[ -z $(command -v ${new_value%% *} 2>/dev/null) ]]; then
 	    print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
 	    pause
 	else
