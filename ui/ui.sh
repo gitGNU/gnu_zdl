@@ -142,12 +142,19 @@ function interactive {
 	unset tty list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
 	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
-	    header_box "Opzioni"
-	    echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)"
-	    echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
-	    echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito"
+	    unset num_dl
+	    [ -f "$path_tmp/.dl-mode" ] && [[ $(cat "$path_tmp/.dl-mode") =~ ^([1-9]+)$ ]] && num_dl="${BASH_REMATCH[1]}"
+	    [ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
+	    [ -z "$num_dl" ] && num_dl=illimitati
+	    header_box "Opzioni [numero download alla volta: $num_dl]"
+	    echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
+
+	    echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
+	    echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta"
+	    echo -e "<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
 	    [ -z "$tty" ] && [ -z "$daemon_pid" ] && echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
-	    echo -e "\n<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
+	    echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
+	    echo -e "<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
 	    [ ! -z "$daemon_pid" ] && echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
 	    echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	    echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
@@ -210,11 +217,16 @@ function interactive {
 			fi
 			if [ ! -z "$player" ]; then
 			    for i in ${inputs[*]}; do
-				$player "${file_out[$i]}" &>/dev/null &
+				playing_files="$playing_files \"${file_out[$i]}\""
 			    done
+			    $player $playing_files &>/dev/null &
 			fi
 		    fi
 		fi
+	    elif [[ "$action" =~ ^([1-9]+)$ ]]; then
+		echo "$action" > "$path_tmp/.dl-mode"
+	    elif [ "$action" == "m" ]; then
+		echo > "$path_tmp/.dl-mode"
 	    elif [ "$action" == "e" ]; then
 		$editor "$path_tmp/links_loop.txt"
 	    elif [ "$action" == "c" ]; then
