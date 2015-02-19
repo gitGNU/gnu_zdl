@@ -811,7 +811,7 @@ while true; do
 		unset post_data goal not_available exceeded 
 	    fi
 	done
-	print_c 4 "Riavvio la lista dei link in coda..."
+	print_c 4 "\nUn altro giro..."
 	sleeping 3
 	clean_file "$path_tmp"/links_loop.txt
 	pipe_files
