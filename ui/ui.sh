@@ -166,7 +166,7 @@ function interactive {
 	    echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	    echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
 	    cursor off
-	    read -n 1 -t 15 action
+	    read -e -n 1 -t 15 action
 	    cursor on
 	    if [ "$action" == "s" ]; then
 		fclear
@@ -175,7 +175,7 @@ function interactive {
 		show_downloads_extended
 		header_box "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
 		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
-		read input
+		read -e input
 		if [ ! -z "$input" ]; then
 		    unset inputs
 		    inputs=( $input )
@@ -192,7 +192,7 @@ function interactive {
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
 		    print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
-		    read input2
+		    read -e input2
 		    for ((i=0; i<${#inputs[*]}; i++)); do
 			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
 		    done
@@ -389,7 +389,7 @@ function make_progress {
 function sleeping {
     timer=$1
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
-	read -e -t $timer -n 1 action 2>/dev/null
+	read -es -t $timer -n 1 action &>/dev/null
 	[ ! -z "${action//[0-9]}" ] && echo -n -e "\r \r"
 	case $action in
 #	    q) exit ;;
