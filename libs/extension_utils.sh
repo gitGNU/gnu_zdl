@@ -181,7 +181,7 @@ function countdown- {
 
 function tags2vars {
     if [[ ! -z $1 ]]; then
-	 eval $(sed -r "s|<([^/<>]+)>([^/<>]+)</([^<>]+)>|\1=\2; |g" <<< "$1")
+	 eval $(sed -r 's|<([^/<>]+)>([^/<>]+)</([^<>]+)>|\1=\2; |g' <<< "$1")
     fi
 }
 

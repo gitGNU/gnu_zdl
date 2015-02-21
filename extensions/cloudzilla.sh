@@ -30,12 +30,19 @@
 
 if [ "$url_in" != "${url_in//'cloudzilla.to/share/file'}" ]; then
     file_in=$(sed -r "s|^.+title=\"([^\"]+)\".+$|\1|" <<< $(wget -O- "$url_in" -q |grep download_hdr))
+    url_in=${url_in%%\/}
     link_parser "$url_in"
-    file_id=${parser_path##*\/}
-    tags2vars $(sed -r "s|<[/]{,1}result>||g" <<< $(wget -q -O - "${parser_proto}$parser_domain/generateticket/" --post-data="file_id=$file_id"))
-    if [[ $status == ok ]]; then
-	countdown+ $wait
-	url_in_file="http://$server/download/$file_id/$ticket_id"
-	countdown+ $wait
+    file_id="${url_in##*\/}"
+    tags=$(sed -r "s|<[/]{,1}result>||g" <<< $(wget -q -O - "${parser_proto}www.${parser_domain#www.}/generateticket/" --post-data="file_id=$file_id"))
+    if [[ ! "$tags" =~ Invalid  ]]; then
+	tags2vars "$tags"
+	if [[ $status == ok ]]; then
+	    countdown+ $wait
+	    url_in_file="http://$server/download/$file_id/$ticket_id"
+	    countdown+ $wait
+	fi
+    else
+	_log 3
+	break_loop=true
     fi
 fi
