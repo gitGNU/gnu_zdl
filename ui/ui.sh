@@ -27,7 +27,7 @@
 function links_box {
     header_box "Links"
     header_dl "Servizi"
-    echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(zdl-ext-sorted streaming)\n\n${BBlue}File hosting:${Color_Off}\n$(zdl-ext-sorted download) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
+    echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
     header_dl "Comandi della modalità standard (M è il tasto Meta, cioè <Alt>)"
     echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]"
     echo -e "<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito"
@@ -56,8 +56,10 @@ function show_downloads_extended {
     header_z
     header_box "Modalità interattiva"
     echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD\n"
-    if [ ! -z "$daemon_pid" ]; then
+    check_instance_daemon
+    if [ $? == 1 ]; then
 	print_c 1 "$PROG è attivo in modalità demone\n"
+	daemon_pid=$test_pid
     else
 ##	if [[ $(pidprog_in_dir "$PWD") ]]; then
 	check_instance_prog
@@ -135,55 +137,46 @@ function human_length { ## input in bytes
 
 function interactive {
     while true ; do
-	silents=$(ps ax |grep "$prog" |grep "$PWD" |grep "silent")
-	for ((i=1; i<=$(wc -l <<< "${silents}" ); i++)); do
-	    silent=$(sed -n ${i}p <<< "$silents" )
-	    if [[ "${silent##*silent }" =~ ^${PWD}$ ]]; then
-		daemon_pid=$(awk '{print $1}' <<< "$silent")
-		break
-	    fi
-	done
 	header_z
 	header_box "Modalità interattiva"
 	echo
 	unset tty list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
-	if [ $? == 1 ] || [ ! -z "$daemon_pid" ]; then
-	    unset num_dl
-	    [ -f "$path_tmp/.dl-mode" ] && [[ $(cat "$path_tmp/.dl-mode") =~ ^([1-9]+)$ ]] && num_dl="${BASH_REMATCH[1]}"
-	    [ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
-	    [ -z "$num_dl" ] && num_dl=illimitati
-	    header_box "Opzioni [numero download alla volta: $num_dl]"
-	    echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
+	unset num_dl
+	[ -f "$path_tmp/.dl-mode" ] && [[ $(cat "$path_tmp/.dl-mode") =~ ^([1-9]+)$ ]] && num_dl="${BASH_REMATCH[1]}"
+	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
+	[ -z "$num_dl" ] && num_dl=illimitati
+	header_box "Opzioni [numero download alla volta: $num_dl]"
+	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
 
-	    echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
-	    echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta"
-	    echo -e "<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
-	    [ -z "$tty" ] && [ -z "$daemon_pid" ] && echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
-	    echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
-	    echo -e "<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
-	    [ ! -z "$daemon_pid" ] && echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
-	    echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
-	    echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
-	    cursor off
-	    read -e -n 1 -t 15 action
-	    cursor on
-	    if [ "$action" == "s" ]; then
-		fclear
-		header_z
+	echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
+	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta"
+	echo -e "<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
+	[ -z "$tty" ] && [ -z "$daemon_pid" ] && echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
+	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
+	echo -e "<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
+	[ ! -z "$daemon_pid" ] && echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
+	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
+	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
+	cursor off
+	read -e -n 1 -t 15 action
+	cursor on
+	if [ "$action" == "s" ]; then
+	    fclear
+	    header_z
+	    echo
+	    show_downloads_extended
+	    header_box "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
+	    print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
+	    read -e input
+	    if [ ! -z "$input" ]; then
+		unset inputs
+		inputs=( $input )
 		echo
-		show_downloads_extended
-		header_box "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
-		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
-		read -e input
-		if [ ! -z "$input" ]; then
-		    unset inputs
-		    inputs=( $input )
-		    echo
-		    header_box "Riavvia o Elimina"
-		    print_c 2 "Cosa vuoi fare con i download selezionati?"
-		    echo
-		    echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
+		header_box "Riavvia o Elimina"
+		print_c 2 "Cosa vuoi fare con i download selezionati?"
+		echo
+		echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
 <${BRed} E ${Color_Off}> ${BRed}e${Color_Off}liminarli definitivamente (e cancellare il file scaricato)
 <${BRed} T ${Color_Off}> ${BRed}t${Color_Off}erminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
 
@@ -191,70 +184,67 @@ function interactive {
 <${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancellare i file temporanei dei download completati
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
-		    print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
-		    read -e input2
-		    for ((i=0; i<${#inputs[*]}; i++)); do
-			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
+		print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
+		read -e input2
+		for ((i=0; i<${#inputs[*]}; i++)); do
+		    [[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
+		done
+		if [ "$input2" == "r" ]; then
+		    for i in ${inputs[*]}; do
+			kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+			if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
+			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
+			fi
 		    done
-		    if [ "$input2" == "r" ]; then
-			for i in ${inputs[*]}; do
-			    kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
-			    if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
-				rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
-			    fi
+		elif [ "$input2" == "E" ]; then
+		    for i in ${inputs[*]}; do
+			kill ${pid_out[$i]} 2>/dev/null
+			rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+			links_loop - "${url_out[$i]}"
+		    done
+		elif [ "$input2" == "T" ]; then
+		    for i in ${inputs[*]}; do
+			kill ${pid_out[$i]} 2>/dev/null
+			rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+			links_loop - "${url_out[$i]}"
+		    done
+		elif [ "$input2" == "c" ]; then
+		    clean_completed
+		elif [ "$input2" == "p" ]; then
+		    if [ -z "$player" ]; then
+			configure_key 10
+			get_conf
+		    fi
+		    if [ ! -z "$player" ]; then
+			for ii in ${inputs[*]}; do
+			    playing_files="$playing_files ${file_out[$ii]// /\\ }"
 			done
-		    elif [ "$input2" == "E" ]; then
-			for i in ${inputs[*]}; do
-			    kill ${pid_out[$i]} 2>/dev/null
-			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-			    links_loop - "${url_out[$i]}"
-			done
-		    elif [ "$input2" == "T" ]; then
-			for i in ${inputs[*]}; do
-			    kill ${pid_out[$i]} 2>/dev/null
-			    rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-			    links_loop - "${url_out[$i]}"
-			done
-		    elif [ "$input2" == "c" ]; then
-			clean_completed
-		    elif [ "$input2" == "p" ]; then
-			if [ -z "$player" ]; then
-			    configure_key 10
-			    get_conf
-			fi
-			if [ ! -z "$player" ]; then
-			    for ii in ${inputs[*]}; do
-				playing_files="$playing_files ${file_out[$ii]// /\\ }"
-			    done
-			    echo "ecco:$player $playing_files"
-			    $player $playing_files &>/dev/null &
-			fi
+			echo "ecco:$player $playing_files"
+			$player $playing_files &>/dev/null &
 		    fi
 		fi
-	    elif [[ "$action" =~ ^([1-9]+)$ ]]; then
-		echo "$action" > "$path_tmp/.dl-mode"
-	    elif [ "$action" == "m" ]; then
-		echo > "$path_tmp/.dl-mode"
-	    elif [ "$action" == "e" ]; then
-		$editor "$path_tmp/links_loop.txt"
-	    elif [ "$action" == "c" ]; then
-		clean_completed
-	    elif [ "$action" == "q" ]; then
-		fclear
-		break
-	    elif [ "$action" == "K" ]; then
-	        [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid 2>/dev/null
-##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") 2>/dev/null
-		check_instance_prog
-		[ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid 2>/dev/null
-		kill_downloads
-	    elif [ "$action" == "d" ] && [ -z "$tty" ]; then
-		zdl --daemon
-	    elif [ "$action" == "Q" ]; then
-		kill $daemon_pid && unset daemon_pid 2>/dev/null
 	    fi
-	else
+	elif [[ "$action" =~ ^([1-9]+)$ ]]; then
+	    echo "$action" > "$path_tmp/.dl-mode"
+	elif [ "$action" == "m" ]; then
+	    echo > "$path_tmp/.dl-mode"
+	elif [ "$action" == "e" ]; then
+	    $editor "$path_tmp/links_loop.txt"
+	elif [ "$action" == "c" ]; then
+	    clean_completed
+	elif [ "$action" == "q" ]; then
+	    fclear
 	    break
+	elif [ "$action" == "K" ]; then
+	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid 2>/dev/null
+##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") 2>/dev/null
+	    check_instance_prog
+	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid 2>/dev/null
+	    kill_downloads
+	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
+	    zdl --daemon
+	elif [ "$action" == "Q" ]; then
+	    kill $daemon_pid && unset daemon_pid 2>/dev/null
 	fi
     done
     echo -e "\e[0m\e[J"

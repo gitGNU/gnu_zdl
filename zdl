@@ -606,16 +606,17 @@ if [ -z "$start_file" ] && [ "$daemon" != "true" ]; then
     fi
 fi
 
+check_instance_daemon
+if [ $? == 1 ] && [ -z "$daemon" ]; then
+    redirect_links
+fi
 
 check_instance_prog
 if [ "$?" == "1" ]; then
     redirect_links
 fi
 
-check_instance_daemon
-if [ $? == 1 ]; then
-    redirect_links
-fi
+
 
 echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl"

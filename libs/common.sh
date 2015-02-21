@@ -89,16 +89,28 @@ function redirect_links {
 }
 
 
-function check_instance_daemon {
-    test_instance=$( ps ax | grep "$prog" |grep "silent $PWD" )
-    test_instance=${test_instance#*'silent '}
-    if [ ! -z "$test_instance" ] && [ "$test_instance" == "$PWD" ]; then
-	return 1
-    else
-	return 0
-    fi
-}
+## versione che non funziona con cygwin perché output di 'ps' è diverso
+#
+# function check_instance_daemon_old {
+#     test_instance=$( ps ax | grep "$prog" |grep "silent $PWD" )
+#     test_instance=${test_instance#*'silent '}
+#     if [ ! -z "$test_instance" ] && [ "$test_instance" == "$PWD" ]; then
+# 	return 1
+#     else
+# 	return 0
+#     fi
+# }
 
+function check_instance_daemon {
+    while read line; do
+	test_pid=$(awk '{print $1}' <<< "$line")
+
+	if [[ "$test_pid" =~ ^[0-9]+$ ]] && [ -d "/proc/$test_pid" ] && [[ $(grep silent /proc/$test_pid/cmdline) ]] && [[ $(sed -r 's|.+silent(.+)$|\1|g' < /proc/$test_pid/cmdline) == "$PWD" ]]; then
+	    return 1
+	fi
+    done <<< "$(ps ax |grep bash)"
+    return 0
+}
 
 function is_rtmp {
     for h in ${rtmp[*]}; do

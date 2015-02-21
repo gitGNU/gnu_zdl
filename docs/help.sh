@@ -143,10 +143,10 @@ il modello generico dei parametri per le componenti aggiuntive (rispettare l'ord
 
 ${BWhite}Servizi${Color_Off}
 ${BBlue}Video in streaming saltando il player del browser:${Color_Off}
-$(zdl-ext-sorted streaming)
+$(cat $path_usr/streaming.txt)
 
 ${BBlue}File hosting:${Color_Off}
-$(zdl-ext-sorted download) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
+$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
 ${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
 Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
