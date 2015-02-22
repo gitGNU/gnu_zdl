@@ -67,7 +67,7 @@ function download {
 	k=`date +"%s"`
 	s=0
 	while true; do
-	    if [ $s == 0 ] || [ $s == $max_waiting ] || [ $s == $(( $max_waiting*2 )) ]; then 
+	    if [ "$s" == 0 ] || [ "$s" == "$max_waiting" ] || [ "$s" == $(( $max_waiting*2 )) ]; then 
 		kill "$wpid" 2>/dev/null
 		rm -f "$path_tmp/redirect"
 		wget -t 1 -T $max_waiting --user-agent="$user_agent" --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
@@ -85,7 +85,7 @@ function download {
 		kill "$wpid" 2>/dev/null
 		return
 	    else
-		[ $s == 0 ] && print_c 2 "Redirezione (attendi massimo 90 secondi):"
+		[ "$s" == 0 ] && print_c 2 "Redirezione (attendi massimo 90 secondi):"
 		sleeping 1
 		s=`date +"%s"`
 		s=$(( $s-$k ))

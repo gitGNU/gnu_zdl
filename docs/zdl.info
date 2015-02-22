@@ -247,6 +247,27 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      utilizzando uno script/comando/programma (configurare ZDL)
 
 
+Avvio con un editor:
+....................
+
+`-e, --editor'
+     sostituisce l'interfaccia di ingresso di ZDL con l'editor
+     predefinito dal sistema oppure con quello configurato per ZDL con
+     `zdl -c'
+
+`--emacs, --emacs-nw'
+     usa Emacs o la sua versione solo testo/non grafica
+
+`--mcedit'
+     usa l'editor di Midnight Commander
+
+`--nano'
+     usa l'editor Nano
+
+`--vi, --vim'
+     usa l'editor Vi o Vim
+
+
 Avvio con Proxy:
 ................
 
@@ -363,7 +384,8 @@ _A) Per immettere link e avviare nuovi download:_
              - copia i link dei file da scaricare e incollali nel
                terminale (vai a capo dopo ogni link)
 
-             - premi la chiocciolina "@"
+             - digita `M-x' e poi `<Invio>' (`M' è il tasto _Meta_,
+               cioè `<Alt>')
 
 
        2. Utilizzando uno o più file preparati con un editor di testi
@@ -386,7 +408,10 @@ _A) Per immettere link e avviare nuovi download:_
           `zdl' di Conkeror, ...), allo scopo di catturare e salvare lo
           stream di un video o un altro file di qualsiasi tipo.
 
-       5. In modalità "demone"
+       5. In modalità "demone" (anche dalla modalità interattiva)
+
+       6. Usando un editor, con l'opzione `-e' o altre più specifiche
+          (per esempio, `--emacs-nw')
 
      I file, la directory di lavoro e i link possono essere immessi in
      qualsiasi ordine. Tutti i link degli input sono salvati nel file
@@ -411,19 +436,21 @@ ZDL può essere fermato in diversi modi:
    * Se i download sono gestiti dalla modalità "non
      interattiva"/standard:
 
-       1. digitando `Control+c' (in questo caso saranno interrotti
-          anche i download di _Axel_)
+       1. digitando `M-k' (in questo caso saranno interrotti tutti i
+          download avviati da ZDL nella directory di destinazione
+          specificata o in quella corrente)
 
-       2. digitando il tasto `q' (tutti i download già avviati nella
-          directory corrente con _Wget_ e _Axel_ non saranno
-          interrotti, ma non verranno più gestiti da ZDL)
+       2. digitando `M-q' (tutti i download già avviati nella directory
+          corrente non saranno interrotti, ma non verranno più gestiti
+          da ZDL fino ad una nuova istanza _standard_ oppure _demone_
+          del programma)
 
    * Se i download sono gestiti dalla modalità "demone": attraverso la
      modalità interattiva `zdl -i' avviata nella directory gestita dal
-     demone, digitando il tasto di uscita "Quit" (in maiuscolo): `Q'
-     (in questo caso i download avviati con _Axel_ e _Wget_ non sarano
-     interrotti, ma non verranno gestiti da ZDL a meno che non sia
-     riavviato per gestire gli stessi download)
+     demone, digitando il tasto di uscita "Quit" (in maiuscolo, cioè
+     con `Shift-q'): `Q' (in questo caso i download avviati nella
+     directory non sarano interrotti, ma non verranno gestiti da ZDL a
+     meno che non sia riavviato per gestire gli stessi download)
 
 
 File: zdl.info,  Node: Controllare i download,  Next: Manuali d'uso,  Prev: Arrestare ZDL,  Up: Top
@@ -876,19 +903,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting8747
-Node: Avviare ZDL11504
-Node: Arrestare ZDL13738
-Node: Controllare i download14702
-Node: Manuali d'uso19602
-Node: Creare nuove estensioni20037
-Node: Software consigliati21612
-Node: Conkeror22477
-Node: zdl-xterm e XXXTerm/Xombrero23488
-Node: Installazione e aggiornamento25412
-Node: Tags27636
-Node: Copying29722
-Node: Contatti30772
+Node: Servizi streaming/hosting9161
+Node: Avviare ZDL11918
+Node: Arrestare ZDL14356
+Node: Controllare i download15461
+Node: Manuali d'uso20361
+Node: Creare nuove estensioni20796
+Node: Software consigliati22371
+Node: Conkeror23236
+Node: zdl-xterm e XXXTerm/Xombrero24247
+Node: Installazione e aggiornamento26171
+Node: Tags28395
+Node: Copying30481
+Node: Contatti31531
 
 End Tag Table
 

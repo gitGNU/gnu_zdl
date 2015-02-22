@@ -1,4 +1,4 @@
-.TH "ZigzagDownLoader (ZDL)" "1" "Sun Feb 22 01:18:47 2015" "GNU" "User Commands"
+.TH "ZigzagDownLoader (ZDL)" "1" "Sun Feb 22 21:42:54 2015" "GNU" "User Commands"
 .SH NOME\	
 \fBzdl\fP - CLI download manager per \fIGNU/Linux\fP e \fIMicrosoft Windows + Cygwin\fP.\
 
@@ -136,6 +136,37 @@ Forza la riconnessione del modem al termine di ogni download, utilizzando uno sc
 .RS -5
 
 
+
+.SS Avvio con un editor:\	
+
+.RS 5
+
+.RS -5
+\fB-e, --editor\fP
+.RS 5
+sostituisce l'interfaccia di ingresso di ZDL con l'editor predefinito dal sistema oppure con quello configurato per ZDL con \fBzdl -c\fP
+.RS -5
+\fB--emacs, --emacs-nw\fP
+.RS 5
+usa Emacs o la sua versione solo testo/non grafica
+.RS -5
+\fB--mcedit\fP
+.RS 5
+usa l'editor di Midnight Commander
+.RS -5
+\fB--nano\fP
+.RS 5
+usa l'editor Nano
+.RS -5
+\fB--vi, --vim\fP
+.RS 5
+usa l'editor Vi o Vim
+
+
+.RS -5
+
+
+
 .SS Avvio con proxy:\	
 
 .RS 5
@@ -264,7 +295,7 @@ copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo og
 
 .RS 0
 .IP "\fI-\fP" 2
-premi la chiocciolina "@"
+digita \fBM-x\fP e poi \fB<Invio>\fP (\fBM\fP è il tasto \fIMeta\fP, cioè \fB<Alt>\fP)
 
 
 .RS -5
@@ -299,7 +330,11 @@ Dal browser web, attraverso l'uso di componenti aggiuntive (\fIFlashgot\fP per \
 
 .RS 0
 .IP "\fI5.\fP" 3
-In modalità "demone"
+In modalità "demone" (anche dalla modalità interattiva)
+
+.RS 0
+.IP "\fI6.\fP" 3
+Usando un editor, con l'opzione \fB-e\fP o altre più specifiche (per esempio, \fB--emacs-nw\fP)
 
 .RS -5
 
@@ -344,11 +379,11 @@ Se i download sono gestiti dalla modalità "non interattiva"/standard:
 
 .RS 0
 .IP "\fI1.\fP" 3
-digitando \fBControl+c\fP (in questo caso saranno interrotti anche i download di \fIAxel\fP)
+digitando \fBM-k\fP (in questo caso saranno interrotti tutti i download avviati da ZDL nella directory di destinazione specificata o in quella corrente)
 
 .RS 0
 .IP "\fI2.\fP" 3
-digitando il tasto \fBq\fP (tutti i download già avviati nella directory corrente con \fIWget\fP e \fIAxel\fP non saranno interrotti, ma non verranno più gestiti da ZDL)
+digitando \fBM-q\fP (tutti i download già avviati nella directory corrente non saranno interrotti, ma non verranno più gestiti da ZDL fino ad una nuova istanza \fIstandard\fP oppure \fIdemone\fP del programma)
 
 .RS -5
 
@@ -356,7 +391,7 @@ digitando il tasto \fBq\fP (tutti i download già avviati nella directory corren
 .RS 0
 .IP "\fI*\fP" 2 
 Se i download sono gestiti dalla modalità "demone": 
-attraverso la modalità interattiva \fBzdl -i\fP avviata nella directory gestita dal demone, digitando il tasto di uscita "Quit" (in maiuscolo): \fBQ\fP (in questo caso i download avviati con \fIAxel\fP e \fIWget\fP non sarano interrotti, ma non verranno gestiti da ZDL a meno che non sia riavviato per gestire gli stessi download)
+attraverso la modalità interattiva \fBzdl -i\fP avviata nella directory gestita dal demone, digitando il tasto di uscita "Quit" (in maiuscolo, cioè con \fBShift-q\fP): \fBQ\fP (in questo caso i download avviati nella directory non sarano interrotti, ma non verranno gestiti da ZDL a meno che non sia riavviato per gestire gli stessi download)
 
 .RS -5
 

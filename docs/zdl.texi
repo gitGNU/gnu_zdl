@@ -326,10 +326,28 @@ Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
 Forza la riconnessione del modem al termine di ogni download, utilizzando uno script/comando/programma (configurare ZDL)
                          
 @end table
+
+@c @end man
+@unnumberedsubsubsec Avvio con un editor:
+@c @man{6}
+@c @ifman @unnumberedsubsec Avvio con un editor:
+@table @option
+@item -e, --editor
+sostituisce l'interfaccia di ingresso di ZDL con l'editor predefinito dal sistema oppure con quello configurato per ZDL con @command{zdl -c}
+@item --emacs, --emacs-nw
+usa Emacs o la sua versione solo testo/non grafica
+@item --mcedit
+usa l'editor di Midnight Commander
+@item --nano
+usa l'editor Nano
+@item --vi, --vim
+usa l'editor Vi o Vim
+
+@end table
+
 @c @end man
 @unnumberedsubsubsec Avvio con Proxy:
-
-@c @man{5}
+@c @man{7}
 @c @ifman @unnumberedsubsec Avvio con proxy:
 @table @option
 
@@ -358,7 +376,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @c @end man
 @unnumberedsubsubsec Configurazione:
 
-@c @man{6}
+@c @man{8}
 @c @ifman @unnumberedsubsec Configurazione:
 @table @option
 
@@ -378,7 +396,7 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 @unnumbered Scaricare da servizi di @emph{video streaming} e di @emph{file hosting}
 
-@c @man{7}
+@c @man{9}
 @c @ifman @unnumberedsec PANORAMICA
 @c @ifman @unnumberedsubsec Servizi
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
@@ -434,7 +452,7 @@ senza l'uso di proxy (in questo caso è necessario specificare anche
 
 @unnumbered Modalità di avvio
 
-@c @man{8}
+@c @man{10}
 @c @ifman @unnumberedsubsec Avvio
 ZDL può essere avviato in diversi modi:
 
@@ -456,7 +474,7 @@ avvia ZDL digitando il comando seguito da eventuali opzioni
 copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
 
 @item
-premi la chiocciolina "@@"
+digita @kbd{M-x} e poi @kbd{<Invio>} (@kbd{M} è il tasto @emph{Meta}, cioè @kbd{<Alt>})
 
 @end itemize
 
@@ -479,7 +497,10 @@ Indicando direttamente a ZDL i link da processare (se link validi dovessero esse
 Dal browser web, attraverso l'uso di componenti aggiuntive (@emph{Flashgot} per @emph{Firefox}, lo script @command{zdl-xterm}, il comando @command{zdl} di Conkeror, ...), allo scopo di catturare e salvare lo stream di un video o un altro file di qualsiasi tipo. 
 
 @item
-In modalità "demone"
+In modalità "demone" (anche dalla modalità interattiva)
+
+@item
+Usando un editor, con l'opzione @option{-e} o altre più specifiche (per esempio, @option{--emacs-nw})
 @end enumerate
 
 I file, la directory di lavoro e i link possono essere immessi in qualsiasi ordine. Tutti i link degli input sono salvati nel file @file{links.txt}, nella directory di destinazione. 
@@ -505,7 +526,7 @@ nella modalità "non interattiva" (standard), digitando il tasto @kbd{i}
 
 @unnumbered Modalità di arresto
 
-@c @man{9}
+@c @man{11}
 @c @ifman @unnumberedsubsec Arresto
 ZDL può essere fermato in diversi modi:
 @itemize
@@ -514,15 +535,15 @@ Se i download sono gestiti dalla modalità "non interattiva"/standard:
 
 @enumerate
 @item
-digitando @kbd{Control+c} (in questo caso saranno interrotti anche i download di @emph{Axel})
+digitando @kbd{M-k} (in questo caso saranno interrotti tutti i download avviati da ZDL nella directory di destinazione specificata o in quella corrente)
 
 @item
-digitando il tasto @kbd{q} (tutti i download già avviati nella directory corrente con @emph{Wget} e @emph{Axel} non saranno interrotti, ma non verranno più gestiti da ZDL)
+digitando @kbd{M-q} (tutti i download già avviati nella directory corrente non saranno interrotti, ma non verranno più gestiti da ZDL fino ad una nuova istanza @emph{standard} oppure @emph{demone} del programma)
 @end enumerate
 
 @item 
 Se i download sono gestiti dalla modalità "demone": 
-attraverso la modalità interattiva @command{zdl -i} avviata nella directory gestita dal demone, digitando il tasto di uscita "Quit" (in maiuscolo): @kbd{Q} (in questo caso i download avviati con @emph{Axel} e @emph{Wget} non sarano interrotti, ma non verranno gestiti da ZDL a meno che non sia riavviato per gestire gli stessi download)
+attraverso la modalità interattiva @command{zdl -i} avviata nella directory gestita dal demone, digitando il tasto di uscita "Quit" (in maiuscolo, cioè con @kbd{Shift-q}): @kbd{Q} (in questo caso i download avviati nella directory non sarano interrotti, ma non verranno gestiti da ZDL a meno che non sia riavviato per gestire gli stessi download)
 @end itemize
 
 
@@ -689,7 +710,7 @@ modificare il sorgente
 
 @unnumbered Software consigliati
 
-@c @man{10}
+@c @man{12}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
 @pindex axel
@@ -963,7 +984,7 @@ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
 
 @bye
 
-@c @man{11}
+@c @man{13}
 @unnumberedsec MANUALI
 Oltre alla presente guida, puoi consultare:
 @table @command
