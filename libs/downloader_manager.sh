@@ -196,7 +196,8 @@ function check_in_url { 	## return --> no_download=1
 
 function check_in_file { 	## return --> no_download=1 / download=5
     sanitize_file_in
-    file_in_bis="${file_in}__BIS__${url_in//\//_}.${file_in##*.}"
+    url_in_bis="${url_in::100}"
+    file_in_bis="${file_in}__BIS__${url_in_bis//\//_}.${file_in##*.}"
     if [ ! -z "$exceeded" ]; then
 	_log 4
 	break_loop=true
