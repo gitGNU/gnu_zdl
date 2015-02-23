@@ -98,7 +98,10 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
        --reconnect             Forza la riconnessione del modem al termine
                                di ogni download, utilizzando
                                uno script/comando/programma (configurare ${PROG})
-                         
+
+       --overwrite             Sovrascrive eventuali file omonimi di quelli che
+                               si stanno per scaricare                         
+
 
 ${BBlue}Editor per i link (può essere usato in qualunque momento con Meta-e):${Color_Off}
   sostituisce l'interfaccia iniziale per l'immissione dei link
