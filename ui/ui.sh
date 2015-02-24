@@ -31,7 +31,7 @@ function links_box {
     header_dl "Comandi della modalità standard (M è il tasto Meta, cioè <Alt>)"
     echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]"
     echo -e "<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito"
-    echo -e "<${BYellow} i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva\n"
+    echo -e "<${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva\n"
     echo -e "<${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]"
     echo -e "<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
     separator-
@@ -39,7 +39,9 @@ function links_box {
 }
 
 function interactive_and_return {
+    stty echo
     zdl -i
+    stty -echo
     header_z
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     links_box

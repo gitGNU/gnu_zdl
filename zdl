@@ -406,6 +406,9 @@ if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[
 	fi
     done
 fi
+## se non è modalità interattiva, allora è valido il bind 'M-i'
+bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
+
 
 if [ "${args[*]}" != "${args[*]//--wget}" ]; then
     for i in `seq 0 $max_args`; do
