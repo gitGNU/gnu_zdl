@@ -170,7 +170,9 @@ function interactive {
 	    show_downloads_extended
 	    header_box "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
 	    print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
+	    stty echo
 	    read -e input
+	    stty -echo
 	    if [ ! -z "$input" ]; then
 		unset inputs
 		inputs=( $input )
@@ -187,7 +189,9 @@ function interactive {
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
 		print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
+		stty echo
 		read -e input2
+		stty -echo
 		for ((i=0; i<${#inputs[*]}; i++)); do
 		    [[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
 		done
@@ -238,11 +242,11 @@ function interactive {
 	    fclear
 	    break
 	elif [ "$action" == "K" ]; then
+	    kill_downloads
 	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid 2>/dev/null
 ##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") 2>/dev/null
 	    check_instance_prog
 	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid 2>/dev/null
-	    kill_downloads
 	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
 	    zdl --daemon
 	elif [ "$action" == "Q" ]; then
