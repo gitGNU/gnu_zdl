@@ -209,8 +209,3 @@ function zclock {
     echo -n -e "$(date +%R) │ ${week[$( date +%w )]} $(date +%d·%m·%Y)"
 }
 
-function readlw {
-    unset $1
-    eval $1=$(rlwrap -m bash -c 'read input ; echo "$input"')
-}
-

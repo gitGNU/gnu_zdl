@@ -185,7 +185,7 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 	    k=`date +"%s"`
 	    s=0
 	    while true; do
-		sleep 1
+		sleep 0.9
 		s=`date +"%s"`
 		s=$(( $s-$k ))
 		echo -e $s"\r\c"

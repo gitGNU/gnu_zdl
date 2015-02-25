@@ -381,17 +381,8 @@ function make_progress {
 function sleeping {
     timer=$1
     if [ -z "$daemon" ] && [ -z "$pipe" ]; then
-	read -es -t $timer -n 1 action &>/dev/null
-	[ ! -z "${action//[0-9]}" ] && echo -n -e "\r \r"
-	case $action in
-#	    q) exit ;;
-	    i) zdl -i
-		header_z
-		print_c 1 "\nModalità interattiva terminata: di seguito l'output di gestione dei download\n"
-		header_box "Modalità non interattiva/standard"
-		;;
-	esac
+	read -es -t $timer -n 1 
     else
-	/bin/sleep $timer
+	sleep $timer
     fi
 }

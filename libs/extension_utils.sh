@@ -175,7 +175,7 @@ function countdown- {
 	diff=$(( $stop-$this ))
 	echo -e "           \r\c"
 	echo -e $diff"\r\c"
-	sleep 1
+	sleeping 1
     done 
 }
 

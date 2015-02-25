@@ -584,6 +584,7 @@ if [ -z "$start_file" ] && [ "$daemon" != "true" ]; then
 	    esac
 	    read -e links[${#links[*]}]
 	done
+	stty -echo
     
 	for ((i=0; i<${#links[*]}; i++)); do
 	    [ ! -z "${links[$i]// }" ] && links_loop + "${links[$i]// /%20}"
