@@ -868,5 +868,6 @@ fi
 if [ "$xterm_stop" == "true" ]; then
     xterm_stop
 fi
+stty echo
 echo -e -n "\e[0m\e[J"
 

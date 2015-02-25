@@ -191,7 +191,7 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 		echo -e $s"\r\c"
 	    done &
 	    pid_counter=$!
-	    trap "kill $pid_counter; trap SIGINT; exit" SIGINT
+	    trap "kill $pid_counter; trap SIGINT; stty echo; exit" SIGINT
 	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
 	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
 	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
