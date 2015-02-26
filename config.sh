@@ -376,5 +376,5 @@ function init {
     bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
     bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
     bind -x "\"\ek\":\"kill_downloads; kill -9 $pid_prog\"" 2>/dev/null
-
+    trap "trap SIGINT; stty echo; exit" SIGINT
 }
