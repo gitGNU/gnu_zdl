@@ -406,8 +406,11 @@ if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[
 	fi
     done
 fi
-## se non è modalità interattiva, allora è valido il bind 'M-i'
+## se non è modalità interattiva, allora sono validi i comandi "standard"
 bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
+bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
+bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
+bind -x "\"\ek\":\"kill_downloads; kill -9 $pid_prog\"" 2>/dev/null
 
 
 if [ "${args[*]}" != "${args[*]//--wget}" ]; then
