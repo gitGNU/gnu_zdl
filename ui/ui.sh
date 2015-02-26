@@ -24,16 +24,24 @@
 # zoninoz@inventati.org
 #
 
-function links_box {
-    header_box "Links"
+function services_box {
     header_dl "Servizi"
     echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
+}
+
+function commands_box {
     header_dl "Comandi della modalità standard (M è il tasto Meta, cioè <Alt>)"
     echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]"
     echo -e "<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito"
     echo -e "<${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva\n"
     echo -e "<${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]"
     echo -e "<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
+}
+
+function links_box {
+    header_box "Links"
+    services_box
+    commands_box
     separator-
     echo
 }
@@ -44,7 +52,10 @@ function interactive_and_return {
     stty -echo
     header_z
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    links_box
+    header_box "Modalità standard"
+    commands_box
+    separator-
+    echo
 }
 
 function run_editor {
