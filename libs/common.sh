@@ -109,7 +109,7 @@ function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
 	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
 	check_pid $(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $1}')
-	if [ $? == 1 ]; then
+	if [ $? == 1 ] && [ "$pid_prog" != "$test_pid" ]; then
 	    pid=$test_pid
 	    tty=/dev/$(ps ax |grep -P '^[\ ]*'$pid |awk '{print $2}')
 	    [ -e "/cygdrive" ] && tty=$(cat /proc/$test_pid/ctty)
@@ -256,11 +256,10 @@ function clean_countdown {
 function bindings {
     trap_sigint
     check_instance_prog
-    [ $? == 1 ] && pid_prog=$pid
     bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
     bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
     bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" 2>/dev/null
-    bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog\"" 2>/dev/null
+    bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" 2>/dev/null
 }
 
 function link_parser {

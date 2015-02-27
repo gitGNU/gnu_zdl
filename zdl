@@ -554,7 +554,7 @@ fi
 if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
     start_file="$path_tmp/links_loop.txt"
     check_instance_prog
-    if [ "$?" != "1" ]; then
+    if [ $? != 1 ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
     if [ -z "$from_editor" ] && [ -z "$daemon" ]; then
@@ -607,10 +607,10 @@ fi
 check_instance_prog
 if [ $? == 1 ]; then
     redirect_links
+else
+    echo "$pid_prog" > "$path_tmp/pid.zdl"
 fi
 
-
-echo "$pid_prog" > "$path_tmp/pid.zdl"
 rm -f "$path_tmp/lock.zdl" "$path_tmp/.stop_stdout"
 
 function main_loop {
