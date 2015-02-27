@@ -89,7 +89,7 @@ function download {
 		sleeping 1
 		s=`date +"%s"`
 		s=$(( $s-$k ))
-		echo -e $s"\r\c"
+		print_c 0 "$s\r\c"
 	    fi
 	done
 
