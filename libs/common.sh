@@ -108,7 +108,7 @@ function check_instance_daemon {
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
 	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
-	check_pid $(ps ax |grep -P '^[\ ]*'$pid |awk '{print $1}')
+	check_pid $(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $1}')
 	if [ $? == 1 ]; then
 	    pid=$test_pid
 	    tty=/dev/$(ps ax |grep -P '^[\ ]*'$pid |awk '{print $2}')
