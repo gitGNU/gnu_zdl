@@ -168,8 +168,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		export DISPLAY=":0"
 	    fi
 	    url_in="$2"
-	    url_in="${url_in// /20%}"
-	    
+	    url_in="${url_in// /20%}"	    
 	    test_dir_3="$3"
 	    test_dir_4="$4"
 	    if [ -e "/cygdrive" ]; then
@@ -601,8 +600,12 @@ if [ $? == 1 ] && [ -z "$daemon" ]; then
     redirect_links
 fi
 
+# check_instance s
+# if [ $? == 3 ]; then
+#     redirect_links
+# fi
 check_instance_prog
-if [ "$?" == "1" ]; then
+if [ $? == 1 ]; then
     redirect_links
 fi
 

@@ -55,6 +55,7 @@ function check_instance {
 	test_pid=$(awk '{print $1}' <<< "$line")
 	[[ ! "$test_pid" =~ ^[0-9]+$ ]] && test_pid=$(awk '{print $2}' <<< "$line")
 	if [[ "$test_pid" =~ ^[0-9]+$ ]] &&  [ -d "/proc/$test_pid" ]; then
+	    cmdline=$(cat /proc/$test_pid/cmdline)
 	    case $mode in
 		d|'') 
 		    if [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
@@ -64,7 +65,6 @@ function check_instance {
 		    fi
 		    ;;
 		i|'')
-		    cmdline=$(cat /proc/$test_pid/cmdline)
 		    if [[ $(grep -P '\/zdl.*(-i|--interactive).*' <<< "$cmdline") ]] && \
 			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
 			tty=/dev/$(awk '{print $2}' <<< "$line")
@@ -77,7 +77,9 @@ function check_instance {
 		    fi
 		    ;;
 		s|'')
-		    if [[ $(grep zdl /proc/$test_pid/cmdline) ]] && \
+		    if [[ ! $(grep -P '\/zdl.*(-i|--interactive).*' <<< "$cmdline") ]] && \
+			( [[ $(grep -P '\/zdl.*' <<< "$cmdline") ]] || [[ $(grep -P 'ZigzagDownLoader' <<< "$cmdline") ]] ) && \
+			[ "$test_pid" != "$pid_prg" ] && \
 			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
 			mode=s
 			return 3
@@ -89,7 +91,7 @@ function check_instance {
     return 0
 }
 
-## TO-DO: con la funzione precedente, rimpiazzare le due che seguono:
+## TO-DO:  la funzione precedente va modificata (non funziona come dovrebbe) in modo da rimpiazzare le due che seguono:
 function check_instance_daemon {
     while read line; do
 	test_pid=$(awk '{print $1}' <<< "$line")
@@ -103,22 +105,15 @@ function check_instance_daemon {
     return 0
 }
 
-
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
-	test_pid=`cat "$path_tmp/pid.zdl" 2>/dev/null`
-	check_pid "$test_pid"
+	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
+	check_pid $(ps ax |grep -P '^[\ ]*'$pid |awk '{print $1}')
 	if [ $? == 1 ]; then
-	    pss=`ps ax|grep "$test_pid"`
-	    max=`echo -e "$pss" | wc -l`
-	    for line in `seq 1 $max`; do
-		proc=`echo -e "$pss" |sed -n "${line}p"`
-		pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
-		tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
-		if [ "$pid" == "${test_pid}" ] && [ "$pid" != "$pid_prog" ]; then
-		    return 1
-		fi
-	    done
+	    pid=$test_pid
+	    tty=/dev/$(ps ax |grep -P '^[\ ]*'$pid |awk '{print $2}')
+	    [ -e "/cygdrive" ] && tty=$(cat /proc/$test_pid/ctty)
+	    return 1
 	fi
     fi
 }

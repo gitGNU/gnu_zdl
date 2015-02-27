@@ -300,8 +300,6 @@ function init {
 	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
     fi
     
-    check_instance_prog
-    [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     touch "$path_tmp/lock.zdl"
     file_log="${prog}_log.txt"
 #    rm -f $file_log
@@ -324,6 +322,9 @@ function init {
     done
     [ -z "$pid_prog" ] && pid_prog=$$ 
     pid_in=1
+
+    check_instance_prog
+    [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     
     # CYGWIN
     if [ -e "/cygdrive" ]; then
