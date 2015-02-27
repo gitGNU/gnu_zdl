@@ -47,9 +47,11 @@ function links_box {
 }
 
 function interactive_and_return {
+    touch "$path_tmp/.stop_stdout"
     stty echo
-    zdl -i
+    zdl -i >&1
     stty -echo
+    rm -f "$path_tmp/.stop_stdout"
     header_z
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     header_box "Modalità standard"
@@ -59,15 +61,20 @@ function interactive_and_return {
 }
 
 function run_editor {
+    touch "$path_tmp/.stop_stdout"
     $editor $path_tmp/links_loop.txt
+    rm -f "$path_tmp/.stop_stdout"
     header_z
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    links_box
+    header_box "Modalità standard"
+    commands_box
+    separator-
+    echo
 }
 
 function show_downloads_extended {
     header_z
-    header_box "Modalità interattiva"
+    header_box_interactive "Modalità interattiva"
     echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD\n"
     check_instance_daemon
     if [ $? == 1 ]; then
@@ -77,9 +84,9 @@ function show_downloads_extended {
 ##	if [[ $(pidprog_in_dir "$PWD") ]]; then
 	check_instance_prog
 	if [ $? == 1 ]; then
-	    print_c 1 "$PROG è attivo in $PWD in modalità standard nel terminale $tty\n"
+	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
 	else
-	    print_c 3 "Non ci sono istanze attive di $PROG in $PWD\n"
+	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n{Color_Off}"
 	fi
     fi
     data_stdout
@@ -91,7 +98,7 @@ function show_downloads_extended {
 	header_dl "Numero download: $i"
 	check_pid ${pid_out[$i]}
 	if [ $? == 1 ] && [ ! -f "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ]; then
-	    print_c 3 "${downloader_out[$i]} sta scaricando a vuoto: ${file_out[$i]} non esiste"
+	    echo -n -e "${BRed}${downloader_out[$i]} sta scaricando a vuoto: ${file_out[$i]} non esiste$Color_Off}\n"
 	fi
 	is_rtmp "${url_out[$i]}"
 	if [ $? == 1 ]; then
@@ -113,18 +120,18 @@ function show_downloads_extended {
 		[ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
 		human_length ${length_saved[$i]}
 		echo -n -e "${BBlue}Stato:${Color_Off} "
-		print_c 1 "${length_saved[$i]} ($length_H) ${BBlue}${speed}"
+		echo -e -n "${BGreen}${length_saved[$i]} ($length_H) ${BBlue}${speed}${Color_Off}\n"
 	    elif [ -f "${file_out[$i]}" ]; then
 		human_length ${length_saved[$i]}
 		echo -n -e "${BBlue}Stato:${Color_Off} "
-		print_c 1 "${length_saved[$i]} ($length_H) terminato"
+		echo -e -n "${BGreen}${length_saved[$i]} ($length_H) terminato${Color_Off}\n"
 	    else
 		echo -n -e "${BBlue}Stato:${Color_Off} "
-		print_c 3 "Download non attivo"
+		echo -e -n "${BRed}Download non attivo${Color_Off}\n"
 	    fi
 	else
 	    make_progress
-	    print_c "" "${BBlue}Stato:${diff_bar_color} ${progress}"
+	    echo -e -n "${BBlue}Stato:${diff_bar_color} ${progress}${Color_Off}\n"
 	fi
 	echo
     done
@@ -149,9 +156,10 @@ function human_length { ## input in bytes
 
 
 function interactive {
+    trap "trap SIGINT; stty echo; exit" SIGINT
     while true ; do
 	header_z
-	header_box "Modalità interattiva"
+	header_box_interactive "Modalità interattiva"
 	echo
 	unset tty list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
@@ -159,7 +167,7 @@ function interactive {
 	[ -f "$path_tmp/.dl-mode" ] && [[ $(cat "$path_tmp/.dl-mode") =~ ^([1-9]+)$ ]] && num_dl="${BASH_REMATCH[1]}"
 	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
 	[ -z "$num_dl" ] && num_dl=illimitati
-	header_box "Opzioni [numero download alla volta: $num_dl]"
+	header_box_interactive "Opzioni [numero download alla volta: $num_dl]"
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
 
 	echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
@@ -172,6 +180,7 @@ function interactive {
 	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
 	cursor off
+	stty -echo
 	read -e -n 1 -t 15 action
 	cursor on
 	if [ "$action" == "s" ]; then
@@ -179,8 +188,8 @@ function interactive {
 	    header_z
 	    echo
 	    show_downloads_extended
-	    header_box "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
-	    print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
+	    header_box_interactive "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
+	    echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
 	    stty echo
 	    read -e input
 	    stty -echo
@@ -188,8 +197,8 @@ function interactive {
 		unset inputs
 		inputs=( $input )
 		echo
-		header_box "Riavvia o Elimina"
-		print_c 2 "Cosa vuoi fare con i download selezionati?"
+		header_box_interactive "Riavvia o Elimina"
+		echo -e -n "${BYellow}Cosa vuoi fare con i download selezionati?${Color_Off}\n"
 		echo
 		echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
 <${BRed} E ${Color_Off}> ${BRed}e${Color_Off}liminarli definitivamente (e cancellare il file scaricato)
@@ -199,7 +208,7 @@ function interactive {
 <${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancellare i file temporanei dei download completati
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
-		print_c 2 "Scegli cosa fare: ( r | E | T | p | c | * ):"
+		echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | c | * ):${Color_Off}\n"
 		stty echo
 		read -e input2
 		stty -echo
@@ -265,6 +274,7 @@ function interactive {
 	fi
     done
     echo -e "\e[0m\e[J"
+    stty echo
     exit
 }
 
@@ -299,7 +309,9 @@ function clean_completed {
 
 
 function show_downloads {
-    if [ "$daemon" != "true" ]; then
+    # check_instance i
+    # if [ $? != 2 ] &&
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
 	echo
 	header_dl "Downloading in $PWD"
 	data_stdout
@@ -317,16 +329,16 @@ function show_downloads {
 			    [ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
 			    [ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
 			    human_length ${length_saved[$i]}
-			    print_c 1 " ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) ${BBlue}${speed}"
+			    echo -e -n "${BGreen} ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) ${BBlue}${speed}\n${Color_Off}"
 			elif [ -f "${file_out[$i]}" ]; then
 			    human_length ${length_saved[$i]}
-			    print_c 1 " ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) terminato"
+			    echo -e -n "${BGreen} ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) terminato\n${Color_Off}"
 			else
-			    print_c 3 " ${downloader_out[$i]}: Download non attivo"
+			    echo -e -n "${BRed} ${downloader_out[$i]}: Download non attivo\n${Color_Off}"
 			fi
 		    else
 			make_progress
-			print_c "" "${diff_bar_color} ${downloader_out[$i]}: ${progress}"
+			echo -e -n "${diff_bar_color} ${downloader_out[$i]}: ${progress}\n"
 		    fi
 		    ii=$(( $i+1 ))
 		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then 
@@ -336,13 +348,13 @@ function show_downloads {
 	    done
 	else
 	    echo
-	    print_c 3 " Nessun download rilevato"
+	    echo -e -n "${BRed} Nessun download rilevato\n${Color_Off}"
 	    echo
 	fi
 	separator-
 	echo -e "\n\n\n"
     fi
-    sleeping $sleeping_pause
+    sleep $sleeping_pause
 }
 
 
@@ -395,9 +407,11 @@ function make_progress {
 
 function sleeping {
     timer=$1
-    if [ -z "$daemon" ] && [ -z "$pipe" ]; then
-	read -es -t $timer -n 1 
-    else
+    ## l'interazione è stata sostituita con 'bind' e i processi sono in background: lo schermo non è più influenzato dalla tastiera
+    #
+    # if [ -z "$daemon" ] && [ -z "$pipe" ]; then
+    # 	read -es -t $timer -n 1 
+    # else
 	sleep $timer
-    fi
+    # fi
 }

@@ -293,7 +293,7 @@ function init {
     PROG=`echo $prog | tr a-z A-Z`
     path_tmp=".${prog}_tmp"
     mkdir -p "$path_tmp"
-
+    tty_prog=$(tty)
     ## set default config data
     updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
     if [ -z "$updatecols" ]; then 
@@ -326,7 +326,7 @@ function init {
     pid_in=1
     
     # CYGWIN
-    if [ -e "/cygdrive" ];then
+    if [ -e "/cygdrive" ]; then
 	kill -SIGWINCH $$
 	dev_cygwin=${HOME#'/cygdrive/'}
 	dev_cygwin="${dev_cygwin%%'/'*}:"
@@ -349,13 +349,6 @@ function init {
     list_proxy_url['ip_adress']="http://zoninoz.hol.es" 
     list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 
-    ## pausa per immissione di comandi per la modalità non-interattiva, con `read' al posto di `sleep'
-    if [ -e /cygdrive ]; then
-	sleeping_pause=2
-    else
-	sleeping_pause=4
-    fi
-
     ## massima durata tentativi di connessione (Wget)
     max_waiting=40
     
@@ -374,5 +367,6 @@ function init {
     rm -rf "$path_tmp/links_loop.txt-rewriting"
     [ -z "$editor" ] && check_editor
 
-    trap "trap SIGINT; stty echo; exit" SIGINT
+    trap_sigint
+    sleeping_pause=4
 }

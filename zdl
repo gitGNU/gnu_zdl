@@ -125,7 +125,7 @@ if [ "${args[*]}" != "${args[*]//--silent}" ]; then
 	if [ "${args[$i]}" == "--silent" ]; then
 	    unset args[$i]
 	    daemon="true"
-	    sleeping_pause=10
+	    sleeping_pause=5
 	fi
 	if [ "${args[$i]}" == "$PWD" ]; then
 	    unset args[$i]
@@ -280,30 +280,21 @@ if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
 	    unset args[$i]
-	    check_instance_daemon
+	    check_instance_prog
 	    if [ $? != 1 ]; then
-		rm -r "$path_tmp/lock.zdl"
-		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
-		header_z
-		print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
-		mkdir -p "$path_tmp"
-	    else
-		header_z
-		print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD\n"
-		add=true
-	    fi
-	    for j in `seq 0 ${#args[*]}`; do
-		if [ "${args[$j]}" == "${args[$j]#'-'}" ] && [ ! -e "${args[$j]}" ] && [ ! -z "${args[$j]}" ]; then
-		    if [ "$add" == "true" ]; then
-			touch "$path_tmp"/links_loop.txt
-			links_loop + "${args[$j]}"
-		    fi
-		    new_links="${args[$j]}\n$new_links"
+		check_instance_daemon
+		if [ $? != 1 ]; then
+		    rm -r "$path_tmp/lock.zdl"
+		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+		    header_z
+		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
+		    pause
+		    mkdir -p "$path_tmp"
+		else
+		    header_z
+		    print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD\n"
+		    add=true
 		fi
-	    done
-	    if [ ! -z "$new_links" ]; then
-		header_box "Nuovi URL aggiunti in coda al demone:"
-		echo -e "$new_links"
 	    fi
 
 	    [ ! -z "$xterm_stop" ] && xterm_stop
@@ -407,11 +398,7 @@ if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[
     done
 fi
 ## se non è modalità interattiva, allora sono validi i comandi "standard"
-bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
-bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
-bind -x "\"\eq\":\"kill -1 $pid_prog\"" 2>/dev/null
-bind -x "\"\ek\":\"kill_downloads; kill -9 $pid_prog\"" 2>/dev/null
-
+bindings
 
 if [ "${args[*]}" != "${args[*]//--wget}" ]; then
     for i in `seq 0 $max_args`; do
@@ -539,7 +526,7 @@ if [ ! -z "${args[*]}" ]; then
 	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]; then
 		add_container $(cat "${args[$i]}") # container_file)
 	    else
-		links=`cat "${args[$i]}"`
+		links=$(cat "${args[$i]}")
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    fi
 	elif [ ! -z "${args[$i]}" ]; then
@@ -563,16 +550,15 @@ if [ ! -z "${args[*]}" ]; then
     fi
 fi
 
-echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+[ "$daemon" != "true" ] && print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
-
-if [ -z "$start_file" ] && [ "$daemon" != "true" ]; then
+if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
     start_file="$path_tmp/links_loop.txt"
     check_instance_prog
     if [ "$?" != "1" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
-    if [ -z "$from_editor" ]; then
+    if [ -z "$from_editor" ] && [ -z "$daemon" ]; then
 	if [ -z "$pipe" ]; then
 	    links_box
 	else
@@ -587,15 +573,12 @@ if [ -z "$start_file" ] && [ "$daemon" != "true" ]; then
 	    esac
 	    read -e links[${#links[*]}]
 	done
-	stty -echo
-    
 	for ((i=0; i<${#links[*]}; i++)); do
 	    [ ! -z "${links[$i]// }" ] && links_loop + "${links[$i]// /%20}"
 	done
     else
 	$editor "$start_file"
     fi
-
     if [ -f "$start_file" ];then
 	clean_file "$start_file"
 	if [ -f "$start_file" ];then
@@ -624,15 +607,13 @@ if [ "$?" == "1" ]; then
 fi
 
 
-
 echo "$pid_prog" > "$path_tmp/pid.zdl"
-rm -f "$path_tmp/lock.zdl"
+rm -f "$path_tmp/lock.zdl" "$path_tmp/.stop_stdout"
 
-
-while true; do
+function main_loop {
     if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]; then
-	start_file="$path_tmp/links_loop.txt"
-	sleeping 5
+    	start_file="$path_tmp/links_loop.txt"
+    	sleep 10
     elif [ -f "$start_file" ]; then
 	links_in=$(cat "$start_file")
 ##	run_in_dir + "$pid_prog $PWD" ## con pidprog_in_dir, funzione alternativa a check_instance_prog + $path_tmp/pid.zdl
@@ -644,7 +625,7 @@ while true; do
 		unset url_in
 		break
 	    fi
-	    echo -e "${BBlue}checking $url_in ...${Color_Off}"
+	    print_c 4 "checking $url_in ..."
 	    unset pid_in checked file_in url_in_file
 
 	    check_in_url
@@ -668,8 +649,7 @@ while true; do
 
 		echo
 		header_box "Link da processare:"
-		echo -e "$url_in\n"
-
+		print_c 0 "$url_in\n"
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
 		    shopt -s nullglob
@@ -679,7 +659,6 @@ while true; do
 		    shopt -u nullglob
 		fi
 		###################
-
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 		    if [ "$update_proxy_others_list" == "true" ]; then
 			new_ip_proxy
@@ -793,8 +772,8 @@ while true; do
 		    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
 		    [ "$num_multi" == 1 ] && unset multi
 		fi
-
-		if [ "$multi" == "true" ] && ( [ -z "$num_multi" ] || (( $counter_downloading < $num_multi )) ); then
+		[ -z "$counter_downloading" ] && counter_downloading=0
+		if [ "$multi" == "true" ] && ( [ -z "$num_multi" ] || (( "$counter_downloading" < "$num_multi" )) ); then
 		    checked=1
 		fi
 		while [ "$checked" != "1" ]; do 
@@ -803,7 +782,7 @@ while true; do
 		    test_pid=$?
 		    links_loop "in" "$url_in"
 		    test_loop_in=$?
-		    if [ $test_loop_in != 1 ] || [ $test_pid != 1 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
+		    if [ "$test_loop_in" != 1 ] || [ "$test_pid" != 1 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
 			break
 		    fi
 		    check_stdout
@@ -822,28 +801,50 @@ while true; do
 	print_c 4 "\nUn altro giro..."
 	sleeping 3
 	clean_file "$path_tmp"/links_loop.txt
+
 	pipe_files
 	if [ -f "$path_tmp/links_loop.txt" ]; then
 	    start_file="$path_tmp/links_loop.txt"
 	fi
 	check_stdout
 	[ -z "$no_msg" ] && show_downloads
-	unset test_pids
-	data_stdout
-	if [ $? == 1 ]; then
-	    last_stdout=$(( ${#pid_out[*]}-1 ))
-	    for i in `seq 0 $last_stdout`; do
-		check_pid "${pid_out[$i]}"
-		test_pids=$?
-		[ "$test_pids" == "1" ] && break
-	    done
-	fi
+	# unset test_pids
+	# data_stdout
+	# if [ $? == 1 ]; then
+	#     last_stdout=$(( ${#pid_out[*]}-1 ))
+	#     for i in `seq 0 $last_stdout`; do
+	# 	check_pid "${pid_out[$i]}"
+	# 	test_pids=$?
+	# 	[ "$test_pids" == "1" ] && break
+	#     done
+	# fi
 	unset no_msg
-	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && [ "$daemon" != "true" ] && break
+#cat "$path_tmp"/links_loop.txt
+#	[ ! -f "$path_tmp/links_loop.txt" ] && [ "$test_pids" != "1" ] && [ "$daemon" != "true" ] && return 1
     else 
-	break
+	return 1
     fi
+}
+
+if [ "$daemon" == "true" ]; then
+    while true; do
+	main_loop
+	[ $? == 1 ] && break
+    done
+else
+    while true; do
+	main_loop
+	[ $? == 1 ] && break
+    done &
+    loops_pid=$!
+fi
+
+stty -echo
+bindings
+while [ -d /proc/$loops_pid ] && [ "$daemon" != true ]; do
+    read -e -n1 -t 5
 done
+
 rm -f "$path_tmp/lock.zdl"
 noproxy
 
@@ -865,7 +866,7 @@ echo
 echo
 if [ -f "$file_log" ]; then
     print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
-    echo -e "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n\n"
+    print_c 0 "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n\n"
 fi
 
 if [ "$xterm_stop" == "true" ]; then

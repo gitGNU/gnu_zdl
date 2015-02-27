@@ -27,10 +27,10 @@
 #### hacking web pages
 
 function get_tmps {
-    while [ "`cat "$path_tmp"/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
+#    while [ "`cat "$path_tmp"/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
 	wget -t 3 -T $max_waiting --no-check-certificate --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
-	echo -e "...\c"
-    done
+	print_c 0 "...\c"
+#    done
 }
 
 function input_hidden {

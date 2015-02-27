@@ -151,86 +151,94 @@ fi
 
 if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/nowdownload\/}" ]; then
     get_tmps
-    test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
-    if [ ! -z "$test_file" ]; then
-	_log 3
+    if [[ -z $(cat "$path_tmp"/zdl.tmp) ]]; then
 	break_loop=true
-	break
-    fi
-    now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
-    if [ ! -z "$now" ]; then
-	url_in_file="${now#*\"}"
-	url_in_file="${url_in_file%%\"*}"
-	unset now
-	
+	_log 2
     else
-	wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
-	if [ ! -e "$path_usr/extensions/zdl-wise" ]; then
-	    print_c 2 "Attendi: potrebbe impiegare qualche minuto"
-	    wise_code=$( wise $( wise_args "$wise_code" ) )
-	    wise_code=$( wise $( wise_args "$wise_code" ) )
-	    wise_code=$( wise $( wise_args "$wise_code" ) )
-
-	    unset url_in_file
-	    preurl_in_file="${wise_code##*href=\"}"
-	    preurl_in_file="${preurl_in_file%%\"*}"
-	    preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
-	    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-	    url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
-	    url_in_file="${url_in_file#*href=\"}"
+	test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
+	if [ ! -z "$test_file" ]; then
+	    _log 3
+	    break_loop=true
+	    break
+	fi
+	now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
+	if [ ! -z "$now" ]; then
+	    url_in_file="${now#*\"}"
 	    url_in_file="${url_in_file%%\"*}"
+	    unset now
 	    
 	else
-	    print_c 2 "Attendi circa 30 secondi:"
-	    k=`date +"%s"`
-	    s=0
-	    while true; do
-		sleep 0.9
-		s=`date +"%s"`
-		s=$(( $s-$k ))
-		echo -e $s"\r\c"
-	    done &
-	    pid_counter=$!
-	    trap "kill $pid_counter; trap SIGINT; stty echo; exit" SIGINT
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    kill $pid_counter 2>/dev/null
-	    trap SIGINT
-	    unset url_in_file
-	    preurl_in_file="${wise_code##*href=\"}"
-	    preurl_in_file="${preurl_in_file%%\"*}"
-	    preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
-	    while true; do
-		if (( $s>30 )); then
-		    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-		fi
-		sleeping 1
-		s=`date +"%s"`
-		s=$(( $s-$k ))
-		echo -e $s"\r\c"
+	    wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
+	    if [ ! -e "$path_usr/extensions/zdl-wise" ]; then
+		print_c 2 "Attendi: potrebbe impiegare qualche minuto"
+		wise_code=$( wise $( wise_args "$wise_code" ) )
+		wise_code=$( wise $( wise_args "$wise_code" ) )
+		wise_code=$( wise $( wise_args "$wise_code" ) )
+
+		unset url_in_file
+		preurl_in_file="${wise_code##*href=\"}"
+		preurl_in_file="${preurl_in_file%%\"*}"
+		preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
+		wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
 		url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
 		url_in_file="${url_in_file#*href=\"}"
 		url_in_file="${url_in_file%%\"*}"
-		premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
-		sleeping 0.1
-		if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
-		    break
-		fi
-	    done
+		
+	    else
+		print_c 2 "Attendi circa 30 secondi:"
+		k=`date +"%s"`
+		s=0
+		while true; do
+		    touch "$path_tmp"/.wise-code
+		    sleep 0.9
+		    s=`date +"%s"`
+		    s=$(( $s-$k ))
+		    if [ ! -f "$path_tmp"/.wise-code ]; then
+			break
+		    fi
+		    print_c 0 "$s\r\c"
+		done & 
+		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+		clean_countdown
+#	    kill $pid_counter &>/dev/null
+#	    bindings
+		unset url_in_file
+		preurl_in_file="${wise_code##*href=\"}"
+		preurl_in_file="${preurl_in_file%%\"*}"
+		preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
+		while true; do
+		    if (( $s>30 )); then
+			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+		    fi
+		    sleeping 1
+		    s=`date +"%s"`
+		    s=$(( $s-$k ))
+		    print_c 0 "$s\r\c"
+		    url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
+		    url_in_file="${url_in_file#*href=\"}"
+		    url_in_file="${url_in_file%%\"*}"
+		    premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
+		    sleeping 0.1
+		    if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
+			break
+		    fi
+		done
+	    fi
 	fi
-    fi
-    if [ ! -z "$premium" ]; then
-	_log 11
-	break_loop=true
-    else
-	file_in="${url_in_file##*'/'}"
-	file_in="${file_in%'?'*}"
-    fi
+	if [ ! -z "$premium" ]; then
+	    _log 11
+	    break_loop=true
+	else
+	    file_in="${url_in_file##*'/'}"
+	    file_in="${file_in%'?'*}"
+	fi
 
-    if [ -z "$file_in" ]; then
-	break_loop=true
+	if [ -z "$file_in" ]; then
+	    break_loop=true
+	fi
+	unset preurl_in_file 
     fi
-    unset preurl_in_file 
 fi
 

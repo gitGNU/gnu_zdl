@@ -248,15 +248,10 @@ function data_alive {
 		length_alive[$j]=${length_out[$i]}
 		alive=1
 		(( j++ ))
-		
 	    fi
 	done
+	[ "$alive" == 1 ] && return 1
     fi
-}
-
-function kill_downloads {
-    data_alive
-    [ ! -z "${pid_alive[*]}" ] && kill ${pid_alive[*]} 2>/dev/null
 }
 
 function check_download {

@@ -36,6 +36,74 @@ function check_pid {
 }
 
 
+function run_in_dir {
+    line_file "$1" "$2" "/tmp/.stdrun.zdl"
+}
+
+function pidprog_in_dir { ## $1 = testing directory
+    if [ -f /tmp/.stdrun.zdl ]; then
+	grep "$1" /tmp/.stdrun.zdl | awk '{print $1}' | while read line; do
+	    check_pid $line
+	    [ $? == 1 ] && echo $line
+	done
+    fi
+}
+
+function check_instance {
+    mode=$1
+    while read line; do
+	test_pid=$(awk '{print $1}' <<< "$line")
+	[[ ! "$test_pid" =~ ^[0-9]+$ ]] && test_pid=$(awk '{print $2}' <<< "$line")
+	if [[ "$test_pid" =~ ^[0-9]+$ ]] &&  [ -d "/proc/$test_pid" ]; then
+	    case $mode in
+		d|'') 
+		    if [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
+			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
+			mode=d
+			return 1
+		    fi
+		    ;;
+		i|'')
+		    cmdline=$(cat /proc/$test_pid/cmdline)
+		    if [[ $(grep -P '\/zdl.*(-i|--interactive).*' <<< "$cmdline") ]] && \
+			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
+			tty=/dev/$(awk '{print $2}' <<< "$line")
+			[ -e "/cygdrive" ] && tty=$(cat /proc/$test_pid/ctty)
+			if [ "$tty" == "$tty_prog" ]; then
+			    mode=i
+			    pid=$test_pid
+			    return 2
+			fi
+		    fi
+		    ;;
+		s|'')
+		    if [[ $(grep zdl /proc/$test_pid/cmdline) ]] && \
+			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
+			mode=s
+			return 3
+		    fi
+		    ;;
+	    esac
+	fi
+    done <<< "$(ps ax |grep bash)"
+    return 0
+}
+
+## TO-DO: con la funzione precedente, rimpiazzare le due che seguono:
+function check_instance_daemon {
+    while read line; do
+	test_pid=$(awk '{print $1}' <<< "$line")
+	if [[ "$test_pid" =~ ^[0-9]+$ ]] && \
+	    [ -d "/proc/$test_pid" ] && \
+	    [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
+	    [[ $(sed -r 's|.+silent(.+)$|\1|g' < /proc/$test_pid/cmdline) == "$PWD" ]]; then
+	    return 1
+	fi
+    done <<< "$(ps ax |grep bash)"
+    return 0
+}
+
+
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
 	test_pid=`cat "$path_tmp/pid.zdl" 2>/dev/null`
@@ -88,19 +156,6 @@ function redirect_links {
     exit 1
 }
 
-
-function check_instance_daemon {
-    while read line; do
-	test_pid=$(awk '{print $1}' <<< "$line")
-	if [[ "$test_pid" =~ ^[0-9]+$ ]] && \
-	    [ -d "/proc/$test_pid" ] && \
-	    [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
-	    [[ $(sed -r 's|.+silent(.+)$|\1|g' < /proc/$test_pid/cmdline) == "$PWD" ]]; then
-	    return 1
-	fi
-    done <<< "$(ps ax |grep bash)"
-    return 0
-}
 
 function is_rtmp {
     for h in ${rtmp[*]}; do
@@ -192,15 +247,65 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
     fi
 }
 
-function run_in_dir {
-    line_file "$1" "$2" "/tmp/.stdrun.zdl"
-}
-
-function pidprog_in_dir { ## $1 = testing directory
-    if [ -f /tmp/.stdrun.zdl ]; then
-	grep "$1" /tmp/.stdrun.zdl | awk '{print $1}' | while read line; do
-	    check_pid $line
-	    [ $? == 1 ] && echo $line
-	done
+function trap_sigint {
+    check_instance_prog
+    if [ $? == 1 ]; then
+	trap "trap SIGINT; stty echo; kill -9 $pid $loops_pid" SIGINT
     fi
 }
+
+function clean_countdown {
+    rm -f "$path_tmp"/.wise-code
+}
+
+function bindings {
+    trap_sigint
+    check_instance_prog
+    [ $? == 1 ] && pid_prog=$pid
+    bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
+    bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
+    bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" 2>/dev/null
+    bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog\"" 2>/dev/null
+}
+
+function link_parser {
+    local _domain userpass ext item param
+    param="$1"
+
+    # extract the protocol
+    parser_proto=$(echo "$param" | grep '://' | sed -r 's,^([^:\/]+\:\/\/).+,\1,g' 2>/dev/null)
+
+    # remove the protocol
+    parser_url="${param#$parser_proto}"
+
+    # extract domain
+    _domain="${parser_url#*'@'}"
+    _domain="${_domain%%\/*}"
+    [ "${_domain}" != "${_domain#*:}" ] && parser_port="${_domain#*:}"
+    _domain="${_domain%:*}"
+
+    if [ ! -z "${_domain//[0-9.]}" ]; then
+	[ "${_domain}" != "${_domain%'.'*}" ] && parser_domain="${_domain}"
+    else 
+	parser_ip="${_domain}"
+    fi
+
+    # extract the user and password (if any)
+    userpass=`echo "$parser_url" | grep @ | cut -d@ -f1`
+    parser_pass=`echo "$userpass" | grep : | cut -d: -f2`
+    if [ -n "$pass" ]; then
+	parser_user=`echo $userpass | grep : | cut -d: -f1 `
+    else
+	parser_user="$userpass"
+    fi
+
+    # extract the path (if any)
+    parser_path="$(echo $parser_url | grep / | cut -d/ -f2-)"
+
+    if [ "${parser_proto}" != "${parser_proto//ftp}" ] || [ "${parser_proto}" != "${parser_proto//http}" ]; then
+	if ( [ ! -z "$parser_domain" ] || [ ! -z "$parser_ip" ] ) && [ ! -z "$parser_path" ]; then
+	    return 1
+	fi
+    fi
+}
+

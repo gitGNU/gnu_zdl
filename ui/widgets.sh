@@ -102,25 +102,38 @@ function init_colors {
     On_IWhite='\e[0;107m'   # Bianco
 }
 
-function print_c {
-    if [ -z "$daemon" ]; then
-	case "$1" in
-	    1)
-		echo -n -e '\e[1;32m' #verde
-		;;
-	    2)
-		echo -n -e '\e[1;33m' #giallo
-		;;	
-	    3)
-		echo -n -e '\e[1;31m' #rosso
-		;;	
-	    4)
-		echo -n -e "$BBlue"
-		;;	
+# function check_output {
+#     check_instance i
+#     if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] ) && [ -z "$daemon" ]; then
+# 	$*
+#     fi
+# }
 
-	esac
-	echo -n -e "$2\n"
-	echo -n -e "${Color_Off}"
+function print_c {
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
+	# check_instance i
+	# if [ $? != 2 ] || [ "$pid_prog" == "$pid" ]; then
+	    case "$1" in
+		0)
+		    echo -n -e ""
+		    ;;
+		1)
+		    echo -n -e '\e[1;32m' #verde
+		    ;;
+		2)
+		    echo -n -e '\e[1;33m' #giallo
+		    ;;	
+		3)
+		    echo -n -e '\e[1;31m' #rosso
+		    ;;	
+		4)
+		    echo -n -e "$BBlue"
+		    ;;	
+
+	    esac
+	    echo -n -e "$2\n"
+	    echo -n -e "${Color_Off}"
+#	fi
     fi
 }
 
@@ -173,9 +186,17 @@ function header_z {
 }
 
 function header_box {
-    if [ -z "$daemon" ]; then
-	header "$1" "$Black${On_White}" "─"
+    # check_instance i
+    # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] ) &&
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
+	if [ -z "$daemon" ]; then
+	    header "$1" "$Black${On_White}" "─"
+	fi
     fi
+}
+
+function header_box_interactive {
+    header "$1" "$Black${On_White}" "─"
 }
 
 function header_dl {
@@ -185,7 +206,9 @@ function header_dl {
 }
 
 function pause {
-    if [ -z "$daemon" ]; then
+    # check_instance i
+    # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] ) &&
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
 	echo
 	header ">>>>>>>> Digita un tasto per continuare " "$On_Blue$BWhite" "\<"
 	cursor off
@@ -195,7 +218,9 @@ function pause {
 }
 
 function xterm_stop {
-    if [ -z "$daemon" ]; then
+    # check_instance i
+    # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] )
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
 	echo
 	header ">>>>>>>> Digita < Enter > per chiudere Xterm " "$On_Blue$BWhite" "\<"
 	cursor off
