@@ -31,7 +31,6 @@
 if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]; then
     url_in="${url_in%\#}"
     wget -q -t 5 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    echo -e "...\c"
     test_putlocker=`cat "$path_tmp/zdl.tmp" | grep "File Does Not Exist"`
     
     if [ -z "$test_putlocker" ]; then

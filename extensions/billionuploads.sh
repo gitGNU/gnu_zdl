@@ -34,7 +34,7 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
 	check_ip billionuploads
     fi
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    echo -e "...\c"
+    print_c 0 "...\c"
     
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
@@ -62,7 +62,7 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
 	s=`date +"%s"`
 	s=$(( $s-$k ))
 	
-	echo -e $s"\r\c"
+	print_c 0 "$s\r\c"
 	if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
 	    break
 	fi

@@ -39,7 +39,7 @@ if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; th
     cookies="$path_tmp/cookies.zdl"
     
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    echo -e "...\c"
+    print_c 0 "...\c"
     
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"

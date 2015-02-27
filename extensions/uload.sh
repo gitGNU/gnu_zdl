@@ -30,7 +30,6 @@
 if [ "$url_in" != "${url_in//uload.}" ]; then
     check_ip uload
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    echo -e "...\c"
 
     test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
     if [ ! -z "$test_exceeded" ]; then

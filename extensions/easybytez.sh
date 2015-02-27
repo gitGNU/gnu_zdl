@@ -58,7 +58,6 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	fi
 	if [ "$login" == "1" ]; then
 	    wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-	    echo -e "...\c"
 	    countdown=40
 	    redirected=true
 	else
@@ -82,15 +81,14 @@ if [ "$url_in" != "${url_in//easybytez}" ]; then
 	    input_hidden "$path_tmp/zdl2.tmp"
 	    
 	    wget -t 1 -T $max_waiting --user-agent="$user_agent" -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
-	    echo -e "...\c"
 	    unset post_data
 	    
 	    print_c 2 "Attendi $countdown secondi:"
 	    for s in `seq 0 $countdown`; do
-		echo -e $s"\r\c"
+		print_c 0 "$s\r\c"
 		sleeping 1
 	    done
-	    echo -e "  \r\c"
+	    print_c 0 "  \r\c"
 
 	    input_hidden "$path_tmp/zdl3.tmp"
 	    length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`

@@ -215,7 +215,6 @@ function new_ip_proxy {
 	    done
 	    
 	    if [ "$string_line" == "" ]; then
-#		echo -n -e "."
 		sleeping 3
 		(( search_proxy++ ))
 		[ $search_proxy == 100 ] && print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" && noproxy && close=true && break
@@ -231,7 +230,7 @@ function new_ip_proxy {
 	[ ! -z "$close" ] && break
 	http_proxy="$proxy"
 	export http_proxy
-	echo -n "Proxy: $http_proxy ($proxy_type)"
+	print_c 0 "Proxy: $http_proxy ($proxy_type)"
 	echo
 	unset myip
 	print_c 2 "\nTest velocità di download:"
@@ -260,7 +259,7 @@ function new_ip_proxy {
 		num_speed[$i]="0"
 		type_speed[$i]='KB/s'
 	    fi
-	    echo "${speed[$i]}"
+	    print_c 0 "${speed[$i]}"
 	    if [ "${num_speed[0]}" == 0 ]; then
 		break
 	    fi

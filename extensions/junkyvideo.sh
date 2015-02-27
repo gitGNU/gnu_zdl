@@ -30,7 +30,7 @@
 
 if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]; then
     input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
-    echo -n -e "${BBlue}1/2) "
+    print_c 0 "${BBlue}1/2) "
     countdown+ 6
     #### Per scaricare il file a bassa risoluzione (streaming video), seguire questa pista:
     ## wget -q --post-data="$post_data" "$url_in" -O- |grep file:
@@ -39,7 +39,7 @@ if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]; then
     unset data
     data=( $(sed -r "s|^.+\('(.+)','(.+)','(.+)'\).+$|\1 \2 \3|g" <<< "$data_html") )
 
-    echo -n -e "${BBlue}2/2) "
+    print_c 0 "${BBlue}2/2) "
     countdown+ 6
     wget -q "http://junkyvideo.com/dl?op=download_orig&id=${data[0]}&mode=${data[1]}&hash=${data[2]}" -O "$path_tmp/zdl.tmp"
     url_in_file=$(cat "$path_tmp/zdl.tmp" |grep "$file_in" |sed -r 's|^[^"]+\"([^"]+).+|\1|g' )

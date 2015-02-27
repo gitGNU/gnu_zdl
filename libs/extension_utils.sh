@@ -161,7 +161,7 @@ function countdown+ {
 	sleeping 1
 	s=`date +"%s"`
 	s=$(( $s-$k ))
-	echo -e $s"\r\c"
+	print_c 0 "$s\r\c"
     done 
 }
 
@@ -173,8 +173,8 @@ function countdown- {
     while (( $diff>0 )); do
 	this=`date +"%s"`
 	diff=$(( $stop-$this ))
-	echo -e "           \r\c"
-	echo -e $diff"\r\c"
+	print_c 0 "           \r\c"
+	print_c 0 "$diff\r\c"
 	sleeping 1
     done 
 }
