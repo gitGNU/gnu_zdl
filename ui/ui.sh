@@ -86,7 +86,7 @@ function show_downloads_extended {
 	if [ $? == 1 ]; then
 	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
 	else
-	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n{Color_Off}"
+	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
 	fi
     fi
     data_stdout
