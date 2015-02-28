@@ -46,5 +46,11 @@ if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]; then
     file_in="$postdata_fname.${url_in_file##*.}"
     unset post_data
     axel_parts=4
+read -p "$url_in_file"
+
+    if [ -z "$url_in_file" ]; then
+	_log 3
+	break_loop=true
+    fi
 fi
 
