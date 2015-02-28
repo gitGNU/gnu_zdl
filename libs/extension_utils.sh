@@ -158,6 +158,8 @@ function countdown+ {
     k=`date +"%s"`
     s=0
     while (( $s<$max )); do
+	check_pid $pid_prog
+	[ $? != 1 ] && exit
 	sleeping 1
 	s=`date +"%s"`
 	s=$(( $s-$k ))
@@ -171,6 +173,8 @@ function countdown- {
     stop=$(( $start+$max ))
     diff=$max
     while (( $diff>0 )); do
+	check_pid $pid_prog
+	[ $? != 1 ] && exit
 	this=`date +"%s"`
 	diff=$(( $stop-$this ))
 	print_c 0 "           \r\c"

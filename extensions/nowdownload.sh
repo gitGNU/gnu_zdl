@@ -197,6 +197,8 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 			break
 		    fi
 		    print_c 0 "$s\r\c"
+		    check_pid $pid_prog
+		    [ $? != 1 ] && exit
 		done & 
 		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
 		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
@@ -224,6 +226,8 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 		    if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
 			break
 		    fi
+		    check_pid $pid_prog
+		    [ $? != 1 ] && exit
 		done
 	    fi
 	fi

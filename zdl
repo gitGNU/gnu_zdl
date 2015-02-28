@@ -60,7 +60,8 @@ function update_updater {
 	print_c 1 "$PROG è già alla versione più recente"
     else
 	cd "$path_tmp"
-	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+#	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
@@ -528,6 +529,14 @@ if [[ "${args[*]}" =~ (\-r|\-\-resume) ]]; then
 fi
 
 for i in `seq 0 $max_args`; do
+    if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]; then
+	no_file_regex=$(sed -r 's;--no-file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
+	unset args[$i]
+	resume=enabled
+    fi
+done
+
+for i in `seq 0 $max_args`; do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then
 	print_c 3 "${args[$i]}: argomento non valido"
 	echo
@@ -737,8 +746,12 @@ function main_loop {
 		test_in=$?
 		[ "$test_freespace" == "1" ] && unset test_in test_freespace
 
+		if [ ! -z "$no_file_regex" ] && [[ "$file_in" =~ $no_file_regex ]]; then
+		    _log 13
+		fi
+
 		#### DOWNLOAD ####
-		if [ "$test_in" == "5" ] && [ -z "$premium" ]; then
+		if [ "$test_in" == "5" ] && [ -z "$premium" ] && ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ); then
 		    unset test_in
 		    download
 		    is_rtmp "$url_in"
@@ -842,6 +855,7 @@ function main_loop {
     fi
 }
 
+trap_sigint
 if [ "$daemon" == "true" ]; then
     while true; do
 	main_loop

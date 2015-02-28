@@ -127,5 +127,10 @@ function _log {
 		unset from_loop	
 	    fi
 	    ;;
+	13)
+	    init_log
+	    print_c 3  "$file_in --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex" | tee -a $file_log
+	    links_loop - "$url_in"
+	    ;;
     esac
 }

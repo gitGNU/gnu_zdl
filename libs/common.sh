@@ -243,10 +243,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 }
 
 function trap_sigint {
-    check_instance_prog
-    if [ $? == 1 ]; then
-	trap "trap SIGINT; stty echo; kill -9 $pid $loops_pid" SIGINT
-    fi
+    trap "trap SIGINT; stty echo ; echo; kill -9 $loops_pid; exit" SIGINT
 }
 
 function clean_countdown {

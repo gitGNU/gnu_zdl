@@ -46,6 +46,8 @@ if [ "$url_in" != "${url_in//'thevideo.'}" ]; then
     while [ -z "$url_in_file" ]; do
 	url_in_file=$(wget "$url" -O- -q |grep "Direct Download Link" | sed -r 's|.+\"([^"]+)\".+|\1|g')
 	sleep 1
+	check_pid $pid_prog
+	[ $? != 1 ] && exit
     done
 
     file_in=$file_in.${url_in_file##*.}

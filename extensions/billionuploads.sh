@@ -66,6 +66,8 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
 	if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
 	    break
 	fi
+	check_pid $pid_prog
+	[ $? != 1 ] && exit
     done
     if (( $axel_parts>8 )); then
 	axel_parts=8

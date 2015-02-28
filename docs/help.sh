@@ -104,6 +104,10 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                da scaricare. 
                                Può essere configurato come comportamento predefinito.
 
+       --no-file=REGEX         Non verranno effettuati i download dei file il cui nome
+                               corrisponde alla REGEX indicata
+
+
 ${BBlue}Editor per i link (può essere usato in qualunque momento con Meta-e):${Color_Off}
   sostituisce l'interfaccia iniziale per l'immissione dei link
 
