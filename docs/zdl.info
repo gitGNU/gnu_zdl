@@ -246,9 +246,10 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      Forza la riconnessione del modem al termine di ogni download,
      utilizzando uno script/comando/programma (configurare ZDL)
 
-`--overwrite'
-     Sovrascrive eventuali file omonimi di quelli che si stanno per
-     scaricare
+`-r, --resume'
+     Recupera o riscarica file parzialmente scaricati. Può
+     sovrascrivere eventuali file omonimi di quelli da scaricare. Può
+     essere configurato come comportamento predefinito.
 
 Avvio con un editor:
 ....................
@@ -906,19 +907,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9258
-Node: Avviare ZDL12015
-Node: Arrestare ZDL14453
-Node: Controllare i download15558
-Node: Manuali d'uso20458
-Node: Creare nuove estensioni20893
-Node: Software consigliati22468
-Node: Conkeror23333
-Node: zdl-xterm e XXXTerm/Xombrero24344
-Node: Installazione e aggiornamento26268
-Node: Tags28492
-Node: Copying30578
-Node: Contatti31628
+Node: Servizi streaming/hosting9363
+Node: Avviare ZDL12120
+Node: Arrestare ZDL14558
+Node: Controllare i download15663
+Node: Manuali d'uso20563
+Node: Creare nuove estensioni20998
+Node: Software consigliati22573
+Node: Conkeror23438
+Node: zdl-xterm e XXXTerm/Xombrero24449
+Node: Installazione e aggiornamento26373
+Node: Tags28597
+Node: Copying30683
+Node: Contatti31733
 
 End Tag Table
 

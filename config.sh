@@ -38,6 +38,7 @@ key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Sc
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
 key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
 key_conf[10]=editor;          val_conf[10]="";                string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
+key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
 
 declare -A list_proxy_url
 
@@ -76,15 +77,9 @@ function set_default_conf {
     fi
     
     add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel) or NUMBER OF SIMULTANEUS DOWNLOADS"
-    add_conf "${key_conf[2]}=${val_conf[2]}" #"mode=single"
-    add_conf "${key_conf[3]}=${val_conf[3]}" #"stream_mode=single"
-    add_conf "${key_conf[4]}=" #"num_multi="
-    add_conf "${key_conf[5]}=${val_conf[5]}" #skin
-    add_conf "${key_conf[6]}=${val_conf[6]}" #"language=$LANG"
-    add_conf "${key_conf[7]}=${val_conf[7]}" #"reconnect="
-    add_conf "${key_conf[8]}=${val_conf[8]}" #"autoupdate=enabled"
-    add_conf "${key_conf[9]}=${val_conf[9]}" # player
-    add_conf "${key_conf[10]}=${val_conf[10]}" # editor
+    for ((i=2; i<${#key_conf[*]}; i++)); do
+	add_conf "${key_conf[$i]}=${val_conf[$i]}"
+    done
 }
 
 function get_item_conf {
@@ -340,7 +335,6 @@ function init {
 
 
     ### "http://www.ip-adress.com/proxy_list/"
-    #list_proxy_url["ip_adress"]="http://zoninoz.hostoi.com/proxy-list.php"
     list_proxy_url['ip_adress']="http://zoninoz.hol.es" 
     list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 

@@ -518,11 +518,11 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--overwrite}" ]; then
+if [[ "${args[*]}" =~ (\-r|\-\-resume) ]]; then
     for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--overwrite" ]; then 
+	if [[ "${args[$i]}" =~ ^(\-r|\-\-resume)$ ]]; then 
 	    unset args[$i]
-	    overwrite=true
+	    resume=enabled
 	fi
     done
 fi

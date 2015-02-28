@@ -250,7 +250,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 
 	if [ -f "${file_in}" ]; then
 	    ## --bis abilitato di default
-	    [ "$overwrite" != true ] && bis=true
+	    [ "$resume" == "enabled" ] && bis=true
 	    if [ "$bis" == true ]; then
 		homonymy_treating=( resume_dl rewrite_dl bis_dl )
 	    else

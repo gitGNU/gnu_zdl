@@ -325,8 +325,8 @@ Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
 @item --reconnect
 Forza la riconnessione del modem al termine di ogni download, utilizzando uno script/comando/programma (configurare ZDL)
 
-@item --overwrite
-Sovrascrive eventuali file omonimi di quelli che si stanno per scaricare
+@item -r, --resume
+Recupera o riscarica file parzialmente scaricati. Può sovrascrivere eventuali file omonimi di quelli da scaricare. Può essere configurato come comportamento predefinito.
 @end table
 
 @c @end man
