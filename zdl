@@ -42,7 +42,6 @@ source $path_usr/libs/log.sh
 source $path_usr/ui/widgets.sh
 source $path_usr/ui/ui.sh
 
-
 function update_updater {
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
 
@@ -76,6 +75,26 @@ function update_updater {
 
 
 args=( "$@" )
+
+tags=( `ps ax |sed -n '1p'` )
+for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
+    j=$(( $i+1 ))
+    [ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
+    [ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
+done
+
+## è una pipe?
+stdin="$(ls -l /dev/fd/0)"
+stdin="${stdin/*-> /}"
+if [ "${stdin}" != "${stdin//'pipe:['}" ]; then    
+    pipe=$(cat /dev/fd/0)
+    exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
+    for pipezed in $pipe; do
+	args[${#args[*]}]="$pipezed"
+    done
+    unset pipe
+fi
+
 max_args=$(( ${#args[*]}-1 ))
 
 if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]; then
@@ -558,12 +577,7 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
     if [ -z "$from_editor" ] && [ -z "$daemon" ]; then
-	if [ -z "$pipe" ]; then
-	    links_box
-	else
-	    print_c 3 "Le funzioni interattive non sono disponibili in questa istanza del programma, perché lo standard input è una PIPE. Puoi avviare l'interfaccia interattiva in questa stessa directory da un altro terminale\n"
-	fi
-
+	links_box
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
 	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
 	while true; do
@@ -575,7 +589,7 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
 	for ((i=0; i<${#links[*]}; i++)); do
 	    [ ! -z "${links[$i]// }" ] && links_loop + "${links[$i]// /%20}"
 	done
-    else
+    elif [ ! -z "$from_editor" ]; then
 	$editor "$start_file"
     fi
     if [ -f "$start_file" ];then
@@ -842,11 +856,13 @@ else
     loops_pid=$!
 fi
 
-stty -echo
-bindings
-while [ -d /proc/$loops_pid ] && [ "$daemon" != true ]; do
-    read -e -n1 -t 5
-done
+if [ "$daemon" != true ]; then
+    stty -echo
+    bindings
+    while [ -d /proc/$loops_pid ]; do
+	read -e -n1 -t 5
+    done
+fi
 
 rm -f "$path_tmp/lock.zdl"
 noproxy

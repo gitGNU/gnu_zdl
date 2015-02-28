@@ -314,12 +314,6 @@ function init {
 	set_default_conf
     fi
     
-    tags=( `ps ax |sed -n '1p'` )
-    for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
-	j=$(( $i+1 ))
-	[ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
-	[ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
-    done
     [ -z "$pid_prog" ] && pid_prog=$$ 
     pid_in=1
 
@@ -353,12 +347,6 @@ function init {
     ## massima durata tentativi di connessione (Wget)
     max_waiting=40
     
-    ## per determinare se lo stdin è una pipe (disattivare l'interazione della funzione sleeping)
-    stdin="$(ls -l /dev/fd/0)"
-    stdin="${stdin/*-> /}"
-    if [ "${stdin}" != "${stdin//'pipe:['}" ]; then    
-	pipe=true
-    fi
     get_conf
     log=0
     if [ -f "$file_log" ]; then
