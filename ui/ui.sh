@@ -268,7 +268,7 @@ function interactive {
 	    check_instance_prog
 	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid 2>/dev/null
 	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
-	    zdl --daemon
+	    zdl --daemon &>/dev/null
 	elif [ "$action" == "Q" ]; then
 	    kill $daemon_pid && unset daemon_pid 2>/dev/null
 	fi

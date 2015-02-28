@@ -306,7 +306,6 @@ if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-
 		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 		    header_z
 		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
-		    pause
 		    mkdir -p "$path_tmp"
 		else
 		    header_z
