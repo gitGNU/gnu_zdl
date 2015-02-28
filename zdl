@@ -862,7 +862,7 @@ fi
 
 check_instance_dl
 if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
-    rm -r "$path_tmp" 2>/dev/null
+    rm -rf "$path_tmp" 2>/dev/null
 fi
 
 echo
