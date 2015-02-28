@@ -447,7 +447,7 @@ fi
 
 if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]; then
     for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--configure" ] || [ "${args[$i]}" == "-c" ]; then 
+	if [[ "${args[$i]}" =~ ^(\-\-configure|\-c)$ ]]; then 
 	    unset args[$i]
 	    configure
 	fi
