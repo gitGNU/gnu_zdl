@@ -253,7 +253,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 
 `--no-file=_regex_'
      Non verranno effettuati i download dei file il cui nome
-     corrisponde alla REGEX indicata
+     corrisponde alla _regex_ indicata
 
 
 Avvio con un editor:
@@ -912,19 +912,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9483
-Node: Avviare ZDL12240
-Node: Arrestare ZDL14678
-Node: Controllare i download15783
-Node: Manuali d'uso20683
-Node: Creare nuove estensioni21118
-Node: Software consigliati22693
-Node: Conkeror23558
-Node: zdl-xterm e XXXTerm/Xombrero24569
-Node: Installazione e aggiornamento26493
-Node: Tags28717
-Node: Copying30803
-Node: Contatti31853
+Node: Servizi streaming/hosting9485
+Node: Avviare ZDL12242
+Node: Arrestare ZDL14680
+Node: Controllare i download15785
+Node: Manuali d'uso20685
+Node: Creare nuove estensioni21120
+Node: Software consigliati22695
+Node: Conkeror23560
+Node: zdl-xterm e XXXTerm/Xombrero24571
+Node: Installazione e aggiornamento26495
+Node: Tags28719
+Node: Copying30805
+Node: Contatti31855
 
 End Tag Table
 

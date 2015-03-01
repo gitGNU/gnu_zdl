@@ -329,7 +329,7 @@ Forza la riconnessione del modem al termine di ogni download, utilizzando uno sc
 Recupera o riscarica file parzialmente scaricati. Può sovrascrivere eventuali file omonimi di quelli da scaricare. Può essere configurato come comportamento predefinito.
 
 @item --no-file=@emph{regex}
-Non verranno effettuati i download dei file il cui nome corrisponde alla REGEX indicata
+Non verranno effettuati i download dei file il cui nome corrisponde alla @emph{regex} indicata
 
 @end table
 
