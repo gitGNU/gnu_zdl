@@ -28,8 +28,8 @@
 function usage {
 
 echo -e -n "$(header_z)
-${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
-  ${BWhite}zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]${Color_Off}
+Uso (l'ordine degli argomenti non è importante):
+  zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
 
          FILE_n                Nomi dei file da cui estrarre i LINK.
                                I file devono essere testuali
@@ -48,8 +48,8 @@ ${BBlue}Uso (l'ordine degli argomenti non è importante):${Color_Off}
                                (se omessa, è quella corrente)
   
 
-${BWhite}Opzioni${Color_Off}
-${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_Off}
+Opzioni_
+_Le opzioni brevi non seguite da valori possono essere contratte:
   '-ufmd' equivale a '-u -f -m -d'
 
 
@@ -108,7 +108,7 @@ ${BBlue}Le opzioni brevi non seguite da valori possono essere contratte:${Color_
                                corrisponde alla REGEX indicata
 
 
-${BBlue}Editor per i link (può essere usato in qualunque momento con Meta-e):${Color_Off}
+_Editor per i link (può essere usato in qualunque momento con Meta-e):
   sostituisce l'interfaccia iniziale per l'immissione dei link
 
   -e,  --editor                Editor predefinito (si può configurare con 'zdl -c')
@@ -119,7 +119,7 @@ ${BBlue}Editor per i link (può essere usato in qualunque momento con Meta-e):${
        --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
 
 
-${BBlue}Avvio con proxy:${Color_Off}
+_Avvio con proxy:
        --proxy		       Avvia ZDL attivando un proxy
 		               automaticamente (il tipo di proxy
 		               predefinito è Transparent) 
@@ -138,46 +138,47 @@ ${BBlue}Avvio con proxy:${Color_Off}
 			       un nuovo indirizzo IP) 
 
 
-${BBlue}Configurazione:${Color_Off} 
+_Configurazione:
   -c,  --configure	       Interfaccia di configurazione di ZDL, 
 			       permette anche di salvare eventuali
 			       account dei servizi di hosting
 
 
-${BBlue}Per scaricare lo stream incorporando ${PROG} in nuovi script${Color_Off}, 
+_Per scaricare lo stream incorporando ${PROG} in nuovi script, 
 il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
        --stream [PARAMETRI] [--noXterm]
 
 
-${BWhite}Servizi${Color_Off}
-${BBlue}Video in streaming saltando il player del browser:${Color_Off}
+Servizi_
+_Video in streaming saltando il player del browser:
 $(cat $path_usr/streaming.txt)
 
-${BBlue}File hosting:${Color_Off}
+_File hosting:
 $(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
-${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}
+_Tutti i file scaricabili con le seguenti estensioni dei browser:
 Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
 
 
-${BWhite}Documentazione${Color_Off}
+Documentazione_
   - ipertesto in formato info, consultabile con: ${BWhite}info zdl${Color_Off}
   - ipertesto in formato html: ${BWhite}http://nongnu.org/zdl${Color_Off}
   - pagina di manuale in stile Unix: ${BWhite}man zdl${Color_Off}
 
 
-${BWhite}Altre info${Color_Off}
-${BBlue}Licenza:${Color_Off}
+Altre info_
+_Licenza:
   ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
 
-${BBlue}Per informazioni e per collaborare al progetto:${Color_Off}
+_Per informazioni e per collaborare al progetto:
   - http://nongnu.org/zdl
   - https://savannah.nongnu.org/projects/zdl
   - https://joindiaspora.com/tags/zdl
 
 Gianluca Zoni (zoninoz)
-http://inventati.org/zoninoz" | less --RAW-CONTROL-CHARS 	
+http://inventati.org/zoninoz
+" | less --RAW-CONTROL-CHARS 	
     echo
     echo
     exit 1
