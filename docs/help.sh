@@ -100,12 +100,20 @@ _Le opzioni brevi non seguite da valori possono essere contratte:
                                uno script/comando/programma (configurare ${PROG})
 
   -r,  --resume                Recupera o riscarica file parzialmente scaricati.
-                               Può sovrascrivere eventuali file omonimi di quelli 
-                               da scaricare. 
+                               Agisce in caso di omonimia fra file (leggi il manuale).
                                Può essere configurato come comportamento predefinito.
 
-       --no-file=REGEX         Non verranno effettuati i download dei file il cui nome
-                               corrisponde alla REGEX indicata
+
+_Filtri sui nomi di file:
+
+       --file=REGEX            Scarica solo file il cui nome corrisponde alla REGEX
+
+       --no-file=REGEX         Non scarica i file il cui nome corrisponde alla REGEX indicata
+
+       --no-rev                Non scarica i file con estensione '.rev'
+
+       --no-sub                Non scarica i file il cui nome contiene le stringhe 
+                               'Sub' o 'sub' (per file video sottotitolati)
 
 
 _Editor per i link (può essere usato in qualunque momento con Meta-e):

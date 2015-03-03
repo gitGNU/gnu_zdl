@@ -132,5 +132,11 @@ function _log {
 	    print_c 3  "$file_in --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex" | tee -a $file_log
 	    links_loop - "$url_in"
 	    ;;
+	14)
+	    init_log
+	    print_c 3  "$file_in --> Il file non sarà scaricato, perché non corrisponde alla regex: $file_regex" | tee -a $file_log
+	    links_loop - "$url_in"
+	    ;;
+
     esac
 }

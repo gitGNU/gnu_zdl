@@ -1,4 +1,4 @@
-\input texinfo @c -*- texinfo-*-
+ù\input texinfo @c -*- texinfo-*-
 @c %**start of header
 @setfilename zdl.info
 @settitle ZigzagDownLoader (ZDL)
@@ -325,17 +325,35 @@ Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
 @item --reconnect
 Forza la riconnessione del modem al termine di ogni download, utilizzando uno script/comando/programma (configurare ZDL)
 
+
 @item -r, --resume
-Recupera o riscarica file parzialmente scaricati. Può sovrascrivere eventuali file omonimi di quelli da scaricare. Può essere configurato come comportamento predefinito.
+Recupera o riscarica file parzialmente scaricati. Agisce in caso di omonimia fra file (leggi il manuale). Può essere configurato come comportamento predefinito.
+
+
+@end table
+
+@c @end man
+@unnumberedsubsubsec Filtri sui nomi di file:
+@c @man{6}
+@c @ifman @unnumberedsubsec Filtri sui nomi di file:
+@table @option
+@item --file=@emph{regex}
+Scarica solo file il cui nome corrisponde alla REGEX
 
 @item --no-file=@emph{regex}
-Non verranno effettuati i download dei file il cui nome corrisponde alla @emph{regex} indicata
+Non scarica i file il cui nome corrisponde alla REGEX indicata
+
+@item --no-rev
+Non scarica i file con estensione '.rev'
+
+@item --no-sub
+Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub' (per file video sottotitolati)
 
 @end table
 
 @c @end man
 @unnumberedsubsubsec Avvio con un editor:
-@c @man{6}
+@c @man{7}
 @c @ifman @unnumberedsubsec Avvio con un editor:
 @table @option
 @item -e, --editor
@@ -353,7 +371,7 @@ usa l'editor Vi o Vim
 
 @c @end man
 @unnumberedsubsubsec Avvio con Proxy:
-@c @man{7}
+@c @man{8}
 @c @ifman @unnumberedsubsec Avvio con proxy:
 @table @option
 
@@ -382,7 +400,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @c @end man
 @unnumberedsubsubsec Configurazione:
 
-@c @man{8}
+@c @man{9}
 @c @ifman @unnumberedsubsec Configurazione:
 @table @option
 
@@ -402,7 +420,7 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 @unnumbered Scaricare da servizi di @emph{video streaming} e di @emph{file hosting}
 
-@c @man{9}
+@c @man{10}
 @c @ifman @unnumberedsec PANORAMICA
 @c @ifman @unnumberedsubsec Servizi
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
@@ -458,7 +476,7 @@ senza l'uso di proxy (in questo caso è necessario specificare anche
 
 @unnumbered Modalità di avvio
 
-@c @man{10}
+@c @man{11}
 @c @ifman @unnumberedsubsec Avvio
 ZDL può essere avviato in diversi modi:
 
@@ -532,7 +550,7 @@ nella modalità "non interattiva" (standard), digitando il tasto @kbd{i}
 
 @unnumbered Modalità di arresto
 
-@c @man{11}
+@c @man{12}
 @c @ifman @unnumberedsubsec Arresto
 ZDL può essere fermato in diversi modi:
 @itemize
@@ -716,7 +734,7 @@ modificare il sorgente
 
 @unnumbered Software consigliati
 
-@c @man{12}
+@c @man{13}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
 @pindex axel
@@ -739,6 +757,13 @@ Terminale grafico predefinito per GNU/Linux
 @pindex flashgot
 @item Flashgot
 Estensione di Firefox/Iceweasel/Icecat
+
+@pindex editor
+@item Emacs
+@itemx Midnight Commander (MCEdit)
+@itemx Nano
+@itemx Vi, Vim
+Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
 @end table
 
 @unnumberedsubsec ZDL è compatibile con: 
@@ -990,7 +1015,7 @@ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
 
 @bye
 
-@c @man{13}
+@c @man{14}
 @unnumberedsec MANUALI
 Oltre alla presente guida, puoi consultare:
 @table @command

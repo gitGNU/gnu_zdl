@@ -1,4 +1,4 @@
-.TH "ZigzagDownLoader (ZDL)" "1" "Tue Mar  3 00:55:18 2015" "GNU" "User Commands"
+.TH "ZigzagDownLoader (ZDL)" "1" "Tue Mar  3 13:56:38 2015" "GNU" "User Commands"
 .SH NOME\	
 \fBzdl\fP - CLI download manager per \fIGNU/Linux\fP e \fIMicrosoft Windows + Cygwin\fP.\
 
@@ -132,15 +132,41 @@ Scrive l'indirizzo IP attuale, prima di effettuare altre operazioni
 .RS 5
 Forza la riconnessione del modem al termine di ogni download, utilizzando uno script/comando/programma (configurare ZDL)
 
+
 .RS -5
 \fB-r, --resume\fP
 .RS 5
-Recupera o riscarica file parzialmente scaricati\&. Può sovrascrivere eventuali file omonimi di quelli da scaricare. Può essere configurato come comportamento predefinito.
+Recupera o riscarica file parzialmente scaricati\&. Agisce in caso di omonimia fra file (leggi il manuale). Può essere configurato come comportamento predefinito.
+
+
+
+.RS -5
+
+
+
+.SS Filtri sui nomi di file:\	
+
+.RS 5
+
+.RS -5
+\fB--file=\fP\fIregex\fP\fB\fP
+.RS 5
+Scarica solo file il cui nome corrisponde alla REGEX
 
 .RS -5
 \fB--no-file=\fP\fIregex\fP\fB\fP
 .RS 5
-Non verranno effettuati i download dei file il cui nome corrisponde alla \fIregex\fP indicata
+Non scarica i file il cui nome corrisponde alla REGEX indicata
+
+.RS -5
+\fB--no-rev\fP
+.RS 5
+Non scarica i file con estensione '.rev'
+
+.RS -5
+\fB--no-sub\fP
+.RS 5
+Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub' (per file video sottotitolati)
 
 
 .RS -5
@@ -442,6 +468,21 @@ Terminale grafico predefinito per GNU/Linux
 \fIFlashgot\fP
 .RS 5
 Estensione di Firefox/Iceweasel/Icecat
+
+
+.RS -5
+\fIEmacs\fP
+.RS 5
+.RS -5
+\fIMidnight Commander (MCEdit)\fP
+.RS 5
+.RS -5
+\fINano\fP
+.RS 5
+.RS -5
+\fIVi, Vim\fP
+.RS 5
+Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
 
 .RS -5
 

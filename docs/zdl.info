@@ -247,13 +247,26 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      utilizzando uno script/comando/programma (configurare ZDL)
 
 `-r, --resume'
-     Recupera o riscarica file parzialmente scaricati. Può
-     sovrascrivere eventuali file omonimi di quelli da scaricare. Può
-     essere configurato come comportamento predefinito.
+     Recupera o riscarica file parzialmente scaricati. Agisce in caso
+     di omonimia fra file (leggi il manuale). Può essere configurato
+     come comportamento predefinito.
+
+
+Filtri sui nomi di file:
+........................
+
+`--file=_regex_'
+     Scarica solo file il cui nome corrisponde alla REGEX
 
 `--no-file=_regex_'
-     Non verranno effettuati i download dei file il cui nome
-     corrisponde alla _regex_ indicata
+     Non scarica i file il cui nome corrisponde alla REGEX indicata
+
+`--no-rev'
+     Non scarica i file con estensione '.rev'
+
+`--no-sub'
+     Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub'
+     (per file video sottotitolati)
 
 
 Avvio con un editor:
@@ -642,6 +655,13 @@ _XTerm_
 _Flashgot_
      Estensione di Firefox/Iceweasel/Icecat
 
+_Emacs_
+_Midnight Commander (MCEdit)_
+_Nano_
+_Vi, Vim_
+     Almeno un editor, per poter modificare in qualsiasi momento la
+     lista dei link da cui effettuare i download
+
 ZDL è compatibile con:
 -----------------------
 
@@ -841,16 +861,17 @@ Indice dei programmi
 
 * avconv:                                Software consigliati. (line  9)
 * axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 30)
+* conkeror:                              Software consigliati. (line 37)
+* editor:                                Software consigliati. (line 21)
 * ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 24)
+* firefox:                               Software consigliati. (line 31)
 * flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 24)
-* iceweasel:                             Software consigliati. (line 24)
+* icecat:                                Software consigliati. (line 31)
+* iceweasel:                             Software consigliati. (line 31)
 * rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 27)
+* xombrero:                              Software consigliati. (line 34)
 * xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 27)
+* xxxterm:                               Software consigliati. (line 34)
 
 
 File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
@@ -912,19 +933,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9485
-Node: Avviare ZDL12242
-Node: Arrestare ZDL14680
-Node: Controllare i download15785
-Node: Manuali d'uso20685
-Node: Creare nuove estensioni21120
-Node: Software consigliati22695
-Node: Conkeror23560
-Node: zdl-xterm e XXXTerm/Xombrero24571
-Node: Installazione e aggiornamento26495
-Node: Tags28719
-Node: Copying30805
-Node: Contatti31855
+Node: Servizi streaming/hosting9748
+Node: Avviare ZDL12505
+Node: Arrestare ZDL14943
+Node: Controllare i download16048
+Node: Manuali d'uso20948
+Node: Creare nuove estensioni21383
+Node: Software consigliati22958
+Node: Conkeror23996
+Node: zdl-xterm e XXXTerm/Xombrero25007
+Node: Installazione e aggiornamento26931
+Node: Tags29155
+Node: Copying31314
+Node: Contatti32364
 
 End Tag Table
 
