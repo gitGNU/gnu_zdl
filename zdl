@@ -242,7 +242,6 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		    redirect_links
 		    pause
 		else
-		    export pid_prog=$$
 		    $prog "$url_in" $stream_params
 		    pause
 		fi
