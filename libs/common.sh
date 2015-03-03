@@ -245,7 +245,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 }
 
 function trap_sigint {
-    trap "trap SIGINT; stty echo ; echo; kill -9 $loops_pid; exit" SIGINT
+    trap "trap SIGINT; stty echo ; echo; kill -9 $loops_pid &>/dev/null; exit" SIGINT
 }
 
 function clean_countdown {

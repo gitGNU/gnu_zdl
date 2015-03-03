@@ -210,9 +210,9 @@ function pause {
     # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] ) &&
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
 	echo
-	header ">>>>>>>> Digita un tasto per continuare " "$On_Blue$BWhite" "\<"
+	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
 	cursor off
-	read -n 1
+	read -e
 	cursor on
     fi
 }
