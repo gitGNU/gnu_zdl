@@ -27,8 +27,10 @@
 function check_pid {
     ck_pid=$1
     if [ ! -z $ck_pid ]; then
-	ps ax | awk "{ print $ps_ax_pid }" | while read ck_alive; do
-	    if [ "$ck_alive" == "$ck_pid" ]; then
+	ps ax | grep $ck_pid | while read ck_alive; do
+	    test_pid=$(awk '{print $1}' <<< "$ck_alive")
+	    [[ ! "$test_pid" =~ ^[0-9]+$ ]] && [ -e "/cygdrive" ] && test_pid=$(awk '{print $2}' <<< "$ck_alive")
+	    if [ "$test_pid" == "$ck_pid" ]; then
 		return 1
 	    fi
 	done
@@ -108,8 +110,6 @@ function check_instance_daemon {
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
 	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
-	# test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $1}')
-	# [[ ! "$test_pid2" =~ ^[0-9]+$ ]] && [ -e "/cygdrive" ] && test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $2}')
 	check_pid $test_pid
 	if [ $? == 1 ] && [ "$pid_prog" != "$test_pid" ]; then
 	    pid=$test_pid
