@@ -108,9 +108,9 @@ function check_instance_daemon {
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
 	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
-	test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $1}')
-	[[ "$test_pid2" =~ ^[0-9]+$ ]] && [ -e "/cygdrive" ] && test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $2}')
-	check_pid $test_pid2
+	# test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $1}')
+	# [[ ! "$test_pid2" =~ ^[0-9]+$ ]] && [ -e "/cygdrive" ] && test_pid2=$(ps ax |grep -P '^[\ ]*'$test_pid |awk '{print $2}')
+	check_pid $test_pid
 	if [ $? == 1 ] && [ "$pid_prog" != "$test_pid" ]; then
 	    pid=$test_pid
 	    tty=/dev/$(ps ax |grep -P '^[\ ]*'$pid |awk '{print $2}')
