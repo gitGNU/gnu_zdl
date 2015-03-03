@@ -48,7 +48,7 @@ function check_freespace {
 		print_c 3 "Spazio insufficiente sul device. $PROG terminato."
 		exit
 	    elif [ ! -f "${file_in}.st" ] && [ "$fsize" != 0 ] && (( $freespace<$fsize )); then
-		kill $pid_in 2>/dev/null
+		kill $pid_in &>/dev/null
 		_log 6
 		return 1
 	    fi
@@ -68,7 +68,7 @@ function download {
 	s=0
 	while true; do
 	    if [ "$s" == 0 ] || [ "$s" == "$max_waiting" ] || [ "$s" == $(( $max_waiting*2 )) ]; then 
-		kill "$wpid" 2>/dev/null
+		kill "$wpid" &>/dev/null
 		rm -f "$path_tmp/redirect"
 		wget -t 1 -T $max_waiting --user-agent="$user_agent" --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
 		wpid=$!
@@ -78,11 +78,11 @@ function download {
 	    test_link=$?
 	    check_pid "$wpid"
 	    if [[ $test_link == 1 ]] || [ $? != 1 ]; then 
-		kill "$wpid" 2>/dev/null
+		kill "$wpid" &>/dev/null
 		url_in_file="$url_redirect"
 		break
 	    elif (( $s>90 )); then
-		kill "$wpid" 2>/dev/null
+		kill "$wpid" &>/dev/null
 		return
 	    else
 		[ "$s" == 0 ] && print_c 2 "Redirezione (attendi massimo 90 secondi):"
@@ -399,6 +399,6 @@ function init_links_loop {
 
 function kill_downloads {
     data_alive
-    [ ! -z "${pid_alive[*]}" ] && kill ${pid_alive[*]} 2>/dev/null
+    [ ! -z "${pid_alive[*]}" ] && kill ${pid_alive[*]} &>/dev/null
 }
 

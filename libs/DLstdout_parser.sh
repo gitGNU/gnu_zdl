@@ -288,11 +288,11 @@ function check_stdout {
 		    test_repeated="${repeated[${pid_out[$ck]}]}"
 		    repeated[${pid_out[$ck]}]=`tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
 		    if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
-			kill ${pid_out[$ck]}
+			kill ${pid_out[$ck]} &>/dev/null
 		    fi
 		    
 		    if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
-			kill ${pid_out[$ck]}
+			kill ${pid_out[$ck]}  &>/dev/null
 		    fi
 		fi
 
@@ -357,7 +357,7 @@ function check_alias {
 			file_in="${real_file_in}"
 			
 			if [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
-			    kill $pid_in
+			    kill $pid_in  &>/dev/null
 			    rm -f  "${file_in_alias}"
 			elif [ "${pid_out[$i]}" == "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
 			    check_in_file    ## se file_in esiste, ne verifica la validità --> potrebbe cancellarlo
@@ -365,7 +365,7 @@ function check_alias {
 				mv "$file_in_alias" "$file_in"
 				print_c 1 "$file_in_alias rinominato come $file_in"
 			    else
-				kill $pid_in
+				kill $pid_in  &>/dev/null
 				rm -f  "${file_in_alias}"
 			    fi
 			fi

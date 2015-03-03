@@ -217,20 +217,20 @@ function interactive {
 		done
 		if [ "$input2" == "r" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} 2>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
+			kill ${pid_out[$i]} &>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
 			if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
 			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
 			fi
 		    done
 		elif [ "$input2" == "E" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} 2>/dev/null
+			kill ${pid_out[$i]} &>/dev/null
 			rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done
 		elif [ "$input2" == "T" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} 2>/dev/null
+			kill ${pid_out[$i]} &>/dev/null
 			rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done
@@ -263,14 +263,14 @@ function interactive {
 	    break
 	elif [ "$action" == "K" ]; then
 	    kill_downloads
-	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid 2>/dev/null
-##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") 2>/dev/null
+	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid &>/dev/null
+##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") &>/dev/null
 	    check_instance_prog
-	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid 2>/dev/null
+	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid &>/dev/null
 	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
 	    zdl --daemon &>/dev/null
 	elif [ "$action" == "Q" ]; then
-	    kill $daemon_pid && unset daemon_pid 2>/dev/null
+	    kill $daemon_pid && unset daemon_pid &>/dev/null
 	fi
     done
     echo -e "\e[0m\e[J"
