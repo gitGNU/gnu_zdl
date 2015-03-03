@@ -49,7 +49,7 @@ function update_updater {
 
     mkdir -p "$path_tmp"
     cd "$path_tmp"
-    rm -fr *.gz *.sig "$prog"
+    rm -fr *.gz *.sig "$prog" 2>/dev/null
     print_c 1 "Download in corso: attendere..."
     wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q
     cd ..
@@ -347,7 +347,7 @@ if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
 	    unset args[$i]
-	    rm "$path_conf"/*.sig
+	    rm -f "$path_conf"/*.sig
 	fi
     done
     for i in `seq 0 $max_args`; do
