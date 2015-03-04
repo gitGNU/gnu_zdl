@@ -778,7 +778,8 @@ function main_loop {
 		#### DOWNLOAD ####
 		if [ "$test_in" == "5" ] && [ -z "$premium" ] && \
 		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) && \
-		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ); then
+		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ) && \
+		    [ -z "$break_loop" ]; then
 		    unset test_in
 		    download
 		    is_rtmp "$url_in"
@@ -849,9 +850,8 @@ function main_loop {
 			[ "$num_multi" == 1 ] && unset multi
 		    fi
 		done
-		
-		unset checked
-		unset post_data goal not_available exceeded 
+
+		unset checked break_loop post_data goal not_available exceeded 
 	    fi
 	done
 	print_c 4 "\nUn altro giro..."
