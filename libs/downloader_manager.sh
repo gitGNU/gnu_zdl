@@ -271,7 +271,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		elif [ "$downloader_in" == RTMPDump ]; then
 		    case "$i" in
 			resume_dl|rewrite_dl) 
-			    [ -f "$path_tmp/${file_out[$i]}_stdout.tmp" ] && test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$i]}_stdout.tmp")
+			    [ -f "$path_tmp/${file_in}_stdout.tmp" ] && test_completed=$(grep 'Download complete' < "$path_tmp/${file_in}_stdout.tmp")
 			    if [ -f "${file_in}" ] && [ -z "$test_completed" ] && ( [ -z "$bis" ] || [ "$no_bis" == true ] ); then 
 				unset no_newip
 				[ ! -z "$url_in_file" ] && return 5
@@ -309,6 +309,8 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	    ## ignore link
 	    if [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" > 0 )); then
 		_log 1
+	    elif [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" == 0 )); then
+		rm "file_in" "file_in".st
 	    fi
 	    break_loop=true
 	    no_newip=true
