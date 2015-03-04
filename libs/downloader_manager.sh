@@ -310,7 +310,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	    if [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" > 0 )); then
 		_log 1
 	    elif [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" == 0 )); then
-		rm "$file_in" "$file_in".st
+		rm -f "$file_in" "$file_in".st
 	    fi
 	    break_loop=true
 	    no_newip=true
