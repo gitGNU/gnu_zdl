@@ -27,7 +27,8 @@
 
 function usage {
 
-echo -e -n "$(header_z)
+echo -e -n "ZigzagDownLoader (ZDL)
+
 Uso (l'ordine degli argomenti non è importante):
   zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
 
@@ -104,7 +105,7 @@ _Le opzioni brevi non seguite da valori possono essere contratte:
                                Può essere configurato come comportamento predefinito.
 
 
-_Filtri sui nomi di file:
+_Filtri sui nomi dei file:
 
        --file=REGEX            Scarica solo file il cui nome corrisponde alla REGEX
 
@@ -186,7 +187,7 @@ _Per informazioni e per collaborare al progetto:
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz
-" | less --RAW-CONTROL-CHARS 	
+" #| less --RAW-CONTROL-CHARS 	
     echo
     echo
     exit 1
