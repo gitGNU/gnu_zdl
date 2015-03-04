@@ -208,7 +208,7 @@ function header_dl {
 function pause {
     # check_instance i
     # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] ) &&
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
+    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ] ); then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
 	cursor off
