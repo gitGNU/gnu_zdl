@@ -367,12 +367,14 @@ function clean_file {
 
 
 function links_loop {
-    link_parser "$2"
+    local url_test="$2"
+    link_parser "$url_test"
     if [ "$?" != 1 ] && [ "$1" == "+" ]; then
-	_log 12 "$2"
-	links_loop - "$2"
+	_log 12 "$url_test"
+	links_loop - "$url_test"
     else
-	line_file "$1" "$2" "$path_tmp/links_loop.txt"
+	[ "$1" == "+" ] && url_test="${url_test%'#20\x'}"
+	line_file "$1" "$url_test" "$path_tmp/links_loop.txt"
     fi
 }
 
