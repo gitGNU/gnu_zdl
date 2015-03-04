@@ -307,7 +307,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	    done
 	    
 	    ## ignore link
-	    if [ "$length_saved" == 0 ]; then
+	    if [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" > 0 )); then
 		_log 1
 	    fi
 	    break_loop=true
