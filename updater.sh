@@ -112,6 +112,7 @@ function update {
     if [ -e /cygdrive ]; then
 	code_batch=$(cat $SHARE/zdl.bat)
 	echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
+	chmod +x /${prog}.bat
     fi
 
     update_zdl-conkeror

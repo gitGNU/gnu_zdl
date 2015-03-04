@@ -280,6 +280,7 @@ try mv "$prog" "$SHARE"
 if [ -e /cygdrive ]; then
     code_batch=$(cat $SHARE/zdl.bat)
     echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "Script batch di avvio installato: $(cygpath -m /)/zdl.bat "
+    chmod +x /${prog}.bat
 fi
 
 install_zdl-conkeror
