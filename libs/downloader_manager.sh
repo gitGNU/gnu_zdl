@@ -307,7 +307,10 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	    done
 	    
 	    ## ignore link
-	    _log 1
+	    if [ "$length_saved" == 0 ]; then
+		_log 1
+	    fi
+	    break_loop=true
 	    no_newip=true
 	elif [ ! -z "$url_in_file" ] || ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] ); then
 	    return 5
