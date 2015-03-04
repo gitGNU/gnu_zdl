@@ -61,9 +61,13 @@ function try {
     cmd=$*
     $cmd 2>/dev/null
     if [ "$?" != 0 ]; then
-	sudo $cmd 
+	sudo $cmd 2>/dev/null
 	if [ "$?" != 0 ]; then
-	    su -c "$cmd" || ( print_c 3 "$failure"; return 1 )
+	    su -c "$cmd" 2>/dev/null
+	    if [ "$?" != 0 ]; then
+		print_c 3 "$failure";
+		return 1
+	    fi
 	fi
     fi
 }
@@ -91,12 +95,18 @@ function update {
     update_zdl-wise
 
     chmod +rx -R .
-    print_c 1 "Aggiornamento automatico in $BIN"
-    try mv zdl zdl-xterm $BIN
+
+    try mv zdl zdl-xterm $BIN 
+    if [ $? != 0 ]; then
+	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
+	exit 1
+    else
+	print_c 1 "Aggiornamento automatico in $BIN"
+    fi
     [ "$?" != 0 ] && return
     cd ..
 
-    print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+
     [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
     try rm -rf "$SHARE"
     try mkdir -p /usr/share/info
@@ -108,6 +118,12 @@ function update {
     try install -m 644 zdl/docs/zdl.info /usr/share/info/
     try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info &>/dev/null
     try mv "$prog" "$SHARE"
+    if [ $? != 0 ]; then
+	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
+	exit 1
+    else
+	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+    fi
     
     if [ -e /cygdrive ]; then
 	code_batch=$(cat $SHARE/zdl.bat)
