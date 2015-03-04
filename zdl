@@ -663,6 +663,12 @@ function main_loop {
     	sleep 10
     elif [ -f "$start_file" ]; then
 	links_in=$(cat "$start_file")
+	if [ -f "$path_tmp/.dl-mode" ];then
+	    multi=true
+	    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
+	    [ "$num_multi" == 1 ] && unset multi
+	fi
+
 ##	run_in_dir + "$pid_prog $PWD" ## con pidprog_in_dir, funzione alternativa a check_instance_prog + $path_tmp/pid.zdl
 	for url_in in $links_in; do
 	    link_parser "${url_in}"
@@ -847,6 +853,7 @@ function main_loop {
 		    if [ -f "$path_tmp/.dl-mode" ];then
 			multi=true
 			[[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
+
 			[ "$num_multi" == 1 ] && unset multi
 		    fi
 		done
