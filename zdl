@@ -60,7 +60,10 @@ function update_updater {
 	print_c 1 "$PROG è già alla versione più recente"
     else
 	cd "$path_tmp"
-#	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+######## tarball dal mirror (aggiornamento lento):
+##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+
+######## tarball dal repository git (aggiornamento rapido: disponibile subito con -u --force):
 	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
@@ -232,7 +235,8 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    
 	    if [ -e "$cfile" ]; then cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl" ; fi
 	    echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
-	    
+
+	    url_in="${url_in%'#20%'}"
 	    echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
 	    if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]; then
 		export pid_prog=$$
@@ -240,6 +244,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		if [ "$?" == "1" ]; then
 		    links_loop + "$url_in"
 		    xterm_stop=true
+		    links="$url_in"
 		    redirect_links
 		else
 		    $prog "$url_in" $stream_params --stop
@@ -896,7 +901,9 @@ fi
 if [ "$daemon" != true ]; then
     stty -echo
     bindings
-    while [ -d /proc/$loops_pid ]; do
+    while true; do
+	check_pid $loops_pid
+	[ $? == 1 ] && break
 	read -e -n1 -t 5
     done
 fi
