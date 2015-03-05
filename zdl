@@ -575,11 +575,16 @@ if [ ! -z "${args[*]}" ]; then
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    fi
 	elif [ ! -z "${args[$i]}" ]; then
+	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
 	    link_parser "${args[$i]}"
 	    if [ "$?" == 1 ]; then
 		echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
-		links="${links}\n${args[$i]}"
+		if [ -z "$links" ]; then
+		    links="${args[$i]}"
+		else
+		    links="${links}\n${args[$i]}"
+		fi
 	    else
 		_log 12 "${args[$i]}"
 	    fi
