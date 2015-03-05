@@ -143,7 +143,6 @@ function check_lock {
 
 
 function redirect_links {
-    redir_lnx=true
     header_box "Links da processare"
     links="${links##\\n}"
     echo -e "${links//'\n'/\n\n}\n"

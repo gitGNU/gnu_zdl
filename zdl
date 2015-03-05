@@ -239,17 +239,14 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		check_instance_prog
 		if [ "$?" == "1" ]; then
 		    links_loop + "$url_in"
+		    xterm_stop=true
 		    redirect_links
-		    pause
 		else
-		    $prog "$url_in" $stream_params
-		    stty echo
-		    pause
+		    $prog "$url_in" $stream_params --stop
 		fi
 	    else
 		xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params --stop\"" &
 	    fi
-	    unset args[$i]
 	    exit
 	fi
     done 

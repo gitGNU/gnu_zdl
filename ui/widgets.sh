@@ -222,7 +222,7 @@ function xterm_stop {
     # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] )
     if [ -z "$daemon" ]; then
 	echo
-	header ">>>>>>>> Digita <Invio> per chiudere Xterm " "$On_Blue$BWhite" "\<"
+	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off
 	read -e
 	cursor on
