@@ -407,6 +407,10 @@ function pipe_files {
 	fi
     done
     _out
+    if [ "$xterm_stop" == true ]; then
+	unset pipe_out
+	xterm_stop
+    fi
 }
 
 

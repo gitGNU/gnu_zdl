@@ -283,6 +283,7 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 		fi
 	    done
 	    rm $file_output
+	    [ "$xterm_stop" == true ] && xterm_stop
 	    exit
 	fi
     done

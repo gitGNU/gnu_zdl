@@ -220,7 +220,7 @@ function pause {
 function xterm_stop {
     # check_instance i
     # if ( [ $? != 2 ] || [ "$pid_prog" == "$pid" ] )
-    if [ -z "$daemon" ]; then
+    if [ -z "$daemon" ] && [ -z "$pipe_out" ]; then
 	echo
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off
