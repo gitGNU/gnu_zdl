@@ -869,7 +869,7 @@ function main_loop {
 		unset checked break_loop post_data goal not_available exceeded 
 	    fi
 	done
-	print_c 4 "\nUn altro giro..."
+	print_c 4 "\nchecking loop..."
 	sleeping 3
 	clean_file "$path_tmp"/links_loop.txt
 
@@ -895,7 +895,7 @@ else
     while true; do
 	main_loop
 	[ $? == 1 ] && break
-    done &
+    done 2>/dev/null &
     loops_pid=$!
 fi
 
