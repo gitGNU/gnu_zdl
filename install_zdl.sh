@@ -339,11 +339,11 @@ Installazione di FFMpeg
 
     if [[ ! $(command -v nano 2>/dev/null) ]]
     then
-	apt-cyg install nano
+	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install nano
     fi
     if [[ ! $(command -v diff 2>/dev/null) ]]
     then
-	apt-cyg install diffutils
+	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install diffutils
     fi
 fi
 
