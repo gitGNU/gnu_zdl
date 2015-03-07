@@ -911,8 +911,8 @@ ZDL funziona anche su Windows, ma attraverso @emph{Cygwin}
 @table @emph
 @item FASE 1) Installazione di Cygwin 32 bit 
 installatore automatico di Cygwin (serve anche ad aggiornare il
-sistema emulato e ad installare nuovi pacchetti): 
-@url{http://cygwin.com/setup_x86.exe}
+sistema emulato e ad installare nuovi pacchetti): @*
+@url{http://cygwin.com/setup_x86.exe}@*@*
 È sufficiente l'installazione predefinita, ottenuta cliccando ripetutamente sul bottone @emph{Avanti} e scegliendo un mirror a caso (consigliato: @url{http://bo.mirror.garr.it})
 
 @item FASE 2) Installazione di ZDL
