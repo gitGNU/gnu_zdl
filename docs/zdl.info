@@ -283,6 +283,9 @@ Avvio con un editor:
 `--mcedit'
      usa l'editor di Midnight Commander
 
+`--mg'
+     usa un editor microscopico in stile GNU Emacs
+
 `--nano'
      usa l'editor Nano
 
@@ -657,6 +660,7 @@ _Flashgot_
 
 _Emacs_
 _Midnight Commander (MCEdit)_
+_MG_
 _Nano_
 _Vi, Vim_
      Almeno un editor, per poter modificare in qualsiasi momento la
@@ -862,17 +866,17 @@ Indice dei programmi
 
 * avconv:                                Software consigliati. (line  9)
 * axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 37)
+* conkeror:                              Software consigliati. (line 38)
 * editor:                                Software consigliati. (line 21)
 * ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 31)
+* firefox:                               Software consigliati. (line 32)
 * flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 31)
-* iceweasel:                             Software consigliati. (line 31)
+* icecat:                                Software consigliati. (line 32)
+* iceweasel:                             Software consigliati. (line 32)
 * rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 34)
+* xombrero:                              Software consigliati. (line 35)
 * xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 34)
+* xxxterm:                               Software consigliati. (line 35)
 
 
 File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
@@ -934,19 +938,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9741
-Node: Avviare ZDL12498
-Node: Arrestare ZDL14936
-Node: Controllare i download16041
-Node: Manuali d'uso20941
-Node: Creare nuove estensioni21376
-Node: Software consigliati22951
-Node: Conkeror23989
-Node: zdl-xterm e XXXTerm/Xombrero25000
-Node: Installazione e aggiornamento26924
-Node: Tags29248
-Node: Copying31407
-Node: Contatti32457
+Node: Servizi streaming/hosting9800
+Node: Avviare ZDL12557
+Node: Arrestare ZDL14995
+Node: Controllare i download16100
+Node: Manuali d'uso21000
+Node: Creare nuove estensioni21435
+Node: Software consigliati23010
+Node: Conkeror24053
+Node: zdl-xterm e XXXTerm/Xombrero25064
+Node: Installazione e aggiornamento26988
+Node: Tags29312
+Node: Copying31471
+Node: Contatti32521
 
 End Tag Table
 

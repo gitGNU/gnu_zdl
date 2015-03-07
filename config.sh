@@ -157,6 +157,9 @@ function get_conf {
     if [ "$stream_mode" == "multi" ]; then
 	stream_params="-m"
     fi
+    if [[ ! $(command -v $editor 2>/dev/null) ]]; then
+	unset editor
+    fi
 }
 
 

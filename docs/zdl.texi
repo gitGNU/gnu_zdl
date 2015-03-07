@@ -362,6 +362,8 @@ sostituisce l'interfaccia di ingresso di ZDL con l'editor predefinito dal sistem
 usa Emacs o la sua versione solo testo/non grafica
 @item --mcedit
 usa l'editor di Midnight Commander
+@item --mg
+usa un editor microscopico in stile GNU Emacs
 @item --nano
 usa l'editor Nano
 @item --vi, --vim
@@ -761,6 +763,7 @@ Estensione di Firefox/Iceweasel/Icecat
 @pindex editor
 @item Emacs
 @itemx Midnight Commander (MCEdit)
+@itemx MG
 @itemx Nano
 @itemx Vi, Vim
 Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download

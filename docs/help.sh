@@ -125,7 +125,7 @@ sostituisce l'interfaccia iniziale per l'immissione dei link
        --nano                  Nano
        --mcedit                Midnight Commander Editor
        --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
-
+       --mg                    editor microscopico in stile GNU Emacs
 
 Avvio con proxy:
        --proxy		       Avvia ZDL attivando un proxy
