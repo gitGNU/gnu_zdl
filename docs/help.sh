@@ -26,8 +26,7 @@
 
 
 function usage {
-
-echo -e -n "ZigzagDownLoader (ZDL)
+    echo -e -n "ZigzagDownLoader (ZDL)
 
 Uso (l'ordine degli argomenti non è importante):
   zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
@@ -49,8 +48,8 @@ Uso (l'ordine degli argomenti non è importante):
                                (se omessa, è quella corrente)
   
 
-Opzioni_
-_Le opzioni brevi non seguite da valori possono essere contratte:
+OPZIONI
+  Le opzioni brevi non seguite da valori possono essere contratte:
   '-ufmd' equivale a '-u -f -m -d'
 
 
@@ -105,11 +104,11 @@ _Le opzioni brevi non seguite da valori possono essere contratte:
                                Può essere configurato come comportamento predefinito.
 
 
-_Filtri sui nomi dei file:
+Filtri sui nomi dei file:
 
        --file=REGEX            Scarica solo file il cui nome corrisponde alla REGEX
 
-       --no-file=REGEX         Non scarica i file il cui nome corrisponde alla REGEX indicata
+       --no-file=REGEX         Non scarica i file il cui nome corrisponde alla REGEX
 
        --no-rev                Non scarica i file con estensione '.rev'
 
@@ -117,8 +116,8 @@ _Filtri sui nomi dei file:
                                'Sub' o 'sub' (per file video sottotitolati)
 
 
-_Editor per i link (può essere usato in qualunque momento con Meta-e):
-  sostituisce l'interfaccia iniziale per l'immissione dei link
+Editor per i link (può essere usato in qualunque momento con Meta-e):
+sostituisce l'interfaccia iniziale per l'immissione dei link
 
   -e,  --editor                Editor predefinito (si può configurare con 'zdl -c')
 
@@ -128,7 +127,7 @@ _Editor per i link (può essere usato in qualunque momento con Meta-e):
        --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
 
 
-_Avvio con proxy:
+Avvio con proxy:
        --proxy		       Avvia ZDL attivando un proxy
 		               automaticamente (il tipo di proxy
 		               predefinito è Transparent) 
@@ -147,49 +146,50 @@ _Avvio con proxy:
 			       un nuovo indirizzo IP) 
 
 
-_Configurazione:
+Configurazione:
   -c,  --configure	       Interfaccia di configurazione di ZDL, 
 			       permette anche di salvare eventuali
 			       account dei servizi di hosting
 
 
-_Per scaricare lo stream incorporando ${PROG} in nuovi script, 
+Per scaricare lo stream incorporando ${PROG} in nuovi script, 
 il modello generico dei parametri per le componenti aggiuntive (rispettare l'ordine): 
        --stream [PARAMETRI] [--noXterm]
 
 
-Servizi_
-_Video in streaming saltando il player del browser:
-$(cat $path_usr/streaming.txt)
+SERVIZI
+______ Video in streaming saltando il player del browser:
+$(fold -w 80 -s $path_usr/streaming.txt)
 
-_File hosting:
-$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
+______ File hosting:
+$(fold -w 80 -s $path_usr/hosting.txt)
+e, dopo aver risolto il captcha e generato il link, anche Sharpfile,
+Depositfiles ed altri servizi
 
-_Tutti i file scaricabili con le seguenti estensioni dei browser:
-Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
-
-
-Documentazione_
-  - ipertesto in formato info, consultabile con: ${BWhite}info zdl${Color_Off}
-  - ipertesto in formato html: ${BWhite}http://nongnu.org/zdl${Color_Off}
-  - pagina di manuale in stile Unix: ${BWhite}man zdl${Color_Off}
+______ Tutti i file scaricabili con le seguenti estensioni dei browser:
+Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror
+e script 'zdl-xterm' (XXXTerm/Xombrero e altri)
 
 
-Altre info_
-_Licenza:
+DOCUMENTAZIONE
+  - ipertesto in formato info, consultabile con: 'info zdl'
+  - ipertesto in formato html: http://nongnu.org/zdl
+  - pagina di manuale in stile Unix: 'man zdl'
+
+
+COPYING
   ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e superiori). 
 
 
-_Per informazioni e per collaborare al progetto:
+Per informazioni e per collaborare al progetto:
   - http://nongnu.org/zdl
   - https://savannah.nongnu.org/projects/zdl
   - https://joindiaspora.com/tags/zdl
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz
-" #| less --RAW-CONTROL-CHARS 	
+" 
     echo
     echo
     exit 1
-
 }

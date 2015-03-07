@@ -333,15 +333,15 @@ Recupera o riscarica file parzialmente scaricati. Agisce in caso di omonimia fra
 @end table
 
 @c @end man
-@unnumberedsubsubsec Filtri sui nomi di file:
+@unnumberedsubsubsec Filtri sui nomi dei file:
 @c @man{6}
-@c @ifman @unnumberedsubsec Filtri sui nomi di file:
+@c @ifman @unnumberedsubsec Filtri sui nomi dei file:
 @table @option
 @item --file=@emph{regex}
 Scarica solo file il cui nome corrisponde alla REGEX
 
 @item --no-file=@emph{regex}
-Non scarica i file il cui nome corrisponde alla REGEX indicata
+Non scarica i file il cui nome corrisponde alla REGEX
 
 @item --no-rev
 Non scarica i file con estensione '.rev'

@@ -252,14 +252,14 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      come comportamento predefinito.
 
 
-Filtri sui nomi di file:
-........................
+Filtri sui nomi dei file:
+.........................
 
 `--file=_regex_'
      Scarica solo file il cui nome corrisponde alla REGEX
 
 `--no-file=_regex_'
-     Non scarica i file il cui nome corrisponde alla REGEX indicata
+     Non scarica i file il cui nome corrisponde alla REGEX
 
 `--no-rev'
      Non scarica i file con estensione '.rev'
@@ -934,19 +934,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9748
-Node: Avviare ZDL12505
-Node: Arrestare ZDL14943
-Node: Controllare i download16048
-Node: Manuali d'uso20948
-Node: Creare nuove estensioni21383
-Node: Software consigliati22958
-Node: Conkeror23996
-Node: zdl-xterm e XXXTerm/Xombrero25007
-Node: Installazione e aggiornamento26931
-Node: Tags29255
-Node: Copying31414
-Node: Contatti32464
+Node: Servizi streaming/hosting9741
+Node: Avviare ZDL12498
+Node: Arrestare ZDL14936
+Node: Controllare i download16041
+Node: Manuali d'uso20941
+Node: Creare nuove estensioni21376
+Node: Software consigliati22951
+Node: Conkeror23989
+Node: zdl-xterm e XXXTerm/Xombrero25000
+Node: Installazione e aggiornamento26924
+Node: Tags29248
+Node: Copying31407
+Node: Contatti32457
 
 End Tag Table
 
