@@ -36,7 +36,7 @@ if [[ "$url_in" =~ (speedvideo.) ]]; then
     fi
 
     html=$(wget "$url_link" -O- -q)
-    if [[ ! -z $(grep 'File Not Found' 2>/dev/null <<< "$html") ]]; then
+    if [[ ! "$html" =~ 'File Not Found' ]]; then
 	linkfile=$(grep linkfile <<< "$html" |head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
 	var2=$(grep base64_decode <<< "$html" |sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
 	url_in_file=$(base64_decode $linkfile $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
@@ -48,8 +48,8 @@ if [[ "$url_in" =~ (speedvideo.) ]]; then
 	    _log 2
 	fi
     else
-	break_loop=true
-	_log 3
+    	break_loop=true
+    	_log 3
     fi
 fi
  

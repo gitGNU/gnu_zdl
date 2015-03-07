@@ -24,62 +24,6 @@
 # zoninoz@inventati.org
 #
 
-## funzioni per Cygwin
-function get-mirror {
-    mirror=$(grep 'last-mirror' /etc/setup/setup.rc -A 1 | tail -n1)
-}
-
-function pkt-download {
-    cscript /nologo downloader_tmp.js $1 $2 2>/dev/null
-}
-
-function last-pkt {
-    path_pkt=$(grep "\@ $1$" -A 15 <<< "$setup"| grep install |head -n1 | awk '{print $2}')
-    echo ${path_pkt##*\/}
-}
-
-function init {
-    get-mirror
-    pkt-download $mirror/x86/setup.bz2 setup.bz2
-    setup=$(bzcat setup.bz2)
-    unset pkts
-}
-
-function cygwinports {
-    mirror=ftp://ftp.cygwinports.org/pub/cygwinports
-    wget $mirror/x86/setup.bz2
-    setup=$(bzcat setup.bz2)
-    unset pkts
-}
-
-function required-pkt {
-    if [[ ! "${pkts[*]}" =~ $1 ]]
-    then 
-	pkts[${#pkts[*]}]="$1"
-    fi
-
-    dep_pkt=$(grep "\@ $1$" -A 15 <<< "$setup"| grep requires |head -n1)
-    for p in ${dep_pkt#* }
-    do
-	if [ ! -f /etc/setup/$p.lst.gz ]
-	then
-	    required-pkt $p
-	fi
-    done
-}
-
-## Axel - Cygwin
-function install_axel-cygwin {
-    test_axel=`command -v axel`
-    if [ -z $test_axel ]; then
-	cd /
-	wget "$cygaxel_url"
-	tar -xvjf "${cygaxel_url##*'/'}"
-	cd -
-    fi
-}
-
-##############
 
 function update_zdl-wise {
     if [ ! -e "/cygdrive" ]; then
