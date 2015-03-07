@@ -382,6 +382,7 @@ function check_alias {
 }
 
 function pipe_files {
+    [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
     for i in $(seq 0 ${#file_out[*]}); do
 	if [ ! -z "${length_out[$i]}" ]; then
 	    if [ "${downloader_out[$i]}" == "Axel" ]; then
