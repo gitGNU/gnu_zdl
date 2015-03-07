@@ -25,6 +25,63 @@
 #
 
 
+## funzioni per Cygwin
+function get-mirror {
+    mirror=$(grep 'last-mirror' /etc/setup/setup.rc -A 1 | tail -n1)
+}
+
+function pkt-download {
+    cscript /nologo downloader_tmp.js $1 $2 2>/dev/null
+}
+
+function last-pkt {
+    path_pkt=$(grep "\@ $1$" -A 15 <<< "$setup"| grep install |head -n1 | awk '{print $2}')
+    echo ${path_pkt##*\/}
+}
+
+function init {
+    get-mirror
+    pkt-download $mirror/x86/setup.bz2 setup.bz2
+    setup=$(bzcat setup.bz2)
+    unset pkts
+}
+
+function cygwinports {
+    mirror=ftp://ftp.cygwinports.org/pub/cygwinports
+    wget $mirror/x86/setup.bz2
+    setup=$(bzcat setup.bz2)
+    unset pkts
+}
+
+function required-pkt {
+    if [[ ! "${pkts[*]}" =~ $1 ]]
+    then 
+	pkts[${#pkts[*]}]="$1"
+    fi
+
+    dep_pkt=$(grep "\@ $1$" -A 15 <<< "$setup"| grep requires |head -n1)
+    for p in ${dep_pkt#* }
+    do
+	if [ ! -f /etc/setup/$p.lst.gz ]
+	then
+	    required-pkt $p
+	fi
+    done
+}
+
+## Axel - Cygwin
+function install_axel-cygwin {
+    test_axel=`command -v axel`
+    if [ -z $test_axel ]; then
+	cd /
+	wget "$cygaxel_url"
+	tar -xvjf "${cygaxel_url##*'/'}"
+	cd -
+    fi
+}
+
+##############
+
 
 function bold {
     echo -e "\e[1m$1\e[0m"
@@ -170,17 +227,6 @@ function install_src_xterm {
 }
 
 
-## Axel - Cygwin
-function install_axel-cygwin {
-    test_axel=`command -v axel`
-    if [ -z $test_axel ]; then
-	cd /
-	wget "$cygaxel_url"
-	tar -xvjf "${cygaxel_url##*'/'}"
-	cd -
-    fi
-}
-
 
 function install_zdl-wise {
     if [ ! -e "/cygdrive" ]; then 
@@ -222,6 +268,76 @@ function try {
 	fi
     fi
 }
+
+
+## Cygwin: prima le dipendenze
+
+if [ -e /cygdrive ]
+then
+    cd /tmp
+
+    echo -e 'var WinHttpReq = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
+WinHttpReq.Open("GET", WScript.Arguments(0), /*async=*/false);
+WinHttpReq.Send();
+//WScript.Echo(WinHttpReq.ResponseText);
+
+BinStream = new ActiveXObject("ADODB.Stream");
+BinStream.Type = 1;
+BinStream.Open();
+BinStream.Write(WinHttpReq.ResponseBody);
+BinStream.SaveToFile(WScript.Arguments(1));' > downloader_tmp.js 
+
+    if [[ ! $(command -v wget 2>/dev/null) ]] 
+    then
+	echo -e "
+Installazione di Wget
+...attendi...
+
+"
+	init
+	required-pkt wget
+
+	for p in ${pkts[*]}
+	do
+	    echo "Installing $p..."
+	    last-pkt $p
+	    tarball=${path_pkt##*\/}
+	    pkt-download $mirror/$path_pkt $tarball
+
+	    cd /
+	    [ "$tarball" != "${tarball%.xz}" ] && tar -xvJf /tmp/$tarball
+	    [ "$tarball" != "${tarball%.bz2}" ] && tar -xvjf /tmp/$tarball
+	    cd /tmp
+	done
+
+	cd /tmp
+	rm -f downloader_tmp.js setup.bz2 *.tar.*
+    fi
+
+    if [[ ! $(command -v apt-cyg 2>/dev/null) ]]
+    then
+	echo -e "
+Installazione di apt-cyg
+"
+	wget http://rawgit.com/transcode-open/apt-cyg/master/apt-cyg
+	install apt-cyg /bin
+    fi
+
+    if [[ ! $(command -v ffmpeg 2>/dev/null) ]]
+    then
+	echo -e "
+Installazione di FFMpeg
+"
+	rm -f /tmp/list-pkts.txt
+	apt-cyg -m ftp://ftp.cygwinports.org/pub/cygwinports install ffmpeg | tee -a /tmp/list-pkts.txt
+	
+	unset pkts
+	mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
+	echo -e "\nPacchetti da ricercare a Bologna:\n${pkts[*]}\n"
+	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
+    fi
+fi
+
 
 PROG=ZigzagDownLoader
 name_prog=ZigzagDownLoader
