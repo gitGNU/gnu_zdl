@@ -128,13 +128,15 @@ fi
 #### MAIN
 init
 
-for i in $(seq 0 $max_args); do
-    if [[ "${args[*]}" =~ ^\-\-(nano|mcedit|vi|vim|emacs|emacs-nw)$ ]]; then
-	[[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
-	unset args[$i]
-	from_editor=true
-    fi
-done
+if [[ "${args[*]}" =~ \-\-(nano|mcedit|vi|vim|emacs|emacs-nw) ]]; then
+    for i in $(seq 0 $max_args); do
+	if [[ "${args[*]}" =~ ^\-\-(nano|mcedit|vi|vim|emacs|emacs-nw)$ ]]; then
+	    [[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
+	    unset args[$i]
+	    from_editor=true
+	fi
+    done
+fi
 
 for i in $(seq 0 $max_args); do
     if [[ "${args[*]}" =~ ^(--editor|-e)$ ]]; then
@@ -533,33 +535,42 @@ if [[ "${args[*]}" =~ (\-r|\-\-resume) ]]; then
     done
 fi
 
-for i in `seq 0 $max_args`; do
-    if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]; then
-	no_file_regex=$(sed -r 's;--no-file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
-	unset args[$i]
-    fi
-done
+if [[ "${args[$i]}" =~ \-\-no-file=[^\ ]+ ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]; then
+	    no_file_regex=$(sed -r 's;--no-file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
+	    unset args[$i]
+	fi
+    done
+fi
 
-for i in `seq 0 $max_args`; do
-    if [[ "${args[$i]}" =~ ^(--file=[^\ ]+)$ ]]; then
-	file_regex=$(sed -r 's;--file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
-	unset args[$i]
-    fi
-done
+if [[ "${args[$i]}" =~ \-\-file=[^\ ]+ ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^(--file=[^\ ]+)$ ]]; then
+	    file_regex=$(sed -r 's;--file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
+	    unset args[$i]
+	fi
+    done
+fi
 
-for i in `seq 0 $max_args`; do
-    if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]; then
-	no_file_regex='\.rev&'
-	unset args[$i]
-    fi
-done
+if [[ "${args[$i]}" =~ \-\-no-rev ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]; then
+	    no_file_regex='\.rev&'
+	    unset args[$i]
+	fi
+    done
+fi
 
-for i in `seq 0 $max_args`; do
-    if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]; then
-	no_file_regex='[Ss]ub'
-	unset args[$i]
-    fi
-done
+if [[ "${args[$i]}" =~ \-\-no-sub ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]; then
+	    no_file_regex='[Ss]ub'
+	    unset args[$i]
+	fi
+    done
+fi
+
 
 for i in `seq 0 $max_args`; do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then
