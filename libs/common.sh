@@ -26,15 +26,10 @@
 
 function check_pid {
     ck_pid=$1
-    if [ ! -z $ck_pid ]; then
-	ps ax | grep $ck_pid | while read ck_alive; do
-	    test_pid=$(awk '{print $1}' <<< "$ck_alive")
-	    [[ ! "$test_pid" =~ ^[0-9]+$ ]] && [ -e "/cygdrive" ] && test_pid=$(awk '{print $2}' <<< "$ck_alive")
-	    if [ "$test_pid" == "$ck_pid" ]; then
-		return 1
-	    fi
-	done
+    if [ ! -z "$ck_pid" ]; then
+	[[ ! -z $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]] && return 1 # | while read ck_alive; do
     fi
+    return 0
 }
 
 

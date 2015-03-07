@@ -259,6 +259,16 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     done 
 fi
 
+if [ "${args[*]}" != "${args[*]//--stop}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == "--stop" ]; then 
+	    unset args[$i]
+	    xterm_stop=true
+	fi
+    done
+fi
+
+
 if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
     for i in `seq 0 $max_args`; do
 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
@@ -268,7 +278,9 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	    fi
 	    format=${args[$i]##*-}
 	    unset args[$i]
+	    rm -f "$path_tmp"/pid.zdl
 	    file_output=.file_output.zdl
+	    export pid_prog=$$
 	    $prog ${args[*]} --out=$file_output
 
 	    [ ! -z "$(command -v avconv 2>/dev/null)" ] && convert2format=avconv
@@ -290,16 +302,6 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	fi
     done
 fi
-
-if [ "${args[*]}" != "${args[*]//--stop}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--stop" ]; then 
-	    unset args[$i]
-	    xterm_stop=true
-	fi
-    done
-fi
-
 
 
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
