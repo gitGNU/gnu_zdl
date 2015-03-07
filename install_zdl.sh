@@ -333,7 +333,7 @@ Installazione di FFMpeg
 	
 	unset pkts
 	mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
-	echo -e "\nPacchetti da ricercare a Bologna:\n${pkts[*]}\n"
+	bold "\nRecupero pacchetti non trovati:\n${pkts[*]}\n"
 	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
     fi
 
