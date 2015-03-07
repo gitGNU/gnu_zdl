@@ -337,6 +337,10 @@ Installazione di FFMpeg
 	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
     fi
 
+    if [[ ! $(command -v rtmpdump 2>/dev/null) ]]
+    then
+	apt-cyg -m ftp://ftp.cygwinports.org/pub/cygwinports install rtmpdump
+    fi
     if [[ ! $(command -v nano 2>/dev/null) ]]
     then
 	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install nano
