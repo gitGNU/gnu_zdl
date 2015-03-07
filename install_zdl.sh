@@ -118,7 +118,7 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 }
 
 function install_test {
-    if [ -z "`command -v axel 2>/dev/null`" ]; then
+    if [[ ! $(command -v axel 2>/dev/null) ]]; then
 	bold "Installazione automatica non riuscita"
 	case $1 in
 	    pk) echo "$2 non ha trovato il pacchetto di Axel" ;;
@@ -132,13 +132,13 @@ function install_test {
 
 function install_pk {
     echo "Installo Axel ..."
-    if [ `command -v apt-get 2>/dev/null` ]; then
+    if [[ $(command -v apt-get 2>/dev/null) ]]; then
 	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install axel || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install axel" )
 	install_test pk apt-get
-    elif [ `command -v yum 2>/dev/null` ]; then
+    elif [[ $(command -v yum 2>/dev/null) ]]; then
 	sudo yum install axel || ( echo "Digita la password di root" ; su -c "yum install axel" )
 	install_test pk yum
-    elif [ `command -v pacman 2>/dev/null` ]; then
+    elif [[ $(command -v pacman 2>/dev/null) ]]; then
 	sudo pacman -S axel 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S axel" )
 	install_test pk pacman
     else
@@ -184,7 +184,7 @@ function check_xterm {
 }
 
 function install_test_xterm {
-    if [ -z "`command -v xterm 2>/dev/null`" ]; then
+    if [[ ! $(command -v xterm 2>/dev/null) ]]; then
 	bold "Installazione automatica non riuscita"
 	case $1 in
 	    pk) echo "$2 non ha trovato il pacchetto di XTerm" ;;
@@ -198,13 +198,13 @@ function install_test_xterm {
 
 function install_pk_xterm {
     echo "Installo XTerm ..."
-    if [ `command -v apt-get 2>/dev/null` ]; then
+    if [[ $(command -v apt-get 2>/dev/null) ]]; then
 	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install xterm || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install xterm" )
 	install_test_xterm pk apt-get
-    elif [ `command -v yum 2>/dev/null` ]; then
+    elif [[ $(command -v yum 2>/dev/null) ]]; then
 	sudo yum install xterm || ( echo "Digita la password di root" ; su -c "yum install xterm" )
 	install_test_xterm pk yum
-    elif [ `command -v pacman 2>/dev/null` ]; then
+    elif [[ $(command -v pacman 2>/dev/null) ]]; then
 	sudo pacman -S xterm 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S xterm" )
 	install_test_xterm pk pacman
     else
@@ -335,6 +335,11 @@ Installazione di FFMpeg
 	mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
 	echo -e "\nPacchetti da ricercare a Bologna:\n${pkts[*]}\n"
 	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
+    fi
+
+    if [[ ! $(command -v nano 2>/dev/null) ]]
+    then
+	apt-cyg install nano
     fi
 fi
 
