@@ -228,6 +228,10 @@ Installazione di FFMpeg
 	then
 	    apt-cyg install nano
 	fi
+	if [[ ! $(command -v diff 2>/dev/null) ]]
+	then
+	    apt-cyg install diffutils
+	fi
     fi
     print_c 1 "Aggiornamento automatico completato"
     pause
