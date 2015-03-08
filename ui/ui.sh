@@ -53,6 +53,7 @@ function interactive_and_return {
     stty -echo
     rm -f "$path_tmp/.stop_stdout"
     header_z
+    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     header_box "Modalità standard"
     commands_box
