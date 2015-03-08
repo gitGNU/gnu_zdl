@@ -42,7 +42,7 @@ key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="R
 
 declare -A list_proxy_url
 
-rtmp=( zinwa. streamin. vidhappy. )
+rtmp=( zinwa. streamin. vidhappy. videopremium. )
 
 
 function add_conf { #only if item doesn't exist

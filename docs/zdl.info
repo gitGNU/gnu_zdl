@@ -348,8 +348,8 @@ _Video in streaming saltando il player del browser:_
      Akstream, Dailymotion, Exashare, Fastvideo, Junkyvideo (HD),
      Metacafe, Movshare, Nowvideo, Portalevideo.unimi.it, Putstream,
      Rai.tv, Rapidvideo, Shortlink, Sockshare (HD), Speedvideo,
-     Streamin (RTMP), Thevideo, Tvdigit.it, Videowood, Vidhappy (RTMP),
-     Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
+     Streamin (RTMP), Thevideo, Tvdigit.it, Videopremium, Videowood,
+     Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
@@ -942,18 +942,18 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
 Node: Servizi streaming/hosting9872
-Node: Avviare ZDL12629
-Node: Arrestare ZDL15067
-Node: Controllare i download16172
-Node: Manuali d'uso21072
-Node: Creare nuove estensioni21507
-Node: Software consigliati23082
-Node: Conkeror24125
-Node: zdl-xterm e XXXTerm/Xombrero25136
-Node: Installazione e aggiornamento27060
-Node: Tags29384
-Node: Copying31543
-Node: Contatti32593
+Node: Avviare ZDL12643
+Node: Arrestare ZDL15081
+Node: Controllare i download16186
+Node: Manuali d'uso21086
+Node: Creare nuove estensioni21521
+Node: Software consigliati23096
+Node: Conkeror24139
+Node: zdl-xterm e XXXTerm/Xombrero25150
+Node: Installazione e aggiornamento27074
+Node: Tags29398
+Node: Copying31557
+Node: Contatti32607
 
 End Tag Table
 

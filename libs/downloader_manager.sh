@@ -136,6 +136,11 @@ function download {
 #	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 	pid_in=$!
 	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+    elif [ "$downloader_in" == "RTMPDump" ] && [ ! -z "$downloader_cmd" ]; then
+	eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &>>"$path_tmp/${file_in}_stdout.tmp" &
+	pid_in=$!
+        echo -e "${pid_in}\nlink_${prog}: $url_in\nRTMPDump\n${pid_prog}\n$file_in\n$streamer\n$playpath\n$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
+	unset downloader_cmd
     elif [ "$downloader_in" == "RTMPDump" ]; then
 	rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
 	pid_in=$!
