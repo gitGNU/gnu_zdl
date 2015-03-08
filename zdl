@@ -687,7 +687,7 @@ function main_loop {
 	if [ -f "$path_tmp/.dl-mode" ];then
 	    multi=true
 	    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
-	    [ "$num_multi" == 1 ] && unset multi && rm -f "$path_tmp/.dl-mode"
+	    [ "$num_multi" == 1 ] && unset multi 
 	fi
 
 ##	run_in_dir + "$pid_prog $PWD" ## con pidprog_in_dir, funzione alternativa a check_instance_prog + $path_tmp/pid.zdl
@@ -854,7 +854,7 @@ function main_loop {
 		if [ -f "$path_tmp/.dl-mode" ];then
 		    multi=true
 		    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
-		    [ "$num_multi" == 1 ] && unset multi && rm -f "$path_tmp/.dl-mode"
+		    [ "$num_multi" == 1 ] && unset multi 
 		fi
 		[ -z "$counter_downloading" ] && counter_downloading=0
 		if [ "$multi" == "true" ] && ( [ -z "$num_multi" ] || (( "$counter_downloading" < "$num_multi" )) ); then
@@ -875,7 +875,7 @@ function main_loop {
 			multi=true
 			[[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
 
-			[ "$num_multi" == 1 ] && unset multi && rm -f "$path_tmp/.dl-mode"
+			[ "$num_multi" == 1 ] && unset multi 
 		    fi
 		done
 
