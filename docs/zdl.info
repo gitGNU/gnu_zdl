@@ -252,7 +252,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      come comportamento predefinito
 
 `--no-complete'
-     Cancella i file temporanei dei download completi
+     Cancella i file temporanei dei download completati
 
 
 Filtri sui nomi dei file:
@@ -941,19 +941,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9870
-Node: Avviare ZDL12627
-Node: Arrestare ZDL15065
-Node: Controllare i download16170
-Node: Manuali d'uso21070
-Node: Creare nuove estensioni21505
-Node: Software consigliati23080
-Node: Conkeror24123
-Node: zdl-xterm e XXXTerm/Xombrero25134
-Node: Installazione e aggiornamento27058
-Node: Tags29382
-Node: Copying31541
-Node: Contatti32591
+Node: Servizi streaming/hosting9872
+Node: Avviare ZDL12629
+Node: Arrestare ZDL15067
+Node: Controllare i download16172
+Node: Manuali d'uso21072
+Node: Creare nuove estensioni21507
+Node: Software consigliati23082
+Node: Conkeror24125
+Node: zdl-xterm e XXXTerm/Xombrero25136
+Node: Installazione e aggiornamento27060
+Node: Tags29384
+Node: Copying31543
+Node: Contatti32593
 
 End Tag Table
 

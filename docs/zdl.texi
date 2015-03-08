@@ -1,4 +1,4 @@
-ù\input texinfo @c -*- texinfo-*-
+\input texinfo @c -*- texinfo-*-
 @c %**start of header
 @setfilename zdl.info
 @settitle ZigzagDownLoader (ZDL)
@@ -330,7 +330,7 @@ Forza la riconnessione del modem al termine di ogni download, utilizzando uno sc
 Recupera o riscarica file parzialmente scaricati. Agisce in caso di omonimia fra file (leggi il manuale). Può essere configurato come comportamento predefinito
 
 @item --no-complete
-Cancella i file temporanei dei download completi
+Cancella i file temporanei dei download completati
 
 @end table
 
