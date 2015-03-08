@@ -532,9 +532,9 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
     done
 fi
 
-if [[ "${args[*]}" =~ (\-r|\-\-resume) ]]; then
+if [[ "${args[*]}" =~ (-r|--resume) ]]; then
     for i in `seq 0 $max_args`; do
-	if [[ "${args[$i]}" =~ ^(\-r|\-\-resume)$ ]]; then 
+	if [[ "${args[$i]}" =~ ^(-r|--resume)$ ]]; then 
 	    unset args[$i]
 	    resume=enabled
 	fi
@@ -580,7 +580,7 @@ fi
 
 if [[ "${args[*]}" =~ \-\-no-complete ]]; then
     for i in `seq 0 $max_args`; do
-	if [[ "${args[$i]}" =~ ^(\-\-no\-complete)$ ]]; then
+	if [[ "${args[$i]}" =~ ^(--no-complete)$ ]]; then
 	    no_complete=true
 	    unset args[$i]
 	fi
