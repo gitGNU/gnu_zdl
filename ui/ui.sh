@@ -251,11 +251,7 @@ function interactive {
 		fi
 	    fi
 	elif [[ "$action" =~ ^([1-9]+)$ ]]; then
-	    if [ $action == 1 ]; then
-		rm -f "$path_tmp/.dl-mode"
-	    else
-		echo "$action" > "$path_tmp/.dl-mode"
-	    fi
+	    echo "$action" > "$path_tmp/.dl-mode"
 	elif [ "$action" == "m" ]; then
 	    echo > "$path_tmp/.dl-mode"
 	elif [ "$action" == "e" ]; then
