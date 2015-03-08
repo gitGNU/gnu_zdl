@@ -259,6 +259,7 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
     done 
 fi
 
+## --stop deve precedere --mp3|--flac
 if [ "${args[*]}" != "${args[*]//--stop}" ]; then
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == "--stop" ]; then 
@@ -573,6 +574,15 @@ if [[ "${args[$i]}" =~ \-\-no-sub ]]; then
     done
 fi
 
+if [[ "${args[$i]}" =~ \-\-no-complete ]]; then
+    for i in `seq 0 $max_args`; do
+	if [[ "${args[$i]}" =~ ^(--no-complete)$ ]]; then
+	    no_complete=true
+	    unset args[$i]
+	fi
+    done
+fi
+
 
 for i in `seq 0 $max_args`; do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then
@@ -677,6 +687,7 @@ else
 fi
 
 rm -f "$path_tmp/lock.zdl" "$path_tmp/.stop_stdout"
+echo "$downloader_in" > "$path_tmp/.downloader"
 
 function main_loop {
     if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]; then
@@ -702,6 +713,10 @@ function main_loop {
 	    print_c 4 "checking $url_in ..."
 	    unset pid_in checked file_in url_in_file
 
+	    if [ -f "$path_tmp/.downloader" ]; then
+		downloader_in=$(cat "$path_tmp/.downloader")
+	    fi
+	    [ "$no_complete" == true ] && clean_completed
 	    check_in_url
 	    if [ $? != 1 ]; then
 		axel_parts=$axel_parts_conf

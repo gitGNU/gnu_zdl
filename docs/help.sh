@@ -103,6 +103,8 @@ OPZIONI
                                Agisce in caso di omonimia fra file (leggi il manuale).
                                Può essere configurato come comportamento predefinito.
 
+       --no-complete           Cancella i file temporanei dei download completi
+
 
 Filtri sui nomi dei file:
 

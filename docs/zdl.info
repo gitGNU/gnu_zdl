@@ -249,7 +249,10 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `-r, --resume'
      Recupera o riscarica file parzialmente scaricati. Agisce in caso
      di omonimia fra file (leggi il manuale). Può essere configurato
-     come comportamento predefinito.
+     come comportamento predefinito
+
+`--no-complete'
+     Cancella i file temporanei dei download completi
 
 
 Filtri sui nomi dei file:
@@ -938,19 +941,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9800
-Node: Avviare ZDL12557
-Node: Arrestare ZDL14995
-Node: Controllare i download16100
-Node: Manuali d'uso21000
-Node: Creare nuove estensioni21435
-Node: Software consigliati23010
-Node: Conkeror24053
-Node: zdl-xterm e XXXTerm/Xombrero25064
-Node: Installazione e aggiornamento26988
-Node: Tags29312
-Node: Copying31471
-Node: Contatti32521
+Node: Servizi streaming/hosting9870
+Node: Avviare ZDL12627
+Node: Arrestare ZDL15065
+Node: Controllare i download16170
+Node: Manuali d'uso21070
+Node: Creare nuove estensioni21505
+Node: Software consigliati23080
+Node: Conkeror24123
+Node: zdl-xterm e XXXTerm/Xombrero25134
+Node: Installazione e aggiornamento27058
+Node: Tags29382
+Node: Copying31541
+Node: Contatti32591
 
 End Tag Table
 

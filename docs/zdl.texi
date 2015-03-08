@@ -327,8 +327,10 @@ Forza la riconnessione del modem al termine di ogni download, utilizzando uno sc
 
 
 @item -r, --resume
-Recupera o riscarica file parzialmente scaricati. Agisce in caso di omonimia fra file (leggi il manuale). Può essere configurato come comportamento predefinito.
+Recupera o riscarica file parzialmente scaricati. Agisce in caso di omonimia fra file (leggi il manuale). Può essere configurato come comportamento predefinito
 
+@item --no-complete
+Cancella i file temporanei dei download completi
 
 @end table
 

@@ -171,12 +171,22 @@ function interactive {
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
 
 	echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
+	
+	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Axel ]] && \
+	    echo -e "<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get"
+	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Wget ]] && \
+	    echo -e "<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel"
+
 	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta"
 	echo -e "<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
-	[ -z "$tty" ] && [ -z "$daemon_pid" ] && echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
+
+	[ -z "$tty" ] && [ -z "$daemon_pid" ] && \
+	    echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
 	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
+
 	echo -e "<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
-	[ ! -z "$daemon_pid" ] && echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
+	[ ! -z "$daemon_pid" ] && \
+	    echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
 	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
 	cursor off
@@ -261,6 +271,10 @@ function interactive {
 	elif [ "$action" == "q" ]; then
 	    fclear
 	    break
+	elif [ "$action" == "a" ]; then
+	    echo "Axel" > "$path_tmp/.downloader"
+	elif [ "$action" == "w" ]; then
+	    echo "Wget" > "$path_tmp/.downloader"
 	elif [ "$action" == "K" ]; then
 	    kill_downloads
 	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid &>/dev/null
