@@ -75,7 +75,9 @@ function run_editor {
 function show_downloads_extended {
     header_z
     header_box_interactive "Modalità interattiva"
-    echo -e "\n${BBlue}Directory di destinazione:${Color_Off} $PWD\n"
+    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
+    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+
     check_instance_daemon
     if [ $? == 1 ]; then
 	print_c 1 "$PROG è attivo in modalità demone\n"

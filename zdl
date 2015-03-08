@@ -629,6 +629,7 @@ if [ ! -z "${args[*]}" ]; then
     fi
 fi
 
+[ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
 [ "$daemon" != "true" ] && print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
 if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
