@@ -433,6 +433,7 @@ if [ "${args[*]}" != "${args[*]//--wget}" ]; then
 	if [ "${args[$i]}" == '--wget' ]; then 
 	    unset args[$i]
 	    downloader_in=Wget
+	    echo $downloader_in > "$path_tmp/.downloader"
 	fi
     done
 fi
@@ -442,6 +443,7 @@ if [ "${args[*]}" != "${args[*]//--axel}" ]; then
 	if [ "${args[$i]}" == '--axel' ]; then 
 	    unset args[$i]
 	    downloader_in=Axel
+	    echo $downloader_in > "$path_tmp/.downloader"
 	fi
     done
 fi
