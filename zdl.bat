@@ -25,9 +25,9 @@
 @echo off
 
 if "%~1" == "--stream" (
-	start {{{CYGDRIVE}}}:\cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e {{{CYGDRIVE}}}:\cygwin\bin\bash.exe --login -i -c 'zdl --stream "%~2" "%~3" "%~4" "%~5" "%~6" "%~7"'
+	start /high {{{CYGDRIVE}}}:\cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e {{{CYGDRIVE}}}:\cygwin\bin\bash.exe --login -i -c 'zdl --stream "%~2" "%~3" "%~4" "%~5" "%~6" "%~7"'
 ) else (
-	start {{{CYGDRIVE}}}:\cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e {{{CYGDRIVE}}}:\cygwin\bin\bash.exe --login -i -c 'zdl "%~1"'
+	start /high {{{CYGDRIVE}}}:\cygwin\bin\mintty.exe -t ZigzagDownLoader -s 160,50 -e {{{CYGDRIVE}}}:\cygwin\bin\bash.exe --login -i -c 'zdl "%~1"'
 )
 
 
