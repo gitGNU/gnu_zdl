@@ -28,19 +28,21 @@
 ## zdl-extension name: Videopremium
 
 if [[ "$url_in" =~ (videopremium.) ]]; then
-    if [[ ! $(command -v rtmpdump 2>/dev/null) ]]; then
-	print_c 3 "Videopremium richiede RTMPDump, che non è installato: il file non verrà scaricato" | tee -a zdl_log.txt
-	links_loop - "$url_in"
-	break_loop=true
-    else
-	print_c 1 "Estrazione dati: attendi..."
-	file_in=$(wget -O- -q "$url_in" | grep title| sed -r 's|.+>([^<]+)<.+|\1|g')
-	html=$(wget "http://zoninoz.hol.es/api.php?uri=$url_in" -O- -q)
-	echo "$html" |grep rtmpdump\ \-V > $path_tmp/extract_rtmp
-	chmod +x $path_tmp/extract_rtmp
-	streamer=$(./$path_tmp/extract_rtmp |grep -P redirect.+STRING |sed -r 's|.+rtmp(.+)>$|rtmp\1|g')
-	echo "$html" |grep rtmpdump\ \-q | sed -r "s,rtmpdump\ \-q\ \-r \"\"(.+)\|.+$,rtmpdump\ \-r\ \"$streamer\"\ \1,g"> $path_tmp/extract_rtmp
-	downloader_cmd=$(cat $path_tmp/extract_rtmp)
-	playpath=$(sed -r 's|.+\-y\ \"([^"]+)\".+|\1|g' $path_tmp/extract_rtmp)
+    print_c 1 "Estrazione dati: attendi..."
+    file_in=$(wget -O- -q "$url_in" | grep title| sed -r 's|.+>([^<]+)<.+|\1|g')
+    html=$(wget "http://zoninoz.hol.es/api.php?uri=$url_in" -O- -q)
+    echo "$html" |grep rtmpdump\ \-V > $path_tmp/extract_rtmp
+    chmod +x $path_tmp/extract_rtmp
+    streamer=$(./$path_tmp/extract_rtmp |grep -P redirect.+STRING |sed -r 's|.+rtmp(.+)>$|rtmp\1|g')
+    echo "$html" |grep rtmpdump\ \-q | sed -r "s,rtmpdump\ \-q\ \-r \"\"(.+)\|.+$,rtmpdump\ \-r\ \"$streamer\"\ \1,g"> $path_tmp/extract_rtmp
+
+    swfUrl=$(sed -r 's|.+\-W\ \"([^"]+)\".+|\1|g' $path_tmp/extract_rtmp)
+    pageUrl=$(sed -r 's|.+\-p\ \"([^"]+)\".+|\1|g' $path_tmp/extract_rtmp)
+    playpath=$(sed -r 's|.+\-y\ \"([^"]+)\".+|\1|g' $path_tmp/extract_rtmp)
+    conn=$(sed -r 's|.+\-C\ \"([^"]+)\".+|\1|g' $path_tmp/extract_rtmp)
+
+    downloader_cmd=$(cat $path_tmp/extract_rtmp)
+    if [ "$downloader_in" == cURL ]; then
+	downloader_cmd="curl \"$streamer swfUrl=${swfUrl} pageUrl=$pageUrl playpath=$playpath conn=$conn\""
     fi
 fi
