@@ -765,7 +765,7 @@ Estensione di Firefox/Iceweasel/Icecat
 @pindex editor
 @item Emacs
 @itemx Midnight Commander (MCEdit)
-@itemx MG
+@itemx Mg
 @itemx Nano
 @itemx Vi, Vim
 Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
