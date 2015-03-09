@@ -82,6 +82,12 @@ function update {
     success="Aggiornamento completato"
     failure="Aggiornamento non riuscito"
     path_conf="$HOME/.$prog"
+    file_conf="$path_conf/$prog.conf"
+    mkdir -p "$path_conf/extensions"
+    if [ ! -f "$file_conf" ]; then
+	echo "# ZigzagDownLoader configuration file" > "$file_conf"
+    fi
+
     if [ -e /cygdrive ]; then
 	win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
 	win_progfiles=$(cygpath -u "$PROGRAMFILES")
@@ -137,6 +143,9 @@ function update {
     rm -fr *.gz *.sig "$prog"
     cd ..
     dir_dest=$PWD
+
+    source $SHARE/config.sh
+    set_default_conf
 
     ## Cygwin: dipendenze
 

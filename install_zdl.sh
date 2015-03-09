@@ -362,6 +362,12 @@ cygaxel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.b
 success="Installazione completata"
 failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
+file_conf="$path_conf/$prog.conf"
+mkdir -p "$path_conf/extensions"
+if [ ! -f "$file_conf" ]; then
+    echo "# ZigzagDownLoader configuration file" > "$file_conf"
+fi
+
 if [ -e /cygdrive ]; then
     win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
     win_progfiles=$(cygpath -u "$PROGRAMFILES")
@@ -412,6 +418,7 @@ if [ -e /cygdrive ]; then
     chmod +x /${prog}.bat
 fi
 
+source $SHARE/config.sh
 install_zdl-conkeror
 
 ## Axel

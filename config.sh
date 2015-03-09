@@ -282,13 +282,7 @@ function init {
     path_conf="$HOME/.${prog}"
     file_conf="$path_conf/$prog.conf"
     mkdir -p "$path_conf/extensions"
-    if [ ! -f "$file_conf" ]; then
-	echo "# ZigzagDownLoader configuration file" > "$file_conf"
-    fi
-    if [ -f "$path_conf/updated" ] || [ ! -f "$file_conf" ]; then
-	set_default_conf
-    fi
-    
+        
     [ -z "$pid_prog" ] && pid_prog=$$ 
     pid_in=1
 
