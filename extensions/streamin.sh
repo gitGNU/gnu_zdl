@@ -36,6 +36,9 @@ if [ "$url_in" != "${url_in//'streamin.to'}" ]; then
 	html=$(wget -q --post-data="$post_data" "$url_in" -O -) 
 	streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
 	playpath=$(grep file:  <<< "$html" |head -n2|tail -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')
+    else
+	_log 3
+	break_loop=true
     fi
 fi
 
