@@ -583,99 +583,101 @@ attraverso la modalità interattiva @command{zdl -i} avviata nella directory ges
 @htmlstart
 @unnumbered Controllare i download: recupero, eliminazione, arresto, riavvio...
 
-In caso di interruzione dei download (per esempio a causa di
-disconnessione), i file scaricati attraverso Axel possono riprendere
-lo scaricamento dal punto di interruzione (solo se nella cartella che
-contiene il file scaricato è ancora presente il file omonimo con
-estensione @code{.st}). Se i file interrotti sono stati scaricati con
-Wget, non possono essere recuperati e verranno riscaricati
-automaticamente da capo. 
+Pagina da rielaborare sulla base dei nuovi sviluppi del software.
 
-Il file @file{links.txt} contiene tutti i link processati da ZDL, da ogni
-input possibile: i file ed i link passati a ZDL come argomenti o
-attraverso liste contenute in file di testo o passati attraverso
-componenti aggiuntive dei browser oppure, in mancanza di tali dati, i
-link incollati al terminale, prima di avviare il download digitando
-"@@". Il file @file{links.txt} serve soprattutto al recupero manuale dei
-link di download interrotti, nel caso in cui non fossero più
-disponibili i file temporanei di ZDL (per esempio, nel caso di errato
-utilizzo dell'opzione @option{--clean})
+@c In caso di interruzione dei download (per esempio a causa di
+@c disconnessione), i file scaricati attraverso Axel possono riprendere
+@c lo scaricamento dal punto di interruzione (solo se nella cartella che
+@c contiene il file scaricato è ancora presente il file omonimo con
+@c estensione @code{.st}). Se i file interrotti sono stati scaricati con
+@c Wget, non possono essere recuperati e verranno riscaricati
+@c automaticamente da capo. 
 
-In ogni caso ZDL provvederà automaticamente
-a recuperare il download o a rieseguirlo da capo. Nel caso in cui
-anche ZDL è stato terminato, il recupero manuale è possibile
-riavviando ZDL e digitando la chiocciolina "@@".
+@c Il file @file{links.txt} contiene tutti i link processati da ZDL, da ogni
+@c input possibile: i file ed i link passati a ZDL come argomenti o
+@c attraverso liste contenute in file di testo o passati attraverso
+@c componenti aggiuntive dei browser oppure, in mancanza di tali dati, i
+@c link incollati al terminale, prima di avviare il download digitando
+@c "@@". Il file @file{links.txt} serve soprattutto al recupero manuale dei
+@c link di download interrotti, nel caso in cui non fossero più
+@c disponibili i file temporanei di ZDL (per esempio, nel caso di errato
+@c utilizzo dell'opzione @option{--clean})
 
-@unnumberedsubsec Controllo attraverso l'uso di opzioni:
+@c In ogni caso ZDL provvederà automaticamente
+@c a recuperare il download o a rieseguirlo da capo. Nel caso in cui
+@c anche ZDL è stato terminato, il recupero manuale è possibile
+@c riavviando ZDL e digitando la chiocciolina "@@".
 
-@unnumberedsubsubsec Il downloader
-Le opzioni @option{--wget} e @option{--axel} consentono la scelta del
-downloader. @emph{Axel} è un acceleratore di download fortemente consigliato
-e abilitato in modo predefinito per tutti i link e per quasi tutti i
-servizi di hosting. È possibile configurare il downloader di default avviando 
-la modalità di configurazione (opzione @option{-c}, @option{--configure}).
+@c @unnumberedsubsec Controllo attraverso l'uso di opzioni:
 
-@unnumberedsubsubsec Cancellare i file temporanei
-L'argomento @option{--clean} cancella eventuali residui di file temporanei di
-ZDL nella directory di destinazione, prima di iniziare a processare i
-link immessi dall'utente.
+@c @unnumberedsubsubsec Il downloader
+@c Le opzioni @option{--wget} e @option{--axel} consentono la scelta del
+@c downloader. @emph{Axel} è un acceleratore di download fortemente consigliato
+@c e abilitato in modo predefinito per tutti i link e per quasi tutti i
+@c servizi di hosting. È possibile configurare il downloader di default avviando 
+@c la modalità di configurazione (opzione @option{-c}, @option{--configure}).
 
-@unnumberedsubsec Controllo da interfaccia interattiva
-L'opzione @option{-i, --interactive} permette di visualizzare i download di
-ZDL utilizzando un altro terminale oppure dallo stesso terminale di
-avvio dei download di Wget nel caso in cui ZDL è terminato
-(per decisione dell'utente, premendo @kbd{Ctrl+c}, oppure
-accidentalmente). Infatti, i download di Wget procedono in background
-e non muoiono insieme a ZDL (tecnicamente possono essere tutti uccisi
-"terminando il terminale"). Per uccidere uno o più processi già
-avviati (definitivamente oppure per riavviarli automaticamente), anche
-con ZDL perfettamente attivo, da un altro terminale entrare nella
-directory di destinazione e digitare @command{zdl -i} o @command{zdl
---interactive}: comparirà un'interfaccia con cui poter interagire con
-i processi di ZDL.
+@c @unnumberedsubsubsec Cancellare i file temporanei
+@c L'argomento @option{--clean} cancella eventuali residui di file temporanei di
+@c ZDL nella directory di destinazione, prima di iniziare a processare i
+@c link immessi dall'utente.
 
-@unnumberedsubsec Immissione di nuovi link
-ZDL accetta come argomenti un numero illimitato di file di
-testo contenenti link e container DLC. 
-Inoltre, è stato progettato anche per scaricare
-file di video streaming. Per quest'ultima operazione è
-particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo
-di @emph{Firefox/Iceweasel/Icecat} (@url{http://flashgot.net}). 
-Avviando ZDL con @emph{Flashgot} è possibile scaricare filmati anche da servizi 
-di video streaming non ancora abilitati da ZDL. In genere, però, i link ricavati 
-da @emph{Flashgot} sono temporanei e possono scadere dopo un certo periodo di tempo o a 
-causa di una variazione dell'indirizzo IP dell'utente (per esempio, dovuta a una 
-disconnessione del modem dal proprio provider)
+@c @unnumberedsubsec Controllo da interfaccia interattiva
+@c L'opzione @option{-i, --interactive} permette di visualizzare i download di
+@c ZDL utilizzando un altro terminale oppure dallo stesso terminale di
+@c avvio dei download di Wget nel caso in cui ZDL è terminato
+@c (per decisione dell'utente, premendo @kbd{Ctrl+c}, oppure
+@c accidentalmente). Infatti, i download di Wget procedono in background
+@c e non muoiono insieme a ZDL (tecnicamente possono essere tutti uccisi
+@c "terminando il terminale"). Per uccidere uno o più processi già
+@c avviati (definitivamente oppure per riavviarli automaticamente), anche
+@c con ZDL perfettamente attivo, da un altro terminale entrare nella
+@c directory di destinazione e digitare @command{zdl -i} o @command{zdl
+@c --interactive}: comparirà un'interfaccia con cui poter interagire con
+@c i processi di ZDL.
 
-@unnumberedsubsec Immissione di nuove opzioni
-Aggiungere opzioni a download avviati dal browser. 
+@c @unnumberedsubsec Immissione di nuovi link
+@c ZDL accetta come argomenti un numero illimitato di file di
+@c testo contenenti link e container DLC. 
+@c Inoltre, è stato progettato anche per scaricare
+@c file di video streaming. Per quest'ultima operazione è
+@c particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo
+@c di @emph{Firefox/Iceweasel/Icecat} (@url{http://flashgot.net}). 
+@c Avviando ZDL con @emph{Flashgot} è possibile scaricare filmati anche da servizi 
+@c di video streaming non ancora abilitati da ZDL. In genere, però, i link ricavati 
+@c da @emph{Flashgot} sono temporanei e possono scadere dopo un certo periodo di tempo o a 
+@c causa di una variazione dell'indirizzo IP dell'utente (per esempio, dovuta a una 
+@c disconnessione del modem dal proprio provider)
 
-@unnumberedsubsubsec Un esempio, partendo da un problema pratico
-@table @emph
-@item Problema:
-voglio scaricare dei file da Easybytez usando @emph{Flashgot}, ma voglio
-anche usare le opzioni @option{--login}, @option{--multi} e @option{--clean}, che non sono
-impostate di default. Come posso utilizzare queste funzioni aggiuntive
-usando il browser (con @emph{Flashgot}), se queste possono essere attivate
-solo dal terminale?
+@c @unnumberedsubsec Immissione di nuove opzioni
+@c Aggiungere opzioni a download avviati dal browser. 
 
-@item Soluzione:
-@itemize @minus
-@item
-avvio zdl in un terminale, dalla directory di destinazione,
-    utilizzando tutte le opzioni di cui ho bisogno:
-    		  @command{zdl -m --login --clean}
-@item
-usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
-    file da scaricare e avvio il download con @emph{Flashgot}: il download
-    non viene effettuato subito e i link vengono registrati da zdl per
-    essere processati da un'altra istanza attiva del programma (quella
-    nel terminale)
-@item
-quando ho finito di registrare i link, torno al terminale e, senza
-    scrivere nulla, digito la chiocciolina @
-@end itemize
-@end table
+@c @unnumberedsubsubsec Un esempio, partendo da un problema pratico
+@c @table @emph
+@c @item Problema:
+@c voglio scaricare dei file da Easybytez usando @emph{Flashgot}, ma voglio
+@c anche usare le opzioni @option{--login}, @option{--multi} e @option{--clean}, che non sono
+@c impostate di default. Come posso utilizzare queste funzioni aggiuntive
+@c usando il browser (con @emph{Flashgot}), se queste possono essere attivate
+@c solo dal terminale?
+
+@c @item Soluzione:
+@c @itemize @minus
+@c @item
+@c avvio zdl in un terminale, dalla directory di destinazione,
+@c     utilizzando tutte le opzioni di cui ho bisogno:
+@c     		  @command{zdl -m --login --clean}
+@c @item
+@c usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
+@c     file da scaricare e avvio il download con @emph{Flashgot}: il download
+@c     non viene effettuato subito e i link vengono registrati da zdl per
+@c     essere processati da un'altra istanza attiva del programma (quella
+@c     nel terminale)
+@c @item
+@c quando ho finito di registrare i link, torno al terminale e, senza
+@c     scrivere nulla, digito la chiocciolina @
+@c @end itemize
+@c @end table
 @htmlend
 
 @node Manuali d'uso,Creare nuove estensioni,Controllare i download,Top
