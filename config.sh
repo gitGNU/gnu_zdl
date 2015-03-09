@@ -45,40 +45,17 @@ declare -A list_proxy_url
 rtmp=( zinwa. streamin. vidhappy. videopremium. )
 
 
-function add_conf { #only if item doesn't exist
-    item="$1"
-    name="${item%%=*}="
-    unset noadd
-    if [ -f "$file_conf" ]; then
-	lines=`cat "$file_conf" |wc -l`
-	for line in `seq 1 $lines`; do
-	    text=`cat "$file_conf" | sed -n "${line}p"`
-	    if [ "$text" != "${text#$name}" ] || [ "$text" == "$item" ]; then
-		noadd=1
-		break
-	    fi
-	done
-	
-	if [ -z "$noadd" ]; then
-	    echo "$item" >> "$file_conf"
-	    unset noadd
-	fi
-    fi
-}
-
 function set_default_conf {
     mkdir -p "$path_conf"
     touch "$file_conf"
-    add_conf "${key_conf[0]}=${val_conf[0]}"
     if [ ! -e "/cygdrive" ]; then
-	add_conf "${key_conf[1]}=32"
+	val_conf[1]=32
     else
-	add_conf "${key_conf[1]}=10"
+	val_conf[1]=10
     fi
     
-    add_conf "# single or multi, to set the default downloading mode (single=sequential, multi=parallel) or NUMBER OF SIMULTANEUS DOWNLOADS"
-    for ((i=2; i<${#key_conf[*]}; i++)); do
-	add_conf "${key_conf[$i]}=${val_conf[$i]}"
+    for ((i=0; i<${#key_conf[*]}; i++)); do
+	[[ ! $(grep ^${key_conf[$i]}= "$file_conf") ]] && echo "${key_conf[$i]}=${val_conf[$i]}" >> "$file_conf"
     done
 }
 
