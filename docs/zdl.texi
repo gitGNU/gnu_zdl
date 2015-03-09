@@ -362,14 +362,18 @@ Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub' (per file vide
 sostituisce l'interfaccia di ingresso di ZDL con l'editor predefinito dal sistema oppure con quello configurato per ZDL con @command{zdl -c}
 @item --emacs, --emacs-nw
 usa Emacs o la sua versione solo testo/non grafica
+@item --jed
+usa Jed, un piccolo editor in stile Emacs
 @item --mcedit
 usa l'editor di Midnight Commander
 @item --mg
-usa un editor microscopico in stile GNU Emacs
+usa Mg, un micro editor in stile Emacs
 @item --nano
 usa l'editor Nano
 @item --vi, --vim
 usa l'editor Vi o Vim
+@item --zile
+usa Zile, un micro editor GNU in stile Emacs
 
 @end table
 
@@ -766,10 +770,12 @@ Estensione di Firefox/Iceweasel/Icecat
 
 @pindex editor
 @item Emacs
+@itemx Jed
 @itemx Midnight Commander (MCEdit)
 @itemx Mg
 @itemx Nano
 @itemx Vi, Vim
+@itemx Zile
 Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
 @end table
 

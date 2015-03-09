@@ -283,17 +283,23 @@ Avvio con un editor:
 `--emacs, --emacs-nw'
      usa Emacs o la sua versione solo testo/non grafica
 
+`--jed'
+     usa Jed, un piccolo editor in stile Emacs
+
 `--mcedit'
      usa l'editor di Midnight Commander
 
 `--mg'
-     usa un editor microscopico in stile GNU Emacs
+     usa Mg, un micro editor in stile Emacs
 
 `--nano'
      usa l'editor Nano
 
 `--vi, --vim'
      usa l'editor Vi o Vim
+
+`--zile'
+     usa Zile, un micro editor GNU in stile Emacs
 
 
 Avvio con Proxy:
@@ -563,10 +569,12 @@ _Flashgot_
      Estensione di Firefox/Iceweasel/Icecat
 
 _Emacs_
+_Jed_
 _Midnight Commander (MCEdit)_
 _Mg_
 _Nano_
 _Vi, Vim_
+_Zile_
      Almeno un editor, per poter modificare in qualsiasi momento la
      lista dei link da cui effettuare i download
 
@@ -770,17 +778,17 @@ Indice dei programmi
 
 * avconv:                                Software consigliati. (line  9)
 * axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 38)
+* conkeror:                              Software consigliati. (line 40)
 * editor:                                Software consigliati. (line 21)
 * ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 32)
+* firefox:                               Software consigliati. (line 34)
 * flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 32)
-* iceweasel:                             Software consigliati. (line 32)
+* icecat:                                Software consigliati. (line 34)
+* iceweasel:                             Software consigliati. (line 34)
 * rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 35)
+* xombrero:                              Software consigliati. (line 37)
 * xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 35)
+* xxxterm:                               Software consigliati. (line 37)
 
 
 File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
@@ -842,19 +850,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5075
-Node: Servizi streaming/hosting9872
-Node: Avviare ZDL12643
-Node: Arrestare ZDL15081
-Node: Controllare i download16186
-Node: Manuali d'uso16493
-Node: Creare nuove estensioni16928
-Node: Software consigliati18503
-Node: Conkeror19546
-Node: zdl-xterm e XXXTerm/Xombrero20557
-Node: Installazione e aggiornamento22481
-Node: Tags24805
-Node: Copying26964
-Node: Contatti28014
+Node: Servizi streaming/hosting9981
+Node: Avviare ZDL12752
+Node: Arrestare ZDL15190
+Node: Controllare i download16295
+Node: Manuali d'uso16602
+Node: Creare nuove estensioni17037
+Node: Software consigliati18612
+Node: Conkeror19668
+Node: zdl-xterm e XXXTerm/Xombrero20679
+Node: Installazione e aggiornamento22603
+Node: Tags24927
+Node: Copying27086
+Node: Contatti28136
 
 End Tag Table
 

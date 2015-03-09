@@ -123,11 +123,14 @@ sostituisce l'interfaccia iniziale per l'immissione dei link
 
   -e,  --editor                Editor predefinito (si può configurare con 'zdl -c')
 
-       --vi, --vim             Vi e Vim
-       --nano                  Nano
-       --mcedit                Midnight Commander Editor
        --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
-       --mg                    editor microscopico in stile GNU Emacs
+       --jed                   piccolo editor in stile GNU Emacs
+       --mcedit                Midnight Commander Editor
+       --mg                    micro editor in stile GNU Emacs
+       --nano                  Nano
+       --vi, --vim             Vi e Vim
+       --zile                  micro editor in stile GNU Emacs
+
 
 Avvio con proxy:
        --proxy		       Avvia ZDL attivando un proxy
