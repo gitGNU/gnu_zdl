@@ -29,13 +29,13 @@
 
 
 if [ "$url_in" != "${url_in//'streamin.to'}" ]; then
-    input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
-    file_in="$postdata_fname"
-
-    countdown+ 6
-
-    html=$(wget -q --post-data="$post_data" "$url_in" -O -) 
-    streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
-    playpath=$(grep file:  <<< "$html" |head -n2|tail -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')
+    if [[ ! $(wget -O- -q "$url_in") =~ 'File Deleted' ]]; then
+	input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
+	file_in="$postdata_fname"
+	countdown+ 6
+	html=$(wget -q --post-data="$post_data" "$url_in" -O -) 
+	streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
+	playpath=$(grep file:  <<< "$html" |head -n2|tail -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')
+    fi
 fi
 
