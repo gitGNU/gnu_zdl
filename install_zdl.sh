@@ -329,7 +329,7 @@ Installazione di apt-cyg
 Installazione di FFMpeg
 "
 	rm -f /tmp/list-pkts.txt
-	apt-cyg -m ftp://ftp.cygwinports.org/pub/cygwinports install ffmpeg | tee -a /tmp/list-pkts.txt
+	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install ffmpeg | tee -a /tmp/list-pkts.txt
 	
 	unset pkts
 	mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
@@ -339,7 +339,7 @@ Installazione di FFMpeg
 
     if [[ ! $(command -v rtmpdump 2>/dev/null) ]]
     then
-	apt-cyg -m ftp://ftp.cygwinports.org/pub/cygwinports install rtmpdump
+	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install rtmpdump
     fi
     if [[ ! $(command -v nano 2>/dev/null) ]]
     then
