@@ -364,6 +364,8 @@ sostituisce l'interfaccia di ingresso di ZDL con l'editor predefinito dal sistem
 usa Emacs o la sua versione solo testo/non grafica
 @item --jed
 usa Jed, un piccolo editor in stile Emacs
+@item --jupp
+usa Jupp
 @item --mcedit
 usa l'editor di Midnight Commander
 @item --mg
@@ -771,12 +773,13 @@ Estensione di Firefox/Iceweasel/Icecat
 @pindex editor
 @item Emacs
 @itemx Jed
+@itemx Jupp
 @itemx Midnight Commander (MCEdit)
 @itemx Mg
 @itemx Nano
 @itemx Vi, Vim
 @itemx Zile
-Almeno un editor, per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
+Almeno un editor qualsiasi (qui solo alcuni suggerimenti) per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
 @end table
 
 @unnumberedsubsec ZDL è compatibile con: 

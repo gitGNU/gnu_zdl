@@ -125,6 +125,7 @@ sostituisce l'interfaccia iniziale per l'immissione dei link
 
        --emacs, --emacs-nw     Emacs e la sua versione '-nw' (senza grafica)
        --jed                   piccolo editor in stile GNU Emacs
+       --jupp                  Jupp
        --mcedit                Midnight Commander Editor
        --mg                    micro editor in stile GNU Emacs
        --nano                  Nano

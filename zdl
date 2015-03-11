@@ -128,9 +128,9 @@ fi
 #### MAIN
 init
 
-if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile) ]]; then
+if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]]; then
     for i in $(seq 0 $max_args); do
-	if [[ "${args[$i]}" =~ ^\-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile)$ ]]; then
+	if [[ "${args[$i]}" =~ ^\-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp)$ ]]; then
 	    [[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
 	    unset args[$i]
 	    from_editor=true

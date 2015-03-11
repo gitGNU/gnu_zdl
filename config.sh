@@ -35,7 +35,7 @@ key_conf[4]=num_multi;        val_conf[4]="";                 string_conf[4]="Nu
 key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="Aspetto (color)"
 key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
-key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di $PROG (enabled|*)"
+key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di ZDL (enabled|*)"
 key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
 key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
