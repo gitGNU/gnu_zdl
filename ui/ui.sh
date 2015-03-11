@@ -405,13 +405,9 @@ function make_progress {
     diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
 
     unset bar diff_bar
-    for column in `seq 1 $size_bar`; do
-	bar="${bar_color}${bar} " 
-    done
-    for column in `seq 1 $diff_size_bar`; do
-	diff_bar="${Color_Off}${diff_bar_color}${diff_bar}|"
-    done
-    bar="${bar}${diff_bar}"
+    eval printf -v bar "%.0s\ " {1..$size_bar}
+    eval printf -v diff_bar "%.0s\|" {1..$diff_size_bar}
+    bar="${bar_color}${bar}${Color_Off}${diff_bar_color}${diff_bar}"
 
     test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$i]}_stdout.tmp")
     if ( [ ! -z "$test_completed" ] && [ ${downloader_out[$i]} == RTMPDump ] ) || ( [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "${length_saved[$i]}" == "${length_out[$i]}" ] && [ "${length_out[$i]}" != 0 ] && [ ! -z "${length_out[$i]}" ] );then
