@@ -344,6 +344,17 @@ if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}
     done
 fi
 
+if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]; then
+    for i in `seq 0 $max_args`; do
+	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
+	    unset args[$i]
+	    interactive
+	fi
+    done
+fi
+## se non è modalità interattiva, allora sono validi i comandi "standard"
+bindings
+
 ################################### HEADER
 if [ ! -f "$path_conf/noclear" ]; then 
     fclear
@@ -418,16 +429,6 @@ if [ "${args[*]}" != "${args[*]//--login}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
-	    unset args[$i]
-	    interactive
-	fi
-    done
-fi
-## se non è modalità interattiva, allora sono validi i comandi "standard"
-bindings
 
 if [ "${args[*]}" != "${args[*]//--wget}" ]; then
     for i in `seq 0 $max_args`; do
