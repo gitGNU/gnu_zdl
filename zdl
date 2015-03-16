@@ -674,7 +674,7 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
 		exit
 	    fi
 	fi
-	echo
+	print_c 0
     else
 	rm -f "$path_tmp/rewriting"
     fi
@@ -733,6 +733,10 @@ function main_loop {
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
+		header_box "Link da processare:"
+		print_c 0 "$url_in\n"
+
+		print_c 1 "Connessione in corso..."
 
 		check_ip
 		## user extensions
@@ -747,11 +751,7 @@ function main_loop {
 
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
-		echo
-		header_box "Link da processare:"
-		print_c 0 "$url_in\n"
-
-		print_c 1 "Connessione in corso..."
+		print_c 0
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
 		    shopt -s nullglob
