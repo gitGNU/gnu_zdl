@@ -910,7 +910,7 @@ function main_loop {
 		unset checked break_loop post_data goal not_available exceeded 
 	    fi
 	done
-	print_c 4 "\nchecking loop..."
+	print_c 4 "checking loop..."
 	sleeping 3
 	clean_file "$path_tmp"/links_loop.txt
 
