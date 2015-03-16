@@ -109,7 +109,7 @@ function run_editor {
     header_box "Modalità standard"
     commands_box
     separator-
-    echo
+    export READLINE_LINE="e"
 }
 
 function human_length { ## input in bytes
