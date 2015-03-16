@@ -186,7 +186,7 @@ function display () {
     if (extended>0) {
 	result = show_downloads_extended()
     } else {
-	result = header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
+	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result show_downloads()
     }
     printf result
