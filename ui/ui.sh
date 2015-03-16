@@ -141,27 +141,25 @@ function interactive {
 	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
 	[ -z "$num_dl" ] && num_dl=illimitati
 	header_box_interactive "Opzioni [numero download alla volta: $num_dl]"
-	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n"
-
-	echo -e "<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
+	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
+<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
 	
 	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Axel ]] && \
 	    echo -e "<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get"
 	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Wget ]] && \
 	    echo -e "<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel"
 
-	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta"
-	echo -e "<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
+	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
+<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
 
 	[ -z "$tty" ] && [ -z "$daemon_pid" ] && \
 	    echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
-	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n"
-
-	echo -e "<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
+	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n
+<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
 	[ ! -z "$daemon_pid" ] && \
 	    echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
 	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
-	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off}\n"
+	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)\n"
 	cursor off
 	stty -echo
 	read -e -n 1 -t 15 action
@@ -200,20 +198,20 @@ function interactive {
 		done
 		if [ "$input2" == "r" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} &>/dev/null # && ( print_c 1 "Download terminato: ${file_in[$i]} (${url_in[$i]})" ; read )
-			if [ ! -f "${file_out[$i]}.st" ] && [ ! -f "${alias_file_out[$i]}.st" ]; then
-			    rm -f "${file_out[$i]}" "${alias_file_out[$i]}"
+			kill -9 ${pid_out[$i]} &>/dev/null
+			if [ ! -f "${file_out[$i]}.st" ]; then
+			    rm -f "${file_out[$i]}" 
 			fi
 		    done
 		elif [ "$input2" == "E" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} &>/dev/null
-			rm -f "${file_out[$i]}" "${alias_file_out[$i]}" "${file_out[$i]}.st" "${alias_file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+			kill -9 ${pid_out[$i]} &>/dev/null
+			rm -f "${file_out[$i]}" "${file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done
 		elif [ "$input2" == "T" ]; then
 		    for i in ${inputs[*]}; do
-			kill ${pid_out[$i]} &>/dev/null
+			kill -9 ${pid_out[$i]} &>/dev/null
 			rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done

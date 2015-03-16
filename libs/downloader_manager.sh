@@ -25,42 +25,9 @@
 #
 
 function check_freespace {
-    a=$a
+    test_space=( $(df .) )
+    (( ${test_space[11]} < 6000 )) && return 1
 }
-
-function check_freespace_old {
-    fsize=0
-    if [ -f "$path_tmp"/${file_in}_stdout.tmp ]; then
-	data_stdout "$path_tmp"/${file_in}_stdout.tmp
-	if [ $? == 0 ] && [ ! -z "${length_out[0]}" ]; then
-	    fsize=$(( ${length_out[0]}/1024 ))
-	fi
-    else
-	if [ ! -z "$lenght_in" ];then
-	    fsize="$length_in"
-	fi
-    fi
-    
-    maxl=`df |wc -l`
-    pattern=`pwd -P`
-    for l in `seq 2 $maxl`; do
-	dev=`df | awk '{ print($6) }' | sed -n "${l}p"`
-	if [ "$dev" == "/" ]; then dev="$HOME" ; fi
-	freespace=`df | awk '{ print($4) }' | sed -n "${l}p"`
-	if [ "$pattern" != "${pattern//$dev}" ]; then
-	    if (( $freespace<50000 )); then
-		print_c 3 "Spazio insufficiente sul device. $PROG terminato."
-		exit
-	    elif [ ! -f "${file_in}.st" ] && [ "$fsize" != 0 ] && (( $freespace<$fsize )); then
-		kill -9 $pid_in &>/dev/null
-		_log 6
-		return 1
-	    fi
-	fi
-    done
-    unset fsize
-}
-
 
 function download {
     export LANG="$prog_lang"

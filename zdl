@@ -703,7 +703,7 @@ function main_loop {
     if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]; then
     	start_file="$path_tmp/links_loop.txt"
     	sleep 10
-    elif [ -f "$start_file" ]; then
+    elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]; then
 	links_in=$(cat "$start_file")
 	if [ -f "$path_tmp/.dl-mode" ];then
 	    multi=true
@@ -814,11 +814,14 @@ function main_loop {
 
        		#### CHECK $url_in_file & $file_in:
 
-		check_freespace
-		test_freespace=$?
-		check_in_file
-		test_in=$?
-		[ "$test_freespace" == "1" ] && unset test_in test_freespace
+		if check_freespace
+		then
+		    check_in_file
+		    test_in="$?"
+		else
+		    break_loop="true"
+		    zdl_exit="true" 
+		fi
 
 		if [ ! -z "$no_file_regex" ] && [[ "$file_in" =~ $no_file_regex ]]; then
 		    _log 13
@@ -963,12 +966,12 @@ if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
 fi
 
 check_instance_dl
-if [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ]; then
-    rm -rf "$path_tmp" 2>/dev/null
+if ( [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ] ) && [ "$zdl_exit" != "true" ]; then
+	rm -rf "$path_tmp" 2>/dev/null
 fi
+[ "$zdl_exit" == "true" ] && kill_downloads
 
-echo
-echo
+echo -e "\n\n"
 stty echo
 if [ -f "$file_log" ]; then
     print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
