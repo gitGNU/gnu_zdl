@@ -141,7 +141,7 @@ function show_downloads () {
 }
 
 
-function make_progress (size_bar, progress_bar) {
+function make_progress (size_bar, progress_bar, progress) {
     size_bar = 0
     if (! check_pid(pid_out[i])) {
  	if (downloader_out[i] ~ /^(Wget|RTMPDump)$/) {
