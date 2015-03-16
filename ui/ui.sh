@@ -28,8 +28,6 @@ function show_downloads {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
 	if data_stdout
 	then
-	    print_c 0
-	    header_dl "Downloading in $PWD"
 	    awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=0 -e "BEGIN {$awk_data display()}" 
 	fi
 	sleep $sleeping_pause
