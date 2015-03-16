@@ -281,24 +281,24 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	    format=${args[$i]##*-}
 	    unset args[$i]
 	    rm -f "$path_tmp"/pid.zdl
-	    file_output=.file_output.zdl
+	    file_output=".file_output.zdl"
 	    export pid_prog=$$
-	    $prog ${args[*]} --out=$file_output
+	    $prog ${args[*]} --out="$file_output"
 
-	    [ ! -z "$(command -v avconv 2>/dev/null)" ] && convert2format=avconv
-	    [ ! -z "$(command -v ffmpeg 2>/dev/null)" ] && convert2format=ffmpeg
+	    [ ! -z "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
+	    [ ! -z "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
 	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
 		line=$(sed -n ${i}p < $file_output)
-		if [ -z "$(mimetype $line 2>/dev/null)" ] || [[ "$(mimetype $line)" =~ (audio|video) ]]; then
+		if [[ "$(file --mime-type $line -d ' ' -f 2 $line 2>/dev/null)" =~ (audio|video) ]]; then
 		    print_c 4 "Conversione del file: $line"
 		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
 		fi
 	    done
-	    rm $file_output
+	    rm "$file_output"
 	    [ "$xterm_stop" == true ] && xterm_stop
 	    exit
 	fi
@@ -763,8 +763,8 @@ function main_loop {
 			new_ip_proxy
 		    fi
 		    
-		    data_stdout
-		    if [ $? == 1 ]; then 
+		    if data_stdout
+		    then 
 			last_out=$(( ${#pid_out[*]}-1 ))
 			for j in `seq 0 $last_out`; do
 			    if [ "$url_in" == "${url_out[$j]}" ]; then
@@ -840,8 +840,8 @@ function main_loop {
 		    else
 			print_c 4 "URL del file: $url_in_file"
 		    fi
-		    check_pid ${pid_in}
-		    if [ $? == 1 ]; then
+		    if check_pid ${pid_in}
+		    then
 			print_c 1 "downloading --> $file_in ..."
 		    else
 			print_c 3 "\n$file_in: connessione non riuscita (riprovo più tardi)"
@@ -852,8 +852,8 @@ function main_loop {
 			if [ $? == 1 ]; then
 			    break
 			fi
-			check_pid ${pid_in}
-			if [ $? != 1 ]; then
+			if ! check_pid ${pid_in}
+			then
 			    break
 			fi
 		    done
@@ -891,7 +891,7 @@ function main_loop {
 		    test_pid=$?
 		    links_loop "in" "$url_in"
 		    test_loop_in=$?
-		    if [ "$test_loop_in" != 1 ] || [ "$test_pid" != 1 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
+		    if [ "$test_loop_in" != 1 ] || [ "$test_pid" != 0 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
 			break
 		    fi
 		    check_stdout
@@ -941,8 +941,10 @@ if [ "$daemon" != true ]; then
     stty -echo
     bindings
     while true; do
-	check_pid $loops_pid
-	[ $? != 1 ] && break
+	if ! check_pid $loops_pid
+	then
+	    break
+	fi
 	read -e -n1 -t 5
     done
 fi

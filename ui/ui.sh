@@ -24,6 +24,43 @@
 # zoninoz@inventati.org
 #
 
+function show_downloads {
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
+	if data_stdout
+	then
+	    print_c 0
+	    header_dl "Downloading in $PWD"
+	    awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=0 -e "BEGIN {$awk_data display()}" 
+	fi
+	sleep $sleeping_pause
+    fi
+}
+
+function show_downloads_extended {
+    header_z
+    header_box_interactive "Modalità interattiva"
+    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
+    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+
+    check_instance_daemon
+    if [ $? == 1 ]; then
+	print_c 1 "$PROG è attivo in modalità demone\n"
+	daemon_pid=$test_pid
+    else
+	check_instance_prog
+	if [ $? == 1 ]; then
+	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
+	else
+	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
+	fi
+    fi
+    if data_stdout
+    then
+	awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=1 -e "BEGIN {$awk_data display()}" 
+    fi
+}
+
+
 function services_box {
     header_dl "Servizi"
     echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n" 
@@ -31,11 +68,13 @@ function services_box {
 
 function commands_box {
     header_dl "Comandi della modalità standard (M è il tasto Meta, cioè <Alt>)"
-    echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]"
-    echo -e "<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito"
-    echo -e "<${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva\n"
-    echo -e "<${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]"
-    echo -e "<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
+    echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
+<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito
+<${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
+
+<${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
+<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
+
 }
 
 function links_box {
@@ -72,75 +111,6 @@ function run_editor {
     separator-
     echo
 }
-
-function show_downloads_extended {
-    header_z
-    header_box_interactive "Modalità interattiva"
-    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
-    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-
-    check_instance_daemon
-    if [ $? == 1 ]; then
-	print_c 1 "$PROG è attivo in modalità demone\n"
-	daemon_pid=$test_pid
-    else
-##	if [[ $(pidprog_in_dir "$PWD") ]]; then
-	check_instance_prog
-	if [ $? == 1 ]; then
-	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
-	else
-	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
-	fi
-    fi
-    data_stdout
-
-    last_out=$(( ${#pid_out[*]}-1 ))
-    for i in `seq 0 $last_out`; do
-	human_length ${length_out[$i]} ## --> $length_H
-	
-	header_dl "Numero download: $i"
-	check_pid ${pid_out[$i]}
-	if [ $? == 1 ] && [ ! -f "${file_out[$i]}" ] && [ ! -z "${progress_out[$i]}" ]; then
-	    echo -n -e "${BRed}${downloader_out[$i]} sta scaricando a vuoto: ${file_out[$i]} non esiste$Color_Off}\n"
-	fi
-	is_rtmp "${url_out[$i]}"
-	if [ $? == 1 ]; then
-	    echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
-	    echo -e "${BBlue}Downloader:${Color_Off} ${downloader_out[$i]} ${BYellow}protocollo RTMP$Color_Off\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
-	    echo -e "${BBlue}Streamer:${Color_Off} ${streamer_out[$i]}"
-	    echo -e "${BBlue}Playpath:${Color_Off} ${playpath_out[$i]}" 
-	else
-	    echo -e "${BBlue}File:${Color_Off} ${file_out[$i]}" 
-	    [ ! -z "${alias_file_out[$i]}" ] && echo "${BBlue}Alias:${Color_Off} ${alias_file_out[$i]}"
-	    echo -e "${BBlue}Grandezza:${Color_Off} ${length_H} ${BBlue}Downloader:${Color_Off} ${downloader_out[$i]}\n${BBlue}Link:${Color_Off} ${url_out[$i]}"
-	    echo -e "${BBlue}Url del file:${Color_Off} ${url_out_file[$i]}" 
-	fi
-	if [ ${downloader_out[$i]} == cURL ]; then
-	    check_pid ${pid_out[$i]}
-	    if [ $? == 1 ]; then
-		[ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
-		[ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
-		[ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
-		human_length ${length_saved[$i]}
-		echo -n -e "${BBlue}Stato:${Color_Off} "
-		echo -e -n "${BGreen}${length_saved[$i]} ($length_H) ${BBlue}${speed}${Color_Off}\n"
-	    elif [ -f "${file_out[$i]}" ]; then
-		human_length ${length_saved[$i]}
-		echo -n -e "${BBlue}Stato:${Color_Off} "
-		echo -e -n "${BGreen}${length_saved[$i]} ($length_H) terminato${Color_Off}\n"
-	    else
-		echo -n -e "${BBlue}Stato:${Color_Off} "
-		echo -e -n "${BRed}Download non attivo${Color_Off}\n"
-	    fi
-	else
-	    make_progress
-	    echo -e -n "${BBlue}Stato:${diff_bar_color} ${progress}${Color_Off}\n"
-	fi
-	echo
-    done
-    return 1
-}
-
 
 function human_length { ## input in bytes
     if [ ! -z $1 ]; then
@@ -297,26 +267,25 @@ function interactive {
 
 
 function clean_completed {
-    data_stdout
-    if [ $? == 1 ]; then
+    if data_stdout
+    then
 	last_out=$(( ${#pid_out[*]}-1 ))
 	for j in `seq 0 $last_out`; do
 	    length_saved=0
-	    [ -f "${file_out[$j]}" ] && length_saved=`ls -l "./${file_out[$j]}" | awk '{ print($5) }'`
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ];then
+	    [ -f "${file_out[$j]}" ] && length_saved=$(size_file "${file_out[$j]}")
+	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ]; then
 		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 	    fi
 
 	    if [ ${downloader_out[$j]} == cURL ] && [ ! -z "${length_saved[$j]}" ] && (( "${length_saved[$j]}">0 )); then
-		check_pid "${pid_out[$j]}"
-		if [ $? != 1 ]; then
+		if ! check_pid "${pid_out[$j]}"
+		then
 		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
 	    if [ ${downloader_out[$j]} == RTMPDump ]; then
 		test_completed=$(tail -n1 "$path_tmp"/"${file_out[$j]}_stdout.tmp")
-		check_pid "${pid_out[$j]}"
-		if [ $? != 1 ] && [ "$test_completed" == "Download complete" ]; then
+		if ! check_pid "${pid_out[$j]}" && [ "$test_completed" == "Download complete" ]; then
 		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
@@ -325,14 +294,12 @@ function clean_completed {
 }
 
 
-function show_downloads {
-    # check_instance i
-    # if [ $? != 2 ] &&
+function show_downloads_old {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
 	echo
 	header_dl "Downloading in $PWD"
-	data_stdout
-	if [ $? == 1 ]; then
+	if data_stdout
+	then
 	    last_stdout=$(( ${#pid_out[*]}-1 ))
 	    for i in `seq 0 $last_stdout`; do
 		if [ ! -z "${url_out[$i]}" ]; then
@@ -340,8 +307,8 @@ function show_downloads {
 		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
 
 		    if [ ${downloader_out[$i]} == cURL ]; then
-			check_pid ${pid_out[$i]}
-			if [ $? == 1 ]; then
+			if check_pid ${pid_out[$i]}
+			then
 			    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
 			    [ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
 			    [ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
@@ -378,8 +345,8 @@ function show_downloads {
 function make_progress {
     unset progress
     size_bar=0
-    check_pid ${pid_out[$i]}
-    if [ $? != 1 ]; then
+    if ! check_pid ${pid_out[$i]}
+    then
 	if [[ "${downloader_out[$i]}" =~ ^(Wget|RTMPDump)$ ]]; then
 	    progress="Download non attivo"
 	fi

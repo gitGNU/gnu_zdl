@@ -269,7 +269,7 @@ function init {
     path_tmp=".${prog}_tmp"
     mkdir -p "$path_tmp"
     tty_prog=$(tty)
-    ## set default config data
+
     updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
     if [ -z "$updatecols" ]; then 
 	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
@@ -325,5 +325,5 @@ function init {
     [ -z "$editor" ] && check_editor
 
     trap_sigint
-    sleeping_pause=4
+    sleeping_pause=3
 }

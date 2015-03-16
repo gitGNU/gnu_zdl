@@ -42,8 +42,8 @@ function host_login {
 		for account_alive in ${accounts_alive[*]}; do
 					#for user_loop in ${accounts_user_loop[*]}; do
 		    if [ "${account_alive#${accounts_user_loop[$i]}@${host}:}" != "${account_alive}" ]; then
-			check_pid "${account_alive#${accounts_user_loop[$i]}@${host}:}"
-			if [ $? == 1 ]; then
+			if check_pid "${account_alive#${accounts_user_loop[$i]}@${host}:}"
+			then
 			    (( j++ ))
 			    accounts_user_loop[$j]="${accounts_user_loop[$i]}"
 			    accounts_pass_loop[$j]="${accounts_pass_loop[$i]}"

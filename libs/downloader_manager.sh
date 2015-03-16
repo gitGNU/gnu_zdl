@@ -28,7 +28,7 @@ function check_freespace {
     fsize=0
     if [ -f "$path_tmp"/${file_in}_stdout.tmp ]; then
 	data_stdout "$path_tmp"/${file_in}_stdout.tmp
-	if [ $? == 1 ] && [ ! -z "${length_out[0]}" ]; then
+	if [ $? == 0 ] && [ ! -z "${length_out[0]}" ]; then
 	    fsize=$(( ${length_out[0]}/1024 ))
 	fi
     else
@@ -70,14 +70,20 @@ function download {
 	    if [ "$s" == 0 ] || [ "$s" == "$max_waiting" ] || [ "$s" == $(( $max_waiting*2 )) ]; then 
 		kill -9 "$wpid" &>/dev/null
 		rm -f "$path_tmp/redirect"
-		wget -t 1 -T $max_waiting --user-agent="$user_agent" --no-check-certificate --load-cookies=$path_tmp/cookies.zdl --post-data="${post_data}" "$url_in_file" -S -O /dev/null -o "$path_tmp/redirect" &
+		wget -t 1 -T $max_waiting \
+		    --user-agent="$user_agent" \
+		    --no-check-certificate \
+		    --load-cookies=$path_tmp/cookies.zdl \
+		    --post-data="${post_data}" \
+		    "$url_in_file" \
+		    -S -O /dev/null -o "$path_tmp/redirect" &
 		wpid=$!
 	    fi
 	    [ -f "$path_tmp/redirect" ] && url_redirect=$(grep Location: < "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
 	    link_parser "$url_redirect"
 	    test_link=$?
 	    check_pid "$wpid"
-	    if [[ $test_link == 1 ]] || [ $? != 1 ]; then 
+	    if [[ $test_link == 1 ]] || [ $? != 0 ]; then 
 		kill -9 "$wpid" &>/dev/null
 		url_in_file="$url_redirect"
 		break
@@ -112,11 +118,17 @@ function download {
 		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
 	else
-
 	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	fi
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\nAxel\n${pid_prog}\n$axel_parts\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+	echo -e "${pid_in}
+$url_in
+Axel
+${pid_prog}
+$file_in
+$url_in_file
+$axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
+
     elif [ "$downloader_in" == "Wget" ]; then
 	if [ -f "$path_tmp"/cookies.zdl ]; then
 	    COOKIES="$path_tmp/cookies.zdl"
@@ -132,32 +144,81 @@ function download {
 	else
 	    argout="--trust-server-names"
 	fi
-	wget --user-agent="$user_agent" --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
-#	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+
+##	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
+
+	wget --user-agent="$user_agent" \
+	    --no-check-certificate \
+	    --retry-connrefused \
+	    -c -nc -S \
+	    --load-cookies=$COOKIES \
+	    $method_post \
+	    "$url_in_file" \
+	    $argout \
+	    "$fileout" \
+	    -a "$path_tmp/${file_in}_stdout.tmp" &
+
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\nWget\n${pid_prog}\nlength_in=$length_in\n$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+
+	echo -e "${pid_in}
+$url_in
+Wget
+${pid_prog}
+$file_in
+$url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
 
     elif [ "$downloader_in" == "RTMPDump" ] && [ ! -z "$downloader_cmd" ]; then
 	eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
 	pid_in=$!
-        echo -e "${pid_in}\nlink_${prog}: $url_in\nRTMPDump\n${pid_prog}\n$file_in\n$streamer\n$playpath\n$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
+
+        echo -e "${pid_in}
+$url_in
+RTMPDump
+${pid_prog}
+$file_in
+$streamer
+$playpath
+$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 	unset downloader_cmd
 
     elif [ "$downloader_in" == "RTMPDump" ]; then
 	rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\nRTMPDump\n${pid_prog}\n$file_in\n$streamer\n$playpath\n$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
+
+	echo -e "${pid_in}
+$url_in
+RTMPDump
+${pid_prog}
+$file_in
+$streamer
+$playpath
+$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 
     elif [ "$downloader_in" == "cURL" ] && [ ! -z "$downloader_cmd" ]; then
 	( eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\ncURL\n${pid_prog}\n$file_in\n$streamer\n$playpath" > "$path_tmp/${file_in}_stdout.tmp"
+
+	echo -e "${pid_in}
+$url_in
+cURL
+${pid_prog}
+$file_in
+$streamer
+$playpath" > "$path_tmp/${file_in}_stdout.tmp"
 	unset downloader_cmd
 
     elif [ "$downloader_in" == "cURL" ]; then
 	( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
 	pid_in=$!
-	echo -e "${pid_in}\nlink_${prog}: $url_in\ncURL\n${pid_prog}\n$file_in\n$streamer\n$playpath" > "$path_tmp/${file_in}_stdout.tmp"
+
+	echo -e "${pid_in}
+$url_in
+cURL
+${pid_prog}
+$file_in
+$streamer
+$playpath" > "$path_tmp/${file_in}_stdout.tmp"
+
     fi
     
     if [ ! -z "$user" ] && [ ! -z "$host" ]; then
@@ -175,24 +236,24 @@ function download {
 function check_in_url { 	## return --> no_download=1 
     if [ ! -z "$url_in" ]; then
 	if [ -z "$file_in" ]; then
-	    data_stdout
-	    if [ $? == 1 ]; then 
+	    if data_stdout
+	    then 
 		if [ "$multi" != true ] && (( $counter_downloading > 0 )) || ( [ ! -z "$num_multi" ] && (( $counter_downloading >= $num_multi )) ); then
 		    return 1
 		fi
 		
 		for ((i=0; i<${#pid_out[*]}; i++)); do
 		    if [ "${url_out[$i]}" == "$url_in" ]; then
-			check_pid ${pid_out[$i]}
-			if [ $? == 1 ]; then
+			if check_pid ${pid_out[$i]}
+			then
 			    return 1
 			fi
 
 			file_in="${file_out[$i]}"
 			length_saved=0
-			[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
+			[ -f "${file_out[$i]}" ] && length_saved=$(size_file "${file_out[$i]}")
 			
-			if [ "$length_saved" != 0 ] && [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${num_percent[$i]}" == 100 ]; then
+			if [ "$length_saved" != 0 ] && [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${percent_out[$i]}" == 100 ]; then
 			    return 1
 			fi
 			unset length_saved
@@ -237,16 +298,16 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	length_alias_saved=0
 		    
 	no_newip=true
-	data_stdout
-	if [ $? == 1 ]; then
+	if data_stdout
+	then
 	    for ((i=0; i<${#pid_out[*]}; i++)); do
 		if [ "${file_out[$i]}" == "$file_in" ] || [ "$file_in" == "${alias_file_out[$i]}" ]; then
-		    check_pid ${pid_out[$i]}
-		    if [ $? == 1 ]; then
+		    if check_pid ${pid_out[$i]}
+		    then
 			return 1
 		    fi
-		    length_saved=${length_saved[$i]} #`ls -l "./${file_in}" | awk '{ print($5) }'`
-		    [ -f "${alias_file_out[$i]}" ] && length_alias_saved=`ls -l "./${alias_file_out[$i]}" | awk '{ print($5) }'` || length_alias_saved=0
+		    length_saved=${length_saved[$i]} 
+		    [ -f "${alias_file_out[$i]}" ] && length_alias_saved=$(size_file "${alias_file_out[$i]}") || length_alias_saved=0
 		    if [[ "${length_out[$i]}" =~ ^[0-9]+$ ]] && ( (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
 			length_check="${length_out[$i]}"
 		    else
@@ -337,11 +398,11 @@ function check_in_file { 	## return --> no_download=1 / download=5
 
 
 function check_instance_dl {	
-    data_stdout
-    if [ $? == 1 ]; then
+    if data_stdout
+    then
 	for ((i=0; i<${#pid_out[*]}; i++)); do
-	    check_pid ${pid_prog_out[$i]}
-	    if [ $? == 1 ]; then
+	    if check_pid ${pid_prog_out[$i]}
+	    then
 		pss=`ps ax |grep "${pid_prog_out[$i]}"`
 		max=`echo -e "$pss" |wc -l`
 		for line in `seq 1 $max`; do
@@ -402,11 +463,11 @@ function init_links_loop {
 	for ((i=1; i<=$(wc -l < "$file"); i++)); do
 	    links_loop + "$(sed -n ${i}p < $file)"
 	done
-	data_stdout
-	if [ $? == 1 ]; then
+	if data_stdout
+	then
 	    for ((i=0; i<${#pid_out[*]}; i++)); do 
 		length_saved=0
-		[ -f "${file_out[$i]}" ] && length_saved=`ls -l "./${file_out[$i]}" | awk '{ print($5) }'`
+		[ -f "${file_out[$i]}" ] && length_saved=$(size_file "${file_out[$i]}")
 		if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
 		    links_loop - "${url_out[$i]}" 
 		else

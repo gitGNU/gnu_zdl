@@ -25,219 +25,31 @@
 #
 
 function data_stdout {
-    unset list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out speed type_speed num_speed num_percent percent
-    if [ ! -z "$1" ];then 
-	list="$1"
+    shopt -s nullglob
+    shopt -s dotglob
+    check_tmps=( "$path_tmp"/?*_stdout.tmp )
+    shopt -u nullglob
+    shopt -u dotglob
+
+    if (( ${#check_tmps[*]}>0 )); then
+	awk_data=$(awk -f $path_usr/libs/common.awk -f $path_usr/libs/DLstdout_parser.awk "$path_tmp"/?*_stdout.tmp)
+	eval "$awk_data"
+	return 0
     else
-	list=`ls -1 "$path_tmp"/*_stdout.tmp 2>/dev/null`
-    fi
-    if [ ! -z "$list" ] && [ "$list" != "$(ls -1 2>/dev/null)" ]; then
-	export LANG="$prog_lang"
-	export LANGUAGE="$prog_lang"
-	counter_downloading=0
-	i=0
-	for item in $list; do
-	    file_stdout=$item
-	    test_found=`cat "$file_stdout" 2>/dev/null |grep "404: Not Found"`
-	    if [ ! -z "$test_found" ]; then
-		_log 3
-		if [ ! -f "${file_in}.st" ]; then
-		    rm -f "$file_stdout" "$file_in"
-		fi
-	    else
-		pid_out[$i]=`head -n 1 $file_stdout 2>/dev/null` 
-		
-		url_out[$i]=`cat $file_stdout 2>/dev/null |grep "link_$prog"`
-		url_out[$i]="${url_out[$i]#link_${prog}': '}"
-		
-		downloader_out[$i]=`head -n 3 $file_stdout 2>/dev/null |sed -n '3p'`
-		pid_prog_out[$i]=`head -n 4 $file_stdout 2>/dev/null |sed -n '4p'`
-
-		unset progress_data
-		progress_data=`tail "$file_stdout" 2>/dev/null |grep K |grep % |tail -n 1`
-#		progress_data="${progress_data//'..........'}"
-		dots='..........'
-		if [[ "$progress_data" =~ \.+\.+ ]]; then
-		    for ((y=0; y<9; y++)); do
-			progress_data="${progress_data//$dots}"
-			dots="${dots#.}"
-		    done
-		fi
-		progress_data="${progress_data//[\[\]]}"
-		file_o="${file_stdout//_stdout.tmp}"
-		file_o="${file_o#$path_tmp/}"
-		if [ "${downloader_out[$i]}" == "Wget" ]; then
-		    length_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'|grep "length_in="`
-		    length_out[$i]="${length_out[$i]#length_in=}"
-		    url_out_file[$i]=`head -n 6 $file_stdout 2>/dev/null |sed -n '6p'`
-		    if [ -z "${length_out[$i]}" ];then
-			length_out[$i]=`cat $file_stdout 2>/dev/null |grep "Length:" |tail -n 1`
-			length_out[$i]="${length_out[$i]#*Length: }"
-			length_out[$i]="${length_out[$i]%%' '*}"
-		    fi
-		    
-		    file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Saving to"`
-		    file_out[$i]="${file_out[$i]#*Saving to: \`}"
-		    file_out[$i]="${file_out[$i]%\'*}"
-		    if [ ! -z "${file_o}" ]; then
-			file_out[$i]="$file_o"
-		    fi
-		    
-		    if [ -z "${file_out[$i]}" ]; then
-			file_out[$i]="$file_o"
-		    fi
-		    
-		    if [ "${file_out[$i]}" != "${file_out[$i]%.alias}" ];then
-			alias_file_out[$i]="${file_out[$i]}"
-			file_out[$i]=`cat $file_stdout 2>/dev/null |grep filename`
-			file_out[$i]="${file_out[$i]#*filename=\"}"
-			file_out[$i]="${file_out[$i]%\"*}"
-			file_stdout="$path_tmp/${alias_file_out[$i]}_stdout.tmp"
-		    fi
-		    
-		    eta[$i]=`echo "${progress_data//=/ }" | awk '{ print($4) }'`
-		    unset speed
-		    speed=`echo "${progress_data//=/ }" | awk '{ print($3) }'`
-#		    speed="${speed%=*}"
-		    speed="${speed//,/.}"
-		    type_speed[$i]="${speed//[0-9.,]}"
-		    num_speed[$i]="${speed//${type_speed[$i]}}"
-		    num_speed[$i]=${num_speed[$i]%.*}
-		    case ${type_speed[$i]} in
-			B) type_speed[$i]="B/s";;
-			K) type_speed[$i]="KB/s";;
-			M) type_speed[$i]="MB/s";;
-		    esac
-		    unset percent
-		    percent=`echo $progress_data | awk '{ print($2) }'`
-		    num_percent[$i]=0
-		    num_percent[$i]=${percent%'%'*}
-		    num_percent[$i]=${num_percent[$i]%'.'*}
-		elif [ "${downloader_out[$i]}" == "RTMPDump" ]; then
-		    progress_line=$(grep \([0-9] "$file_stdout" |tail -n1)
-		    start_time=$(sed -n 8p < "$file_stdout" 2>/dev/null)
-		    this_time=$(date +%s)
-		    elapsed_time=$(( $this_time-$start_time ))
-		    
-		    file_out[$i]=$(sed -n 5p < "$file_stdout" 2>/dev/null)
-		    streamer_out[$i]=$(sed -n 6p < "$file_stdout" 2>/dev/null)
-		    playpath_out[$i]=$(sed -n 7p < "$file_stdout" 2>/dev/null)
-
-		    if [ ! -z "$progress_line" ]; then
-			num_percent[$i]="${progress_line##*\(}"
-			num_percent[$i]="${num_percent[$i]%%\%*}"
-			num_percent[$i]="${num_percent[$i]%%.*}"
-			if [ ! -z "${num_percent[$i]}" ] && [ "${num_percent[$i]}" != 0 ]; then
-			    duration=$(( $elapsed_time*100/${num_percent[$i]} ))
-			    eta_secs=$(( ${duration%%.*}-$elapsed_time ))
-			    eta[$i]=$(human_eta "$eta_secs")
-			    if [ -f "${file_out[$i]}" ]; then
-				length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
-			    else
-				length_saved[$i]=0
-			    fi
-			    num_speed[$i]=$(( (${length_saved[$i]}/1024)/${elapsed_time} ))
-			    type_speed[$i]="KB/s"
-			fi
-		    fi
-		elif [ "${downloader_out[$i]}" == "cURL" ]; then
-		    file_out[$i]=$(sed -n 5p < "$file_stdout" 2>/dev/null)
-		    progress_out[$i]=$(tail -n1 "$file_stdout")
-		    speed_out[$i]="${progress_out[$i]##* }"
-		    length_out[$i]=0
-		    streamer_out[$i]=$(sed -n 6p < "$file_stdout" 2>/dev/null)
-		    playpath_out[$i]=$(sed -n 7p < "$file_stdout" 2>/dev/null)
-		elif [ "${downloader_out[$i]}" == "Axel" ]; then
-		    axel_parts_out[$i]=`head -n 5 $file_stdout 2>/dev/null |sed -n '5p'`
-		    url_out_file[$i]=`head -n 6 $file_stdout 2>/dev/null |sed -n '6p'`
-		    file_out[$i]=`cat "$file_stdout" 2>/dev/null |grep "Opening output file"`
-		    file_out[$i]="${file_out[$i]#*Opening output file }"
-		    
-		    if [ ! -z "${file_out[$i]}" ] && [ "$file_o" != "${file_out[$i]}" ]; then
-			print_c 3 "Errore nei dati: il file $file_stdout contiene i dati di ${file_out[$i]}"
-			echo "$file_o != ${file_out[$i]}"
-			exit 1
-		    fi
-		    
-		    if [ -z "${file_out[$i]}" ]; then
-			file_out[$i]="$file_o"
-		    fi
-		    
-		    length_out[$i]=`cat "$file_stdout" 2>/dev/null |grep 'File size'` 
-		    length_out[$i]="${length_out[$i]#*File size: }"
-		    length_out[$i]="${length_out[$i]%% *}"
-		    unset speed	
-		    speed=`echo "$progress_data" | awk '{ print($2) }'`
-		    type_speed[$i]="${speed//[0-9.,]}"
-		    num_speed[$i]="${speed//${type_speed[$i]}}"
-		    if [ -z "${num_speed[$i]//[0-9,.]}" ] && [ ! -z "${num_speed[$i]//.}" ]; then
-			num_speed[$i]=$(( ${num_speed[$i]%[,.]*} + 1 ))
-		    else
-			num_speed[$i]=0
-		    fi
-
-		    unset percent yellow_index 
-		    percent=`echo "$progress_data" | awk '{ print($1) }'`
-
-		    yellow_index=$(make_index "$file_stdout")
-
-		    if [ ! -z "${percent}" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ]; then
-			num_percent[$i]=${percent%'%'*}
-			num_percent[$i]=$(( ${num_percent[$i]%[,.]*}+0 ))
-			touch "$path_tmp"/yellow_index
-			sed -r s/${yellow_index}[0-9]+//g -i "$path_tmp"/yellow_index 
-			sed '/^$/d' -i "$path_tmp"/yellow_index
-			echo "${yellow_index}${num_percent[$i]}" >> "$path_tmp"/yellow_index
-		    elif [  ! -z "$(cat $path_tmp/yellow_index 2>/dev/null )" ] && [ -f "${file_out[$i]}" ] && [ -f "${file_out[$i]}.st" ];then
-			touch "$path_tmp"/yellow_index
-			num_percent[$i]=$(cat "$path_tmp"/yellow_index |grep ${yellow_index} |tail -n 1 |sed -e s/${yellow_index}//g)
-		    fi
-		    if [ -z "${num_percent[$i]}" ]; then
-			num_percent[$i]=0
-		    fi
-
-		    if [[ "${length_out[$i]}" =~ [0-9]+ ]] && [[ "${num_percent[$i]//.}" =~ [0-9]+ ]]; then
-			diff_length=$(( ${length_out[$i]} * (100 - ${num_percent[$i]}) / 100 ))
-			diff_length=$(( ${diff_length%[,.]*}+1 ))
-		    fi
-		    unset numspeed yellow_index
-		    case ${type_speed[$i]} in
-			KB/s) numspeed=$(( ${num_speed[$i]} * 1024 )) ;;
-			MB/s) numspeed=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
-		    esac
-
-		    if [[ "${numspeed//.}" =~ ^[0-9]+$ ]] && [ "${numspeed}" != 0 ] && [ ! -z "$diff_length" ]; then
-			unset seconds minutes hours
-			seconds=$(( $diff_length/${numspeed} ))
-		    fi
-		    eta[$i]=$(human_eta "$seconds")
-		fi
-		check_pid ${pid_out[$i]}
-		if [ $? == 1 ]; then
-		    (( counter_downloading++ ))
-		fi
-		length_saved[$i]=0
-		[ -f "${file_out[$i]}" ] && length_saved[$i]=$(ls -l "./${file_out[$i]}" | awk '{ print($5) }')
-		(( i++ ))
-	    fi
-	done
-	export LANG="$user_lang"
-	export LANGUAGE="$user_language"
 	return 1
     fi
 }
 
-
 function data_alive {
     unset pid_alive pid_prog_alive file_alive downloader_alive alias_file_alive url_alive progress_alive length_alive alive
-    data_stdout
-    if [ $? == 1 ]; then
+    if data_stdout
+    then
 	client=1
 	tot=$(( ${#pid_out[*]}-1 ))
 	j=0
 	for i in `seq 0 $tot`; do
-	    check_pid ${pid_out[$i]}
-	    if [ $? == 1 ]; then
+	    if check_pid ${pid_out[$i]}
+	    then
 		pid_alive[$j]="${pid_out[$i]}"
 		pid_prog_alive[$j]="${pid_prog_out[$i]}"
 		file_alive[$j]="${file_out[$i]}"
@@ -255,8 +67,8 @@ function data_alive {
 }
 
 function check_download {
-    data_stdout
-    if [ $? == 1 ]; then
+    if data_stdout
+    then
 	last_stdout=$(( ${#pid_out[*]}-1 ))
 	for i in `seq 0 $last_stdout`; do
 	    if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${length_saved[$i]}" ] && [ "$test_saved" != "${length_saved[$i]}" ]; then
@@ -272,15 +84,15 @@ function check_download {
 
 
 function check_stdout {
-    data_stdout
-    if [ $? == 1 ]; then
+    if data_stdout
+    then
 	last_stdout=$(( ${#pid_out[*]}-1 ))
 	for ck in `seq 0 $last_stdout`; do
 	    is_rtmp "${url_out[$ck]}"
 	    if [ $? == 0 ]; then
 
-		check_pid ${pid_out[$ck]}
-		if [ $? == 1 ]; then
+		if check_pid ${pid_out[$ck]}
+		then
 		    if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
 			rm -f "${alias_file_out[$ck]}"
 		    fi
@@ -296,8 +108,8 @@ function check_stdout {
 		    fi
 		fi
 
-		check_pid ${pid_out[$ck]}
-		if [ $? != 1 ]; then
+		if ! check_pid ${pid_out[$ck]}
+		then
 		    length_saved=0
 		    [ -f "${file_out[$ck]}" ] && length_saved=`ls -l "./${file_out[$ck]}" | awk '{ print($5) }'`
 		    
@@ -320,8 +132,8 @@ function check_stdout {
 		fi
 	    elif [ ${downloader_out[$ck]} == RTMPDump ]; then
 		test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")
-		check_pid "${pid_out[$ck]}"
-		if [ $? != 1 ]; then
+		if ! check_pid "${pid_out[$ck]}"
+		then
 		    if [ -z "$test_completed" ]; then
 			rm -f "${file_out[$ck]}"
 		    else
@@ -339,15 +151,15 @@ function check_alias {
 	## if file_in is an alias...
     
     if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "${file_in}" != "${file_in%.alias}" ]; then
-	data_stdout
-	if [ $? == 1 ]; then
+	if data_stdout
+	then
 	    last_stdout=$(( ${#pid_out[*]}-1 ))
 			#read -p ${#pid_out[*]}
 	    for i in `seq 0 $last_stdout`; do
-		check_pid ${pid_out[$i]}
-		if [ $? == 1 ]; then
-		    check_pid ${pid_in}
-		    if [ $? == 1 ]; then
+		if check_pid ${pid_out[$i]}
+		then
+		    if check_pid ${pid_in}
+		    then
 			unset real_file_in 
 			real_file_in=`cat "$path_tmp"/${file_in}_stdout.tmp |grep filename`
 			real_file_in="${real_file_in#*filename=\"}"
@@ -371,8 +183,7 @@ function check_alias {
 			fi
 		    fi
 		    
-		    check_pid ${pid_in}
-		    if [ $? != 1 ] && [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
+		    if ! check_pid ${pid_in} && [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
 			rm -f "${file_in}"
 		    fi
 		fi
@@ -414,9 +225,7 @@ function pipe_files {
 function _out {
     if [ -f "$path_tmp"/pipe_files.txt ]; then
 	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
-	check_pid $pid_pipe_out
-	test=$?
-	if [ ! -z "$pipe_out" ] && [ "$test" != 1 ]; then
+	if ! check_pid $pid_pipe_out && [ ! -z "$pipe_out" ]; then
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
 	    if [ ! -z "${outfiles[*]}" ]; then
 		nohup $pipe_out ${outfiles[*]} &>/dev/null &

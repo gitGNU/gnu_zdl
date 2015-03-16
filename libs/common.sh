@@ -27,11 +27,19 @@
 function check_pid {
     ck_pid=$1
     if [ ! -z "$ck_pid" ]; then
-	[[ ! -z $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]] && return 1 # | while read ck_alive; do
+	if [[ ! -z $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]]
+	then
+	    return 0 
+	else
+	    return 1
+	fi
     fi
-    return 0
+
 }
 
+function size_file {
+    echo "$(stat -c '%s' "$1")"
+}
 
 function run_in_dir {
     line_file "$1" "$2" "/tmp/.stdrun.zdl"
@@ -40,8 +48,10 @@ function run_in_dir {
 function pidprog_in_dir { ## $1 = testing directory
     if [ -f /tmp/.stdrun.zdl ]; then
 	grep "$1" /tmp/.stdrun.zdl | awk '{print $1}' | while read line; do
-	    check_pid $line
-	    [ $? == 1 ] && echo $line
+	    if check_pid $line
+	    then
+		echo $line
+	    fi
 	done
     fi
 }
@@ -104,12 +114,14 @@ function check_instance_daemon {
 
 function check_instance_prog {
     if [ -f "$path_tmp/pid.zdl" ]; then
-	test_pid=$(cat "$path_tmp/pid.zdl" 2>/dev/null)
-	check_pid $test_pid
-	if [ $? == 1 ] && [ "$pid_prog" != "$test_pid" ]; then
+	test_pid="$(cat "$path_tmp/pid.zdl" 2>/dev/null)"
+	if check_pid "$test_pid" && [ "$pid_prog" != "$test_pid" ]; then
 	    pid=$test_pid
-	    tty=/dev/$(ps ax |grep -P '^[\ ]*'$pid |awk '{print $2}')
-	    [ -e "/cygdrive" ] && tty=$(cat /proc/$test_pid/ctty)
+	    if [ -e "/cygdrive" ]; then
+		tty="$(cat /proc/$test_pid/ctty)"
+	    else
+		tty="/dev/$(ps ax |grep -P '^[\ ]*'$pid |cut -d ' ' -f 3)"
+	    fi
 	    return 1
 	fi
     fi
@@ -125,8 +137,8 @@ function check_lock {
     if [ ! -z "$test_lock" ]; then
 	pid="${test_lock#*_lock_}"
 	read -p "pid_test=$pid"
-	check_pid $pid
-	if [ $? == 1 ]; then
+	if check_pid $pid
+	then
 	    rm "$test_lock"
 	    return 1
 	fi
