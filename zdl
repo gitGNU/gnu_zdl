@@ -733,7 +733,7 @@ function main_loop {
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
-		print_c 1 "Connessione in corso..."
+
 		check_ip
 		## user extensions
 		if [ -d "$path_conf/extensions/" ]; then
@@ -750,6 +750,8 @@ function main_loop {
 		echo
 		header_box "Link da processare:"
 		print_c 0 "$url_in\n"
+
+		print_c 1 "Connessione in corso..."
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
 		    shopt -s nullglob
