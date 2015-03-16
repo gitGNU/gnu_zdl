@@ -50,10 +50,7 @@ function progress_out (value) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
 		speed_out[i] = progress_elems[length(progress_elems)-1]
-		if (percent_out[i]) {
-		    print percent_out[i]
-		    break
-		}
+		if (percent_out[i]) break
 	    }
 	}
 
@@ -181,7 +178,7 @@ BEGIN {
 
     if (FNR == 2) array_out($0, "url_out")
     if (FNR == 3) {
-	dler=$0
+	dler = $0
 	array_out(dler, "downloader_out")
     }
     if (FNR == 4) array_out($0, "pid_prog_out")
@@ -200,11 +197,11 @@ BEGIN {
     if (FNR == 8) start_time = $0
 
     if ($0 ~ /Content-Length:/ && dler == "Wget") {
-	length_out[i]=$2
+	length_out[i] = $2
 	code = code "length_out["i"]=\"" length_out[i] "\"; "
     }
     if ($0 ~ /File\ size:/ && dler == "Axel") {
-	length_out[i]=$3
+	length_out[i] = $3
 	code = code "length_out["i"]=\"" length_out[i] "\"; "
     }
 } 
