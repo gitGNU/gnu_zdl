@@ -29,8 +29,11 @@ function init_log {
 	echo -e "File log di $name_prog:\n" > $file_log
 	log=1
     fi
-    echo | tee -a $file_log
-    date >> $file_log
+    if [ "$1" != "2" ]
+    then
+	echo | tee -a $file_log
+	date >> $file_log
+    fi
 }
 
 function _log {
@@ -50,7 +53,7 @@ function _log {
 		url_in_log=" (link di download: $url_in) "
 	    fi
 	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
-		init_log
+		init_log "2"
 		print_c 3  "$url_in --> File ${file_in}${url_in_log} non disponibile, riprovo più tardi"  #| tee -a $file_log
 		no_msg=true
 		unset from_loop
