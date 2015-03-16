@@ -91,6 +91,12 @@ function show_downloads_extended () {
 	    } else {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
 	    }
+	} else if ((percent_out[i] == 100) ||                                     \
+		   ((cmd | getline) && (downloader_out[i] == "RTMPDump"))  || \
+		   ((length_saved[i] == length_out[i]) && (length_out[i] > 0) && (! exists(file_out[i]".st")))) {
+	    close(cmd)
+	    diff_bar_color = BGreen
+	    progress_bar = "Download completato"
 	} else {
 	    progress_bar = make_progress()
 	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
