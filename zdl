@@ -941,11 +941,12 @@ if [ "$daemon" != true ]; then
     stty -echo
     bindings
     while true; do
-	if ! check_pid $loops_pid
+	if check_pid $loops_pid
 	then
+	    read -e -n1 -t 5	   
+	else
 	    break
 	fi
-	read -e -n1 -t 5
     done
 fi
 
