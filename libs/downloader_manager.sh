@@ -27,6 +27,7 @@
 function check_freespace {
     test_space=( $(df .) )
     (( ${test_space[11]} < 6000 )) && return 1
+    return 0
 }
 
 function download {

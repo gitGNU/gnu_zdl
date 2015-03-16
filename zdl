@@ -816,7 +816,6 @@ function main_loop {
 		sanitize_file_in
 
        		#### CHECK $url_in_file & $file_in:
-
 		if check_freespace
 		then
 		    check_in_file
@@ -825,7 +824,6 @@ function main_loop {
 		    break_loop="true"
 		    zdl_exit="true" 
 		fi
-
 		if [ ! -z "$no_file_regex" ] && [[ "$file_in" =~ $no_file_regex ]]; then
 		    _log 13
 		fi
@@ -838,6 +836,7 @@ function main_loop {
 		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) && \
 		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ) && \
 		    [ -z "$break_loop" ]; then
+
 		    unset test_in
 		    download
 		    is_rtmp "$url_in"
