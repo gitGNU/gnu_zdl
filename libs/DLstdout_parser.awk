@@ -74,7 +74,7 @@ function progress_out (value) {
 	}
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
-	    if (chunk[y] ~ /[\%]+.+[KMB]+/) {
+	    if (chunk[y] ~ /[%]+.+(K|M|B)/) {
 		progress_line = chunk[y]
 		break
 	    }
