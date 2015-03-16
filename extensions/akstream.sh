@@ -27,8 +27,8 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Akstream
 
-if [[ "$url_in" =~ akstream.+\/play\/ ]]; then
-    url=$(sed -r 's|(akstream[^/]+)\/play\/(.+)|\1/embed.php?v=\2|g' <<< "$url_in")
+if [[ "$url_in" =~ akstream[^/]+\/(play|v)\/ ]]; then
+    url=$(sed -r "s|${BASH_REMATCH[1]}\/|embed.php?v=|g" <<< "$url_in")
     html=$(wget -q -O- "$url")
     url_in_file=$(grep source <<< "$html" | tail -n1 |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
     file_in=$(grep '<title>' <<< "$html" | sed -r 's|[^>]+>([^<]+)<.+|\1|g').${url_in_file##*.}
