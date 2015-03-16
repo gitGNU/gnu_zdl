@@ -51,7 +51,7 @@ function update_updater {
     cd "$path_tmp"
     rm -fr *.gz *.sig "$prog" 2>/dev/null
     print_c 1 "Download in corso: attendere..."
-    wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q
+    wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q 2>/dev/null
     cd ..
     if [ -f "$path_conf"/zdl.sig ]; then
 	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
@@ -61,10 +61,10 @@ function update_updater {
     else
 	cd "$path_tmp"
 ######## tarball dal mirror (aggiornamento lento):
-##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q
+##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q 2>/dev/null
 
 ######## tarball dal repository git (aggiornamento rapido: disponibile subito con -u --force):
-	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q
+	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q 2>/dev/null
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
