@@ -733,6 +733,7 @@ function main_loop {
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
+		print_c 0
 		header_box "Link da processare:"
 		print_c 0 "$url_in\n"
 
@@ -751,7 +752,6 @@ function main_loop {
 
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
-		print_c 0
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]; then
 		    shopt -s nullglob
