@@ -25,6 +25,10 @@
 #
 
 function check_freespace {
+    a=a
+}
+
+function check_freespace_old {
     fsize=0
     if [ -f "$path_tmp"/${file_in}_stdout.tmp ]; then
 	data_stdout "$path_tmp"/${file_in}_stdout.tmp
