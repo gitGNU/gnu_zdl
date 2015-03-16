@@ -733,6 +733,7 @@ function main_loop {
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
 
+		print_c 1 "Connessione in corso..."
 		check_ip
 		## user extensions
 		if [ -d "$path_conf/extensions/" ]; then
