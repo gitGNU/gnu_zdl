@@ -80,6 +80,9 @@ function show_downloads_extended () {
 	    code = code BBlue "Link: " Color_Off url_out[i] "\n"
 	    code = code BBlue "Url del file: " Color_Off url_out_file[i] "\n"
 	}
+	
+	cmd = "grep 'Download complete' < .zdl_tmp/" file_out[i] "_stdout.tmp"
+	length_saved[i] = size_file(file_out[i])
 
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
