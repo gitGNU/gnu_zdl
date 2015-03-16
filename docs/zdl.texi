@@ -190,8 +190,8 @@
 
 @unnumbered Perché questo programma
 ZigzagDownLoader esiste perché serve un gestore di download, indefinitamente estensibile e robusto, che sia pienamente controllabile da terminale.
-È nato come script specifico per la Bash e si è trasformato in un gestore per downloader che ne avevavo bisogno (in particolare, Wget e Axel), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni.
-Nonostante i suoi limiti strutturali, il linguaggio della Bash si è rivelato molto adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Ad ogni modo, al fine di migliorarne l'efficienza e di potenziarlo, è in cantiere la riprogettazione e la riscrittura del software in linguaggio Perl.
+È nato come script specifico per la Bash e si è trasformato in un gestore per downloader che ne avevano bisogno (in particolare, Wget e Axel), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni.
+Nonostante i suoi limiti strutturali, il linguaggio della Bash si è rivelato molto adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi.
 
 @unnumberedsubsec Almeno quattro direttrici di sviluppo
 L'esecuzione di downloader come Wget e Axel può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o coincidere con altri di file già salvati, ecc. 

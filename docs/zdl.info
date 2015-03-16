@@ -47,14 +47,12 @@ Perché questo programma
 ZigzagDownLoader esiste perché serve un gestore di download,
 indefinitamente estensibile e robusto, che sia pienamente controllabile
 da terminale.  È nato come script specifico per la Bash e si è
-trasformato in un gestore per downloader che ne avevavo bisogno (in
+trasformato in un gestore per downloader che ne avevano bisogno (in
 particolare, Wget e Axel), estendendosi a servizi di video streaming e
 file hosting e integrandosi con altre applicazioni.  Nonostante i suoi
 limiti strutturali, il linguaggio della Bash si è rivelato molto adatto
 allo scopo, soprattutto per la flessibilità d'uso nella gestione dei
-processi di altri programmi. Ad ogni modo, al fine di migliorarne
-l'efficienza e di potenziarlo, è in cantiere la riprogettazione e la
-riscrittura del software in linguaggio Perl.
+processi di altri programmi.
 
 Almeno quattro direttrici di sviluppo
 -------------------------------------
@@ -854,20 +852,20 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5075
-Node: Servizi streaming/hosting10005
-Node: Avviare ZDL12776
-Node: Arrestare ZDL15214
-Node: Controllare i download16319
-Node: Manuali d'uso16626
-Node: Creare nuove estensioni17061
-Node: Software consigliati18636
-Node: Conkeror19744
-Node: zdl-xterm e XXXTerm/Xombrero20755
-Node: Installazione e aggiornamento22679
-Node: Tags25003
-Node: Copying27162
-Node: Contatti28212
+Node: Il comando ZDL4923
+Node: Servizi streaming/hosting9853
+Node: Avviare ZDL12624
+Node: Arrestare ZDL15062
+Node: Controllare i download16167
+Node: Manuali d'uso16474
+Node: Creare nuove estensioni16909
+Node: Software consigliati18484
+Node: Conkeror19592
+Node: zdl-xterm e XXXTerm/Xombrero20603
+Node: Installazione e aggiornamento22527
+Node: Tags24851
+Node: Copying27010
+Node: Contatti28060
 
 End Tag Table
 
