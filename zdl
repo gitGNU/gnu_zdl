@@ -848,8 +848,6 @@ function main_loop {
 		    if check_pid ${pid_in}
 		    then
 			print_c 1 "downloading --> $file_in ..."
-		    else
-			print_c 3 "\n$file_in: connessione non riuscita (riprovo più tardi)"
 		    fi		    
 		    while true; do
 			show_downloads
