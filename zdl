@@ -943,7 +943,7 @@ if [ "$daemon" != true ]; then
     while true; do
 	if check_pid $loops_pid
 	then
-	    read -e -n1 -t 5	   
+	    read -e -n 1 -t 1 binding_in_loop 
 	else
 	    break
 	fi
