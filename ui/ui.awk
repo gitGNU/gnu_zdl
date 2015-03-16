@@ -100,6 +100,7 @@ function show_downloads_extended () {
 	    close(cmd)
 	    diff_bar_color = BGreen
 	    progress_bar = "Download completato"
+	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
 	} else {
 	    progress_bar = make_progress()
 	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"

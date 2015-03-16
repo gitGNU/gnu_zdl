@@ -30,6 +30,7 @@ function show_downloads {
 	then
 	    print_c 0
 	    header_dl "Downloading in $PWD"
+echo "BEGIN {$awk_data display()}" 
 	    awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=0 -e "BEGIN {$awk_data display()}" 
 	fi
 	sleep $sleeping_pause
@@ -56,6 +57,7 @@ function show_downloads_extended {
     fi
     if data_stdout
     then
+echo "BEGIN {$awk_data display()}" 
 	awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=1 -e "BEGIN {$awk_data display()}" 
     fi
 }
