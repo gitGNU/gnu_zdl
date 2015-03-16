@@ -97,7 +97,7 @@ function interactive_and_return {
     header_box "Modalità standard"
     commands_box
     separator-
-    echo
+    export READLINE_LINE="i"
 }
 
 function run_editor {
@@ -292,98 +292,6 @@ function clean_completed {
 	done
     fi
 }
-
-
-function show_downloads_old {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
-	echo
-	header_dl "Downloading in $PWD"
-	if data_stdout
-	then
-	    last_stdout=$(( ${#pid_out[*]}-1 ))
-	    for i in `seq 0 $last_stdout`; do
-		if [ ! -z "${url_out[$i]}" ]; then
-		    echo -e " ${BBlue}File:${Color_Off} ${file_out[$i]}"
-		    echo -e " ${BBlue}Link:${Color_Off} ${url_out[$i]}"
-
-		    if [ ${downloader_out[$i]} == cURL ]; then
-			if check_pid ${pid_out[$i]}
-			then
-			    [ ${speed_out[$i]} == ${speed_out[$i]%[km]} ] && speed="${speed_out[$i]}B/s"
-			    [ ${speed_out[$i]} != ${speed_out[$i]%k} ] && speed="${speed_out[$i]%k}KB/s"
-			    [ ${speed_out[$i]} != ${speed_out[$i]%m} ] && speed="${speed_out[$i]%m}MB/s"
-			    human_length ${length_saved[$i]}
-			    echo -e -n "${BGreen} ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) ${BBlue}${speed}\n${Color_Off}"
-			elif [ -f "${file_out[$i]}" ]; then
-			    human_length ${length_saved[$i]}
-			    echo -e -n "${BGreen} ${downloader_out[$i]}: ${length_saved[$i]} ($length_H) terminato\n${Color_Off}"
-			else
-			    echo -e -n "${BRed} ${downloader_out[$i]}: Download non attivo\n${Color_Off}"
-			fi
-		    else
-			make_progress
-			echo -e -n "${diff_bar_color} ${downloader_out[$i]}: ${progress}\n"
-		    fi
-		    ii=$(( $i+1 ))
-		    if [ $i != $last_stdout ] && [ -f "$path_tmp/${file_out[$ii]}_stdout.tmp" ]; then 
-			separator-
-		    fi
-		fi
-	    done
-	else
-	    echo
-	    echo -e -n "${BRed} Nessun download rilevato\n${Color_Off}"
-	    echo
-	fi
-	separator-
-	echo -e "\n\n\n"
-    fi
-    sleep $sleeping_pause
-}
-
-
-function make_progress {
-    unset progress
-    size_bar=0
-    if ! check_pid ${pid_out[$i]}
-    then
-	if [[ "${downloader_out[$i]}" =~ ^(Wget|RTMPDump)$ ]]; then
-	    progress="Download non attivo"
-	fi
-	diff_bar_color="${BRed}"
-	bar_color="${On_Red}"
-	speed="${diff_bar_color}non attivo${Color_Off}"
-	eta=""
-    else
-	if [ ! -z "${num_speed[$i]}" ] && [ "${num_speed[$i]}" != "0" ] && [ ! -z "${num_percent[$i]//.}" ]; then
-	    diff_bar_color="${BGreen}"
-	    bar_color="${On_Green}"
-	    speed="${num_speed[$i]}${type_speed[$i]}"
-	    eta="${eta[$i]}"
-	else 
-	    diff_bar_color="${BYellow}"
-	    bar_color="${On_Yellow}"
-	    speed="${diff_bar_color}attendi...${Color_Off}"
-	    eta=""
-	fi		    
-    fi
-    [ -z "${num_percent[$i]//.}" ] && num_percent[$i]=0
-    [[ "${num_percent[$i]//.}" =~ ^[0-9]+$ ]] && size_bar=$(( ($COLUMNS-40)*${num_percent[$i]}/100 )) || size_bar=0
-    diff_size_bar=$(( ($COLUMNS-40)-${size_bar} ))
-
-    unset bar diff_bar
-    eval printf -v bar "%.0s\ " {1..$size_bar}
-    eval printf -v diff_bar "%.0s\|" {1..$diff_size_bar}
-    bar="${bar_color}${bar}${Color_Off}${diff_bar_color}${diff_bar}"
-
-    test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$i]}_stdout.tmp")
-    if ( [ ! -z "$test_completed" ] && [ ${downloader_out[$i]} == RTMPDump ] ) || ( [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "${length_saved[$i]}" == "${length_out[$i]}" ] && [ "${length_out[$i]}" != 0 ] && [ ! -z "${length_out[$i]}" ] );then
-	progress="Download completato"
-	diff_bar_color="${BGreen}"
-    fi
-    [ -z "$progress" ] && progress="${bar}${Color_Off}${diff_bar_color} ${num_percent[$i]}%${Color_Off}${BBlue} ${speed}${Color_Off} ${eta}"
-}
-
 
 function sleeping {
     timer=$1

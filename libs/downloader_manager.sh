@@ -25,7 +25,7 @@
 #
 
 function check_freespace {
-    a=a
+    a=$a
 }
 
 function check_freespace_old {

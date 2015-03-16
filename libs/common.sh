@@ -56,49 +56,6 @@ function pidprog_in_dir { ## $1 = testing directory
     fi
 }
 
-function check_instance {
-    mode=$1
-    while read line; do
-	test_pid=$(awk '{print $1}' <<< "$line")
-	[[ ! "$test_pid" =~ ^[0-9]+$ ]] && test_pid=$(awk '{print $2}' <<< "$line")
-	if [[ "$test_pid" =~ ^[0-9]+$ ]] &&  [ -d "/proc/$test_pid" ]; then
-	    cmdline=$(cat /proc/$test_pid/cmdline)
-	    case $mode in
-		d|'') 
-		    if [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
-			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
-			mode=d
-			return 1
-		    fi
-		    ;;
-		i|'')
-		    if [[ $(grep -P '\/zdl.*(-i|--interactive).*' <<< "$cmdline") ]] && \
-			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
-			tty=/dev/$(awk '{print $2}' <<< "$line")
-			[ -e "/cygdrive" ] && tty=$(cat /proc/$test_pid/ctty)
-			if [ "$tty" == "$tty_prog" ]; then
-			    mode=i
-			    pid=$test_pid
-			    return 2
-			fi
-		    fi
-		    ;;
-		s|'')
-		    if [[ ! $(grep -P '\/zdl.*(-i|--interactive).*' <<< "$cmdline") ]] && \
-			( [[ $(grep -P '\/zdl.*' <<< "$cmdline") ]] || [[ $(grep -P 'ZigzagDownLoader' <<< "$cmdline") ]] ) && \
-			[ "$test_pid" != "$pid_prg" ] && \
-			[[ $(realpath /proc/$test_pid/cwd) == $(realpath $PWD) ]]; then
-			mode=s
-			return 3
-		    fi
-		    ;;
-	    esac
-	fi
-    done <<< "$(ps ax |grep bash)"
-    return 0
-}
-
-## TO-DO:  la funzione precedente va modificata (non funziona come dovrebbe) in modo da rimpiazzare le due che seguono:
 function check_instance_daemon {
     while read line; do
 	test_pid=$(awk '{print $1}' <<< "$line")
