@@ -82,9 +82,9 @@ function progress_out (value) {
 
 	if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
-	    percent_out[i] = progress_elems[8]
-	    speed_out[i] = progress_elems[10]
-	    eta_out[i] = progress_elems[11]
+	    percent_out[i] = progress_elems[length(progress_elems)-3]
+	    speed_out[i] = progress_elems[length(progress_elems)-1]
+	    eta_out[i] = progress_elems[length(progress_elems)]
 	    if (speed_out[i] ~ /B/) speed_out_type[i]="B/s"
 	    if (speed_out[i] ~ /K/) speed_out_type[i]="KB/s"
 	    if (speed_out[i] ~ /M/) speed_out_type[i]="MB/s"
