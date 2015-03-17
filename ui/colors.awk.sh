@@ -33,9 +33,9 @@ function init_colors () {
 
 	# Background
     On_Black="\033[40m"       # Nero
-    # On_Red="\033[41m"         # Rosso
-    # On_Green="\033[42m"       # Verde
-    # On_Yellow="\033[43m"      # Giallo
+    On_Red="\033[41m"         # Rosso
+    On_Green="\033[42m"       # Verde
+    On_Yellow="\033[43m"      # Giallo
     On_Blue="\033[44m"        # Blu
     # On_Purple="\033[45m"      # Purple
     # On_Cyan="\033[46m"        # Ciano
