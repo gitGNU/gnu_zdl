@@ -952,6 +952,7 @@ if [ "$daemon" != true ]; then
     done
 fi
 
+wait $loops_pid
 noproxy
 
 separator-
