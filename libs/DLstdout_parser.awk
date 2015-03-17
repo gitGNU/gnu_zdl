@@ -35,7 +35,7 @@ function seconds_to_human (seconds,         minutes, hours) {
     return hours "h" minutes "m" seconds "s"
 }
 
-function progress_out (value) {
+function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
 
     if (dler == "Axel") {
@@ -55,7 +55,6 @@ function progress_out (value) {
 	}
 
 	if (progress_line) {
-	    progress_line=""
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
 	    if (speed_out[i] > 0) {
@@ -83,7 +82,6 @@ function progress_out (value) {
 
 	if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
-	    progress_line=""
 	    percent_out[i] = progress_elems[length(progress_elems)-3]
 	    speed_out[i] = progress_elems[length(progress_elems)-1]
 	    eta_out[i] = progress_elems[length(progress_elems)]
@@ -116,7 +114,6 @@ function progress_out (value) {
 	    close(cmd)
 	    elapsed_time = this_time - start_time
 	    split(progress_line, progress_elems, /[\ ]*[\%]*[\(]*/)
-	    progress_line=""
 	    percent_out[i] = int(progress_elems[length(progress_elems)-1])
 	    if (percent_out[i] > 0) {
 		eta_out[i] = int((elapsed_time * 100 / percent_out[i]) - elapsed_time)
@@ -136,7 +133,6 @@ function progress_out (value) {
 	}
         if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*/)
-	    progress_line=""
 	    speed_out[i] = int(progress_elems[length(progress_elems)])
 	    speed_out_type[i] = "KB/s"
 	    length_saved[i] = size_file(file_out[i])
