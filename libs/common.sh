@@ -229,9 +229,8 @@ function clean_file {
 	fi
 	touch "$path_tmp/rewriting"
 
-	local lines=$(awk '(lines !~ "\n" $0 "\n" && $0){lines = lines $0 "\n"; print $0}' < "$file_to_clean")
+	local lines=$(awk '(lines !~ $0 "\n" && $0){lines = lines $0 "\n"; print $0}' < "$file_to_clean")
 	echo "$lines" > "$file_to_clean"
-	
 	rm -f "$path_tmp/rewriting"
     fi
 }
