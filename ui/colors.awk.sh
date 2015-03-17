@@ -19,7 +19,7 @@ function init_colors () {
     BBlue="\033[1;34m"        # Blu
     # BPurple="\033[1;35m"      # Viola
     # BCyan="\033[1;36m"        # Ciano
-    # BWhite="\033[1;37m"       # Bianco
+    BWhite="\033[1;37m"       # Bianco
 
 	# Underline
     # UBlack="\033[4;30m"       # Nero
