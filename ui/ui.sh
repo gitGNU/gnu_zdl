@@ -96,6 +96,7 @@ function interactive_and_return {
     commands_box
     separator-
     export READLINE_LINE="i"
+    export READLINE_LINE=""
 }
 
 function run_editor {
@@ -108,6 +109,7 @@ function run_editor {
     commands_box
     separator-
     export READLINE_LINE="e"
+    export READLINE_LINE=""
 }
 
 function human_length { ## input in bytes
