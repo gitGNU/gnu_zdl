@@ -314,7 +314,6 @@ if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-
 	    if [ $? != 1 ]; then
 		check_instance_daemon
 		if [ $? != 1 ]; then
-		    rm -r "$path_tmp/lock.zdl"
 		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 		    header_z
 		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
@@ -696,7 +695,7 @@ else
     echo "$pid_prog" > "$path_tmp/pid.zdl"
 fi
 
-rm -f "$path_tmp/lock.zdl" "$path_tmp/.stop_stdout"
+rm -f "$path_tmp/.stop_stdout"
 echo "$downloader_in" > "$path_tmp/.downloader"
 
 function main_loop {
@@ -711,7 +710,6 @@ function main_loop {
 	    [ "$num_multi" == 1 ] && unset multi 
 	fi
 
-##	run_in_dir + "$pid_prog $PWD" ## con pidprog_in_dir, funzione alternativa a check_instance_prog + $path_tmp/pid.zdl
 	for url_in in $links_in; do
 	    link_parser "${url_in}"
 	    if [ "$?" != 1 ]; then
@@ -761,6 +759,12 @@ function main_loop {
 		    shopt -u nullglob
 		fi
 		###################
+
+		if [ "$break_loop" == "true" ]; then
+		    unset break_loop
+		    break
+		fi
+
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]; then
 		    if [ "$update_proxy_others_list" == "true" ]; then
 			new_ip_proxy
@@ -768,8 +772,8 @@ function main_loop {
 		    
 		    if data_stdout
 		    then 
-			last_out=$(( ${#pid_out[*]}-1 ))
-			for j in `seq 0 $last_out`; do
+			for ((j=0; j<${#pid_out[*]}; i++))
+			do
 			    if [ "$url_in" == "${url_out[$j]}" ]; then
 				file_in="${file_out[$j]::240}"
 				break
@@ -778,20 +782,17 @@ function main_loop {
 		    fi	
 		 
 		## streaming downloader
-		    items=( `ls "$path_tmp"/filename_* 2>/dev/null` )
-		    if [ ! -z "${items[*]}" ]; then
-			
-			for item in ${items[*]}; do
-			    url=`cat "$item"`
-			    if [ "${url%% }" == "$url_in" ]; then
-				item="${item// /_}"
-				file_in="${item#*filename_}"
-				file_in="${file_in::240}"
-				file_in="${file_in%.txt}"
-				break
-			    fi
-			done
-		    fi
+		    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
+		    for item in ${items[*]}; do
+			url=`cat "$item"`
+			if [ "${url%% }" == "$url_in" ]; then
+			    item="${item// /_}"
+			    file_in="${item#*filename_}"
+			    file_in="${file_in::240}"
+			    file_in="${file_in%.txt}"
+			    break
+			fi
+		    done
 		    
 		## universal downloader
 		    if [ -z "$file_in" ] && [ -z "$url_in_file" ]; then
@@ -799,7 +800,6 @@ function main_loop {
 			file_in="${file_in%'?'*}"
 			file_in="${file_in%%'&'*}"
 		    fi
-		    file_in="${file_in::240}"
 		    url_in_file="${url_in%% }"
 		    url_in_file="${url_in_file## }"
 		    
@@ -809,10 +809,6 @@ function main_loop {
 		    
 		fi
 
-		if [ "$break_loop" == "true" ]; then
-		    unset break_loop
-		    break
-		fi
 		sanitize_file_in
 
        		#### CHECK $url_in_file & $file_in:
@@ -824,6 +820,8 @@ function main_loop {
 		    break_loop="true"
 		    zdl_exit="true" 
 		fi
+
+		## opzioni filtro
 		if [ ! -z "$no_file_regex" ] && [[ "$file_in" =~ $no_file_regex ]]; then
 		    _log 13
 		fi
@@ -835,8 +833,9 @@ function main_loop {
 		if [ "$test_in" == "5" ] && [ -z "$premium" ] && \
 		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) && \
 		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ) && \
-		    [ -z "$break_loop" ]; then
-
+		    [ -z "$break_loop" ] && \
+		    [[ $(grep ^"$url_in"$ "$path_tmp/links_loop.txt") ]]
+		then
 		    unset test_in
 		    download
 		    is_rtmp "$url_in"
@@ -953,7 +952,6 @@ if [ "$daemon" != true ]; then
     done
 fi
 
-rm -f "$path_tmp/lock.zdl" 
 noproxy
 
 separator-
@@ -965,11 +963,11 @@ if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
     pipe_files
 fi
 
-check_instance_dl
-if ( [ "$?" != "1" ] || [ ! -f "$path_tmp/lock.zdl" ] ) && [ "$zdl_exit" != "true" ]; then
+if [ "$zdl_exit" != "true" ]; then
 	rm -rf "$path_tmp" 2>/dev/null
+else
+    kill_downloads
 fi
-[ "$zdl_exit" == "true" ] && kill_downloads
 
 echo -e "\n\n"
 stty echo

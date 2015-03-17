@@ -26,11 +26,6 @@
 
 #### layout
 
-function init_colors {
-    source "$path_usr/ui/colors.awk.sh"
-    bash_colors
-}
-
 function print_c {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
 	case "$1" in

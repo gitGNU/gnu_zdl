@@ -43,7 +43,7 @@ function show_downloads_extended {
     check_instance_daemon
     if [ $? == 1 ]; then
 	print_c 1 "$PROG è attivo in modalità demone\n"
-	daemon_pid=$test_pid
+#	daemon_pid=$test_pid
     else
 	check_instance_prog
 	if [ $? == 1 ]; then
@@ -244,17 +244,18 @@ function interactive {
 	    echo "Axel" > "$path_tmp/.downloader"
 	elif [ "$action" == "w" ]; then
 	    echo "Wget" > "$path_tmp/.downloader"
+	elif [ "$action" == "Q" ]; then
+	    kill "$daemon_pid"
+	    unset daemon_pid
 	elif [ "$action" == "K" ]; then
 	    kill_downloads
-	    [ ! -z "$daemon_pid" ] && kill -9 $daemon_pid && unset daemon_pid &>/dev/null
-##		[[ $(pidprog_in_dir "$PWD") ]] && kill -9 $(pidprog_in_dir "$PWD") &>/dev/null
+	    [ ! -z "$daemon_pid" ] && kill -9 "$daemon_pid" && unset daemon_pid &>/dev/null
 	    check_instance_prog
 	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid &>/dev/null
 	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
 	    zdl --daemon &>/dev/null
-	elif [ "$action" == "Q" ]; then
-	    kill $daemon_pid && unset daemon_pid &>/dev/null
 	fi
+	unset action input2
     done
     echo -e "\e[0m\e[J"
     stty echo

@@ -390,34 +390,6 @@ function check_instance_dl {
     fi
 }
 
-
-function clean_file {
-    unset items
-    if [ -f "$path_tmp/rewriting" ];then
-	while [ -f "$path_tmp/rewriting" ]; do
-	    sleeping 0.1
-	done
-    fi
-    touch "$path_tmp/rewriting"
-    if [ ! -z "$1" ] && [ -f "$1" ]; then
-	file_to_ck="$1"
-	for ((i=1; i<=$(wc -l < "$file_to_ck"); i++)); do
-	    it=$(sed -n "${i}p" < "$file_to_ck")
-	    if [ "${items[*]}" == "${items[*]//$it}" ]; then
-		items[${#items[*]}]="$it"
-	    fi
-	done
-	
-	rm "$file_to_ck"
-	for ((i=0; i<${#items[*]}; i++)); do
-	    [ ! -z "${items[$i]}" ] && echo "${items[$i]}" >> "$file_to_ck"
-	done
-    fi
-    rm -f "$path_tmp/rewriting"
-    unset items
-}
-
-
 function links_loop {
     local url_test="$2"
     link_parser "$url_test"
@@ -427,27 +399,6 @@ function links_loop {
     else
 	[ "$1" == "+" ] && url_test="${url_test%'#20\x'}"
 	line_file "$1" "$url_test" "$path_tmp/links_loop.txt"
-    fi
-}
-
-function init_links_loop {
-    if [ -f "$file" ]; then
-	for ((i=1; i<=$(wc -l < "$file"); i++)); do
-	    links_loop + "$(sed -n ${i}p < $file)"
-	done
-	if data_stdout
-	then
-	    for ((i=0; i<${#pid_out[*]}; i++)); do 
-		length_saved=0
-		[ -f "${file_out[$i]}" ] && length_saved=$(size_file "${file_out[$i]}")
-		if [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ];then
-		    links_loop - "${url_out[$i]}" 
-		else
-		    links_loop + "${url_out[$i]}"
-		fi
-		unset length_saved
-	    done
-	fi
     fi
 }
 

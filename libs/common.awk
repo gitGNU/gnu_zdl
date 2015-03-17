@@ -23,6 +23,27 @@
 # zoninoz@inventati.org
 #
 
+function check_instance_daemon () {
+    if ($0 ~ bash) {
+	if ($1 ~ /^[0-9]+$/) {
+	    pid = $1
+	    c = "cat /proc/" pid "/cmdline 2>/dev/null"
+	    c | getline dir
+	    close(c)
+	    if (dir ~ /zdl.+silent/) {
+		sub(/.+silent/, "", dir)
+		dir = sprintf (CONVFMT, dir)
+		pwd = sprintf (CONVFMT, ENVIRON["PWD"])
+		if (dir == pwd) { 
+		    result = 0
+		    print pid
+		    exit
+		}
+	    }
+	}
+    }
+}
+
 function check_pid (pid,   test) {
     cmd = "ps ax | grep -P \"^[ A-Z]*" pid "\" 2>/dev/null"
     cmd | getline test

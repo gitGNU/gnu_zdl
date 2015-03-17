@@ -41,32 +41,14 @@ function size_file {
     echo "$(stat -c '%s' "$1")"
 }
 
-function run_in_dir {
-    line_file "$1" "$2" "/tmp/.stdrun.zdl"
-}
-
-function pidprog_in_dir { ## $1 = testing directory
-    if [ -f /tmp/.stdrun.zdl ]; then
-	grep "$1" /tmp/.stdrun.zdl | awk '{print $1}' | while read line; do
-	    if check_pid $line
-	    then
-		echo $line
-	    fi
-	done
-    fi
-}
 
 function check_instance_daemon {
-    while read line; do
-	test_pid=$(awk '{print $1}' <<< "$line")
-	if [[ "$test_pid" =~ ^[0-9]+$ ]] && \
-	    [ -d "/proc/$test_pid" ] && \
-	    [[ $(grep silent /proc/$test_pid/cmdline) ]] && \
-	    [[ $(sed -r 's|.+silent(.+)$|\1|g' < /proc/$test_pid/cmdline) == "$PWD" ]]; then
-	    return 1
-	fi
-    done <<< "$(ps ax |grep bash)"
-    return 0
+    if daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1}{check_instance_daemon()} END {exit result}")
+    then
+	return 1
+    else
+    	return 0
+    fi
 }
 
 function check_instance_prog {
@@ -80,31 +62,11 @@ function check_instance_prog {
 		tty="/dev/$(ps ax |grep -P '^[\ ]*'$pid |cut -d ' ' -f 3)"
 	    fi
 	    return 1
+	else
+	    return 0
 	fi
     fi
 }
-
-
-
-function check_lock {
-    test_lock=`ls "$path_tmp"/${prog}_lock_* 2>/dev/null`
-    echo "lockfile=$lock_file"
-    read -p "test=$test_lock"
-    
-    if [ ! -z "$test_lock" ]; then
-	pid="${test_lock#*_lock_}"
-	read -p "pid_test=$pid"
-	if check_pid $pid
-	then
-	    rm "$test_lock"
-	    return 1
-	fi
-    else
-	touch "$lock_file"
-    fi
-    touch "$lock_file"
-}
-
 
 function redirect_links {
     header_box "Links da processare"
@@ -112,7 +74,6 @@ function redirect_links {
     echo -e "${links//'\n'/\n\n}\n"
     separator-
     print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
-    rm -f "$path_tmp/lock.zdl\n"
     [ ! -z "$xterm_stop" ] && xterm_stop
     exit 1
 }
@@ -132,15 +93,6 @@ function sanitize_file_in {
     file_in="${file_in##*/}"
     file_in="${file_in::240}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
-}
-
-function human_eta {
-    if [ ! -z "$1" ]; then
-	minutes=$(( $1/60 ))
-	hours=$(( $minutes/60 ))
-	minutes=$(( $minutes-($hours*60) ))
-	echo "${hours}h${minutes}m"
-    fi
 }
 
 function zdl-ext {
@@ -264,6 +216,23 @@ function link_parser {
 	if ( [ ! -z "$parser_domain" ] || [ ! -z "$parser_ip" ] ) && [ ! -z "$parser_path" ]; then
 	    return 1
 	fi
+    fi
+}
+
+function clean_file {
+    if [ -f "$1" ]; then
+	local file_to_clean="$1"
+	if [ -f "$path_tmp/rewriting" ];then
+	    while [ -f "$path_tmp/rewriting" ]; do
+		sleeping 0.1
+	    done
+	fi
+	touch "$path_tmp/rewriting"
+
+	local lines=$(awk '(lines !~ "\n" $0 "\n" && $0){lines = lines $0 "\n"; print $0}' < "$file_to_clean")
+	echo "$lines" > "$file_to_clean"
+	
+	rm -f "$path_tmp/rewriting"
     fi
 }
 

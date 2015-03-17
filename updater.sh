@@ -24,7 +24,6 @@
 # zoninoz@inventati.org
 #
 
-
 function update_zdl-wise {
     if [ ! -e "/cygdrive" ]; then
 	print_c 1 "Compilazione automatica di zdl-wise.c"

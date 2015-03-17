@@ -170,8 +170,6 @@ function make_progress (size_bar, progress_bar, progress) {
 
     bar = ""
     diff_bar = ""
-#     eval printf -v bar "%.0s\ " {1..$size_bar}
-#     eval printf -v diff_bar "%.0s\|" {1..$diff_size_bar}
     for (k=0; k<size_bar; k++) bar = bar " "
     for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "|"
     progress_bar = bar_color bar Color_Off diff_bar_color diff_bar
@@ -181,7 +179,7 @@ function make_progress (size_bar, progress_bar, progress) {
 }
 
 function display () {
-    bash_colors()
+    init_colors()
     blue_line = separator()
     if (extended>0) {
 	result = show_downloads_extended()

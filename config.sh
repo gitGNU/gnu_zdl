@@ -41,8 +41,24 @@ key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="E
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
 
 declare -A list_proxy_url
+## elenco chiavi proxy_server: proxy_list, ip_adress
+proxy_server='ip_adress'
+list_proxy_url['ip_adress']="http://zoninoz.hol.es"  ### "http://www.ip-adress.com/proxy_list/"
+list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 
+user_agent="Mozilla/5.0 (X11; Linux x36_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
+user_lang="$LANG"
+user_language="$LANGUAGE"
+prog_lang='en_US.UTF-8:en'
+
+newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
 rtmp=( zinwa. streamin. vidhappy. videopremium. )
+
+## massima durata tentativi di connessione (Wget)
+max_waiting=40
+
+## durata attesa 
+sleeping_pause=3
 
 
 function set_default_conf {
@@ -265,26 +281,21 @@ function check_editor {
 function init {
     prog=`basename $0`
     name_prog="ZigzagDownLoader"
-    PROG=`echo $prog | tr a-z A-Z`
+    PROG="ZDL"  #`echo $prog | tr a-z A-Z`
     path_tmp=".${prog}_tmp"
     mkdir -p "$path_tmp"
-    tty_prog=$(tty)
 
-    updatecols=`cat ~/.bashrc | grep "shopt -s checkwinsize"`
-    if [ -z "$updatecols" ]; then 
+    if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
+    then
 	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
     fi
     
-    touch "$path_tmp/lock.zdl"
     file_log="${prog}_log.txt"
-#    rm -f $file_log
     
     path_conf="$HOME/.${prog}"
     file_conf="$path_conf/$prog.conf"
-    mkdir -p "$path_conf/extensions"
         
     [ -z "$pid_prog" ] && pid_prog=$$ 
-    pid_in=1
 
     check_instance_prog
     [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
@@ -292,29 +303,11 @@ function init {
     # CYGWIN
     if [ -e "/cygdrive" ]; then
 	kill -SIGWINCH $$
-	dev_cygwin=${HOME#'/cygdrive/'}
-	dev_cygwin="${dev_cygwin%%'/'*}:"
     fi
-    
+
+    source "$path_usr/ui/colors.awk.sh"
     init_colors
-    user_agent="Mozilla/5.0 (X11; Linux x36_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
-    user_lang="$LANG"
-    user_language="$LANGUAGE"
-    prog_lang='en_US.UTF-8:en'
-    
-    newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
 
-    ## elenco chiavi proxy_server: proxy_list, ip_adress
-    proxy_server='ip_adress'
-
-
-    ### "http://www.ip-adress.com/proxy_list/"
-    list_proxy_url['ip_adress']="http://zoninoz.hol.es" 
-    list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
-
-    ## massima durata tentativi di connessione (Wget)
-    max_waiting=40
-    
     get_conf
     log=0
     if [ -f "$file_log" ]; then
@@ -325,5 +318,4 @@ function init {
     [ -z "$editor" ] && check_editor
 
     trap_sigint
-    sleeping_pause=3
 }
