@@ -42,8 +42,17 @@ function size_file {
 }
 
 
+# function check_instance_daemon {
+#     if daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1}{check_instance_daemon()} END {exit result}")
+#     then
+# 	return 1
+#     else
+#     	return 0
+#     fi
+# }
 function check_instance_daemon {
-    if daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1}{check_instance_daemon()} END {exit result}")
+    [ -d /cygdrive ] && cyg_condition='&& ($2 == 1)'
+    if daemon_pid="$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")"
     then
 	return 1
     else
