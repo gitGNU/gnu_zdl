@@ -305,7 +305,6 @@ function init {
 	kill -SIGWINCH $$
     fi
 
-    source "$path_usr/ui/colors.awk.sh"
     init_colors
 
     get_conf

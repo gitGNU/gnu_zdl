@@ -26,6 +26,8 @@
 
 #### layout
 
+source "$path_usr/ui/colors.awk.sh"
+
 function print_c {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
 	case "$1" in
