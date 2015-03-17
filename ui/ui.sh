@@ -95,7 +95,7 @@ function interactive_and_return {
     header_box "Modalità standard"
     commands_box
     separator-
-    export READLINE_LINE=" "
+    [ -z "$binding" ] && export READLINE_LINE="i"
 }
 
 function run_editor {
@@ -107,7 +107,7 @@ function run_editor {
     header_box "Modalità standard"
     commands_box
     separator-
-    export READLINE_LINE=" "
+    [ -z "$binding" ] && export READLINE_LINE="e"
 }
 
 function human_length { ## input in bytes

@@ -650,6 +650,7 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
 	links_box
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
 	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
+	binding=0
 	while true; do
 	    case $binding in
 		1) unset binding; break ;;
