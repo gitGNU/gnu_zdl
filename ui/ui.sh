@@ -97,7 +97,7 @@ function interactive_and_return {
     separator-
     echo
     if [ -z "$binding" ]
-	print_c 1 "In connessione..."
+	print_c 1 "..."
 	export READLINE_LINE="i"
     fi
 }
@@ -113,7 +113,7 @@ function run_editor {
     separator-
     echo
     if [ -z "$binding" ]
-	print_c 1 "In connessione..."
+	print_c 1 "..."
 	export READLINE_LINE="e"
     fi
 }
