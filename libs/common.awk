@@ -67,3 +67,19 @@ function size_file (filename) {
     close(c)
     return result
 }
+
+function bash_array (name, i, value) {
+    return name"["i"]=\""value"\"; "
+}
+
+function bash_var (name, value) {
+    return name"=\""value"\"; "
+}
+
+function seconds_to_human (seconds,         minutes, hours) {
+    minutes = int(seconds/60)
+    hours = int(minutes/60)
+    minutes = minutes - (hours * 60)
+    seconds = seconds - (minutes * 60) - (hours * 60 * 60)
+    return hours "h" minutes "m" seconds "s"
+}

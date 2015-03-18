@@ -146,7 +146,7 @@ function interactive {
 	show_downloads_extended
 	num_dl=$(cat "$path_tmp/.dl-mode")
 	
-	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
+	#[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
 	if [ -z "$num_dl" ]
 	then
 	    num_downloads=illimitati

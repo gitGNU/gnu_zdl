@@ -140,7 +140,6 @@ function get_conf {
     # fi
 
     ## single/multi
-    [[ ! "$num_dl" =~ ^[0-9]+$ ]] &&  unset num_dl
     if [ "$mode" == "single" ]
     then
 	num_dl=1
@@ -148,7 +147,13 @@ function get_conf {
     then
 	unset num_dl
     fi
-    echo "$num_dl" > "$path_tmp/.dl-mode"
+
+    if [ -f "$path_tmp/.dl-mode" ]
+    then
+	num_dl="$(cat "$path_tmp/.dl-mode")"
+    else
+	echo "$num_dl" > "$path_tmp/.dl-mode"
+    fi
 	
     if [ "$stream_mode" == "multi" ]; then
 	stream_params="-m"
