@@ -26,7 +26,7 @@
 
 function check_freespace {
     test_space=( $(df .) )
-    (( ${test_space[11]} < 6000 )) && return 1
+    (( ${test_space[11]} < 6000 )) && return 1 ## spazio minore di (circa) 5 megabyte
     return 0
 }
 
@@ -237,6 +237,7 @@ function check_in_loop {
 	    return 0 ## rimane nel loop (in attesa)
 	fi
     fi
+    return 1
 }
 
 
@@ -393,27 +394,6 @@ function check_in_file { 	## return --> no_download=1 / download=5
     return 1
 }
 
-
-function check_instance_dl {	
-    if data_stdout
-    then
-	for ((i=0; i<${#pid_out[*]}; i++)); do
-	    if check_pid ${pid_prog_out[$i]}
-	    then
-		pss=`ps ax |grep "${pid_prog_out[$i]}"`
-		max=`echo -e "$pss" |wc -l`
-		for line in `seq 1 $max`; do
-		    proc=`echo -e $pss"" |sed -n "${line}p"`
-		    pid=`echo "$proc" | awk "{ print $ps_ax_pid }"`
-		    tty=`echo "$proc" | awk "{ print $ps_ax_tty }"`
-		    if [ "$pid" == "${pid_prog_out[$i]}" ] && [ "$pid" != "$pid_prog" ]; then
-			return 1
-		    fi
-		done
-	    fi
-	done
-    fi
-}
 
 function links_loop {
     local url_test="$2"

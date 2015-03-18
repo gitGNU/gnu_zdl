@@ -728,7 +728,7 @@ function main_loop {
 	    fi
 	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
 
-	    if ! check_in_loop && check_in_url
+	    if check_in_url && ! check_in_loop 
 	    then
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
@@ -833,11 +833,11 @@ function main_loop {
 		fi
 
 		#### DOWNLOAD ####
-		if [ "$test_in" == "5" ] && [ -z "$premium" ] && \
+		if links_loop "in" "$url_in" && \
+		    [ "$test_in" == "5" ] && [ -z "$premium" ] && \
 		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) && \
 		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ) && \
-		    [ -z "$break_loop" ] && \
-		    [[ $(grep ^"$url_in"$ "$path_tmp/links_loop.txt") ]]
+		    [ -z "$break_loop" ] 
 		then
 		    unset test_in
 		    download

@@ -142,29 +142,34 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 	case $op in
 	    +)
 		line_file "in" "$item" "$file_target"
-		if [ "$?" != 1 ]; then
+		if [ "$?" != 1 ]
+		then
 		    echo "$item" >> "$file_target"
 		fi
 		rm -f "$rewriting"
 		;;
 	    -)
-		if [ -f "$file_target" ]; then
+		if [ -f "$file_target" ]
+		then
 		    sed -e "s|^$item$||g" \
 			-e '/^$/d' -i "$file_target"
 
-		    if (( $(wc -l < "$file_target") == 0 )); then
+		    if (( $(wc -l < "$file_target") == 0 ))
+		    then
 			rm "$file_target"
 		    fi
 		fi
 		rm -f "$rewriting"
 		;;
 	    in) 
-		if [ -f "$file_target" ]; then
-		    if [[ $(grep "^${item}$" "$file_target") ]]; then 
-			return 1
+		if [ -f "$file_target" ]
+		then
+		    if [[ "$(cat "$file_target")" =~ "$item" ]]
+		    then 
+			return 0
 		    fi
 		fi
-		return 5
+		return 1
 		;;
 	esac
     fi
