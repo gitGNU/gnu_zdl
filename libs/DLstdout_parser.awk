@@ -172,6 +172,7 @@ BEGIN {
 	    i++
 	}
 	array_out($0, "pid_out")
+	if (check_pid($0)) array_out($0, "pid_alive")
     }
 
     progress_data[++j%n] = $0

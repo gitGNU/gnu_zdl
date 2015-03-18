@@ -29,7 +29,7 @@
 
 
 if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
-    [ "$multi" == "0" ] && [ -f "$file_data" ] && check_ip glumbouploads
+    [ "$num_dl" == "1" ] && [ -f "$file_data" ] && check_ip glumbouploads
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
     echo -e "...\c"
     test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`

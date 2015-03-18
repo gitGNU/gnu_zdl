@@ -30,7 +30,7 @@
 
 if [ "$url_in" != "${url_in//billionuploads}" ]; then
     cookies="$path_tmp/cookies.zdl"
-    if [ ! -z "$multi" ];then
+    if [ -z "$num_dl" ];then
 	check_ip billionuploads
     fi
     wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null

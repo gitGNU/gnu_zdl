@@ -524,11 +524,12 @@ estensione `.sh' nella directory `$HOME/.zdl/extensions/'
 
    Script bash di esempio:
 
-     if [[ "$url_in" =~ PATTERN ]]; then
+     if [[ "$url_in" =~ PATTERN ]]
+     then
         url_in_file=$(sed -r 's|http://(.+)|http://USER:PASSWORD@\1|g' \
                           <<< "$url_in")
         file_in="NOME_DEL_FILE"
-        unset multi
+        unset num_dl
         axel_parts=3
      fi
 
@@ -859,13 +860,13 @@ Node: Arrestare ZDL15062
 Node: Controllare i download16167
 Node: Manuali d'uso16474
 Node: Creare nuove estensioni16909
-Node: Software consigliati18484
-Node: Conkeror19592
-Node: zdl-xterm e XXXTerm/Xombrero20603
-Node: Installazione e aggiornamento22527
-Node: Tags24851
-Node: Copying27010
-Node: Contatti28060
+Node: Software consigliati18489
+Node: Conkeror19597
+Node: zdl-xterm e XXXTerm/Xombrero20608
+Node: Installazione e aggiornamento22532
+Node: Tags24856
+Node: Copying27015
+Node: Contatti28065
 
 End Tag Table
 

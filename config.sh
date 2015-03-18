@@ -31,7 +31,7 @@ key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Do
 key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
 key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
 key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
-key_conf[4]=num_multi;        val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
+key_conf[4]=num_dl;        val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
 key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="Aspetto (color)"
 key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
@@ -115,41 +115,46 @@ function set_item_conf {
 
 function get_conf {
     source "$file_conf"
+
+    ## downloader predefinito
     downloader_in="$downloader"
     if [ -z "$downloader_in" ]; then
 	downloader_in=${val_conf[0]}
     fi
     
+    ## parti di Axel:
     axel_parts_conf="$axel_parts"
     if [ -z "$axel_parts_conf" ]; then
 	axel_parts_conf=32
     fi
-	## CYGWIN
+    ## CYGWIN
     if [ -e "/cygdrive" ];then
 	if (( $axel_parts_conf>10 )); then
 	    axel_parts_conf=10
 	fi
     fi
-    axel_parts=$axel_parts_conf
+    axel_parts="$axel_parts_conf"
     
-    if [ -z "$skin" ]; then
-	skin=${val_conf[5]}
-    fi
+    # if [ -z "$skin" ]; then
+    # 	skin=${val_conf[5]}
+    # fi
 
-    if [[ ! "$num_multi" =~ [0-9] ]] && [[ ! -z "${num_multi//[0-9]}" ]]; then
-	unset num_multi
+    ## single/multi
+    [[ ! "$num_dl" =~ ^[0-9]+$ ]] &&  unset num_dl
+    if [ "$mode" == "single" ]
+    then
+	num_dl=1
+    elif [ "$mode" == "multi" ]
+    then
+	unset num_dl
     fi
-
-    if [ "$mode" == single ]; then
-	multi=false
-#	num_multi=1
-    elif [ "$mode" == multi ]; then
-	multi=true
-    fi
+    echo "$num_dl" > "$path_tmp/.dl-mode"
 	
     if [ "$stream_mode" == "multi" ]; then
 	stream_params="-m"
     fi
+
+    ## editor
     if [[ ! $(command -v $editor 2>/dev/null) ]]; then
 	unset editor
     fi
@@ -308,6 +313,7 @@ function init {
     init_colors
 
     get_conf
+
     log=0
     if [ -f "$file_log" ]; then
 	log=1

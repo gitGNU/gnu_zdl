@@ -713,11 +713,12 @@ directory @file{$HOME/.zdl/extensions/}
 @b{Script bash di esempio:}
 
 @example
-if [[ "$url_in" =~ PATTERN ]]; then
+if [[ "$url_in" =~ PATTERN ]]
+then
    url_in_file=$(sed -r 's|http://(.+)|http://USER:PASSWORD@@\1|g' \
                      <<< "$url_in")
    file_in="NOME_DEL_FILE"
-   unset multi
+   unset num_dl
    axel_parts=3 
 fi
 @end example

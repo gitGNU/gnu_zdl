@@ -30,7 +30,7 @@ function data_stdout {
     check_tmps=( "$path_tmp"/?*_stdout.tmp )
     shopt -u nullglob
     shopt -u dotglob
-
+    unset pid_alive
     if (( ${#check_tmps[*]}>0 )); then
 	awk_data=$(awk -f $path_usr/libs/common.awk -f $path_usr/libs/DLstdout_parser.awk "$path_tmp"/?*_stdout.tmp)
 	eval "$awk_data"
@@ -40,31 +40,6 @@ function data_stdout {
     fi
 }
 
-function data_alive {
-    unset pid_alive pid_prog_alive file_alive downloader_alive alias_file_alive url_alive progress_alive length_alive alive
-    if data_stdout
-    then
-	client=1
-	tot=$(( ${#pid_out[*]}-1 ))
-	j=0
-	for i in `seq 0 $tot`; do
-	    if check_pid ${pid_out[$i]}
-	    then
-		pid_alive[$j]="${pid_out[$i]}"
-		pid_prog_alive[$j]="${pid_prog_out[$i]}"
-		file_alive[$j]="${file_out[$i]}"
-		downloader_alive[$j]="${downloader_out[$i]}"
-		alias_file_alive[$j]="${alias_file_out[$i]}"
-		url_alive[$j]="${url_out[$i]}"
-		progress_alive[$j]="${progress_out[$i]}"
-		length_alive[$j]=${length_out[$i]}
-		alive=1
-		(( j++ ))
-	    fi
-	done
-	[ "$alive" == 1 ] && return 1
-    fi
-}
 
 function check_download {
     if data_stdout
@@ -111,7 +86,7 @@ function check_stdout {
 		if ! check_pid ${pid_out[$ck]}
 		then
 		    length_saved=0
-		    [ -f "${file_out[$ck]}" ] && length_saved=`ls -l "./${file_out[$ck]}" | awk '{ print($5) }'`
+		    [ -f "${file_out[$ck]}" ] && length_saved=$(size_file "${file_out[$ck]}")
 		    
 		    already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
 		    if [ ! -z "$already_there" ]; then 

@@ -33,8 +33,8 @@ if [[ "$url_in" =~ (shortlink.) ]]; then
     wget -q -O /dev/null --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" "$url_in"
     countdown- 10
     new_url=$(wget -q -O- http://www.shortlink.li/ajax/getLink --post-data="short=$shortcode" --load-cookies="$path_tmp/cookies.zdl"  | sed -r 's|.+\"([^"]+)\"\}$|\1|g' | sed -r 's|\\||g')
-    link_parser "$new_url"
-    if [ $? == 1 ]; then
+    if link_parser "$new_url"
+    then
 	links_loop - "$url_in"
 	url_in="http${new_url##*http}"
 	links_loop + "$url_in"	

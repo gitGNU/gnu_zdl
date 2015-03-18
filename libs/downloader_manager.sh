@@ -52,10 +52,9 @@ function download {
 		wpid=$!
 	    fi
 	    [ -f "$path_tmp/redirect" ] && url_redirect=$(grep Location: < "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
-	    link_parser "$url_redirect"
-	    test_link=$?
-	    check_pid "$wpid"
-	    if [[ $test_link == 1 ]] || [ $? != 0 ]; then 
+
+	    if link_parser "$url_redirect" || ! check_pid "$wpid"
+	    then 
 		kill -9 "$wpid" &>/dev/null
 		url_in_file="$url_redirect"
 		break
@@ -75,75 +74,91 @@ function download {
 	rm -f "$path_tmp/redirect"
     fi
 
-    if [ "$downloader_in" == "Axel" ]; then
-	[ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
-	sleeping 2
-	if [ -f "$path_tmp"/cookies.zdl ]; then
-	    export AXEL_COOKIES="$path_tmp/cookies.zdl"
-	    axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-	elif [ -f "$path_tmp"/flashgot_cookie.zdl ]; then
-	    COOKIES=`cat "$path_tmp"/flashgot_cookie.zdl`
-	    if [ ! -z "$COOKIES" ] ; then
-		headers="-H \"Cookie:$COOKIES\""
-		axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+    case $downloader_in in
+
+	Axel)
+	    [ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
+	    sleeping 2
+	    if [ -f "$path_tmp"/cookies.zdl ]
+	    then
+		export AXEL_COOKIES="$path_tmp/cookies.zdl"
+		axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+
+	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
+	    then
+		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
+		if [ ! -z "$COOKIES" ]
+		then
+		    headers="-H \"Cookie:$COOKIES\""
+		    axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		else
+		    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		fi
 	    else
 		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
-	else
-	    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-	fi
-	pid_in=$!
-	echo -e "${pid_in}
+	    pid_in=$!
+	    echo -e "${pid_in}
 $url_in
 Axel
 ${pid_prog}
 $file_in
 $url_in_file
 $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
+	    ;;
+	
+	Wget)
+	    if [ -f "$path_tmp"/cookies.zdl ]
+	    then
+		COOKIES="$path_tmp/cookies.zdl"
+	    elif [ -f "$path_tmp"/flashgot_cfile.zdl ]
+	    then
+		COOKIES="$path_tmp/flashgot_cfile.zdl"
+	    fi
 
-    elif [ "$downloader_in" == "Wget" ]; then
-	if [ -f "$path_tmp"/cookies.zdl ]; then
-	    COOKIES="$path_tmp/cookies.zdl"
-	elif [ -f "$path_tmp"/flashgot_cfile.zdl ]; then
-	    COOKIES="$path_tmp/flashgot_cfile.zdl"
-	fi
-	if [ ! -z "${post_data}" ]; then
-	    method_post="--post-data=${post_data}"
-	fi
-	if [ "$file_in" != "" ]; then
-	    argout="-O"
-	    fileout="$file_in"
-	else
-	    argout="--trust-server-names"
-	fi
+	    if [ ! -z "${post_data}" ]
+	    then
+		method_post="--post-data=${post_data}"
+	    fi
+
+	    if [ "$file_in" != "" ]
+	    then
+		argout="-O"
+		fileout="$file_in"
+	    else
+		argout="--trust-server-names"
+	    fi
 
 ##	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
 
-	wget --user-agent="$user_agent" \
-	    --no-check-certificate \
-	    --retry-connrefused \
-	    -c -nc -S \
-	    --load-cookies=$COOKIES \
-	    $method_post \
-	    "$url_in_file" \
-	    $argout \
-	    "$fileout" \
-	    -a "$path_tmp/${file_in}_stdout.tmp" &
+	    wget --user-agent="$user_agent" \
+		--no-check-certificate \
+		--retry-connrefused \
+		-c -nc -S \
+		--load-cookies=$COOKIES \
+		$method_post \
+		"$url_in_file" \
+		$argout \
+		"$fileout" \
+		-a "$path_tmp/${file_in}_stdout.tmp" &
 
-	pid_in=$!
+	    pid_in=$!
 
-	echo -e "${pid_in}
+	    echo -e "${pid_in}
 $url_in
 Wget
 ${pid_prog}
 $file_in
 $url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
+	    ;;
+	
+	RTMPDump)
+	    if [ ! -z "$downloader_cmd" ]
+	    then
+		eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
+		pid_in=$!
 
-    elif [ "$downloader_in" == "RTMPDump" ] && [ ! -z "$downloader_cmd" ]; then
-	eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
-	pid_in=$!
-
-        echo -e "${pid_in}
+		echo -e "${pid_in}
 $url_in
 RTMPDump
 ${pid_prog}
@@ -151,13 +166,13 @@ $file_in
 $streamer
 $playpath
 $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
-	unset downloader_cmd
+		unset downloader_cmd
 
-    elif [ "$downloader_in" == "RTMPDump" ]; then
-	rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
-	pid_in=$!
+	    else
+		rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
+		pid_in=$!
 
-	echo -e "${pid_in}
+		echo -e "${pid_in}
 $url_in
 RTMPDump
 ${pid_prog}
@@ -166,24 +181,29 @@ $streamer
 $playpath
 $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 
-    elif [ "$downloader_in" == "cURL" ] && [ ! -z "$downloader_cmd" ]; then
-	( eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
-	pid_in=$!
+	    fi
+	    ;;
+	
+    cURL)
+	    if [ ! -z "$downloader_cmd" ]
+	    then
+		( eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
+		pid_in=$!
 
-	echo -e "${pid_in}
+		echo -e "${pid_in}
 $url_in
 cURL
 ${pid_prog}
 $file_in
 $streamer
 $playpath" > "$path_tmp/${file_in}_stdout.tmp"
-	unset downloader_cmd
+		unset downloader_cmd
 
-    elif [ "$downloader_in" == "cURL" ]; then
-	( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
-	pid_in=$!
+	    else
+		( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
+		pid_in=$!
 
-	echo -e "${pid_in}
+		echo -e "${pid_in}
 $url_in
 cURL
 ${pid_prog}
@@ -191,7 +211,9 @@ $file_in
 $streamer
 $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
-    fi
+	    fi
+	    ;;
+    esac
     
     if [ ! -z "$user" ] && [ ! -z "$host" ]; then
 	accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
@@ -204,42 +226,45 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     sleeping 3
 }
 
-
-function check_in_url { 	## return --> no_download=1 
-    if [ ! -z "$url_in" ]; then
-	if [ -z "$file_in" ]; then
-	    if data_stdout
-	    then 
-		if [ "$multi" != true ] && (( $counter_downloading > 0 )) || ( [ ! -z "$num_multi" ] && (( $counter_downloading >= $num_multi )) ); then
-		    return 1
-		fi
-		
-		for ((i=0; i<${#pid_out[*]}; i++)); do
-		    if [ "${url_out[$i]}" == "$url_in" ]; then
-			if check_pid ${pid_out[$i]}
-			then
-			    return 1
-			fi
-
-			file_in="${file_out[$i]}"
-			length_saved=0
-			[ -f "${file_out[$i]}" ] && length_saved=$(size_file "${file_out[$i]}")
-			
-			if [ "$length_saved" != 0 ] && [ -f "${file_out[$i]}" ] && [ ! -f "${file_out[$i]}.st" ] && [ "$length_saved" == "${length_out[$i]}" ] && [ "${percent_out[$i]}" == 100 ]; then
-			    return 1
-			fi
-			unset length_saved
-			check_freespace
-			if [ $? == 1 ]; then return 1 ; fi
-		    fi
-		done
-	    fi
+function check_in_loop { 
+    if data_stdout
+    then
+	num_dl=$(cat "$path_tmp/.dl-mode")
+	if [ -z "$num_dl" ] || (( "${#pid_alive[*]}" < "$num_dl" ))
+	then
+	    return 1 ## rompe il loop (esce dall'attesa) => procede con un altro download
+	else
+	    return 0 ## rimane nel loop (in attesa)
 	fi
     fi
 }
 
 
+function check_in_url {       
+    if data_stdout
+    then 
+	for ((i=0; i<${#pid_out[*]}; i++))
+	do
+	    if [ "${url_out[$i]}" == "$url_in" ]
+	    then
+		file_in="${file_out[$i]}" ## stesso URL => stesso filename
 
+		if check_pid ${pid_out[$i]} || \
+		    ( \
+		    [ -f "${file_out[$i]}" ] && \
+		    [ ! -f "${file_out[$i]}.st" ] && \
+		    [ "${length_saved[$i]}" != 0 ] && \
+		    [ "${length_saved[$i]}" == "${length_out[$i]}" ] && \
+		    [ "${percent_out[$i]}" == 100 ] \
+		    )
+		then
+		    return 1 ## no download
+		fi
+	    fi
+	done
+    fi
+    return 0
+}
 
 function check_in_file { 	## return --> no_download=1 / download=5
     sanitize_file_in
@@ -392,8 +417,8 @@ function check_instance_dl {
 
 function links_loop {
     local url_test="$2"
-    link_parser "$url_test"
-    if [ "$?" != 1 ] && [ "$1" == "+" ]; then
+    if ! link_parser "$url_test" && [ "$1" == "+" ]
+    then
 	_log 12 "$url_test"
 	links_loop - "$url_test"
     else
@@ -403,7 +428,9 @@ function links_loop {
 }
 
 function kill_downloads {
-    data_alive
-    [ ! -z "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
+    if data_stdout
+    then
+	[ ! -z "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
+    fi
 }
 

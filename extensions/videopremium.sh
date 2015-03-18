@@ -27,7 +27,7 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Videopremium
 
-## API in php: ricava i dati da remoto (più lento) e dipende da RTMPDump
+## API in php: ricava i dati da remoto (più lento)
 #
 # if [[ "$url_in" =~ (videopremium.) ]]; then
 #     print_c 1 "Estrazione dati: attendi..."

@@ -399,16 +399,17 @@ fi
 if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
     for i in `seq 0 $max_args`; do
 	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
-	    unset args[$i]
-	    multi=true
+	    unset args[$i] num_dl
 	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]; then
-		num_multi="${args[$(( $i+1 ))]}"
+		num_dl="${args[$(( $i+1 ))]}"
 		unset args[$(( $i+1 ))]
-		echo $num_multi > "$path_tmp/.dl-mode"
+		echo $num_dl > "$path_tmp/.dl-mode"
 	    fi
 	fi
     done
 fi
+
+
 
 if [ "${args[*]}" != "${args[*]//--ip}" ]; then
     for i in `seq 0 $max_args`; do
@@ -599,19 +600,24 @@ done
 
 if [ ! -z "${args[*]}" ]; then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
-    for i in `seq 0 $max_args`; do
-	if [ -f "${args[$i]}" ]; then
-	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]; then
+    for i in `seq 0 $max_args`
+    do
+	if [ -f "${args[$i]}" ]
+	then
+	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]
+	    then
 		add_container $(cat "${args[$i]}") # container_file)
 	    else
 		links=$(cat "${args[$i]}")
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    fi
-	elif [ ! -z "${args[$i]}" ]; then
+	elif [ ! -z "${args[$i]}" ]
+	then
 	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
-	    link_parser "${args[$i]}"
-	    if [ "$?" == 1 ]; then
+
+	    if link_parser "${args[$i]}"
+	    then
 		echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
 		if [ -z "$links" ]; then
 		    links="${args[$i]}"
@@ -680,17 +686,13 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
     fi
 fi
 
-check_instance_daemon
-if [ $? == 1 ] && [ -z "$daemon" ]; then
+if ! check_instance_daemon && [ -z "$daemon" ]
+then
     redirect_links
 fi
 
-# check_instance s
-# if [ $? == 3 ]; then
-#     redirect_links
-# fi
-check_instance_prog
-if [ $? == 1 ]; then
+if ! check_instance_prog
+then
     redirect_links
 else
     echo "$pid_prog" > "$path_tmp/pid.zdl"
@@ -706,28 +708,28 @@ function main_loop {
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]; then
 	links_in=$(cat "$start_file")
 	if [ -f "$path_tmp/.dl-mode" ];then
-	    multi=true
-	    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
-	    [ "$num_multi" == 1 ] && unset multi 
+	    unset num_dl
+	    num_dl=$(cat "$path_tmp/.dl-mode")
 	fi
 
 	for url_in in $links_in; do
-	    link_parser "${url_in}"
-	    if [ "$?" != 1 ]; then
+	    if ! link_parser "${url_in}"
+	    then
 		links_loop - "$url_in"
 		_log 12 "$url_in"
 		unset url_in
 		break
 	    fi
 	    print_c 4 "checking $url_in ..."
-	    unset pid_in checked file_in url_in_file
+	    unset pid_in file_in url_in_file
 
 	    if [ -f "$path_tmp/.downloader" ]; then
 		downloader_in=$(cat "$path_tmp/.downloader")
 	    fi
-	    [ "$no_complete" == true ] && clean_completed
-	    check_in_url
-	    if [ $? != 1 ]; then
+	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
+
+	    if ! check_in_loop && check_in_url
+	    then
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -876,42 +878,27 @@ function main_loop {
 		from_loop=true
 		[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
 		noproxy
-		check_stdout
-		show_downloads
-		unset checked
-		if [ -f "$path_tmp/.dl-mode" ];then
-		    multi=true
-		    [[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
-		    [ "$num_multi" == 1 ] && unset multi 
-		fi
-		[ -z "$counter_downloading" ] && counter_downloading=0
-		if [ "$multi" == "true" ] && ( [ -z "$num_multi" ] || (( "$counter_downloading" < "$num_multi" )) ); then
-		    checked=1
-		fi
-		while [ "$checked" != "1" ]; do 
+
+		while true 
+		do
 		    pipe_files
-		    check_pid $pid_in
-		    test_pid=$?
-		    links_loop "in" "$url_in"
-		    test_loop_in=$?
-		    if [ "$test_loop_in" != 1 ] || [ "$test_pid" != 0 ] || ( [ ! -z "$num_multi" ] && (( $counter_downloading < $num_multi )) ); then 
-			break
-		    fi
 		    check_stdout
 		    show_downloads
-		    if [ -f "$path_tmp/.dl-mode" ];then
-			multi=true
-			[[ $(cat "$path_tmp/.dl-mode") =~ ^([0-9]+)$ ]] && num_multi=${BASH_REMATCH[1]}
+		    no_msg=true
+		    num_dl=$(cat "$path_tmp/.dl-mode")
 
-			[ "$num_multi" == 1 ] && unset multi 
+		    if ! check_in_loop
+		    then
+			break
 		    fi
+		    sleeping "$sleeping_pause"
 		done
 
-		unset checked break_loop post_data goal not_available exceeded 
+		unset break_loop post_data goal not_available exceeded 
 	    fi
 	done
 	print_c 4 "checking loop..."
-	sleeping 3
+	sleeping $sleeping_pause
 	clean_file "$path_tmp"/links_loop.txt
 
 	pipe_files

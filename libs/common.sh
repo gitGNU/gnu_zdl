@@ -223,9 +223,10 @@ function link_parser {
 
     if [ "${parser_proto}" != "${parser_proto//ftp}" ] || [ "${parser_proto}" != "${parser_proto//http}" ]; then
 	if ( [ ! -z "$parser_domain" ] || [ ! -z "$parser_ip" ] ) && [ ! -z "$parser_path" ]; then
-	    return 1
+	    return 0
 	fi
     fi
+    return 1
 }
 
 function clean_file {
@@ -238,8 +239,12 @@ function clean_file {
 	fi
 	touch "$path_tmp/rewriting"
 
-	local lines=$(awk '(lines !~ $0 "\n" && $0){lines = lines $0 "\n"; print $0}' < "$file_to_clean")
+	local lines=$(
+	    grep -P '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))' "$file_to_clean" | \
+	    awk '(lines !~ $0 "\n" && $0){lines = lines $0 "\n"; print $0}'
+	)
 	echo "$lines" > "$file_to_clean"
+
 	rm -f "$path_tmp/rewriting"
     fi
 }

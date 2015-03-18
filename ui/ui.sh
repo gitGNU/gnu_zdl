@@ -144,11 +144,17 @@ function interactive {
 	echo
 	unset tty list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
 	show_downloads_extended
-	unset num_dl
-	[ -f "$path_tmp/.dl-mode" ] && [[ $(cat "$path_tmp/.dl-mode") =~ ^([1-9]+)$ ]] && num_dl="${BASH_REMATCH[1]}"
+	num_dl=$(cat "$path_tmp/.dl-mode")
+	
 	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
-	[ -z "$num_dl" ] && num_dl=illimitati
-	header_box_interactive "Opzioni [numero download alla volta: $num_dl]"
+	if [ -z "$num_dl" ]
+	then
+	    num_downloads=illimitati
+	else
+	    num_downloads=$num_dl
+	fi
+	
+	header_box_interactive "Opzioni [numero download alla volta: $num_downloads]"
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
 <${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
 	
@@ -239,7 +245,7 @@ function interactive {
 		    fi
 		fi
 	    fi
-	elif [[ "$action" =~ ^([1-9]+)$ ]]; then
+	elif [[ "$action" =~ ^[1-9]+$ ]]; then
 	    echo "$action" > "$path_tmp/.dl-mode"
 	elif [ "$action" == "m" ]; then
 	    echo > "$path_tmp/.dl-mode"
