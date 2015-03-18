@@ -241,22 +241,22 @@ function check_in_loop {
 }
 
 
-function check_in_url_new {       
+function check_in_url {       
     if data_stdout
     then
-	echo "BEGIN {$awk_data check_in_url($url_in)}"
-	data=$(awk -f "$path_usr/libs/common.awk" -f "$path_usr/libs/downloader_manager.awk" -e "BEGIN {$awk_data check_in_url($url_in)}")
-	if [ $? == 1 ]
+	if ! data=$(awk -f "$path_usr/libs/common.awk" \
+	    -f "$path_usr/libs/downloader_manager.awk" \
+	    -e "BEGIN {$awk_data result = check_in_url(\"$url_in\")} END {print data; exit result}")
 	then
-	    echo $data
+	    eval $data
 	    return 1
 	fi
-	echo $data
+	eval $data
     fi
     return 0
 }
 
-function check_in_url {       
+function check_in_url_old {       
     if data_stdout
     then
 	for ((i=0; i<${#pid_out[*]}; i++))

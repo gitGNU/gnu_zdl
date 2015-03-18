@@ -25,22 +25,19 @@
 
 function check_in_url (url_in) {       
     for (i in pid_out) {
-	if (sprintf(CONVFMT, url_out[i]) == sprintf(CONVFMT, url_in)) {
-	    print bash_var("file_in", file_out[$i]) ## stesso URL => stesso filename
-	    if (pid_alive[i]) { # ||					\
-		# (							\
-		#     exists(file_out[i]) &&				\
-		#     ! exists(file_out[i] ".st") &&			\
-		#     length_saved[i] != 0 &&				\
-		#     length_saved[i] == length_out[i] &&			\
-		#     percent_out[i] == 100				\
-		#     ))							\
-		echo "pippo"
-		exit 1 ## no download
-	    }
+	if (url_out[i] == url_in) {
+	    data = data bash_var("file_in", file_out[i]) ## stesso URL => stesso filename
+	    if (pid_alive[i] ||					\
+		(							\
+		    exists(file_out[i]) &&				\
+		    ! exists(file_out[i] ".st") &&			\
+		    length_saved[i] != 0 &&				\
+		    length_saved[i] == length_out[i] &&			\
+		    percent_out[i] == 100				\
+		    )) return 1 ## no download
 	}
     }
-    exit 0
+    return 0
 }
 
 # function check_in_file { 	## return --> no_download=1 / download=5

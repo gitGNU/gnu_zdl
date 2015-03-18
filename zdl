@@ -704,7 +704,7 @@ echo "$downloader_in" > "$path_tmp/.downloader"
 function main_loop {
     if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]; then
     	start_file="$path_tmp/links_loop.txt"
-    	sleep 10
+   	sleep 10
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]; then
 	links_in=$(cat "$start_file")
 	if [ -f "$path_tmp/.dl-mode" ];then
@@ -720,7 +720,7 @@ function main_loop {
 		unset url_in
 		break
 	    fi
-	    print_c 4 "checking $url_in ..."
+#	    print_c 4 "checking $url_in ..."
 	    unset pid_in file_in url_in_file
 
 	    if [ -f "$path_tmp/.downloader" ]; then
@@ -898,7 +898,7 @@ function main_loop {
 	    fi
 	done
 	print_c 4 "checking loop..."
-	sleeping $sleeping_pause
+	[ -z "$no_msg" ] && sleeping $sleeping_pause
 	clean_file "$path_tmp"/links_loop.txt
 
 	pipe_files
