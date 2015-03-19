@@ -85,7 +85,7 @@ function seconds_to_human (seconds,         minutes, hours) {
 }
 
 function cat (file,      c, line, chunk) {
-    c = "cat " file
+    c = "cat " file " 2>/dev/null"
     while (c | getline line) {
 	chunk = chunk line
     }
