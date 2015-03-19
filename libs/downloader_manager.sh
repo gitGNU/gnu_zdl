@@ -223,7 +223,16 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
-    sleeping 3
+
+    for i in 0..5
+    do
+	if check_pid $pid_in
+	then
+	    return 0
+	fi
+	sleeping 0.5
+    done
+    return 1
 }
 
 function check_in_loop { 
@@ -256,31 +265,31 @@ function check_in_url {
     return 0
 }
 
-function check_in_url_old {       
-    if data_stdout
-    then
-	for ((i=0; i<${#pid_out[*]}; i++))
-	do
-	    if [ "${url_out[$i]}" == "$url_in" ]
-	    then
-		file_in="${file_out[$i]}" ## stesso URL => stesso filename
+# function check_in_url_old {       
+#     if data_stdout
+#     then
+# 	for ((i=0; i<${#pid_out[*]}; i++))
+# 	do
+# 	    if [ "${url_out[$i]}" == "$url_in" ]
+# 	    then
+# 		file_in="${file_out[$i]}" ## stesso URL => stesso filename
 
-		if check_pid ${pid_out[$i]} || \
-		    ( \
-		    [ -f "${file_out[$i]}" ] && \
-		    [ ! -f "${file_out[$i]}.st" ] && \
-		    [ "${length_saved[$i]}" != 0 ] && \
-		    [ "${length_saved[$i]}" == "${length_out[$i]}" ] && \
-		    [ "${percent_out[$i]}" == 100 ] \
-		    )
-		then
-		    return 1 ## no download
-		fi
-	    fi
-	done
-    fi
-    return 0
-}
+# 		if check_pid ${pid_out[$i]} || \
+# 		    ( \
+# 		    [ -f "${file_out[$i]}" ] && \
+# 		    [ ! -f "${file_out[$i]}.st" ] && \
+# 		    [ "${length_saved[$i]}" != 0 ] && \
+# 		    [ "${length_saved[$i]}" == "${length_out[$i]}" ] && \
+# 		    [ "${percent_out[$i]}" == 100 ] \
+# 		    )
+# 		then
+# 		    return 1 ## no download
+# 		fi
+# 	    fi
+# 	done
+#     fi
+#     return 0
+# }
 
 function check_in_file { 	## return --> no_download=1 / download=5
     sanitize_file_in

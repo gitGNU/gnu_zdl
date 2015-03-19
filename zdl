@@ -646,7 +646,8 @@ else
 fi
 [ "$daemon" != "true" ] && print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
-if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
+if [ -z "$start_file" ]
+then
     start_file="$path_tmp/links_loop.txt"
     check_instance_prog
     if [ $? != 1 ]; then
@@ -661,11 +662,15 @@ if [ -z "$start_file" ]; then # && [ "$daemon" != "true" ]; then
 	    case $binding in
 		1) unset binding; break ;;
 	    esac
-	    read -e links[${#links[*]}]
+	    read -e link
+	    if [ ! -z "${link// }" ]
+	    then
+		link="${link## }"
+		link="${link%% }"
+		links_loop + "${link// /%20}"
+	    fi
 	done
-	for ((i=0; i<${#links[*]}; i++)); do
-	    [ ! -z "${links[$i]// }" ] && links_loop + "${links[$i]// /%20}"
-	done
+	unset link
     elif [ ! -z "$from_editor" ]; then
 	$editor "$start_file"
     fi
@@ -840,38 +845,19 @@ function main_loop {
 		    [ -z "$break_loop" ] 
 		then
 		    unset test_in
-		    download
-		    is_rtmp "$url_in"
-		    if [ "$?" == 1 ]; then
+		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]; then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"
 		    else
 			print_c 4 "URL del file: $url_in_file"
 		    fi
-		    if check_pid ${pid_in}
+
+		    if download
 		    then
 			print_c 1 "downloading --> $file_in ..."
 		    fi		    
-		    while true; do
-			show_downloads
-			check_download
-			if [ $? == 1 ]; then
-			    break
-			fi
-			if ! check_pid ${pid_in}
-			then
-			    break
-			fi
-		    done
 		    rm -f "$path_tmp/cookies.zdl"
 		    unset no_newip
 		    check_freespace
-		    check_alias
-		else
-		    sleeping 1
-		fi
-		
-		if [ ! -f "$path_tmp/${file_in}_stdout.tmp" ] && [ -f "${file_in}" ] && [ ! -f "${file_in}.st" ]; then
-		    links_loop - "$url_in"
 		fi
 
 		newip_add_provider
@@ -894,7 +880,7 @@ function main_loop {
 		    sleeping "$sleeping_pause"
 		done
 
-		unset break_loop post_data goal not_available exceeded 
+		unset break_loop post_data not_available exceeded 
 	    fi
 	done
 	print_c 4 "checking loop..."

@@ -61,53 +61,57 @@ function check_download {
 function check_stdout {
     if data_stdout
     then
-	last_stdout=$(( ${#pid_out[*]}-1 ))
-	for ck in `seq 0 $last_stdout`; do
-	    is_rtmp "${url_out[$ck]}"
-	    if [ $? == 0 ]; then
-
-		if check_pid ${pid_out[$ck]}
+	for ((ck=0; ck<${#pid_out[*]}; ck++))
+	do
+	    if [[ ! "${downloader_out[$ck]}" =~ (RTMPDump|cURL) ]]
+	    then
+		if [ ! -z "${pid_alive[$ck]}" ]
 		then
-		    if [ -f "${file_out[$ck]}" ] && [ -f "${alias_file_out[$ck]}" ]; then
-			rm -f "${alias_file_out[$ck]}"
-		    fi
-		    
 		    test_repeated="${repeated[${pid_out[$ck]}]}"
-		    repeated[${pid_out[$ck]}]=`tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp"`
-		    if [ "$test_repeated" ==  "${repeated[${pid_out[$ck]}]}" ] && [ -f "${file_out[$ck]}.st" ]; then
+		    repeated[${pid_out[$ck]}]=$(tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp")
+		    if [ "$test_repeated" == "${repeated[${pid_out[$ck]}]}" ] && \
+			[ -f "${file_out[$ck]}.st" ] || \
+			[ ! -f "${file_out[$ck]}" ] 
+		    then
 			kill ${pid_out[$ck]} &>/dev/null
-		    fi
-		    
-		    if [ ! -f "${file_out[$ck]}" ] && [ ! -f "${alias_file_out[$ck]}" ]; then
-			kill ${pid_out[$ck]}  &>/dev/null
 		    fi
 		fi
 
-		if ! check_pid ${pid_out[$ck]}
+		if [ -z "${pid_alive[$ck]}" ]
 		then
-		    length_saved=0
-		    [ -f "${file_out[$ck]}" ] && length_saved=$(size_file "${file_out[$ck]}")
-		    
-		    already_there=`cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.'`
-		    if [ ! -z "$already_there" ]; then 
+		    already_there=$(cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.')
+
+		    if [ ! -z "$already_there" ]
+		    then 
 			unset already_there
 			print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
 			read -p "ATTENZIONE!"
 			rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
 		    else
-			if [ "${length_out[$ck]}" == "0" ] || ( [ ! -z "${length_out[$ck]}" ] && (( ${length_out[$ck]} > 0 )) && (( $length_saved < ${length_out[$ck]} )) ); then
-			    if [ ! -f "${file_out[$ck]}.st" ]; then
-				rm -f "${file_out[$ck]}"
-			    fi
+			if (( length_out[$ck] == 0 )) || \
+			    ( \
+			    [ ! -z "${length_out[$ck]}" ] && \
+			    (( length_out[$ck] > 0 )) && \
+			    (( length_saved[$ck] < length_out[$ck] )) \
+			    )
+			then
+			    [ ! -f "${file_out[$ck]}.st" ] &&  rm -f "${file_out[$ck]}"
 			fi
-			if ( [ ! -z "${length_out[$ck]}" ] && [ "${length_out[$ck]}" != "0" ] && (( "$length_saved" == "${length_out[$ck]}" )) && (( ${length_out[$ck]} > 0 )) ); then 
+
+			if ( [ ! -z "${length_out[$ck]}" ] && \
+			    (( length_out[$ck] != 0 )) && \
+			    (( length_saved[$ck] == length_out[$ck] )) && \
+			    (( length_out[$ck] > 0 )) )
+			then 
 			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
 			fi
 		    fi
 		fi
-	    elif [ ${downloader_out[$ck]} == RTMPDump ]; then
-		test_completed=$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")
-		if ! check_pid "${pid_out[$ck]}"
+
+	    elif [ "${downloader_out[$ck]}" == "RTMPDump" ]; then
+		test_completed="$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")"
+
+		if [ -z "${pid_alive[$ck]}" ]
 		then
 		    if [ -z "$test_completed" ]; then
 			rm -f "${file_out[$ck]}"
@@ -117,55 +121,9 @@ function check_stdout {
 		fi
 	    fi
 	done
-	unset test_rtmp
-	return 1
     fi
 }
 
-function check_alias {
-	## if file_in is an alias...
-    
-    if [ -f "$file_in" ] && [ -f "$path_tmp/${file_in}_stdout.tmp" ] && [ "${file_in}" != "${file_in%.alias}" ]; then
-	if data_stdout
-	then
-	    last_stdout=$(( ${#pid_out[*]}-1 ))
-			#read -p ${#pid_out[*]}
-	    for i in `seq 0 $last_stdout`; do
-		if check_pid ${pid_out[$i]}
-		then
-		    if check_pid ${pid_in}
-		    then
-			unset real_file_in 
-			real_file_in=`cat "$path_tmp"/${file_in}_stdout.tmp |grep filename`
-			real_file_in="${real_file_in#*filename=\"}"
-			real_file_in="${real_file_in%\"*}"
-			
-			file_in_alias="${file_in}"
-			file_in="${real_file_in}"
-			
-			if [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
-			    kill $pid_in  &>/dev/null
-			    rm -f  "${file_in_alias}"
-			elif [ "${pid_out[$i]}" == "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
-			    check_in_file    ## se file_in esiste, ne verifica la validità --> potrebbe cancellarlo
-			    if [ ! -f "$file_in" ]; then
-				mv "$file_in_alias" "$file_in"
-				print_c 1 "$file_in_alias rinominato come $file_in"
-			    else
-				kill $pid_in  &>/dev/null
-				rm -f  "${file_in_alias}"
-			    fi
-			fi
-		    fi
-		    
-		    if ! check_pid ${pid_in} && [ "${pid_out[$i]}" != "$pid_in" ] && [ "$file_in" == "${file_out[$i]}" ]; then
-			rm -f "${file_in}"
-		    fi
-		fi
-	    done
-	fi
-    fi
-}
 
 function pipe_files {
     [ -z "$print_out" ] && [ -z "$pipe_out" ] && return

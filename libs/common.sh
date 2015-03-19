@@ -141,8 +141,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
     if [ ! -z "$item" ]; then
 	case $op in
 	    +)
-		line_file "in" "$item" "$file_target"
-		if [ "$?" != 1 ]
+		if ! line_file "in" "$item" "$file_target"
 		then
 		    echo "$item" >> "$file_target"
 		fi
