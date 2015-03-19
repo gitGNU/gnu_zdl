@@ -50,6 +50,7 @@ function size_file {
 #     	return 0
 #     fi
 # }
+
 function check_instance_daemon {
     [ -d /cygdrive ] && cyg_condition='&& ($2 == 1)'
     if daemon_pid="$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")"

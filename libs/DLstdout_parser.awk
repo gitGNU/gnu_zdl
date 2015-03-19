@@ -27,31 +27,6 @@ function array_out (value, type) {
     code = code bash_array(type, i, value) 
 }
 
-function cat (file,      c, line, chunk) {
-    c = "cat " file
-    while (c | getline line) {
-	chunk = chunk line
-    }
-    close(c)
-    return chunk
-}
-
-function rm_line (line, file,       c, lines) {
-    c = "cat " file
-    while (c | getline test) {
-	if (line != test && test) {
-	    if (lines) test = "\n" test
-	    lines = lines test
-	}
-    }
-    close(c)
-    if (lines) {
-	print lines > file
-    } else {
-	system("rm -f "file)
-    }
-}
-
 function check_stdout () {
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
@@ -60,6 +35,17 @@ function check_stdout () {
 		exists(file_out[i] ".st") || \
 		! exists(file_out[i]))
 		system("kill -9 " pid_out[i] " 2>/dev/null")
+
+	    ## cancella download di file con nome di verso per uno stesso link/url
+	    for (d in pid_out) {
+		if (i != d &&			\
+		    url_out[i] == url_out[d] &&	\
+		    file_out[i] != file_out[d])
+		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
+	    }
+
+	    if (url_in == url_out[i])
+		code = code bash_var("url_in", "")
 	}
 
 	if (! pid_alive[i]) {
@@ -76,17 +62,9 @@ function check_stdout () {
 		length_out[i] > 0 &&					\
 		! exists(file_out[i] ".st"))
 		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
-	}
-    }
-    if (pid_alive[i] && url_in == url_out[i])
-	code = code bash_var("url_in", "")
 
-    if (pid_alive[i]) {
-	for (d in pid_out) {
-	    if (i != d &&			\
-		url_out[i] == url_out[d] &&	\
-		file_out[i] != file_out[d])
-		system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
+	    if (url_in == url_out[i])
+		code = code bash_var("file_in", file_out[i])
 	}
     }
 }

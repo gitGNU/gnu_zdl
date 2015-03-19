@@ -83,3 +83,29 @@ function seconds_to_human (seconds,         minutes, hours) {
     seconds = seconds - (minutes * 60) - (hours * 60 * 60)
     return hours "h" minutes "m" seconds "s"
 }
+
+function cat (file,      c, line, chunk) {
+    c = "cat " file
+    while (c | getline line) {
+	chunk = chunk line
+    }
+    close(c)
+    return chunk
+}
+
+function rm_line (line, file,       c, lines) {
+    c = "cat " file
+    while (c | getline test) {
+	if (line != test && test) {
+	    if (lines) test = "\n" test
+	    lines = lines test
+	}
+    }
+    close(c)
+    if (lines) {
+	print lines > file
+    } else {
+	system("rm -f "file)
+    }
+}
+

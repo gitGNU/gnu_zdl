@@ -41,88 +41,88 @@ function data_stdout {
 }
 
 
-function check_download {
-    if data_stdout
-    then
-	last_stdout=$(( ${#pid_out[*]}-1 ))
-	for i in `seq 0 $last_stdout`; do
-	    if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${length_saved[$i]}" ] && [ "$test_saved" != "${length_saved[$i]}" ]; then
-		unset test_saved
-		return 1
-	    elif [ "${file_in}" == "${file_out[$i]}" ]; then
-		test_saved="${length_saved[$i]}"
-		break
-	    fi
-	done
-    fi
-}
+# function check_download {
+#     if data_stdout
+#     then
+# 	last_stdout=$(( ${#pid_out[*]}-1 ))
+# 	for i in `seq 0 $last_stdout`; do
+# 	    if [ "${file_in}" == "${file_out[$i]}" ] && [ ! -z "${length_saved[$i]}" ] && [ "$test_saved" != "${length_saved[$i]}" ]; then
+# 		unset test_saved
+# 		return 1
+# 	    elif [ "${file_in}" == "${file_out[$i]}" ]; then
+# 		test_saved="${length_saved[$i]}"
+# 		break
+# 	    fi
+# 	done
+#     fi
+# }
 
 
-function check_stdout {
-    if data_stdout
-    then
-	for ((ck=0; ck<${#pid_out[*]}; ck++))
-	do
-	    if [[ ! "${downloader_out[$ck]}" =~ (RTMPDump|cURL) ]]
-	    then
-		if check_pid "${pid_out[$ck]}"
-		then
-		    test_repeated="${repeated[${pid_out[$ck]}]}"
-		    repeated[${pid_out[$ck]}]=$(tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp")
-		    if [ "$test_repeated" == "${repeated[${pid_out[$ck]}]}" ] && \
-			[ -f "${file_out[$ck]}.st" ] || \
-			[ ! -f "${file_out[$ck]}" ] 
-		    then
-			kill ${pid_out[$ck]} &>/dev/null
-		    fi
-		fi
-		length_saved[$ck]=$(size_file "${file_out[$ck]}")
-		if ! check_pid "${pid_out[$ck]}"
-		then
-		    already_there=$(cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.')
+# function check_stdout {
+#     if data_stdout
+#     then
+# 	for ((ck=0; ck<${#pid_out[*]}; ck++))
+# 	do
+# 	    if [[ ! "${downloader_out[$ck]}" =~ (RTMPDump|cURL) ]]
+# 	    then
+# 		if check_pid "${pid_out[$ck]}"
+# 		then
+# 		    test_repeated="${repeated[${pid_out[$ck]}]}"
+# 		    repeated[${pid_out[$ck]}]=$(tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp")
+# 		    if [ "$test_repeated" == "${repeated[${pid_out[$ck]}]}" ] && \
+# 			[ -f "${file_out[$ck]}.st" ] || \
+# 			[ ! -f "${file_out[$ck]}" ] 
+# 		    then
+# 			kill ${pid_out[$ck]} &>/dev/null
+# 		    fi
+# 		fi
+# 		length_saved[$ck]=$(size_file "${file_out[$ck]}")
+# 		if ! check_pid "${pid_out[$ck]}"
+# 		then
+# 		    already_there=$(cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.')
 
-		    if [ ! -z "$already_there" ]
-		    then 
-			unset already_there
-			print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
-			read -p "ATTENZIONE!"
-			rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
-		    else
-			if (( length_out[$ck] == 0 )) || \
-			    ( \
-			    [ ! -z "${length_out[$ck]}" ] && \
-			    (( length_out[$ck] > 0 )) && \
-			    (( length_saved[$ck] < length_out[$ck] )) \
-			    )
-			then
-			    [ ! -f "${file_out[$ck]}.st" ] &&  rm -f "${file_out[$ck]}"
-			fi
+# 		    if [ ! -z "$already_there" ]
+# 		    then 
+# 			unset already_there
+# 			print_c 3 "Errore: "$path_tmp"/${file_out[$ck]}_stdout.tmp  --> \"already there; not retrieving.\": $PROG ha cercato di scaricare di nuovo un file già esistente nella directory di destinazione"
+# 			read -p "ATTENZIONE!"
+# 			rm -f "$path_tmp/${file_out[$ck]}_stdout.tmp"
+# 		    else
+# 			if (( length_out[$ck] == 0 )) || \
+# 			    ( \
+# 			    [ ! -z "${length_out[$ck]}" ] && \
+# 			    (( length_out[$ck] > 0 )) && \
+# 			    (( length_saved[$ck] < length_out[$ck] )) \
+# 			    )
+# 			then
+# 			    [ ! -f "${file_out[$ck]}.st" ] &&  rm -f "${file_out[$ck]}"
+# 			fi
 
-			if ( [ ! -z "${length_out[$ck]}" ] && \
-			    (( length_out[$ck] != 0 )) && \
-			    (( length_saved[$ck] == length_out[$ck] )) && \
-			    (( length_out[$ck] > 0 )) )
-			then
-			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
-			fi
-		    fi
-		fi
+# 			if ( [ ! -z "${length_out[$ck]}" ] && \
+# 			    (( length_out[$ck] != 0 )) && \
+# 			    (( length_saved[$ck] == length_out[$ck] )) && \
+# 			    (( length_out[$ck] > 0 )) )
+# 			then
+# 			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
+# 			fi
+# 		    fi
+# 		fi
 
-	    elif [ "${downloader_out[$ck]}" == "RTMPDump" ]; then
-		test_completed="$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")"
+# 	    elif [ "${downloader_out[$ck]}" == "RTMPDump" ]; then
+# 		test_completed="$(grep 'Download complete' < "$path_tmp/${file_out[$ck]}_stdout.tmp")"
 
-		if [ -z "${pid_alive[$ck]}" ]
-		then
-		    if [ -z "$test_completed" ]; then
-			rm -f "${file_out[$ck]}"
-		    else
-			links_loop - "${url_out[$ck]}"
-		    fi
-		fi
-	    fi
-	done
-    fi
-}
+# 		if [ -z "${pid_alive[$ck]}" ]
+# 		then
+# 		    if [ -z "$test_completed" ]; then
+# 			rm -f "${file_out[$ck]}"
+# 		    else
+# 			links_loop - "${url_out[$ck]}"
+# 		    fi
+# 		fi
+# 	    fi
+# 	done
+#     fi
+# }
 
 
 function pipe_files {

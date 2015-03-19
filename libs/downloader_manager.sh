@@ -240,23 +240,6 @@ function check_in_loop {
     return 1
 }
 
-## si blocca con cygwin ###########
-###############################
-# function check_in_url {       
-#     if data_stdout
-#     then
-# 	if ! data=$(awk -f "$path_usr/libs/common.awk" \
-# 	    -f "$path_usr/libs/downloader_manager.awk" \
-# 	    -e "BEGIN {$awk_data result = check_in_url(\"$url_in\")} END {print data; exit result}")
-# 	then
-# 	    eval $data
-# 	    return 1
-# 	fi
-# 	eval $data
-#     fi
-#     return 0
-# }
-
 function check_in_url {       
     if data_stdout
     then
@@ -429,4 +412,3 @@ function kill_downloads {
 	[ ! -z "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
     fi
 }
-
