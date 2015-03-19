@@ -65,7 +65,7 @@ function check_stdout {
 	do
 	    if [[ ! "${downloader_out[$ck]}" =~ (RTMPDump|cURL) ]]
 	    then
-		if [ ! -z "${pid_alive[$ck]}" ]
+		if check_pid "${pid_out[$ck]}"
 		then
 		    test_repeated="${repeated[${pid_out[$ck]}]}"
 		    repeated[${pid_out[$ck]}]=$(tail -n 100 "$path_tmp/${file_out[$ck]}_stdout.tmp")
@@ -76,8 +76,8 @@ function check_stdout {
 			kill ${pid_out[$ck]} &>/dev/null
 		    fi
 		fi
-
-		if [ -z "${pid_alive[$ck]}" ]
+		length_saved[$ck]=$(size_file "${file_out[$ck]}")
+		if ! check_pid "${pid_out[$ck]}"
 		then
 		    already_there=$(cat "$path_tmp/${file_out[$ck]}_stdout.tmp" 2>/dev/null |grep 'already there; not retrieving.')
 
@@ -102,7 +102,7 @@ function check_stdout {
 			    (( length_out[$ck] != 0 )) && \
 			    (( length_saved[$ck] == length_out[$ck] )) && \
 			    (( length_out[$ck] > 0 )) )
-			then 
+			then
 			    [ ! -f "${file_out[$ck]}.st" ] && links_loop - "${url_out[$ck]}"
 			fi
 		    fi

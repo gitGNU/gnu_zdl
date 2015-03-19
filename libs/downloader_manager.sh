@@ -271,7 +271,7 @@ function check_in_url {
 		    [ -f "${file_out[$i]}" ] && \
 		    [ ! -f "${file_out[$i]}.st" ] && \
 		    (( length_saved[$i] != 0 )) && \
-		    (( length_saved[$i] == length_out[$i] )) && \
+		    (( length_saved[$i] == length_out[$i] )) || \
 		    (( percent_out[$i] == 100 )) \
 		    )
 		then
@@ -320,7 +320,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		    then
 			return 1
 		    fi
-		    length_saved=${length_saved[$i]} 
+		    length_saved=$(size_file "${file_out[$i]}") 
 		    [ -f "${alias_file_out[$i]}" ] && length_alias_saved=$(size_file "${alias_file_out[$i]}") || length_alias_saved=0
 		    if [[ "${length_out[$i]}" =~ ^[0-9]+$ ]] && ( (( ${length_out[$i]}>$length_saved )) && (( ${length_out[$i]}>$length_alias_saved )) ); then
 			length_check="${length_out[$i]}"
