@@ -242,46 +242,46 @@ function check_in_loop {
 
 ## si blocca con cygwin ###########
 ###############################
-function check_in_url {       
-    if data_stdout
-    then
-	if ! data=$(awk -f "$path_usr/libs/common.awk" \
-	    -f "$path_usr/libs/downloader_manager.awk" \
-	    -e "BEGIN {$awk_data result = check_in_url(\"$url_in\")} END {print data; exit result}")
-	then
-	    eval $data
-	    return 1
-	fi
-	eval $data
-    fi
-    return 0
-}
-
 # function check_in_url {       
 #     if data_stdout
 #     then
-# 	for ((i=0; i<${#pid_out[*]}; i++))
-# 	do
-# 	    if [ "${url_out[$i]}" == "$url_in" ]
-# 	    then
-# 		file_in="${file_out[$i]}" ## stesso URL => stesso filename
-
-# 		if check_pid ${pid_out[$i]} || \
-# 		    ( \
-# 		    [ -f "${file_out[$i]}" ] && \
-# 		    [ ! -f "${file_out[$i]}.st" ] && \
-# 		    (( length_saved[$i] != 0 )) && \
-# 		    (( length_saved[$i] == length_out[$i] )) || \
-# 		    (( percent_out[$i] == 100 )) \
-# 		    )
-# 		then
-# 		    return 1 ## no download
-# 		fi
-# 	    fi
-# 	done
+# 	if ! data=$(awk -f "$path_usr/libs/common.awk" \
+# 	    -f "$path_usr/libs/downloader_manager.awk" \
+# 	    -e "BEGIN {$awk_data result = check_in_url(\"$url_in\")} END {print data; exit result}")
+# 	then
+# 	    eval $data
+# 	    return 1
+# 	fi
+# 	eval $data
 #     fi
 #     return 0
 # }
+
+function check_in_url {       
+    if data_stdout
+    then
+	for ((i=0; i<${#pid_out[*]}; i++))
+	do
+	    if [ "${url_out[$i]}" == "$url_in" ]
+	    then
+		file_in="${file_out[$i]}" ## stesso URL => stesso filename
+
+		if check_pid ${pid_out[$i]} || \
+		    ( \
+		    [ -f "${file_out[$i]}" ] && \
+		    [ ! -f "${file_out[$i]}.st" ] && \
+		    (( length_saved[$i] != 0 )) && \
+		    (( length_saved[$i] == length_out[$i] )) || \
+		    (( percent_out[$i] == 100 )) \
+		    )
+		then
+		    return 1 ## no download
+		fi
+	    fi
+	done
+    fi
+    return 0
+}
 
 function check_in_file { 	## return --> no_download=1 / download=5
     sanitize_file_in
