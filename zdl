@@ -669,7 +669,6 @@ then
 		link="${link## }"
 		link="${link%% }"
 		links_loop + "${link// /%20}"
-		READLINE_LINE=" "
 	    fi
 	done
 	unset link
@@ -872,11 +871,11 @@ function main_loop {
 		    pipe_files
 		    check_stdout
 		    show_downloads
-		    no_msg=true
 		    num_dl=$(cat "$path_tmp/.dl-mode")
 
 		    if ! check_in_loop
 		    then
+			no_msg=true
 			break
 		    fi
 		    sleeping "$sleeping_pause"

@@ -282,23 +282,29 @@ function interactive {
 function clean_completed {
     if data_stdout
     then
-	last_out=$(( ${#pid_out[*]}-1 ))
-	for j in `seq 0 $last_out`; do
-	    length_saved=0
-	    [ -f "${file_out[$j]}" ] && length_saved=$(size_file "${file_out[$j]}")
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && [ "$length_saved" == "${length_out[$j]}" ]; then
+	for ((j=0; j<${#pid_out[*]}; j++))
+	do
+	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && \
+		(( length_saved[j] == length_out[$j] ))
+	    then
 		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 	    fi
 
-	    if [ ${downloader_out[$j]} == cURL ] && [ ! -z "${length_saved[$j]}" ] && (( "${length_saved[$j]}">0 )); then
-		if ! check_pid "${pid_out[$j]}"
+	    if [ "${downloader_out[$j]}" == "cURL" ] && \
+		[ ! -z "${length_saved[$j]}" ] && \
+		(( length_saved[$j]>0 ))
+	    then
+		if [ -z "${pid_alive[$j]}" ]
 		then
 		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
-	    if [ ${downloader_out[$j]} == RTMPDump ]; then
+	    if [ "${downloader_out[$j]}" == "RTMPDump" ]
+	    then
 		test_completed=$(tail -n1 "$path_tmp"/"${file_out[$j]}_stdout.tmp")
-		if ! check_pid "${pid_out[$j]}" && [ "$test_completed" == "Download complete" ]; then
+		if [ -z "${pid_alive[$j]}" ] && \
+		    [ "$test_completed" == "Download complete" ]
+		then
 		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
