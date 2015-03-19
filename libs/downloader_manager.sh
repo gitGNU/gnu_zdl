@@ -224,15 +224,16 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
 
-    for i in 0..5
-    do
-	if check_pid $pid_in
-	then
-	    return 0
-	fi
-	sleeping 0.5
-    done
-    return 1
+    # for i in 0..5
+    # do
+    # 	if check_pid $pid_in
+    # 	then
+    # 	    return 0
+    # 	fi
+    # 	sleeping 0.5
+    # done
+    sleeping 3
+    #return 1
 }
 
 function check_in_loop { 
