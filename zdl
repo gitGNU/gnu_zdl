@@ -662,12 +662,14 @@ then
 	    case $binding in
 		1) unset binding; break ;;
 	    esac
+
 	    read -e link
 	    if [ ! -z "${link// }" ]
 	    then
 		link="${link## }"
 		link="${link%% }"
 		links_loop + "${link// /%20}"
+		READLINE_LINE=" "
 	    fi
 	done
 	unset link
