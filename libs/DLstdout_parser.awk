@@ -27,6 +27,10 @@ function array_out (value, type) {
     code = code bash_array(type, i, value) 
 }
 
+function check_stdout () {
+    
+}
+
 function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
 
@@ -54,15 +58,26 @@ function progress_out (value,           progress_line) {
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
-	    system("cp .zdl_tmp/"file_out[i]"_stdout.tmp .zdl_tmp/"file_out[i]"_stdout.tmp.z")
+	    check_stdout()
+	    print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
-	    percent_out[i] = 0
-	    speed_out[i] = 0
-	    speed_out_type[i] = "KB/s"
-	    ## mancano ancora (secondi):
-	    eta_out[i] = ""
-	    length_saved[i] = 0
+	    if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
+		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow"
+		nr = 0
+		while (c | getline line) {
+		    nr++
+		    if (nr == 1) percent_out[i] = line
+		    if (nr == 2) speed_out[i] = line
+		    if (nr == 3) speed_out_type[i] = line
+		    if (nr == 4) eta_out[i] = line
+		    if (nr == 5) {
+			length_saved[i] = line
+			close(c)
+		    }
+		}
+
+	    }
 	}
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {

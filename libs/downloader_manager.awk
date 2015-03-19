@@ -32,7 +32,7 @@ function check_in_url (url_in) {
 		    exists(file_out[i]) &&				\
 		    ! exists(file_out[i] ".st") &&			\
 		    length_saved[i] != 0 &&				\
-		    length_saved[i] == length_out[i] &&			\
+		    length_saved[i] == length_out[i] ||			\
 		    percent_out[i] == 100				\
 		    )) return 1 ## no download
 	}

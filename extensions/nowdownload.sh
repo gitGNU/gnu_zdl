@@ -28,104 +28,6 @@
 ## zdl-extension name: Nowdownload
 
 # Nowdownload /Nowvideo
-function wise {
-    w="$1"
-    i="$2"
-    s="$3"
-    e="$4"
-    lIll=0;
-    ll1I=0;
-    Il1l=0;
-    ll1l=();
-    l1lI=();
-    while true; do
-	if (( $lIll<5 )); then
-	    l1lI+=( "${w:$lIll:1}" )
-	elif (( $lIll<${#w} )); then
-	    ll1l+=( "${w:$lIll:1}" )
-	fi
-	(( lIll++ ))
-	
-
-	if (( $ll1I<5 )); then
-	    l1lI+=( "${i:$ll1I:1}" )
-	elif (( $ll1I<${#i} )); then
-	    ll1l+=( "${i:$ll1I:1}" )
-	fi
-	(( ll1I++ ))
-		
-	if (( $Il1l<5 )); then
-	    l1lI+=( "${s:$Il1l:1}" )
-	elif (( $Il1l<${#s} )); then
-	    ll1l+=( "${s:$Il1l:1}" )
-	fi
-	(( Il1l++ ))
-	test1=$(( ${#w}+${#i}+${#s}+${#e} ))
-	test2=$(( ${#ll1l[*]}+${#l1lI[*]}+${#e} ))
-	if (( $test1 == $test2 )); then
-	    break
-	fi
-    done
-
-    lI1l="${ll1l[*]}"
-    lI1l="${lI1l//' '}"
-    I1lI="${l1lI[*]}"
-    I1lI="${I1lI//' '}"
-    ll1I=0
-    unset l1ll
-    l1ll=()
-    max=$(( ${#ll1l[*]}-1 ))
-
-    for lIll in $(seq 0 2 $max); do
-	ll11=-1;
-
-	char_code=$(char2code ${I1lI:$ll1I:1})
-	if (( $char_code%2 )); then 
-	    ll11=1
-	fi
-	
-	int=$(parse_int "${lI1l:$lIll:2}" 36)
-	code_char=$(code2char $(( $int-$ll11 )))
-	l1ll+=( "$code_char" )
-
-	(( ll1I++ ))
-	if (( $ll1I>=${#l1lI[*]} )); then
-	    ll1I=0
-	fi
-    done
-    join="${l1ll[*]}"
-    echo "${join//' '}"
-
-}
-
-function wise_2 {
-    lI1l=$1
-    I1lI=$2
-    ll1I=0
-    unset l1ll
-    l1ll=()
-    max=${#lI1l}
-    for lIll in $(seq 0 2 $max); do
-	ll11=-1;
-
-	char_code=$(char2code ${I1lI:$ll1I:1})
-	if (( $char_code%2 )); then 
-	    ll11=1
-	fi
-	
-	int=$(parse_int "${lI1l:$lIll:2}" 36)
-	code_char=$(code2char $(( $int-$ll11 )))
-	l1ll+=( "$code_char" )
-
-	(( ll1I++ ))
-	if (( $ll1I>=${#l1lI[*]} )); then
-	    ll1I=0
-	fi
-    done
-    join="${l1ll[*]}"
-    echo "${join//' '}"
-}
-
 
 function wise_args {
     code="${1##*'('}"
@@ -154,6 +56,7 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
     if [[ -z $(cat "$path_tmp"/zdl.tmp) ]]; then
 	break_loop=true
 	_log 2
+	sleeping $sleeping_pause
     else
 	test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
 	if [ ! -z "$test_file" ]; then
@@ -169,71 +72,53 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/now
 	    
 	else
 	    wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
-	    if [ ! -e "$path_usr/extensions/zdl-wise" ]; then
-		print_c 2 "Attendi: potrebbe impiegare qualche minuto"
-		wise_code=$( wise $( wise_args "$wise_code" ) )
-		wise_code=$( wise $( wise_args "$wise_code" ) )
-		wise_code=$( wise $( wise_args "$wise_code" ) )
+	    print_c 2 "Attendi circa 30 secondi:"
+	    k=`date +"%s"`
+	    s=0
+	    while true; do
+		touch "$path_tmp"/.wise-code
+		sleep 0.9
+		s=`date +"%s"`
+		s=$(( $s-$k ))
+		if [ ! -f "$path_tmp"/.wise-code ]; then
+		    break
+		fi
+		print_c 0 "$s\r\c"
+		if ! check_pid $pid_prog
+		then
+		    exit
+		fi
+	    done & 
+	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
+	    clean_countdown
 
-		unset url_in_file
-		preurl_in_file="${wise_code##*href=\"}"
-		preurl_in_file="${preurl_in_file%%\"*}"
-		preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
-		wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+	    unset url_in_file
+	    preurl_in_file="${wise_code##*href=\"}"
+	    preurl_in_file="${preurl_in_file%%\"*}"
+	    preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
+	    while true; do
+		if (( $s>30 )); then
+		    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+		fi
+		sleeping 1
+		s=`date +"%s"`
+		s=$(( $s-$k ))
+		print_c 0 "$s\r\c"
 		url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
 		url_in_file="${url_in_file#*href=\"}"
 		url_in_file="${url_in_file%%\"*}"
-		
-	    else
-		print_c 2 "Attendi circa 30 secondi:"
-		k=`date +"%s"`
-		s=0
-		while true; do
-		    touch "$path_tmp"/.wise-code
-		    sleep 0.9
-		    s=`date +"%s"`
-		    s=$(( $s-$k ))
-		    if [ ! -f "$path_tmp"/.wise-code ]; then
-			break
-		    fi
-		    print_c 0 "$s\r\c"
-		    if ! check_pid $pid_prog
-		    then
-			exit
-		    fi
-		done & 
-		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-		wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-		clean_countdown
-#	    kill $pid_counter &>/dev/null
-#	    bindings
-		unset url_in_file
-		preurl_in_file="${wise_code##*href=\"}"
-		preurl_in_file="${preurl_in_file%%\"*}"
-		preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
-		while true; do
-		    if (( $s>30 )); then
-			wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-		    fi
-		    sleeping 1
-		    s=`date +"%s"`
-		    s=$(( $s-$k ))
-		    print_c 0 "$s\r\c"
-		    url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
-		    url_in_file="${url_in_file#*href=\"}"
-		    url_in_file="${url_in_file%%\"*}"
-		    premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
-		    sleeping 0.1
-		    if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
-			break
-		    fi
-		    if ! check_pid $pid_prog
-		    then
-			exit
-		    fi
-		done
-	    fi
+		premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
+		sleeping 0.1
+		if [ ! -z "$url_in_file" ] || [ ! -z "$premium" ] || (( $s > 60 )); then
+		    break
+		fi
+		if ! check_pid $pid_prog
+		then
+		    exit
+		fi
+	    done
 	fi
 	if [ ! -z "$premium" ]; then
 	    _log 11
