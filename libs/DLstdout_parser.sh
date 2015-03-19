@@ -32,7 +32,7 @@ function data_stdout {
     shopt -u dotglob
     unset pid_alive
     if (( ${#check_tmps[*]}>0 )); then
-	awk_data=$(awk -f $path_usr/libs/common.awk -f $path_usr/libs/DLstdout_parser.awk "$path_tmp"/?*_stdout.tmp)
+	awk_data=$(awk -v url_in="$url_in" -f $path_usr/libs/common.awk -f $path_usr/libs/DLstdout_parser.awk "$path_tmp"/?*_stdout.tmp)
 	eval "$awk_data"
 	return 0
     else

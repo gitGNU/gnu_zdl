@@ -82,7 +82,7 @@ function download {
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
 		export AXEL_COOKIES="$path_tmp/cookies.zdl"
-		axel -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		axel -U "$user_agent" -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 
 	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 	    then
@@ -90,12 +90,12 @@ function download {
 		if [ ! -z "$COOKIES" ]
 		then
 		    headers="-H \"Cookie:$COOKIES\""
-		    axel -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		    axel -U "$user_agent" -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 		else
-		    axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		    axel -U "$user_agent" -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 		fi
 	    else
-		axel -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		axel -U "$user_agent" -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
 	    pid_in=$!
 	    echo -e "${pid_in}

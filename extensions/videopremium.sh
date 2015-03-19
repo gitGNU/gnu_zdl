@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: streaming
-## zdl-extension name: Videopremium
+## zdl-extension name: Videopremium (RTMP)
 
 ## API in php: ricava i dati da remoto (più lento)
 #

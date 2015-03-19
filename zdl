@@ -734,7 +734,7 @@ function main_loop {
 	    fi
 	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
 
-	    if check_in_url && ! check_in_loop 
+	    if ! check_in_loop && [ ! -z "$url_in" ] # && check_in_url
 	    then
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
@@ -869,7 +869,7 @@ function main_loop {
 		while true 
 		do
 		    pipe_files
-		    check_stdout
+#		    check_stdout
 		    show_downloads
 		    num_dl=$(cat "$path_tmp/.dl-mode")
 
@@ -892,7 +892,7 @@ function main_loop {
 	if [ -f "$path_tmp/links_loop.txt" ]; then
 	    start_file="$path_tmp/links_loop.txt"
 	fi
-	check_stdout
+#	check_stdout
 	[ -z "$no_msg" ] && show_downloads
 	unset no_msg
     else 

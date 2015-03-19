@@ -27,15 +27,80 @@ function array_out (value, type) {
     code = code bash_array(type, i, value) 
 }
 
-function check_stdout () {
-    
+function cat (file,      c, line, chunk) {
+    c = "cat " file
+    while (c | getline line) {
+	chunk = chunk line
+    }
+    close(c)
+    return chunk
 }
+
+function rm_line (line, file,       c, lines) {
+    c = "cat " file
+    while (c | getline test) {
+	if (line != test && test) {
+	    if (lines) test = "\n" test
+	    lines = lines test
+	}
+    }
+    close(c)
+    if (lines) {
+	print lines > file
+    } else {
+	system("rm -f "file)
+    }
+}
+
+function check_stdout () {
+    if (downloader_out[i] !~ /RTMPDump|cUrl/) {
+	if (pid_alive[i]) {
+	    test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
+	    if (test_stdout["new"] == test_stdout["old"] && \
+		exists(file_out[i] ".st") || \
+		! exists(file_out[i]))
+		system("kill -9 " pid_out[i] " 2>/dev/null")
+	}
+
+	if (! pid_alive[i]) {
+	    # if (! exists(file_out[i] ".st") && (			\
+	    # 	    (length_out[i] == 0) ||				\
+	    # 	    (length_out[i] &&					\
+	    # 	     length_out[i] > 0 &&				\
+	    # 	     length_saved[i] < length_out[i])			\
+	    # 	    )							\
+	    # 	)
+	    # 	system("rm -f " file_out[i])
+			
+	    if (length_saved[i] == length_out[i] &&			\
+		length_out[i] > 0 &&					\
+		! exists(file_out[i] ".st"))
+		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	}
+    }
+    if (pid_alive[i] && url_in == url_out[i])
+	code = code bash_var("url_in", "")
+
+    if (pid_alive[i]) {
+	for (d in pid_out) {
+	    if (i != d &&			\
+		url_out[i] == url_out[d] &&	\
+		file_out[i] != file_out[d])
+		system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
+	}
+    }
+}
+
 
 function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
 
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
+	    if (chunk[y] ~ "Downloaded") {
+	    	progress_end = chunk[y]
+	    	break
+	    } 
 	    if (chunk[y] ~ /[\%]+/) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
@@ -50,7 +115,10 @@ function progress_out (value,           progress_line) {
 	    }
 	}
 
-	if (progress_line) {
+	if (progress_end) {
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    bash_var("url_in", "")
+	} else if (progress_line) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
 	    if (speed_out[i] > 0) {
@@ -58,7 +126,6 @@ function progress_out (value,           progress_line) {
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
-	    check_stdout()
 	    print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
@@ -109,13 +176,20 @@ function progress_out (value,           progress_line) {
 	}
     } else if (dler == "RTMPDump") {
 	for (y=n; y>0; y--) {
+	    if (chunk[y] ~ "Download complete") {
+		progress_end = chunk[y]
+		break
+	    }
+
 	    if (chunk[y] ~ /\([0-9]+/) {
 		progress_line = chunk[y]
 		break
 	    }
 	}
 
-	if (progress_line) {
+	if (progress_end) {
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	} else if (progress_line) {
 	    cmd = "date +%s"
 	    cmd | getline this_time
 	    close(cmd)
@@ -130,6 +204,8 @@ function progress_out (value,           progress_line) {
 		speed_out[i] = (length_saved[i] / 1024) / elapsed_time
 		speed_out_type[i] = "KB/s"
 	    }
+	    if (! pid_alive[i] && length_saved[i] < length_out[i])
+		system("rm -f " file_out[i])
 	}
     } else if (dler == "cURL") {
 	for (y=n; y>0; y--) {
@@ -152,15 +228,19 @@ function progress_out (value,           progress_line) {
     array_out(eta_out[i], "eta_out")
     array_out(length_saved[i], "length_saved")
     array_out(percent_out[i], "percent_out")
+    check_stdout()
 }
 
 function progress () {
     ## estrae le ultime n righe e le processa con progress_out()
     for(k=0;k<n;k++) {
 	chunk[k] = progress_data[++j%n]
+	test_stdout["new"] = test_stdout["new"] chunk[k]
 	delete progress_data[j%n]
     }
+
     progress_out(chunk)
+    print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
     delete chunk
     j=0
 }
@@ -169,6 +249,7 @@ BEGIN {
     i=0
     j=0
     n=20
+    delete pid_alive
 }
 
 {
@@ -178,15 +259,25 @@ BEGIN {
 	    progress()
 	    i++
 	}
-	array_out($0, "pid_out")
-	if (check_pid($0)) array_out($0, "pid_alive")
+
+	pid_out[i] = $0
+	array_out(pid_out[i], "pid_out")
+
+	if (check_pid(pid_out[i])) {
+	    array_out(pid_out[i], "pid_alive")
+	    pid_alive[i] = pid_out[i]
+	}
     }
 
     progress_data[++j%n] = $0
 
-    if (FNR == 2) array_out($0, "url_out")
+    if (FNR == 2) {
+	url_out[i] = $0
+	array_out(url_out[i], "url_out")
+    }
     if (FNR == 3) {
 	dler = $0
+	downloader_out[i] = dler
 	array_out(dler, "downloader_out")
     }
     if (FNR == 4) array_out($0, "pid_prog_out")
@@ -195,22 +286,32 @@ BEGIN {
 	array_out(file_out[i], "file_out")
     }
     if (FNR == 6) {
-	if (dler ~ /Axel|Wget/) array_out($0, "url_out_file")
-	if (dler ~ /RTMPDump|cURL/) array_out($0, "streamer_out")
+	if (dler ~ /Axel|Wget/) {
+	    url_out_file[i] = $0
+	    array_out(url_out_file[i], "url_out_file")
+	} else if (dler ~ /RTMPDump|cURL/) {
+	    streamer_out[i] = $0
+	    array_out(streamer_out[i], "streamer_out")
+	}
     }
     if (FNR == 7) {
-	if (dler ~ /RTMPDump|cURL/) array_out($0, "playpath_out")
-	if (dler == "Axel") array_out($0, "axel_parts_out")
+	if (dler ~ /RTMPDump|cURL/) {
+	    playpath_out[i] = $0
+	    array_out(playpath_out[i], "playpath_out")
+	} else if (dler == "Axel") {
+	    axel_parts_out[i] = $0
+	    array_out(axel_parts_out[i], "axel_parts_out") 
+	}
     }
     if (FNR == 8) start_time = $0
 
     if ($0 ~ /Content-Length:/ && dler == "Wget") {
 	length_out[i] = $2
-	code = code "length_out["i"]=\"" length_out[i] "\"; "
+	array_out(length_out[i], "length_out")
     }
     if ($0 ~ /File\ size:/ && dler == "Axel") {
 	length_out[i] = $3
-	code = code "length_out["i"]=\"" length_out[i] "\"; "
+	array_out(length_out[i], "length_out")
     }
 } 
 
