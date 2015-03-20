@@ -135,7 +135,6 @@ function interactive {
 	echo $no_complete
 	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
-	unset no_complete
 	num_dl=$(cat "$path_tmp/.dl-mode")
 	
 	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
@@ -196,10 +195,9 @@ function interactive {
 <${BRed} T ${Color_Off}> ${BRed}t${Color_Off}erminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
 
 <${BGreen} p ${Color_Off}> riprodurre (${BGreen}p${Color_Off}lay) i file audio/video
-<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancellare i file temporanei dei download completati
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
-		echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | c | * ):${Color_Off}\n"
+		echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
 		stty echo
 		read -e input2
 		stty -echo
@@ -237,10 +235,6 @@ function interactive {
 			links_loop - "${url_out[$i]}"
 		    done
 
-		elif [ "$input2" == "c" ]
-		then
-		    no_complete=true
-
 		elif [ "$input2" == "p" ]
 		then
 		    if [ -z "$player" ]
@@ -277,6 +271,8 @@ function interactive {
 	elif [ "$action" == "c" ]
 	then
 	    no_complete=true
+	    data_stdout
+	    unset no_complete
 	
 	elif [ "$action" == "q" ]
 	then
