@@ -138,7 +138,9 @@ function human_length { ## input in bytes
 
 function interactive {
     trap "trap SIGINT; stty echo; exit" SIGINT
-    while true ; do
+
+    while true
+    do
 	header_z
 	header_box_interactive "Modalità interattiva"
 	echo
@@ -178,7 +180,9 @@ function interactive {
 	stty -echo
 	read -e -n 1 -t 15 action
 	cursor on
-	if [ "$action" == "s" ]; then
+
+	if [ "$action" == "s" ]
+	then
 	    fclear
 	    header_z
 	    echo
@@ -188,7 +192,9 @@ function interactive {
 	    stty echo
 	    read -e input
 	    stty -echo
-	    if [ ! -z "$input" ]; then
+
+	    if [ ! -z "$input" ]
+	    then
 		unset inputs
 		inputs=( $input )
 		echo
@@ -207,70 +213,111 @@ function interactive {
 		stty echo
 		read -e input2
 		stty -echo
-		for ((i=0; i<${#inputs[*]}; i++)); do
+		for ((i=0; i<${#inputs[*]}; i++))
+		do
 		    [[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
 		done
-		if [ "$input2" == "r" ]; then
-		    for i in ${inputs[*]}; do
+
+		if [ "$input2" == "r" ]
+		then
+		    for i in ${inputs[*]}
+		    do
 			kill -9 ${pid_out[$i]} &>/dev/null
-			if [ ! -f "${file_out[$i]}.st" ]; then
+			if [ ! -f "${file_out[$i]}.st" ]
+			then
 			    rm -f "${file_out[$i]}" 
 			fi
 		    done
-		elif [ "$input2" == "E" ]; then
-		    for i in ${inputs[*]}; do
+
+		elif [ "$input2" == "E" ]
+		then
+		    for i in ${inputs[*]}
+		    do
 			kill -9 ${pid_out[$i]} &>/dev/null
 			rm -f "${file_out[$i]}" "${file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done
-		elif [ "$input2" == "T" ]; then
-		    for i in ${inputs[*]}; do
+
+		elif [ "$input2" == "T" ]
+		then
+		    for i in ${inputs[*]}
+		    do
 			kill -9 ${pid_out[$i]} &>/dev/null
 			rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 			links_loop - "${url_out[$i]}"
 		    done
-		elif [ "$input2" == "c" ]; then
+
+		elif [ "$input2" == "c" ]
+		then
 		    clean_completed
-		elif [ "$input2" == "p" ]; then
-		    if [ -z "$player" ]; then
+
+		elif [ "$input2" == "p" ]
+		then
+		    if [ -z "$player" ]
+		    then
 			configure_key 10
 			get_conf
 		    fi
-		    if [ ! -z "$player" ]; then
-			for ii in ${inputs[*]}; do
+
+		    if [ ! -z "$player" ]
+		    then
+			for ii in ${inputs[*]}
+			do
 			    playing_files="$playing_files ${file_out[$ii]// /\\ }"
 			done
+			
 			echo "ecco:$player $playing_files"
 			$player $playing_files &>/dev/null &
 		    fi
 		fi
 	    fi
-	elif [[ "$action" =~ ^[1-9]+$ ]]; then
+
+	elif [[ "$action" =~ ^[1-9]+$ ]]
+	then
 	    echo "$action" > "$path_tmp/.dl-mode"
-	elif [ "$action" == "m" ]; then
+	
+	elif [ "$action" == "m" ]
+	then
 	    echo > "$path_tmp/.dl-mode"
-	elif [ "$action" == "e" ]; then
+	
+	elif [ "$action" == "e" ]
+	then
 	    $editor "$path_tmp/links_loop.txt"
-	elif [ "$action" == "c" ]; then
+	
+	elif [ "$action" == "c" ]
+	then
 	    clean_completed
-	elif [ "$action" == "q" ]; then
+	
+	elif [ "$action" == "q" ]
+	then
 	    fclear
 	    break
-	elif [ "$action" == "a" ]; then
+	
+	elif [ "$action" == "a" ]
+	then
 	    echo "Axel" > "$path_tmp/.downloader"
-	elif [ "$action" == "w" ]; then
+	
+	elif [ "$action" == "w" ]
+	then
 	    echo "Wget" > "$path_tmp/.downloader"
-	elif [ "$action" == "Q" ]; then
+	
+	elif [ "$action" == "Q" ]
+	then
 	    kill "$daemon_pid"
 	    unset daemon_pid
-	elif [ "$action" == "K" ]; then
+
+	elif [ "$action" == "K" ]
+	then
 	    kill_downloads
 	    [ ! -z "$daemon_pid" ] && kill -9 "$daemon_pid" && unset daemon_pid &>/dev/null
 	    check_instance_prog
 	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid &>/dev/null
-	elif [ "$action" == "d" ] && [ -z "$tty" ]; then
+
+	elif [ "$action" == "d" ] && [ -z "$tty" ]
+	then
 	    zdl --daemon &>/dev/null
 	fi
+
 	unset action input2
     done
     echo -e "\e[0m\e[J"
@@ -285,27 +332,28 @@ function clean_completed {
 	for ((j=0; j<${#pid_out[*]}; j++))
 	do
 	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && \
-		(( length_saved[j] == length_out[$j] ))
+		(( length_saved[j] == length_out[j] ))
 	    then
-		rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+		rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
 	    fi
 
 	    if [ "${downloader_out[$j]}" == "cURL" ] && \
 		[ ! -z "${length_saved[$j]}" ] && \
-		(( length_saved[$j]>0 ))
+		(( length_saved[j]>0 ))
 	    then
-		if [ -z "${pid_alive[$j]}" ]
+		if ! check_pid "${pid_out[$j]}"
 		then
-		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+		    rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
+
 	    if [ "${downloader_out[$j]}" == "RTMPDump" ]
 	    then
-		test_completed=$(tail -n1 "$path_tmp"/"${file_out[$j]}_stdout.tmp")
-		if [ -z "${pid_alive[$j]}" ] && \
+		test_completed=$(tail -n1 "$path_tmp/${file_out[$j]}_stdout.tmp")
+		if ! check_pid "${pid_out[$j]}" && \
 		    [ "$test_completed" == "Download complete" ]
 		then
-		    rm  "$path_tmp"/"${file_out[$j]}_stdout.tmp"
+		    rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
 		fi
 	    fi
 	done

@@ -96,6 +96,8 @@ function progress_out (value,           progress_line) {
 	if (progress_end) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	    bash_var("url_in", "")
+	    length_saved[i] = size_file(file_out[i])
+	    percent_out[i] = 100
 	} else if (progress_line) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
@@ -104,11 +106,12 @@ function progress_out (value,           progress_line) {
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
+	    
 	    print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
 	    if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
-		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow"
+		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow 2>/dev/null"
 		nr = 0
 		while (c | getline line) {
 		    nr++
