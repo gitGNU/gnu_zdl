@@ -37,7 +37,7 @@ function check_stdout () {
 	    	! exists(file_out[i]))
 	    	system("kill -9 " pid_out[i] " 2>/dev/null")
 
-	    ## cancella download di file con nome di verso per uno stesso link/url
+	    ## cancella download di file con nome diverso per uno stesso link/url
 	    for (d in pid_out) {
 		if (i != d &&			\
 		    url_out[i] == url_out[d] &&	\
@@ -60,10 +60,10 @@ function check_stdout () {
 	# 	)
 	# 	system("rm -f " file_out[i])
 			
-	if (length_saved[i] == length_out[i] &&				\
-	    length_out[i] > 0 &&					\
-	    ! exists(file_out[i] ".st"))
-	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	# if (length_saved[i] == length_out[i] &&				\
+	#     length_out[i] > 0 &&					\
+	#     ! exists(file_out[i] ".st"))
+	#     rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 
 	if (url_in == url_out[i])
 	    code = code bash_var("file_in", file_out[i])
@@ -79,9 +79,9 @@ function check_stdout () {
 		 length_saved[i]>0 )			\
 		||					\
 		progress_end[i]				\
-		)
+		) {
 		system("rm -f .zdl_tmp/" file_out[i] "_stdout.tmp")
-
+	    }
 	}
     }
 }
