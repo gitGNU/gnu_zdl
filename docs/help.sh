@@ -194,7 +194,7 @@ Per informazioni e per collaborare al progetto:
 
 Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz
-" 
+" | less
     echo
     echo
     exit 1

@@ -32,9 +32,10 @@ function check_stdout () {
 	if (pid_alive[i]) {
 	    test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
 	    if (test_stdout["new"] == test_stdout["old"] && \
-		exists(file_out[i] ".st") || \
-		! exists(file_out[i]))
-		system("kill -9 " pid_out[i] " 2>/dev/null")
+	    	downloader_out[i] == "Axel" &&		    \
+	    	exists(file_out[i] ".st") ||		    \
+	    	! exists(file_out[i]))
+	    	system("kill -9 " pid_out[i] " 2>/dev/null")
 
 	    ## cancella download di file con nome di verso per uno stesso link/url
 	    for (d in pid_out) {
@@ -44,27 +45,43 @@ function check_stdout () {
 		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
 	    }
 
-	    if (url_in == url_out[i])
-		code = code bash_var("url_in", "")
 	}
+    }
+    if (pid_alive[i] && url_in == url_out[i])
+	code = code bash_var("url_in", "")
 
-	if (! pid_alive[i]) {
-	    # if (! exists(file_out[i] ".st") && (			\
-	    # 	    (length_out[i] == 0) ||				\
-	    # 	    (length_out[i] &&					\
-	    # 	     length_out[i] > 0 &&				\
-	    # 	     length_saved[i] < length_out[i])			\
-	    # 	    )							\
-	    # 	)
-	    # 	system("rm -f " file_out[i])
+    if (! pid_alive[i]) {
+	# if (! exists(file_out[i] ".st") && (			\
+	# 	    (length_out[i] == 0) ||				\
+	# 	    (length_out[i] &&					\
+	# 	     length_out[i] > 0 &&				\
+	# 	     length_saved[i] < length_out[i])			\
+	# 	    )							\
+	# 	)
+	# 	system("rm -f " file_out[i])
 			
-	    if (length_saved[i] == length_out[i] &&			\
-		length_out[i] > 0 &&					\
-		! exists(file_out[i] ".st"))
-		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	if (length_saved[i] == length_out[i] &&				\
+	    length_out[i] > 0 &&					\
+	    ! exists(file_out[i] ".st"))
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 
-	    if (url_in == url_out[i])
-		code = code bash_var("file_in", file_out[i])
+	if (url_in == url_out[i])
+	    code = code bash_var("file_in", file_out[i])
+
+	if (no_complete) {
+	    if (					\
+		(exists(file_out[i]) &&			\
+		 ! exists(file_out[i])".st" &&		\
+		 length_saved[i] == length_out[i])	\
+		||					\
+		(downloader_out[i] == "cURL" &&		\
+		 ! length_saved[i] &&			\
+		 length_saved[i]>0 )			\
+		||					\
+		progress_end[i]				\
+		)
+		system("rm -f .zdl_tmp/" file_out[i] "_stdout.tmp")
+
 	}
     }
 }
@@ -76,7 +93,7 @@ function progress_out (value,           progress_line) {
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "Downloaded") {
-	    	progress_end = chunk[y]
+	    	progress_end[i] = chunk[y]
 	    	break
 	    } 
 	    if (chunk[y] ~ /[\%]+/) {
@@ -88,12 +105,12 @@ function progress_out (value,           progress_line) {
 	    if (chunk[y] ~ /[K]+/) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
-		speed_out[i] = progress_elems[length(progress_elems)-1]
+		speed_out[i] = int(progress_elems[length(progress_elems)-1])
 		if (percent_out[i]) break
 	    }
 	}
 
-	if (progress_end) {
+	if (progress_end[i]) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	    bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
@@ -101,8 +118,8 @@ function progress_out (value,           progress_line) {
 	} else if (progress_line) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
-	    if (speed_out[i] > 0) {
-		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / speed_out[i])
+	    if (int(speed_out[i]) != 0 && int(speed_out[i]) > 0) {
+		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / int(speed_out[i]))
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
@@ -158,7 +175,7 @@ function progress_out (value,           progress_line) {
     } else if (dler == "RTMPDump") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "Download complete") {
-		progress_end = chunk[y]
+		progress_end[i] = chunk[y]
 		break
 	    }
 
@@ -168,7 +185,7 @@ function progress_out (value,           progress_line) {
 	    }
 	}
 
-	if (progress_end) {
+	if (progress_end[i]) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	} else if (progress_line) {
 	    cmd = "date +%s"

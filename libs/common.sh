@@ -42,15 +42,6 @@ function size_file {
 }
 
 
-# function check_instance_daemon {
-#     if daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1}{check_instance_daemon()} END {exit result}")
-#     then
-# 	return 1
-#     else
-#     	return 0
-#     fi
-# }
-
 function check_instance_daemon {
     [ -d /cygdrive ] && cyg_condition='&& ($2 == 1)'
     if daemon_pid="$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")"
@@ -88,7 +79,6 @@ function redirect_links {
     exit 1
 }
 
-
 function is_rtmp {
     for h in ${rtmp[*]}; do
 	[ "$1" != "${1//$h}" ] && return 1
@@ -105,25 +95,32 @@ function sanitize_file_in {
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
 }
 
+###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):
+##
 function zdl-ext {
     ## $1 == (download|streaming)
-    while read line; do
+    while read line
+    do
 	test_ext_type=$(grep "## zdl-extension types:" < $path_usr/extensions/$line 2>/dev/null |grep "$1")
-	if [ ! -z "$test_ext_type" ]; then
+	if [ ! -z "$test_ext_type" ]
+	then
 	    grep '## zdl-extension name:' < $path_usr/extensions/$line 2>/dev/null | sed -r 's|.*(## zdl-extension name: )(.+)|\2|g' |sed -r 's|\, |\n|g'
 	fi
     done <<< "$(ls -1 $path_usr/extensions/)"
 }
-
 function zdl-ext-sorted {
     local extensions
-    while read line; do
+    while read line
+    do
 	extensions="${extensions}$line\n"
     done <<< "$(zdl-ext $1)"
     extensions=${extensions%\\n}
 
     echo $(sed -r 's|$|, |g' <<< "$(echo -e "${extensions}" |sort)") |sed -r 's|(.+)\,$|\1|g'
 }
+##
+####################
+
 
 function line_file { 	## usage with op=+|- : links_loop $op $link
     op="$1"                    ## operator
@@ -164,7 +161,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 	    in) 
 		if [ -f "$file_target" ]
 		then
-		    if [[ "$(cat "$file_target")" =~ "$item" ]]
+		    if [[ "$(cat "$file_target" 2>/dev/null)" =~ "$item" ]]
 		    then 
 			return 0
 		    fi
@@ -234,10 +231,14 @@ function link_parser {
     return 1
 }
 
-function clean_file {
-    if [ -f "$1" ]; then
+function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
+    if [ -f "$1" ]
+    then
 	local file_to_clean="$1"
-	if [ -f "$path_tmp/rewriting" ];then
+
+	## impedire scrittura non-lineare da più istanze di ZDL
+	if [ -f "$path_tmp/rewriting" ]
+	then
 	    while [ -f "$path_tmp/rewriting" ]; do
 		sleeping 0.1
 	    done

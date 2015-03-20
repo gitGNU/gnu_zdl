@@ -239,7 +239,10 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    cd "$directory"
 	    mkdir -p "${path_tmp}"
 	    
-	    if [ -e "$cfile" ]; then cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl" ; fi
+	    if [ -e "$cfile" ]
+	    then
+		cat "$cfile" >> "$path_tmp/flashgot_cfile.zdl"
+	    fi
 	    echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 
 	    url_in="${url_in%'#20%'}"
@@ -681,7 +684,7 @@ then
     if [ -f "$start_file" ];then
 	clean_file "$start_file"
 	if [ -f "$start_file" ];then
-	    cat "$start_file" >> links.txt
+	    cat "$start_file" >> links.txt 2>/dev/null
 	else
 	    if [ "$daemon" != "true" ]; then
 		print_c 3 "$name_prog: nessun link da processare in $PWD"
@@ -715,7 +718,7 @@ function main_loop {
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]; then
-	links_in=$(cat "$start_file")
+	links_in=$(cat "$start_file" 2>/dev/null)
 	if [ -f "$path_tmp/.dl-mode" ];then
 	    unset num_dl
 	    num_dl=$(cat "$path_tmp/.dl-mode")
@@ -735,7 +738,7 @@ function main_loop {
 	    if [ -f "$path_tmp/.downloader" ]; then
 		downloader_in=$(cat "$path_tmp/.downloader")
 	    fi
-	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
+#	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
 
 	    if ! check_in_loop && [ ! -z "$url_in" ]
 	    then
@@ -796,7 +799,7 @@ function main_loop {
 		## streaming downloader
 		    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
 		    for item in ${items[*]}; do
-			url=`cat "$item"`
+			url=$(cat "$item" 2>/dev/null)
 			if [ "${url%% }" == "$url_in" ]; then
 			    item="${item// /_}"
 			    file_in="${item#*filename_}"

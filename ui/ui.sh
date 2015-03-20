@@ -43,7 +43,6 @@ function show_downloads_extended {
     check_instance_daemon
     if [ $? == 1 ]; then
 	print_c 1 "$PROG è attivo in modalità demone\n"
-#	daemon_pid=$test_pid
     else
 	check_instance_prog
 	if [ $? == 1 ]; then
@@ -54,7 +53,12 @@ function show_downloads_extended {
     fi
     if data_stdout
     then
-	awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=1 -e "BEGIN {$awk_data display()}" 
+	awk -f $path_usr/libs/common.awk          \
+	    -f $path_usr/ui/colors.awk.sh         \
+	    -f $path_usr/ui/ui.awk                \
+	    -v col="$COLUMNS"                     \
+	    -v extended=1                         \
+	    -e "BEGIN {$awk_data display()}" 
     fi
 }
 
@@ -120,21 +124,6 @@ function run_editor {
     fi
 }
 
-function human_length { ## input in bytes
-    if [ ! -z $1 ]; then
-	length_B=$1
-	length_K=$(( $length_B/1024 ))
-	length_M=$(( $length_K/1024 ))
-	if (( $length_M>0 )); then
-	    length_H="${length_M} MB"
-	elif (( $length_K>0 )); then
-	    length_H="${length_K} KB"
-	else
-	    length_H="${length_B} B"
-	fi
-    fi
-}
-
 
 function interactive {
     trap "trap SIGINT; stty echo; exit" SIGINT
@@ -143,12 +132,13 @@ function interactive {
     do
 	header_z
 	header_box_interactive "Modalità interattiva"
-	echo
-	unset tty list file_stdout file_out alias_file_out url_out downloader_out pid_out length_out
+	echo $no_complete
+	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
+	unset no_complete
 	num_dl=$(cat "$path_tmp/.dl-mode")
 	
-	#[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
+	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
 	if [ -z "$num_dl" ]
 	then
 	    num_downloads=illimitati
@@ -249,7 +239,7 @@ function interactive {
 
 		elif [ "$input2" == "c" ]
 		then
-		    clean_completed
+		    no_complete=true
 
 		elif [ "$input2" == "p" ]
 		then
@@ -286,7 +276,7 @@ function interactive {
 	
 	elif [ "$action" == "c" ]
 	then
-	    clean_completed
+	    no_complete=true
 	
 	elif [ "$action" == "q" ]
 	then
@@ -323,41 +313,6 @@ function interactive {
     echo -e "\e[0m\e[J"
     stty echo
     exit
-}
-
-
-function clean_completed {
-    if data_stdout
-    then
-	for ((j=0; j<${#pid_out[*]}; j++))
-	do
-	    if [ -f "${file_out[$j]}" ] && [ ! -f "${file_out[$j]}.st" ] && \
-		(( length_saved[j] == length_out[j] ))
-	    then
-		rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
-	    fi
-
-	    if [ "${downloader_out[$j]}" == "cURL" ] && \
-		[ ! -z "${length_saved[$j]}" ] && \
-		(( length_saved[j]>0 ))
-	    then
-		if ! check_pid "${pid_out[$j]}"
-		then
-		    rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
-		fi
-	    fi
-
-	    if [ "${downloader_out[$j]}" == "RTMPDump" ]
-	    then
-		test_completed=$(tail -n1 "$path_tmp/${file_out[$j]}_stdout.tmp")
-		if ! check_pid "${pid_out[$j]}" && \
-		    [ "$test_completed" == "Download complete" ]
-		then
-		    rm -f "$path_tmp/${file_out[$j]}_stdout.tmp"
-		fi
-	    fi
-	done
-    fi
 }
 
 function sleeping {

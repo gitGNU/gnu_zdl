@@ -94,7 +94,7 @@ function cat (file,      c, line, chunk) {
 }
 
 function rm_line (line, file,       c, lines) {
-    c = "cat " file
+    c = "cat " file " 2>/dev/null"
     while (c | getline test) {
 	if (line != test && test) {
 	    if (lines) test = "\n" test
