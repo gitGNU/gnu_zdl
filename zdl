@@ -116,8 +116,11 @@ fi
 
 
 if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ -d "${args[$i]}" ]; then
+    for i in `seq 0 $max_args`
+    do
+	if [ -d "${args[$i]}" ]
+	then
+	    BASE_DIR="$PWD/"
 	    cd "${args[$i]}"
 	    unset args[$i]
 #	    break
@@ -602,13 +605,13 @@ if [ ! -z "${args[*]}" ]; then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
     for i in `seq 0 $max_args`
     do
-	if [ -f "${args[$i]}" ]
+	if [ -f "${BASE_DIR}${args[$i]}" ]
 	then
 	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]
 	    then
-		add_container $(cat "${args[$i]}") # container_file)
+		add_container $(cat "${BASE_DIR}${args[$i]}") # container_file)
 	    else
-		links=$(cat "${args[$i]}")
+		links=$(cat "${BASE_DIR}${args[$i]}")
 		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
 	    fi
 	elif [ ! -z "${args[$i]}" ]
