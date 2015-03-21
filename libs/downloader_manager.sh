@@ -111,6 +111,7 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
 		COOKIES="$path_tmp/cookies.zdl"
+
 	    elif [ -f "$path_tmp"/flashgot_cfile.zdl ]
 	    then
 		COOKIES="$path_tmp/flashgot_cfile.zdl"

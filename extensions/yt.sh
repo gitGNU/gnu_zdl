@@ -34,8 +34,8 @@ if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
     url_in=$(urldecode "$url_in")
     links_loop + "$url_in"
     videoType="mp4"
-    html=$(wget -q "$url_in" -O -)
-    #html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies /dev/null --no-check-certificate "$url_in" -O - ) || _log 8 
+    ## html=$(wget -q "$url_in" -O -)
+    html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl --no-check-certificate "$url_in" -O - ) || _log 8 
 
     if [[ "$html" =~ \<title\>(.+)\<\/title\> ]]; then
 	title="${BASH_REMATCH[1]}"
