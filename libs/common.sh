@@ -89,10 +89,12 @@ function is_rtmp {
 function sanitize_file_in {
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"
-    file_in="${file_in//[\[\]\(\)]}"
+    file_in="${file_in//[\[\]\(\)]/-}"
     file_in="${file_in##*/}"
     file_in="$(htmldecode "$file_in")"
-    file_in="${file_in//&/and}"
+    file_in="${file_in//'&'/and}"
+    file_in="${file_in//'#'}"
+    file_in="${file_in//';'}"
     file_in="${file_in::240}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
 }
