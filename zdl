@@ -788,25 +788,15 @@ function main_loop {
 			new_ip_proxy
 		    fi
 		    
-		    # if data_stdout
-		    # then 
-		    # 	for ((j=0; j<${#pid_out[*]}; i++))
-		    # 	do
-		    # 	    if [ "$url_in" == "${url_out[$j]}" ]; then
-		    # 		file_in="${file_out[$j]}"
-		    # 		break
-		    # 	    fi
-		    # 	done
-		    # fi	
 		 
 		## streaming downloader
 		    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
-		    for item in ${items[*]}; do
+		    for item in ${items[*]}
+		    do
 			url=$(cat "$item" 2>/dev/null)
 			if [ "${url%% }" == "$url_in" ]; then
 			    item="${item// /_}"
 			    file_in="${item#*filename_}"
-			    file_in="${file_in::240}"
 			    file_in="${file_in%.txt}"
 			    break
 			fi

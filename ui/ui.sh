@@ -30,7 +30,8 @@ function show_downloads {
 	then
 	    awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=0 -e "BEGIN {$awk_data display()}" 
 	fi
-	sleep $sleeping_pause
+    else
+	data_stdout
     fi
 }
 
