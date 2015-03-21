@@ -61,6 +61,7 @@ max_waiting=40
 sleeping_pause=3
 [ -d /cygdrive ] && sleeping_pause=2
 
+
 function set_default_conf {
     mkdir -p "$path_conf"
     touch "$file_conf"
@@ -328,4 +329,5 @@ function init {
     [ -z "$editor" ] && check_editor
 
     trap_sigint
+
 }

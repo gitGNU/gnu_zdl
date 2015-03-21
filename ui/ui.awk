@@ -62,7 +62,7 @@ function separator () {
 }
 
 function show_downloads_extended () {
-    for (i in pid_out) {
+    for (i=0; i<length(pid_out); i++) {
 	length_H = human_length(length_out[i])
 	title = "Numero download: "i
 	box = header(title, " ", White, On_Blue)
@@ -110,7 +110,7 @@ function show_downloads_extended () {
 }
 
 function show_downloads () {
-    for (i in pid_out) {
+    for (i=0; i<length(pid_out); i++) {
 	code = code BBlue "File: " Color_Off file_out[i] BBlue "\nLink: " Color_Off url_out[i] "\n"
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
