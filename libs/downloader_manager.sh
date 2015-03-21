@@ -130,8 +130,7 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 		argout="--trust-server-names"
 	    fi
 
-##	wget -t 1 -T $max_waiting --no-check-certificate --retry-connrefused -c -nc --load-cookies=$COOKIES $method_post "$url_in_file" -S  $argout "$fileout" -a "$path_tmp/${file_in}_stdout.tmp" & 
-
+            ## -t 1 -T $max_waiting 
 	    wget --user-agent="$user_agent" \
 		--no-check-certificate \
 		--retry-connrefused \
