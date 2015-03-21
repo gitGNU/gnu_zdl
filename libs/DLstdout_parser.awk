@@ -28,13 +28,15 @@ function array_out (value, type) {
 }
 
 function check_stdout () {
+    if (check_pid(pid_out[i]))
+	pid_alive[i] = pid_out[i]
+
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
 	    test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
 	    if (test_stdout["new"] == test_stdout["old"] && \
 	    	downloader_out[i] == "Axel" &&		    \
-	    	exists(file_out[i] ".st") ||		    \
-	    	! exists(file_out[i]))
+	    	exists(file_out[i] ".st"))
 	    	system("kill -9 " pid_out[i] " 2>/dev/null")
 
 	    ## cancella download di file con nome diverso per uno stesso link/url
@@ -51,24 +53,24 @@ function check_stdout () {
 	code = code bash_var("url_in", "")
 
     if (! pid_alive[i]) {
-	# if (! exists(file_out[i] ".st") && (			\
-	# 	    (length_out[i] == 0) ||				\
-	# 	    (length_out[i] &&					\
-	# 	     length_out[i] > 0 &&				\
-	# 	     length_saved[i] < length_out[i])			\
-	# 	    )							\
-	# 	)
-	# 	system("rm -f " file_out[i])
+	if (! exists(file_out[i] ".st") && (			\
+		    (length_out[i] == 0) ||				\
+		    (length_out[i] &&					\
+		     length_out[i] > 0 &&				\
+		     length_saved[i] < length_out[i])			\
+		    )							\
+		)
+		system("rm -f " file_out[i])
 			
-	# if (length_saved[i] == length_out[i] &&				\
-	#     length_out[i] > 0 &&					\
-	#     ! exists(file_out[i] ".st"))
-	#     rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	if (length_saved[i] == length_out[i] &&				\
+	    length_out[i] > 0 &&					\
+	    ! exists(file_out[i] ".st"))
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 
 	if (url_in == url_out[i])
 	    code = code bash_var("file_in", file_out[i])
 
-	if (no_complete) {
+	if (no_complete == "true") {
 	    if (					\
 		(exists(file_out[i]) &&			\
 		 ! exists(file_out[i])".st" &&		\
@@ -84,6 +86,9 @@ function check_stdout () {
 	    }
 	}
     }
+    if (check_pid(pid_out[i]))
+	pid_alive[i] = pid_out[i]
+
 }
 
 

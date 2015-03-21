@@ -245,13 +245,13 @@ function interactive {
 
 		    if [ ! -z "$player" ]
 		    then
-			for ii in ${inputs[*]}
+			for i in ${inputs[*]}
 			do
-			    playing_files="$playing_files ${file_out[$ii]// /\\ }"
+			    playing_files="$playing_files ${file_out[$i]// /\\ }"
 			done
 			
-			echo "ecco:$player $playing_files"
 			$player $playing_files &>/dev/null &
+			unset playing_files
 		    fi
 		fi
 	    fi

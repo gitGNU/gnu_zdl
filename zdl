@@ -718,6 +718,7 @@ function main_loop {
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]; then
+	clean_file "$start_file"
 	links_in=$(cat "$start_file" 2>/dev/null)
 	if [ -f "$path_tmp/.dl-mode" ];then
 	    unset num_dl
@@ -740,8 +741,10 @@ function main_loop {
 	    fi
 #	    [ "$no_complete" == true ] && clean_completed ## opzione --no-complete
 
-	    if ! check_in_loop && [ ! -z "$url_in" ]
+	    if ! check_in_loop
 	    then
+		[ -z "$url_in" ] && break
+		
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"

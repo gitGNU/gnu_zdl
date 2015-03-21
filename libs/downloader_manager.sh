@@ -223,7 +223,9 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
-    sleeping 3
+
+    ## è necessario aspettare qualche secondo
+    countdown- 4
 }
 
 function check_in_loop { 

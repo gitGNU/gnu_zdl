@@ -42,9 +42,9 @@ function check_instance_daemon () {
 function check_pid (pid,   test) {
     cmd = "ps ax | grep -P \"^[ A-Z]*" pid "\" 2>/dev/null"
     cmd | getline test
-    split(test, array_test, " ")
+    split(test, array_test, " ") 
     close(cmd)
-    if (pid == array_test[1]) {
+    if (pid == array_test[1] || pid == array_test[2]) {
 	return 1
     } else {
 	return 0
@@ -93,19 +93,24 @@ function cat (file,      c, line, chunk) {
     return chunk
 }
 
-function rm_line (line, file,       c, lines) {
-    c = "cat " file " 2>/dev/null"
-    while (c | getline test) {
-	if (line != test && test) {
-	    if (lines) test = "\n" test
-	    lines = lines test
-	}
-    }
-    close(c)
-    if (lines) {
-	print lines > file
-    } else {
-	system("rm -f "file)
-    }
-}
+# function rm_line (line, file,       c, lines) {
+#     c = "cat " file " 2>/dev/null"
+#     while (c | getline test) {
+# 	if (line != test && test) {
+# 	    if (lines)
+# 		test = "\n" test
+# 	    lines = lines test
+# 	}
+#     }
+#     close(c)
+#     if (lines) {
+#      	print lines > file
+#     } else {
+#     	system("rm -f "file)
+#     }
+# }
 
+
+function rm_line (line, file) {
+    code = code "line_file - \"" line "\" \"" file "\"; "
+}

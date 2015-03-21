@@ -164,6 +164,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	    eta = ""
 	}		    
     }
+
     if (! int(percent_out[i])) percent_out[i] = 0
     size_bar = (col-40) * int(percent_out[i])/100
     diff_size_bar = (col-40) - size_bar
