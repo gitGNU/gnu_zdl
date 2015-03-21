@@ -51,23 +51,33 @@ function data_stdout {
 
 function pipe_files {
     [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
-    for i in $(seq 0 ${#file_out[*]}); do
-	if [ ! -z "${length_out[$i]}" ]; then
-	    if [ "${downloader_out[$i]}" == "Axel" ]; then
+    
+    for i in $(seq 0 ${#file_out[*]})
+    do
+	if [ ! -z "${length_out[$i]}" ]
+	then
+	    if [ "${downloader_out[$i]}" == "Axel" ]
+	    then
 		denum=$(( $axel_parts*100 ))
 	    else
 		denum=100
 	    fi
-	    [ -z "${num_percent[$i]}" ] && num_percent[$i]=0
-	    length_down=$(( ${length_out[$i]}*${num_percent[$i]}/$denum ))
+	    [ -z "${percent_out[$i]}" ] && percent_out[$i]=0
+	    length_down=$(( length_out[$i] * percent_out[$i] / $denum ))
 	    case ${type_speed[$i]} in
-		KB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 )) ;;
-		MB/s) num_speed[$i]=$(( ${num_speed[$i]} * 1024 * 1024 )) ;;
+		KB/s) speed_out[$i]=$(( speed_out[$i] * 1024 ))
+		    ;;
+		MB/s) speed_out[$i]=$(( speed_out[$i] * 1024 * 1024 ))
+		    ;;
 	    esac
-	    if [ -f "${file_out[$i]}" ] && ( ( (( "$length_down">5000000 )) && (( ${num_speed[$i]}>200000 )) ) || ( ((  "${length_saved[$i]}" == ${length_out[$i]} )) && [ ! -f "${file_out[$i]}.st" ] ) || [ -f "$print_out" ] ); then
-		if [ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]; then
-		    echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
-		fi
+	    
+	    if [ -f "${file_out[$i]}" ] && \
+		( ( (( "$length_down">5000000 )) && (( speed_out[$i] > 200000 )) ) || \
+		( ((  length_saved[$i] == length_out[$i] )) && [ ! -f "${file_out[$i]}.st" ] ) || \
+		[ -f "$print_out" ] ) && \
+		[ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]
+	    then
+		echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
 	    else
 		listpipe=$(cat "$path_tmp"/pipe_files.txt 2>/dev/null)
 		listpipe="${listpipe//${file_out[$i]}}"
@@ -80,24 +90,35 @@ function pipe_files {
 
 
 function _out {
-    if [ -f "$path_tmp"/pipe_files.txt ]; then
+    if [ -f "$path_tmp"/pipe_files.txt ]
+    then
 	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
-	if ! check_pid $pid_pipe_out && [ ! -z "$pipe_out" ]; then
+	
+	if ! check_pid $pid_pipe_out && [ ! -z "$pipe_out" ]
+	then
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
-	    if [ ! -z "${outfiles[*]}" ]; then
+
+	    if [ ! -z "${outfiles[*]}" ]
+	    then
 		nohup $pipe_out ${outfiles[*]} &>/dev/null &
 		pid_pipe_out="$!"
 		echo $pid_pipe_out > "$path_tmp"/pid_pipe
 		pipe_done=1
 	    fi
-	elif [ ! -z "$print_out" ]; then
+
+	elif [ ! -z "$print_out" ]
+	then
 	    unset test_piped
-	    while read line; do
-		if [ -f "$print_out" ]; then
-		    while read piped; do
+	    while read line
+	    do
+		if [ -f "$print_out" ]
+		then
+		    while read piped
+		    do
 			[ "$piped" == "$line" ] && test_piped=1 && break
 		    done < "$print_out"
 		fi
+
 		[ ! -z "$line" ] && [ -z "$test_piped" ] && echo "$line" >> "$print_out"
 		unset test_piped
 	    done < "$path_tmp"/pipe_files.txt
