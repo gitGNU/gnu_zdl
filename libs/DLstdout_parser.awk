@@ -33,11 +33,15 @@ function check_stdout () {
 
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
-	    test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
-	    if (test_stdout["new"] == test_stdout["old"] && \
-	    	downloader_out[i] == "Axel" &&		    \
-	    	exists(file_out[i] ".st"))
-	    	system("kill -9 " pid_out[i] " 2>/dev/null")
+	    if (num_check == 3){
+		test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
+		if (test_stdout["new"] == test_stdout["old"] && \
+		    downloader_out[i] == "Axel" &&		\
+		    exists(file_out[i] ".st")) {
+		    system("kill -9 " pid_out[i] " 2>/dev/null")
+		    code = code bash_var("num_check", "0")
+		}
+	    }
 
 	    ## cancella download di file con nome diverso per uno stesso link/url
 	    for (d in pid_out) {
@@ -53,15 +57,15 @@ function check_stdout () {
 	code = code bash_var("url_in", "")
 
     if (! pid_alive[i]) {
-	if (! exists(file_out[i] ".st") && (			\
-		    (length_out[i] == 0) ||				\
-		    (length_out[i] &&					\
-		     length_out[i] > 0 &&				\
-		     length_saved[i] < length_out[i])			\
-		    )							\
-		)
-		system("rm -f " file_out[i])
-			
+	if (! exists(file_out[i] ".st") && (	   		        \
+		(length_out[i] == 0) ||					\
+		(length_out[i] &&					\
+		 length_out[i] > 0 &&					\
+		 length_saved[i] < length_out[i])			\
+		)							\
+	    )
+	    system("rm -f " file_out[i])
+	
 	if (length_saved[i] == length_out[i] &&				\
 	    length_out[i] > 0 &&					\
 	    ! exists(file_out[i] ".st"))
@@ -243,7 +247,8 @@ function progress () {
     }
 
     progress_out(chunk)
-    print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
+    if (num_check == 1)
+	print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
     delete chunk
     j=0
 }

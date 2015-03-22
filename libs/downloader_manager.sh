@@ -225,7 +225,7 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
 
     ## è necessario aspettare qualche secondo
-    countdown- 4
+    countdown- 5
 }
 
 function check_in_loop { 

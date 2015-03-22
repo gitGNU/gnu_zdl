@@ -31,7 +31,7 @@ key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Do
 key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
 key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
 key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
-key_conf[4]=num_dl;        val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
+key_conf[4]=num_dl;           val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
 key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="Aspetto (color)"
 key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"

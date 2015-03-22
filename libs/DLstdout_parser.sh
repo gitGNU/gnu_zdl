@@ -31,12 +31,14 @@ function data_stdout {
     shopt -u nullglob
     shopt -u dotglob
     unset pid_alive
+    [ -z "$num_check" ] && num_check=0
 
     if (( ${#check_tmps[*]}>0 ))
     then
 	awk_data=$(awk                                \
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
+	    -v num_check=$(( num_check++ ))           \
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
 	    "$path_tmp"/?*_stdout.tmp                 \

@@ -494,8 +494,33 @@ File: zdl.info,  Node: Controllare i download,  Next: Manuali d'uso,  Prev: Arre
 Controllare i download: recupero, eliminazione, arresto, riavvio...
 *******************************************************************
 
-Pagina da rielaborare sulla base dei nuovi sviluppi del software.
+I download possono essere controllati in modalità diverse in base al
+tipo di operazione da effettuare.  l'avvio da terminale permette
+l'esecuzione delle operazioni elencate nella presentazione del comando:
+*Note Il comando ZDL::. Poiché ZDL può essere chiuso senza interrompere
+i download, questa modalità di controllo può essere adottata in ogni
+momento, a esecuzione già avviata:
+   - se avviato in modalità standard, digitare `M-q' (tasti `<Alt>+<q>')
 
+   - da modalità interattiva, digitare `Q' (tasti `<Shift>+<q>')
+
+   Una volta chiuso senza interruzione dei download, ZDL può essere
+riavviato utilizzando nuove opzioni.
+I download di ZDL possono essere controllati in modo diretto attraverso
+la modalità interattiva, che può essere attivata da quella standard
+digitando `M-i' (tasti `<Alt>+<i>') o da un qualsiasi terminale _Bash_
+e dalla stessa directory di download, utilizzando l'opzione
+`-i|--interactive'. Se non è attiva alcuna istanza di avvio e gestione
+automatica dei download, dall'interfaccia interattiva è possibile
+avviare la modalità _demone_, che agisce in background come _server_ ed
+è indipendente dal terminale di avvio. Per gestire i download e la
+stessa chiusura di ZDL in modalità demone, è comunque necessario
+utilizzare l'interfaccia interattiva, che ha funzione di _client_.
+I comandi sono elencati nella stessa interfaccia interattiva: è
+possibile modificare il numero massimo di download (da 1 a 9 oppure
+illimitati), il tipo di downloader da utilizzare (Axel o Wget), avviare
+l'editor predefinito per modificare
+   *
 
 File: zdl.info,  Node: Manuali d'uso,  Next: Creare nuove estensioni,  Prev: Controllare i download,  Up: Top
 
@@ -859,15 +884,15 @@ Node: Servizi streaming/hosting9853
 Node: Avviare ZDL12636
 Node: Arrestare ZDL15074
 Node: Controllare i download16179
-Node: Manuali d'uso16486
-Node: Creare nuove estensioni16921
-Node: Software consigliati18501
-Node: Conkeror19609
-Node: zdl-xterm e XXXTerm/Xombrero20620
-Node: Installazione e aggiornamento22544
-Node: Tags24868
-Node: Copying27027
-Node: Contatti28077
+Node: Manuali d'uso17988
+Node: Creare nuove estensioni18423
+Node: Software consigliati20003
+Node: Conkeror21111
+Node: zdl-xterm e XXXTerm/Xombrero22122
+Node: Installazione e aggiornamento24046
+Node: Tags26370
+Node: Copying28529
+Node: Contatti29579
 
 End Tag Table
 
