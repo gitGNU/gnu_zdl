@@ -59,7 +59,7 @@ max_waiting=40
 
 ## durata attesa 
 sleeping_pause=3
-[ -d /cygdrive ] && sleeping_pause=2
+#[ -d /cygdrive ] && sleeping_pause=2
 
 
 function set_default_conf {

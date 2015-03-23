@@ -714,7 +714,7 @@ then
 	echo >> links.txt 2>/dev/null
 	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
-	print_c 1 "L'elenco completo dei link è in links.txt"
+	print_c 1 "L'elenco completo dei link è in links.txt\n"
     fi
 fi
 
