@@ -81,7 +81,7 @@ function commands_box {
 }
 
 function links_box {
-    header_box "Links"
+    header_box "Readline: URL e link dei servizi"
     services_box
     commands_box
     separator-
