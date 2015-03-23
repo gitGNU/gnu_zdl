@@ -81,23 +81,34 @@ function commands_box {
 
 }
 
-function links_box {
+function standard_box {
     header_box "Modalità in standard output"
+    print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     services_box
     commands_box
     header_box "Readline: immetti URL e link dei servizi"
 }
 
-function interactive_and_return {
+function change_mode {
+    local cmd=$1
+
     touch "$path_tmp/.stop_stdout"
-    stty echo
-    zdl -i >&1
-    stty -echo
+    if [ $cmd == "interactive" ]
+    then
+	stty echo
+	zdl -i >&1
+	stty -echo
+    elif [ $cmd == "editor" ]
+    then
+	$editor $path_tmp/links_loop.txt
+    fi
+
     rm -f "$path_tmp/.stop_stdout"
     header_z
+    header_box "Modalità in standard output"
     [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    header_box "Modalità in standard output"
+
     commands_box
     if [ -z "$binding" ]
     then
@@ -108,26 +119,6 @@ function interactive_and_return {
 	header_box "Readline: immetti URL e link dei servizi"
     fi
 }
-
-function run_editor {
-    touch "$path_tmp/.stop_stdout"
-    $editor $path_tmp/links_loop.txt
-    rm -f "$path_tmp/.stop_stdout"
-    header_z
-    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    header_box "Modalità in standard output"
-    commands_box
-    
-    if [ -z "$binding" ]
-    then
-	separator-
-	print_c 1 "\n..."
-	export READLINE_LINE="e"
-    else
-	header_box "Readline: immetti URL e link dei servizi"
-    fi
-}
-
 
 function interactive {
     trap "trap SIGINT; stty echo; exit" SIGINT

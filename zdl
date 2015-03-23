@@ -44,7 +44,6 @@ source $path_usr/ui/ui.sh
 
 function update_updater {
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
-
     header_box "Aggiornamento automatico di $name_prog"
 
     mkdir -p "$path_tmp"
@@ -723,7 +722,7 @@ then
 else
     echo $downloader_in > "$path_tmp/.downloader"
 fi
-[ "$daemon" != "true" ] && print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+
 
 if [ -z "$start_file" ]
 then
@@ -732,8 +731,9 @@ then
     if [ $? != 1 ]; then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
-    if [ -z "$from_editor" ] && [ -z "$daemon" ]; then
-	links_box
+    if [ -z "$from_editor" ] && [ -z "$daemon" ]
+    then
+	standard_box
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
 	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
 	binding=0

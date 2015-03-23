@@ -187,8 +187,8 @@ function clean_countdown {
 function bindings {
     trap_sigint
     check_instance_prog
-    bind -x "\"\ei\":\"interactive_and_return\"" 2>/dev/null
-    bind -x "\"\ee\":\"run_editor\"" 2>/dev/null
+    bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
+    bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
 }
