@@ -33,13 +33,13 @@ function check_stdout () {
 
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
-	    if (num_check == 3){
+	    if (num_check > 4){
+		code = code bash_var("num_check", "0")
 		test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
 		if (test_stdout["new"] == test_stdout["old"] && \
 		    downloader_out[i] == "Axel" &&		\
 		    exists(file_out[i] ".st")) {
 		    system("kill -9 " pid_out[i] " 2>/dev/null")
-		    code = code bash_var("num_check", "0")
 		}
 	    }
 
@@ -246,9 +246,9 @@ function progress () {
 	delete progress_data[j%n]
     }
 
-    progress_out(chunk)
-    if (num_check == 1)
+    if (num_check < 2)
 	print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
+    progress_out(chunk)
     delete chunk
     j=0
 }

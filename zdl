@@ -81,7 +81,8 @@ function update_updater {
 args=( "$@" )
 
 tags=( `ps ax |sed -n '1p'` )
-for i in `seq 0 $(( ${#tags[*]}-1 ))`; do
+for ((i=0; i<=$(( ${#tags[*]}-1 )); i++))
+do
     j=$(( $i+1 ))
     [ "${tags[$i]}" == "PID" ] && ps_ax_pid="\$$j"
     [ "${tags[$i]}" == "TTY" ] && ps_ax_tty="\$$j"
@@ -90,10 +91,12 @@ done
 ## è una pipe?
 stdin="$(ls -l /dev/fd/0)"
 stdin="${stdin/*-> /}"
-if [ "${stdin}" != "${stdin//'pipe:['}" ]; then    
+if [ "${stdin}" != "${stdin//'pipe:['}" ]
+then    
     pipe=$(cat /dev/fd/0)
     exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
-    for pipezed in $pipe; do
+    for pipezed in $pipe
+    do
 	args[${#args[*]}]="$pipezed"
     done
     unset pipe
@@ -101,10 +104,14 @@ fi
 
 max_args=$(( ${#args[*]}-1 ))
 
-if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]; then
-    for i in `seq 0 $max_args`; do
-	if [[ "${args[$i]}" =~ ^-[a-zA-Z]+$ ]]; then
-	    for ((j=1; j<${#args[$i]}; j++)); do
+if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^-[a-zA-Z]+$ ]]
+	then
+	    for ((j=1; j<${#args[$i]}; j++))
+	    do
 	        args[${#args[*]}]="-${args[$i]:$j:1}"
 	    done
 	    args[$i]=${args[$(( ${#args[*]}-1 ))]}
@@ -115,8 +122,9 @@ if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]; then
 fi
 
 
-if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]; then
-    for i in `seq 0 $max_args`
+if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]
+then
+    for ((i=0; i<=$max_args; i++))
     do
 	if [ -d "${args[$i]}" ]
 	then
@@ -131,8 +139,10 @@ fi
 #### MAIN
 init
 
-if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]]; then
-    for i in $(seq 0 $max_args); do
+if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^\-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp)$ ]]; then
 	    [[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
 	    unset args[$i]
@@ -141,23 +151,31 @@ if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]
     done
 fi
 
-if [[ "${args[*]}" =~ (--editor|-e) ]]; then
-    for i in $(seq 0 $max_args); do
-	if [[ "${args[$i]}" =~ ^(--editor|-e)$ ]]; then
+if [[ "${args[*]}" =~ (--editor|-e) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--editor|-e)$ ]]
+	then
 	    unset args[$i]
 	    from_editor=true
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--silent}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--silent" ]; then
+if [ "${args[*]}" != "${args[*]//--silent}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == "--silent" ]
+	then
 	    unset args[$i]
 	    daemon="true"
 	    sleeping_pause=5
 	fi
-	if [ "${args[$i]}" == "$PWD" ]; then
+
+	if [ "${args[$i]}" == "$PWD" ]
+	then
 	    unset args[$i]
 	fi
     done
@@ -165,15 +183,21 @@ fi
 
 
 ## conkeror
-if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
-    if [ "$daemon" != "true" ]; then 
-	if [ -z "$DISPLAY" ]; then
+if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]
+then
+    if [ "$daemon" != "true" ]
+    then 
+	if [ -z "$DISPLAY" ]
+	then
 	    export DISPLAY=":0"
 	fi
+
 	url="${args[*]%'--zigzag-xterm'*}"
 	parameters="${args[*]#*'--zigzag-xterm'}"
 	parameters="${parameters%'--cwd'*}"
-	if [ -e "/cygdrive" ]; then
+
+	if [ -e "/cygdrive" ]
+	then
 	    dest_dir="${args[*]#*'--cwd'}"
 	    dest_dir=$(cygpath -u "$dest_dir")
 	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
@@ -188,25 +212,33 @@ if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]; then
 fi
 
 
-if [ "${args[*]}" != "${args[*]//--stream}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--stream" ]; then 
+if [ "${args[*]}" != "${args[*]//--stream}" ]
+then
+    for ((i=0; i<=$max_args; i++)) 
+    do
+	if [ "${args[$i]}" == "--stream" ]
+	then 
 	## zdl --stream [URL] [FNAME] [FOLDER] [CFILE] [COOKIE] [REFERER]
 	## zdl --stream [URL] [FNAME] --noXterm
-	    if [ -z "$DISPLAY" ]; then
+	    if [ -z "$DISPLAY" ]
+	    then
 		export DISPLAY=":0"
 	    fi
 	    url_in="$2"
 	    url_in="${url_in// /20%}"	    
 	    test_dir_3="$3"
 	    test_dir_4="$4"
-	    if [ -e "/cygdrive" ]; then
+	    if [ -e "/cygdrive" ]
+	    then
 		test_dir_3=$(cygpath -u "$test_dir_3")
 		test_dir_4=$(cygpath -u "$test_dir_4")
 	    fi 
-	    if [ ! -d "$test_dir_3" ]; then
+
+	    if [ ! -d "$test_dir_3" ]
+	    then
 		file_in="$test_dir_3"
-		if [ "$test_dir_4" != "--noXterm" ] && [ -d "$test_dir_4" ]; then
+		if [ "$test_dir_4" != "--noXterm" ] && [ -d "$test_dir_4" ]
+		then
 		    directory="$test_dir_4"
 		fi
 	    else
@@ -214,8 +246,10 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 		unset file_in
 	    fi
 
-	    if [ "$file_in" != "${file_in//'/'/}" ]; then
-		if [ -z "$directory" ]; then
+	    if [ "$file_in" != "${file_in//'/'/}" ]
+	    then
+		if [ -z "$directory" ]
+		then
 		    directory="${file_in%/*}"
 		fi
 		file_in="${file_in##*/}"
@@ -227,7 +261,8 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 	    cookie="$6"
 	    referer="$7"
 
-	    if [ "$url_in" != "${url_in//nowvideo.}" ] && [ ! -e "/cygdrive" ]; then
+	    if [ "$url_in" != "${url_in//nowvideo.}" ] && [ ! -e "/cygdrive" ]
+	    then
 		referer="$6"
 		ext="${file_in##*.}"
 		file_in2=`wget "$referer" -O - -q | grep "&amp;title="`
@@ -247,10 +282,11 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 
 	    url_in="${url_in%'#20%'}"
 	    echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
-	    if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]; then
+	    if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]
+	    then
 		export pid_prog=$$
-		check_instance_prog
-		if [ "$?" == "1" ]; then
+		if ! check_instance_prog
+		then
 		    links_loop + "$url_in"
 		    xterm_stop=true
 		    links="$url_in"
@@ -267,9 +303,12 @@ if [ "${args[*]}" != "${args[*]//--stream}" ]; then
 fi
 
 ## --stop deve precedere --mp3|--flac
-if [ "${args[*]}" != "${args[*]//--stop}" ]; then
-    for i in `seq 0 $max_args`; do
-	if [ "${args[$i]}" == "--stop" ]; then 
+if [ "${args[*]}" != "${args[*]//--stop}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == "--stop" ]
+	then 
 	    unset args[$i]
 	    xterm_stop=true
 	fi
@@ -277,10 +316,14 @@ if [ "${args[*]}" != "${args[*]//--stop}" ]; then
 fi
 
 
-if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
-    for i in `seq 0 $max_args`; do
-	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]; then 
-	    if [ -z "$(command -v ffmpeg 2>/dev/null)$(command -v avconv 2>/dev/null)" ]; then
+if [[ "${args[*]}" =~ (--mp3|--flac) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]
+	then 
+	    if [ -z "$(command -v ffmpeg 2>/dev/null)$(command -v avconv 2>/dev/null)" ]
+	    then
 		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
 		exit
 	    fi
@@ -296,9 +339,11 @@ if [[ "${args[*]}" =~ (--mp3|--flac) ]]; then
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
-	    for ((i=1; i<=$(wc -l < $file_output); i++)); do
+	    for ((i=1; i<=$(wc -l < $file_output); i++))
+	    do
 		line=$(sed -n ${i}p < $file_output)
-		if [[ "$(file --mime-type $line -d ' ' -f 2 $line 2>/dev/null)" =~ (audio|video) ]]; then
+		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
+		then
 		    print_c 4 "Conversione del file: $line"
 		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
@@ -313,7 +358,8 @@ fi
 
 
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
 	    unset args[$i]
 	    check_instance_prog
@@ -341,7 +387,8 @@ fi
 export pid_prog=$$
 
 if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
 	    unset args[$i]
 	    usage
@@ -350,7 +397,8 @@ if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}
 fi
 
 if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
 	    unset args[$i]
 	    interactive
@@ -371,20 +419,23 @@ header_z
 
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
 	    unset args[$i]
 	    rm -f "$path_conf"/*.sig
 	fi
     done
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
 	    unset args[$i]
 	    update_updater
 	fi
     done
 elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
 	    unset args[$i]
 	    rm "$path_conf"/*.sig
@@ -394,7 +445,8 @@ elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interacti
 fi
 
 if [ "${args[*]}" != "${args[*]//--reconnect}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == "--reconnect" ]; then
 	    unset args[$i]
 	    reconnect_sh=true
@@ -403,7 +455,8 @@ if [ "${args[*]}" != "${args[*]//--reconnect}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
 	    unset args[$i] num_dl
 	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]; then
@@ -418,7 +471,8 @@ fi
 
 
 if [ "${args[*]}" != "${args[*]//--ip}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--ip' ]; then 
 	    unset args[$i]
 	    my_ip
@@ -427,7 +481,8 @@ if [ "${args[*]}" != "${args[*]//--ip}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--login}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--login' ]; then 
 	    unset args[$i]
 	    login=1
@@ -437,7 +492,8 @@ fi
 
 
 if [ "${args[*]}" != "${args[*]//--wget}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--wget' ]; then 
 	    unset args[$i]
 	    downloader_in=Wget
@@ -447,7 +503,8 @@ if [ "${args[*]}" != "${args[*]//--wget}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--axel}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--axel' ]; then 
 	    unset args[$i]
 	    downloader_in=Axel
@@ -457,7 +514,8 @@ if [ "${args[*]}" != "${args[*]//--axel}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--clean}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" == '--clean' ]; then 
 	    unset args[$i]
 	    ( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)" )
@@ -466,7 +524,8 @@ if [ "${args[*]}" != "${args[*]//--clean}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(\-\-configure|\-c)$ ]]; then 
 	    unset args[$i]
 	    configure
@@ -475,7 +534,8 @@ if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]
 fi
 
 if [ "${args[*]}" != "${args[*]//--out=}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]; then
 	    if [ -e "$(command -v $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]; then
 		pipe_out="${args[$i]#'--out='}"
@@ -500,7 +560,8 @@ if [ "${args[*]}" != "${args[*]//--out=}" ]; then
 fi
 
 if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
 	    
 	    if [ "${args[$i]}" == '--proxy' ]; then
@@ -540,7 +601,8 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
 fi
 
 if [[ "${args[*]}" =~ (-r|--resume) ]]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(-r|--resume)$ ]]; then 
 	    unset args[$i]
 	    resume=enabled
@@ -549,7 +611,8 @@ if [[ "${args[*]}" =~ (-r|--resume) ]]; then
 fi
 
 if [[ "${args[*]}" =~ \-\-no-file=[^\ ]+ ]]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]; then
 	    no_file_regex=$(sed -r 's;--no-file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
 	    unset args[$i]
@@ -558,7 +621,8 @@ if [[ "${args[*]}" =~ \-\-no-file=[^\ ]+ ]]; then
 fi
 
 if [[ "${args[*]}" =~ \-\-file=[^\ ]+ ]]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(--file=[^\ ]+)$ ]]; then
 	    file_regex=$(sed -r 's;--file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
 	    unset args[$i]
@@ -567,7 +631,8 @@ if [[ "${args[*]}" =~ \-\-file=[^\ ]+ ]]; then
 fi
 
 if [[ "${args[*]}" =~ \-\-no-rev ]]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]; then
 	    no_file_regex='\.rev&'
 	    unset args[$i]
@@ -576,7 +641,8 @@ if [[ "${args[*]}" =~ \-\-no-rev ]]; then
 fi
 
 if [[ "${args[*]}" =~ \-\-no-sub ]]; then
-    for i in `seq 0 $max_args`; do
+    for ((i=0; i<=$max_args; i++))
+    do
 	if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]; then
 	    no_file_regex='[Ss]ub'
 	    unset args[$i]
@@ -586,8 +652,10 @@ fi
 
 
 if [[ "${args[*]}" =~ \-\-no-complete ]]; then
-    for i in `seq 0 $max_args`; do
-	if [[ "${args[$i]}" =~ ^(--no-complete)$ ]]; then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--no-complete)$ ]]
+	then
 	    no_complete=true
 	    unset args[$i]
 	fi
@@ -595,7 +663,8 @@ if [[ "${args[*]}" =~ \-\-no-complete ]]; then
 fi
 
 
-for i in `seq 0 $max_args`; do
+for ((i=0; i<=$max_args; i++))
+do
     if [ "${args[$i]}" != "${args[$i]#-}" ]; then
 	print_c 3 "${args[$i]}: argomento non valido"
 	echo
@@ -604,9 +673,10 @@ for i in `seq 0 $max_args`; do
 done
 
 
-if [ ! -z "${args[*]}" ]; then
+if [ ! -z "${args[*]}" ]
+then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
-    for i in `seq 0 $max_args`
+    for ((i=0; i<=$max_args; i++))
     do
 	if [ -f "${BASE_DIR}${args[$i]}" ]
 	then
@@ -635,7 +705,9 @@ if [ ! -z "${args[*]}" ]; then
 	    fi
 	fi
     done
-    if [ -f "$path_tmp"/links_loop.txt ];then 
+
+    if [ -f "$path_tmp"/links_loop.txt ]
+    then 
 	start_file="$path_tmp/links_loop.txt"
 	clean_file "$start_file"
 	echo >> links.txt 2>/dev/null
@@ -645,7 +717,8 @@ if [ ! -z "${args[*]}" ]; then
     fi
 fi
 
-if [ -f "$path_tmp/.downloader" ]; then
+if [ -f "$path_tmp/.downloader" ]
+then
     downloader_in=$(cat "$path_tmp/.downloader")
 else
     echo $downloader_in > "$path_tmp/.downloader"

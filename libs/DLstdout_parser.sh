@@ -32,13 +32,13 @@ function data_stdout {
     shopt -u dotglob
     unset pid_alive
     [ -z "$num_check" ] && num_check=0
-
+    (( num_check++ ))
     if (( ${#check_tmps[*]}>0 ))
     then
 	awk_data=$(awk                                \
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
-	    -v num_check=$(( num_check++ ))           \
+	    -v num_check="$num_check"           \
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
 	    "$path_tmp"/?*_stdout.tmp                 \
@@ -54,36 +54,34 @@ function data_stdout {
 function pipe_files {
     [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
     
-    for i in $(seq 0 ${#file_out[*]})
+    for ((i=0; i<=${#file_out[*]}; i++))
     do
 	if [ ! -z "${length_out[$i]}" ]
 	then
 	    if [ "${downloader_out[$i]}" == "Axel" ]
 	    then
-		denum=$(( $axel_parts*100 ))
+		denum=$(( axel_parts * 100 ))
 	    else
 		denum=100
 	    fi
 	    [ -z "${percent_out[$i]}" ] && percent_out[$i]=0
-	    length_down=$(( length_out[$i] * percent_out[$i] / $denum ))
-	    case ${type_speed[$i]} in
-		KB/s) speed_out[$i]=$(( speed_out[$i] * 1024 ))
+	    length_down=$(( length_out[i] * percent_out[i] / denum ))
+	    case ${speed_out_type[$i]} in
+		KB/s) speed_out[$i]=$(( speed_out[i] * 1024 ))
 		    ;;
-		MB/s) speed_out[$i]=$(( speed_out[$i] * 1024 * 1024 ))
+		MB/s) speed_out[$i]=$(( speed_out[i] * 1024 * 1024 ))
 		    ;;
 	    esac
 	    
 	    if [ -f "${file_out[$i]}" ] && \
-		( ( (( "$length_down">5000000 )) && (( speed_out[$i] > 200000 )) ) || \
-		( ((  length_saved[$i] == length_out[$i] )) && [ ! -f "${file_out[$i]}.st" ] ) || \
+		( ( (( length_down > 5000000 )) && (( speed_out[i] > 200000 )) ) || \
+		( ((  length_saved[i] == length_out[i] )) && [ ! -f "${file_out[$i]}.st" ] ) || \
 		[ -f "$print_out" ] ) && \
 		[ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]
 	    then
 		echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
 	    else
-		listpipe=$(cat "$path_tmp"/pipe_files.txt 2>/dev/null)
-		listpipe="${listpipe//${file_out[$i]}}"
-		echo -e "$listpipe" > "$path_tmp"/pipe_files.txt
+		line_file - "${file_out[$i]}" "$path_tmp"/pipe_files.txt
 	    fi
 	fi
     done
