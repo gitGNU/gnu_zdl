@@ -76,16 +76,16 @@ function commands_box {
 <${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
 
 <${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
+<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]
+"
 
 }
 
 function links_box {
-    header_box "Readline: URL e link dei servizi"
+    header_box "Modalità in standard output"
     services_box
     commands_box
-    separator-
-    echo
+    header_box "Comandi di readline: immetti URL e link dei servizi"
 }
 
 function interactive_and_return {
@@ -97,14 +97,15 @@ function interactive_and_return {
     header_z
     [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    header_box "Modalità standard"
+    header_box "Modalità in standard output"
     commands_box
-    separator-
-    echo
     if [ -z "$binding" ]
     then
-	print_c 1 "..."
+	separator-
+	print_c 1 "\n..."
 	export READLINE_LINE="i"
+    else
+	header_box "Comandi di readline: immetti URL e link dei servizi"
     fi
 }
 
@@ -114,14 +115,16 @@ function run_editor {
     rm -f "$path_tmp/.stop_stdout"
     header_z
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    header_box "Modalità standard"
+    header_box "Modalità in standard output"
     commands_box
-    separator-
-    echo
+    
     if [ -z "$binding" ]
     then
-	print_c 1 "..."
+	separator-
+	print_c 1 "\n..."
 	export READLINE_LINE="e"
+    else
+	header_box "Comandi di readline: immetti URL e link dei servizi"
     fi
 }
 
