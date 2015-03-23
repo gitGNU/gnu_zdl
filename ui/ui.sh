@@ -85,7 +85,7 @@ function links_box {
     header_box "Modalità in standard output"
     services_box
     commands_box
-    header_box "Comandi di readline: immetti URL e link dei servizi"
+    header_box "Readline: immetti URL e link dei servizi"
 }
 
 function interactive_and_return {
@@ -105,7 +105,7 @@ function interactive_and_return {
 	print_c 1 "\n..."
 	export READLINE_LINE="i"
     else
-	header_box "Comandi di readline: immetti URL e link dei servizi"
+	header_box "Readline: immetti URL e link dei servizi"
     fi
 }
 
@@ -124,7 +124,7 @@ function run_editor {
 	print_c 1 "\n..."
 	export READLINE_LINE="e"
     else
-	header_box "Comandi di readline: immetti URL e link dei servizi"
+	header_box "Readline: immetti URL e link dei servizi"
     fi
 }
 
