@@ -235,6 +235,15 @@ function link_parser {
     return 1
 }
 
+function url? {
+    if [[ "$(grep -P '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))' <<< "$1")" ]]
+    then
+	return 0
+    else
+	return 1
+    fi
+}
+
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
     if [ -f "$1" ]
     then

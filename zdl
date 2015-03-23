@@ -692,7 +692,7 @@ then
 	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
 
-	    if link_parser "${args[$i]}"
+	    if url? "${args[$i]}"
 	    then
 		echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
 		if [ -z "$links" ]; then
@@ -799,7 +799,7 @@ function main_loop {
 	fi
 
 	for url_in in $links_in; do
-	    if ! link_parser "${url_in}"
+	    if ! url? "${url_in}"
 	    then
 		links_loop - "$url_in"
 		_log 12 "$url_in"

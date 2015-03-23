@@ -53,7 +53,7 @@ function download {
 	    fi
 	    [ -f "$path_tmp/redirect" ] && url_redirect=$(grep Location: < "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
 
-	    if link_parser "$url_redirect" || ! check_pid "$wpid"
+	    if url? "$url_redirect" || ! check_pid "$wpid"
 	    then 
 		kill -9 "$wpid" &>/dev/null
 		url_in_file="$url_redirect"
@@ -453,7 +453,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 
 function links_loop {
     local url_test="$2"
-    if ! link_parser "$url_test" && [ "$1" == "+" ]
+    if ! url? "$url_test" && [ "$1" == "+" ]
     then
 	_log 12 "$url_test"
 	links_loop - "$url_test"
