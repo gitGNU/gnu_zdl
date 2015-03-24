@@ -25,10 +25,16 @@
 #
 
 function show_downloads {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]; then
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]
+    then
 	if data_stdout
 	then
-	    awk -f $path_usr/libs/common.awk -f $path_usr/ui/colors.awk.sh -f $path_usr/ui/ui.awk -v col="$COLUMNS" -v extended=0 -e "BEGIN {$awk_data display()}" 
+	    awk -f $path_usr/libs/common.awk      \
+		-f $path_usr/ui/colors.awk.sh     \
+		-f $path_usr/ui/ui.awk            \
+		-v col="$COLUMNS"                 \
+		-v extended=0                     \
+		-e "BEGIN {$awk_data display()}" 
 	fi
     else
 	data_stdout
@@ -41,12 +47,12 @@ function show_downloads_extended {
     [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
-    check_instance_daemon
-    if [ $? == 1 ]; then
+    if ! check_instance_daemon
+    then
 	print_c 1 "$PROG è attivo in modalità demone\n"
     else
-	check_instance_prog
-	if [ $? == 1 ]; then
+	if ! check_instance_prog
+	then
 	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
 	else
 	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
@@ -127,7 +133,7 @@ function interactive {
     do
 	header_z
 	header_box_interactive "Modalità interattiva"
-	echo $no_complete
+
 	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
 	num_dl=$(cat "$path_tmp/.dl-mode")

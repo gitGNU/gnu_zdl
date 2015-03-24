@@ -242,33 +242,7 @@ function check_in_loop {
     return 1
 }
 
-function check_in_url {       
-    if data_stdout
-    then
-	for ((i=0; i<${#pid_out[*]}; i++))
-	do
-	    if [ "${url_out[$i]}" == "$url_in" ]
-	    then
-		file_in="${file_out[$i]}" ## stesso URL => stesso filename
-
-		if check_pid ${pid_out[$i]} || \
-		    ( \
-		    [ -f "${file_out[$i]}" ] && \
-		    [ ! -f "${file_out[$i]}.st" ] && \
-		    (( length_saved[$i] != 0 )) && \
-		    (( length_saved[$i] == length_out[$i] )) || \
-		    (( percent_out[$i] == 100 )) \
-		    )
-		then
-		    return 1 ## no download
-		fi
-	    fi
-	done
-    fi
-    return 0
-}
-
-function check_in_file { 	## return --> no_download=1 / download=5
+function check_in_file { 	## return --> no_download=1 / download=0
     sanitize_file_in
     url_in_bis="${url_in::100}"
     file_in_bis="${file_in}__BIS__${url_in_bis//\//_}.${file_in##*.}"
@@ -294,54 +268,28 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	return 1
 
     elif [ -z "$url_in_file" ] || \
-	( [ -z "${file_in}" ] && [ "$downloader_in" == "Axel" ] )
+	( [ -z "$file_in" ] && [ "$downloader_in" == "Axel" ] )
     then
 	_log 2
 	unset no_newip
     fi
 
-    if [ ! -z "${file_in}" ]
+    if [ ! -z "$file_in" ]
     then
 	length_saved=0
 		    
 	no_newip=true
 	if data_stdout
 	then
-	    for ((i=0; i<${#pid_out[*]}; i++))
-	    do
-		if [ "${file_out[$i]}" == "$file_in" ]
-		then
-		    if check_pid "${pid_out[$i]}"
-		    then
-			return 1
-		    fi
-		    length_saved=$(size_file "${file_out[$i]}") 
-
-		    if [[ "${length_out[$i]}" =~ ^[0-9]+$ ]] && \
-			(( length_out[$i] > $length_saved ))
-		    then
-			length_check="${length_out[$i]}"
-		    else
-			unset length_check
-		    fi
-		    
-		    if [ "${file_out[$i]}" == "$file_in" ] && \
-			[ "$url_in" == "${url_out[$i]}" ]
-		    then
-			no_bis=true
-		    fi
-		    break
-
-		elif [ "$file_in" != "${file_out[$i]}" ] && \
-		    [ "$url_in" == "${url_out[$i]}" ] && \
-		    [ "$file_in_bis" != "${file_out[$i]}" ]
-		then
-		    rm -f "$path_tmp/${file_out[$i]}_stdout.tmp" "${file_out[$i]}" "${file_out[$i]}.st" 
-		fi
-	    done
+	    if [ -z "$file_in" ]
+	    then
+		return 1
+	    else
+		length_saved=$(size_file "$file_in") 
+	    fi
 	fi
 
-	if [ -f "${file_in}" ]
+	if [ -f "$file_in" ]
 	then
 	    ## --bis abilitato di default
 	    [ "$resume" != "enabled" ] && bis=true
@@ -358,13 +306,13 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		then
 		    case "$i" in
 			resume_dl|rewrite_dl) 
-			    if [ ! -z "$length_check" ] && \
-				(( $length_check > $length_saved )) && \
+			    if [ ! -z "$length_in" ] && \
+				(( $length_in > $length_saved )) && \
 				( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
-	 			[ ! -z "$url_in_file" ] && return 5
+	 			[ ! -z "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -381,7 +329,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 				( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then 
 				unset no_newip
-				[ ! -z "$url_in_file" ] && return 5
+				[ ! -z "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -394,16 +342,16 @@ function check_in_file { 	## return --> no_download=1 / download=5
 				( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then 
 				unset no_newip
-				[ ! -z "$url_in_file" ] && return 5
+				[ ! -z "$url_in_file" ] && return 0
 			    fi
 			    ;;
 			rewrite_dl)
 			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) && \
-				[ ! -z "$length_check" ] && (( $length_check > $length_saved ))
+				[ ! -z "$length_in" ] && (( $length_in > $length_saved ))
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
-	 			[ ! -z "$url_in_file" ] && return 5
+	 			[ ! -z "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -411,13 +359,13 @@ function check_in_file { 	## return --> no_download=1 / download=5
 		## case bis_dl
 	        if [ "$i" == bis_dl ] && [ -z "$no_bis" ]
 		then
-		    file_in="${file_in_bis}"
+		    file_in="$file_in_bis"
 
-		    if [ ! -f "${file_in_bis}" ]
+		    if [ ! -f "$file_in_bis" ]
 		    then
-			return 5
+			return 0
 
-		    elif [ -f "${file_in_bis}" ] || \
+		    elif [ -f "$file_in_bis" ] || \
 			( [ "${downloader_out[$i]}" == "RTMPDump" ] && \
 			[ ! -z "$test_completed" ] )
 		    then
@@ -443,7 +391,7 @@ function check_in_file { 	## return --> no_download=1 / download=5
 	elif [ ! -z "$url_in_file" ] || \
 	    ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] )
 	then
-	    return 5
+	    return 0
 
 	fi
     fi

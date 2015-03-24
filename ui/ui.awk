@@ -64,9 +64,11 @@ function separator () {
 function show_downloads_extended () {
     for (i=0; i<length(pid_out); i++) {
 	length_H = human_length(length_out[i])
+	if (exists(file_out[i]))
+	    length_saved[i] = size_file(file_out[i])
+
 	title = "Numero download: "i
-	box = header(title, " ", White, On_Blue)
-	code = code box "\n"
+	code = code header(title, " ", White, On_Blue) "\n"
 
 	if (downloader_out[i] ~ /cURL|RTMPDump/) {
 	    code = code BBlue "File: " Color_Off file_out[i] "\n"
@@ -80,9 +82,6 @@ function show_downloads_extended () {
 	    code = code BBlue "Link: " Color_Off url_out[i] "\n"
 	    code = code BBlue "Url del file: " Color_Off url_out_file[i] "\n"
 	}
-	
-	cmd = "grep 'Download complete' < .zdl_tmp/" file_out[i] "_stdout.tmp"
-	length_saved[i] = size_file(file_out[i])
 
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
@@ -94,10 +93,7 @@ function show_downloads_extended () {
 	    } else {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
 	    }
-	} else if ((percent_out[i] == 100) ||                                     \
-		   ((cmd | getline) && (downloader_out[i] == "RTMPDump"))  || \
-		   ((length_saved[i] == length_out[i]) && (length_out[i] > 0) && (! exists(file_out[i]".st")))) {
-	    close(cmd)
+	} else if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen
 	    progress_bar = "Download completato"
 	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
@@ -122,20 +118,13 @@ function show_downloads () {
 	    } else {
 		code = code BRed downloader_out[i] ": Download non attivo\n" blue_line
 	    }
-	} else { 
-	    cmd = "grep 'Download complete' < .zdl_tmp/" file_out[i] "_stdout.tmp"
-	    length_saved[i] = size_file(file_out[i])
-	    if ((percent_out[i] == 100) ||                                     \
-		((cmd | getline) && (downloader_out[i] == "RTMPDump"))  ||     \
-		((length_saved[i] == length_out[i]) && (length_out[i] > 0) && (! exists(file_out[i]".st")))) {
-		close(cmd)
+	} else if (percent_out[i] == 100) {
 		diff_bar_color = BGreen
 		progress_bar = "Download completato"
-	    } else {
-		progress_bar = make_progress()
-	    }
-	    code = code diff_bar_color downloader_out[i] ": " progress_bar "\n" blue_line
+	} else {
+	    progress_bar = make_progress()
 	}
+	code = code diff_bar_color downloader_out[i] ": " progress_bar "\n" blue_line
     }
     return code "\n\n\n\n\n"
 }

@@ -30,7 +30,7 @@ function data_stdout {
     check_tmps=( "$path_tmp"/?*_stdout.tmp )
     shopt -u nullglob
     shopt -u dotglob
-    unset pid_alive
+    unset pid_alive pid_out file_out url_out percent_out length_saved length_out
     [ -z "$num_check" ] && num_check=0
     (( num_check++ ))
     if (( ${#check_tmps[*]}>0 ))
@@ -38,7 +38,7 @@ function data_stdout {
 	awk_data=$(awk                                \
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
-	    -v num_check="$num_check"           \
+	    -v num_check="$num_check"                 \
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
 	    "$path_tmp"/?*_stdout.tmp                 \

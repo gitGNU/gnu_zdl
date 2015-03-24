@@ -869,6 +869,11 @@ function main_loop {
 		fi
 		###################
 
+		if [[ "$downloader_in" =~ (Wget|Axel) ]] && ! url? "$url_in_file"
+		then
+		    break_loop=true
+		fi
+
 		if [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
@@ -916,12 +921,8 @@ function main_loop {
 
 		sanitize_file_in
 
-       		#### CHECK $url_in_file & $file_in:
-		if check_freespace
+		if ! check_freespace
 		then
-		    check_in_file
-		    test_in="$?"
-		else
 		    break_loop="true"
 		    zdl_exit="true" 
 		fi
@@ -937,13 +938,13 @@ function main_loop {
 		fi
 
 		#### DOWNLOAD ####
-		if links_loop "in" "$url_in" && \
-		    [ "$test_in" == "5" ] && [ -z "$premium" ] && \
-		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) && \
-		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] ) && \
-		    [ -z "$break_loop" ] 
+		if  [ -z "$break_loop" ] &&                                                  \
+		    [ -z "$premium" ] &&                                                     \
+		    check_in_file &&                                                         \
+		    links_loop "in" "$url_in" &&                                             \
+		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   \
+		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
 		then
-		    unset test_in
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"

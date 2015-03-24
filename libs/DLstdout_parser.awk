@@ -53,14 +53,17 @@ function check_stdout () {
 
 	}
     }
-    if (pid_alive[i] && url_in == url_out[i])
-	code = code bash_var("url_in", "")
+    if (pid_alive[i]) {
+	if (url_in == url_out[i])
+	    code = code bash_var("url_in", "")
+	if (file_in == file_out[i])
+	    code = code bash_var("file_in", "")
+    }
 
     if (! pid_alive[i]) {
 	if (! exists(file_out[i] ".st") && (	   		        \
 		(length_out[i] == 0) ||					\
-		(length_out[i] &&					\
-		 length_out[i] > 0 &&					\
+		(length_out[i] > 0 &&					\
 		 length_saved[i] < length_out[i])			\
 		)							\
 	    )
@@ -70,9 +73,34 @@ function check_stdout () {
 	    length_out[i] > 0 &&					\
 	    ! exists(file_out[i] ".st"))
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
-
+	
+	##############################################################################################
+	## cancella i file temporanei se il link non è in coda e il file non esiste
+	## (potrebbe essere stato spostato o decompresso).
+	## Codice lasciato commentato perché potrebbe essere un'alternativa valida (funziona).
+	## Consuma qualche risorsa in più e non è un'operazione necessaria: è un lusso :)
+	##############################################################################################
+	# if (! exists(file_out[i])) {
+	#     while (getline url_loop < ".zdl_tmp/links_loop.txt") {
+	# 	if (url_loop == url_out[i]) {
+	# 	    url_exists = 1
+	# 	    break
+	# 	}
+	#     }
+	#     if (url_exists) {
+	# 	url_exists = 0
+	#     } else {
+	# 	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp")
+	#     }
+	# }
+		
 	if (url_in == url_out[i])
 	    code = code bash_var("file_in", file_out[i])
+
+	# check_in_file
+	if (file_in == file_out[i] &&		\
+	    url_in == url_out[i])
+	    code = code bash_var("no_bis", "true")
 
 	if (no_complete == "true") {
 	    if (					\
@@ -89,9 +117,15 @@ function check_stdout () {
 		system("rm -f .zdl_tmp/" file_out[i] "_stdout.tmp")
 	    }
 	}
+
     }
     if (check_pid(pid_out[i]))
 	pid_alive[i] = pid_out[i]
+
+    ## check_in_file
+    if (file_in == file_out[i]) {
+	code = code bash_var("length_in", length_out[i])
+    }
 
 }
 
@@ -121,7 +155,7 @@ function progress_out (value,           progress_line) {
 
 	if (progress_end[i]) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
-	    bash_var("url_in", "")
+	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
 	} else if (progress_line) {
@@ -155,13 +189,23 @@ function progress_out (value,           progress_line) {
 	}
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
+	    if (chunk[y] ~ "100%") {
+		progress_end[i] = chunk[y]
+		break
+	    }
+
 	    if (chunk[y] ~ /[%]+.+(K|M|B)/) {
 		progress_line = chunk[y]
 		break
 	    }
 	}
 
-	if (progress_line) {
+	if (progress_end[i]) {
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (url_in == url_out[i]) bash_var("url_in", "")
+	    length_saved[i] = size_file(file_out[i])
+	    percent_out[i] = 100
+	} else if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
 	    percent_out[i] = progress_elems[length(progress_elems)-3]
 	    speed_out[i] = progress_elems[length(progress_elems)-1]
@@ -196,6 +240,9 @@ function progress_out (value,           progress_line) {
 
 	if (progress_end[i]) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (url_in == url_out[i]) bash_var("url_in", "")
+	    length_saved[i] = size_file(file_out[i])
+	    percent_out[i] = 100
 	} else if (progress_line) {
 	    cmd = "date +%s"
 	    cmd | getline this_time
@@ -245,7 +292,7 @@ function progress () {
 	test_stdout["new"] = test_stdout["new"] chunk[k]
 	delete progress_data[j%n]
     }
-
+    
     if (num_check < 2)
 	print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
     progress_out(chunk)
