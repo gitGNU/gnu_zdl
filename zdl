@@ -869,12 +869,8 @@ function main_loop {
 		fi
 		###################
 
-		if [[ "$downloader_in" =~ (Wget|Axel) ]] && ! url? "$url_in_file"
-		then
-		    break_loop=true
-		fi
-
-		if [ "$break_loop" == "true" ]
+		if [[ "$downloader_in" =~ (Wget|Axel) ]] && ! url? "$url_in_file" || \
+		    [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
 		    break
