@@ -90,9 +90,12 @@ function commands_box {
 function standard_box {
     header_box "Modalità in standard output"
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    services_box
+    [ -z "$1" ] && services_box
     commands_box
-    header_box "Readline: immetti URL e link dei servizi"
+    if [ -z "$1" ]
+    then
+	header_box "Readline: immetti URL e link dei servizi"
+    fi
 }
 
 function change_mode {

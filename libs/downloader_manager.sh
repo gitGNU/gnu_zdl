@@ -276,7 +276,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
     if [ ! -z "$file_in" ]
     then
-	length_saved=0
+	length_saved_in=0
 		    
 	no_newip=true
 	if data_stdout
@@ -284,8 +284,6 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	    if [ -z "$file_in" ]
 	    then
 		return 1
-	    else
-		length_saved=$(size_file "$file_in") 
 	    fi
 	fi
 
@@ -307,7 +305,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		    case "$i" in
 			resume_dl|rewrite_dl) 
 			    if [ ! -z "$length_in" ] && \
-				(( $length_in > $length_saved )) && \
+				(( $length_in > $length_saved_in )) && \
 				( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then
 				rm -f "$file_in" "${file_in}.st" 
@@ -347,7 +345,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			    ;;
 			rewrite_dl)
 			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) && \
-				[ ! -z "$length_in" ] && (( $length_in > $length_saved ))
+				[ ! -z "$length_in" ] && (( $length_in > $length_saved_in ))
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
@@ -376,11 +374,11 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	    done
 	    
 	    ## ignore link
-	    if [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" > 0 ))
+	    if [[ "$length_saved_in" =~ ^[0-9]+$ ]] && (( "$length_saved_in" > 0 ))
 	    then
 		_log 1
 
-	    elif [[ "$length_saved" =~ ^[0-9]+$ ]] && (( "$length_saved" == 0 ))
+	    elif [[ "$length_saved_in" =~ ^[0-9]+$ ]] && (( "$length_saved_in" == 0 ))
 	    then
 		rm -f "$file_in" "$file_in".st
 

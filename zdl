@@ -715,6 +715,7 @@ then
 	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
 	print_c 1 "L'elenco completo dei link è in links.txt\n"
+	standard_box 1
     fi
 fi
 
@@ -764,18 +765,7 @@ then
     if [ -f "$start_file" ]
     then
 	clean_file "$start_file"
-	if [ -f "$start_file" ]
-	then
-	    cat "$start_file" >> links.txt 2>/dev/null
-	else
-	    if [ "$daemon" != "true" ]
-	    then
-		print_c 3 "$name_prog: nessun link da processare in $PWD"
-		rm -r "$path_tmp"
-		exit
-	    fi
-	fi
-	print_c 0
+	cat "$start_file" >> links.txt 2>/dev/null
     else
 	rm -f "$path_tmp/rewriting"
     fi

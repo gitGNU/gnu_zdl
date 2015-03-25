@@ -119,12 +119,11 @@ function check_stdout () {
 	}
 
     }
-    if (check_pid(pid_out[i]))
-	pid_alive[i] = pid_out[i]
 
     ## check_in_file
     if (file_in == file_out[i]) {
 	code = code bash_var("length_in", length_out[i])
+	code = code bash_var("length_saved_in", length_saved[i])
     }
 
 }
