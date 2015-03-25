@@ -253,8 +253,18 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      Cancella i file temporanei dei download completati
 
 
-Filtri sui nomi dei file:
-.........................
+Filtri:
+.......
+
+`--scrape-url=_URL pagina web_'
+     Estrae gli URL (i link) dalla pagina web indicata e li accoda
+     all'elenco registrato
+
+`--url=_regex_'
+     Processa solo gli URL (i link) che corrispondono alla REGEX
+
+`--no-url=_regex_'
+     Non processa gli URL (i link) che corrispondono alla REGEX
 
 `--file=_regex_'
      Scarica solo file il cui nome corrisponde alla REGEX
@@ -880,19 +890,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL4923
-Node: Servizi streaming/hosting9853
-Node: Avviare ZDL12636
-Node: Arrestare ZDL15074
-Node: Controllare i download16179
-Node: Manuali d'uso17988
-Node: Creare nuove estensioni18423
-Node: Software consigliati20003
-Node: Conkeror21111
-Node: zdl-xterm e XXXTerm/Xombrero22122
-Node: Installazione e aggiornamento24046
-Node: Tags26370
-Node: Copying28529
-Node: Contatti29579
+Node: Servizi streaming/hosting10110
+Node: Avviare ZDL12893
+Node: Arrestare ZDL15331
+Node: Controllare i download16436
+Node: Manuali d'uso18245
+Node: Creare nuove estensioni18680
+Node: Software consigliati20260
+Node: Conkeror21368
+Node: zdl-xterm e XXXTerm/Xombrero22379
+Node: Installazione e aggiornamento24303
+Node: Tags26627
+Node: Copying28786
+Node: Contatti29836
 
 End Tag Table
 

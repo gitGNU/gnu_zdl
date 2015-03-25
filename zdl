@@ -138,6 +138,55 @@ fi
 #### MAIN
 init
 
+if [[ "${args[*]}" =~ \-\-url=[^\ ]+ ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--url=[^\ ]+)$ ]]
+	then
+	    url_regex=$(sed -r 's|--url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
+	    unset args[$i]
+	fi
+    done
+fi
+
+if [[ "${args[*]}" =~ \-\-no\-url=[^\ ]+ ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--no-url=[^\ ]+)$ ]]
+	then
+	    no_url_regex=$(sed -r 's|--no-url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
+	    unset args[$i]
+	fi
+    done
+fi
+
+if [[ "${args[*]}" =~ \-\-scrape-url=[^\ ]+ ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--scrape-url=[^\ ]+)$ ]]
+	then
+	    url_page=$(sed -r 's|--scrape-url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
+	    if url? "$url_page"
+	    then
+		print_c 1 "Connessione in corso..."
+		wget -q "$url_page" -O - |                                             \
+		    tr "\t\r\n'" '   "' |                                              \
+		    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      \
+		    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               \
+		    grep "$url_regex" |                                                \
+		    sort | uniq                                                        \
+		    >> "$path_tmp/links_loop.txt" &&                                   \
+		    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
+	    fi
+	    unset args[$i]
+	fi
+    done
+fi
+
+
 if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]]
 then
     for ((i=0; i<=$max_args; i++))
@@ -356,15 +405,17 @@ then
 fi
 
 
-if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]; then
+if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]; then
+	if [ "${args[$i]}" == "--daemon" ] || [ "${args[$i]}" == "-d" ]
+	then
 	    unset args[$i]
-	    check_instance_prog
-	    if [ $? != 1 ]; then
-		check_instance_daemon
-		if [ $? != 1 ]; then
+	    if check_instance_prog
+	    then
+		if check_instance_daemon
+		then
 		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 		    header_z
 		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
@@ -385,20 +436,24 @@ fi
 
 export pid_prog=$$
 
-if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]; then
+if [ "${args[*]}" != "${args[*]//--help}" ] || [ "${args[*]}" != "${args[*]//-h}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]; then 
+	if [ "${args[$i]}" == "--help" ] || [ "${args[$i]}" == "-h" ]
+	then 
 	    unset args[$i]
 	    usage
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]; then
+if [ "${args[*]}" != "${args[*]//--interactive}" ] || [ "${args[*]}" != "${args[*]//-i}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]; then 
+	if [ "${args[$i]}" == '--interactive' ] || [ "${args[$i]}" == '-i' ]
+	then 
 	    unset args[$i]
 	    interactive
 	fi
@@ -408,7 +463,8 @@ fi
 bindings
 
 ################################### HEADER
-if [ ! -f "$path_conf/noclear" ]; then 
+if [ ! -f "$path_conf/noclear" ]
+then 
     fclear
 else
     rm "$path_conf/noclear"
@@ -417,25 +473,30 @@ header_z
 ###################################
 
 
-if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]; then
+if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
+	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]
+	then
 	    unset args[$i]
 	    rm -f "$path_conf"/*.sig
 	fi
     done
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]; then
+	if [ "${args[$i]}" == '--update' ] || [ "${args[$i]}" == '-u' ]
+	then
 	    unset args[$i]
 	    update_updater
 	fi
     done
-elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]; then
+elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]; then
+	if [ "${args[$i]}" == '--force' ] || [ "${args[$i]}" == '-f' ]
+	then
 	    unset args[$i]
 	    rm "$path_conf"/*.sig
 	fi
@@ -443,22 +504,27 @@ elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interacti
     update_updater
 fi
 
-if [ "${args[*]}" != "${args[*]//--reconnect}" ]; then
+if [ "${args[*]}" != "${args[*]//--reconnect}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == "--reconnect" ]; then
+	if [ "${args[$i]}" == "--reconnect" ]
+	then
 	    unset args[$i]
 	    reconnect_sh=true
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]; then 
+if [ "${args[*]}" != "${args[*]//--multi}" ] || [ "${args[*]}" != "${args[*]//-m}" ]
+then 
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]; then 
+	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]
+	then
 	    unset args[$i] num_dl
-	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]; then
+	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]
+	    then
 		num_dl="${args[$(( $i+1 ))]}"
 		unset args[$(( $i+1 ))]
 		echo $num_dl > "$path_tmp/.dl-mode"
@@ -469,20 +535,24 @@ fi
 
 
 
-if [ "${args[*]}" != "${args[*]//--ip}" ]; then
+if [ "${args[*]}" != "${args[*]//--ip}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--ip' ]; then 
+	if [ "${args[$i]}" == '--ip' ]
+	then 
 	    unset args[$i]
 	    my_ip
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--login}" ]; then
+if [ "${args[*]}" != "${args[*]//--login}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--login' ]; then 
+	if [ "${args[$i]}" == '--login' ]
+	then 
 	    unset args[$i]
 	    login=1
 	fi
@@ -490,10 +560,12 @@ if [ "${args[*]}" != "${args[*]//--login}" ]; then
 fi
 
 
-if [ "${args[*]}" != "${args[*]//--wget}" ]; then
+if [ "${args[*]}" != "${args[*]//--wget}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--wget' ]; then 
+	if [ "${args[$i]}" == '--wget' ]
+	then 
 	    unset args[$i]
 	    downloader_in=Wget
 	    echo $downloader_in > "$path_tmp/.downloader"
@@ -501,10 +573,12 @@ if [ "${args[*]}" != "${args[*]//--wget}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--axel}" ]; then
+if [ "${args[*]}" != "${args[*]//--axel}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--axel' ]; then 
+	if [ "${args[$i]}" == '--axel' ]
+	then 
 	    unset args[$i]
 	    downloader_in=Axel
 	    echo $downloader_in > "$path_tmp/.downloader"
@@ -512,42 +586,51 @@ if [ "${args[*]}" != "${args[*]//--axel}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--clean}" ]; then
+if [ "${args[*]}" != "${args[*]//--clean}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" == '--clean' ]; then 
+	if [ "${args[$i]}" == '--clean' ]
+	then 
 	    unset args[$i]
 	    ( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati\n" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n" )
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]; then
+if [ "${args[*]}" != "${args[*]//--configure}" ] || [ "${args[*]}" != "${args[*]//-c}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(\-\-configure|\-c)$ ]]; then 
+	if [[ "${args[$i]}" =~ ^(\-\-configure|\-c)$ ]]
+	then 
 	    unset args[$i]
 	    configure
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--out=}" ]; then
+if [ "${args[*]}" != "${args[*]//--out=}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]; then
-	    if [ -e "$(command -v $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]; then
+	if [ "${args[$i]}" != "${args[$i]#'--out='}" ]
+	then
+	    if [ -e "$(command -v $(echo ${args[$i]#'--out='} | awk '{print $1}') 2>/dev/null)" ]
+	    then
 		pipe_out="${args[$i]#'--out='}"
 	    else
 		file_output=.file_output.zdl
 		print_out="${args[$i]#'--out='}"
 
-		if [ "$print_out" != "$file_output" ]; then
+		if [ "$print_out" != "$file_output" ]
+		then
 		    print_c 3 "Il file in ${print_out} non esiste"
 		    print_c 2 "Scrivo in ${print_out} la lista dei file scaricati? (s|*)"
 		    read -n 1 option_out
 		fi
-		if [ "$print_out" == "$file_output" ] || [ "$option_out" == "s" ]; then
+		if [ "$print_out" == "$file_output" ] || [ "$option_out" == "s" ]
+		then
 		    [ "$print_out" != "$file_output" ] && print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
 		    touch "$print_out"
 		    unset option_out
@@ -558,27 +641,39 @@ if [ "${args[*]}" != "${args[*]//--out=}" ]; then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
+if [ "${args[*]}" != "${args[*]//--proxy}" ]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]; then
-	    
-	    if [ "${args[$i]}" == '--proxy' ]; then
+	if [ "${args[$i]}" != "${args[$i]#'--proxy'}" ]
+	then
+	    if [ "${args[$i]}" == '--proxy' ]
+	    then
 		update_proxy=true
 		unset args[$i]
 		break
-	    elif [ "${args[$i]}" == '--proxy=t' ]; then
+
+	    elif [ "${args[$i]}" == '--proxy=t' ]
+	    then
 		proxy_types[${#proxy_types[*]}]="Transparent"
 		update_proxy=true
-	    elif [ "${args[$i]}" == '--proxy=a' ]; then
+
+	    elif [ "${args[$i]}" == '--proxy=a' ]
+	    then
 		proxy_types[${#proxy_types[*]}]="Anonymous"
 		update_proxy=true
-	    elif [ "${args[$i]}" == '--proxy=e' ]; then
+
+	    elif [ "${args[$i]}" == '--proxy=e' ]
+	    then
 		proxy_types[${#proxy_types[*]}]="Elite"
 		update_proxy=true
-	    elif [ "${args[$i]}" != "${args[$i]%'='*}" ]; then
+
+	    elif [ "${args[$i]}" != "${args[$i]%'='*}" ]
+	    then
 		proxy="${args[$i]#'--proxy='}"
-		if [ -z "${proxy//[0-9.:]}" ]; then
+
+		if [ -z "${proxy//[0-9.:]}" ]
+		then
 		    export http_proxy=$proxy
 		    defined_proxy=$proxy
 		    print_c 1 "Proxy attivo: $http_proxy\n"
@@ -599,50 +694,60 @@ if [ "${args[*]}" != "${args[*]//--proxy}" ]; then
     done
 fi
 
-if [[ "${args[*]}" =~ (-r|--resume) ]]; then
+if [[ "${args[*]}" =~ (-r|--resume) ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(-r|--resume)$ ]]; then 
+	if [[ "${args[$i]}" =~ ^(-r|--resume)$ ]]
+	then 
 	    unset args[$i]
 	    resume=enabled
 	fi
     done
 fi
 
-if [[ "${args[*]}" =~ \-\-no-file=[^\ ]+ ]]; then
+if [[ "${args[*]}" =~ \-\-no-file=[^\ ]+ ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]; then
+	if [[ "${args[$i]}" =~ ^(--no-file=[^\ ]+)$ ]]
+	then
 	    no_file_regex=$(sed -r 's;--no-file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
 	    unset args[$i]
 	fi
     done
 fi
 
-if [[ "${args[*]}" =~ \-\-file=[^\ ]+ ]]; then
+if [[ "${args[*]}" =~ \-\-file=[^\ ]+ ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(--file=[^\ ]+)$ ]]; then
+	if [[ "${args[$i]}" =~ ^(--file=[^\ ]+)$ ]]
+	then
 	    file_regex=$(sed -r 's;--file=["]*(.+)["]*$;\1;g' <<< "${args[$i]}")
 	    unset args[$i]
 	fi
     done
 fi
 
-if [[ "${args[*]}" =~ \-\-no-rev ]]; then
+if [[ "${args[*]}" =~ \-\-no-rev ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]; then
+	if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]
+	then
 	    no_file_regex='\.rev$'
 	    unset args[$i]
 	fi
     done
 fi
 
-if [[ "${args[*]}" =~ \-\-no-sub ]]; then
+if [[ "${args[*]}" =~ \-\-no-sub ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]; then
+	if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]
+	then
 	    no_file_regex='[Ss]{1}[Uu]{1}[Bb]{1}'
 	    unset args[$i]
 	fi
@@ -650,7 +755,8 @@ if [[ "${args[*]}" =~ \-\-no-sub ]]; then
 fi
 
 
-if [[ "${args[*]}" =~ \-\-no-complete ]]; then
+if [[ "${args[*]}" =~ \-\-no-complete ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
 	if [[ "${args[$i]}" =~ ^(--no-complete)$ ]]
@@ -809,6 +915,23 @@ function main_loop {
 		unset url_in
 		break
 	    fi
+
+	    if [ ! -z "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
+	    then
+		links_loop - "$url_in"
+		_log 15 "$url_in"
+		unset url_in
+		break
+	    fi
+
+	    if [ ! -z "$url_regex" ] && [[ ! "${url_in}" =~ $url_regex ]]
+	    then
+		links_loop - "$url_in"
+		_log 16 "$url_in"
+		unset url_in
+		break
+	    fi
+
 #	    print_c 4 "checking $url_in ..."
 	    unset pid_in file_in url_in_file
 

@@ -335,10 +335,19 @@ Cancella i file temporanei dei download completati
 @end table
 
 @c @end man
-@unnumberedsubsubsec Filtri sui nomi dei file:
+@unnumberedsubsubsec Filtri:
 @c @man{6}
-@c @ifman @unnumberedsubsec Filtri sui nomi dei file:
+@c @ifman @unnumberedsubsec Filtri:
 @table @option
+@item --scrape-url=@emph{URL pagina web}
+Estrae gli URL (i link) dalla pagina web indicata e li accoda all'elenco registrato
+
+@item --url=@emph{regex}
+Processa solo gli URL (i link) che corrispondono alla REGEX
+
+@item --no-url=@emph{regex}
+Non processa gli URL (i link) che corrispondono alla REGEX
+
 @item --file=@emph{regex}
 Scarica solo file il cui nome corrisponde alla REGEX
 
@@ -589,10 +598,11 @@ attraverso la modalità interattiva @command{zdl -i} avviata nella directory ges
 @htmlstart
 @unnumbered Controllare i download: recupero, eliminazione, arresto, riavvio...
 
-@c Pagina da rielaborare sulla base dei nuovi sviluppi del software.
+@emph{(Pagina in via di elaborazione sulla base dei nuovi sviluppi del software.)}
+@*@*
 
 I download possono essere controllati in modalità diverse in base al tipo di operazione da effettuare.
-l'avvio da terminale permette l'esecuzione delle operazioni elencate nella presentazione del comando: @xref{Il comando ZDL}. Poiché ZDL può essere chiuso senza interrompere i download, questa modalità di controllo può essere adottata in ogni momento, a esecuzione già avviata:
+L'avvio da terminale permette l'esecuzione delle operazioni elencate nella presentazione del comando: @xref{Il comando ZDL}. Poiché ZDL può essere chiuso senza interrompere i download, questa modalità di controllo può essere adottata in ogni momento, a esecuzione già avviata. Per @emph{chiudere senza interrompere i download}:
 @itemize @minus
 @item
 se avviato in modalità standard, digitare @kbd{M-q} (tasti @kbd{<Alt>+<q>})
@@ -600,15 +610,11 @@ se avviato in modalità standard, digitare @kbd{M-q} (tasti @kbd{<Alt>+<q>})
 da modalità interattiva, digitare @kbd{Q} (tasti @kbd{<Shift>+<q>})
 @end itemize
 
-Una volta chiuso senza interruzione dei download, ZDL può essere riavviato utilizzando nuove opzioni.
+Una volta @emph{chiuso} (o anche @emph{ucciso} interrompendo i download), ZDL può essere riavviato utilizzando nuove opzioni.
 @*@*
-I download di ZDL possono essere controllati in modo diretto attraverso la modalità interattiva, che può essere attivata da quella standard digitando @kbd{M-i} (tasti @kbd{<Alt>+<i>}) o da un qualsiasi terminale @emph{Bash} e dalla stessa directory di download, utilizzando l'opzione @option{-i|--interactive}. Se non è attiva alcuna istanza di avvio e gestione automatica dei download, dall'interfaccia interattiva è possibile avviare la modalità @emph{demone}, che agisce in background come @emph{server} ed è indipendente dal terminale di avvio. Per gestire i download e la stessa chiusura di ZDL in modalità demone, è comunque necessario utilizzare l'interfaccia interattiva, che ha funzione di @emph{client}.@*
-I comandi sono elencati nella stessa interfaccia interattiva: è possibile modificare il numero massimo di download (da 1 a 9 oppure illimitati), il tipo di downloader da utilizzare (Axel o Wget), avviare l'editor predefinito per modificare
-@itemize
-@item
+I download di ZDL possono essere controllati in modo diretto attraverso la modalità interattiva, che può essere attivata da quella standard digitando @kbd{M-i} (tasti @kbd{<Alt>+<i>}) o da un qualsiasi terminale @emph{Bash} dalla stessa directory di download, utilizzando l'opzione @option{-i|--interactive}. Se non è attiva alcuna istanza di avvio e gestione automatica dei download, dall'interfaccia interattiva è possibile avviare la modalità @emph{demone}, che agisce in background come @emph{server} ed è indipendente dal terminale di avvio. Per gestire i download e la stessa chiusura di ZDL in modalità demone, è comunque necessario utilizzare l'interfaccia interattiva, che ha funzione di @emph{client}.@*
+I comandi sono elencati nella stessa interfaccia interattiva: è possibile modificare il numero massimo di download (da 1 a 9 oppure illimitati, digitando i tasti dei numeri o, rispettivamente, il tasto @kbd{m}), il tipo di downloader da utilizzare (Axel o Wget), avviare l'editor predefinito per modificare l'elenco dei link da processare, selezionare i download in gestione per @emph{riavviarli} (ZDL interrompe il download in corso e processa quello successivo fino al termine della lista registrata, poi ricomincia dal primo e così via), @emph{terminarli} in modo definitivo senza cancellare i file finora scaricati o @emph{eliminarli} completamente. Per queste ultime tre operazioni è possibile selezionare più download alla volta, indicandone i numeri identificativi separandoli con spazi.
 
-
-@end itemize
 @c In caso di interruzione dei download (per esempio a causa di
 @c disconnessione), i file scaricati attraverso Axel possono riprendere
 @c lo scaricamento dal punto di interruzione (solo se nella cartella che

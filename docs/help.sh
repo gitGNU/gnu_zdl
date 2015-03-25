@@ -106,7 +106,15 @@ OPZIONI
        --no-complete           Cancella i file temporanei dei download completati
 
 
-Filtri sui nomi dei file:
+Filtri:
+       --scrape-url=URL        Estrae gli URL/link dalla pagina web indicata e
+                               li accoda all'elenco registrato
+
+       --url=REGEX             Processa solo gli URL (i link) che corrispondono 
+                               alla REGEX
+
+       --no-url=REGEX          Non processa gli URL (i link) che corrispondono 
+                               alla REGEX
 
        --file=REGEX            Scarica solo file il cui nome corrisponde alla REGEX
 
