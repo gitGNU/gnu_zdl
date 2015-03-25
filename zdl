@@ -633,7 +633,7 @@ if [[ "${args[*]}" =~ \-\-no-rev ]]; then
     for ((i=0; i<=$max_args; i++))
     do
 	if [[ "${args[$i]}" =~ ^(--no-rev)$ ]]; then
-	    no_file_regex='\.rev&'
+	    no_file_regex='\.rev$'
 	    unset args[$i]
 	fi
     done
@@ -643,7 +643,7 @@ if [[ "${args[*]}" =~ \-\-no-sub ]]; then
     for ((i=0; i<=$max_args; i++))
     do
 	if [[ "${args[$i]}" =~ ^(--no-sub)$ ]]; then
-	    no_file_regex='[Ss]ub'
+	    no_file_regex='[Ss]{1}[Uu]{1}[Bb]{1}'
 	    unset args[$i]
 	fi
     done
