@@ -261,7 +261,12 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	local lines=$(
 	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))' "$file_to_clean")"
 	)
-	echo "${lines}" > "$file_to_clean"
+	if [ ! -z "$lines" ]
+	then
+	    echo -e "$lines" > "$file_to_clean"
+	else
+	    rm -f "$file_to_clean"
+	fi
 
 	rm -f "$path_tmp/rewriting"
     fi
