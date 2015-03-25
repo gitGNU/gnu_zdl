@@ -504,22 +504,25 @@ File: zdl.info,  Node: Controllare i download,  Next: Manuali d'uso,  Prev: Arre
 Controllare i download: recupero, eliminazione, arresto, riavvio...
 *******************************************************************
 
+_(Pagina in via di elaborazione sulla base dei nuovi sviluppi del
+software.)_
 I download possono essere controllati in modalità diverse in base al
-tipo di operazione da effettuare.  l'avvio da terminale permette
+tipo di operazione da effettuare.  L'avvio da terminale permette
 l'esecuzione delle operazioni elencate nella presentazione del comando:
 *Note Il comando ZDL::. Poiché ZDL può essere chiuso senza interrompere
 i download, questa modalità di controllo può essere adottata in ogni
-momento, a esecuzione già avviata:
+momento, a esecuzione già avviata. Per _chiudere senza interrompere i
+download_:
    - se avviato in modalità standard, digitare `M-q' (tasti `<Alt>+<q>')
 
    - da modalità interattiva, digitare `Q' (tasti `<Shift>+<q>')
 
-   Una volta chiuso senza interruzione dei download, ZDL può essere
-riavviato utilizzando nuove opzioni.
+   Una volta _chiuso_ (o anche _ucciso_ interrompendo i download), ZDL
+può essere riavviato utilizzando nuove opzioni.
 I download di ZDL possono essere controllati in modo diretto attraverso
 la modalità interattiva, che può essere attivata da quella standard
 digitando `M-i' (tasti `<Alt>+<i>') o da un qualsiasi terminale _Bash_
-e dalla stessa directory di download, utilizzando l'opzione
+dalla stessa directory di download, utilizzando l'opzione
 `-i|--interactive'. Se non è attiva alcuna istanza di avvio e gestione
 automatica dei download, dall'interfaccia interattiva è possibile
 avviare la modalità _demone_, che agisce in background come _server_ ed
@@ -528,9 +531,17 @@ stessa chiusura di ZDL in modalità demone, è comunque necessario
 utilizzare l'interfaccia interattiva, che ha funzione di _client_.
 I comandi sono elencati nella stessa interfaccia interattiva: è
 possibile modificare il numero massimo di download (da 1 a 9 oppure
-illimitati), il tipo di downloader da utilizzare (Axel o Wget), avviare
-l'editor predefinito per modificare
-   *
+illimitati, digitando i tasti dei numeri o, rispettivamente, il tasto
+`m'), il tipo di downloader da utilizzare (Axel o Wget), avviare
+l'editor predefinito per modificare l'elenco dei link da processare,
+selezionare i download in gestione per _riavviarli_ (ZDL interrompe il
+download in corso e processa quello successivo fino al termine della
+lista registrata, poi ricomincia dal primo e così via), _terminarli_ in
+modo definitivo senza cancellare i file finora scaricati o _eliminarli_
+completamente. Per queste ultime tre operazioni è possibile selezionare
+più download alla volta, indicandone i numeri identificativi
+separandoli con spazi.
+
 
 File: zdl.info,  Node: Manuali d'uso,  Next: Creare nuove estensioni,  Prev: Controllare i download,  Up: Top
 
@@ -894,15 +905,15 @@ Node: Servizi streaming/hosting10110
 Node: Avviare ZDL12893
 Node: Arrestare ZDL15331
 Node: Controllare i download16436
-Node: Manuali d'uso18245
-Node: Creare nuove estensioni18680
-Node: Software consigliati20260
-Node: Conkeror21368
-Node: zdl-xterm e XXXTerm/Xombrero22379
-Node: Installazione e aggiornamento24303
-Node: Tags26627
-Node: Copying28786
-Node: Contatti29836
+Node: Manuali d'uso18916
+Node: Creare nuove estensioni19351
+Node: Software consigliati20931
+Node: Conkeror22039
+Node: zdl-xterm e XXXTerm/Xombrero23050
+Node: Installazione e aggiornamento24974
+Node: Tags27298
+Node: Copying29457
+Node: Contatti30507
 
 End Tag Table
 
