@@ -76,14 +76,13 @@ function services_box {
 }
 
 function commands_box {
-    header_dl "Comandi della modalità standard (M è il tasto Meta, cioè <Alt>)"
+    header_dl "Comandi in modalità standard output (M è il tasto Meta, cioè <Alt>)"
     echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
 <${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito
 <${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
 
 <${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]
-"
+<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
 
 }
 
@@ -94,7 +93,11 @@ function standard_box {
     commands_box
     if [ -z "$1" ]
     then
+	echo
 	header_box "Readline: immetti URL e link dei servizi"
+    else
+	separator-
+	echo
     fi
 }
 
