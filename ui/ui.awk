@@ -131,7 +131,7 @@ function show_downloads () {
 
 function show_downloads_lite () {
     for (i=0; i<length(pid_out); i++) {
-	file_out_chunk[i] = " " substr(file_out[i], 1, col-43) " "
+	file_out_chunk[i] = " " substr(file_out[i], 1, col-23) " "
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
@@ -180,8 +180,8 @@ function make_progress (size_bar, progress_bar, progress) {
     }
 
     if (! int(percent_out[i])) percent_out[i] = 0
-    size_bar = (col-40) * int(percent_out[i])/100
-    diff_size_bar = (col-40) - size_bar
+    size_bar = (col-20) * int(percent_out[i])/100
+    diff_size_bar = (col-20) - size_bar
 
     bar = ""
     diff_bar = ""
