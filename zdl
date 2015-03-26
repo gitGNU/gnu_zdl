@@ -138,6 +138,12 @@ fi
 #### MAIN
 init
 
+if [ "$zdl_mode" == "lite" ]
+then
+    lite=true
+    unset zdl_mode
+fi
+
 if [[ "${args[*]}" =~ \-\-url=[^\ ]+ ]]
 then
     for ((i=0; i<=$max_args; i++))
@@ -774,7 +780,7 @@ then
     do
 	if [[ "${args[$i]}" =~ ^(--lite|-l)$ ]]
 	then
-	    zdl_mode="lite"
+	    lite="true"
 	    unset args[$i]
 	fi
     done
@@ -843,6 +849,12 @@ then
     downloader_in=$(cat "$path_tmp/.downloader")
 else
     echo $downloader_in > "$path_tmp/.downloader"
+fi
+
+if [ "$lite" == "true" ]
+then
+    zdl_mode="lite"
+    unset lite
 fi
 
 

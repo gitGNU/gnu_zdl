@@ -66,24 +66,29 @@ sleeping_pause=3
 function set_default_conf {
     mkdir -p "$path_conf"
     touch "$file_conf"
-    if [ ! -e "/cygdrive" ]; then
+    if [ ! -e "/cygdrive" ]
+    then
 	val_conf[1]=32
     else
 	val_conf[1]=10
     fi
     
-    for ((i=0; i<${#key_conf[*]}; i++)); do
+    for ((i=0; i<${#key_conf[*]}; i++))
+    do
 	[[ ! $(grep ^${key_conf[$i]}= "$file_conf") ]] && echo "${key_conf[$i]}=${val_conf[$i]}" >> "$file_conf"
     done
 }
 
 function get_item_conf {
-    if [ -f  "$file_conf" ]; then
+    if [ -f  "$file_conf" ]
+    then
 	item=$1
 	lines=`cat "$file_conf" |wc -l`
-	for line in `seq 1 $lines`; do
+	for line in `seq 1 $lines`
+	do
 	    text=`cat "$file_conf" | sed -n "${line}p"`
-	    if [ "$text" != "${text#${item}=}" ]; then
+	    if [ "$text" != "${text#${item}=}" ]
+	    then
 		value="${text#${item}=}"
 		value="${value%% *}"
 		value="${value//\"}"
@@ -94,20 +99,24 @@ function get_item_conf {
 }
 
 function set_item_conf {
-    if [ -f  "$file_conf" ]; then
+    if [ -f  "$file_conf" ]
+    then
 	item="$1"
 	value="\"$2\""
 	lines=`cat "$file_conf" |wc -l`
-	for line in `seq 1 $lines`; do
+	for line in `seq 1 $lines`
+	do
 	    text=`cat "$file_conf" | sed -n "${line}p"`
-	    if [ "$text" != "${text#${item}=}" ]; then
+	    if [ "$text" != "${text#${item}=}" ]
+	    then
 		echo "${item}=$value" >> "${file_conf}.new"
 		
 	    else
 		echo "$text" >> "${file_conf}.new"
 	    fi
 	done
-	if [ -f "${file_conf}.new" ]; then
+	if [ -f "${file_conf}.new" ]
+	then
 	    mv "${file_conf}" "${file_conf}.old"
 	    mv "${file_conf}.new" "${file_conf}"
 	fi
@@ -157,12 +166,14 @@ function get_conf {
 	echo "$num_dl" > "$path_tmp/.dl-mode"
     fi
 	
-    if [ "$stream_mode" == "multi" ]; then
+    if [ "$stream_mode" == "multi" ]
+    then
 	stream_params="-m"
     fi
 
     ## editor
-    if [[ ! $(command -v $editor 2>/dev/null) ]]; then
+    if [[ ! $(command -v $editor 2>/dev/null) ]]
+    then
 	unset editor
     fi
 }
