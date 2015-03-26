@@ -36,7 +36,8 @@ function show_downloads {
 		-v col="$COLUMNS"                 \
 		-e "BEGIN {$awk_data display()}" 
 	fi
-    else
+    elif [ -z "$lite" ]
+    then
 	data_stdout
     fi
 }
