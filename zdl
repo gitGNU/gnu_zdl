@@ -468,16 +468,9 @@ fi
 ## se non è modalità interattiva, allora sono validi i comandi "standard"
 bindings
 
-################################### HEADER
-if [ -z "$lite" ] || [ ! -f "$path_conf/noclear" ]
-then 
-    fclear
-else
-    rm "$path_conf/noclear"
-fi
-[ -z "$lite" ] && header_z
-###################################
-
+##########
+header_z
+##########
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]
 then

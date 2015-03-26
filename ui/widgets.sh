@@ -64,7 +64,7 @@ function separator- {
 function fclear {
     if [ "$zdl_mode" != "daemon" ]
     then
-	echo -n -e "\ec${White}${On_Black}\e[J"
+	echo -n -e "\033c${White}${On_Black}\033[J"
     fi
 }
 
