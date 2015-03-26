@@ -103,11 +103,6 @@ function commands_box {
 }
 
 function standard_box {
-    if [ "$zdl_mode" == "lite" ]
-    then
-	lite=true
-	unset zdl_mode
-    fi
     header_box "Modalità in standard output"
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     [ -z "$1" ] && services_box
@@ -121,21 +116,10 @@ function standard_box {
 	separator-
 	echo
     fi
-
-    if [ "$lite" == "true" ]
-    then
-	zdl_mode="lite"
-	unset lite
-    fi
 }
 
 function change_mode {
     local cmd=$1
-    if [ "$zdl_mode" == "lite" ]
-    then
-	lite=true
-	unset zdl_mode
-    fi
 
     touch "$path_tmp/.stop_stdout"
     if [ $cmd == "interactive" ]
@@ -166,10 +150,6 @@ function change_mode {
 	export READLINE_LINE="i"
     else
 	header_box "Readline: immetti URL e link dei servizi"
-    fi
-    if [ "$lite" == "true" ]
-    then
-	zdl_mode="lite"
     fi
 }
 

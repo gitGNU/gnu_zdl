@@ -851,11 +851,6 @@ else
     echo $downloader_in > "$path_tmp/.downloader"
 fi
 
-if [ "$lite" == "true" ]
-then
-    zdl_mode="lite"
-    unset lite
-fi
 
 
 if [ -z "$start_file" ]
@@ -1132,6 +1127,12 @@ function main_loop {
 	return 1
     fi
 }
+
+if [ "$lite" == "true" ]
+then
+    zdl_mode="lite"
+    unset lite
+fi
 
 trap_sigint
 if [ "$zdl_mode" == "daemon" ]
