@@ -149,7 +149,9 @@ function change_mode {
 	separator-
 	print_c 1 "\n..."
 	export READLINE_LINE="i"
-    else
+    elif [ ! -z "$binding" ]
+    then
+	print_c 0
 	header_box "Readline: immetti URL e link dei servizi"
     fi
 }
