@@ -469,13 +469,13 @@ fi
 bindings
 
 ################################### HEADER
-if [ ! -f "$path_conf/noclear" ]
+if [ -z "$lite" ] || [ ! -f "$path_conf/noclear" ]
 then 
     fclear
 else
     rm "$path_conf/noclear"
 fi
-header_z
+[ -z "$lite" ] && header_z
 ###################################
 
 
