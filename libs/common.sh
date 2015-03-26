@@ -65,7 +65,7 @@ function check_instance_prog {
 	    else
 		tty="$(ps ax |grep -P '^[\ ]*'$pid)"
 		tty="${tty## }"
-		tty=$(cut -d ' ' -f 2 <<< "$tty")
+		tty="/dev/$(cut -d ' ' -f 2 <<< "$tty")"
 	    fi
 	    return 1
 	else
