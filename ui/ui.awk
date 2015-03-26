@@ -129,6 +129,30 @@ function show_downloads () {
     return code "\n\n\n\n\n"
 }
 
+function show_downloads_lite () {
+    for (i=0; i<length(pid_out); i++) {
+	file_out_chunk[i] = " " substr(file_out[i], 1, col-43) " "
+	if (downloader_out[i] == "cURL") {
+	    if (check_pid(pid_out[i])) {
+		length_H = human_length(length_saved[i])
+		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " (" length_H ") " BBlue speed_out[i] speed_out_type[i] "\n" blue_line
+	    } else if (exists(file_out[i])) {
+		length_H = human_length(length_saved[i])
+		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " (" length_H ") terminato\n" blue_line
+	    } else {
+		code = code BRed downloader_out[i] ": " file_out_chunk[i] " Download non attivo\n" blue_line
+	    }
+	# } else if (percent_out[i] == 100) {
+	# 	diff_bar_color = BGreen
+	# 	progress_bar = " " file_out_chunk[i] " Download completato"
+	} else {
+	    progress_bar = make_progress()
+	}
+	code = code diff_bar_color downloader_out[i] ": " progress_bar "\n" 
+    }
+    return code
+}
+
 
 function make_progress (size_bar, progress_bar, progress) {
     size_bar = 0
@@ -136,10 +160,17 @@ function make_progress (size_bar, progress_bar, progress) {
  	if (downloader_out[i] ~ /^(Wget|RTMPDump)$/) {
  	    progress = "Download non attivo"
  	}
- 	diff_bar_color = BRed 
- 	bar_color = On_Red
- 	speed = diff_bar_color "non attivo" Color_Off
- 	eta = ""
+	if (percent_out[i] == 100) {
+	    diff_bar_color = BGreen 
+	    bar_color = On_Green
+	    speed = diff_bar_color "completato" Color_Off
+	    eta = ""
+	} else {	    
+	    diff_bar_color = BRed 
+	    bar_color = On_Red
+	    speed = diff_bar_color "non attivo" Color_Off
+	    eta = ""
+	}
     } else {
 	if (speed_out[i] > 0) {
 	    diff_bar_color = BGreen
@@ -160,9 +191,28 @@ function make_progress (size_bar, progress_bar, progress) {
 
     bar = ""
     diff_bar = ""
-    for (k=0; k<size_bar; k++) bar = bar " "
-    for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "|"
-    progress_bar = bar_color bar Color_Off diff_bar_color diff_bar
+    if (percent_out[i] == 0) diff_size_bar++
+    if (percent_out[i] == 100) size_bar++
+    if (zdl_mode == "lite") {
+	for (k=0; k<size_bar; k++) {
+	    if (substr(file_out_chunk[i], k+1, 1)) {
+		bar = bar substr(file_out_chunk[i], k+1, 1)
+	    } else {
+		bar = bar " "
+	    }
+	}
+
+	for (h=0; h<diff_size_bar; h++) {
+	    if (substr(file_out_chunk[i], h+k+1, 1))
+		diff_bar = diff_bar substr(file_out_chunk[i], h+k+1, 1)
+	    else
+		diff_bar = diff_bar "|"
+	}
+    } else {
+	for (k=0; k<size_bar; k++) bar = bar " "
+	for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "|"
+    }
+    progress_bar = Black bar_color bar Color_Off diff_bar_color diff_bar
     
     if (! progress) progress = progress_bar Color_Off diff_bar_color " " percent_out[i] "% " Color_Off BBlue speed Color_Off " " eta
     return progress
@@ -171,8 +221,11 @@ function make_progress (size_bar, progress_bar, progress) {
 function display () {
     init_colors()
     blue_line = separator()
-    if (extended>0) {
+    if (zdl_mode == "extended") {
 	result = show_downloads_extended()
+    } else if (zdl_mode == "lite") {
+	result = header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
+	result = result "\n\n" show_downloads_lite()
     } else {
 	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result show_downloads()

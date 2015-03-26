@@ -78,6 +78,14 @@ OPZIONI
 			       essere attivi o registrati nei file temporanei
 			       della directory
 
+  -d,  --daemon 	       Avvia ZDL in modalità \"demone\" (può essere
+                               controllato attraverso l'interfaccia
+                               interattiva) 
+
+  -l,  --lite                  Avvia ZDL in modalità in standard output \"lite\" 
+                               (sono validi i comandi della modalità in 
+                               \"standard output\") 
+
        --out=<PROG|FILE>       Restituisce in output i nomi dei file 
                                dei download completati, in due modi alternativi:
                                  PROG: programma che può \"aprire\" il file 
@@ -88,10 +96,6 @@ OPZIONI
        --mp3                   Convertono i file (anche da video in audio) 
        --flac                  in MP3 oppure in FLAC: dipende da FFMpeg/AVConv
                                 
-  -d,  --daemon 	       Avvia ZDL in modalità \"demone\" (può essere
-                               controllato attraverso l'interfaccia
-                               interattiva) 
-
        --ip		       Scrive l'indirizzo IP attuale, prima di
                                effettuare altre operazioni
 

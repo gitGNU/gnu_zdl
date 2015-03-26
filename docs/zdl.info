@@ -214,13 +214,18 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      destinazione, prima di effettuare il download
 
 `-d, --daemon'
-     Avvia ZDL in modalità "demone" (può essere controllato attraverso
+     Avvia ZDL in modalità _demone_ (può essere controllato attraverso
      l'interfaccia interattiva)
 
 `-i, --interactive'
      Avvia l'interfaccia interattiva di ZDL per i download che hanno
      come destinazione la directory attuale. I download gestiti possono
      essere attivi o registrati nei file temporanei della directory
+
+`-l, --lite'
+     Avvia ZDL in modalità in standard output _lite_ (sono validi i
+     comandi della modalità in _standard output_). Può essere
+     configurata come modalità di avvio predefinita.
 
 `--out=_programma_|_file_'
      Restituisce in output i nomi dei file dei download completati, in
@@ -901,19 +906,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL4923
-Node: Servizi streaming/hosting10110
-Node: Avviare ZDL12893
-Node: Arrestare ZDL15331
-Node: Controllare i download16436
-Node: Manuali d'uso18916
-Node: Creare nuove estensioni19351
-Node: Software consigliati20931
-Node: Conkeror22039
-Node: zdl-xterm e XXXTerm/Xombrero23050
-Node: Installazione e aggiornamento24974
-Node: Tags27298
-Node: Copying29457
-Node: Contatti30507
+Node: Servizi streaming/hosting10311
+Node: Avviare ZDL13094
+Node: Arrestare ZDL15532
+Node: Controllare i download16637
+Node: Manuali d'uso19117
+Node: Creare nuove estensioni19552
+Node: Software consigliati21132
+Node: Conkeror22240
+Node: zdl-xterm e XXXTerm/Xombrero23251
+Node: Installazione e aggiornamento25175
+Node: Tags27499
+Node: Copying29658
+Node: Contatti30708
 
 End Tag Table
 

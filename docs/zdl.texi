@@ -299,10 +299,13 @@ Forza l'aggiornamento manuale di ZDL
 Cancella eventuali file temporanei dalla directory di destinazione, prima di effettuare il download 
 
 @item -d, --daemon
-Avvia ZDL in modalità "demone" (può essere controllato attraverso l'interfaccia interattiva) 
+Avvia ZDL in modalità @emph{demone} (può essere controllato attraverso l'interfaccia interattiva) 
 
 @item -i, --interactive
 Avvia l'interfaccia interattiva di ZDL per i download che hanno come destinazione la directory attuale. I download gestiti possono essere attivi o registrati nei file temporanei della directory
+
+@item -l, --lite
+Avvia ZDL in modalità in standard output @emph{lite} (sono validi i comandi della modalità in @emph{standard output}). Può essere configurata come modalità di avvio predefinita.
 
 @item --out=@emph{programma}|@emph{file}
 Restituisce in output i nomi dei file dei download completati, in due modi alternativi: 

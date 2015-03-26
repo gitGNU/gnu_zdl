@@ -39,6 +39,7 @@ key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Ag
 key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
 key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
+key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
 
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress

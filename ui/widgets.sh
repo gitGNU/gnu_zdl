@@ -29,7 +29,8 @@
 source "$path_usr/ui/colors.awk.sh"
 
 function print_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    then
 	case "$1" in
 	    0)
 		echo -n -e ""
@@ -54,31 +55,37 @@ function print_c {
 }
 
 function separator- {
-    if [ -z "$daemon" ]; then
+    if [ -z "$zdl_mode" ]
+    then
 	header "" "$BBlue" "─"
     fi
 }
 
 function fclear {
-    if [ -z "$daemon" ]; then
+    if [ "$zdl_mode" != "daemon" ]
+    then
 	echo -n -e "\ec${White}${On_Black}\e[J"
     fi
 }
 
 function cursor {
-    if [ -z "$daemon" ]; then
+    if [ -z "$zdl_mode" ]
+    then
 	stato=$1
 	case $stato in
 	    off)
-		echo -e -n "\033[?30;30;30c" ;;
+		echo -e -n "\033[?30;30;30c"
+		;;
 	    on)
-		echo -e -n "\033[?0;0;0c" ;;
+		echo -e -n "\033[?0;0;0c"
+		;;
 	esac
     fi
 }
 
 function header { # $1=label ; $2=color ; $3=header pattern
-    if [ -z "$daemon" ]; then
+    if [ -z "$zdl_mode" ]
+    then
 	text="$1"
 	[ ! -z "$text" ] && text=" $text " 
 	color="$2"
@@ -92,7 +99,8 @@ function header { # $1=label ; $2=color ; $3=header pattern
 
 
 function header_z {
-    if [ -z "$daemon" ]; then
+    if [ -z "$zdl_mode" ]
+    then
 	fclear
 	text_start="$name_prog ($prog)"
 	text_end="$(zclock)"
@@ -102,8 +110,9 @@ function header_z {
 }
 
 function header_box {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ]; then
-	if [ -z "$daemon" ]; then
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    then
+	if [ -z "$zdl_mode" ]; then
 	    header "$1" "$Black${On_White}" "─"
 	fi
     fi
@@ -114,13 +123,15 @@ function header_box_interactive {
 }
 
 function header_dl {
-    if [ -z "$daemon" ]; then
+    if [ -z "$zdl_mode" ]
+    then
 	header "$1 " "$White${On_Blue}" 
     fi
 }
 
 function pause {
-    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ] ); then
+    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] )
+    then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
 	cursor off
@@ -130,7 +141,8 @@ function pause {
 }
 
 function xterm_stop {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$daemon" ] && [ -z "$pipe_out" ]; then
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] && [ -z "$pipe_out" ]
+    then
 	echo
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off

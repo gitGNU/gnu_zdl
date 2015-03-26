@@ -218,7 +218,7 @@ then
 	if [ "${args[$i]}" == "--silent" ]
 	then
 	    unset args[$i]
-	    daemon="true"
+	    zdl_mode="daemon"
 	    sleeping_pause=5
 	fi
 
@@ -233,7 +233,7 @@ fi
 ## conkeror
 if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]
 then
-    if [ "$daemon" != "true" ]
+    if [ "$zdl_mode" != "daemon" ]
     then 
 	if [ -z "$DISPLAY" ]
 	then
@@ -768,6 +768,19 @@ then
 fi
 
 
+if [[ "${args[*]}" =~ (--lite|-l) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[$i]}" =~ ^(--lite|-l)$ ]]
+	then
+	    zdl_mode="lite"
+	    unset args[$i]
+	fi
+    done
+fi
+
+
 for ((i=0; i<=$max_args; i++))
 do
     if [ "${args[$i]}" != "${args[$i]#-}" ]
@@ -840,7 +853,7 @@ then
     then
 	echo "$pid_prog" > "$path_tmp/pid.zdl"
     fi
-    if [ -z "$from_editor" ] && [ -z "$daemon" ]
+    if [ -z "$from_editor" ] && [ "$zdl_mode" != "daemon" ]
     then
 	standard_box
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
@@ -877,7 +890,7 @@ then
     fi
 fi
 
-if ! check_instance_daemon && [ -z "$daemon" ]
+if ! check_instance_daemon && [ "$zdl_mode" != "daemon" ]
 then
     redirect_links
 fi
@@ -893,7 +906,7 @@ rm -f "$path_tmp/.stop_stdout"
 echo "$downloader_in" > "$path_tmp/.downloader"
 
 function main_loop {
-    if [ "$daemon" == "true" ] && [ ! -f "$start_file" ]
+    if [ "$zdl_mode" == "daemon" ] && [ ! -f "$start_file" ]
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
@@ -943,7 +956,7 @@ function main_loop {
 	    if ! check_in_loop
 	    then
 		[ -z "$url_in" ] && break
-		
+
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -1109,7 +1122,7 @@ function main_loop {
 }
 
 trap_sigint
-if [ "$daemon" == "true" ]
+if [ "$zdl_mode" == "daemon" ]
 then
     while true
     do
@@ -1125,13 +1138,26 @@ else
     loops_pid=$!
 fi
 
-if [ "$daemon" != true ]
+if [ "$zdl_mode" == "lite" ]
+then
+    lite=true
+fi
+
+if [ "$zdl_mode" != "daemon" ]
 then
     stty -echo
     bindings
     while check_pid $loops_pid
     do
-	read -e -n 1 -t 1 binding_in_loop 
+	if [ "$lite" == "true" ]
+	then
+	    unset zdl_mode
+	    show_downloads_lite
+	    read -e -n 1 -t 3 binding_in_loop
+	    unset zdl_mode
+	else
+	    read -e -n 1 -t 1 binding_in_loop
+	fi
     done
 
 fi
@@ -1143,12 +1169,14 @@ separator-
 print_c 1 "Download completato"
 separator-
 
-if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]; then
+if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]
+then
     data_stdout
     pipe_files
 fi
 
-if [ "$zdl_exit" != "true" ]; then
+if [ "$zdl_exit" != "true" ]
+then
 	rm -rf "$path_tmp" 2>/dev/null
 else
     kill_downloads
@@ -1156,13 +1184,15 @@ fi
 
 echo -e "\n\n"
 stty echo
-if [ -f "$file_log" ]; then
+if [ -f "$file_log" ]
+then
     print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
     print_c 0 "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n\n"
 fi
 
 
-if [ "$xterm_stop" == "true" ]; then
+if [ "$xterm_stop" == "true" ]
+then
     xterm_stop
 fi
 echo -e -n "\e[0m\e[J"

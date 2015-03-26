@@ -25,19 +25,35 @@
 #
 
 function show_downloads {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$daemon" != "true" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
     then
+	[ "$zdl_mode" == "lite" ] && fclear
 	if data_stdout
 	then
 	    awk -f $path_usr/libs/common.awk      \
 		-f $path_usr/ui/colors.awk.sh     \
 		-f $path_usr/ui/ui.awk            \
 		-v col="$COLUMNS"                 \
-		-v extended=0                     \
 		-e "BEGIN {$awk_data display()}" 
 	fi
     else
 	data_stdout
+    fi
+}
+
+function show_downloads_lite {
+    fclear
+    if data_stdout
+    then
+	awk -f $path_usr/libs/common.awk      \
+	    -f $path_usr/ui/colors.awk.sh     \
+	    -f $path_usr/ui/ui.awk            \
+	    -v col="$COLUMNS"                 \
+	    -v zdl_mode="lite"                \
+	    -e "BEGIN {$awk_data display()}" 
+    else
+	header_dl "ZigzagDownLoader in $PWD"
+	print_c 1 "Connessione in corso..."
     fi
 }
 
@@ -64,7 +80,7 @@ function show_downloads_extended {
 	    -f $path_usr/ui/colors.awk.sh         \
 	    -f $path_usr/ui/ui.awk                \
 	    -v col="$COLUMNS"                     \
-	    -v extended=1                         \
+	    -v zdl_mode="extended"                \
 	    -e "BEGIN {$awk_data display()}" 
     fi
 }
@@ -87,6 +103,11 @@ function commands_box {
 }
 
 function standard_box {
+    if [ "$zdl_mode" == "lite" ]
+    then
+	lite=true
+	unset zdl_mode
+    fi
     header_box "Modalità in standard output"
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     [ -z "$1" ] && services_box
@@ -95,14 +116,26 @@ function standard_box {
     then
 	echo
 	header_box "Readline: immetti URL e link dei servizi"
-    else
+    elif [ "$lite" != "true" ]
+    then
 	separator-
 	echo
+    fi
+
+    if [ "$lite" == "true" ]
+    then
+	zdl_mode="lite"
+	unset lite
     fi
 }
 
 function change_mode {
     local cmd=$1
+    if [ "$zdl_mode" == "lite" ]
+    then
+	lite=true
+	unset zdl_mode
+    fi
 
     touch "$path_tmp/.stop_stdout"
     if [ $cmd == "interactive" ]
@@ -116,19 +149,27 @@ function change_mode {
     fi
 
     rm -f "$path_tmp/.stop_stdout"
-    header_z
-    header_box "Modalità in standard output"
-    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
-    echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+    
+    if [ -z "$lite" ] || [ ! -z "$binding" ]
+    then
+	header_z
+	header_box "Modalità in standard output"
+	[ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
+	echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
-    commands_box
-    if [ -z "$binding" ]
+	commands_box
+    fi
+    if [ -z "$binding" ] 
     then
 	separator-
 	print_c 1 "\n..."
 	export READLINE_LINE="i"
     else
 	header_box "Readline: immetti URL e link dei servizi"
+    fi
+    if [ "$lite" == "true" ]
+    then
+	zdl_mode="lite"
     fi
 }
 
@@ -322,7 +363,7 @@ function sleeping {
     timer=$1
     ## l'interazione è stata sostituita con 'bind' e i processi sono in background: lo schermo non è più influenzato dalla tastiera
     #
-    # if [ -z "$daemon" ] && [ -z "$pipe" ]; then
+    # if [ -z "$zdl_mode" ] && [ -z "$pipe" ]; then
     # 	read -es -t $timer -n 1 
     # else
 	sleep $timer

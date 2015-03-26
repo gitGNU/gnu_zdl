@@ -1,4 +1,4 @@
-.TH "ZigzagDownLoader (ZDL)" "1" "Wed Mar 25 16:22:40 2015" "GNU" "User Commands"
+.TH "ZigzagDownLoader (ZDL)" "1" "Thu Mar 26 01:51:21 2015" "GNU" "User Commands"
 .SH NOME\	
 \fBzdl\fP - CLI download manager per \fIGNU/Linux\fP e \fIMicrosoft Windows + Cygwin\fP.\
 
@@ -86,12 +86,17 @@ Cancella eventuali file temporanei dalla directory di destinazione, prima di eff
 .RS -5
 \fB-d, --daemon\fP
 .RS 5
-Avvia ZDL in modalità "demone" (può essere controllato attraverso l'interfaccia interattiva) 
+Avvia ZDL in modalità \fIdemone\fP (può essere controllato attraverso l'interfaccia interattiva) 
 
 .RS -5
 \fB-i, --interactive\fP
 .RS 5
 Avvia l'interfaccia interattiva di ZDL per i download che hanno come destinazione la directory attuale\&. I download gestiti possono essere attivi o registrati nei file temporanei della directory
+
+.RS -5
+\fB-l, --lite\fP
+.RS 5
+Avvia ZDL in modalità in standard output \fIlite\fP (sono validi i comandi della modalità in \fIstandard output\fP)\&. Può essere configurata come modalità di avvio predefinita.
 
 .RS -5
 \fB--out=\fP\fIprogramma\fP\fB|\fP\fIfile\fP\fB\fP
