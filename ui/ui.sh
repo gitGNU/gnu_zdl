@@ -42,9 +42,9 @@ function show_downloads {
 }
 
 function show_downloads_lite {
-    fclear
     if data_stdout
     then
+#    fclear
 	awk -f $path_usr/libs/common.awk      \
 	    -f $path_usr/ui/colors.awk.sh     \
 	    -f $path_usr/ui/ui.awk            \
@@ -52,6 +52,7 @@ function show_downloads_lite {
 	    -v zdl_mode="lite"                \
 	    -e "BEGIN {$awk_data display()}" 
     else
+	fclear
 	header_dl "ZigzagDownLoader in $PWD"
 	print_c 1 "Connessione in corso..."
     fi
