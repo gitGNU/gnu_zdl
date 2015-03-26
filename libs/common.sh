@@ -53,14 +53,19 @@ function check_instance_daemon {
 }
 
 function check_instance_prog {
-    if [ -f "$path_tmp/pid.zdl" ]; then
+    if [ -f "$path_tmp/pid.zdl" ]
+    then
 	test_pid="$(cat "$path_tmp/pid.zdl" 2>/dev/null)"
-	if check_pid "$test_pid" && [ "$pid_prog" != "$test_pid" ]; then
+	if check_pid "$test_pid" && [ "$pid_prog" != "$test_pid" ]
+	then
 	    pid=$test_pid
-	    if [ -e "/cygdrive" ]; then
+	    if [ -e "/cygdrive" ]
+	    then
 		tty="$(cat /proc/$test_pid/ctty)"
 	    else
-		tty="/dev/$(ps ax |grep -P '^[\ ]*'$pid |cut -d ' ' -f 3)"
+		tty="$(ps ax |grep -P '^[\ ]*'$pid)"
+		tty="${tty## }"
+		tty=$(cut -d ' ' -f 2 <<< "$tty")
 	    fi
 	    return 1
 	else
