@@ -26,16 +26,23 @@
 
 function configure_key {
     opt=$1
-    if [[ "$opt" =~ ^[0-9]+$ ]] && (( $opt > 0 )) && (( $opt <= ${#key_conf[*]} )); then 
+    if [[ "$opt" =~ ^[0-9]+$ ]] && \
+	(( $opt > 0 )) && \
+	(( $opt <= ${#key_conf[*]} ))
+    then 
 	(( opt-- ))
 	header_box "Scrivi il nuovo valore"
-	if [ "${key_conf[$opt]}" == "$reconnecter" ]; then
+
+	if [ "${key_conf[$opt]}" == "$reconnecter" ]
+	then
 	    extra_string=" [è necessario indicare il path completo e valido]"
 	fi
 	print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
 	read new_value
 	
-	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] && [[ -z $(command -v ${new_value%% *} 2>/dev/null) ]]; then
+	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] && \
+	    [[ -z $(command -v ${new_value%% *} 2>/dev/null) ]]
+	then
 	    print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
 	    pause
 	else
@@ -46,7 +53,8 @@ function configure_key {
 }
 
 function configure {
-    while true; do
+    while true
+    do
 	header_z
 	header_box "Preferenze"
 	print_c 2 "Scegli un'opzione (1|2|3)"
@@ -77,7 +85,8 @@ function configure {
 }
 
 function show_conf {
-    for ((i=0; i<${#key_conf[*]}; i++)); do
+    for ((i=0; i<${#key_conf[*]}; i++))
+    do
 	echo -e "\t< ${BBlue}$(( $i+1 ))$Color_Off > ${string_conf[$i]}: ${BBlue}$(eval echo \$${key_conf[$i]})$Color_Off"
     done
 }
@@ -86,7 +95,8 @@ function show_accounts {
     header_box "Account registrati per $host:"
 
     if [ ! -z "${accounts_user[*]}" ];then
-	for name_account in ${accounts_user[*]}; do
+	for name_account in ${accounts_user[*]}
+	do
 	    echo "$name_account"
 	done
     else
@@ -97,8 +107,9 @@ function show_accounts {
 function get_accounts {
     unset accounts_user accounts_pass
     if [ -f "$path_conf"/accounts/$host ];then
-	lines=`cat "$path_conf"/accounts/$host |wc -l`
-	for line in `seq 1 $lines`; do
+	lines=$(wc -l < "$path_conf"/accounts/$host)
+	for line in $(seq 1 $lines)
+	do
 	    accounts_user[${#accounts_user[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($1) }'`
 	    accounts_pass[${#accounts_pass[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($2) }'`
 	done
