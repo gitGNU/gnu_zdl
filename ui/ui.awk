@@ -218,7 +218,7 @@ function display () {
     if (zdl_mode == "extended") {
 	result = show_downloads_extended()
     } else if (zdl_mode == "lite") {
-	result = "\ec" White On_Black "\e[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
+	result = "\033c" White On_Black "\033[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result "\n\n" show_downloads_lite()
     } else {
 	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
