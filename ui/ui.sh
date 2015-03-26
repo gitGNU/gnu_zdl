@@ -144,7 +144,7 @@ function change_mode {
 
 	commands_box
     fi
-    if [ -z "$binding" ] 
+    if [ -z "$lite" ] && [ -z "$binding" ] 
     then
 	separator-
 	print_c 1 "\n..."
