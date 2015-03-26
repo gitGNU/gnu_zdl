@@ -1057,11 +1057,15 @@ function main_loop {
 		    _log 14
 		fi
 
+		if ! url? "$url_in_file" && [[ "$downloader_in" =~ (Wget|Axel) ]]
+		then
+		    break_loop=true
+		fi
+		
 		#### DOWNLOAD ####
 		if  [ -z "$break_loop" ] &&                                                  \
 		    [ -z "$premium" ] &&                                                     \
 		    check_in_file &&                                                         \
-		    ( url? "$url_in_file" && [[ "$downloader_in" =~ (Wget|Axel) ]] ) &&      \
 		    links_loop "in" "$url_in" &&                                             \
 		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   \
 		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
