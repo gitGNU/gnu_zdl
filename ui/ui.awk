@@ -193,11 +193,11 @@ function make_progress (size_bar, progress_bar, progress) {
 	    if (substr(file_out_chunk[i], h+k+1, 1))
 		diff_bar = diff_bar substr(file_out_chunk[i], h+k+1, 1)
 	    else
-		diff_bar = diff_bar "|"
+		diff_bar = diff_bar "│"
 	}
     } else {
 	for (k=0; k<size_bar; k++) bar = bar " "
-	for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "|"
+	for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "│"
     }
     progress_bar = Black bar_color bar Color_Off diff_bar_color diff_bar
     
