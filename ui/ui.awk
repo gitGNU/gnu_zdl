@@ -147,7 +147,7 @@ function show_downloads_lite () {
 	}
 	code = code diff_bar_color downloader_out[i] ": " progress_bar "\n" 
     }
-    return code
+    return code "\n\n"
 }
 
 
