@@ -604,7 +604,7 @@ then
     do
 	if [[ "${args[$i]}" =~ ^(\-\-configure|\-c)$ ]]
 	then 
-	    unset args[$i] zdl_mode
+	    unset args[$i]
 	    configure
 	fi
     done

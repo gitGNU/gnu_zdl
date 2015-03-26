@@ -53,6 +53,7 @@ function configure_key {
 }
 
 function configure {
+    unset zdl_mode
     while true
     do
 	header_z
@@ -69,6 +70,7 @@ function configure {
 		header_box "Configurazione di $name_prog"
 		get_conf
 		show_conf
+		unset zdl_mode
 		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-${#key_conf[*]} | *):"
 		read opt
 		configure_key $opt
