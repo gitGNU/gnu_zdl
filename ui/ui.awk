@@ -142,9 +142,6 @@ function show_downloads_lite () {
 	    } else {
 		code = code BRed downloader_out[i] ": " file_out_chunk[i] " Download non attivo\n" blue_line
 	    }
-	# } else if (percent_out[i] == 100) {
-	# 	diff_bar_color = BGreen
-	# 	progress_bar = " " file_out_chunk[i] " Download completato"
 	} else {
 	    progress_bar = make_progress()
 	}
@@ -157,9 +154,6 @@ function show_downloads_lite () {
 function make_progress (size_bar, progress_bar, progress) {
     size_bar = 0
     if (! check_pid(pid_out[i])) {
- 	if (downloader_out[i] ~ /^(Wget|RTMPDump)$/) {
- 	    progress = "Download non attivo"
- 	}
 	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
