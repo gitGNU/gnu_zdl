@@ -93,10 +93,6 @@ function show_downloads_extended () {
 	    } else {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
 	    }
-	} else if (percent_out[i] == 100) {
-	    diff_bar_color = BGreen
-	    progress_bar = "Download completato"
-	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
 	} else {
 	    progress_bar = make_progress()
 	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
@@ -118,9 +114,6 @@ function show_downloads () {
 	    } else {
 		code = code BRed downloader_out[i] ": Download non attivo\n" blue_line
 	    }
-	} else if (percent_out[i] == 100) {
-		diff_bar_color = BGreen
-		progress_bar = "Download completato"
 	} else {
 	    progress_bar = make_progress()
 	}
@@ -131,7 +124,7 @@ function show_downloads () {
 
 function show_downloads_lite () {
     for (i=0; i<length(pid_out); i++) {
-	file_out_chunk[i] = " " substr(file_out[i], 1, col-23) " "
+	file_out_chunk[i] = " " substr(file_out[i], 1, col-33) " "
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
@@ -180,8 +173,8 @@ function make_progress (size_bar, progress_bar, progress) {
     }
 
     if (! int(percent_out[i])) percent_out[i] = 0
-    size_bar = (col-20) * int(percent_out[i])/100
-    diff_size_bar = (col-20) - size_bar
+    size_bar = (col-30) * int(percent_out[i])/100
+    diff_size_bar = (col-30) - size_bar
 
     bar = ""
     diff_bar = ""
