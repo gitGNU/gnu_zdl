@@ -230,8 +230,8 @@ function new_ip_proxy {
 	[ ! -z "$close" ] && break
 	http_proxy="$proxy"
 	export http_proxy
-	print_c 0 "Proxy: $http_proxy ($proxy_type)"
-	echo
+	print_c 0 "Proxy: $http_proxy ($proxy_type)\n"
+
 	unset myip
 	print_c 2 "\nTest velocità di download:"
 	i=0
@@ -283,10 +283,10 @@ function new_ip_proxy {
 	unset unreached speed
     done
     unset maxspeed
-    echo
+    
     rm -f "$path_tmp/proxy.tmp"
     old_proxy="$proxy"
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
-    print_c 4 "Avvio connessione: $url_in ..."
+    print_c 4 "\nAvvio connessione: $url_in ..."
 }
