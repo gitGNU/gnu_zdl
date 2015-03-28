@@ -1169,7 +1169,12 @@ then
 	    read -e -n 1 -t 1 binding_in_loop
 	fi
     done
-
+    if [ "$lite" == "true" ]
+    then
+	unset zdl_mode
+	show_downloads_lite
+	unset zdl_mode
+    fi
 fi
 
 wait $loops_pid
