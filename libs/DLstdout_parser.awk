@@ -276,6 +276,11 @@ function progress_out (value,           progress_line) {
 
 	}
     }
+
+    if (! speed_out[i]) speed_out[i] = 0
+    if (! speed_out_type[i]) speed_out_type[i] = "KB/s"
+    if (! length_saved[i]) length_saved[i] = 0
+    if (! percent_out[i]) percent_out[i] = 0
     array_out(speed_out[i], "speed_out")
     array_out(speed_out_type[i], "speed_out_type")
     array_out(eta_out[i], "eta_out")
