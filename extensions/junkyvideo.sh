@@ -28,29 +28,44 @@
 ## zdl-extension name: Junkyvideo (HD)
 
 
-if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]; then
-    input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)" 
-    print_c 0 "${BBlue}1/2) "
-    countdown+ 6
-    #### Per scaricare il file a bassa risoluzione (streaming video), seguire questa pista:
-    ## wget -q --post-data="$post_data" "$url_in" -O- |grep file:
+if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]
+then
+    html="$(wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)"
 
-    data_html=$(wget -q "http://junkyvideo.com/dl?op=get_vid_versions&file_code=${postdata_id}" -O- |grep download_video)
-    unset data
-    data=( $(sed -r "s|^.+\('(.+)','(.+)','(.+)'\).+$|\1 \2 \3|g" <<< "$data_html") )
+    if [ ! -z "$html" ]
+    then
+	input_hidden "$html"
+	print_c 0 "${BBlue}1/2) "
+	countdown+ 6
+        #### Per scaricare il file a bassa risoluzione (streaming video), seguire questa pista:
+        ## wget -q --post-data="$post_data" "$url_in" -O- |grep file:
 
-    print_c 0 "${BBlue}2/2) "
-    countdown+ 6
-    wget -q "http://junkyvideo.com/dl?op=download_orig&id=${data[0]}&mode=${data[1]}&hash=${data[2]}" -O "$path_tmp/zdl.tmp"
-    url_in_file=$(cat "$path_tmp/zdl.tmp" |grep "$file_in" |sed -r 's|^[^"]+\"([^"]+).+|\1|g' )
-    file_in="$postdata_fname.${url_in_file##*.}"
-    unset post_data
-    axel_parts=4
-read -p "$url_in_file"
+	data_html=$(wget -t 1 -T $max_waiting -q "http://junkyvideo.com/dl?op=get_vid_versions&file_code=${postdata_id}" -O- |grep download_video)
 
-    if [ -z "$url_in_file" ]; then
-	_log 3
-	break_loop=true
+	if [ ! -z "$data_html" ]
+	then
+	    unset data
+	    data=( $(sed -r "s|^.+\('(.+)','(.+)','(.+)'\).+$|\1 \2 \3|g" <<< "$data_html") )
+
+	    print_c 0 "${BBlue}2/2) "
+	    countdown+ 6
+	    html="$(wget -t 1 -T $max_waiting -q                                                            \
+		"http://junkyvideo.com/dl?op=download_orig&id=${data[0]}&mode=${data[1]}&hash=${data[2]}"   \
+		-O-)"
+	    url_in_file=$(grep "$file_in" <<< "$html" |sed -r 's|^[^"]+\"([^"]+).+|\1|g' )
+	    file_in="$postdata_fname.${url_in_file##*.}"
+	    unset post_data
+	    axel_parts=4
+
+	    if [ -z "$url_in_file" ]
+	    then
+		_log 3
+	    fi
+	else
+	    _log 2
+	fi
+    else
+	_log 2
     fi
 fi
 
