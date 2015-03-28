@@ -27,36 +27,43 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: Thevideo
 
-if [ "$url_in" != "${url_in//'thevideo.'}" ]; then
-    html=$(wget "$url_in" -O- -q)
-    unset post_data
-    input_hidden "$html"
+if [ "$url_in" != "${url_in//'thevideo.'}" ]
+then
+    html=$(wget -t 1 -T $max_waiting "$url_in" -O- -q)
+    if [ ! -z "$html" ]
+    then
+	unset post_data
+	input_hidden "$html"
 
-    url=$(sed -r 's|(.+)\/([^/]+)|\1/download/\2|g' <<< "$url_in")
-    html=$(wget -q -O - "$url")
+	url=$(sed -r 's|(.+)\/([^/]+)|\1/download/\2|g' <<< "$url_in")
+	html=$(wget -q -O - "$url")
 
-    url=$(sed -r 's|(.+)\/([^/]+)|\1|g' <<< "$url_in")$(grep url: <<< "$html" | sed -r 's|.+\"([^"]+)\".+|\1|g')
-    html=$(wget --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" -q -O - "$url" |grep onclick |head -n1)
+	url=$(sed -r 's|(.+)\/([^/]+)|\1|g' <<< "$url_in")$(grep url: <<< "$html" | sed -r 's|.+\"([^"]+)\".+|\1|g')
+	html=$(wget --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" -q -O - "$url" |grep onclick |head -n1)
 
-    urlcode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\1|g" <<< "$html")
-    urlmode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\2|g" <<< "$html")
-    urlhash=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\3|g" <<< "$html")
-    url=$(sed -r 's|(.+)\/([^/]+)|\1/download|g' <<< "$url_in")/$urlcode/$urlmode/$urlhash
-    unset url_in_file
-    while [ -z "$url_in_file" ]; do
-	url_in_file=$(wget "$url" -O- -q |grep "Direct Download Link" | sed -r 's|.+\"([^"]+)\".+|\1|g')
-	sleep 1
-	if ! check_pid $pid_prog
-	then
-	    exit
-	fi
-    done
+	urlcode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\1|g" <<< "$html")
+	urlmode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\2|g" <<< "$html")
+	urlhash=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\3|g" <<< "$html")
+	url=$(sed -r 's|(.+)\/([^/]+)|\1/download|g' <<< "$url_in")/$urlcode/$urlmode/$urlhash
+	unset url_in_file
+	while [ -z "$url_in_file" ]
+	do
+	    url_in_file=$(wget "$url" -O- -q |grep "Direct Download Link" | sed -r 's|.+\"([^"]+)\".+|\1|g')
+	    sleep 1
+	    if ! check_pid $pid_prog
+	    then
+		exit
+	    fi
+	done
 
-    file_in=$file_in.${url_in_file##*.}
+	file_in=$file_in.${url_in_file##*.}
 
 ## per file in streaming (se si riesce a scaricare la pagina con il player [con funzione eval]):
 #    packed_args "$(cat $path_tmp/zdl2.tmp|grep eval)"
 #    packed_code=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
 
-    axel_parts=6
+	axel_parts=6
+    else
+	_log 2
+    fi
 fi

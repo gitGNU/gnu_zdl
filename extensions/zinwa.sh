@@ -44,26 +44,32 @@ function decodejs_zinwa {
     echo "$restr"
 }
 
-if [ "$url_in" != "${url_in//'zinwa.'}" ]; then
+if [ "$url_in" != "${url_in//'zinwa.'}" ]
+then
     print_c 2 "Attendi...\n"
-    html=$(wget -q "$url_in" -O-)
-    if [[ $(grep 'Premium users only' <<< "$html") ]]; then
-	_log 11
-	break_loop=true
-    elif [[ $(grep 'File Not Found' <<< "$html") ]]; then
-	_log 3
-	break_loop=true
-    else
-	args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
-	if [[ "$args" ]]; then
-	    code=$(decodejs_zinwa "${args%,*}" "${args##*,}")
-	    playpath=$(sed -r "s|.+file: \"([^\"]+)\".+|\1|g" <<< "$code")
-	    streamer=$(sed -r 's|.+streamer: \"([^"]+)\".+|\1|' <<< "$code")
-	    file_in=$(grep '<title>' <<< "$html" |sed -r 's|.+>([^<>]+)<.+|\1|g').$(sed -r 's|.+\.([^.]+)\?.*$|\1|g' <<< "$playpath")
+    html=$(wget -t 1 -T $max_waiting -q "$url_in" -O-)
+
+    if [ ! -z "$html" ]
+    then
+	if [[ $(grep 'Premium users only' <<< "$html") ]]
+	then
+	    _log 11
+	elif [[ $(grep 'File Not Found' <<< "$html") ]]
+	then
+	    _log 3
 	else
-	    _log 2
-	    break_loop=true
+	    args=$(grep eval <<< "$html" |sed -r 's|.+\(([^()]+)\).+|\1|g')
+	    if [[ "$args" ]]; then
+		code=$(decodejs_zinwa "${args%,*}" "${args##*,}")
+		playpath=$(sed -r "s|.+file: \"([^\"]+)\".+|\1|g" <<< "$code")
+		streamer=$(sed -r 's|.+streamer: \"([^"]+)\".+|\1|' <<< "$code")
+		file_in=$(grep '<title>' <<< "$html" |sed -r 's|.+>([^<>]+)<.+|\1|g').$(sed -r 's|.+\.([^.]+)\?.*$|\1|g' <<< "$playpath")
+	    else
+		_log 2
+	    fi
 	fi
+    else
+	_log 2
     fi
 fi
 

@@ -29,9 +29,14 @@
 ## zdl-extension name: Exashare
 
 
-if [ "$url_in" != "${url_in//exashare.}" ]; then
-    html=$(wget -q "$url_in" -O-)
-    url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
-    ext=${url_in_file##*.}
-    file_in=$(grep 'Title' <<< "$html" |sed -r 's|.+title.{1}(.+)[<].+|\1|').$ext
+if [ "$url_in" != "${url_in//exashare.}" ]
+then
+    html=$(wget -t 1 -T $max_waiting -q "$url_in" -O-)
+    if [ ! -z "$html" ]
+	url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
+	ext=${url_in_file##*.}
+	file_in=$(grep 'Title' <<< "$html" |sed -r 's|.+title.{1}(.+)[<].+|\1|').$ext
+    else
+	_log 2
+    fi
 fi

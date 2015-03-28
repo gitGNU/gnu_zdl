@@ -33,42 +33,62 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
     if [ -z "$num_dl" ];then
 	check_ip billionuploads
     fi
-    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    print_c 0 "...\c"
-    
-    unset post_data
-    input_hidden "$path_tmp/zdl.tmp"
-    post_data="${post_data%&cmt_type=*}"
-    
-    if [ -z "$file_in" ]; then
-	file_in=`cat "$path_tmp/zdl.tmp"|grep "Filename"`
-	file_in="${file_in#*</b>}"
-	file_in="${file_in%<br>*}"
-    fi
-    
-    print_c 2 "Attendi circa 30 secondi:"
-    k=`date +"%s"`
-    s=0
-    unset url_in_file
-    while true; do
+    html="$(wget -q -t 1 -T $max_waiting     \
+	--retry-connrefused                  \
+	--keep-session-cookies               \
+	--save-cookies="$cookies"            \
+	-O-                                  \
+	"$url_in" &>/dev/null)"
+    if [ ! -z "$html" ]
+    then
+	print_c 1 "...\c"
 	
-	if (( $s>29 )); then
-	    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
-	    url_in_file=`cat "$path_tmp"/zdl2.tmp | grep ">Download</a>"`
-	    url_in_file="${url_in_file#*product_download_url=}"
-	    url_in_file="${url_in_file%%\"*}"
-	fi
-	sleeping 1
-	s=`date +"%s"`
-	s=$(( $s-$k ))
+	unset post_data
+	input_hidden "$html"
+	post_data="${post_data%&cmt_type=*}"
 	
-	print_c 0 "$s\r\c"
-	if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
-	    break
+	if [ -z "$file_in" ]
+	then
+	    file_in=$(grep "Filename" <<< "$html")
+	    file_in="${file_in#*</b>}"
+	    file_in="${file_in%<br>*}"
 	fi
-	if ! check_pid $pid_prog; then exit; fi
-    done
-    if (( $axel_parts>8 )); then
-	axel_parts=8
+	
+	print_c 2 "Attendi circa 30 secondi:"
+	k=$(date +"%s")
+	s=0
+	unset url_in_file
+	while true
+	do
+	    if (( $s>29 ))
+	    then
+		html="$(wget -t 1 -T $max_waiting             \
+		    --load-cookies=$path_tmp/cookies.zdl      \
+		    --save-cookies="$cookies"                 \
+		    --post-data="$post_data"                  \
+		    $url_in -O- &>/dev/null)"
+		url_in_file=$(grep ">Download</a>" <<< "$html")
+		url_in_file="${url_in_file#*product_download_url=}"
+		url_in_file="${url_in_file%%\"*}"
+	    fi
+	    sleeping 1
+	    s=$(date +"%s")
+	    s=$(( $s-$k ))
+	    
+	    print_c 0 "$s\r\c"
+	    if  ! check_pid $pid_prog   ||    \
+		[ ! -z "$url_in_file" ] ||    \
+		(( $s > 60 ))
+	    then
+		break
+	    fi
+	    
+	done
+	if (( $axel_parts>8 ))
+	then
+	    axel_parts=8
+	fi
+    else
+	_log 2
     fi
 fi

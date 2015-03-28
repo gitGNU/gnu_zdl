@@ -28,9 +28,15 @@
 ## zdl-extension name: Videowood
 
 
-if [ "$url_in" != "${url_in//'videowood.'}" ]; then
-    html=$(wget -q -O - "${url_in//'/video/'//embed/}")
-    url_in_file=$(grep file: <<< "$html" | head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
-    ext=${url_in_file##*.}
-    file_in=$(grep title: <<< "$html" |sed -r 's|.+\"([^"]+)\".+|\1|g').$ext
+if [ "$url_in" != "${url_in//'videowood.'}" ]
+then
+    html="$(wget -t 1 -T $max_waiting -q -O - "${url_in//'/video/'//embed/}")"
+    if [ ! -z "$html" ]
+    then
+	url_in_file=$(grep file: <<< "$html" | head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
+	ext=${url_in_file##*.}
+	file_in=$(grep title: <<< "$html" |sed -r 's|.+\"([^"]+)\".+|\1|g').$ext
+    else
+	_log 2
+    fi
 fi

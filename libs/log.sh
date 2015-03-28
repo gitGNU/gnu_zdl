@@ -25,7 +25,8 @@
 #
 
 function init_log {
-    if [ $log == 0 ]; then
+    if [ $log == 0 ]
+    then
 	echo -e "File log di $name_prog:\n" > $file_log
 	log=1
     fi
@@ -40,27 +41,33 @@ function _log {
     [ ! -z "$2" ] && [ -z "$file_in" ] && url_in="$2"
     case $1 in
 	1)
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		init_log
 		print_c 3  "File $file_in già presente in $PWD: $url_in non verrà processato."  | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
 		unset from_loop
+		break_loop=true
 	    fi
 	    ;;
 	2)
-	    if [ ! -z "$url_in" ]; then
+	    if [ ! -z "$url_in" ]
+	    then
 		url_in_log=" (link di download: $url_in) "
 	    fi
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		init_log "2"
 		print_c 3  "$url_in --> File ${file_in}${url_in_log} non disponibile, riprovo più tardi"  #| tee -a $file_log
 		no_msg=true
 		unset from_loop
+		break_loop=true
 	    fi
 	    ;;
 	3)
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		init_log
 		print_c 3  "$url_in --> Indirizzo errato o file non disponibile" | tee -a $file_log
 		links_loop - "$url_in"
@@ -69,7 +76,8 @@ function _log {
 	    fi
 	    ;;
 	4)
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		init_log
 		print_c 3 "Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)" | tee -a $file_log
 		links_loop - "$url_in"
@@ -81,43 +89,43 @@ function _log {
 	5)
 	    init_log
 	    print_c 3 "Connessione interrotta: riprovo più tardi" | tee -a $file_log
-	    echo
+	    break_loop=true
 	    ;;
 	6)
 	    init_log
 	    print_c 3 "$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev" | tee -a $file_log
 	    exit
-	    #links_loop - "$url_in"
-	    echo
 	    ;;
 	7)
 	    init_log
 	    print_c 3 "$url_in --> File $file_in già in download (${url_out[$i]})" | tee -a $file_log
-	    echo
+	    break_loop=true
 	    ;;
 	8)
 	    init_log
 	    print_c 3  "$url_in --> Indirizzo errato o file non disponibile.\nErrore nello scaricare la pagina HTML del video. Controllare che l'URL sia stato inserito correttamente o che il video non sia privato." | tee -a $file_log
 	    links_loop - "$url_in"
-	    echo
+	    break_loop=true
 	    ;;
 	9)
 	    init_log
 	    print_c 3 "$url_in --> Titolo della pagina HTML non trovato. Controlla l'URL." | tee -a $file_log
 	    links_loop - "$url_in"
-	    echo
+	    break_loop=true
 	    ;;
 	10)
 	    init_log
 	    print_c 3 "$url_in --> Firma del video non trovata" | tee -a $file_log
-	    echo
+	    break_loop=true
 	    ;;
 	11)
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		init_log
 		print_c 3  "$url_in --> File scaricabile solo da utenti \"Premium\" o registrati" | tee -a $file_log
 		links_loop - "$url_in"
 		no_msg=true
+		break_loop=true
 		unset from_loop url_in file_in url_in_file
 	    fi
 	    ;;
@@ -125,7 +133,8 @@ function _log {
 	    init_log
 	    print_c 3  "$url_in --> Non è un URL adatto per $name_prog" | tee -a $file_log
 
-	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]; then
+	    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+	    then
 		no_msg=true
 		unset from_loop	
 	    fi
@@ -134,22 +143,25 @@ function _log {
 	    init_log
 	    print_c 3  "$file_in --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex" | tee -a $file_log
 	    links_loop - "$url_in"
+	    break_loop=true
 	    ;;
 	14)
 	    init_log
 	    print_c 3  "$file_in --> Il file non sarà scaricato, perché non corrisponde alla regex: $file_regex" | tee -a $file_log
 	    links_loop - "$url_in"
+	    break_loop=true
 	    ;;
 	15)
 	    init_log
 	    print_c 3  "$url_in --> Il link non sarà processato, perché corrisponde alla regex: $no_url_regex" | tee -a $file_log
 	    links_loop - "$url_in"
+	    break_loop=true
 	    ;;
 	16)
 	    init_log
 	    print_c 3  "$url_in --> Il link non sarà processato, perché non corrisponde alla regex: $file_regex" | tee -a $file_log
 	    links_loop - "$url_in"
+	    break_loop=true
 	    ;;
-
     esac
 }
