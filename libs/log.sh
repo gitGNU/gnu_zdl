@@ -29,10 +29,9 @@ function init_log {
     then
 	echo "File log di $name_prog:" > $file_log
 	log=1
-    else
-	echo >> $file_log
-	date >> $file_log
     fi
+    echo >> $file_log
+    date >> $file_log
 }
 
 function _log {
@@ -101,13 +100,13 @@ function _log {
 	    ;;
     esac
 
-    if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
-    then
+    # if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
+    # then
 	init_log
 	print_c 3 "$msg"
 	echo "$msg" >> $file_log
-	no_msg=true
-	unset from_loop
+	# no_msg=true
+	# unset from_loop
 	break_loop=true
-    fi
+#    fi
 }
