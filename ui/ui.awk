@@ -138,7 +138,11 @@ function show_downloads_lite () {
 	} else {
 	    progress_bar = make_progress()
 	}
-	code = code diff_bar_color downloader_out[i] ": " progress_bar "\n" 
+	if (downloader_out[i] == "RTMPDump")
+	    downloader = "RTMP"
+	else
+	    downloader = downloader_out[i]
+	code = code diff_bar_color downloader ": " progress_bar "\n" 
     }
     return code "\n\n"
 }
