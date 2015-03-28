@@ -130,7 +130,7 @@ function show_downloads () {
 
 function show_downloads_lite () {
     for (i=0; i<length(pid_out); i++) {
-	file_out_chunk[i] = " " substr(file_out[i], 1, col-36) " "
+	file_out_chunk[i] = " " substr(file_out[i], 1, info_space-2) " "
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
@@ -150,7 +150,7 @@ function show_downloads_lite () {
 	    downloader = downloader_out[i]
 	code = code diff_bar_color downloader ": " progress_bar "\n" 
     }
-    return code "\n\n"
+    return code "\n"
 }
 
 
@@ -160,13 +160,11 @@ function make_progress (size_bar, progress_bar, progress) {
 	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
-	    speed = diff_bar_color "completato" Color_Off
-	    eta = ""
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato" Color_Off)	
 	} else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
-	    speed = diff_bar_color "non attivo" Color_Off
-	    eta = ""
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo" Color_Off)	
 	}
     } else {
 	if (speed_out[i] > 0) {
@@ -177,14 +175,13 @@ function make_progress (size_bar, progress_bar, progress) {
 	} else {
 	    diff_bar_color = BYellow
 	    bar_color = On_Yellow
-	    speed = diff_bar_color " attendi..." Color_Off
-	    eta = ""
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi" Color_Off)	
 	}		    
     }
 
     if (! int(percent_out[i])) percent_out[i] = 0
-    size_bar = int((col-34) * percent_out[i]/100)
-    diff_size_bar = (col-34) - size_bar
+    size_bar = int((col-info_space) * percent_out[i]/100)
+    diff_size_bar = (col-info_space) - size_bar
 
     bar = ""
     diff_bar = ""
@@ -214,13 +211,15 @@ function make_progress (size_bar, progress_bar, progress) {
     }
     
     if (! progress) {
-	info = sprintf("%-5s" Color_Off BBlue "%-9s" Color_Off "%-12s", percent_out[i] "%", speed, eta)
+	if (! info)
+	    info = sprintf("%-5s" Color_Off BBlue "%-9s" Color_Off "%-12s", percent_out[i] "%", speed, eta)	
 	progress = progress_bar Color_Off diff_bar_color " " info
     }
     return progress
 }
 
 function display () {
+    info_space = 34
     init_colors()
     blue_line = separator()
     if (zdl_mode == "extended") {
@@ -232,5 +231,5 @@ function display () {
 	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result show_downloads()
     }
-    printf result
+    printf("%s", result)
 }
