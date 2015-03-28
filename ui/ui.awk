@@ -195,7 +195,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	}
 	
 	if (tty() ~ /pts/) on_diff_color = On_Gray2
-	if ((tty() ~ /tty/) || (exists("/cygdrive"))) on_diff_color = On_Gray1
+	if ((tty() ~ /tty/) || ENVIRON["WINDIR"]) on_diff_color = On_Gray1
 	progress_bar = Black bar_color bar Color_Off on_diff_color diff_bar #_color diff_bar
     } else {
 	for (k=0; k<size_bar; k++) bar = bar " "
