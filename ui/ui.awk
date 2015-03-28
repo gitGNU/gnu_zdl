@@ -124,7 +124,7 @@ function show_downloads () {
 
 function show_downloads_lite () {
     for (i=0; i<length(pid_out); i++) {
-	file_out_chunk[i] = " " substr(file_out[i], 1, col-32) " "
+	file_out_chunk[i] = " " substr(file_out[i], 1, col-36) " "
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
@@ -173,8 +173,8 @@ function make_progress (size_bar, progress_bar, progress) {
     }
 
     if (! int(percent_out[i])) percent_out[i] = 0
-    size_bar = int((col-30) * percent_out[i]/100)
-    diff_size_bar = (col-30) - size_bar
+    size_bar = int((col-34) * percent_out[i]/100)
+    diff_size_bar = (col-34) - size_bar
 
     bar = ""
     diff_bar = ""
@@ -203,7 +203,10 @@ function make_progress (size_bar, progress_bar, progress) {
 	progress_bar = Black bar_color bar Color_Off diff_bar_color diff_bar
     }
     
-    if (! progress) progress = progress_bar Color_Off diff_bar_color " " percent_out[i] "% " Color_Off BBlue speed Color_Off " " eta
+    if (! progress) {
+	info = sprintf("%-5s" Color_Off BBlue "%-9s" Color_Off "%-12s", percent_out[i] "%", speed, eta)
+	progress = progress_bar Color_Off diff_bar_color " " info
+    }
     return progress
 }
 
