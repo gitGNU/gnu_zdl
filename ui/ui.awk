@@ -173,13 +173,11 @@ function make_progress (size_bar, progress_bar, progress) {
     }
 
     if (! int(percent_out[i])) percent_out[i] = 0
-    size_bar = (col-30) * int(percent_out[i])/100
+    size_bar = int((col-30) * percent_out[i]/100)
     diff_size_bar = (col-30) - size_bar
 
     bar = ""
     diff_bar = ""
-    if (percent_out[i] == 0) diff_size_bar++
-    if (percent_out[i] == 100) size_bar++
     if (zdl_mode == "lite") {
 	for (k=0; k<size_bar; k++) {
 	    if (substr(file_out_chunk[i], k+1, 1)) {
@@ -193,13 +191,16 @@ function make_progress (size_bar, progress_bar, progress) {
 	    if (substr(file_out_chunk[i], h+k+1, 1))
 		diff_bar = diff_bar substr(file_out_chunk[i], h+k+1, 1)
 	    else
-		diff_bar = diff_bar "│"
+		diff_bar = diff_bar " "
 	}
+	if (tty() ~ /tty/) on_diff_color = On_Gray1
+	if (tty() ~ /pts/) on_diff_color = On_Gray2
+	progress_bar = Black bar_color bar Color_Off on_diff_color diff_bar #_color diff_bar
     } else {
 	for (k=0; k<size_bar; k++) bar = bar " "
 	for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "│"
+	progress_bar = Black bar_color bar Color_Off diff_bar_color diff_bar
     }
-    progress_bar = Black bar_color bar Color_Off diff_bar_color diff_bar
     
     if (! progress) progress = progress_bar Color_Off diff_bar_color " " percent_out[i] "% " Color_Off BBlue speed Color_Off " " eta
     return progress

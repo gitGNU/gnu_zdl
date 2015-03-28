@@ -1021,7 +1021,7 @@ function main_loop {
 			    break
 			fi
 		    done
-		    
+
 		## universal downloader
 		    if [ -z "$file_in" ] && [ -z "$url_in_file" ]
 		    then

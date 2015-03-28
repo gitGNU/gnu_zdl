@@ -23,6 +23,13 @@
 # zoninoz@inventati.org
 #
 
+function tty () {
+    c = "tty"
+    c | getline t
+    close(c)
+    return t
+}
+
 
 function check_instance_daemon () {
     pid = $1

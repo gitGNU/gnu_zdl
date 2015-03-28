@@ -40,6 +40,8 @@ function init_colors () {
     # On_Purple="\033[45m"      # Purple
     # On_Cyan="\033[46m"        # Ciano
     On_White="\033[47m"       # Bianco
+    On_Gray1="\033[5m"        # sfondo grigio per tty
+    On_Gray2="\033[100m"       # sfondo grigio per pts
 
 	# High Intensty
     # IBlack="\033[0;90m"       # Nero
