@@ -214,6 +214,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	if (! info)
 	    info = sprintf("%-5s" Color_Off BBlue "%-9s" Color_Off "%-12s", percent_out[i] "%", speed, eta)	
 	progress = progress_bar Color_Off diff_bar_color " " info
+	info = ""
     }
     return progress
 }
