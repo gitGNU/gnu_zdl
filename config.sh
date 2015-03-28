@@ -129,18 +129,22 @@ function get_conf {
 
     ## downloader predefinito
     downloader_in="$downloader"
-    if [ -z "$downloader_in" ]; then
+    if [ -z "$downloader_in" ]
+    then
 	downloader_in=${val_conf[0]}
     fi
     
     ## parti di Axel:
     axel_parts_conf="$axel_parts"
-    if [ -z "$axel_parts_conf" ]; then
+    if [ -z "$axel_parts_conf" ]
+    then
 	axel_parts_conf=32
     fi
     ## CYGWIN
-    if [ -e "/cygdrive" ];then
-	if (( $axel_parts_conf>10 )); then
+    if [ -e "/cygdrive" ]
+    then
+	if (( $axel_parts_conf>10 ))
+	then
 	    axel_parts_conf=10
 	fi
     fi
@@ -212,7 +216,8 @@ function configure_accounts {
     print_c 1 "\rAttualmente $name_prog è abilitato per gli account di Easybytez\n"
     host="easybytez"
     
-    while true; do
+    while true
+    do
 	touch "$path_conf"/accounts/$host
 	header_z
 	get_accounts
@@ -228,7 +233,8 @@ function configure_accounts {
 	cursor on
 	case $option_2 in
 	    1)	##add
-		while true; do
+		while true
+		do
 		    header_box "Registra un account per il login automatico ($host)"
 		    print_c 2 "\rNome utente:"
 		    read user
@@ -236,20 +242,26 @@ function configure_accounts {
 		    read -ers pass
 		    print_c 2 "Ripeti la password (per verifica):"
 		    read -ers pass2
-		    if [ ! -z "$user" ] && [ ! -z "$pass" ] && [ "$pass" == "$pass2" ]; then
+		    if [ ! -z "$user" ] && [ ! -z "$pass" ] && [ "$pass" == "$pass2" ]
+		    then
 			lines=`cat "$path_conf"/accounts/$host |wc -l`
 			unset noadd
-			for line in `seq 1 $lines`; do
+			for line in `seq 1 $lines`
+			do
 			    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
-			    if [ "$account" == "$user" ]; then
+			    if [ "$account" == "$user" ]
+			    then
 				noadd=1
 				break
 			    fi
 			done
-			if [ -z "$noadd" ]; then
+			if [ -z "$noadd" ]
+			then
 			    echo "$user $pass" >> "$path_conf"/accounts/$host
 			fi
-		    elif [ "$pass" != "$pass2" ]; then
+			
+		    elif [ "$pass" != "$pass2" ]
+		    then
 			print_c 3 "Ripeti l'operazione: password non corrispondenti\n"
 		    else
 			print_c 3 "Ripeti l'operazione: nome utente o password mancante\n"
@@ -263,11 +275,13 @@ function configure_accounts {
 		done
 		;;
 	    2)	##remove
-		while true; do
+		while true
+		do
 		    print_c 2 "Nome utente dell'account da cancellare:"
 		    read user
 		    
-		    if [ ! -z "$user" ]; then
+		    if [ ! -z "$user" ]
+		    then
 			break
 		    else
 			print_c 3 "Ripeti l'operazione: nome utente mancante"
@@ -275,14 +289,18 @@ function configure_accounts {
 		done
 		lines=`cat "$path_conf"/accounts/$host |wc -l`
 		unset noadd
-		for line in `seq 1 $lines`; do
+		for line in `seq 1 $lines`
+		do
 		    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
-		    if [ "$account" != "$user" ]; then
+		    if [ "$account" != "$user" ]
+		    then
 			cat "$path_conf"/accounts/$host |sed -n "${line}p" >> "$path_conf"/accounts/host
 		    fi
 		done
 		rm -f "$path_conf"/accounts/$host
-		if [ -f "$path_conf"/accounts/host ]; then
+		
+		if [ -f "$path_conf"/accounts/host ]
+		then
 		    cat "$path_conf"/accounts/host > "$path_conf"/accounts/$host
 		fi
 		;;
@@ -296,7 +314,9 @@ function configure_accounts {
 function check_editor {
     [ ! -z "$EDITOR" ] && editor="$EDITOR" && return
     [[ ! -z $(ls -L /usr/bin/editor 2>/dev/null) ]] && editor=/usr/bin/editor && return
-    for cmd in nano "emacs -nw" nano mcedit vim vi; do
+
+    for cmd in nano "emacs -nw" nano mcedit vim vi
+    do
 	[[ ! -z $(command -v $cmd) ]] && editor=$cmd && return
     done
 }
@@ -324,16 +344,16 @@ function init {
     [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
     
     # CYGWIN
-    if [ -e "/cygdrive" ]; then
+    if [ -e "/cygdrive" ]
+    then
 	kill -SIGWINCH $$
     fi
 
     init_colors
-
     get_conf
 
-    log=0
-    if [ -f "$file_log" ]; then
+    if [ -f "$file_log" ]
+    then
 	log=1
     fi
 
@@ -341,5 +361,4 @@ function init {
     [ -z "$editor" ] && check_editor
 
     trap_sigint
-
 }
