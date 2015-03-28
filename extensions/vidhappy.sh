@@ -28,16 +28,23 @@
 ## zdl-extension name: Vidhappy (RTMP)
 
 
-if [[ "$url_in" =~ (vidhappy.) ]]; then
-    if [[ ! "$url_in" =~ embed ]]; then
+if [[ "$url_in" =~ (vidhappy.) ]]
+then
+    if [[ ! "$url_in" =~ embed ]]
+    then
 	link_parser "$url_in"
 	parser_path="${parser_path%%\/*}"
 	url_link="http://www.vidhappy${parser_domain#*vidhappy}/embed-${parser_path%.html}-607x360.html"
     fi
-    html=$(wget -q "$url_link" -O -) 
-    streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
-    playpath=$(grep file:  <<< "$html" |head -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')
-    input_hidden "$(wget --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)"
-    ext=${playpath%\?*}
-    file_in="$postdata_fname".${ext##*.}
+    html=$(wget -t 1 -T $max_waiting -q "$url_link" -O -)
+    if [ ! -z "$html" ]
+    then
+	streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
+	playpath=$(grep file:  <<< "$html" |head -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')
+	input_hidden "$(wget -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)"
+	ext=${playpath%\?*}
+	file_in="$postdata_fname".${ext##*.}
+    else
+	_log 2
+    fi
 fi

@@ -86,10 +86,10 @@ function show_downloads_extended () {
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " (" length_H ") " BBlue speed_out[i] speed_out_type[i] Color_Off "\n\n"
+		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] Color_Off "\n\n"
 	    } else if (exists(file_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " (" length_H ") terminato" Color_Off "\n\n"
+		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " B (" length_H ") terminato" Color_Off "\n\n"
 	    } else {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
 	    }
@@ -107,23 +107,23 @@ function show_downloads () {
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BGreen downloader_out[i] ": " length_saved[i] " (" length_H ") " BBlue speed_out[i] speed_out_type[i] "\n" blue_line
+		code = code BGreen downloader_out[i] ": " length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] "\n" blue_line
 	    } else if (exists(file_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BGreen downloader_out[i] ": " length_saved[i] " (" length_H ") terminato\n" blue_line
+		code = code BGreen downloader_out[i] ": " length_saved[i] " B (" length_H ") terminato\n" blue_line
 	    } else {
 		code = code BRed downloader_out[i] ": Download non attivo\n" blue_line
 	    }
 	} else {
 	    progress_bar = make_progress()
-	}
 	
-	if (downloader_out[i] == "RTMPDump")
-	    downloader = "RTMP"
-	else
-	    downloader = downloader_out[i]
+	    if (downloader_out[i] == "RTMPDump")
+		downloader = "RTMP"
+	    else
+		downloader = downloader_out[i]
 
-	code = code diff_bar_color downloader ": " progress_bar "\n" blue_line
+	    code = code diff_bar_color downloader ": " progress_bar "\n" blue_line
+	}
     }
     return code "\n\n\n\n\n"
 }
@@ -134,21 +134,21 @@ function show_downloads_lite () {
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " (" length_H ") " BBlue speed_out[i] speed_out_type[i] "\n" blue_line
+		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] Color_Off
 	    } else if (exists(file_out[i])) {
 		length_H = human_length(length_saved[i])
-		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " (" length_H ") terminato\n" blue_line
+		code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " B (" length_H ") terminato" Color_Off
 	    } else {
-		code = code BRed downloader_out[i] ": " file_out_chunk[i] " Download non attivo\n" blue_line
+		code = code BRed downloader_out[i] ": " file_out_chunk[i] " Download non attivo" Color_Off
 	    }
 	} else {
 	    progress_bar = make_progress()
+	    if (downloader_out[i] == "RTMPDump")
+		downloader = "RTMP"
+	    else
+		downloader = downloader_out[i]
+	    code = code diff_bar_color downloader ": " progress_bar "\n"
 	}
-	if (downloader_out[i] == "RTMPDump")
-	    downloader = "RTMP"
-	else
-	    downloader = downloader_out[i]
-	code = code diff_bar_color downloader ": " progress_bar "\n" 
     }
     return code "\n"
 }
@@ -170,7 +170,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	if (speed_out[i] > 0) {
 	    diff_bar_color = BGreen
 	    bar_color = On_Green 
-	    speed = speed_out[i] speed_out_type[i]
+	    speed = int(speed_out[i]) speed_out_type[i]
 	    eta = eta_out[i]
 	} else {
 	    diff_bar_color = BYellow

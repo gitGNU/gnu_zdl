@@ -34,15 +34,18 @@ function get_tmps {
 }
 
 function input_hidden {
-    if [ ! -z "$1" ]; then
+    if [ ! -z "$1" ]
+    then
 	unset post_data datatmp data value name post
-	if [ -f "$1" ]; then
+	if [ -f "$1" ]
+	then
 	    datatmp=$(grep -P "input.+type\=.+hidden" < "$1")
 	else
 	    datatmp=$(grep -P "input.+type\=.+hidden" <<< "$1")
 	fi
 
-	for ((i=1; i<=$(wc -l <<< "$datatmp"); i++)); do
+	for ((i=1; i<=$(wc -l <<< "$datatmp"); i++))
+	do
 	    data=$(sed -n "${i}p" <<< "$datatmp" |grep name)
 	    name=${data#*name=\"}
 	    name=${name%%\"*}
@@ -52,11 +55,13 @@ function input_hidden {
 
 	    [ ! -z "$name" ] && eval postdata_$name=\"${value}\"
 	    
-	    if [ "$name" == "realname" ] || [ "$name" == "fname" ]; then # <--easybytez , sharpfile , uload , glumbouploads
+	    if [ "$name" == "realname" ] || [ "$name" == "fname" ] ## <--easybytez , sharpfile , uload , glumbouploads
+	    then 
 		file_in="$value"
 	    fi
 	    
-	    if [ -z "$post_data" ]; then
+	    if [ -z "$post_data" ]
+	    then
 		post_data="${name}=${value}"
 	    else
 		post_data="${post_data}&${name}=${value}"
