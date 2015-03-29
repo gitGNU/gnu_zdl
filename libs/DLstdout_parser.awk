@@ -94,9 +94,6 @@ function check_stdout () {
 	#     }
 	# }
 		
-	if (url_in == url_out[i])
-	    code = code bash_var("file_in", file_out[i])
-
 	# check_in_file
 	if (file_in == file_out[i] &&		\
 	    url_in == url_out[i])

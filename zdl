@@ -913,11 +913,6 @@ function main_loop {
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]
     then
 	clean_file "$start_file"
-	if [ -f "$path_tmp/.dl-mode" ]
-	then
-	    unset num_dl
-	    num_dl=$(cat "$path_tmp/.dl-mode")
-	fi
 	
 	## done < $start_file
 	while read url_in
@@ -955,7 +950,7 @@ function main_loop {
 
 	    if ! check_in_loop
 	    then
-		[ -z "$url_in" ] && break
+		[ -z "$url_in" ] && continue
 
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
@@ -1095,8 +1090,6 @@ function main_loop {
 		do
 		    pipe_files
 		    show_downloads
-		    num_dl=$(cat "$path_tmp/.dl-mode")
-
 		    if ! check_in_loop
 		    then
 			no_msg=true
@@ -1109,11 +1102,10 @@ function main_loop {
 	    fi
 	done < "$start_file"
 
-	## verifica $no_msg è da cancellare? testare il sistema dei log
 	[ -z "$no_msg" ] && sleeping $sleeping_pause
 	clean_file "$path_tmp"/links_loop.txt
-
 	pipe_files
+
 	if [ -f "$path_tmp/links_loop.txt" ]
 	then
 	    start_file="$path_tmp/links_loop.txt"
