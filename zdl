@@ -918,7 +918,8 @@ function main_loop {
 	    unset num_dl
 	    num_dl=$(cat "$path_tmp/.dl-mode")
 	fi
-
+	
+	## done < $start_file
 	while read url_in
 	do
 	    if ! url? "${url_in}"
@@ -945,7 +946,6 @@ function main_loop {
 		break
 	    fi
 
-#	    print_c 4 "checking $url_in ..."
 	    unset pid_in file_in url_in_file
 
 	    if [ -f "$path_tmp/.downloader" ]
@@ -1108,7 +1108,8 @@ function main_loop {
 		unset break_loop post_data not_available exceeded 
 	    fi
 	done < "$start_file"
-#	print_c 4 "checking loop..."
+
+	## verifica $no_msg è da cancellare? testare il sistema dei log
 	[ -z "$no_msg" ] && sleeping $sleeping_pause
 	clean_file "$path_tmp"/links_loop.txt
 
