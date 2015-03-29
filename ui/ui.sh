@@ -44,7 +44,7 @@ function show_downloads {
 }
 
 function show_downloads_lite {
-    if data_stdout
+    if data_stdout "no_check_downloader"
     then
 	awk -f $path_usr/libs/common.awk      \
 	    -f $path_usr/ui/colors.awk.sh     \
@@ -76,7 +76,7 @@ function show_downloads_extended {
 	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
 	fi
     fi
-    if data_stdout
+    if data_stdout "no_check_downloader"
     then
 	awk -f $path_usr/libs/common.awk          \
 	    -f $path_usr/ui/colors.awk.sh         \

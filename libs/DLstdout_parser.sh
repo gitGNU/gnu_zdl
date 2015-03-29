@@ -32,7 +32,11 @@ function data_stdout {
     shopt -u dotglob
     unset pid_alive pid_out file_out url_out percent_out length_saved length_out
     [ -z "$num_check" ] && num_check=0
-    (( num_check++ ))
+
+    ## verifica inceppamento downloader: dopo un num_check, se la coda di stdout è invariata, zdl uccide il downloader 
+    ## il controllo è disattivato se show_downloads_(lite|extended)
+    [ "$1" != "no_check_downloader" ] && (( num_check++ ))
+
     if (( ${#check_tmps[*]}>0 ))
     then
 	awk_data=$(awk                                \
