@@ -36,6 +36,7 @@ function data_stdout {
     if (( ${#check_tmps[*]}>0 ))
     then
 	awk_data=$(awk                                \
+	    -v file_in="$file_in"                     \
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
 	    -v num_check="$num_check"                 \
