@@ -992,7 +992,7 @@ function main_loop {
 		if [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
-		    break
+		    continue
 		fi
 
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]

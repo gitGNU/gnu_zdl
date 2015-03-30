@@ -91,32 +91,17 @@ function seconds_to_human (seconds,         minutes, hours) {
     return hours "h" minutes "m" seconds "s"
 }
 
-function cat (file,      c, line, chunk) {
-    c = "cat " file " 2>/dev/null"
-    while (c | getline line) {
-	chunk = chunk line
+function cat (file,      c, line) {
+    if (exists(file)) {
+	chunk2 = ""
+	c = "cat " file
+	while (c | getline line) {
+	    chunk2 = chunk2 line
+	}
+	close(c)
+	return chunk2
     }
-    close(c)
-    return chunk
 }
-
-# function rm_line (line, file,       c, lines) {
-#     c = "cat " file " 2>/dev/null"
-#     while (c | getline test) {
-# 	if (line != test && test) {
-# 	    if (lines)
-# 		test = "\n" test
-# 	    lines = lines test
-# 	}
-#     }
-#     close(c)
-#     if (lines) {
-#      	print lines > file
-#     } else {
-#     	system("rm -f "file)
-#     }
-# }
-
 
 function rm_line (line, file) {
     code = code "line_file - \"" line "\" \"" file "\"; "

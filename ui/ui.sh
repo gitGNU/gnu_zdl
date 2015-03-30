@@ -27,7 +27,6 @@
 function show_downloads {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
     then
-	[ "$zdl_mode" == "lite" ] && fclear
 	if data_stdout
 	then
 	    awk -f $path_usr/libs/common.awk      \

@@ -49,7 +49,6 @@ function data_stdout {
 	    "$path_tmp"/?*_stdout.tmp                 \
 	    )
 	eval "$awk_data"
-
 	return 0
     else
 	return 1
