@@ -345,6 +345,9 @@ Cancella i file temporanei dei download completati
 @item --scrape-url=@emph{URL pagina web}
 Estrae gli URL (i link) dalla pagina web indicata e li accoda all'elenco registrato
 
+@item --scrape-url
+Estrae gli URL (i link) dalla pagina web indicata come url da @emph{Conkeror} (o da script che fanno uso di un unico parametro, nella forma adottata per @emph{Conkeror})
+
 @item --url=@emph{regex}
 Processa solo gli URL (i link) che corrispondono alla REGEX
 

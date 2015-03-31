@@ -177,7 +177,7 @@ then
 	    url_page=$(sed -r 's|--scrape-url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
 	    if url? "$url_page"
 	    then
-		print_c 1 "Connessione in corso..."
+		print_c 1 "Scraping URL: connessione in corso..."
 		wget -q "$url_page" -O - |                                             \
 		    tr "\t\r\n'" '   "' |                                              \
 		    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      \
@@ -186,6 +186,7 @@ then
 		    sort | uniq                                                        \
 		    >> "$path_tmp/links_loop.txt" &&                                   \
 		    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
+		start_file="$path_tmp/links_loop.txt"
 	    fi
 	    unset args[$i]
 	fi
@@ -197,7 +198,8 @@ if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]
 then
     for ((i=0; i<=$max_args; i++))
     do
-	if [[ "${args[$i]}" =~ ^\-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp)$ ]]; then
+	if [[ "${args[$i]}" =~ ^\-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp)$ ]]
+	then
 	    [[ $(command -v "${BASH_REMATCH[1]//-*}" 2>/dev/null) ]] && editor="${BASH_REMATCH[1]//-/ -}"
 	    unset args[$i]
 	    from_editor=true
@@ -249,6 +251,12 @@ then
 	url="${args[*]%'--zigzag-xterm'*}"
 	parameters="${args[*]#*'--zigzag-xterm'}"
 	parameters="${parameters%'--cwd'*}"
+
+	if [[ "$parameters" =~ \-\-scrape\-url ]]
+	then
+	    parameters="${parameters//--scrape-url}"
+	    url="--scrape-url=$url"
+	fi
 
 	if [ -e "/cygdrive" ]
 	then
