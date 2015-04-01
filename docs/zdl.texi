@@ -74,6 +74,18 @@
 * Manuali d'uso::@*Documentazione disponibile per ZDL@*
 @end macro
 
+@macro menuTools
+@ifhtml
+@html
+@end html
+@end ifhtml
+* Modi::@*Modalità d'uso di ZDL@*
+* Readline::@*La riga di comando di ZDL@*
+* Editor::@*Editor integrato, per modificare la coda di download@*
+* Omonimie::@*Gestione dei file omonimi e recupero dei download interrotti@*
+* Filtri::@*Filtri per l'estrazione e la selezione di file e URL@*
+@end macro
+
 @macro menuExt
 @ifhtml
 @html
@@ -120,7 +132,7 @@
 <div class="left">
 <div class="nav">
 <p style='color:#959595;text-align:right;font-weight:bold'>News <a href="https://savannah.nongnu.org/news/atom.php?group=zdl" target="_blank"><img src="https://savannah.nongnu.org/images/common/feed16.png" style="float:right;margin-left:5px"></a></p>
-<!-- start feedwind code --><script type="text/javascript">document.write('\\x3Cscript type="text/javascript" src="' + ('https:' == document.location.protocol ? 'https://' : 'http://') + 'feed.mikle.com/js/rssmikle.js">\\x3C/script>');</script><script type="text/javascript">(function() @{var params = @{rssmikle_url: "https://savannah.nongnu.org/news/atom.php?group=zdl",rssmikle_frame_width: "305",rssmikle_frame_height: "",frame_height_by_article: "1",rssmikle_target: "_blank", rssmikle_font: "Verdana, sans-serif",rssmikle_font_size: "12",rssmikle_border: "off",responsive: "off",rssmikle_css_url: "http://nongnu.org/zdl/zdl_rss_style.css",text_align: "left",text_align2: "left",corner: "off",scrollbar: "on",autoscroll: "on",scrolldirection: "up",scrollstep: "10",mcspeed: "20",sort: "New",rssmikle_title: "off",rssmikle_title_sentence: "",rssmikle_title_link: "",rssmikle_title_bgcolor: "#343434",rssmikle_title_color: "#000000",rssmikle_title_bgimage: "",rssmikle_item_bgcolor: "#343434",rssmikle_item_bgimage: "",rssmikle_item_title_length: "55",rssmikle_item_title_color: "#FFFFFF",rssmikle_item_border_bottom: "off",rssmikle_item_description: "on",item_link: "off",rssmikle_item_description_length: "250",rssmikle_item_description_color: "#959595",rssmikle_item_date: "gl1",rssmikle_timezone: "Etc/GMT",datetime_format: "%b %e, %Y %l:%M:%S %p",item_description_style: "html",item_thumbnail: "full",article_num: "15",rssmikle_item_podcast: "off",keyword_inc: "",keyword_exc: ""@};feedwind_show_widget_iframe(params);@})();</script><div style="font-size:10px; text-align:center; width:300px;"><br><a href="http://feed.mikle.com/" target="_blank" style="color:#000000;">RSS Feed Widget</a></div><!-- end feedwind code --></div><br>
+<!-- start feedwind code --><script type="text/javascript">document.write('\\x3Cscript type="text/javascript" src="' + ('https:' == document.location.protocol ? 'https://' : 'http://') + 'feed.mikle.com/js/rssmikle.js">\\x3C/script>');</script><script type="text/javascript">(function() @{var params = @{rssmikle_url: "https://savannah.nongnu.org/news/atom.php?group=zdl",rssmikle_frame_width: "305",rssmikle_frame_height: "300",frame_height_by_article: "0",rssmikle_target: "_blank", rssmikle_font: "Verdana, sans-serif",rssmikle_font_size: "12",rssmikle_border: "off",responsive: "off",rssmikle_css_url: "http://nongnu.org/zdl/zdl_rss_style.css",text_align: "left",text_align2: "left",corner: "off",scrollbar: "on",autoscroll: "on",scrolldirection: "up",scrollstep: "10",mcspeed: "20",sort: "New",rssmikle_title: "off",rssmikle_title_sentence: "",rssmikle_title_link: "",rssmikle_title_bgcolor: "#343434",rssmikle_title_color: "#000000",rssmikle_title_bgimage: "",rssmikle_item_bgcolor: "#343434",rssmikle_item_bgimage: "",rssmikle_item_title_length: "55",rssmikle_item_title_color: "#FFFFFF",rssmikle_item_border_bottom: "off",rssmikle_item_description: "on",item_link: "off",rssmikle_item_description_length: "250",rssmikle_item_description_color: "#959595",rssmikle_item_date: "gl1",rssmikle_timezone: "Etc/GMT",datetime_format: "%b %e, %Y %l:%M:%S %p",item_description_style: "html",item_thumbnail: "full",article_num: "15",rssmikle_item_podcast: "off",keyword_inc: "",keyword_exc: ""@};feedwind_show_widget_iframe(params);@})();</script><div style="font-size:10px; text-align:center; width:300px;"><br><a href="http://feed.mikle.com/" target="_blank" style="color:#000000;">RSS Feed Widget</a></div><!-- end feedwind code --></div><br>
 @b{ZDL}
 <div class="nav">
 @menu
@@ -128,6 +140,7 @@
 @end menu
 </div>
 <br>
+
 @b{Come si usa ZDL}
 <div class="nav">
 @menu
@@ -135,6 +148,15 @@
 @end menu
 </div>
 <br>
+
+@b{Strumenti e funzioni}
+<div class="nav">
+@menu
+@menuTools
+@end menu
+</div>
+<br>
+
 @b{Espandere ZDL}
 <div class="nav">
 @menu
@@ -207,7 +229,7 @@ La gestione dei download può essere controllata da terminali distinti in modali
 @unnumbered Software Libero
 ZDL è software libero, rilasciato con licenza GPL (General Public License): @url{http://www.gnu.org/licenses/gpl.html}
 
-@xref{Copying}.
+@ref{Copying}.
 
 @ifinfo
 @menu
@@ -216,6 +238,9 @@ ZDL è software libero, rilasciato con licenza GPL (General Public License): @ur
 
 @emph{Come si usa ZDL}
 @menuUso
+
+@emph{Strumenti e funzioni}
+@menuTools
 
 @emph{Espandere ZDL}
 @menuExt
@@ -605,7 +630,7 @@ attraverso la modalità interattiva @command{zdl -i} avviata nella directory ges
 @unnumbered Controllare i download: recupero, eliminazione, arresto, riavvio...
 
 I download possono essere controllati in modalità diverse in base al tipo di operazione da effettuare.
-L'avvio da terminale permette l'esecuzione delle operazioni elencate nella presentazione del comando: @xref{Il comando ZDL}. Poiché ZDL può essere chiuso senza interrompere i download, questa modalità di controllo può essere adottata in ogni momento, a esecuzione già avviata. Per @emph{chiudere senza interrompere i download}:
+L'avvio da terminale permette l'esecuzione delle operazioni elencate nella presentazione del comando: @ref{Il comando ZDL}. Poiché ZDL può essere chiuso senza interrompere i download, questa modalità di controllo può essere adottata in ogni momento, a esecuzione già avviata. Per @emph{chiudere senza interrompere i download}:
 @itemize @minus
 @item
 se avviato in modalità standard, digitare @kbd{M-q} (tasti @kbd{<Alt>+<q>})
@@ -643,14 +668,18 @@ quando ho finito di registrare i link, torno al terminale e, senza
 @end table
 
 @*@*
-I download di ZDL possono essere controllati in modo diretto attraverso la modalità interattiva, che può essere attivata da quella standard digitando @kbd{M-i} (tasti @kbd{<Alt>+<i>}) o da un qualsiasi terminale @emph{Bash} dalla stessa directory di download, utilizzando l'opzione @option{-i|--interactive}. Se non è attiva alcuna istanza di avvio e gestione automatica dei download, dall'interfaccia interattiva è possibile avviare la modalità @emph{demone}, che agisce in background come @emph{server} ed è indipendente dal terminale di avvio. Per gestire i download e la stessa chiusura di ZDL in modalità demone, è comunque necessario utilizzare l'interfaccia interattiva, che ha funzione di @emph{client}.@*
-I comandi sono elencati nella stessa interfaccia interattiva: è possibile modificare il numero massimo di download (da 1 a 9 oppure illimitati, digitando i tasti dei numeri o, rispettivamente, il tasto @kbd{m}), il tipo di downloader da utilizzare (Axel o Wget), avviare l'editor predefinito per modificare l'elenco dei link da processare, selezionare i download in gestione per @emph{riavviarli} (ZDL interrompe il download in corso e processa quello successivo fino al termine della lista registrata, poi ricomincia dal primo e così via), @emph{terminarli} in modo definitivo senza cancellare i file finora scaricati o @emph{eliminarli} completamente. Per queste ultime tre operazioni è possibile selezionare più download alla volta, indicandone i numeri identificativi separandoli con spazi.
+@unnumberedsubsec Controllo manuale dei download.
+ZDL processa i @emph{link} registrati, generando per ciascuno un file temporaneo da cui può estrarre informazioni sul file da scaricare e sul download in corso, intattivo o completato. Grazie a tali informazioni, è possibile il controllo dei processi di download, sia automaticamente da parte di ZDL, sia manualmente da parte dell'utente.
 
+I download di ZDL possono essere controllati manualmente attraverso la modalità interattiva, che può essere attivata da quella standard digitando @kbd{M-i} (tasti @kbd{<Alt>+<i>}) o da un qualsiasi terminale @emph{Bash} dalla stessa directory di download, utilizzando l'opzione @option{-i|--interactive}. Se non è attiva alcuna istanza di avvio e gestione automatica dei download, dall'interfaccia interattiva è possibile avviare la modalità @emph{demone}, che agisce in background come @emph{server} ed è indipendente dal terminale di avvio. Per gestire i download e la stessa chiusura di ZDL in modalità demone, è comunque necessario utilizzare l'interfaccia interattiva, che ha funzione di @emph{client}.@*
+I comandi sono elencati nella stessa interfaccia interattiva: è possibile modificare il numero massimo di download (da 1 a 9, digitando i tasti dei numeri, o illimitati, digitando il tasto @kbd{m}), il tipo di downloader da utilizzare (Axel o Wget, digitando @emph{a} o @emph{w}), avviare l'editor predefinito per modificare l'elenco dei link da processare (tasto @emph{e}), selezionare con @emph{s} i download in gestione per @emph{riavviarli} (ZDL interrompe il download in corso e processa quello successivo fino al termine della lista registrata, poi ricomincia dal primo e così via), @emph{terminarli} in modo definitivo senza cancellare i file finora scaricati o @emph{eliminarli} completamente. Per queste ultime tre operazioni è possibile selezionare più download alla volta, indicandone i numeri identificativi separandoli con spazi.
 
+@unnumberedsubsec Controllo manuale dei download ancora da processare.
+In mancanza dei file temporanei relativi a @emph{link} non ancora processati, è possibile intervenire manualmente utilizzando un @emph{editor} (@ref{Editor}).
 
 @htmlend
 
-@node Manuali d'uso,Creare nuove estensioni,Controllare i download,Top
+@node Manuali d'uso,Modi,Controllare i download,Top
 @htmlstart
 @unnumbered Manuali d'uso
 Documentazione attualmente disponibile:
@@ -665,7 +694,92 @@ pagina di manuale in stile UNIX: @command{man zdl}
 
 @htmlend
 
-@node Creare nuove estensioni,Software consigliati,Manuali d'uso,Top
+@c ---------------------
+
+@node Modi,Readline,Manuali d'uso,Top
+@htmlstart
+
+@unnumbered Modi
+ZDL può essere utilizzato in diverse modalità:
+
+@unnumberedsec Modalità in standard output (predefinita e @emph{lite}).
+Sono disponibili due diverse @emph{modalità in standard output}: quella predefinita, che informa puntualmente l'utente di ogni operazione compiuta, comunicando i dati rilevanti dei download in corso e quella @emph{lite}, estremamente compatta nella rappresentazione dei download e muta rispetto ai processi di estrazione e analisi. La seconda modalità può essere avviata con l'opzione @option{-l|--lite} oppure configurata come @emph{predefinita} attraverso l'interfaccia di configurazione: @command{zdl [-c|--configure]}. È particolarmente indicata per l'utente che usa ZDL come downloader alternativo per il browser, per esempio attraverso l'estensione @emph{Flashgot}.
+@*
+Le @emph{modalità in standard output} sono dotate di una @emph{readline} ( @ref{Readline} ) e accettano i seguenti comandi, espressi in combinazioni di tasti:
+
+@itemize @kbd{}
+@item M-i
+avvia la @emph{modalità interattiva}. Lo standard output del terminale viene ceduto ad un'altra modalità, senza però sospendere le attività della modalità precedente, che procedono silenti.
+@item M-e
+avvia l'editor predefinito (@ref{Editor}). Come per il comando precedente, le attività non sono sospese mentre si utilizza un editor per manipolare la lista dei link da processare.
+@item M-q
+permette l'uscita da ZDL senza l'interruzione dei downloader, che continuano a registrare dati utili per un eventuale riavvio di ZDL: i download possono essere controllati attraverso le funzioni della @emph{modalità interattiva} ma, in caso di interruzioni, devono essere processati dalle modalità @emph{in standard output} oppure @emph{demone}.
+@item M-k
+uccide tutti i processi avviati nella directory, senza cancellare i file temporanei.
+@end itemize
+
+@*
+@unnumberedsec Modalità interattiva.
+Permette il controllo manuale dei download (@ref{Controllare i download}) ed altre operazioni, descritte nella stessa interfaccia. @emph{Non processa i link} ed è soloun @emph{client}: per l'avvio dei download è necessario eseguire un'istanza @emph{server} di ZDL, come quelle @emph{in standard output} oppure @emph{demone}. Quest'ultima può essere avviata dalla stessa modalità interattiva.
+
+@*
+@unnumberedsec Modalità demone.
+Gestisce silenziosamente tutti i processi riferiti a una directory e puù essere controllato manualmente attraverso la @emph{modalità interattiva}. È indipendente dal terminale in uso, che può essere chiuso senza conseguenze. È, in senso pieno, la modalità @emph{server} di ZDL: la modalità demone è sempre in attesa di nuovi link da processare e termina solo per intervento dell'utente, attraverso l'interfaccia interattiva. La modalità demone consuma meno risorse rispetto alle altre modalità.
+
+@htmlend
+
+@node Readline,Editor,Modi,Top
+@htmlstart
+
+@unnumbered Readline
+L'esecuzione delle @emph{modalità in standard output}, in mancanza di un input esterno (@emph{link} immessi attraverso la linea di comando, una @emph{pipe}, un @emph{file} container @emph{DLC} o testuale, l'estensione di un browser...), avvia la @emph{readline di ZDL}. È quasi identica alla readline della Bash: usa la stessa history e digitando il tasto @kbd{Invio} si esegue un comando. Ma la readline di ZDL accetta, come comandi, solo link che hanno la forma di un URL @emph{http, https o ftp}. In presenza di spazi nell'URL, questi sono automaticamente convertiti nel @emph{codice percentuale} standard per gli URL (eventuali spazi a sinistra e a destra dell'URL sono ignorati). L'immissione di ogni link deve avvenire singolarmente, alla pressione del tasto @emph{Invio}. Utilizzando il mouse, si può @emph{incollare} un elenco di link, ma questi devono essere disposti in righe diverse. Le righe vuote e i link già registrati sono ignorati, le stringhe non corrispondenti ad un URL sono rifiutate esplicitamente e registrate nel file di log prodotto all'interno della stessa directory, mentre gli URL accettati sono registrati via via nel file gestito automaticamente da ZDL, come @emph{coda di download}. In ogni momento, durante l'immissione di link attraverso la readline, si può modificare la @emph{coda di download} con l'editor predefinito (@ref{Editor}). I processi di download sono avviati dal comando @kbd{M-x Invio}, che chiude la readline ed esegue la coda di download.
+@*@*
+
+
+@htmlend
+
+@node Editor,Omonimie,Readline,Top
+@htmlstart
+
+@unnumbered Editor
+È possibile controllare la @emph{coda di download} attraverso un editor. Infatti, l'elenco dei link da processare è registrato in un file temporaneo gestito da ZDL. I link sono processati dal primo all'ultimo: in caso di riavvio manuale o disconnessione involontaria, ZDL esamina il link successivo. Da ogni modalità d'uso del programma è possibile avviare un editor per alterare i link ed il loro ordine di esecuzione.
+L'editor può essere utilizzato anche in sostituzione della @emph{readline di ZDL} (@ref{Readline}), da riga di comando attraverso le opzioni corrispondenti (@ref{Il comando ZDL}).
+@*@*
+La scelta dell'editor può essere esplicita (da riga di comando) o implicita, con l'avvio dell'editor predefinito: quest'ultimo può essere specificato nella configurazione di ZDL (@command{zdl [-c|--configure]}). In mancanza di indicazioni specifiche (per opzioni e configurazione), ZDL esegue l'editor predefinito per la Bash o per il sistema operativo. Nel caso si usi Cygwin, l'installatore e le funzioni di aggiornamento di ZDL installano automaticamente l'editor @emph{Nano}: è reso disponibile se non è presente altro editor predefinito.
+@*@*
+@htmlend
+
+@node Omonimie,Filtri,Editor,Top
+@htmlstart
+
+@unnumbered Omonimie
+Il download può diventare problematico in presenza di file omonimi nella stessa directory, se ZDL non dispone già di informazioni grazie alle quali riconoscere un eventuale scaricamento in sospeso o completato. Tali informazioni possono essere ricavate solo dai file temporanei generati da ZDL per ciascun link già processato. Cancellare tali file con l'opzione @option{--clean} provoca la perdita di questi dati.
+@*@*
+Nel caso in cui, in presenza di file omonimi, non esistono file temporanei dei link da processare, ZDL si comporta di due modi alternativi:
+
+@itemize
+@item @emph{predefinito}
+non sovrascrive il file omonimo, ma rinomina il nuovo file nel modo seguente: inserisce, fra il nome e l'estensione, una stringa composta da @code{__BIS__} e da un segmento dell'URL del link, opportunamente abbreviato e ricodificato. La stringa aggiuntiva aumenta la probabilità che non si ripeta un problema di omonimia, anche in mancanza dei file temporanei di processi di download precedenti. In ogni caso, la coda di download cancella automaticamente eventuali ripetizioni dello stesso link.
+@item @option{-r|--resume}
+l'uso di questa opzione comporta la sovrascrittura del file omonimo. In mancanza di file temporanei riferiti al link da processare, anche il download con Axel sovrascrive comunque il file dall'inizio. Questa opzione può essere configurata come comportamento predefinito (@command{zdl [-c|--configure]}).
+@end itemize
+@*@*
+
+@htmlend
+
+@node Filtri,Creare nuove estensioni,Omonimie,Top
+@htmlstart
+
+@unnumbered Filtri
+L'applicazione dei filtri è possibile solo attraverso l'uso di opzioni da riga di comando (o attraverso script che fanno uso di ZDL). Per filtri avanzati può essere utile l'uso di @emph{espressioni regolari [REGEX]}. 
+
+@htmlend
+
+
+
+@c --------
+
+@node Creare nuove estensioni,Software consigliati,Filtri,Top
 @htmlstart
 
 @unnumbered Creare nuove estensioni
@@ -682,7 +796,7 @@ then
    url_in_file=$(sed -r 's|http://(.+)|http://USER:PASSWORD@@\1|g' \
                      <<< "$url_in")
    file_in="NOME_DEL_FILE"
-   unset num_dl
+   num_dl=1
    axel_parts=3 
 fi
 @end example
