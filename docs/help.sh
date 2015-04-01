@@ -114,6 +114,9 @@ Filtri:
        --scrape-url=URL        Estrae gli URL/link dalla pagina web indicata e
                                li accoda all'elenco registrato
 
+       --scrape-url            Estrae gli URL (i link) dalle pagina web indicate 
+                               come LINK
+
        --url=REGEX             Processa solo gli URL (i link) che corrispondono 
                                alla REGEX
 

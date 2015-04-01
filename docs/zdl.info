@@ -266,9 +266,7 @@ Filtri:
      all'elenco registrato
 
 `--scrape-url'
-     Estrae gli URL (i link) dalla pagina web indicata come _link_ da
-     _Conkeror_ (o da script che fanno uso di un unico parametro, nella
-     forma adottata per _Conkeror_)
+     Estrae gli URL (i link) dalle pagina web indicate come _link_
 
 `--url=_regex_'
      Processa solo gli URL (i link) che corrispondono alla REGEX
@@ -911,19 +909,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL4923
-Node: Servizi streaming/hosting10536
-Node: Avviare ZDL13319
-Node: Arrestare ZDL15757
-Node: Controllare i download16862
-Node: Manuali d'uso19342
-Node: Creare nuove estensioni19777
-Node: Software consigliati21357
-Node: Conkeror22465
-Node: zdl-xterm e XXXTerm/Xombrero23476
-Node: Installazione e aggiornamento25400
-Node: Tags27724
-Node: Copying29883
-Node: Contatti30933
+Node: Servizi streaming/hosting10425
+Node: Avviare ZDL13208
+Node: Arrestare ZDL15646
+Node: Controllare i download16751
+Node: Manuali d'uso19231
+Node: Creare nuove estensioni19666
+Node: Software consigliati21246
+Node: Conkeror22354
+Node: zdl-xterm e XXXTerm/Xombrero23365
+Node: Installazione e aggiornamento25289
+Node: Tags27613
+Node: Copying29772
+Node: Contatti30822
 
 End Tag Table
 

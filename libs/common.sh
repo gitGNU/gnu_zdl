@@ -75,6 +75,23 @@ function check_instance_prog {
     fi
 }
 
+function scrape_url {
+    url_page="$1"
+    if url? "$url_page"
+    then
+	print_c 1 "[--scrape-url] connessione in corso: $url_page"
+	wget -q "$url_page" -O - |                                             \
+	    tr "\t\r\n'" '   "' |                                              \
+	    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      \
+	    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               \
+	    grep "$url_regex" |                                                \
+	    sort | uniq                                                        \
+		       >> "$path_tmp/links_loop.txt" &&                                   \
+	    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
+	start_file="$path_tmp/links_loop.txt"
+    fi
+}
+
 function redirect_links {
     header_box "Links da processare"
     links="${links##\\n}"

@@ -186,8 +186,20 @@ then
 		    sort | uniq                                                        \
 		    >> "$path_tmp/links_loop.txt" &&                                   \
 		    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
-		start_file="$path_tmp/links_loop.txt"
 	    fi
+	    unset args[$i]
+	fi
+    done
+fi
+
+
+if [ "${args[*]}" != "${args[*]//--scrape-url}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == "--scrape-url" ]
+	then
+	    scrapeURL=true	    
 	    unset args[$i]
 	fi
     done
@@ -251,12 +263,6 @@ then
 	url="${args[*]%'--zigzag-xterm'*}"
 	parameters="${args[*]#*'--zigzag-xterm'}"
 	parameters="${parameters%'--cwd'*}"
-
-	if [[ "$parameters" =~ \-\-scrape\-url ]]
-	then
-	    parameters="${parameters//--scrape-url}"
-	    url="--scrape-url=$url"
-	fi
 
 	if [ -e "/cygdrive" ]
 	then
@@ -818,17 +824,16 @@ then
 	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
 
-	    if url? "${args[$i]}"
+	    if [ "$scrapeURL" == "true" ]
 	    then
-		echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
-		if [ -z "$links" ]
-		then
-		    links="${args[$i]}"
-		else
-		    links="${links}\n${args[$i]}"
-		fi
+		scrape_url "${args[$i]}"
 	    else
-		_log 12 "${args[$i]}"
+		if url? "${args[$i]}"
+		then
+		    echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
+		else
+		    _log 12 "${args[$i]}"
+		fi
 	    fi
 	fi
     done
