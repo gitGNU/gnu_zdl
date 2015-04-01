@@ -646,23 +646,27 @@ l'estensione _Flashgot_.
 Le _modalità in standard output_ sono dotate di una *note Readline:: e
 accettano i seguenti comandi, espressi in combinazioni di tasti:
 
-   `' M-i avvia la _modalità interattiva_. Lo standard output del
-     terminale viene ceduto ad un'altra modalità, senza però sospendere
-     le attività della modalità precedente, che procedono silenti.
+`M-i'
+     avvia la _modalità interattiva_. Lo standard output del terminale
+     viene ceduto ad un'altra modalità, senza però sospendere le
+     attività della modalità precedente, che procedono silenti.
 
-   `' M-e avvia l'editor predefinito (*note Editor::). Come per il
-     comando precedente, le attività non sono sospese mentre si
-     utilizza un editor per manipolare la lista dei link da processare.
+`M-e'
+     avvia l'editor predefinito (*note Editor::). Come per il comando
+     precedente, le attività non sono sospese mentre si utilizza un
+     editor per manipolare la lista dei link da processare.
 
-   `' M-q permette l'uscita da ZDL senza l'interruzione dei downloader,
-     che continuano a registrare dati utili per un eventuale riavvio di
+`M-q'
+     permette l'uscita da ZDL senza l'interruzione dei downloader, che
+     continuano a registrare dati utili per un eventuale riavvio di
      ZDL: i download possono essere controllati attraverso le funzioni
      della _modalità interattiva_ ma, in caso di interruzioni, devono
      essere processati dalle modalità _in standard output_ oppure
      _demone_.
 
-   `' M-k uccide tutti i processi avviati nella directory, senza
-     cancellare i file temporanei.
+`M-k'
+     uccide tutti i processi avviati nella directory, senza cancellare
+     i file temporanei.
 
 Modalità interattiva.
 ======================
@@ -753,18 +757,20 @@ Nel caso in cui, in presenza di file omonimi, non esistono file
 temporanei dei link da processare, ZDL si comporta di due modi
 alternativi:
 
-   * _predefinito_ non sovrascrive il file omonimo, ma rinomina il
-     nuovo file nel modo seguente: inserisce, fra il nome e
-     l'estensione, una stringa composta da `__BIS__' e da un segmento
-     dell'URL del link, opportunamente abbreviato e ricodificato. La
-     stringa aggiuntiva aumenta la probabilità che non si ripeta un
-     problema di omonimia, anche in mancanza dei file temporanei di
-     processi di download precedenti. In ogni caso, la coda di download
-     cancella automaticamente eventuali ripetizioni dello stesso link.
+`_predefinito_'
+     non sovrascrive il file omonimo, ma rinomina il nuovo file nel
+     modo seguente: inserisce, fra il nome e l'estensione, una stringa
+     composta da `__BIS__' e da un segmento dell'URL del link,
+     opportunamente abbreviato e ricodificato. La stringa aggiuntiva
+     aumenta la probabilità che non si ripeta un problema di omonimia,
+     anche in mancanza dei file temporanei di processi di download
+     precedenti. In ogni caso, la coda di download cancella
+     automaticamente eventuali ripetizioni dello stesso link.
 
-   * `-r|--resume' l'uso di questa opzione comporta la sovrascrittura
-     del file omonimo. In mancanza di file temporanei riferiti al link
-     da processare, anche il download con Axel sovrascrive comunque il
+``-r|--resume''
+     l'uso di questa opzione comporta la sovrascrittura del file
+     omonimo. In mancanza di file temporanei riferiti al link da
+     processare, anche il download con Axel sovrascrive comunque il
      file dall'inizio. Questa opzione può essere configurata come
      comportamento predefinito (`zdl [-c|--configure]').
 
@@ -1129,18 +1135,18 @@ Node: Arrestare ZDL15948
 Node: Controllare i download17053
 Node: Manuali d'uso21341
 Node: Modi21757
-Node: Readline24624
-Node: Editor26144
-Node: Omonimie27369
-Node: Filtri28898
-Node: Creare nuove estensioni29220
-Node: Software consigliati30789
-Node: Conkeror31897
-Node: zdl-xterm e XXXTerm/Xombrero32908
-Node: Installazione e aggiornamento34832
-Node: Tags37156
-Node: Copying39315
-Node: Contatti40365
+Node: Readline24628
+Node: Editor26148
+Node: Omonimie27373
+Node: Filtri28906
+Node: Creare nuove estensioni29228
+Node: Software consigliati30797
+Node: Conkeror31905
+Node: zdl-xterm e XXXTerm/Xombrero32916
+Node: Installazione e aggiornamento34840
+Node: Tags37164
+Node: Copying39323
+Node: Contatti40373
 
 End Tag Table
 

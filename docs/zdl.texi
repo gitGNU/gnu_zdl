@@ -760,7 +760,7 @@ Il download può diventare problematico in presenza di file omonimi nella stessa
 @*@*
 Nel caso in cui, in presenza di file omonimi, non esistono file temporanei dei link da processare, ZDL si comporta di due modi alternativi:
 
-@table
+@table @option
 @item @emph{predefinito}
 non sovrascrive il file omonimo, ma rinomina il nuovo file nel modo seguente: inserisce, fra il nome e l'estensione, una stringa composta da @code{__BIS__} e da un segmento dell'URL del link, opportunamente abbreviato e ricodificato. La stringa aggiuntiva aumenta la probabilità che non si ripeta un problema di omonimia, anche in mancanza dei file temporanei di processi di download precedenti. In ogni caso, la coda di download cancella automaticamente eventuali ripetizioni dello stesso link.
 @item @option{-r|--resume}
