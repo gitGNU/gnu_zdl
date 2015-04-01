@@ -637,12 +637,12 @@ Sono disponibili due diverse _modalità in standard output_: quella
 predefinita, che informa puntualmente l'utente di ogni operazione
 compiuta, comunicando i dati rilevanti dei download in corso e quella
 _lite_, estremamente compatta nella rappresentazione dei download e
-muta rispetto ai processi di estrazione e analisi. La seconda modalità
-può essere avviata con l'opzione `-l|--lite' oppure configurata come
-_predefinita_ attraverso l'interfaccia di configurazione: `zdl
-[-c|--configure]'. È particolarmente indicata per l'utente che usa ZDL
-come downloader alternativo per il browser, per esempio attraverso
-l'estensione _Flashgot_.
+_silente_ rispetto ai processi di estrazione e analisi. La seconda
+modalità può essere avviata con l'opzione `-l|--lite' oppure
+configurata come _predefinita_ attraverso l'interfaccia di
+configurazione: `zdl [-c|--configure]'. È particolarmente indicata per
+l'utente che usa ZDL come downloader alternativo per il browser, per
+esempio attraverso l'estensione _Flashgot_.
 Le _modalità in standard output_ sono dotate di una *note Readline:: e
 accettano i seguenti comandi, espressi in combinazioni di tasti:
 
@@ -673,16 +673,19 @@ Modalità interattiva.
 
 Permette il controllo manuale dei download (*note Controllare i
 download::) ed altre operazioni, descritte nella stessa interfaccia.
-_Non processa i link_ ed è soloun _client_: per l'avvio dei download è
+_Non processa i link_ ed è solo un _client_: per l'avvio dei download è
 necessario eseguire un'istanza _server_ di ZDL, come quelle _in
 standard output_ oppure _demone_. Quest'ultima può essere avviata dalla
 stessa modalità interattiva.
+Questa modalità d'uso è quella che fornisce più informazioni sullo
+_stato_ dei download. La sua schermata è aggiornata automaticamente
+ogni 15 secondi o manualmente digitando un tasto qualsiasi.
 
 Modalità demone.
 =================
 
 Gestisce silenziosamente tutti i processi riferiti a una directory e
-puù essere controllato manualmente attraverso la _modalità
+può essere controllato manualmente attraverso la _modalità
 interattiva_. È indipendente dal terminale in uso, che può essere
 chiuso senza conseguenze. È, in senso pieno, la modalità _server_ di
 ZDL: la modalità demone è sempre in attesa di nuovi link da processare
@@ -1135,18 +1138,18 @@ Node: Arrestare ZDL15948
 Node: Controllare i download17053
 Node: Manuali d'uso21341
 Node: Modi21757
-Node: Readline24628
-Node: Editor26148
-Node: Omonimie27373
-Node: Filtri28906
-Node: Creare nuove estensioni29228
-Node: Software consigliati30797
-Node: Conkeror31905
-Node: zdl-xterm e XXXTerm/Xombrero32916
-Node: Installazione e aggiornamento34840
-Node: Tags37164
-Node: Copying39323
-Node: Contatti40373
+Node: Readline24833
+Node: Editor26353
+Node: Omonimie27578
+Node: Filtri29111
+Node: Creare nuove estensioni29433
+Node: Software consigliati31002
+Node: Conkeror32110
+Node: zdl-xterm e XXXTerm/Xombrero33121
+Node: Installazione e aggiornamento35045
+Node: Tags37369
+Node: Copying39528
+Node: Contatti40578
 
 End Tag Table
 

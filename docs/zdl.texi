@@ -700,7 +700,7 @@ pagina di manuale in stile UNIX: @command{man zdl}
 ZDL può essere utilizzato in diverse modalità:
 
 @unnumberedsec Modalità in standard output (predefinita e @emph{lite}).
-Sono disponibili due diverse @emph{modalità in standard output}: quella predefinita, che informa puntualmente l'utente di ogni operazione compiuta, comunicando i dati rilevanti dei download in corso e quella @emph{lite}, estremamente compatta nella rappresentazione dei download e muta rispetto ai processi di estrazione e analisi. La seconda modalità può essere avviata con l'opzione @option{-l|--lite} oppure configurata come @emph{predefinita} attraverso l'interfaccia di configurazione: @command{zdl [-c|--configure]}. È particolarmente indicata per l'utente che usa ZDL come downloader alternativo per il browser, per esempio attraverso l'estensione @emph{Flashgot}.
+Sono disponibili due diverse @emph{modalità in standard output}: quella predefinita, che informa puntualmente l'utente di ogni operazione compiuta, comunicando i dati rilevanti dei download in corso e quella @emph{lite}, estremamente compatta nella rappresentazione dei download e @emph{silente} rispetto ai processi di estrazione e analisi. La seconda modalità può essere avviata con l'opzione @option{-l|--lite} oppure configurata come @emph{predefinita} attraverso l'interfaccia di configurazione: @command{zdl [-c|--configure]}. È particolarmente indicata per l'utente che usa ZDL come downloader alternativo per il browser, per esempio attraverso l'estensione @emph{Flashgot}.
 @*
 Le @emph{modalità in standard output} sono dotate di una @ref{Readline} e accettano i seguenti comandi, espressi in combinazioni di tasti:
 
@@ -715,13 +715,13 @@ permette l'uscita da ZDL senza l'interruzione dei downloader, che continuano a r
 uccide tutti i processi avviati nella directory, senza cancellare i file temporanei.
 @end table
 
-@*
 @unnumberedsec Modalità interattiva.
-Permette il controllo manuale dei download (@ref{Controllare i download}) ed altre operazioni, descritte nella stessa interfaccia. @emph{Non processa i link} ed è soloun @emph{client}: per l'avvio dei download è necessario eseguire un'istanza @emph{server} di ZDL, come quelle @emph{in standard output} oppure @emph{demone}. Quest'ultima può essere avviata dalla stessa modalità interattiva.
-
+Permette il controllo manuale dei download (@ref{Controllare i download}) ed altre operazioni, descritte nella stessa interfaccia. @emph{Non processa i link} ed è solo un @emph{client}: per l'avvio dei download è necessario eseguire un'istanza @emph{server} di ZDL, come quelle @emph{in standard output} oppure @emph{demone}. Quest'ultima può essere avviata dalla stessa modalità interattiva.
 @*
+Questa modalità d'uso è quella che fornisce più informazioni sullo @emph{stato} dei download. La sua schermata è aggiornata automaticamente ogni 15 secondi o manualmente digitando un tasto qualsiasi.
+
 @unnumberedsec Modalità demone.
-Gestisce silenziosamente tutti i processi riferiti a una directory e puù essere controllato manualmente attraverso la @emph{modalità interattiva}. È indipendente dal terminale in uso, che può essere chiuso senza conseguenze. È, in senso pieno, la modalità @emph{server} di ZDL: la modalità demone è sempre in attesa di nuovi link da processare e termina solo per intervento dell'utente, attraverso l'interfaccia interattiva. La modalità demone consuma meno risorse rispetto alle altre modalità.
+Gestisce silenziosamente tutti i processi riferiti a una directory e può essere controllato manualmente attraverso la @emph{modalità interattiva}. È indipendente dal terminale in uso, che può essere chiuso senza conseguenze. È, in senso pieno, la modalità @emph{server} di ZDL: la modalità demone è sempre in attesa di nuovi link da processare e termina solo per intervento dell'utente, attraverso l'interfaccia interattiva. La modalità demone consuma meno risorse rispetto alle altre modalità.
 
 @htmlend
 
