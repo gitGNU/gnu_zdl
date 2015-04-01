@@ -704,7 +704,7 @@ Sono disponibili due diverse @emph{modalità in standard output}: quella predefi
 @*
 Le @emph{modalità in standard output} sono dotate di una @ref{Readline} e accettano i seguenti comandi, espressi in combinazioni di tasti:
 
-@itemize @kbd
+@table @kbd
 @item M-i
 avvia la @emph{modalità interattiva}. Lo standard output del terminale viene ceduto ad un'altra modalità, senza però sospendere le attività della modalità precedente, che procedono silenti.
 @item M-e
@@ -713,7 +713,7 @@ avvia l'editor predefinito (@ref{Editor}). Come per il comando precedente, le at
 permette l'uscita da ZDL senza l'interruzione dei downloader, che continuano a registrare dati utili per un eventuale riavvio di ZDL: i download possono essere controllati attraverso le funzioni della @emph{modalità interattiva} ma, in caso di interruzioni, devono essere processati dalle modalità @emph{in standard output} oppure @emph{demone}.
 @item M-k
 uccide tutti i processi avviati nella directory, senza cancellare i file temporanei.
-@end itemize
+@end table
 
 @*
 @unnumberedsec Modalità interattiva.
@@ -760,12 +760,12 @@ Il download può diventare problematico in presenza di file omonimi nella stessa
 @*@*
 Nel caso in cui, in presenza di file omonimi, non esistono file temporanei dei link da processare, ZDL si comporta di due modi alternativi:
 
-@itemize
+@table
 @item @emph{predefinito}
 non sovrascrive il file omonimo, ma rinomina il nuovo file nel modo seguente: inserisce, fra il nome e l'estensione, una stringa composta da @code{__BIS__} e da un segmento dell'URL del link, opportunamente abbreviato e ricodificato. La stringa aggiuntiva aumenta la probabilità che non si ripeta un problema di omonimia, anche in mancanza dei file temporanei di processi di download precedenti. In ogni caso, la coda di download cancella automaticamente eventuali ripetizioni dello stesso link.
 @item @option{-r|--resume}
 l'uso di questa opzione comporta la sovrascrittura del file omonimo. In mancanza di file temporanei riferiti al link da processare, anche il download con Axel sovrascrive comunque il file dall'inizio. Questa opzione può essere configurata come comportamento predefinito (@command{zdl [-c|--configure]}).
-@end itemize
+@end table
 @*@*
 
 @htmlend
