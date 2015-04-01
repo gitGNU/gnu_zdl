@@ -643,9 +643,8 @@ _predefinita_ attraverso l'interfaccia di configurazione: `zdl
 [-c|--configure]'. È particolarmente indicata per l'utente che usa ZDL
 come downloader alternativo per il browser, per esempio attraverso
 l'estensione _Flashgot_.
-Le _modalità in standard output_ sono dotate di una _readline_ ( *note
-Readline:: ) e accettano i seguenti comandi, espressi in combinazioni
-di tasti:
+Le _modalità in standard output_ sono dotate di una *note Readline:: e
+accettano i seguenti comandi, espressi in combinazioni di tasti:
 
    `' M-i avvia la _modalità interattiva_. Lo standard output del
      terminale viene ceduto ad un'altra modalità, senza però sospendere
@@ -699,19 +698,20 @@ _pipe_, un _file_ container _DLC_ o testuale, l'estensione di un
 browser...), avvia la _readline di ZDL_. È quasi identica alla readline
 della Bash: usa la stessa history e digitando il tasto `Invio' si
 esegue un comando. Ma la readline di ZDL accetta, come comandi, solo
-link che hanno la forma di un URL _http, https o ftp_. In presenza di
-spazi nell'URL, questi sono automaticamente convertiti nel _codice
-percentuale_ standard per gli URL (eventuali spazi a sinistra e a
-destra dell'URL sono ignorati). L'immissione di ogni link deve avvenire
-singolarmente, alla pressione del tasto _Invio_. Utilizzando il mouse,
-si può _incollare_ un elenco di link, ma questi devono essere disposti
-in righe diverse. Le righe vuote e i link già registrati sono ignorati,
-le stringhe non corrispondenti ad un URL sono rifiutate esplicitamente
-e registrate nel file di log prodotto all'interno della stessa
-directory, mentre gli URL accettati sono registrati via via nel file
-gestito automaticamente da ZDL, come _coda di download_. In ogni
-momento, durante l'immissione di link attraverso la readline, si può
-modificare la _coda di download_ con l'editor predefinito (*note
+link che hanno la forma di un URL _http, https o ftp_.
+In presenza di spazi nell'URL, questi sono automaticamente convertiti
+nel _codice percentuale_ standard per gli URL (eventuali spazi a
+sinistra e a destra dell'URL sono ignorati). L'immissione di ogni link
+deve avvenire singolarmente, alla pressione del tasto _Invio_.
+Utilizzando il mouse, si può _incollare_ un elenco di link, ma questi
+devono essere disposti in righe diverse.
+Le righe vuote e i link già registrati sono ignorati, le stringhe non
+corrispondenti ad un URL sono rifiutate esplicitamente e registrate nel
+file di log prodotto all'interno della stessa directory, mentre gli URL
+accettati sono registrati via via nel file gestito automaticamente da
+ZDL, come _coda di download_.
+In ogni momento, durante l'immissione di link attraverso la readline,
+si può modificare la _coda di download_ con l'editor predefinito (*note
 Editor::). I processi di download sono avviati dal comando `M-x Invio',
 che chiude la readline ed esegue la coda di download.
 
@@ -1129,18 +1129,18 @@ Node: Arrestare ZDL15948
 Node: Controllare i download17053
 Node: Manuali d'uso21341
 Node: Modi21757
-Node: Readline24639
-Node: Editor26159
-Node: Omonimie27384
-Node: Filtri28913
-Node: Creare nuove estensioni29235
-Node: Software consigliati30804
-Node: Conkeror31912
-Node: zdl-xterm e XXXTerm/Xombrero32923
-Node: Installazione e aggiornamento34847
-Node: Tags37171
-Node: Copying39330
-Node: Contatti40380
+Node: Readline24624
+Node: Editor26144
+Node: Omonimie27369
+Node: Filtri28898
+Node: Creare nuove estensioni29220
+Node: Software consigliati30789
+Node: Conkeror31897
+Node: zdl-xterm e XXXTerm/Xombrero32908
+Node: Installazione e aggiornamento34832
+Node: Tags37156
+Node: Copying39315
+Node: Contatti40365
 
 End Tag Table
 
