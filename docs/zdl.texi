@@ -79,7 +79,7 @@
 @html
 @end html
 @end ifhtml
-* Modi::@*Modalità d'uso di ZDL@*
+* Modi::@*Predefinito, Lite, Interattivo, Demone@*
 * Readline::@*La riga di comando di ZDL@*
 * Editor::@*Editor integrato, per modificare la coda di download@*
 * Omonimie::@*Gestione dei file omonimi e recupero dei download interrotti@*

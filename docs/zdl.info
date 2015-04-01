@@ -124,7 +124,7 @@ Documentazione disponibile per ZDL
 
 _Strumenti e funzioni_
 * Modi::
-Modalità d'uso di ZDL
+Predefinito, Lite, Interattivo, Demone
 
 * Readline::
 La riga di comando di ZDL
@@ -1135,25 +1135,25 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5225
-Node: Servizi streaming/hosting10727
-Node: Avviare ZDL13684
-Node: Arrestare ZDL16122
-Node: Controllare i download17227
-Node: Manuali d'uso21515
-Node: Modi21931
-Node: Readline25007
-Node: Editor26527
-Node: Omonimie27752
-Node: Filtri29285
-Node: Creare nuove estensioni29607
-Node: Software consigliati31176
-Node: Conkeror32284
-Node: zdl-xterm e XXXTerm/Xombrero33295
-Node: Installazione e aggiornamento35219
-Node: Tags37543
-Node: Copying39702
-Node: Contatti40752
+Node: Il comando ZDL5241
+Node: Servizi streaming/hosting10743
+Node: Avviare ZDL13700
+Node: Arrestare ZDL16138
+Node: Controllare i download17243
+Node: Manuali d'uso21531
+Node: Modi21947
+Node: Readline25023
+Node: Editor26543
+Node: Omonimie27768
+Node: Filtri29301
+Node: Creare nuove estensioni29623
+Node: Software consigliati31192
+Node: Conkeror32300
+Node: zdl-xterm e XXXTerm/Xombrero33311
+Node: Installazione e aggiornamento35235
+Node: Tags37559
+Node: Copying39718
+Node: Contatti40768
 
 End Tag Table
 
