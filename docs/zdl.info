@@ -549,7 +549,7 @@ _Soluzione:_
           terminale)
 
         - quando ho finito di registrare i link, torno al terminale e,
-          senza     scrivere nulla, digito la chiocciolina
+          senza     scrivere nulla, digito `M-x Invio'
 
 I download di ZDL possono essere controllati in modo diretto attraverso
 la modalità interattiva, che può essere attivata da quella standard
@@ -937,15 +937,15 @@ Node: Servizi streaming/hosting10425
 Node: Avviare ZDL13208
 Node: Arrestare ZDL15646
 Node: Controllare i download16751
-Node: Manuali d'uso20354
-Node: Creare nuove estensioni20789
-Node: Software consigliati22369
-Node: Conkeror23477
-Node: zdl-xterm e XXXTerm/Xombrero24488
-Node: Installazione e aggiornamento26412
-Node: Tags28736
-Node: Copying30895
-Node: Contatti31945
+Node: Manuali d'uso20350
+Node: Creare nuove estensioni20785
+Node: Software consigliati22365
+Node: Conkeror23473
+Node: zdl-xterm e XXXTerm/Xombrero24484
+Node: Installazione e aggiornamento26408
+Node: Tags28732
+Node: Copying30891
+Node: Contatti31941
 
 End Tag Table
 

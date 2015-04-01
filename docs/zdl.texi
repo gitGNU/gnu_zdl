@@ -638,7 +638,7 @@ usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
     nel terminale)
 @item
 quando ho finito di registrare i link, torno al terminale e, senza
-    scrivere nulla, digito la chiocciolina @
+    scrivere nulla, digito @kbd{M-x Invio}
 @end itemize
 @end table
 
