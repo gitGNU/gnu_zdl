@@ -364,7 +364,7 @@ Non scarica i file il cui nome corrisponde alla REGEX
 Non scarica i file con estensione '.rev'
 
 @item --no-sub
-Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub' (per file video sottotitolati)
+Non scarica i file il cui nome contiene la stringa 'sub' (in lettere maiuscole e minuscole), scarta i file video sottotitolati.
 
 @end table
 

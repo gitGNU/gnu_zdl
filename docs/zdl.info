@@ -286,8 +286,8 @@ Filtri:
      Non scarica i file con estensione '.rev'
 
 `--no-sub'
-     Non scarica i file il cui nome contiene le stringhe 'Sub' o 'sub'
-     (per file video sottotitolati)
+     Non scarica i file il cui nome contiene la stringa 'sub' (in
+     lettere maiuscole e minuscole), scarta i file video sottotitolati.
 
 
 Avvio con un editor:
@@ -911,19 +911,19 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL4923
-Node: Servizi streaming/hosting10505
-Node: Avviare ZDL13288
-Node: Arrestare ZDL15726
-Node: Controllare i download16831
-Node: Manuali d'uso19311
-Node: Creare nuove estensioni19746
-Node: Software consigliati21326
-Node: Conkeror22434
-Node: zdl-xterm e XXXTerm/Xombrero23445
-Node: Installazione e aggiornamento25369
-Node: Tags27693
-Node: Copying29852
-Node: Contatti30902
+Node: Servizi streaming/hosting10536
+Node: Avviare ZDL13319
+Node: Arrestare ZDL15757
+Node: Controllare i download16862
+Node: Manuali d'uso19342
+Node: Creare nuove estensioni19777
+Node: Software consigliati21357
+Node: Conkeror22465
+Node: zdl-xterm e XXXTerm/Xombrero23476
+Node: Installazione e aggiornamento25400
+Node: Tags27724
+Node: Copying29883
+Node: Contatti30933
 
 End Tag Table
 
