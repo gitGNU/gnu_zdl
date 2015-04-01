@@ -140,7 +140,6 @@
 @end menu
 </div>
 <br>
-
 @b{Come si usa ZDL}
 <div class="nav">
 @menu
@@ -148,7 +147,6 @@
 @end menu
 </div>
 <br>
-
 @b{Strumenti e funzioni}
 <div class="nav">
 @menu
@@ -156,7 +154,6 @@
 @end menu
 </div>
 <br>
-
 @b{Espandere ZDL}
 <div class="nav">
 @menu
