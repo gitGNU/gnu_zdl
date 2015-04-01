@@ -417,11 +417,15 @@ eventualmente attraverso l'uso di proxy: Easybytez, Sharpfile e
 Mediafire
 
    I servizi seguenti sono abilitati solo per il download con Wget:
-Easybytez, Dailymotion. Gli altri servizi sono abilitati in modo
-predefinito per Axel.
+Easybytez, Dailymotion, Cloudzilla e Videowood.
+
+   I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma
+con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
+
+   Gli altri servizi sono abilitati in modo predefinito per Axel.
 
    Per scaricare da Sharpfile, Depositfiles e da altri servizi,
-attualmente è necessario utilizzare il browser per risolvere il
+attualmente è necessario utilizzare il browser web per risolvere il
 captcha, generare il link ed avviare il download attraverso le
 componenti aggiuntive compatibili dei browser oppure con ZDL avviato
 dal terminale.
@@ -1133,23 +1137,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5225
 Node: Servizi streaming/hosting10727
-Node: Avviare ZDL13510
-Node: Arrestare ZDL15948
-Node: Controllare i download17053
-Node: Manuali d'uso21341
-Node: Modi21757
-Node: Readline24833
-Node: Editor26353
-Node: Omonimie27578
-Node: Filtri29111
-Node: Creare nuove estensioni29433
-Node: Software consigliati31002
-Node: Conkeror32110
-Node: zdl-xterm e XXXTerm/Xombrero33121
-Node: Installazione e aggiornamento35045
-Node: Tags37369
-Node: Copying39528
-Node: Contatti40578
+Node: Avviare ZDL13684
+Node: Arrestare ZDL16122
+Node: Controllare i download17227
+Node: Manuali d'uso21515
+Node: Modi21931
+Node: Readline25007
+Node: Editor26527
+Node: Omonimie27752
+Node: Filtri29285
+Node: Creare nuove estensioni29607
+Node: Software consigliati31176
+Node: Conkeror32284
+Node: zdl-xterm e XXXTerm/Xombrero33295
+Node: Installazione e aggiornamento35219
+Node: Tags37543
+Node: Copying39702
+Node: Contatti40752
 
 End Tag Table
 

@@ -499,11 +499,14 @@ per procedere con il download in parallelo, eventualmente attraverso
 l'uso di proxy: Easybytez, Sharpfile e Mediafire
 
 I servizi seguenti sono abilitati solo per il
-download con Wget: Easybytez, Dailymotion. Gli altri servizi
-sono abilitati in modo predefinito per Axel. 
+download con Wget: Easybytez, Dailymotion, Cloudzilla e Videowood.
+
+I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
+
+Gli altri servizi sono abilitati in modo predefinito per Axel. 
 
 Per scaricare da Sharpfile, Depositfiles e da altri servizi,
-attualmente è necessario utilizzare il browser per risolvere il
+attualmente è necessario utilizzare il browser web per risolvere il
 captcha, generare il link ed avviare il download attraverso le componenti
 aggiuntive compatibili dei browser oppure con ZDL avviato dal terminale.
 
@@ -691,7 +694,7 @@ pagina di manuale in stile UNIX: @command{man zdl}
 
 @htmlend
 
-@c ---------------------
+
 
 @node Modi,Readline,Manuali d'uso,Top
 @htmlstart
