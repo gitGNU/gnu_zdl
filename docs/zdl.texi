@@ -604,9 +604,6 @@ attraverso la modalità interattiva @command{zdl -i} avviata nella directory ges
 @htmlstart
 @unnumbered Controllare i download: recupero, eliminazione, arresto, riavvio...
 
-@emph{(Pagina in via di elaborazione sulla base dei nuovi sviluppi del software.)}
-@*@*
-
 I download possono essere controllati in modalità diverse in base al tipo di operazione da effettuare.
 L'avvio da terminale permette l'esecuzione delle operazioni elencate nella presentazione del comando: @xref{Il comando ZDL}. Poiché ZDL può essere chiuso senza interrompere i download, questa modalità di controllo può essere adottata in ogni momento, a esecuzione già avviata. Per @emph{chiudere senza interrompere i download}:
 @itemize @minus
@@ -617,103 +614,40 @@ da modalità interattiva, digitare @kbd{Q} (tasti @kbd{<Shift>+<q>})
 @end itemize
 
 Una volta @emph{chiuso} (o anche @emph{ucciso} interrompendo i download), ZDL può essere riavviato utilizzando nuove opzioni.
+
+@unnumberedsubsec Un esempio, partendo da un problema pratico: aggiungere opzioni a download avviati dal browser. 
+@table @emph
+@item Problema:
+voglio scaricare dei file da Easybytez usando @emph{Flashgot}, ma voglio
+anche usare le opzioni @option{--login}, @option{--multi} e @option{--clean}, che non sono
+impostate di default. Come posso utilizzare queste funzioni aggiuntive
+usando il browser (con @emph{Flashgot}), se queste possono essere attivate
+solo dal terminale?
+
+@item Soluzione:
+@itemize @minus
+@item
+avvio zdl in un terminale, dalla directory di destinazione,
+    utilizzando tutte le opzioni di cui ho bisogno:
+    		  @command{zdl -m --login --clean}
+@item
+usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
+    file da scaricare e avvio il download con @emph{Flashgot}: il download
+    non viene effettuato subito e i link vengono registrati da zdl per
+    essere processati da un'altra istanza attiva del programma (quella
+    nel terminale)
+@item
+quando ho finito di registrare i link, torno al terminale e, senza
+    scrivere nulla, digito la chiocciolina @
+@end itemize
+@end table
+
 @*@*
 I download di ZDL possono essere controllati in modo diretto attraverso la modalità interattiva, che può essere attivata da quella standard digitando @kbd{M-i} (tasti @kbd{<Alt>+<i>}) o da un qualsiasi terminale @emph{Bash} dalla stessa directory di download, utilizzando l'opzione @option{-i|--interactive}. Se non è attiva alcuna istanza di avvio e gestione automatica dei download, dall'interfaccia interattiva è possibile avviare la modalità @emph{demone}, che agisce in background come @emph{server} ed è indipendente dal terminale di avvio. Per gestire i download e la stessa chiusura di ZDL in modalità demone, è comunque necessario utilizzare l'interfaccia interattiva, che ha funzione di @emph{client}.@*
 I comandi sono elencati nella stessa interfaccia interattiva: è possibile modificare il numero massimo di download (da 1 a 9 oppure illimitati, digitando i tasti dei numeri o, rispettivamente, il tasto @kbd{m}), il tipo di downloader da utilizzare (Axel o Wget), avviare l'editor predefinito per modificare l'elenco dei link da processare, selezionare i download in gestione per @emph{riavviarli} (ZDL interrompe il download in corso e processa quello successivo fino al termine della lista registrata, poi ricomincia dal primo e così via), @emph{terminarli} in modo definitivo senza cancellare i file finora scaricati o @emph{eliminarli} completamente. Per queste ultime tre operazioni è possibile selezionare più download alla volta, indicandone i numeri identificativi separandoli con spazi.
 
-@c In caso di interruzione dei download (per esempio a causa di
-@c disconnessione), i file scaricati attraverso Axel possono riprendere
-@c lo scaricamento dal punto di interruzione (solo se nella cartella che
-@c contiene il file scaricato è ancora presente il file omonimo con
-@c estensione @code{.st}). Se i file interrotti sono stati scaricati con
-@c Wget, non possono essere recuperati e verranno riscaricati
-@c automaticamente da capo. 
 
-@c Il file @file{links.txt} contiene tutti i link processati da ZDL, da ogni
-@c input possibile: i file ed i link passati a ZDL come argomenti o
-@c attraverso liste contenute in file di testo o passati attraverso
-@c componenti aggiuntive dei browser oppure, in mancanza di tali dati, i
-@c link incollati al terminale, prima di avviare il download digitando
-@c "@@". Il file @file{links.txt} serve soprattutto al recupero manuale dei
-@c link di download interrotti, nel caso in cui non fossero più
-@c disponibili i file temporanei di ZDL (per esempio, nel caso di errato
-@c utilizzo dell'opzione @option{--clean})
 
-@c In ogni caso ZDL provvederà automaticamente
-@c a recuperare il download o a rieseguirlo da capo. Nel caso in cui
-@c anche ZDL è stato terminato, il recupero manuale è possibile
-@c riavviando ZDL e digitando la chiocciolina "@@".
-
-@c @unnumberedsubsec Controllo attraverso l'uso di opzioni:
-
-@c @unnumberedsubsubsec Il downloader
-@c Le opzioni @option{--wget} e @option{--axel} consentono la scelta del
-@c downloader. @emph{Axel} è un acceleratore di download fortemente consigliato
-@c e abilitato in modo predefinito per tutti i link e per quasi tutti i
-@c servizi di hosting. È possibile configurare il downloader di default avviando 
-@c la modalità di configurazione (opzione @option{-c}, @option{--configure}).
-
-@c @unnumberedsubsubsec Cancellare i file temporanei
-@c L'argomento @option{--clean} cancella eventuali residui di file temporanei di
-@c ZDL nella directory di destinazione, prima di iniziare a processare i
-@c link immessi dall'utente.
-
-@c @unnumberedsubsec Controllo da interfaccia interattiva
-@c L'opzione @option{-i, --interactive} permette di visualizzare i download di
-@c ZDL utilizzando un altro terminale oppure dallo stesso terminale di
-@c avvio dei download di Wget nel caso in cui ZDL è terminato
-@c (per decisione dell'utente, premendo @kbd{Ctrl+c}, oppure
-@c accidentalmente). Infatti, i download di Wget procedono in background
-@c e non muoiono insieme a ZDL (tecnicamente possono essere tutti uccisi
-@c "terminando il terminale"). Per uccidere uno o più processi già
-@c avviati (definitivamente oppure per riavviarli automaticamente), anche
-@c con ZDL perfettamente attivo, da un altro terminale entrare nella
-@c directory di destinazione e digitare @command{zdl -i} o @command{zdl
-@c --interactive}: comparirà un'interfaccia con cui poter interagire con
-@c i processi di ZDL.
-
-@c @unnumberedsubsec Immissione di nuovi link
-@c ZDL accetta come argomenti un numero illimitato di file di
-@c testo contenenti link e container DLC. 
-@c Inoltre, è stato progettato anche per scaricare
-@c file di video streaming. Per quest'ultima operazione è
-@c particolarmente indicato l'utilizzo di Flashgot, componente aggiuntivo
-@c di @emph{Firefox/Iceweasel/Icecat} (@url{http://flashgot.net}). 
-@c Avviando ZDL con @emph{Flashgot} è possibile scaricare filmati anche da servizi 
-@c di video streaming non ancora abilitati da ZDL. In genere, però, i link ricavati 
-@c da @emph{Flashgot} sono temporanei e possono scadere dopo un certo periodo di tempo o a 
-@c causa di una variazione dell'indirizzo IP dell'utente (per esempio, dovuta a una 
-@c disconnessione del modem dal proprio provider)
-
-@c @unnumberedsubsec Immissione di nuove opzioni
-@c Aggiungere opzioni a download avviati dal browser. 
-
-@c @unnumberedsubsubsec Un esempio, partendo da un problema pratico
-@c @table @emph
-@c @item Problema:
-@c voglio scaricare dei file da Easybytez usando @emph{Flashgot}, ma voglio
-@c anche usare le opzioni @option{--login}, @option{--multi} e @option{--clean}, che non sono
-@c impostate di default. Come posso utilizzare queste funzioni aggiuntive
-@c usando il browser (con @emph{Flashgot}), se queste possono essere attivate
-@c solo dal terminale?
-
-@c @item Soluzione:
-@c @itemize @minus
-@c @item
-@c avvio zdl in un terminale, dalla directory di destinazione,
-@c     utilizzando tutte le opzioni di cui ho bisogno:
-@c     		  @command{zdl -m --login --clean}
-@c @item
-@c usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
-@c     file da scaricare e avvio il download con @emph{Flashgot}: il download
-@c     non viene effettuato subito e i link vengono registrati da zdl per
-@c     essere processati da un'altra istanza attiva del programma (quella
-@c     nel terminale)
-@c @item
-@c quando ho finito di registrare i link, torno al terminale e, senza
-@c     scrivere nulla, digito la chiocciolina @
-@c @end itemize
-@c @end table
 @htmlend
 
 @node Manuali d'uso,Creare nuove estensioni,Controllare i download,Top
