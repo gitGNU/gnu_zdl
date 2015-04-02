@@ -536,17 +536,16 @@ then
 	if [ "${args[$i]}" == '--multi' ] || [ "${args[$i]}" == '-m' ]
 	then
 	    unset args[$i] num_dl
-	    if [[ "${args[$(( $i+1 ))]}" =~ [0-9] ]] && [ -z "${args[$(( $i+1 ))]//[0-9]}" ]
+	    if [[ "${args[$(( $i+1 ))]}" =~ ^[0-9]+$ ]]
 	    then
 		num_dl="${args[$(( $i+1 ))]}"
 		unset args[$(( $i+1 ))]
-		echo $num_dl > "$path_tmp/.dl-mode"
+
 	    fi
+	    echo $num_dl > "$path_tmp/.dl-mode"
 	fi
     done
 fi
-
-
 
 if [ "${args[*]}" != "${args[*]//--ip}" ]
 then
