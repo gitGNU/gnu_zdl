@@ -824,16 +824,23 @@ then
 	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
 
-	    if [ "$scrapeURL" == "true" ]
+	    if url? "${args[$i]}"
 	    then
-		scrape_url "${args[$i]}"
-	    else
-		if url? "${args[$i]}"
+		if [ "$scrapeURL" == "true" ]
 		then
-		    echo -e "${args[$i]}" >> "$path_tmp"/links_loop.txt
+		    scrape_url "${args[$i]}"
 		else
-		    _log 12 "${args[$i]}"
+		    if [ -z "$links" ]
+		    then
+			links="${args[$i]}"
+		    else
+			links="${links}\n${args[$i]}"
+		    fi
+		    start_file="$path_tmp/links_loop.txt"
+		    links_loop + "${args[$i]}"
 		fi
+	    else
+		_log 12 "${args[$i]}"
 	    fi
 	fi
     done
@@ -872,15 +879,8 @@ then
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
 	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
 	binding=0
-	while true
+	while [ "$binding" != 1 ]
 	do
-	    case $binding in
-		1)
-		    unset binding
-		    break
-		    ;;
-	    esac
-
 	    read -e link
 	    if [ ! -z "${link// }" ]
 	    then
@@ -889,7 +889,7 @@ then
 		links_loop + "${link// /%20}"
 	    fi
 	done
-	unset link
+	unset link binding
     elif [ ! -z "$from_editor" ]
     then
 	$editor "$start_file"
@@ -897,6 +897,8 @@ then
     if [ -f "$start_file" ]
     then
 	clean_file "$start_file"
+	echo >> links.txt 2>/dev/null
+	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
     else
 	rm -f "$path_tmp/rewriting"
@@ -905,12 +907,12 @@ fi
 
 if ! check_instance_daemon && [ "$zdl_mode" != "daemon" ]
 then
-    redirect_links
+    redirect_links ## $links
 fi
 
 if ! check_instance_prog
 then
-    redirect_links
+    redirect_links ## $links
 else
     echo "$pid_prog" > "$path_tmp/pid.zdl"
 fi

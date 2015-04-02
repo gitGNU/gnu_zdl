@@ -80,22 +80,30 @@ function scrape_url {
     if url? "$url_page"
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
-	wget -q "$url_page" -O - |                                             \
+	while read line
+	do
+	    if [ -z "$links" ]
+	    then
+		links="$line"
+	    else
+		links="${links}\n$line"
+	    fi
+	    start_file="$path_tmp/links_loop.txt"
+	    links_loop + "$line"
+	done <<< "$(wget -q "$url_page" -O - |                                 \
 	    tr "\t\r\n'" '   "' |                                              \
 	    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      \
 	    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               \
 	    grep "$url_regex" |                                                \
-	    sort | uniq                                                        \
-		       >> "$path_tmp/links_loop.txt" &&                                   \
-	    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
-	start_file="$path_tmp/links_loop.txt"
+	    sort | uniq)"
+
+	print_c 1 "Estrazione URL dalla pagina web $url_page completata"
     fi
 }
 
 function redirect_links {
     header_box "Links da processare"
-    links="${links##\\n}"
-    echo -e "${links//'\n'/\n\n}\n"
+    echo -e "${links}\n"
     separator-
     print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
     [ ! -z "$xterm_stop" ] && xterm_stop
