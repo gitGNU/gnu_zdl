@@ -131,6 +131,10 @@ function progress_out (value,           progress_line) {
 
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
+	    if (chunk[y] ~ "Too many redirects") {
+	    	progress_abort[i] = chunk[y]
+	    	break
+	    } 
 	    if (chunk[y] ~ "Downloaded") {
 	    	progress_end[i] = chunk[y]
 	    	break
@@ -154,6 +158,11 @@ function progress_out (value,           progress_line) {
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
+	} else if (progress_abort[i]) {
+	    bash_var("url_in", "")
+	    percent_out[i] = 0
+	    code = code "_log 3 \"" url_out[i] "\"; "
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
 	} else if (progress_line) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
