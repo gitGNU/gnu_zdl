@@ -134,7 +134,7 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 	    wget --user-agent="$user_agent" \
 		--no-check-certificate \
 		--retry-connrefused \
-		-c -nc -S \
+		-c -nc -k -S \
 		--load-cookies=$COOKIES \
 		$method_post \
 		"$url_in_file" \
