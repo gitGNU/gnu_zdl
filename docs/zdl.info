@@ -35,9 +35,9 @@ File: zdl.info,  Node: Top,  Next: Il comando ZDL,  Up: (dir)
 ZigzagDownLoader (ZDL)
 **********************
 
-_ZigzagDownLoader_ gestisce scaricamenti per conto di alcuni downloader
-come _Wget_, _Axel_, _RTMPDump_ o _cURL_. Può estrarre l'URL dei file
-da scaricare da servizi di file hosting e video streaming. È
+_ZigzagDownLoader_ gestisce gli scaricamenti di alcuni downloader come
+_Wget_, _Axel_, _RTMPDump_ o _cURL_. Inoltre, può estrarre l'URL dei
+file da scaricare da servizi di file hosting e video streaming. È
 compatibile con _Conkeror_, _XXXTerm/Xombrero_, _Firefox_ (attraverso
 l'estensione _Flashgot_) e _Microsoft Windows_ (tramite _Cygwin_).
 
@@ -50,9 +50,11 @@ da terminale.  È nato come script specifico per la Bash e si è
 trasformato in un gestore per downloader che ne avevano bisogno (in
 particolare, Wget e Axel), estendendosi a servizi di video streaming e
 file hosting e integrandosi con altre applicazioni.  Nonostante i suoi
-limiti strutturali, il linguaggio della Bash si è rivelato molto adatto
+limiti strutturali, il linguaggio della _Bash_ si è rivelato adatto
 allo scopo, soprattutto per la flessibilità d'uso nella gestione dei
-processi di altri programmi.
+processi di altri programmi. Una progressiva efficienza è stata
+raggiunta attraverso lo sviluppo di script _monolitici_ nel linguaggio
+di _Awk_ (_Gawk_).
 
 Almeno quattro direttrici di sviluppo
 -------------------------------------
@@ -63,7 +65,7 @@ incepparsi, i nomi dei file scaricati possono non essere intelligibili
 o coincidere con altri di file già salvati, ecc.  _In primo luogo_,
 ZigzagDownLoader serve ad automatizzare la gestione dei download e a
 semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto,
-per il download di grossi file.
+per il download _accelerato_ di grossi file.
 
    _In secondo luogo_, la gestione automatica è estesa a servizi di
 file hosting e video streaming: ZDL si sostituisce all'utente nelle
@@ -76,9 +78,9 @@ programmi e di rendere possibile un'automazione potenzialmente
 illimitata.  La gestione dei download può essere controllata da
 terminali distinti in modalità diverse. Per esempio, ZDL può essere
 avviato in modalità _demone_ e controllato in modalità _interattiva_.
-Anche l'invocazione _standard_ del programma offre diversi modi di
-interazione. ZDL, inoltre, può essere integrato e collegato con altri
-programmi.
+Anche l'avvio _predefinito_ del programma offre diversi modi di
+interazione e di output. ZDL, inoltre, può essere integrato e collegato
+con altri programmi.
 
    _Infine_, una peculiarità del progetto ZDL consiste nella ricerca di
 efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash
@@ -439,6 +441,9 @@ senza l'uso di proxy (in questo caso è necessario specificare anche
 `-m' oppure `--multi'). Per configurare l'uso di account: `zdl
 [-c|--configure]'
 
+   Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire
+a connettersi si consiglia di provare ad usare Wget.
+
 
 File: zdl.info,  Node: Avviare ZDL,  Next: Arrestare ZDL,  Prev: Servizi streaming/hosting,  Up: Top
 
@@ -634,15 +639,15 @@ Modi
 
 ZDL può essere utilizzato in diverse modalità:
 
-Modalità in standard output (predefinita e _lite_).
-====================================================
+Modalità in standard output (predefinita e _lite_: `-l, --lite').
+==================================================================
 
 Sono disponibili due diverse _modalità in standard output_: quella
 predefinita, che informa puntualmente l'utente di ogni operazione
 compiuta, comunicando i dati rilevanti dei download in corso e quella
 _lite_, estremamente compatta nella rappresentazione dei download e
 _silente_ rispetto ai processi di estrazione e analisi. La seconda
-modalità può essere avviata con l'opzione `-l|--lite' oppure
+modalità può essere avviata con l'opzione `-l' (`--lite') oppure
 configurata come _predefinita_ attraverso l'interfaccia di
 configurazione: `zdl [-c|--configure]'. È particolarmente indicata per
 l'utente che usa ZDL come downloader alternativo per il browser, per
@@ -672,8 +677,8 @@ accettano i seguenti comandi, espressi in combinazioni di tasti:
      uccide tutti i processi avviati nella directory, senza cancellare
      i file temporanei.
 
-Modalità interattiva.
-======================
+Modalità interattiva (`-i, --interactive').
+============================================
 
 Permette il controllo manuale dei download (*note Controllare i
 download::) ed altre operazioni, descritte nella stessa interfaccia.
@@ -685,8 +690,8 @@ Questa modalità d'uso è quella che fornisce più informazioni sullo
 _stato_ dei download. La sua schermata è aggiornata automaticamente
 ogni 15 secondi o manualmente digitando un tasto qualsiasi.
 
-Modalità demone.
-=================
+Modalità demone (`-d, --daemon').
+==================================
 
 Gestisce silenziosamente tutti i processi riferiti a una directory e
 può essere controllato manualmente attraverso la _modalità
@@ -1135,25 +1140,25 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5241
-Node: Servizi streaming/hosting10743
-Node: Avviare ZDL13700
-Node: Arrestare ZDL16138
-Node: Controllare i download17243
-Node: Manuali d'uso21531
-Node: Modi21947
-Node: Readline25023
-Node: Editor26543
-Node: Omonimie27768
-Node: Filtri29301
-Node: Creare nuove estensioni29623
-Node: Software consigliati31192
-Node: Conkeror32300
-Node: zdl-xterm e XXXTerm/Xombrero33311
-Node: Installazione e aggiornamento35235
-Node: Tags37559
-Node: Copying39718
-Node: Contatti40768
+Node: Il comando ZDL5388
+Node: Servizi streaming/hosting10890
+Node: Avviare ZDL13972
+Node: Arrestare ZDL16410
+Node: Controllare i download17515
+Node: Manuali d'uso21803
+Node: Modi22219
+Node: Readline25405
+Node: Editor26925
+Node: Omonimie28150
+Node: Filtri29683
+Node: Creare nuove estensioni30005
+Node: Software consigliati31574
+Node: Conkeror32682
+Node: zdl-xterm e XXXTerm/Xombrero33693
+Node: Installazione e aggiornamento35617
+Node: Tags37941
+Node: Copying40100
+Node: Contatti41150
 
 End Tag Table
 

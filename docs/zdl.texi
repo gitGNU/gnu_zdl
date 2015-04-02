@@ -204,22 +204,22 @@
 @c @man{3}
 
 @c @ifman  @unnumberedsec DESCRIZIONE
-@emph{ZigzagDownLoader} gestisce scaricamenti per conto di alcuni downloader come @emph{Wget}, @emph{Axel}, @emph{RTMPDump} o @emph{cURL}. Può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
+@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Wget}, @emph{Axel}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
 @c @end man
 
 @unnumbered Perché questo programma
 ZigzagDownLoader esiste perché serve un gestore di download, indefinitamente estensibile e robusto, che sia pienamente controllabile da terminale.
 È nato come script specifico per la Bash e si è trasformato in un gestore per downloader che ne avevano bisogno (in particolare, Wget e Axel), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni.
-Nonostante i suoi limiti strutturali, il linguaggio della Bash si è rivelato molto adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi.
+Nonostante i suoi limiti strutturali, il linguaggio della @emph{Bash} si è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Una progressiva efficienza è stata raggiunta attraverso lo sviluppo di script @emph{monolitici} nel linguaggio di @emph{Awk} (@emph{Gawk}).
 
 @unnumberedsubsec Almeno quattro direttrici di sviluppo
 L'esecuzione di downloader come Wget e Axel può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o coincidere con altri di file già salvati, ecc. 
-@emph{In primo luogo}, ZigzagDownLoader serve ad automatizzare la gestione dei download e a semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto, per il download di grossi file. 
+@emph{In primo luogo}, ZigzagDownLoader serve ad automatizzare la gestione dei download e a semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto, per il download @emph{accelerato} di grossi file. 
 
 @emph{In secondo luogo}, la gestione automatica è estesa a servizi di file hosting e video streaming: ZDL si sostituisce all'utente nelle operazioni inutili e noiose, riducendole all'unico atto di avvio del programma.
 
 @emph{Un terzo obiettivo} del progetto ZDL consiste nel fornire nuove articolazioni e modalità d'uso, allo scopo di costruire interazioni fra programmi e di rendere possibile un'automazione potenzialmente illimitata. 
-La gestione dei download può essere controllata da terminali distinti in modalità diverse. Per esempio, ZDL può essere avviato in modalità @emph{demone} e controllato in modalità @emph{interattiva}. Anche l'invocazione @emph{standard} del programma offre diversi modi di interazione. ZDL, inoltre, può essere integrato e collegato con altri programmi. 
+La gestione dei download può essere controllata da terminali distinti in modalità diverse. Per esempio, ZDL può essere avviato in modalità @emph{demone} e controllato in modalità @emph{interattiva}. Anche l'avvio @emph{predefinito} del programma offre diversi modi di interazione e di output. ZDL, inoltre, può essere integrato e collegato con altri programmi. 
 
 @emph{Infine}, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash ne rende possibile l'esecuzione su hardware di limitate capacità e su sistemi operativi differenti.
 
@@ -518,6 +518,7 @@ a 600 MB, ma consente anche lo scaricamento in parallelo di più file
 senza l'uso di proxy (in questo caso è necessario specificare anche
 @option{-m} oppure @option{--multi}). Per configurare l'uso di account: @command{zdl [-c|--configure]}
 
+Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connettersi si consiglia di provare ad usare Wget.
 
 @htmlend
 
@@ -702,8 +703,8 @@ pagina di manuale in stile UNIX: @command{man zdl}
 @unnumbered Modi
 ZDL può essere utilizzato in diverse modalità:
 
-@unnumberedsec Modalità in standard output (predefinita e @emph{lite}).
-Sono disponibili due diverse @emph{modalità in standard output}: quella predefinita, che informa puntualmente l'utente di ogni operazione compiuta, comunicando i dati rilevanti dei download in corso e quella @emph{lite}, estremamente compatta nella rappresentazione dei download e @emph{silente} rispetto ai processi di estrazione e analisi. La seconda modalità può essere avviata con l'opzione @option{-l|--lite} oppure configurata come @emph{predefinita} attraverso l'interfaccia di configurazione: @command{zdl [-c|--configure]}. È particolarmente indicata per l'utente che usa ZDL come downloader alternativo per il browser, per esempio attraverso l'estensione @emph{Flashgot}.
+@unnumberedsec Modalità in standard output (predefinita e @emph{lite}: @option{-l, --lite}).
+Sono disponibili due diverse @emph{modalità in standard output}: quella predefinita, che informa puntualmente l'utente di ogni operazione compiuta, comunicando i dati rilevanti dei download in corso e quella @emph{lite}, estremamente compatta nella rappresentazione dei download e @emph{silente} rispetto ai processi di estrazione e analisi. La seconda modalità può essere avviata con l'opzione @option{-l} (@option{--lite}) oppure configurata come @emph{predefinita} attraverso l'interfaccia di configurazione: @command{zdl [-c|--configure]}. È particolarmente indicata per l'utente che usa ZDL come downloader alternativo per il browser, per esempio attraverso l'estensione @emph{Flashgot}.
 @*
 Le @emph{modalità in standard output} sono dotate di una @ref{Readline} e accettano i seguenti comandi, espressi in combinazioni di tasti:
 
@@ -718,12 +719,12 @@ permette l'uscita da ZDL senza l'interruzione dei downloader, che continuano a r
 uccide tutti i processi avviati nella directory, senza cancellare i file temporanei.
 @end table
 
-@unnumberedsec Modalità interattiva.
+@unnumberedsec Modalità interattiva (@option{-i, --interactive}).
 Permette il controllo manuale dei download (@ref{Controllare i download}) ed altre operazioni, descritte nella stessa interfaccia. @emph{Non processa i link} ed è solo un @emph{client}: per l'avvio dei download è necessario eseguire un'istanza @emph{server} di ZDL, come quelle @emph{in standard output} oppure @emph{demone}. Quest'ultima può essere avviata dalla stessa modalità interattiva.
 @*
 Questa modalità d'uso è quella che fornisce più informazioni sullo @emph{stato} dei download. La sua schermata è aggiornata automaticamente ogni 15 secondi o manualmente digitando un tasto qualsiasi.
 
-@unnumberedsec Modalità demone.
+@unnumberedsec Modalità demone (@option{-d, --daemon}).
 Gestisce silenziosamente tutti i processi riferiti a una directory e può essere controllato manualmente attraverso la @emph{modalità interattiva}. È indipendente dal terminale in uso, che può essere chiuso senza conseguenze. È, in senso pieno, la modalità @emph{server} di ZDL: la modalità demone è sempre in attesa di nuovi link da processare e termina solo per intervento dell'utente, attraverso l'interfaccia interattiva. La modalità demone consuma meno risorse rispetto alle altre modalità.
 
 @htmlend
