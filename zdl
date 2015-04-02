@@ -103,7 +103,7 @@ fi
 
 max_args=$(( ${#args[*]}-1 ))
 
-if [[ "${args[*]}" =~ ^-[a-zA-Z]+ ]]
+if [[ "${args[*]}" =~ ^-[a-zA-Z]{2} ]]
 then
     for ((i=0; i<=$max_args; i++))
     do
@@ -118,6 +118,19 @@ then
 	fi
     done
     max_args=$(( ${#args[*]}-1 ))
+fi
+
+
+if [ "${args[*]}" != "${args[*]//--clean}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == '--clean' ]
+	then 
+	    unset args[$i]
+	    ( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati\n" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n" )
+	fi
+    done
 fi
 
 
@@ -594,18 +607,6 @@ then
 	    unset args[$i]
 	    downloader_in=Axel
 	    echo $downloader_in > "$path_tmp/.downloader"
-	fi
-    done
-fi
-
-if [ "${args[*]}" != "${args[*]//--clean}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[$i]}" == '--clean' ]
-	then 
-	    unset args[$i]
-	    ( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati\n" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n" )
 	fi
     done
 fi
