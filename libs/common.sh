@@ -54,9 +54,9 @@ function check_instance_daemon {
 }
 
 function check_instance_prog {
-    if [ -f "$path_tmp/pid.zdl" ]
+    if [ -f "$path_tmp/.pid.zdl" ]
     then
-	test_pid="$(cat "$path_tmp/pid.zdl" 2>/dev/null)"
+	test_pid="$(cat "$path_tmp/.pid.zdl" 2>/dev/null)"
 	if check_pid "$test_pid" && [ "$pid_prog" != "$test_pid" ]
 	then
 	    pid=$test_pid

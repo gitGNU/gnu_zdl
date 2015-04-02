@@ -41,6 +41,12 @@ key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="E
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
 key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
 
+
+prog=`basename $0`
+name_prog="ZigzagDownLoader"
+PROG="ZDL"  #`echo $prog | tr a-z A-Z`
+path_tmp=".${prog}_tmp"
+
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
 proxy_server='ip_adress'
@@ -61,6 +67,8 @@ max_waiting=40
 ## durata attesa 
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
+
+init_colors
 
 
 function set_default_conf {
@@ -163,11 +171,11 @@ function get_conf {
 	unset num_dl
     fi
 
-    if [ -f "$path_tmp/.dl-mode" ]
+    if [ -f "$path_tmp/dl-mode" ]
     then
-	num_dl="$(cat "$path_tmp/.dl-mode")"
+	num_dl="$(cat "$path_tmp/dl-mode")"
     else
-	echo "$num_dl" > "$path_tmp/.dl-mode"
+	echo "$num_dl" > "$path_tmp/dl-mode"
     fi
 	
     if [ "$stream_mode" == "multi" ]
@@ -322,10 +330,6 @@ function check_editor {
 }
 
 function init {
-    prog=`basename $0`
-    name_prog="ZigzagDownLoader"
-    PROG="ZDL"  #`echo $prog | tr a-z A-Z`
-    path_tmp=".${prog}_tmp"
     mkdir -p "$path_tmp"
 
     if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
@@ -349,7 +353,6 @@ function init {
 	kill -SIGWINCH $$
     fi
 
-    init_colors
     get_conf
 
     if [ -f "$file_log" ]

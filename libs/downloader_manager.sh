@@ -232,7 +232,7 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 function check_in_loop { 
     if data_stdout
     then
-	num_dl=$(cat "$path_tmp/.dl-mode")
+	num_dl=$(cat "$path_tmp/dl-mode")
 	if [ -z "$num_dl" ] || (( "${#pid_alive[*]}" < "$num_dl" ))
 	then
 	    return 1 ## rompe il loop (esce dall'attesa) => procede con un altro download

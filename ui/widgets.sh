@@ -54,6 +54,32 @@ function print_c {
     fi
 }
 
+function sprint_c {
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    then
+	case "$1" in
+	    0)
+		echo -n ""
+		;;
+	    1)
+		echo -n "$BGreen" 
+		;;
+	    2)
+		echo -n "$BYellow"
+		;;	
+	    3)
+		echo -n "$BRed" 
+		;;	
+	    4)
+		echo -n "$BBlue"
+		;;	
+	    
+	esac
+	echo -n "$2\n"
+	echo -n "${Color_Off}"
+    fi
+}
+
 function separator- {
     if [ -z "$zdl_mode" ]
     then

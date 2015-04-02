@@ -26,6 +26,9 @@
 
 path_usr="/usr/local/share/zdl"
 
+source $path_usr/ui/widgets.sh
+source $path_usr/ui/ui.sh
+
 source $path_usr/docs/help.sh
 source $path_usr/config.sh
 source $path_usr/config_manager.sh
@@ -39,8 +42,6 @@ source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
 
-source $path_usr/ui/widgets.sh
-source $path_usr/ui/ui.sh
 
 function update_updater {
     URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
@@ -121,19 +122,6 @@ then
 fi
 
 
-if [ "${args[*]}" != "${args[*]//--clean}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[$i]}" == '--clean' ]
-	then 
-	    unset args[$i]
-	    ( rm -r "$path_tmp"/* 2>/dev/null && print_c 1 "File temporanei cancellati\n" ) || ( print_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n" )
-	fi
-    done
-fi
-
-
 if [ "${args[*]}" == "${args[*]//--silent}" ] && [ "${args[*]}" == "${args[*]//--stream}" ]
 then
     for ((i=0; i<=$max_args; i++))
@@ -144,6 +132,20 @@ then
 	    cd "${args[$i]}"
 	    unset args[$i]
 #	    break
+	fi
+    done
+fi
+
+if [ "${args[*]}" != "${args[*]//--clean}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == '--clean' ]
+	then 
+	    unset args[$i]
+	    rm -r ".zdl_tmp"/* 2>/dev/null &&                                                \ 
+	    init_msg="${init_msg}$(sprint_c 1 'File temporanei cancellati')" ||             \
+		init_msg="${init_msg}$(sprint_c 3 'Pulizia file temporanei non effettuata (file inesistenti)')"
 	fi
     done
 fi
@@ -410,7 +412,7 @@ then
 	    fi
 	    format=${args[$i]##*-}
 	    unset args[$i]
-	    rm -f "$path_tmp"/pid.zdl
+	    rm -f "$path_tmp"/.pid.zdl
 	    file_output=".file_output.zdl"
 	    export pid_prog=$$
 	    $prog ${args[*]} --out="$file_output"
@@ -495,9 +497,14 @@ fi
 ## se non è modalità interattiva, allora sono validi i comandi "standard"
 bindings
 
+
+
+
 ##########
 header_z
 ##########
+
+
 
 if [ "${args[*]}" != "${args[*]//--update}" ] || [ "${args[*]}" != "${args[*]//-u}" ]
 then
@@ -553,9 +560,8 @@ then
 	    then
 		num_dl="${args[$(( $i+1 ))]}"
 		unset args[$(( $i+1 ))]
-
 	    fi
-	    echo $num_dl > "$path_tmp/.dl-mode"
+	    echo $num_dl > "$path_tmp/dl-mode"
 	fi
     done
 fi
@@ -593,7 +599,7 @@ then
 	then 
 	    unset args[$i]
 	    downloader_in=Wget
-	    echo $downloader_in > "$path_tmp/.downloader"
+	    echo $downloader_in > "$path_tmp/downloader"
 	fi
     done
 fi
@@ -606,7 +612,7 @@ then
 	then 
 	    unset args[$i]
 	    downloader_in=Axel
-	    echo $downloader_in > "$path_tmp/.downloader"
+	    echo $downloader_in > "$path_tmp/downloader"
 	fi
     done
 fi
@@ -852,16 +858,16 @@ then
 	echo >> links.txt 2>/dev/null
 	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
-	print_c 1 "L'elenco completo dei link è in links.txt\n"
+	init_msg="$init_msg$(sprint_c 1 "L'elenco completo dei link è in links.txt")"
 	[ -z "$lite" ] && standard_box 1
     fi
 fi
 
-if [ -f "$path_tmp/.downloader" ]
+if [ -f "$path_tmp/downloader" ]
 then
-    downloader_in=$(cat "$path_tmp/.downloader")
+    downloader_in=$(cat "$path_tmp/downloader")
 else
-    echo $downloader_in > "$path_tmp/.downloader"
+    echo $downloader_in > "$path_tmp/downloader"
 fi
 
 
@@ -871,11 +877,12 @@ then
     start_file="$path_tmp/links_loop.txt"
     if check_instance_prog
     then
-	echo "$pid_prog" > "$path_tmp/pid.zdl"
+	echo "$pid_prog" > "$path_tmp/.pid.zdl"
     fi
     if [ -z "$from_editor" ] && [ "$zdl_mode" != "daemon" ]
     then
 	standard_box
+
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
 	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
 	binding=0
@@ -914,11 +921,11 @@ if ! check_instance_prog
 then
     redirect_links ## $links
 else
-    echo "$pid_prog" > "$path_tmp/pid.zdl"
+    echo "$pid_prog" > "$path_tmp/.pid.zdl"
 fi
 
 rm -f "$path_tmp/.stop_stdout"
-echo "$downloader_in" > "$path_tmp/.downloader"
+echo "$downloader_in" > "$path_tmp/downloader"
 
 function main_loop {
     if [ "$zdl_mode" == "daemon" ] && [ ! -f "$start_file" ]
@@ -958,9 +965,9 @@ function main_loop {
 
 	    unset pid_in file_in url_in_file
 
-	    if [ -f "$path_tmp/.downloader" ]
+	    if [ -f "$path_tmp/downloader" ]
 	    then
-		downloader_in=$(cat "$path_tmp/.downloader")
+		downloader_in=$(cat "$path_tmp/downloader")
 	    fi
 
 	    if ! check_in_loop

@@ -61,7 +61,7 @@ function show_downloads_lite {
 function show_downloads_extended {
     header_z
     header_box_interactive "Modalità interattiva"
-    [ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
+    [ -f "$path_tmp/downloader" ] && downloader_in=$(cat "$path_tmp/downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
     if ! check_instance_daemon
@@ -104,7 +104,10 @@ function commands_box {
 }
 
 function standard_box {
-    header_box "Modalità in standard output"
+    [ ! -z "$lite" ] && header_lite=" LITE"
+    header_box "Modalità in standard output${header_lite}"
+    echo -e -n "$init_msg"
+
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     [ -z "$1" ] && services_box
     commands_box
@@ -139,7 +142,7 @@ function change_mode {
     then
 	header_z
 	header_box "Modalità in standard output"
-	[ -f "$path_tmp/.downloader" ] && downloader_in=$(cat "$path_tmp/.downloader")
+	[ -f "$path_tmp/downloader" ] && downloader_in=$(cat "$path_tmp/downloader")
 	echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
 	commands_box
@@ -166,9 +169,9 @@ function interactive {
 
 	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
-	num_dl=$(cat "$path_tmp/.dl-mode")
+	num_dl=$(cat "$path_tmp/dl-mode")
 	
-	[ ! -f "$path_tmp/.dl-mode" ] && num_dl=1
+	[ ! -f "$path_tmp/dl-mode" ] && num_dl=1
 	if [ -z "$num_dl" ]
 	then
 	    num_downloads=illimitati
@@ -180,9 +183,9 @@ function interactive {
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
 <${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
 	
-	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Axel ]] && \
+	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Axel ]] && \
 	    echo -e "<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get"
-	[[ -f "$path_tmp/.downloader" && $(cat "$path_tmp/.downloader") == Wget ]] && \
+	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Wget ]] && \
 	    echo -e "<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel"
 
 	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
@@ -289,11 +292,11 @@ function interactive {
 
 	elif [[ "$action" =~ ^[1-9]+$ ]]
 	then
-	    echo "$action" > "$path_tmp/.dl-mode"
+	    echo "$action" > "$path_tmp/dl-mode"
 	
 	elif [ "$action" == "m" ]
 	then
-	    echo > "$path_tmp/.dl-mode"
+	    echo > "$path_tmp/dl-mode"
 	
 	elif [ "$action" == "e" ]
 	then
@@ -312,11 +315,11 @@ function interactive {
 	
 	elif [ "$action" == "a" ]
 	then
-	    echo "Axel" > "$path_tmp/.downloader"
+	    echo "Axel" > "$path_tmp/downloader"
 	
 	elif [ "$action" == "w" ]
 	then
-	    echo "Wget" > "$path_tmp/.downloader"
+	    echo "Wget" > "$path_tmp/downloader"
 	
 	elif [ "$action" == "Q" ]
 	then
