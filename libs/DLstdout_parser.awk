@@ -28,8 +28,11 @@ function array_out (value, type) {
 }
 
 function check_stdout () {
-    if (check_pid(pid_out[i]))
+    delete pid_alive[i]
+    if (check_pid(pid_out[i])) {
 	pid_alive[i] = pid_out[i]
+	array_out(pid_alive[i], "pid_alive")
+    }
 
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
@@ -57,7 +60,7 @@ function check_stdout () {
 	if (url_in == url_out[i])
 	    code = code bash_var("url_in", "")
 	if (file_in == file_out[i])
-	    code = code bash_var("file_in", "")
+	    code = code bash_var("url_in", "")
 	if (percent_out[i] == 100) {
 	    system("kill -9 " pid_out[i] " 2>/dev/null")
 	    system("rm -f " file_out[i] ".st")
@@ -293,6 +296,7 @@ progress_line = ""
     array_out(eta_out[i], "eta_out")
     array_out(length_saved[i], "length_saved")
     array_out(percent_out[i], "percent_out")
+
     check_stdout()
 }
 
