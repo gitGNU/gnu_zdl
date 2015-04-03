@@ -143,18 +143,14 @@ progress_line = ""
 	    	progress_end[i] = chunk[y]
 	    	break
 	    } 
-	    if (chunk[y] ~ /[\%]+/) {
+	    if (chunk[y] ~ /\%.+KB\/s.+/) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
 		percent_out[i] = progress_elems[2]
-		if (speed_out[i]) break
-	    } 
-	    if (chunk[y] ~ /[K]+/) {
-		progress_line = chunk[y]
-		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
 		speed_out[i] = int(progress_elems[length(progress_elems)-1])
-		if (percent_out[i]) break
+		break
 	    }
+
 	}
 
 	if (progress_end[i]) {
