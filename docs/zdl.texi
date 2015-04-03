@@ -254,7 +254,7 @@ ZDL è software libero, rilasciato con licenza GPL (General Public License): @ur
 @unnumbered Il comando ZDL
 @cindex comando zdl
 
-ZDL è un programma per la Bash, scritto prevalentemente con il linguaggio della Bash. Di seguito, l'esposizione sintetica della sintassi, delle opzioni e degli altri argomenti del comando @command{zdl}. Per maggiori informazioni, consulta le sezioni specializzate.
+ZDL è un programma per la Bash, scritto prevalentemente con il linguaggio della Bash. Di seguito, l'esposizione sintetica della sintassi, delle opzioni e degli altri argomenti del comando @command{zdl}. Per maggiori informazioni, consulta le sezioni specializzate. ZDL è predisposto per il completamento automatico degli argomenti (usare il tasto @kbd{<Tab>}).
 @c @man{1}
 @c @ifman @unnumberedsec NOME
 @c @ifman @command{zdl} - CLI download manager per @emph{GNU/Linux} e @emph{Microsoft Windows + Cygwin}.

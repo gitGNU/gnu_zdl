@@ -172,7 +172,9 @@ Il comando ZDL
 ZDL è un programma per la Bash, scritto prevalentemente con il
 linguaggio della Bash. Di seguito, l'esposizione sintetica della
 sintassi, delle opzioni e degli altri argomenti del comando `zdl'. Per
-maggiori informazioni, consulta le sezioni specializzate.
+maggiori informazioni, consulta le sezioni specializzate. ZDL è
+predisposto per il completamento automatico degli argomenti (usare il
+tasto `<Tab>').
 
 Sintassi
 ========
@@ -1047,15 +1049,15 @@ Indice analitico generale
  [index ]
 * Menu:
 
-* argomenti:                             Il comando ZDL.       (line 16)
+* argomenti:                             Il comando ZDL.       (line 18)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
                                                                (line 18)
 * file hosting:                          Servizi streaming/hosting.
                                                                (line 18)
-* opzioni:                               Il comando ZDL.       (line 35)
+* opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
-* sintassi:                              Il comando ZDL.       (line 11)
+* sintassi:                              Il comando ZDL.       (line 13)
 * streaming:                             Servizi streaming/hosting.
                                                                (line 12)
 * video:                                 Servizi streaming/hosting.
@@ -1141,24 +1143,24 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5388
-Node: Servizi streaming/hosting10890
-Node: Avviare ZDL13972
-Node: Arrestare ZDL16410
-Node: Controllare i download17515
-Node: Manuali d'uso21803
-Node: Modi22219
-Node: Readline25405
-Node: Editor26925
-Node: Omonimie28150
-Node: Filtri29683
-Node: Creare nuove estensioni30005
-Node: Software consigliati31574
-Node: Conkeror32682
-Node: zdl-xterm e XXXTerm/Xombrero33693
-Node: Installazione e aggiornamento35617
-Node: Tags37941
-Node: Copying40100
-Node: Contatti41150
+Node: Servizi streaming/hosting10983
+Node: Avviare ZDL14065
+Node: Arrestare ZDL16503
+Node: Controllare i download17608
+Node: Manuali d'uso21896
+Node: Modi22312
+Node: Readline25498
+Node: Editor27018
+Node: Omonimie28243
+Node: Filtri29776
+Node: Creare nuove estensioni30098
+Node: Software consigliati31667
+Node: Conkeror32775
+Node: zdl-xterm e XXXTerm/Xombrero33786
+Node: Installazione e aggiornamento35710
+Node: Tags38034
+Node: Copying40193
+Node: Contatti41243
 
 End Tag Table
 
