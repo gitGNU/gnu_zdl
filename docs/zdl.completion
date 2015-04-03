@@ -1,0 +1,30 @@
+#!/bin/bash
+
+_zdl() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="--help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi"
+
+    if [[ ${cur} == -* ]]
+    then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    elif [[ ${cur} == h* ]]
+    then
+	COMPREPLY=( $(compgen -W "http://" -- ${cur}) )
+        return 0
+    else
+	if [[ -d $prev ]]
+	then
+	    COMPREPLY=( $(compgen -W "$(ls $prev)" -- ${cur}) )
+            return 0
+	else
+	    COMPREPLY=( $(compgen -W "$(ls)" -- ${cur}) )
+            return 0
+	fi
+    fi
+}
+complete -o nospace -F _zdl zdl

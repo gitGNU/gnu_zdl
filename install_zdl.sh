@@ -410,6 +410,7 @@ try ln -s /usr/share/man/it/man1/zdl.1 /usr/share/man/man1/zdl.1
 try mandb -q
 try install -m 644 zdl/docs/zdl.info /usr/share/info/
 try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info &>/dev/null
+try install -T zdl/docs/zdl.completion /etc/bash_completion.d/zdl
 try mv "$prog" "$SHARE"
 
 if [ -e /cygdrive ]; then
