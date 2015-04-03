@@ -142,7 +142,7 @@ progress_line = ""
 	    	code = code "wget_links[${#wget_links}]=" url_out[i] "; "
 	    	break
 	    } 
-	    if (chunk[y] ~ /(Could not parse URL)/) {
+	    if (chunk[y] ~ /(Could not parse URL|404 Not Found)/) {
 	    	progress_abort[i] = chunk[y]
 	    	break
 	    } 
@@ -206,7 +206,10 @@ progress_line = ""
 		progress_end[i] = chunk[y]
 		break
 	    }
-
+	    if (chunk[y] ~ /(404: Not Found)/) {
+	    	progress_abort[i] = chunk[y]
+	    	break
+	    } 
 	    if (chunk[y] ~ /[%]+.+(K|M|B)/) {
 		progress_line = chunk[y]
 		break
@@ -218,6 +221,11 @@ progress_line = ""
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
+	} else if (progress_abort[i]) {
+	    bash_var("url_in", "")
+	    percent_out[i] = 0
+	    code = code "_log 3 \"" url_out[i] "\"; "
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
 	} else if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
 	    percent_out[i] = progress_elems[length(progress_elems)-3]
