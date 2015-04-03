@@ -58,6 +58,10 @@ function check_stdout () {
 	    code = code bash_var("url_in", "")
 	if (file_in == file_out[i])
 	    code = code bash_var("file_in", "")
+	if (percent_out[i] == 100) {
+	    system("kill -9 " pid_out[i] " 2>/dev/null")
+	    system("rm -f " file_out[i] ".st")
+	}
     }
 
     if (! pid_alive[i]) {
@@ -128,7 +132,7 @@ function check_stdout () {
 
 function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
-
+progress_line = ""
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "Too many redirects") {
@@ -163,7 +167,7 @@ function progress_out (value,           progress_line) {
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
 	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
-	} else if (progress_line) {
+	} else if (speed_out[i] > 0) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
 	    if (int(speed_out[i]) != 0 && int(speed_out[i]) > 0) {
@@ -175,13 +179,14 @@ function progress_out (value,           progress_line) {
 	    print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
+
 	    if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
 		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow 2>/dev/null"
 		nr = 0
 		while (c | getline line) {
 		    nr++
 		    if (nr == 1) percent_out[i] = line
-		    if (nr == 2) speed_out[i] = line
+		    if (nr == 2) speed_out[i] = 0
 		    if (nr == 3) speed_out_type[i] = line
 		    if (nr == 4) eta_out[i] = line
 		    if (nr == 5) {
