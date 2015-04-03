@@ -49,7 +49,7 @@ function data_stdout {
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
 	    -v num_check="$num_check"                 \
-	    -v no_check="$no_check"
+	    -v no_check="$no_check"                   \
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
 	    "$path_tmp"/?*_stdout.tmp                 \
