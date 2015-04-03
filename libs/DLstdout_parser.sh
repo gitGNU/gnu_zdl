@@ -33,9 +33,14 @@ function data_stdout {
     unset pid_alive pid_out file_out url_out percent_out length_saved length_out
     [ -z "$num_check" ] && num_check=0
 
-    ## verifica inceppamento downloader: dopo un num_check, se la coda di stdout è invariata, zdl uccide il downloader 
-    ## il controllo è disattivato se show_downloads_(lite|extended)
-    [ "$1" != "no_check_downloader" ] && (( num_check++ ))
+    ## check_stdout, verifica inceppamento e ogni azione sui download: 
+    ## disattivati se show_downloads_(lite|extended)
+    if [ "$1" != "no_check" ]
+    then
+	no_check="true"
+    else
+	(( num_check++ ))
+    fi
 
     if (( ${#check_tmps[*]}>0 ))
     then
@@ -44,6 +49,7 @@ function data_stdout {
 	    -v url_in="$url_in"                       \
 	    -v no_complete="$no_complete"             \
 	    -v num_check="$num_check"                 \
+	    -v no_check="$no_check"
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
 	    "$path_tmp"/?*_stdout.tmp                 \

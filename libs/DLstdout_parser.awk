@@ -178,8 +178,8 @@ progress_line = ""
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
-	    
-	    print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
+	    if (! no_check)
+		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
 
@@ -217,7 +217,8 @@ progress_line = ""
 	}
 
 	if (progress_end[i]) {
-	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (! no_check)
+		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
@@ -260,7 +261,8 @@ progress_line = ""
 	}
 
 	if (progress_end[i]) {
-	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (! no_check)
+		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
@@ -309,18 +311,20 @@ progress_line = ""
     array_out(length_saved[i], "length_saved")
     array_out(percent_out[i], "percent_out")
 
-    check_stdout()
+    if (! no_check)
+	check_stdout()
 }
 
 function progress () {
     ## estrae le ultime n righe e le processa con progress_out()
     for(k=0;k<n;k++) {
 	chunk[k] = progress_data[++j%n]
-	test_stdout["new"] = test_stdout["new"] chunk[k]
+	if (! no_check)
+	    test_stdout["new"] = test_stdout["new"] chunk[k]
 	delete progress_data[j%n]
     }
     
-    if (num_check < 2)
+    if ((num_check < 2) && (! no_check))
 	print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
     progress_out(chunk)
     delete chunk
