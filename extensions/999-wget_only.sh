@@ -24,8 +24,11 @@
 # zoninoz@inventati.org
 #
 
-if [[ "$url_in" =~ (dailymotion\/cdn|dmcdn.net|uploaded\.|easybytez\.|rapidgator\.|cloudzilla.|videowood.) ]]; then 
-    if [ "$downloader_in" == "Axel" ]; then
+
+if is_wget "$url_in"
+then
+    if [ "$downloader_in" == "Axel" ]
+    then
 	dler=$downloader_in
 	downloader_in=Wget
 	ch_dler=1

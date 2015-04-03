@@ -89,9 +89,10 @@ do
 done
 
 ## è una pipe?
-stdin="$(ls -l /dev/fd/0)"
-stdin="${stdin/*-> /}"
-if [ "${stdin}" != "${stdin//'pipe:['}" ]
+# stdin="$(ls -l /dev/fd/0)"
+# stdin="${stdin/*-> /}"
+# if [ "${stdin}" != "${stdin//'pipe:['}" ]
+if [ -p /dev/fd/0 ]
 then    
     pipe=$(cat /dev/fd/0)
     exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
@@ -143,9 +144,9 @@ then
 	if [ "${args[$i]}" == '--clean' ]
 	then 
 	    unset args[$i]
-	    rm -r ".zdl_tmp"/* 2>/dev/null &&                                                \ 
-	    init_msg="${init_msg}$(sprint_c 1 'File temporanei cancellati')" ||             \
-		init_msg="${init_msg}$(sprint_c 3 'Pulizia file temporanei non effettuata (file inesistenti)')"
+	    rm -r ".zdl_tmp"/* 2>/dev/null && 
+		init_msg="${init_msg}$(sprint_c 1 'File temporanei cancellati')" ||            
+		    init_msg="${init_msg}$(sprint_c 3 'Pulizia file temporanei non effettuata (file inesistenti)')"
 	fi
     done
 fi
@@ -193,13 +194,13 @@ then
 	    if url? "$url_page"
 	    then
 		print_c 1 "Scraping URL: connessione in corso..."
-		wget -q "$url_page" -O - |                                             \
-		    tr "\t\r\n'" '   "' |                                              \
-		    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      \
-		    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               \
-		    grep "$url_regex" |                                                \
-		    sort | uniq                                                        \
-		    >> "$path_tmp/links_loop.txt" &&                                   \
+		wget -q "$url_page" -O - |                                             
+		    tr "\t\r\n'" '   "' |                                              
+		    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      
+		    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               
+		    grep "$url_regex" |                                                
+		    sort | uniq \                                                       
+		    >> "$path_tmp/links_loop.txt" &&                                   
 		    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
 	    fi
 	    unset args[$i]
@@ -524,7 +525,8 @@ then
 	    update_updater
 	fi
     done
-elif [ "$autoupdate" == "enabled" ] && [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]
+elif [ "$autoupdate" == "enabled" ] &&
+	 [ "${args[*]}" == "${args[*]//--interactive}" ] && [ "${args[*]}" == "${args[*]//-i}" ]
 then
     for ((i=0; i<=$max_args; i++))
     do
@@ -650,7 +652,8 @@ then
 		fi
 		if [ "$print_out" == "$file_output" ] || [ "$option_out" == "s" ]
 		then
-		    [ "$print_out" != "$file_output" ] && print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		    [ "$print_out" != "$file_output" ] &&
+			print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
 		    touch "$print_out"
 		    unset option_out
 		fi
@@ -820,10 +823,10 @@ then
 	then
 	    if [ "${args[$i]}" != "${args[$i]%.dlc}" ]
 	    then
-		add_container $(cat "${BASE_DIR}${args[$i]}") # container_file)
+		add_container $(cat "${BASE_DIR}${args[$i]}") ## container_file)
 	    else
 		links=$(cat "${BASE_DIR}${args[$i]}")
-		echo -e "${links// /%20}" >> "$path_tmp"/links_loop.txt
+		grep_urls "$(echo -e "${links// /%20}")" >> "$path_tmp"/links_loop.txt
 	    fi
 	elif [ ! -z "${args[$i]}" ]
 	then
@@ -1080,11 +1083,11 @@ function main_loop {
 		fi
 		
 		#### DOWNLOAD ####
-		if  [ -z "$break_loop" ] &&                                                  \
-		    [ -z "$premium" ] &&                                                     \
-		    check_in_file &&                                                         \
-		    links_loop "in" "$url_in" &&                                             \
-		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   \
+		if  [ -z "$break_loop" ] &&                                                  
+		    [ -z "$premium" ] &&                                                     
+		    check_in_file &&                                                         
+		    links_loop "in" "$url_in" &&                                             
+		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   
 		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
 		then
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
@@ -1226,4 +1229,3 @@ then
     xterm_stop
 fi
 echo -e -n "\e[0m\e[J"
-

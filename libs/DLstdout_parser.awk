@@ -138,7 +138,11 @@ function progress_out (value,           progress_line) {
 progress_line = ""
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
-	    if (chunk[y] ~ "Too many redirects") {
+	    if (chunk[y] ~ /(Too many redirects)/) {
+	    	code = code "wget_links[${#wget_links}]=" url_out[i] "; "
+	    	break
+	    } 
+	    if (chunk[y] ~ /(Could not parse URL)/) {
 	    	progress_abort[i] = chunk[y]
 	    	break
 	    } 
@@ -198,7 +202,7 @@ progress_line = ""
 	}
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
-	    if (chunk[y] ~ "100%") {
+	    if (chunk[y] ~ /(saved|100%)/) {
 		progress_end[i] = chunk[y]
 		break
 	    }

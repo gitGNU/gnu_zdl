@@ -111,10 +111,19 @@ function redirect_links {
 }
 
 function is_rtmp {
-    for h in ${rtmp[*]}; do
-	[ "$1" != "${1//$h}" ] && return 1
+    for h in ${rtmp_links[*]}
+    do
+	[ "$1" != "${1//$h}" ] && return
     done
-    return 0
+    return 1
+}
+
+function is_wget {
+    for h in ${wget_links[*]}
+    do
+	[ "$1" != "${1//$h}" ] && return 
+    done
+    return 1
 }
 
 function sanitize_file_in {
@@ -269,12 +278,17 @@ function link_parser {
 }
 
 function url? {
-    if [[ "$(grep -P '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))' <<< "$1")" ]]
+    #    if [[ "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' <<< "$1")" ]]
+    if [[ "$(grep_urls "$1")" ]]
     then
 	return 0
     else
 	return 1
     fi
+}
+
+function grep_urls {
+    grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' <<< "$1"
 }
 
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
@@ -292,7 +306,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	touch "$path_tmp/rewriting"
 
 	local lines=$(
-	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))' "$file_to_clean")"
+	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' "$file_to_clean")"
 	)
 	if [ ! -z "$lines" ]
 	then

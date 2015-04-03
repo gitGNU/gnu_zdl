@@ -25,18 +25,23 @@
 #
 
 
-is_rtmp "$url_in"
-if [ "$?" == 1 ]; then
-    if [ ! -z "$(command -v rtmpdump 2>/dev/null)" ]; then
-    	if [ "$downloader_in" != "RTMPDump" ]; then
+if is_rtmp "$url_in"
+then
+    if [ ! -z "$(command -v rtmpdump 2>/dev/null)" ]
+    then
+    	if [ "$downloader_in" != "RTMPDump" ]
+	then
     	    dler=$downloader_in
     	    downloader_in=RTMPDump
     	    ch_dler=1
     	    print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
     	fi
     	url_in_file="http://DOMA.IN/PATH"
-   elif [ ! -z "$(command -v curl 2>/dev/null)" ]; then
-	if [ "$downloader_in" != "cURL" ]; then
+	
+    elif [ ! -z "$(command -v curl 2>/dev/null)" ]
+    then
+	if [ "$downloader_in" != "cURL" ]
+	then
 	    dler=$downloader_in
 	    downloader_in=cURL
 	    ch_dler=1

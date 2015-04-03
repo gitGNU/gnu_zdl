@@ -59,7 +59,10 @@ user_language="$LANGUAGE"
 prog_lang='en_US.UTF-8:en'
 
 newip_providers=( mediafire uploaded easybytez uload glumbouploads billionuploads )
-rtmp=( zinwa. streamin. vidhappy. videopremium. )
+
+rtmp_links=( zinwa. streamin. vidhappy. videopremium. )
+wget_links=( dailymotion\/cdn dmcdn.net uploaded\. easybytez\. rapidgator\. cloudzilla. videowood. )
+
 
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40
