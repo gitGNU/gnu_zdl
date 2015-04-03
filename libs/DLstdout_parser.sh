@@ -35,7 +35,7 @@ function data_stdout {
 
     ## check_stdout, verifica inceppamento e ogni azione sui download: 
     ## disattivati se show_downloads_(lite|extended)
-    if [ "$1" != "no_check" ]
+    if [ "$1" == "no_check" ]
     then
 	no_check="true"
     else
