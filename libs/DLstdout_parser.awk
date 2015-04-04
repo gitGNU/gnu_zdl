@@ -72,10 +72,10 @@ function check_stdout () {
 	    code = code bash_var("file_in", "")
 	    code = code bash_var("url_in", "")
 	}
-	if (percent_out[i] == 100) {
-	    system("kill -9 " pid_out[i] " 2>/dev/null")
-	    system("rm -f " file_out[i] ".st")
-	}
+	# if (percent_out[i] == 100) {
+	#     system("kill -9 " pid_out[i] " 2>/dev/null")
+	#     system("rm -f " file_out[i] ".st")
+	# }
     }
 
     if (! pid_alive[i]) {
