@@ -96,6 +96,7 @@ function commands_box {
     header_dl "Comandi in modalità standard output (M è il tasto Meta, cioè <Alt>)"
     echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
 <${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito
+<${BGreen} M-c ${Color_Off}>\t\t${BGreen}c${Color_Off}ancella le informazioni dei download completati
 <${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
 
 <${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]

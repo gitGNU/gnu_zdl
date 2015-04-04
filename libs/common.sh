@@ -233,6 +233,7 @@ function bindings {
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
+    bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete\"" &>/dev/null
 }
 
 function link_parser {

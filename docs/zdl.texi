@@ -713,6 +713,8 @@ Le @emph{modalità in standard output} sono dotate di una @ref{Readline} e accet
 avvia la @emph{modalità interattiva}. Lo standard output del terminale viene ceduto ad un'altra modalità, senza però sospendere le attività della modalità precedente, che procedono silenti.
 @item M-e
 avvia l'editor predefinito (@ref{Editor}). Come per il comando precedente, le attività non sono sospese mentre si utilizza un editor per manipolare la lista dei link da processare.
+@item M-c
+cancella le informazioni (file temporanei) dei download completati.
 @item M-q
 permette l'uscita da ZDL senza l'interruzione dei downloader, che continuano a registrare dati utili per un eventuale riavvio di ZDL: i download possono essere controllati attraverso le funzioni della @emph{modalità interattiva} ma, in caso di interruzioni, devono essere processati dalle modalità @emph{in standard output} oppure @emph{demone}.
 @item M-k

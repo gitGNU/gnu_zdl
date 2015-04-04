@@ -667,6 +667,9 @@ accettano i seguenti comandi, espressi in combinazioni di tasti:
      precedente, le attività non sono sospese mentre si utilizza un
      editor per manipolare la lista dei link da processare.
 
+`M-c'
+     cancella le informazioni (file temporanei) dei download completati.
+
 `M-q'
      permette l'uscita da ZDL senza l'interruzione dei downloader, che
      continuano a registrare dati utili per un eventuale riavvio di
@@ -1149,18 +1152,18 @@ Node: Arrestare ZDL16503
 Node: Controllare i download17608
 Node: Manuali d'uso21896
 Node: Modi22312
-Node: Readline25498
-Node: Editor27018
-Node: Omonimie28243
-Node: Filtri29776
-Node: Creare nuove estensioni30098
-Node: Software consigliati31667
-Node: Conkeror32775
-Node: zdl-xterm e XXXTerm/Xombrero33786
-Node: Installazione e aggiornamento35710
-Node: Tags38034
-Node: Copying40193
-Node: Contatti41243
+Node: Readline25578
+Node: Editor27098
+Node: Omonimie28323
+Node: Filtri29856
+Node: Creare nuove estensioni30178
+Node: Software consigliati31747
+Node: Conkeror32855
+Node: zdl-xterm e XXXTerm/Xombrero33866
+Node: Installazione e aggiornamento35790
+Node: Tags38114
+Node: Copying40273
+Node: Contatti41323
 
 End Tag Table
 
