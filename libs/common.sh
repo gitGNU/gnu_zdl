@@ -325,3 +325,41 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
     fi
 }
 
+function pipe_files { 
+    [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
+
+    if [ -f "$path_tmp"/pipe_files.txt ]
+    then
+	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
+	
+	if ! check_pid $pid_pipe_out && [ ! -z "$pipe_out" ]
+	then
+	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
+
+	    if [ ! -z "${outfiles[*]}" ]
+	    then
+		nohup $pipe_out ${outfiles[*]} &>/dev/null &
+		pid_pipe_out="$!"
+		echo $pid_pipe_out > "$path_tmp"/pid_pipe
+		pipe_done=1
+	    fi
+
+	elif [ ! -z "$print_out" ]
+	then
+	    unset test_piped
+	    while read line
+	    do
+		if [ -f "$print_out" ]
+		then
+		    while read piped
+		    do
+			[ "$piped" == "$line" ] && test_piped=1 && break
+		    done < "$print_out"
+		fi
+
+		[ ! -z "$line" ] && [ -z "$test_piped" ] && echo "$line" >> "$print_out"
+		unset test_piped
+	    done < "$path_tmp"/pipe_files.txt
+	fi
+    fi
+}
