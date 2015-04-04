@@ -173,16 +173,20 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
     item="$2"                  ## line
     file_target="$3"           ## file target
     rewriting="$3-rewriting"   ## to linearize parallel rewriting file target
-    if [ "$op" != "in" ]; then
-	if [ -f "$rewriting" ];then
-	    while [ -f "$rewriting" ]; do
+    if [ "$op" != "in" ]
+    then
+	if [ -f "$rewriting" ]
+	then
+	    while [ -f "$rewriting" ]
+	    do
 		sleeping 0.1
 	    done
 	fi
 	touch "$rewriting"
     fi
 
-    if [ ! -z "$item" ]; then
+    if [ ! -z "$item" ]
+    then
 	case $op in
 	    +)
 		if ! line_file "in" "$item" "$file_target"
@@ -300,11 +304,12 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	## impedire scrittura non-lineare da più istanze di ZDL
 	if [ -f "$path_tmp/rewriting" ]
 	then
-	    while [ -f "$path_tmp/rewriting" ]; do
+	    while [ -f "$path_tmp/rewriting" ]
+	    do
 		sleeping 0.1
 	    done
 	fi
-	touch "$path_tmp/rewriting"
+	touch "${file_to_clean}-rewriting"
 
 	local lines=$(
 	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' "$file_to_clean")"
@@ -316,7 +321,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	    rm -f "$file_to_clean"
 	fi
 
-	rm -f "$path_tmp/rewriting"
+	rm -f "${file_to_clean}-rewriting"
     fi
 }
 

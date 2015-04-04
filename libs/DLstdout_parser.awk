@@ -27,6 +27,15 @@ function array_out (value, type) {
     code = code bash_array(type, i, value) 
 }
 
+function downloaded_part () {
+    if (downloader_out[i] == "Axel") {
+    	tot_size_part = length_out[i] / axel_parts_out[i]
+    	return ( percent_out[i] * tot_size_part / 100 )
+    } else {
+	return length_saved[i]
+    }
+}
+
 function check_stdout () {
     delete pid_alive[i]
     if (check_pid(pid_out[i])) {
@@ -123,9 +132,14 @@ function check_stdout () {
 		system("rm -f .zdl_tmp/" file_out[i] "_stdout.*")
 	    }
 	}
-
     }
-
+    if (pid_alive[i]) {
+	if (downloaded_part() > 5000000) {
+	    add_line(file_out[i], ".zdl_tmp/pipe_files.txt")
+	} else if (exists(".zdl_tmp/pipe_files.txt")) {
+	    rm_line(file_out[i], ".zdl_tmp/pipe_files.txt")
+	}
+    }
     ## check_in_file
     if (file_in == file_out[i]) {
 	code = code bash_var("length_in", length_out[i])

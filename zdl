@@ -413,7 +413,7 @@ then
 	    fi
 	    format=${args[$i]##*-}
 	    unset args[$i]
-	    rm -f "$path_tmp"/.pid.zdl
+#	    rm -f "$path_tmp"/.pid.zdl
 	    file_output=".file_output.zdl"
 	    export pid_prog=$$
 	    $prog ${args[*]} --out="$file_output"

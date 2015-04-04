@@ -102,3 +102,7 @@ function cat (file,      c, line) {
 function rm_line (line, file) {
     code = code "line_file - \"" line "\" \"" file "\"; "
 }
+
+function add_line (line, file) {
+    code = code "line_file + \"" line "\" \"" file "\"; "
+}

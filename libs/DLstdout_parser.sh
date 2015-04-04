@@ -62,9 +62,9 @@ function data_stdout {
 }
 
 
-function pipe_files {
+function pipe_files_old {
     [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
-    
+
     for ((i=0; i<=${#file_out[*]}; i++))
     do
 	if [ ! -z "${length_out[$i]}" ]
@@ -84,10 +84,10 @@ function pipe_files {
 		    ;;
 	    esac
 	    
-	    if [ -f "${file_out[$i]}" ] && \
-		( ( (( length_down > 5000000 )) && (( speed_out[i] > 200000 )) ) || \
-		( ((  length_saved[i] == length_out[i] )) && [ ! -f "${file_out[$i]}.st" ] ) || \
-		[ -f "$print_out" ] ) && \
+	    if [ -f "${file_out[$i]}" ] && 
+		( ( (( length_down > 5000000 )) && (( speed_out[i] > 200000 )) ) || 
+		( ((  length_saved[i] == length_out[i] )) && [ ! -f "${file_out[$i]}.st" ] ) || 
+		[ -f "$print_out" ] ) && 
 		[ -z $(cat "$path_tmp"/pipe_files.txt 2>/dev/null | grep "${file_out[$i]}") ]
 	    then
 		echo "${file_out[$i]}" >> "$path_tmp"/pipe_files.txt
@@ -100,7 +100,10 @@ function pipe_files {
 }
 
 
-function _out {
+function pipe_files { ## was: _out {
+    return
+    [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
+
     if [ -f "$path_tmp"/pipe_files.txt ]
     then
 	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
