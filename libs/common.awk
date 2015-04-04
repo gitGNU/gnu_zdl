@@ -47,24 +47,20 @@ function check_instance_daemon () {
 }
 
 function check_pid (pid,   test) {
-    cmd = "ps ax | grep -P '^[ a-zA-Z]*" pid "' 2>/dev/null"
-    cmd | getline test
-    # split(test, array_test, " ") 
-    close(cmd)
-    # if (pid == array_test[1] || pid == array_test[2]) {
-    if (test)
-	return 1
-    else
-	return 0
+    if (pid)
+	if (exists("/proc/" pid "/cmdline")) 
+	    return 1
+    return 0
 }
 
 function exists(file,   line) {
-    if ((getline line < file) > 0 ) {
-	close(file)
-	return 1
-    } else {
-	return 0
+    if (file) {
+	if ((getline line < file) > 0 ) {
+	    close(file)
+	    return 1
+	}
     }
+    return 0
 }
 
 function size_file (filename) {

@@ -56,11 +56,13 @@ function check_stdout () {
 
 	}
     }
-    if (pid_alive[i]) {
+    if (check_pid(pid_out[i])) {
 	if (url_in == url_out[i])
 	    code = code bash_var("url_in", "")
-	if (file_in == file_out[i])
+	if (file_in == file_out[i]) {
+	    code = code bash_var("file_in", "")
 	    code = code bash_var("url_in", "")
+	}
 	if (percent_out[i] == 100) {
 	    system("kill -9 " pid_out[i] " 2>/dev/null")
 	    system("rm -f " file_out[i] ".st")
@@ -135,7 +137,7 @@ function check_stdout () {
 
 function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
-progress_line = ""
+
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ /(Too many redirects)/) {

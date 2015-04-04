@@ -30,7 +30,7 @@ function data_stdout {
     check_tmps=( "$path_tmp"/?*_stdout.tmp )
     shopt -u nullglob
     shopt -u dotglob
-    unset pid_alive pid_out file_out url_out percent_out length_saved length_out
+    unset pid_alive pid_out file_out url_out percent_out length_saved length_out no_check
     [ -z "$num_check" ] && num_check=0
 
     ## check_stdout, verifica inceppamento e ogni azione sui download: 
