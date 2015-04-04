@@ -47,15 +47,15 @@ function check_instance_daemon () {
 }
 
 function check_pid (pid,   test) {
-    cmd = "ps ax | grep -P \"^[ A-Z]*" pid "\" 2>/dev/null"
+    cmd = "ps ax | grep -P '^[ a-zA-Z]*" pid "' 2>/dev/null"
     cmd | getline test
-    split(test, array_test, " ") 
+    # split(test, array_test, " ") 
     close(cmd)
-    if (pid == array_test[1] || pid == array_test[2]) {
+    # if (pid == array_test[1] || pid == array_test[2]) {
+    if (test)
 	return 1
-    } else {
+    else
 	return 0
-    }
 }
 
 function exists(file,   line) {
