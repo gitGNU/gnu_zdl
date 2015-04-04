@@ -336,7 +336,7 @@ function interactive {
 
 	elif [ "$action" == "d" ] && [ -z "$tty" ]
 	then
-	    zdl --daemon &>/dev/null
+	    zdl --daemon #&>/dev/null
 	fi
 
 	unset action input2

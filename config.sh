@@ -136,8 +136,13 @@ function set_item_conf {
 
 
 function get_conf {
+    run_mode=$zdl_mode
     source "$file_conf"
-
+    if [ -n "$run_mode" ]
+    then
+	zdl_mode="$run_mode"
+    fi
+    
     ## downloader predefinito
     downloader_in="$downloader"
     if [ -z "$downloader_in" ]

@@ -253,7 +253,7 @@ then
     do
 	if [ "${args[$i]}" == "--silent" ]
 	then
-	    unset args[$i]
+	    unset args[$i] lite
 	    zdl_mode="daemon"
 	    sleeping_pause=5
 	fi

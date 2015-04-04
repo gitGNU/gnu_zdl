@@ -51,7 +51,7 @@ function check_stdout () {
 		if (i != d &&			\
 		    url_out[i] == url_out[d] &&	\
 		    file_out[i] != file_out[d])
-		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
+		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.* " file_out[d] " " file_out[d] ".st")
 	    }
 
 	}
@@ -120,7 +120,7 @@ function check_stdout () {
 		||					\
 		progress_end[i]				\
 		) {
-		system("rm -f .zdl_tmp/" file_out[i] "_stdout.tmp")
+		system("rm -f .zdl_tmp/" file_out[i] "_stdout.*")
 	    }
 	}
 
@@ -171,7 +171,7 @@ function progress_out (value,           progress_line) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.* " file_out[i] " " file_out[i] ".st")
 	} else if (speed_out[i] > 0) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
@@ -228,7 +228,7 @@ function progress_out (value,           progress_line) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.* " file_out[i] " " file_out[i] ".st")
 	} else if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
 	    percent_out[i] = progress_elems[length(progress_elems)-3]
