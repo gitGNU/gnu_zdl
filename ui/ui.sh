@@ -51,7 +51,8 @@ function show_downloads_lite {
 	    -v col="$COLUMNS"                 \
 	    -v zdl_mode="lite"                \
 	    -e "BEGIN {$awk_data display()}" 
-    else
+    elif [ -f "$start_file" ]
+    then
 	fclear
 	header_dl "ZigzagDownLoader in $PWD"
 	print_c 1 "\n Connessione in corso..."
