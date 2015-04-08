@@ -348,7 +348,7 @@ function progress () {
 }
 
 BEGIN {
-    i=0
+    i=-1
     j=0
     n=20
     delete pid_alive
@@ -359,9 +359,8 @@ BEGIN {
 	if (j>n) {
 	    ## progress_out
 	    progress()
-	    i++
 	}
-
+	i++
 	pid_out[i] = $0
 	array_out(pid_out[i], "pid_out")
 
