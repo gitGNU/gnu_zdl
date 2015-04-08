@@ -45,7 +45,7 @@ function check_stdout () {
 
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
-	    if (num_check > 6){
+	    if (num_check > 15){
 		code = code bash_var("num_check", "0")
 		test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
 		if (test_stdout["new"] == test_stdout["old"] && \
