@@ -213,7 +213,6 @@ function progress_out (value,           progress_line) {
 			close(c)
 		    }
 		}
-
 	    }
 	}
     } else if (dler == "Wget") {
@@ -348,7 +347,7 @@ function progress () {
 }
 
 BEGIN {
-    i=-1
+    i=0
     j=0
     n=20
     delete pid_alive
@@ -359,8 +358,8 @@ BEGIN {
 	if (j>n) {
 	    ## progress_out
 	    progress()
+	    i++
 	}
-	i++
 	pid_out[i] = $0
 	array_out(pid_out[i], "pid_out")
 
