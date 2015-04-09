@@ -196,10 +196,8 @@ function progress_out (value,           progress_line) {
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
 	    if (! no_check)
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
-	} else {
+	} else if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
-
-	    if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
 		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow 2>/dev/null"
 		nr = 0
 		while (c | getline line) {
@@ -213,7 +211,8 @@ function progress_out (value,           progress_line) {
 			close(c)
 		    }
 		}
-	    }
+	} else {
+	    no_check = "true"
 	}
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
@@ -347,7 +346,7 @@ function progress () {
 }
 
 BEGIN {
-    i=0
+    i=-1
     j=0
     n=20
     delete pid_alive
@@ -358,8 +357,8 @@ BEGIN {
 	if (j>n) {
 	    ## progress_out
 	    progress()
-	    i++
 	}
+	i++
 	pid_out[i] = $0
 	array_out(pid_out[i], "pid_out")
 
