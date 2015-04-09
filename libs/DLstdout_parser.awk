@@ -148,6 +148,33 @@ function check_stdout () {
 
 }
 
+function yellow_progress () {
+    if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
+	## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
+
+	c = "head -n5 .zdl_tmp/"file_out[i]"_stdout.yellow 2>/dev/null"
+	nr = 0
+	while (c | getline line) {
+	    nr++
+	    if (nr == 1) percent_out[i] = line
+	    if (nr == 2) speed_out[i] = 0
+	    if (nr == 3) speed_out_type[i] = line
+	    if (nr == 4) eta_out[i] = line
+	    if (nr == 5) {
+		length_saved[i] = line
+	    }
+	}
+	array_out(percent_out[i], "percent_out")
+	close(c)
+    } else {
+	percent_out[i] = 0
+	speed_out[i] = 0
+	speed_out_type[i] = "KB/s"
+	## mancano ancora (secondi):
+	eta_out[i] = ""
+	length_saved[i] = 0
+    }
+}
 
 function progress_out (value,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
@@ -162,7 +189,7 @@ function progress_out (value,           progress_line) {
 	    	progress_abort[i] = chunk[y]
 	    	break
 	    } 
-	    if (chunk[y] ~ "Downloaded") {
+	    if ((chunk[y] ~ "Downloaded") && (! exists(file_out[i]".st"))) {
 	    	progress_end[i] = chunk[y]
 	    	break
 	    } 
@@ -185,8 +212,8 @@ function progress_out (value,           progress_line) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.* " file_out[i] " " file_out[i] ".st")
-	} else if (speed_out[i] > 0) {
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
+	} else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
 	    if (int(speed_out[i]) != 0 && int(speed_out[i]) > 0) {
@@ -194,26 +221,12 @@ function progress_out (value,           progress_line) {
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
-	    if (! no_check)
+	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
-	} else if (exists(".zdl_tmp/"file_out[i]"_stdout.yellow")) {
-	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
-		c = "cat .zdl_tmp/"file_out[i]"_stdout.yellow 2>/dev/null"
-		nr = 0
-		while (c | getline line) {
-		    nr++
-		    if (nr == 1) percent_out[i] = line
-		    if (nr == 2) speed_out[i] = 0
-		    if (nr == 3) speed_out_type[i] = line
-		    if (nr == 4) eta_out[i] = line
-		    if (nr == 5) {
-			length_saved[i] = line
-			close(c)
-		    }
-		}
 	} else {
 	    no_check = "true"
 	}
+	
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ /(saved|100%)/) {
@@ -319,6 +332,7 @@ function progress_out (value,           progress_line) {
     if (! speed_out_type[i]) speed_out_type[i] = "KB/s"
     if (! length_saved[i]) length_saved[i] = 0
     if (! percent_out[i]) percent_out[i] = 0
+    
     array_out(speed_out[i], "speed_out")
     array_out(speed_out_type[i], "speed_out_type")
     array_out(eta_out[i], "eta_out")
@@ -357,7 +371,7 @@ BEGIN {
 	if (j>n) {
 	    ## progress_out
 	    progress()
-	}
+	} 
 	i++
 	pid_out[i] = $0
 	array_out(pid_out[i], "pid_out")
@@ -383,6 +397,7 @@ BEGIN {
     if (FNR == 5) {
 	file_out[i] = $0
 	array_out(file_out[i], "file_out")
+	yellow_progress()
     }
     if (FNR == 6) {
 	if (dler ~ /Axel|Wget/) {
@@ -403,6 +418,7 @@ BEGIN {
 	}
     }
     if (FNR == 8) start_time = $0
+
 
     if ($0 ~ /Content-Length:/ && dler == "Wget") {
 	length_out[i] = $2
