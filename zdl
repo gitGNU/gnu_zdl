@@ -1181,7 +1181,7 @@ then
 	then
 	    unset zdl_mode
 	    show_downloads_lite
-	    read -e -n 1 -t 3 binding_in_loop
+	    read -e -n 1 -t 2 binding_in_loop
 	    unset zdl_mode
 	else
 	    read -e -n 1 -t 1 binding_in_loop
