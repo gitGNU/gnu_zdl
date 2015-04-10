@@ -160,9 +160,7 @@ function yellow_progress () {
 	    if (nr == 2) speed_out[i] = 0
 	    if (nr == 3) speed_out_type[i] = line
 	    if (nr == 4) eta_out[i] = line
-	    if (nr == 5) {
-		length_saved[i] = line
-	    }
+	    if (nr == 5) length_saved[i] = line
 	}
 	array_out(percent_out[i], "percent_out")
 	close(c)
