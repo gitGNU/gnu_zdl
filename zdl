@@ -1072,23 +1072,26 @@ function main_loop {
 		then
 		    _log 13
 		fi
-		if [ ! -z "$file_regex" ] && [[ ! "$file_in" =~ $file_regex ]]
+		if [ ! -z "$file_regex" ] &&
+		       [[ ! "$file_in" =~ $file_regex ]]
 		then
 		    _log 14
 		fi
 
-		if ! url? "$url_in_file" && [[ "$downloader_in" =~ (Wget|Axel) ]]
+		if ! url? "$url_in_file" && 
+			[[ "$downloader_in" =~ (Wget|Axel) ]] ||
+			    [ "$break_loop" == "true" ]
 		then
-		    break_loop=true
+		    unset break_loop
+		    continue
 		fi
 		
 		#### DOWNLOAD ####
-		if  [ -z "$break_loop" ] &&                                                  
-		    [ -z "$premium" ] &&                                                     
-		    check_in_file &&                                                         
-		    links_loop "in" "$url_in" &&                                             
-		    ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   
-		    ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
+		if [ -z "$premium" ] &&                                                     
+		       check_in_file &&                                                         
+		       links_loop "in" "$url_in" &&                                             
+		       ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   
+		       ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
 		then
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
