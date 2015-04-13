@@ -191,7 +191,7 @@ then
 	if [[ "${args[$i]}" =~ ^(--scrape-url=[^\ ]+)$ ]]
 	then
 	    url_page=$(sed -r 's|--scrape-url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
-	    if url? "$url_page"
+	    if url "$url_page"
 	    then
 		print_c 1 "Scraping URL: connessione in corso..."
 		wget -q "$url_page" -O - |                                             
@@ -833,7 +833,7 @@ then
 	    args[$i]="${args[$i]%'#20%'}"
 	    args[$i]="${args[$i]// /%20}"
 
-	    if url? "${args[$i]}"
+	    if url "${args[$i]}"
 	    then
 		if [ "$scrapeURL" == "true" ]
 		then
@@ -915,7 +915,7 @@ then
     fi
 fi
 
-if ! check_instance_daemon && [ "$zdl_mode" != "daemon" ]
+if [ ! check_instance_daemon ] && [ "$zdl_mode" != "daemon" ]
 then
     redirect_links ## $links
 fi
@@ -942,7 +942,7 @@ function main_loop {
 	## done < $start_file
 	while read url_in
 	do
-	    if ! url? "${url_in}"
+	    if ! url "${url_in}"
 	    then
 		links_loop - "$url_in"
 		_log 12 "$url_in"
@@ -1077,17 +1077,18 @@ function main_loop {
 		then
 		    _log 14
 		fi
-
-		if ! url? "$url_in_file" && 
-			[[ "$downloader_in" =~ (Wget|Axel) ]] ||
-			    [ "$break_loop" == "true" ]
+		
+		url "$url_in_file"
+		if [[ $? != 0 ]] && 
+		       [[ "$downloader_in" =~ (Wget|Axel) ]] ||
+			   [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
 		    continue
 		fi
 		
 		#### DOWNLOAD ####
-		if [ -z "$premium" ] &&                                                     
+		if [ -z "$premium" ] &&                                                 
 		       check_in_file &&                                                         
 		       links_loop "in" "$url_in" &&                                             
 		       ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   

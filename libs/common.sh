@@ -77,7 +77,7 @@ function check_instance_prog {
 
 function scrape_url {
     url_page="$1"
-    if url? "$url_page"
+    if url "$url_page"
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
 	while read line
@@ -282,7 +282,7 @@ function link_parser {
     return 1
 }
 
-function url? {
+function url {
     #    if [[ "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' <<< "$1")" ]]
     if [[ "$(grep_urls "$1")" ]]
     then
@@ -332,7 +332,7 @@ function pipe_files {
     then
 	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
 	
-	if ! check_pid $pid_pipe_out && [ ! -z "$pipe_out" ]
+	if check_pid $pid_pipe_out || [ -z "$pipe_out" ]
 	then
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
 
