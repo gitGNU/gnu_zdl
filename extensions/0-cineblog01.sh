@@ -28,9 +28,6 @@ if [ "$url_in" != "${url_in//cineblog01}" ]
 then
     new_url=$(wget "$url_in" -q -O- |grep 'Clicca per proseguire' |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-    url "${new_url}"
-    echo "$? ${new_url}"
-    
     if url "${new_url}"
     then
 	links_loop - "$url_in"
