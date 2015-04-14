@@ -38,7 +38,12 @@ if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
     file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"
 
-    if [ ! -f "$path_tmp"/cookies.zdl ]; then touch "$path_tmp"/cookies.zdl ; fi
+    if [ ! -f "$path_tmp"/cookies.zdl ]
+    then
+	touch "$path_tmp"/cookies.zdl
+    fi
     url_in_file="${url_in}"
+    #[ "$downloader_in" == "Axel" ] &&
+
     redirected="true"
 fi

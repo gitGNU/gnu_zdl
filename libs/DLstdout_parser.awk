@@ -235,7 +235,7 @@ function progress_out (value,           progress_line) {
 	    	progress_abort[i] = chunk[y]
 	    	break
 	    } 
-	    if (chunk[y] ~ /[%]+.+(K|M|B)/) {
+	    if (chunk[y] ~ /[%]+ .+(K|M|B)/) {
 		progress_line = chunk[y]
 		break
 	    }
@@ -395,7 +395,7 @@ BEGIN {
     if (FNR == 5) {
 	file_out[i] = $0
 	array_out(file_out[i], "file_out")
-	yellow_progress()
+	if (dler == "Axel") yellow_progress()
     }
     if (FNR == 6) {
 	if (dler ~ /Axel|Wget/) {
@@ -418,7 +418,7 @@ BEGIN {
     if (FNR == 8) start_time = $0
 
 
-    if ($0 ~ /Content-Length:/ && dler == "Wget") {
+    if ($0 ~ /Length:/ && dler == "Wget") {
 	length_out[i] = $2
 	array_out(length_out[i], "length_out")
     }

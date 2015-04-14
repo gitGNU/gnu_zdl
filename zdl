@@ -1097,7 +1097,8 @@ function main_loop {
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"
-		    else
+		    elif [ -z "$redirected" ]
+		    then
 			print_c 4 "URL del file: $url_in_file"
 		    fi
 
