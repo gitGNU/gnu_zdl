@@ -641,22 +641,19 @@ then
 	    then
 		pipe_out="${args[$i]#'--out='}"
 	    else
-		file_output=.file_output.zdl
+		file_output=scaricati_da_zdl.txt
 		print_out="${args[$i]#'--out='}"
 
-		if [ "$print_out" != "$file_output" ]
+		if [ -e "$print_out" ] 
 		then
-		    print_c 3 "Il file in ${print_out} non esiste"
-		    print_c 2 "Scrivo in ${print_out} la lista dei file scaricati? (s|*)"
-		    read -n 1 option_out
-		fi
-		if [ "$print_out" == "$file_output" ] || [ "$option_out" == "s" ]
+		    print_c 3 "Esiste già un file con lo stesso nome di ${print_out}"
+		    print_out="$file_output"
+		elif [ -z "$print_out" ]
 		then
-		    [ "$print_out" != "$file_output" ] &&
-			print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
-		    touch "$print_out"
-		    unset option_out
+		    print_out="$file_output"
 		fi
+		print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		touch "$print_out"
 	    fi
 	    unset args[$i]
 	fi

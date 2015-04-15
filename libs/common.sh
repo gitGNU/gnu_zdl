@@ -330,10 +330,20 @@ function pipe_files {
 
     if [ -f "$path_tmp"/pipe_files.txt ]
     then
-	[ -f "$path_tmp"/pid_pipe ] && [ -z "$pid_pipe_out" ] && pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
-	
-	if check_pid $pid_pipe_out || [ -z "$pipe_out" ]
+	if [ -f "$path_tmp"/pid_pipe ]
 	then
+	    pid_pipe_out=$(cat "$path_tmp"/pid_pipe)
+	else
+	    pid_pipe_out=NULL
+	fi
+	
+	if [ -z "$pipe_out" ] || check_pid $pid_pipe_out 
+	then
+	    return
+	elif [ ! -z "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
+	then
+	    cp "$path_tmp"/pipe_files.txt "$print_out"
+	else
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
 
 	    if [ ! -z "${outfiles[*]}" ]
@@ -343,23 +353,6 @@ function pipe_files {
 		echo $pid_pipe_out > "$path_tmp"/pid_pipe
 		pipe_done=1
 	    fi
-
-	elif [ ! -z "$print_out" ]
-	then
-	    unset test_piped
-	    while read line
-	    do
-		if [ -f "$print_out" ]
-		then
-		    while read piped
-		    do
-			[ "$piped" == "$line" ] && test_piped=1 && break
-		    done < "$print_out"
-		fi
-
-		[ ! -z "$line" ] && [ -z "$test_piped" ] && echo "$line" >> "$print_out"
-		unset test_piped
-	    done < "$path_tmp"/pipe_files.txt
 	fi
     fi
 }

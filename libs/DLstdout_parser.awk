@@ -29,8 +29,8 @@ function array_out (value, type) {
 
 function downloaded_part () {
     if (downloader_out[i] == "Axel") {
-    	tot_size_part = length_out[i] / axel_parts_out[i]
-    	return ( percent_out[i] * tot_size_part / 100 )
+    	tot = int((percent_out[i] * (length_out[i] / axel_parts_out[i])) / 100)
+    	return tot
     } else {
 	return length_saved[i]
     }
@@ -45,7 +45,7 @@ function check_stdout () {
 
     if (downloader_out[i] !~ /RTMPDump|cUrl/) {
 	if (pid_alive[i]) {
-	    if (num_check > 15){
+	    if (num_check > 10){
 		code = code bash_var("num_check", "0")
 		test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
 		if (test_stdout["new"] == test_stdout["old"] && \
@@ -134,7 +134,8 @@ function check_stdout () {
 	}
     }
     if (pid_alive[i]) {
-	if (downloaded_part() > 5000000) {
+	downloaded_length = downloaded_part()
+	if (downloaded_length > 4000000) {
 	    add_line(file_out[i], ".zdl_tmp/pipe_files.txt")
 	} else if (exists(".zdl_tmp/pipe_files.txt")) {
 	    rm_line(file_out[i], ".zdl_tmp/pipe_files.txt")
