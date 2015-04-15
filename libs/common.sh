@@ -337,12 +337,14 @@ function pipe_files {
 	    pid_pipe_out=NULL
 	fi
 	
-	if [ -z "$pipe_out" ] || check_pid $pid_pipe_out 
-	then
-	    return
-	elif [ ! -z "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
+	if [ ! -z "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
 	then
 	    cp "$path_tmp"/pipe_files.txt "$print_out"
+	    
+	elif [ -z "$pipe_out" ] || check_pid $pid_pipe_out 
+	then
+	    return
+
 	else
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
 

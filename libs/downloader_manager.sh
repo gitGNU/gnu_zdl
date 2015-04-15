@@ -311,9 +311,9 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		then
 		    case "$i" in
 			resume_dl|rewrite_dl) 
-			    if [ ! -z "$length_in" ] &&                     \
-				(( $length_in > $length_saved_in )) &&      \
-				( [ -z "$bis" ] || [ "$no_bis" == true ] )
+			    if [ ! -z "$length_in" ] &&                     
+				   (( $length_in > $length_saved_in )) &&      
+				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
@@ -326,12 +326,12 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		then
 		    case "$i" in
 			resume_dl|rewrite_dl) 
-			    [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&                                       \
+			    [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&                                       
 				test_completed=$(grep 'Download complete' < "$path_tmp/${file_in}_stdout.tmp")
 
-			    if [ -f "${file_in}" ] &&                        \
-				[ -z "$test_completed" ] &&                  \
-				( [ -z "$bis" ] || [ "$no_bis" == true ] )
+			    if [ -f "${file_in}" ] &&                        
+				   [ -z "$test_completed" ] &&                  
+				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then 
 				unset no_newip
 				[ ! -z "$url_in_file" ] && return 0
@@ -343,16 +343,16 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		then
 		    case "$i" in
 			resume_dl) 
-			    if [ -f "${file_in}.st" ] &&                      \
-				( [ -z "$bis" ] || [ "$no_bis" == true ] )
+			    if [ -f "${file_in}.st" ] &&
+				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then                     
 				unset no_newip
 				[ ! -z "$url_in_file" ] && return 0
 			    fi
 			    ;;
 			rewrite_dl)
-			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) &&                   \
-				[ ! -z "$length_in" ] && (( $length_in > $length_saved_in ))
+			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) &&
+				   [ ! -z "$length_in" ] && (( $length_in > $length_saved_in ))
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
@@ -370,9 +370,9 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		    then
 			return 0
 
-		    elif [ -f "$file_in_bis" ] ||                        \
-			( [ "${downloader_out[$i]}" == "RTMPDump" ] &&   \
-			[ ! -z "$test_completed" ] )
+		    elif [ -f "$file_in_bis" ] ||
+			     ( [ "${downloader_out[$i]}" == "RTMPDump" ] &&
+				   [ ! -z "$test_completed" ] )
 		    then
 			links_loop - "$url_in"
 
@@ -393,8 +393,8 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	    break_loop=true
 	    no_newip=true
 
-	elif [ ! -z "$url_in_file" ] || \
-	    ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] )
+	elif [ ! -z "$url_in_file" ] ||
+		 ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] )
 	then
 	    return 0
 

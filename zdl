@@ -414,7 +414,7 @@ then
 	    format=${args[$i]##*-}
 	    unset args[$i]
 #	    rm -f "$path_tmp"/.pid.zdl
-	    file_output=".file_output.zdl"
+	    file_output="scaricati_da_zdl.txt"
 	    export pid_prog=$$
 	    $prog ${args[*]} --out="$file_output"
 
@@ -423,16 +423,15 @@ then
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
-	    for ((i=1; i<=$(wc -l < $file_output); i++))
+	    while read line
 	    do
-		line=$(sed -n ${i}p < $file_output)
 		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
 		then
 		    print_c 4 "Conversione del file: $line"
 		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
 		fi
-	    done
+	    done < $file_output
 	    rm "$file_output"
 	    [ "$xterm_stop" == true ] && xterm_stop
 	    exit
@@ -646,13 +645,13 @@ then
 
 		if [ -e "$print_out" ] 
 		then
-		    print_c 3 "Esiste già un file con lo stesso nome di ${print_out}"
+		    init_msg="$init_msg$(sprint_c 3 "Esiste già un file con lo stesso nome di ${print_out}")"
 		    print_out="$file_output"
 		elif [ -z "$print_out" ]
 		then
 		    print_out="$file_output"
 		fi
-		print_c 1 "\n\nLa lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n"
+		init_msg="$init_msg$(sprint_c 1 "La lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n")"
 		touch "$print_out"
 	    fi
 	    unset args[$i]
@@ -1212,7 +1211,7 @@ fi
 
 if [ "$zdl_exit" != "true" ]
 then
-	rm -rf "$path_tmp" 2>/dev/null
+    rm -rf "$path_tmp" 2>/dev/null
 else
     kill_downloads
 fi

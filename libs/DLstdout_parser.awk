@@ -28,7 +28,7 @@ function array_out (value, type) {
 }
 
 function downloaded_part () {
-    if (downloader_out[i] == "Axel") {
+    if ((downloader_out[i] == "Axel") && (percent_out[i] < 100)) {
     	tot = int((percent_out[i] * (length_out[i] / axel_parts_out[i])) / 100)
     	return tot
     } else {
@@ -133,14 +133,13 @@ function check_stdout () {
 	    }
 	}
     }
-    if (pid_alive[i]) {
-	downloaded_length = downloaded_part()
-	if (downloaded_length > 4000000) {
-	    add_line(file_out[i], ".zdl_tmp/pipe_files.txt")
-	} else if (exists(".zdl_tmp/pipe_files.txt")) {
-	    rm_line(file_out[i], ".zdl_tmp/pipe_files.txt")
-	}
+    downloaded_length = downloaded_part()
+    if ((percent_out[i] == 100) || (downloaded_length > 4000000)) {
+	add_line(file_out[i], ".zdl_tmp/pipe_files.txt")
+    } else if (exists(".zdl_tmp/pipe_files.txt")) {
+    	rm_line(file_out[i], ".zdl_tmp/pipe_files.txt")
     }
+
     ## check_in_file
     if (file_in == file_out[i]) {
 	code = code bash_var("length_in", length_out[i])
