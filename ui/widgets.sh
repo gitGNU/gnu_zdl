@@ -169,7 +169,6 @@ function pause {
 function xterm_stop {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] && [ -z "$pipe_out" ]
     then
-	echo
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off
 	read -e
