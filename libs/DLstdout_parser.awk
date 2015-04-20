@@ -195,6 +195,7 @@ function progress_out (value,           progress_line) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[\ ]*[\%]*[K]*/)
 		percent_out[i] = progress_elems[2]
+		if (percent_out[i] == "]") percent_out[i] = 100
 		speed_out[i] = int(progress_elems[length(progress_elems)-1])
 		break
 	    }
