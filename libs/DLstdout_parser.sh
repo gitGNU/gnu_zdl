@@ -27,7 +27,7 @@
 function data_stdout {
     shopt -s nullglob
     shopt -s dotglob
-    check_tmps=( "$path_tmp"/?*_stdout.tmp )
+    tmp_files=( "$path_tmp"/?*_stdout.tmp )
     shopt -u nullglob
     shopt -u dotglob
     unset pid_alive pid_out file_out url_out percent_out length_saved length_out no_check
@@ -42,7 +42,7 @@ function data_stdout {
 	(( num_check++ ))
     fi
 
-    if (( ${#check_tmps[*]}>0 ))
+    if (( ${#tmp_files[*]}>0 ))
     then
 	awk_data=$(awk                                \
 	    -v file_in="$file_in"                     \
@@ -52,8 +52,9 @@ function data_stdout {
 	    -v no_check="$no_check"                   \
 	    -f $path_usr/libs/common.awk              \
 	    -f $path_usr/libs/DLstdout_parser.awk     \
-	    "$path_tmp"/?*_stdout.tmp                 \
-	    )
+	    ${tmp_files[@]}                           \
+		)
+	unset tmp_files
 	eval "$awk_data"
 	return 0
     else
