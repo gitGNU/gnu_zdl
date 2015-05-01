@@ -28,70 +28,134 @@
 ## zdl-extension name: Easybytez
 
 
-if [ "$url_in" != "${url_in//easybytez}" ]; then
-    if [ "$login" == "1" ]; then
-	wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/login.tmp" "http://www.easybytez.com/login.html" &>/dev/null
+if [ "$url_in" != "${url_in//easybytez}" ]
+then
+    if [ "$login" == "1" ]
+    then
+	wget -q -t 1 -T $max_waiting                   \
+	     --user-agent="$user_agent"                \
+	     --retry-connrefused                       \
+	     --keep-session-cookies                    \
+	     --save-cookies="$path_tmp"/cookies.zdl    \
+	     -O "$path_tmp/login.tmp"                  \
+	     "http://www.easybytez.com/login.html" &>/dev/null
 
 	input_hidden "$path_tmp/login.tmp"
 	
 	host="easybytez"
 	host_login
-	wget -q -t 1 -T $max_waiting --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" --post-data="${post_data}&login=${user}&password=${pass}" "http://www.easybytez.com" &>/dev/null
+
+	wget -q -t 1 -T $max_waiting                                      \
+     	     --user-agent="$user_agent"                                   \
+	     --retry-connrefused                                          \
+	     --load-cookies="$path_tmp"/cookies.zdl                       \
+	     --keep-session-cookies                                       \
+	     --save-cookies="$path_tmp"/cookies.zdl                       \
+	     -O "$path_tmp/zdl.tmp"                                       \
+	     --post-data="${post_data}&login=${user}&password=${pass}"    \
+	     "http://www.easybytez.com" &>/dev/null
 	unset post_data
-    fi	    
-    file_in=$(wget -q --user-agent="$user_agent"  -O- "$url_in" |grep '<span class="name">')
+    fi
+
+    file_in=$(wget -q --user-agent="$user_agent"                    \
+		   -O- "$url_in" | grep '<span class="name">')
+    
     file_in="${file_in#*>}"
     file_in="${file_in%%<*}"
     url_in_file="${url_in}"
-    not_available=$(wget -t 1 -T $max_waiting  --user-agent="$user_agent" \
-	--retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies \
-	-O - "$url_in" |grep "File not available")
 
-    if [ ! -z "$not_available" ]; then
+    not_available=$(wget -q -t 1 -T $max_waiting                    \
+			 --user-agent="$user_agent"                 \
+			 --retry-connrefused                        \
+			 --load-cookies="$path_tmp"/cookies.zdl     \
+			 --keep-session-cookies                     \
+			 -O- "$url_in" | grep "File not available")
+
+    if [ ! -z "$not_available" ]
+    then
 	_log 3
-	break_loop=true
     fi
+    
     check_in_file
-    if [ ! -z "${file_in}" ] && [ ! -f "${file_in}" ] && [ -z "$not_available" ]; then
-	if [ ! -z "$exceeded_login" ]; then
-	    check_ip easybytez
+
+    if [ ! -z "${file_in}" ] &&
+	   [ ! -f "${file_in}" ] &&
+	   [ -z "$not_available" ]
+    then
+	if [ ! -z "$exceeded_login" ]
+	then
+	    check_ip "easybytez"
 	fi
-	if [ "$login" == "1" ]; then
-	    wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-	    countdown=40
-	    redirected=true
+	
+	if [ "$login" == "1" ]
+	then
+	    wget -q -t 1 -T $max_waiting                          \
+		 --user-agent="$user_agent"                       \
+		 --retry-connrefused                              \
+		 --load-cookies="$path_tmp"/cookies.zdl           \
+		 --keep-session-cookies                           \
+		 --save-cookies="$path_tmp"/cookies.zdl           \
+		 -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
+	    countdown="40"
+	    redirected="true"
 	else
 	    check_ip easybytez
 
-	    wget -q -t 1 -T $max_waiting --user-agent="$user_agent" --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-	    countdown=60
+	    wget -q -t 1 -T $max_waiting                 \
+		 --user-agent="$user_agent"              \
+		 --retry-connrefused                     \
+		 --keep-session-cookies                  \
+		 --save-cookies="$path_tmp"/cookies.zdl    \
+		 -O "$path_tmp/zdl.tmp"                  \
+		 "$url_in" &>/dev/null
+	    countdown="60"
 	fi
 	
 	input_hidden "$path_tmp/zdl.tmp"
-	wget -t 1 -T $max_waiting --user-agent="$user_agent" -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&method_free=Free Download" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
+	
+	wget -t 1 -T $max_waiting                                       \
+	     --user-agent="$user_agent" -q                              \
+	     --load-cookies="$path_tmp"/cookies.zdl                     \
+	     --keep-session-cookies                                     \
+	     --save-cookies="$path_tmp"/cookies.zdl                     \
+	     --post-data="${post_data}&method_free=Free Download"       \
+	     "$url_in" -O "$path_tmp"/zdl2.tmp &>/dev/null
 
-	exceeded=`cat "$path_tmp"/zdl2.tmp |grep "Upgrade your account to download bigger files"`
+	exceeded=$(grep "Upgrade your account to download bigger files" "$path_tmp"/zdl2.tmp)
 
-	if [ -z "$exceeded_login" ]; then
-	    exceeded_login=`cat "$path_tmp"/zdl2.tmp |grep 'You have reached the download-limit:'`
+	if [ -z "$exceeded_login" ]
+	then
+	    exceeded_login=$(grep 'You have reached the download-limit:' "$path_tmp"/zdl2.tmp)
 	fi
+
 	unset post_data
-	check_in_file
-	if [ $? != 1 ] && [ -z "$not_available" ] && [ -z "$exceeded" ]; then
+
+	if check_in_file &&
+	       [ -z "$not_available" ] &&
+	       [ -z "$exceeded" ]
+	then
 	    input_hidden "$path_tmp/zdl2.tmp"
 	    
-	    wget -t 1 -T $max_waiting --user-agent="$user_agent" -q --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl --post-data="${post_data}&btn_download=Download File" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
+	    wget -t 1 -T $max_waiting                                    \
+		 --user-agent="$user_agent" -q                           \
+		 --load-cookies="$path_tmp"/cookies.zdl                  \
+		 --keep-session-cookies                                  \
+		 --save-cookies="$path_tmp"/cookies.zdl                  \
+		 --post-data="${post_data}&btn_download=Download File"   \
+		 "$url_in" -O "$path_tmp"/zdl3.tmp &>/dev/null
 	    unset post_data
 	    
 	    print_c 2 "Attendi $countdown secondi:"
-	    for s in `seq 0 $countdown`; do
+	    
+	    for ((s=0; s<=$countdown; s++))
+	    do
 		print_c 0 "$s\r\c"
 		sleeping 1
 	    done
 	    print_c 0 "  \r\c"
 
 	    input_hidden "$path_tmp/zdl3.tmp"
-	    length_in=`cat .zdl_tmp/zdl3.tmp |grep Size`
+	    length_in=$(grep Size .zdl_tmp/zdl3.tmp)
 	    length_in="${length_in#*\(}"
 	    length_in="${length_in%% *}"
 	    post_data="${post_data}&btn_download=Download File"
