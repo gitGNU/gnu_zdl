@@ -71,18 +71,18 @@ then
 			 --keep-session-cookies                     \
 			 -O- "$url_in" | grep "File not available")
 
-    if [ ! -z "$not_available" ]
+    if [ -n "$not_available" ]
     then
 	_log 3
     fi
     
     check_in_file
 
-    if [ ! -z "${file_in}" ] &&
+    if [ -n "${file_in}" ] &&
 	   [ ! -f "${file_in}" ] &&
 	   [ -z "$not_available" ]
     then
-	if [ ! -z "$exceeded_login" ]
+	if [ -n "$exceeded_login" ]
 	then
 	    check_ip "easybytez"
 	fi
@@ -164,7 +164,6 @@ then
 
 	else
 	    _log 4
-	    break_loop=true
 	fi
     fi
 fi
