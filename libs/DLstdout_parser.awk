@@ -419,6 +419,8 @@ BEGIN {
 
     if ($0 ~ /Length:/ && dler == "Wget") {
 	length_out[i] = $2
+	if (length_out[i] == "unspecified")
+	    length_out[i] = 0
 	array_out(length_out[i], "length_out")
     }
     if ($0 ~ /File\ size:/ && dler == "Axel") {
