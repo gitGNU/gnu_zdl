@@ -297,7 +297,7 @@ function url {
 }
 
 function grep_urls {
-    grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' <<< "$1"
+    grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' <<< "$1"
 }
 
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
@@ -316,7 +316,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	touch "${file_to_clean}-rewriting"
 
 	local lines=$(
-	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' "$file_to_clean")"
+	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' "$file_to_clean")"
 	)
 	if [ ! -z "$lines" ]
 	then
