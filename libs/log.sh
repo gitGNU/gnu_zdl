@@ -83,11 +83,11 @@ function _log {
 	    msg="$url_in --> Non è un URL adatto per $name_prog"
 	    ;;
 	13)
-	    msg="$file_in --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
+	    msg="$file_in ($url_in) --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
 	    links_loop - "$url_in"
 	    ;;
 	14)
-	    msg="$file_in --> Il file non sarà scaricato, perché non corrisponde alla regex: $file_regex"
+	    msg="$file_in ($url_in) --> Il file non sarà scaricato, perché non corrisponde alla regex: $file_regex"
 	    links_loop - "$url_in"
 	    ;;
 	15)

@@ -1064,7 +1064,8 @@ function main_loop {
 		fi
 
 		## opzioni filtro
-		if [ ! -z "$no_file_regex" ] && [[ "$file_in" =~ $no_file_regex ]]
+		if [ ! -z "$no_file_regex" ] &&
+		       [[ "$file_in" =~ $no_file_regex ]]
 		then
 		    _log 13
 		fi
@@ -1082,13 +1083,11 @@ function main_loop {
 		    unset break_loop
 		    continue
 		fi
-		
+
 		#### DOWNLOAD ####
 		if [ -z "$premium" ] &&                                                 
 		       check_in_file &&                                                         
-		       links_loop "in" "$url_in" &&                                             
-		       ( [ -z "$no_file_regex" ] || [[ ! "$file_in" =~ $no_file_regex ]] ) &&   
-		       ( [ -z "$file_regex" ] || [ "$file_in" =~ $file_regex  ] )
+		       links_loop "in" "$url_in" 
 		then
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
