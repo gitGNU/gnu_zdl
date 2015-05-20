@@ -353,7 +353,7 @@ function init {
     [ -z "$pid_prog" ] && pid_prog=$$ 
 
     check_instance_prog
-    [ "$?" != 1 ] && rm -f "$path_tmp"/rewriting
+    [ "$?" != 1 ] && rm -f "$path_tmp"/*rewriting
     
     # CYGWIN
     if [ -e "/cygdrive" ]
