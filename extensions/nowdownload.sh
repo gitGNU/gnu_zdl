@@ -37,13 +37,16 @@ function wise_args {
 }
 
 
-if [ "$url_in" != "${url_in//'nowdownload'}" ]; then
-    if [ "$url_in" != "${url_in//'down.php?id='}" ]; then
+if [ "$url_in" != "${url_in//'nowdownload'}" ]
+then
+    if [ "$url_in" != "${url_in//'down.php?id='}" ]
+    then
 	url_in_old="$url_in"
 	url_in="${url_in_old//'down.php?id='/dl/}"
 	links_loop - "$url_in_old"
 	links_loop + "$url_in"
-    elif [ "$url_in" != "${url_in//'download.php?id='}" ]; then
+    elif [ "$url_in" != "${url_in//'download.php?id='/dl/}" ]
+    then
 	url_in_old="$url_in"
 	url_in="${url_in_old//'download.php?id='/dl/}"
 	links_loop - "$url_in_old"
@@ -51,27 +54,33 @@ if [ "$url_in" != "${url_in//'nowdownload'}" ]; then
     fi
 fi
 
-if [ "$url_in" != "${url_in//nowdownload.}" ] && [ "$url_in" == "${url_in//\/nowdownload\/}" ]; then
+if [ "$url_in" != "${url_in//nowdownload.}" ] &&
+       [ "$url_in" == "${url_in//\/nowdownload\/}" ]
+then
     get_tmps
-    if [[ -z $(cat "$path_tmp"/zdl.tmp) ]]; then
+    if [[ -z $(cat "$path_tmp"/zdl.tmp) ]]
+    then
 	break_loop=true
 	_log 2
 	sleeping $sleeping_pause
     else
 	test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
-	if [ ! -z "$test_file" ]; then
+	if [ ! -z "$test_file" ]
+	then
 	    _log 3
 	    break_loop=true
 	    break
 	fi
-	now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
-	if [ ! -z "$now" ]; then
+	
+	now="$(grep "Download Now" "$path_tmp"/zdl.tmp)" 
+	if [ -n "$now" ]
+	then
 	    url_in_file="${now#*\"}"
 	    url_in_file="${url_in_file%%\"*}"
 	    unset now
 	    
 	else
-	    wise_code=$(cat "$path_tmp"/zdl.tmp | grep ";eval")
+	    wise_code=$(grep ";eval" "$path_tmp"/zdl.tmp)
 	    print_c 2 "Attendi circa 30 secondi:"
 	    k=`date +"%s"`
 	    s=0
