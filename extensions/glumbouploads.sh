@@ -28,32 +28,47 @@
 ## zdl-extension name: Glumbouploads
 
 
-if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
+if [ "$url_in" != "${url_in//glumbouploads.}" ]
+then
     [ "$num_dl" == "1" ] && [ -f "$file_data" ] && check_ip glumbouploads
-    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    echo -e "...\c"
+
+    wget -q -t 1 -T $max_waiting               \
+	 --retry-connrefused                   \
+	 --keep-session-cookies                \
+	 --save-cookies=$path_tmp/cookies.zdl  \
+	 -O "$path_tmp/zdl.tmp"                \
+	 $url_in &>/dev/null
+    
     test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
-    if [ ! -z "$test_exceeded" ]; then
+    if [ ! -z "$test_exceeded" ]
+    then
 	test_exceeded="${test_exceeded#*'('}"
 	test_exceeded="${test_exceeded%')'*}"
-	if [ "${test_exceeded}" != "${test_exceeded//MB}" ]; then
+	if [ "${test_exceeded}" != "${test_exceeded//MB}" ]
+	then
 	    test_exceeded="${test_exceeded% MB}"
 	    test_exceeded="${test_exceeded%.*}"
 	    (( test_exceeded++ ))
-	    if (( $test_exceeded>1024 )); then
+	    if (( $test_exceeded>1024 ))
+	    then
 		exceeded=true
 	    fi
-	elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]; then
+	    
+	elif [ "${test_exceeded}" != "${test_exceeded//GB}" ]
+	then
 	    exceeded=true
 	fi
     fi
     
-    if [ -z "$exceeded" ]; then
+    if [ -z "$exceeded" ]
+    then
 	unset post_data
 	input_hidden "$path_tmp/zdl.tmp"
 	
 	post_data="${post_data//'op=login&redirect=&'}"
-	if [ -z "$file_in" ]; then
+
+	if [ -z "$file_in" ]
+	then
 	    file_in=`cat "$path_tmp/zdl.tmp"|grep "fname"|grep "attr"`
 	    file_in="${file_in#* \'}"
 	    file_in="${file_in%\'*}"
@@ -61,19 +76,34 @@ if [ "$url_in" != "${url_in//glumbouploads.}" ]; then
 	
 	post_data="$post_data&method_free=Free Download"
 	
-	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
+	wget -t 1 -T $max_waiting                        \
+	     --load-cookies=$path_tmp/cookies.zdl        \
+	     --save-cookies=$path_tmp/cookies2.zdl       \
+	     --post-data="$post_data"                    \
+	     $url_in                                     \
+	     -O "$path_tmp"/zdl2.tmp &>/dev/null
 	
 	unset post_data
 	input_hidden "$path_tmp/zdl2.tmp"
 	post_data="${post_data//'op=login&redirect=&'}"
 	print_c 2 "Attendi 100 secondi:"
-	for s in `seq 0 100`; do
-	    echo -e $s"\r\c"
+
+	for ((s=0; s<=100; s++))
+	do
+	    print_c 0 $s"\r\c"
 	    sleeping 1
 	done
-	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
+
+	wget -t 1 -T $max_waiting                                   \
+	     --load-cookies=$path_tmp/cookies.zdl                   \
+	     --keep-session-cookies                                 \
+	     --save-cookies=$path_tmp/cookies2.zdl                  \
+	     --post-data="$post_data&method_free=Free Download"     \
+	     $url_in                                                \
+	     -O "$path_tmp"/zdl3.tmp &>/dev/null
 	
-	if [ -f "$path_tmp"/zdl3.tmp ];then
+	if [ -f "$path_tmp"/zdl3.tmp ]
+	then
 	    url_in_file=`cat "$path_tmp"/zdl3.tmp | grep "<a href=" |grep "$file_in"`
 	    url_in_file="${url_in_file#<a href=\"}"
 	    url_in_file="${url_in_file%%\"*}"

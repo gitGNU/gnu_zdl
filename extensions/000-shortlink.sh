@@ -28,12 +28,23 @@
 ## zdl-extension name: Shortlink
 
 
-if [[ "$url_in" =~ (shortlink.) ]]; then
+if [[ "$url_in" =~ (shortlink.) ]]
+then
     shortcode="${url_in##*\/}"
-    wget -q -O /dev/null --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" "$url_in"
+    wget -q -O /dev/null                          \
+	 --keep-session-cookies                   \
+	 --save-cookies="$path_tmp/cookies.zdl"   \
+	 "$url_in"
+    
     countdown- 10
-    new_url=$(wget -q -O- http://www.shortlink.li/ajax/getLink --post-data="short=$shortcode" --load-cookies="$path_tmp/cookies.zdl"  | sed -r 's|.+\"([^"]+)\"\}$|\1|g' | sed -r 's|\\||g')
-    if link_parser "$new_url"
+    new_url=$(wget -q -O-                                        \
+		   http://www.shortlink.li/ajax/getLink          \
+		   --post-data="short=$shortcode"                \
+		   --load-cookies="$path_tmp/cookies.zdl"        \
+		     | sed -r 's|.+\"([^"]+)\"\}$|\1|g'          \
+		     | sed -r 's|\\||g')
+
+    if url "$new_url"
     then
 	links_loop - "$url_in"
 	url_in="http${new_url##*http}"

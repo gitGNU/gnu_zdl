@@ -34,7 +34,7 @@ function get_tmps {
 }
 
 function input_hidden {
-    if [ ! -z "$1" ]
+    if [ -n "$1" ]
     then
 	unset post_data datatmp data value name post
 	if [ -f "$1" ]

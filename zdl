@@ -53,10 +53,14 @@ function update_updater {
     print_c 1 "Download in corso: attendere..."
     wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q 2>/dev/null
     cd ..
-    if [ -f "$path_conf"/zdl.sig ]; then
+    if [ -f "$path_conf"/zdl.sig ]
+    then
 	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
     fi
-    if [ -z "$test_version" ] && [ -f "$path_conf"/zdl.sig ]; then
+
+    if [ -z "$test_version" ] &&
+	   [ -f "$path_conf"/zdl.sig ]
+    then
 	print_c 1 "$PROG è già alla versione più recente"
     else
 	cd "$path_tmp"

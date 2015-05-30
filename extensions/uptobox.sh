@@ -25,14 +25,26 @@
 #
 
 ## zdl-extension types: download
-## zdl-extension name: Likeupload
+## zdl-extension name: Uptobox
 
-		
-if [ "$url_in" != "${url_in//'likeupload.org'}" ]
+if [ "$url_in" != "${url_in//uptobox.}" ]
 then
-    url_in_old="$url_in"
-    url_in=$( wget --spider -S "$url_in_old" 2>&1 | grep "Location" |head -n1)
-    url_in="${url_in#*'Location: '}"
-    links_loop - "$url_in_old"
-    links_loop + "$url_in"
-fi
+    html=$(wget -t 1 -T $max_waiting                      \
+		-O- -q                                    \
+		--retry-connrefused                       \
+		--keep-session-cookies                    \
+		--save-cookies=$path_tmp/cookies.zdl      \
+		"$url_in")
+    unset post_data
+    input_hidden "$html" #### $file_in == POST[fname]
+    
+    html=$(wget -t 1 -T $max_waiting                         \
+		-O- -q                                       \
+		 --load-cookies=$path_tmp/cookies.zdl        \
+		 --save-cookies=$path_tmp/cookies2.zdl       \
+		 --post-data="$post_data"                    \
+		 "$url_in")
+		 
+    url_in_file=$(grep "Click here to start your download" -B2 <<< "$html" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    unset post_data
+fi   

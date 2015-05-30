@@ -101,12 +101,12 @@ then
 	else
 	    check_ip easybytez
 
-	    wget -q -t 1 -T $max_waiting                 \
-		 --user-agent="$user_agent"              \
-		 --retry-connrefused                     \
-		 --keep-session-cookies                  \
+	    wget -q -t 1 -T $max_waiting                   \
+		 --user-agent="$user_agent"                \
+		 --retry-connrefused                       \
+		 --keep-session-cookies                    \
 		 --save-cookies="$path_tmp"/cookies.zdl    \
-		 -O "$path_tmp/zdl.tmp"                  \
+		 -O "$path_tmp/zdl.tmp"                    \
 		 "$url_in" &>/dev/null
 	    countdown="60"
 	fi
