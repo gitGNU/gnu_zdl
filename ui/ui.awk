@@ -166,6 +166,8 @@ function make_progress (size_bar, progress_bar, progress) {
 	} else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
+	    if (downloader_out[i] == "Wget")
+		percent_out[i] = 0
 	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo" Color_Off)	
 	}
     } else {
