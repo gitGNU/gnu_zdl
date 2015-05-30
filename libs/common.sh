@@ -126,6 +126,16 @@ function is_wget {
     return 1
 }
 
+function sanitize_url {
+    data="${1%%'?'}"
+    data="${data## }"
+    data="${data%% }"
+    data="${data%'#20%'}"
+    data="${data// /%20}"
+
+    echo "$data"
+}
+
 function sanitize_file_in {
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"

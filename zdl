@@ -814,7 +814,7 @@ do
 done
 
 
-if [ ! -z "${args[*]}" ]
+if [ -n "${args[*]}" ]
 then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
     for ((i=0; i<=$max_args; i++))
@@ -830,9 +830,8 @@ then
 	    fi
 	elif [ ! -z "${args[$i]}" ]
 	then
-	    args[$i]="${args[$i]%'#20%'}"
-	    args[$i]="${args[$i]// /%20}"
-
+	    args[$i]="$(sanitize_url "${args[$i]}")"
+	    
 	    if url "${args[$i]}"
 	    then
 		if [ "$scrapeURL" == "true" ]
@@ -892,11 +891,10 @@ then
 	while [ "$binding" != 1 ]
 	do
 	    read -e link
-	    if [ ! -z "${link// }" ]
+	    if [ -n "${link// }" ]
 	    then
-		link="${link## }"
-		link="${link%% }"
-		links_loop + "${link// /%20}"
+		link="$(sanitize_url "$link")"
+		links_loop + "$link"
 	    fi
 	done
 	unset link binding
