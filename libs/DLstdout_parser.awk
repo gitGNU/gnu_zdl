@@ -180,7 +180,7 @@ function progress_out (value,           progress_line) {
     if (dler == "Axel") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ /(Too many redirects)/) {
-	    	code = code "wget_links[${#wget_links[*]}]=" url_out[i] "; "
+	    	code = code "wget_links[" wget_links_index "]=\"" url_out[i] "\"; "
 	    	break
 	    } 
 	    if (chunk[y] ~ /(Could not parse URL|404 Not Found)/) {
