@@ -102,6 +102,7 @@ function scrape_url {
 }
 
 function redirect_links {
+    redirected_link="true"
     header_box "Links da processare"
     echo -e "${links}\n"
     separator-

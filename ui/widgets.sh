@@ -29,7 +29,7 @@
 source "$path_usr/ui/colors.awk.sh"
 
 function print_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
     then
 	case "$1" in
 	    0)
@@ -55,7 +55,7 @@ function print_c {
 }
 
 function sprint_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
     then
 	case "$1" in
 	    0)
@@ -136,7 +136,7 @@ function header_z {
 }
 
 function header_box {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
     then
 	if [ -z "$zdl_mode" ]; then
 	    header "$1" "$Black${On_White}" "─"
@@ -156,7 +156,7 @@ function header_dl {
 }
 
 function pause {
-    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] )
+    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] ) || [ -n "$redirected_link" ]
     then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
@@ -167,7 +167,7 @@ function pause {
 }
 
 function xterm_stop {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] && [ -z "$pipe_out" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] && [ -z "$pipe_out" ] || [ -n "$redirected_link" ]
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off
