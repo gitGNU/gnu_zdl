@@ -342,6 +342,7 @@ function progress_out (value,           progress_line) {
 
 function progress () {
     ## estrae le ultime n righe e le processa con progress_out()
+    delete test_stdout["new"]
     for(k=0;k<n;k++) {
 	chunk[k] = progress_data[++j%n]
 	if (! no_check)
