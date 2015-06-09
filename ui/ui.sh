@@ -290,7 +290,7 @@ function interactive {
 		fi
 	    fi
 
-	elif [[ "$action" =~ ^[1-9]+$ ]]
+	elif [[ "$action" =~ ^[0-9]+$ ]]
 	then
 	    echo "$action" > "$path_tmp/dl-mode"
 	
