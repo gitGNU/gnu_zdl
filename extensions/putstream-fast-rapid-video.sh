@@ -28,10 +28,13 @@
 ## zdl-extension name: Fastvideo, Rapidvideo, Putstream
 
 
-if [[ "$url_in" =~ (fastvideo.|rapidvideo.|putstream.) ]]; then
-    if [[ ! "$url_in" =~ embed ]]; then
-	if [[ "$url_in" =~ (putstream.) ]]; then
-	    html=$(wget -q -O- "$url_in")
+if [[ "$url_in" =~ (fastvideo.|rapidvideo.|putstream.) ]]
+then
+    if [[ ! "$url_in" =~ embed ]]
+    then
+	if [[ "$url_in" =~ (putstream.) ]]
+	then
+	    html=$(wget -q -O- --user-agent="Firefox" "$url_in")
 	    file_in=$(grep '<Title>' <<< "$html" |sed -r 's|.*<Title>([^<>]+)<.+|\1|g')
 	fi
 	link_parser "$url_in"
@@ -39,13 +42,15 @@ if [[ "$url_in" =~ (fastvideo.|rapidvideo.|putstream.) ]]; then
 	url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html}-607x360.html"
     fi
 
-    html_packed=$(wget "$url_packed" -O- -q |grep 'p,a,c,k,e,d')
-    if [ ! -z "$html_packed" ]; then
+    html_packed=$(wget "$url_packed" -O- -q --user-agent="Firefox" |grep 'p,a,c,k,e,d')
+    if [ ! -z "$html_packed" ]
+    then
 	packed_args "$html_packed"
 	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
 	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
 
-	if [[ ! "$url_in" =~ (putstream.) ]]; then
+	if [[ ! "$url_in" =~ (putstream.) ]]
+	then
 	#file_in=$(grep '<title>' < "$1" |tail -n1 |sed -r 's@.*>([^<>]+)<.*@\1@g')."${url_in_file##*.}"
 	    file_in=$(sed -r 's@.+tv_file_name\=\"([^"]+)\".+@\1@' <<< "$packed_code")
 	fi
