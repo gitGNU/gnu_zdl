@@ -40,10 +40,15 @@ then
 	link_parser "$url_in"
 	parser_path="${parser_path%%\/*}"
 	url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html}-607x360.html"
+    else
+	url_packed="$url_in"
     fi
 
-    html_packed=$(wget "$url_packed" -O- -q --user-agent="Firefox" |grep 'p,a,c,k,e,d')
-    if [ ! -z "$html_packed" ]
+    html_embed=$(wget "$url_packed" -O- -q --user-agent="Firefox")
+    html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
+    html_sources=$(grep 'sources' <<< "$html_embed")
+
+    if [ -n "$html_packed" ]
     then
 	packed_args "$html_packed"
 	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
@@ -54,8 +59,17 @@ then
 	#file_in=$(grep '<title>' < "$1" |tail -n1 |sed -r 's@.*>([^<>]+)<.*@\1@g')."${url_in_file##*.}"
 	    file_in=$(sed -r 's@.+tv_file_name\=\"([^"]+)\".+@\1@' <<< "$packed_code")
 	fi
-	axel_parts=4
-    else
+
+    elif [ -n "$html_sources" ]
+    then
+	url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
+	file_in="${file_in}.${url_in_file##*.}"
+    fi
+    
+    if [ -z "$url_in_file" ]
+    then
 	break_loop=true
+    else
+	axel_parts=4
     fi
 fi
