@@ -47,4 +47,9 @@ then
 		 
     url_in_file=$(grep "Click here to start your download" -B2 <<< "$html" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
     unset post_data
+
+    if ! url "$url_in_file"
+    then
+	_log 2
+    fi
 fi   
