@@ -55,12 +55,10 @@ function check_stdout () {
 		}
 	    }
 
-	    ## cancella download di file con nome diverso per uno stesso link/url
-	    for (d in pid_out) {
-		if (i != d &&			\
-		    url_out[i] == url_out[d] &&	\
-		    file_out[i] != file_out[d])
-		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.* " file_out[d] " " file_out[d] ".st")
+	    ## cancella download di file con nome diverso per uno stesso link/url <--------- NON FUNZIONA!
+	    for (d=0; d<length(file_out); d++) {
+		if ((url_out[i] == url_out[d]) && (file_out[i] != file_out[d]))
+		    system("rm -f .zdl_tmp/"file_out[d]"_stdout.tmp " file_out[d] " " file_out[d] ".st")
 	    }
 
 	}
