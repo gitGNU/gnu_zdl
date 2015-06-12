@@ -57,99 +57,68 @@ fi
 if [ "$url_in" != "${url_in//nowdownload.}" ] &&
        [ "$url_in" == "${url_in//\/nowdownload\/}" ]
 then
+
     get_tmps
-    if [[ -z $(cat "$path_tmp"/zdl.tmp) ]]
-    then
-	break_loop=true
-	_log 2
-	sleeping $sleeping_pause
-    else
-	test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
-	if [ ! -z "$test_file" ]
-	then
-	    _log 3
-	    break_loop=true
-	    break
-	fi
-	
-	now="$(grep "Download Now" "$path_tmp"/zdl.tmp)" 
-	if [ -n "$now" ]
-	then
-	    url_in_file="${now#*\"}"
-	    url_in_file="${url_in_file%%\"*}"
-	    unset now
-	    
-	else
-	    wise_code=$(grep ";eval" "$path_tmp"/zdl.tmp)
-	    print_c 2 "Attendi circa 30 secondi:"
-	    k=`date +"%s"`
-	    s=0
-	    # while true
-	    # do
-	    # 	touch "$path_tmp"/.wise-code
-	    # 	sleep 0.9
-	    # 	s=`date +"%s"`
-	    # 	s=$(( $s-$k ))
-	    # 	if [ ! -f "$path_tmp"/.wise-code ]
-	    # 	then
-	    # 	    break
-	    # 	fi
-	    # 	print_c 0 "$s\r\c"
-	    # 	if ! check_pid $pid_prog
-	    # 	then
-	    # 	    exit
-	    # 	fi
-	    # done & 
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    wise_code=$( "$path_usr"/extensions/zdl-wise $( wise_args "$wise_code" ) )
-	    clean_countdown
-
-	    unset url_in_file
-	    preurl_in_file="${wise_code##*href=\"}"
-	    preurl_in_file="${preurl_in_file%%\"*}"
-	    preurl_in_file="${url_in%'/dl/'*}$preurl_in_file"
-	    while true
-	    do
-		if (( $s>30 ))
-		then
-		    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
-		fi
-		sleeping 1
-		s=`date +"%s"`
-		s=$(( $s-$k ))
-		print_c 0 "$s\r\c"
-		url_in_file=$(cat "$path_tmp/zdl2.tmp" |grep nowdownloader)
-		url_in_file="${url_in_file#*href=\"}"
-		url_in_file="${url_in_file%%\"*}"
-		premium=$(cat "$path_tmp/zdl2.tmp" |grep "You need Premium")
-		sleeping 0.1
-		if [ ! -z "$url_in_file" ] ||
-		       [ ! -z "$premium" ] ||
-		       (( $s > 60 ))
-		then
-		    break
-		fi
-		if ! check_pid $pid_prog
-		then
-		    exit
-		fi
-	    done
-	fi
-	if [ ! -z "$premium" ]
-	then
-	    _log 11
-	    break_loop=true
-	else
-	    file_in="${url_in_file##*'/'}"
-	    file_in="${file_in%'?'*}"
-	fi
-
-	if [ -z "$file_in" ]
-	then
-	    break_loop=true
-	fi
-	unset preurl_in_file 
+    test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
+    if [ ! -z "$test_file" ]; then
+	_log 3
+	break
     fi
+    now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
+    if [ ! -z "$now" ]; then
+	url_in_file="${now#*\"}"
+	url_in_file="${url_in_file%%\"*}"
+	unset now
+    else
+	token=`cat "$path_tmp"/zdl.tmp | grep token`
+	token=${token//*=}
+	token=${token//\"*/}
+	preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
+	print_c 2 "Attendi circa 30 secondi:"
+	k=`date +"%s"`
+	s=0
+	unset url_in_file
+	while true; do
+	    
+	    if (( $s>29 )); then
+		wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+	    fi
+	    sleeping 1
+	    s=`date +"%s"`
+	    s=$(( $s-$k ))
+	    
+	    echo -e $s"\r\c"
+	    
+	    url_in_file=`cat "$path_tmp"/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+	    url_in_file=${url_in_file//*href=\"} 
+	    url_in_file=${url_in_file//\"*}
+	    sleeping 0.1
+	    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+		break
+	    fi
+	done
+    fi
+    #echo "$url_in_file"
+    file_in1=`cat "$path_tmp"/zdl.tmp | grep 'Downloading'`
+    file_in1="${file_in1#*'<br> '}"
+    file_in1="${file_in1%%</h4>*}"
+    file_in1="${file_in1%' '*}"
+    file_in1="${file_in1%' '*}"
+    file_in1="${file_in1%' '*}"
+    file_in1="${file_in1//'<br>'/}"
+    while [ "$file_in1" != "${file_in1%.}" ]; do
+	file_in1=${file_in1%.}
+    done
+    file_in2="${url_in_file//*'/'}"
+    file_in2="${file_in2#*_}"
+    
+    
+    if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+	file_in="$file_in2"
+    else
+	file_ext="${file_in2##*.}"
+	file_in="${file_in1}.${file_ext}"
+    fi
+    file_in="${file_in%'?'*}"
+    unset file_in2 file_in1 file_ext token preurl_in_file
 fi
-
