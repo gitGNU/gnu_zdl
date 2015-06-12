@@ -27,15 +27,6 @@
 ## zdl-extension types: download
 ## zdl-extension name: Nowdownload
 
-# Nowdownload /Nowvideo
-
-function wise_args {
-    code="${1##*'('}"
-    code="${code%%')'*}"
-    code="${code//\'}"
-    echo ${code//','/' '}
-}
-
 
 if [ "$url_in" != "${url_in//'nowdownload'}" ]
 then
@@ -57,20 +48,21 @@ fi
 if [ "$url_in" != "${url_in//nowdownload.}" ] &&
        [ "$url_in" == "${url_in//\/nowdownload\/}" ]
 then
-
     get_tmps
-    test_file=`cat "$path_tmp"/zdl.tmp | grep "This file does not exist"`
-    if [ ! -z "$test_file" ]; then
+
+    if [ -n "$(grep "This file does not exist" "$path_tmp"/zdl.tmp)" ]
+    then
 	_log 3
-	break
     fi
-    now=`cat "$path_tmp"/zdl.tmp | grep "Download Now"`
-    if [ ! -z "$now" ]; then
+    
+    now="$(grep "Download Now" "$path_tmp"/zdl.tmp)"
+    if [ -n "$now" ]
+    then
 	url_in_file="${now#*\"}"
 	url_in_file="${url_in_file%%\"*}"
 	unset now
     else
-	token=`cat "$path_tmp"/zdl.tmp | grep token`
+	token="$(grep token "$path_tmp"/zdl.tmp)"
 	token=${token//*=}
 	token=${token//\"*/}
 	preurl_in_file=${url_in//\/dl/\/dl2}"/$token"
@@ -78,47 +70,59 @@ then
 	k=`date +"%s"`
 	s=0
 	unset url_in_file
-	while true; do
-	    
-	    if (( $s>29 )); then
-		wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl2.tmp" "$preurl_in_file" &>/dev/null 
+	
+	while true
+	do
+	    if (( $s>29 ))
+	    then
+		wget -t 1 -T $max_waiting                 \
+		     --load-cookies=$path_tmp/cookies.zdl \
+		     -O "$path_tmp/zdl2.tmp"              \
+		     "$preurl_in_file" &>/dev/null 
 	    fi
+	    
 	    sleeping 1
 	    s=`date +"%s"`
 	    s=$(( $s-$k ))
 	    
-	    echo -e $s"\r\c"
+	    print_c 0 $s"\r\c"
 	    
-	    url_in_file=`cat "$path_tmp"/zdl2.tmp |grep "Click here to download" 2>/dev/null`
+	    url_in_file="$(grep "Click here to download" "$path_tmp"/zdl2.tmp 2>/dev/null)"
 	    url_in_file=${url_in_file//*href=\"} 
 	    url_in_file=${url_in_file//\"*}
 	    sleeping 0.1
-	    if [ ! -z "$url_in_file" ] || (( $s > 60 )); then
+	    if url "$url_in_file" ||
+		   (( $s > 60 ))
+	    then
 		break
 	    fi
 	done
     fi
-    #echo "$url_in_file"
-    file_in1=`cat "$path_tmp"/zdl.tmp | grep 'Downloading'`
+
+    file_in1="$(grep 'Downloading' "$path_tmp"/zdl.tmp)"
     file_in1="${file_in1#*'<br> '}"
     file_in1="${file_in1%%</h4>*}"
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1//'<br>'/}"
-    while [ "$file_in1" != "${file_in1%.}" ]; do
+    
+    while [ "$file_in1" != "${file_in1%.}" ]
+    do
 	file_in1=${file_in1%.}
     done
+    
     file_in2="${url_in_file//*'/'}"
     file_in2="${file_in2#*_}"
     
-    
-    if [ "$file_in2" != "${file_in2//$file_in1}" ]; then
+    if [ "$file_in2" != "${file_in2//$file_in1}" ]
+    then
 	file_in="$file_in2"
     else
 	file_ext="${file_in2##*.}"
 	file_in="${file_in1}.${file_ext}"
     fi
+    
     file_in="${file_in%'?'*}"
     unset file_in2 file_in1 file_ext token preurl_in_file
 fi
