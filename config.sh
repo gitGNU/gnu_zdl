@@ -342,7 +342,7 @@ function init {
 
     if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
     then
-	echo "shopt -s checkwinsize" >> ~/.bashrc && echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
+	echo "shopt -s checkwinsize" >> ~/.bashrc #&& echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
     fi
     
     file_log="${prog}_log.txt"
