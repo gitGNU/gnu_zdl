@@ -91,7 +91,8 @@ function bold {
 #### Axel
 
 function check_downloader {
-    while [ -z "`command -v axel 2>/dev/null`" ]; do
+    while [ -z "`command -v axel 2>/dev/null`" ]
+    do
 	bold "ATTENZIONE: Axel non è installato nel tuo sistema"
 	
 	echo -e "$PROG può scaricare con Wget ma raccomanda fortemente Axel, perché:\n
@@ -118,7 +119,8 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 }
 
 function install_test {
-    if [[ ! $(command -v axel 2>/dev/null) ]]; then
+    if [[ ! $(command -v axel 2>/dev/null) ]]
+    then
 	bold "Installazione automatica non riuscita"
 	case $1 in
 	    pk) echo "$2 non ha trovato il pacchetto di Axel" ;;
@@ -132,13 +134,18 @@ function install_test {
 
 function install_pk {
     echo "Installo Axel ..."
-    if [[ $(command -v apt-get 2>/dev/null) ]]; then
+    if [[ $(command -v apt-get 2>/dev/null) ]]
+    then
 	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install axel || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install axel" )
 	install_test pk apt-get
-    elif [[ $(command -v yum 2>/dev/null) ]]; then
+
+    elif [[ $(command -v yum 2>/dev/null) ]]
+    then
 	sudo yum install axel || ( echo "Digita la password di root" ; su -c "yum install axel" )
 	install_test pk yum
-    elif [[ $(command -v pacman 2>/dev/null) ]]; then
+
+    elif [[ $(command -v pacman 2>/dev/null) ]]
+    then
 	sudo pacman -S axel 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S axel" )
 	install_test pk pacman
     else
@@ -163,7 +170,8 @@ function install_src {
 
 ## Xterm
 function check_xterm {
-    while [ -z "`command -v xterm 2>/dev/null`" ]; do
+    while [ -z "`command -v xterm 2>/dev/null`" ]
+    do
 	bold "ATTENZIONE: XTerm non è installato nel tuo sistema"
 	
 	echo -e "$name_prog utilizza XTerm se avviato da un'applicazione grafica come Firefox/Iceweasel/Icecat (tramite Flashgot), Chrome/Chromium (attraverso Download Assistant o Simple Get), XXXTerm/Xombrero e Conkeror:
@@ -184,7 +192,8 @@ function check_xterm {
 }
 
 function install_test_xterm {
-    if [[ ! $(command -v xterm 2>/dev/null) ]]; then
+    if [[ ! $(command -v xterm 2>/dev/null) ]]
+    then
 	bold "Installazione automatica non riuscita"
 	case $1 in
 	    pk) echo "$2 non ha trovato il pacchetto di XTerm" ;;
@@ -198,15 +207,22 @@ function install_test_xterm {
 
 function install_pk_xterm {
     echo "Installo XTerm ..."
-    if [[ $(command -v apt-get 2>/dev/null) ]]; then
+
+    if [[ $(command -v apt-get 2>/dev/null) ]]
+    then
 	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install xterm || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install xterm" )
 	install_test_xterm pk apt-get
-    elif [[ $(command -v yum 2>/dev/null) ]]; then
+	
+    elif [[ $(command -v yum 2>/dev/null) ]]
+    then
 	sudo yum install xterm || ( echo "Digita la password di root" ; su -c "yum install xterm" )
 	install_test_xterm pk yum
-    elif [[ $(command -v pacman 2>/dev/null) ]]; then
+
+    elif [[ $(command -v pacman 2>/dev/null) ]]
+    then
 	sudo pacman -S xterm 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S xterm" )
 	install_test_xterm pk pacman
+	
     else
 	install_test_xterm
     fi
@@ -226,10 +242,9 @@ function install_src_xterm {
     cd -
 }
 
-
-
 function install_zdl-wise {
-    if [ ! -e "/cygdrive" ]; then 
+    if [ ! -e "/cygdrive" ]
+    then 
 	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || sudo gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null || su -c "gcc extensions/zdl-wise.c -o extensions/zdl-wise" 2>/dev/null || bold "\nCompilazione del sorgente zdl-wise.c non riuscita"
     fi
 }
@@ -237,12 +252,16 @@ function install_zdl-wise {
 
 function install_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-    if [ -e /cygdrive ]; then
+
+    if [ -e /cygdrive ]
+    then
 	rc_path="${win_home}/.conkerorrc"
     else
 	rc_path="$HOME/.conkerorrc"
     fi
-    if [ -f "$rc_path" ]; then
+
+    if [ -f "$rc_path" ]
+    then
 	mv "$rc_path" conkerorrc.js
 	mkdir -p "$rc_path"
 	code_conkerorrc="$(cat conkerorrc.js)"
@@ -260,11 +279,12 @@ function install_zdl-conkeror {
 
 function try {
     cmd=$*
-    $cmd 2>/dev/null
-    if [ "$?" != 0 ]; then
-	sudo $cmd 
-	if [ "$?" != 0 ]; then
-	    su -c "$cmd" || ( bold "$failure"; exit )
+    
+    if ! $cmd 
+    then	
+	if ! sudo $cmd 
+	then
+	    su -c "$cmd" || ( bold "$failure"; exit 1 )
 	fi
     fi
 }
@@ -322,33 +342,40 @@ Installazione di apt-cyg
 	wget http://rawgit.com/transcode-open/apt-cyg/master/apt-cyg
 	install apt-cyg /bin
     fi
-
+    
     if [[ ! $(command -v ffmpeg 2>/dev/null) ]]
     then
 	echo -e "
 Installazione di FFMpeg
 "
 	rm -f /tmp/list-pkts.txt
-	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install ffmpeg | tee -a /tmp/list-pkts.txt
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/	
+	apt-cyg install ffmpeg | tee -a /tmp/list-pkts.txt
 	
 	unset pkts
 	mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
 	bold "\nRecupero pacchetti non trovati:\n${pkts[*]}\n"
-	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install ${pkts[*]}
     fi
 
     if [[ ! $(command -v rtmpdump 2>/dev/null) ]]
     then
-	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install rtmpdump
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/
+	apt-cyg install rtmpdump
     fi
     if [[ ! $(command -v nano 2>/dev/null) ]]
     then
-	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install nano
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install nano
     fi
     if [[ ! $(command -v diff 2>/dev/null) ]]
     then
-	apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install diffutils
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install diffutils
     fi
+
+    apt-cyg install bash-completion
 fi
 
 
@@ -364,11 +391,14 @@ failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
 file_conf="$path_conf/$prog.conf"
 mkdir -p "$path_conf/extensions"
-if [ ! -f "$file_conf" ]; then
+
+if [ ! -f "$file_conf" ]
+then
     echo "# ZigzagDownLoader configuration file" > "$file_conf"
 fi
 
-if [ -e /cygdrive ]; then
+if [ -e /cygdrive ]
+then
     win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
     win_progfiles=$(cygpath -u "$PROGRAMFILES")
 fi
@@ -405,29 +435,32 @@ try rm -rf "$SHARE"
 try mkdir -p /usr/share/info
 try mkdir -p /usr/share/man/it/man1
 try install zdl/docs/zdl.1 /usr/share/man/it/man1/
-try rm /usr/share/man/man1/zdl.1
+try rm -f /usr/share/man/man1/zdl.1
 try ln -s /usr/share/man/it/man1/zdl.1 /usr/share/man/man1/zdl.1
 try mandb -q
 try install -m 644 zdl/docs/zdl.info /usr/share/info/
 try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info &>/dev/null
+try mkdir -p /etc/bash_completion.d/
 try install -T zdl/docs/zdl.completion /etc/bash_completion.d/zdl
 try mv "$prog" "$SHARE"
 
-if [ -e /cygdrive ]; then
+if [ -e /cygdrive ]
+then
     code_batch=$(cat $SHARE/zdl.bat)
     echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && bold "Script batch di avvio installato: $(cygpath -m /)/zdl.bat "
     chmod +x /${prog}.bat
 fi
 
-source $SHARE/config.sh
+source $SHARE/config.sh 2>/dev/null ## toglie messaggio di errore per funzione che non trova e non serve (colori)
 install_zdl-conkeror
 
 ## Axel
-if [ -e "/cygdrive" ]; then
+if [ -e "/cygdrive" ]
+then
     install_axel-cygwin
 else
     check_downloader
-    [ ! -z "$(command -v X 2>/dev/null )" ] && check_xterm
+    [ -n "$(command -v X 2>/dev/null )" ] && check_xterm
 fi
 
 cd

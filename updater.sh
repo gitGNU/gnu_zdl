@@ -25,7 +25,8 @@
 #
 
 function update_zdl-wise {
-    if [ ! -e "/cygdrive" ]; then
+    if [ ! -e "/cygdrive" ]
+    then
 	print_c 1 "Compilazione automatica di zdl-wise.c"
 	gcc extensions/zdl-wise.c -o extensions/zdl-wise 2>/dev/null 
     fi
@@ -34,12 +35,16 @@ function update_zdl-wise {
 
 function update_zdl-conkeror {
     [ -f "$path_conf/conkerorrc.zdl" ] && rm "$path_conf/conkerorrc.zdl"
-    if [ -e /cygdrive ]; then
+
+    if [ -e /cygdrive ]
+    then
 	rc_path="${win_home}/.conkerorrc"
     else
 	rc_path="$HOME/.conkerorrc"
     fi
-    if [ -f "$rc_path" ]; then
+
+    if [ -f "$rc_path" ]
+    then
 	mv "$rc_path" conkerorrc.js
 	mkdir -p "$rc_path"
 	code_conkerorrc="$(cat conkerorrc.js)"
@@ -58,18 +63,12 @@ function update_zdl-conkeror {
 
 function try {
     cmd=$*
-    $cmd 2>/dev/null
-    if [ "$?" != 0 ]
-    then
-	sudo $cmd 2>/dev/null
-	if [ "$?" != 0 ]
+    
+    if ! $cmd 
+    then	
+	if ! sudo $cmd 
 	then
-	    su -c "$cmd" 2>/dev/null
-	    if [ "$?" != 0 ]
-	    then
-		print_c 3 "$failure";
-		return 1
-	    fi
+	    su -c "$cmd" || ( bold "$failure"; return 1 )
 	fi
     fi
 }
@@ -86,14 +85,18 @@ function update {
     path_conf="$HOME/.$prog"
     file_conf="$path_conf/$prog.conf"
     mkdir -p "$path_conf/extensions"
-    if [ ! -f "$file_conf" ]; then
+
+    if [ ! -f "$file_conf" ]
+    then
 	echo "# ZigzagDownLoader configuration file" > "$file_conf"
     fi
 
-    if [ -e /cygdrive ]; then
+    if [ -e /cygdrive ]
+    then
 	win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
 	win_progfiles=$(cygpath -u "$PROGRAMFILES")
     fi 
+
     cygdrive=$(realpath /cygdrive/?/cygwin 2>/dev/null)
     [ -z "$cygdrive" ] && cygdrive=$(realpath /cygdrive/?/Cygwin 2>/dev/null)
     cygdrive="${cygdrive#*cygdrive\/}"
@@ -104,13 +107,15 @@ function update {
 
     chmod +rx -R .
 
-    try mv zdl zdl-xterm $BIN 
-    if [ $? != 0 ]; then
+    
+    if ! try mv zdl zdl-xterm $BIN
+    then
 	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
 	exit 1
     else
 	print_c 1 "Aggiornamento automatico in $BIN"
     fi
+    
     [ "$?" != 0 ] && return
     cd ..
 
@@ -125,16 +130,20 @@ function update {
     try mandb -q
     try install -m 644 zdl/docs/zdl.info /usr/share/info/
     try install-info --info-dir=/usr/share/info /usr/share/info/zdl.info &>/dev/null
+    try mkdir -p /etc/bash_completion.d/
     try install -T zdl/docs/zdl.completion /etc/bash_completion.d/zdl
     try mv "$prog" "$SHARE"
-    if [ $? != 0 ]; then
+
+    if [ $? != 0 ]
+    then
 	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
 	exit 1
     else
 	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
     fi
     
-    if [ -e /cygdrive ]; then
+    if [ -e /cygdrive ]
+    then
 	code_batch=$(cat $SHARE/zdl.bat)
 	echo "${code_batch//'{{{CYGDRIVE}}}'/$cygdrive}" > /${prog}.bat && print_c 1 "\nScript batch di avvio installato: $(cygpath -m /)/zdl.bat "
 	chmod +x /${prog}.bat
@@ -171,28 +180,35 @@ Installazione di apt-cyg
 Installazione di FFMpeg
 "
 	    rm -f /tmp/list-pkts.txt
-	    apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install ffmpeg | tee -a /tmp/list-pkts.txt
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/
+	    apt-cyg install ffmpeg | tee -a /tmp/list-pkts.txt
 	    
 	    unset pkts
 	    mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
 	    print_c 1 "\nRecupero pacchetti non trovati:\n${pkts[*]}\n"
-	    apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install ${pkts[*]}
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install ${pkts[*]}
 	fi
 	
 	if [[ ! $(command -v rtmpdump 2>/dev/null) ]]
 	then
-	    apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/ install rtmpdump
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/
+	    apt-cyg install rtmpdump
 	fi
 	
 	if [[ ! $(command -v nano 2>/dev/null) ]]
 	then
-	    apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install nano
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install nano
 	fi
 	
 	if [[ ! $(command -v diff 2>/dev/null) ]]
 	then
-	    apt-cyg -m http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/ install diffutils
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install diffutils
 	fi
+
+	apt-cyg install bash-completion
     fi
     print_c 1 "Aggiornamento automatico completato"
     pause
