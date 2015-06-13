@@ -280,9 +280,9 @@ function install_zdl-conkeror {
 function try {
     cmd=$*
     
-    if ! $cmd 
+    if ! $cmd 2>/dev/null 
     then	
-	if ! sudo $cmd 
+	if ! sudo $cmd 2>/dev/null 
 	then
 	    su -c "$cmd" || ( bold "$failure"; exit 1 )
 	fi

@@ -64,9 +64,9 @@ function update_zdl-conkeror {
 function try {
     cmd=$*
     
-    if ! $cmd 
+    if ! $cmd 2>/dev/null 
     then	
-	if ! sudo $cmd 
+	if ! sudo $cmd 2>/dev/null 
 	then
 	    su -c "$cmd" || ( bold "$failure"; return 1 )
 	fi
