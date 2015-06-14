@@ -133,7 +133,9 @@ function sanitize_url {
     data="${data%% }"
     data="${data%'#20%'}"
     data="${data// /%20}"
-
+    data="${data//'('/%28}"
+    data="${data//')'/%29}"
+    
     echo "$data"
 }
 
@@ -308,7 +310,7 @@ function url {
 }
 
 function grep_urls {
-    grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' <<< "$1"
+    grep -P '^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' <<< "$1"
 }
 
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni

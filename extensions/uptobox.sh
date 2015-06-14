@@ -34,6 +34,7 @@ then
 		--retry-connrefused                       \
 		--keep-session-cookies                    \
 		--save-cookies=$path_tmp/cookies.zdl      \
+		--user-agent="$user_agent"                \
 		"$url_in")
     unset post_data
     input_hidden "$html" #### $file_in == POST[fname]
@@ -43,13 +44,18 @@ then
 		 --load-cookies=$path_tmp/cookies.zdl        \
 		 --save-cookies=$path_tmp/cookies2.zdl       \
 		 --post-data="$post_data"                    \
+		 --user-agent="$user_agent"                  \
 		 "$url_in")
 		 
     url_in_file=$(grep "Click here to start your download" -B2 <<< "$html" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+
     unset post_data
 
-    if ! url "$url_in_file"
+    url_in_file=$(sanitize_url "$url_in_file")
+
+    if ! url "$url_in_file" ||
+	    [ "$url_in_file" == "$url_in" ]
     then
-	_log 2
+    	_log 2
     fi
 fi   
