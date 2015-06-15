@@ -86,7 +86,7 @@ function download {
 
     case $downloader_in in
 	Axel)
-	    [ "$file_in" != "" ] && argout="-o" && fileout="$file_in"
+	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
 	    sleeping 2
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
@@ -96,7 +96,7 @@ function download {
 	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 	    then
 		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
-		if [ ! -z "$COOKIES" ]
+		if [ -n "$COOKIES" ]
 		then
 		    headers="-H \"Cookie:$COOKIES\""
 		    axel -U "$user_agent" -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
@@ -126,12 +126,12 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 		COOKIES="$path_tmp/flashgot_cfile.zdl"
 	    fi
 
-	    if [ ! -z "${post_data}" ]
+	    if [ -n "${post_data}" ]
 	    then
 		method_post="--post-data=${post_data}"
 	    fi
 
-	    if [ "$file_in" != "" ]
+	    if [ -n "$file_in" ]
 	    then
 		argout="-O"
 		fileout="$file_in"
@@ -221,7 +221,7 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 	    ;;
     esac
     
-    if [ ! -z "$user" ] && [ ! -z "$host" ]
+    if [ -n "$user" ] && [ -n "$host" ]
     then
 	accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
 	unset user host
@@ -253,7 +253,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
     sanitize_file_in
     url_in_bis="${url_in::100}"
     file_in_bis="${file_in}__BIS__${url_in_bis//\//_}.${file_in##*.}"
-    if [ ! -z "$exceeded" ]
+    if [ -n "$exceeded" ]
     then
 	_log 4
 	break_loop=true
@@ -261,9 +261,9 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	unset exceeded
 	return 1
 
-    elif [ ! -z "$not_available" ]
+    elif [ -n "$not_available" ]
     then
-	[ ! -z "$url_in_file" ] && _log 3
+	[ -n "$url_in_file" ] && _log 3
 	no_newip=true
 	unset not_available
 	return 1
@@ -281,7 +281,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	unset no_newip
     fi
 
-    if [ ! -z "$file_in" ]
+    if [ -n "$file_in" ]
     then
 	length_saved_in=0
 		    
@@ -311,13 +311,13 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		then
 		    case "$i" in
 			resume_dl|rewrite_dl) 
-			    if [ ! -z "$length_in" ] &&                     
+			    if [ -n "$length_in" ] &&                     
 				   (( $length_in > $length_saved_in )) &&      
 				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
-	 			[ ! -z "$url_in_file" ] && return 0
+	 			[ -n "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -334,7 +334,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then 
 				unset no_newip
-				[ ! -z "$url_in_file" ] && return 0
+				[ -n "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -352,11 +352,11 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			    ;;
 			rewrite_dl)
 			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) &&
-				   [ ! -z "$length_in" ] && (( $length_in > $length_saved_in ))
+				   [ -n "$length_in" ] && (( $length_in > $length_saved_in ))
 			    then
 				rm -f "$file_in" "${file_in}.st" 
 	 			unset no_newip
-	 			[ ! -z "$url_in_file" ] && return 0
+	 			[ -n "$url_in_file" ] && return 0
 			    fi
 			    ;;
 		    esac
@@ -372,7 +372,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
 		    elif [ -f "$file_in_bis" ] ||
 			     ( [ "${downloader_out[$i]}" == "RTMPDump" ] &&
-				   [ ! -z "$test_completed" ] )
+				   [ -n "$test_completed" ] )
 		    then
 			links_loop - "$url_in"
 
@@ -419,6 +419,6 @@ function links_loop {
 function kill_downloads {
     if data_stdout
     then
-	[ ! -z "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
+	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
     fi
 }

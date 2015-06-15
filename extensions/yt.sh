@@ -29,43 +29,74 @@
 
 shopt -u nullglob
 
-if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]; then
+if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]
+then
     links_loop - "$url_in"
     url_in=$(urldecode "$url_in")
     links_loop + "$url_in"
     videoType="mp4"
-    ## html=$(wget -q "$url_in" -O -)
-    html=$(wget -Ncq -e convert-links=off --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl --no-check-certificate "$url_in" -O - ) || _log 8 
 
-    if [[ "$html" =~ \<title\>(.+)\<\/title\> ]]; then
-	title="${BASH_REMATCH[1]}"
-	title=$(echo $title | sed -r 's/([^0-9a-z])+/_/ig')
-	title=$(echo $title | sed -r 's/_youtube//ig')
-	title=$(echo $title | sed -r 's/^_//ig')
-	title=$(echo $title | tr '[A-Z]' '[a-z]')
-	title=$(echo $title | sed -r 's/_amp//ig')
+    html=$(wget -Ncq -e convert-links=off                    \
+		--keep-session-cookies                       \
+		--save-cookies="$path_tmp"/cookies.zdl       \
+		--no-check-certificate                       \
+		--user-agent="$user_agent"                   \
+		"$url_in" -O- )
+    
+    if [ -z "$html" ]
+    then
+	_log 8 
 
-	html=$(echo "$html" |grep 'url_encoded_fmt_stream_map')
-	if [ ! -z "$html" ]; then 
+    elif [[ "$html" =~ \<title\>(.+)\<\/title\> ]]
+    then
+	title=$(sed -r 's/([^0-9a-z])+/_/ig' <<< "${BASH_REMATCH[1]}" |
+		       sed -r 's/_youtube//ig'                        |
+		       sed -r 's/^_//ig'                              |
+		       tr '[A-Z]' '[a-z]'                             |
+		       sed -r 's/_amp//ig')
+
+	html=$(grep 'url_encoded_fmt_stream_map' <<< "$html")
+	if [ -n "$html" ]
+	then 
 	    html="${html#*url_encoded_fmt_stream_map}"
-            ## quality: large -> medium -> small (il più alto disponibile è nella prima riga)
-	    url_in_file=$(urldecode "$html" |sed -r 's|codecs|\ncodecs|g' | grep mp4 2>/dev/null | grep quality 2>/dev/null | head -n1 2>/dev/null |sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g' 2>/dev/null)
+
+            ## quality: large -> medium -> small (qualità più alta disponibile è nella prima riga)
+	    url_in_file=$(urldecode "$html" | sed -r 's|codecs|\ncodecs|g')
+	    url_in_file=$(grep "$videoType" <<< "$url_in_file" |grep 'url=')
+
+	    if [[ "$url_in_file" =~ quality\=hd ]]
+	    then
+		url_in_file="$(grep 'quality=hd' <<< "$url_in_file" | head -n1)"
+		
+	    elif [[ "$url_in_file" =~ quality\=medium ]]
+	    then
+		url_in_file="$(grep 'quality=medium' <<< "$url_in_file" | head -n1)"
+
+	    elif [[ "$url_in_file" =~ quality\=small ]]
+	    then
+		url_in_file="$(grep 'quality=small' <<< "$url_in_file" | head -n1)"
+	    else
+		url_in_file="$(grep 'quality' <<< "$url_in_file" | head -n1)"
+	    fi
+
+	    url_in_file=$(sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g' <<< "$url_in_file")
 	    url_in_file=$(urldecode "$url_in_file")
+
 	    file_in="$title.$videoType"
 
-	    unset break_loop
-	    if [ -z "$url_in_file" ]; then
+	    if [ -z "$url_in_file" ]
+	    then
 		_log 2
-		break_loop=true
+	    # else
+		## DEBUG:
+	    # 	wget -S --spider "$url_in_file" -a zdl.log
 	    fi
 	else
 	    _log 2
-	    break_loop=true
 	fi
     else
 	_log 9
 	not_available=true
-	break_loop=true
     fi
     axel_parts=4
 fi
