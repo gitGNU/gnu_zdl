@@ -135,6 +135,8 @@ function sanitize_url {
     data="${data// /%20}"
     data="${data//'('/%28}"
     data="${data//')'/%29}"
+    data="${data//'['/%5B}"
+    data="${data//']'/%5D}"
     
     echo "$data"
 }
