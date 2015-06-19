@@ -118,9 +118,12 @@ then
     if [ "$file_in2" != "${file_in2//$file_in1}" ]
     then
 	file_in="$file_in2"
-    else
+    elif [ -n "$file_in1" ]
+    then
 	file_ext="${file_in2##*.}"
 	file_in="${file_in1}.${file_ext}"
+    else
+	_log 2
     fi
     
     file_in="${file_in%'?'*}"

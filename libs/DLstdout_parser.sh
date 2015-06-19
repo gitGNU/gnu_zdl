@@ -27,6 +27,7 @@
 function data_stdout {
     shopt -s nullglob
     shopt -s dotglob
+    rm -f "$path_tmp"/._stdout.tmp
     tmp_files=( "$path_tmp"/?*_stdout.tmp )
     shopt -u nullglob
     shopt -u dotglob

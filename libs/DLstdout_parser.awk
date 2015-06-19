@@ -43,30 +43,16 @@ function check_stdout () {
 	array_out(pid_alive[i], "pid_alive")
     }
 
-    if (downloader_out[i] !~ /RTMPDump|cUrl/) {
-	if (pid_alive[i]) {
-	    if (num_check > 10){
-		code = code bash_var("num_check", "0")
-		test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
-		if (test_stdout["new"] == test_stdout["old"] && 
-		    downloader_out[i] == "Axel" &&		
-		    exists(file_out[i] ".st")) {
-		    system("kill -9 " pid_out[i] " 2>/dev/null")
-		}
-	    }
-
-
+    if ((downloader_out[i] !~ /RTMPDump|cUrl/) &&
+	(pid_alive[i]) &&
+	(num_check > 10)){
+	code = code bash_var("num_check", "0")
+	test_stdout["old"] = cat(".zdl_tmp/" file_out[i] "_stdout.old")
+	if (test_stdout["new"] == test_stdout["old"] && 
+	    downloader_out[i] == "Axel" &&		
+	    exists(file_out[i] ".st")) {
+	    system("kill -9 " pid_out[i] " 2>/dev/null")
 	}
-    }
-
-    ## cancella download di file con nome diverso per uno stesso link/url
-    for (d=0; d<length(file_out); d++) {
-	if ((url_out[i] == url_out[d]) &&
-	    (file_out[i] != file_out[d]) &&
-	    (check_pid(pid_out[d]))) {
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
-	}
-	
     }
 
     if (check_pid(pid_out[i])) {
@@ -82,12 +68,12 @@ function check_stdout () {
 	# }
     }
 
-    if (! pid_alive[i]) {
-	if (! exists(file_out[i] ".st") &&
-	    ((length_out[i] == 0) ||				
-	     (length_out[i] > 0 &&				
-	      length_saved[i] < length_out[i])))
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i])
+    if (! check_pid(pid_out[i])) {
+	if ((! length_out[i]) ||				
+	    (length_out[i] > 0 &&				
+	     length_saved[i] < length_out[i] &&
+	    downloader_out[i] == "Wget"))
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
 	
 	if (length_saved[i] == length_out[i] &&
 	    length_out[i] > 0 &&
@@ -115,28 +101,25 @@ function check_stdout () {
 	# }
 		
 	# check_in_file
-	if (file_in == file_out[i] &&		\
+	if (file_in == file_out[i] &&
 	    url_in == url_out[i])
 	    code = code bash_var("no_bis", "true")
 
 	if (no_complete == "true") {
-	    if (					\
-		(exists(file_out[i]) &&			\
-		 ! exists(file_out[i])".st" &&		\
-		 length_saved[i] == length_out[i])	\
-		||					\
-		(downloader_out[i] == "cURL" &&		\
-		 ! length_saved[i] &&			\
-		 length_saved[i]>0 )			\
-		||					\
-		progress_end[i]				\
-		) {
+	    if ((exists(file_out[i]) &&
+		 ! exists(file_out[i])".st" &&
+		 length_saved[i] == length_out[i]) ||
+		(downloader_out[i] == "cURL" &&
+		 ! length_saved[i] &&
+		 length_saved[i]>0 ) ||
+		progress_end[i]) {
 		system("rm -f .zdl_tmp/" file_out[i] "_stdout.*")
 	    }
 	}
     }
     downloaded_length = downloaded_part()
-    if ((percent_out[i] == 100) || (downloaded_length > 4000000)) {
+    if ((percent_out[i] == 100) ||
+	(downloaded_length > 4000000)) {
 	add_line(file_out[i], ".zdl_tmp/pipe_files.txt")
     } else if (exists(".zdl_tmp/pipe_files.txt")) {
     	rm_line(file_out[i], ".zdl_tmp/pipe_files.txt")
@@ -434,5 +417,17 @@ BEGIN {
 
 END {
     progress()
+
+    for (I=0; I<length(file_out); I++) {
+	for (J=0; J<length(file_out); J++) {
+	    ## cancella download di file con nome diverso per uno stesso link/url
+	    if ((url_out[I] == url_out[J]) &&
+		(file_out[I] != file_out[J]) &&
+		(pid_alive[I])) {
+		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st")
+	    }
+	}
+    }
+
     print code
 }

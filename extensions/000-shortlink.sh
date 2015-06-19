@@ -40,9 +40,9 @@ then
     new_url=$(wget -q -O-                                        \
 		   http://www.shortlink.li/ajax/getLink          \
 		   --post-data="short=$shortcode"                \
-		   --load-cookies="$path_tmp/cookies.zdl"        \
-		     | sed -r 's|.+\"([^"]+)\"\}$|\1|g'          \
-		     | sed -r 's|\\||g')
+		   --load-cookies="$path_tmp/cookies.zdl"   |
+		     sed -r 's|.+\"([^"]+)\"\}$|\1|g'       |
+		     sed -r 's|\\||g')
 
     if url "$new_url"
     then
