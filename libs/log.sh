@@ -98,6 +98,10 @@ function _log {
 	    msg="$url_in --> Il link non sarà processato, perché non corrisponde alla regex: $file_regex"
 	    links_loop - "$url_in"
 	    ;;
+	17)
+	    msg="$url_in --> File ancora in trasferimento e non ancora disponibile: riprova fra qualche ora" 
+	    links_loop - "$url_in"
+	    ;;
     esac
 
     # if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]

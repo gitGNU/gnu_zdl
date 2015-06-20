@@ -50,9 +50,13 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] &&
 then
     get_tmps
 
-    if [ -n "$(grep "This file does not exist" "$path_tmp"/zdl.tmp)" ]
+    if [ -n "$(grep "This file does not exist" "$path_tmp"/zdl.tmp)" ] ||
     then
 	_log 3
+
+    elif [ -n "$(grep "The file is being transfered. Please wait" "$path_tmp"/zdl.tmp)" ]
+    then
+	 _log 17
     fi
     
     now="$(grep "Download Now" "$path_tmp"/zdl.tmp)"
