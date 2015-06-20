@@ -50,13 +50,14 @@ if [ "$url_in" != "${url_in//nowdownload.}" ] &&
 then
     get_tmps
 
-    if [ -n "$(grep "This file does not exist" "$path_tmp"/zdl.tmp)" ] ||
+    if [ -n "$(grep "This file does not exist" "$path_tmp"/zdl.tmp)" ]
     then
 	_log 3
-
+	jump=true
     elif [ -n "$(grep "The file is being transfered. Please wait" "$path_tmp"/zdl.tmp)" ]
     then
-	 _log 17
+	_log 17
+	jump=true
     fi
     
     now="$(grep "Download Now" "$path_tmp"/zdl.tmp)"
@@ -65,7 +66,8 @@ then
 	url_in_file="${now#*\"}"
 	url_in_file="${url_in_file%%\"*}"
 	unset now
-    else
+    elif [ -z "$jump" ]
+    then
 	token="$(grep token "$path_tmp"/zdl.tmp)"
 	token=${token//*=}
 	token=${token//\"*/}
@@ -126,7 +128,8 @@ then
     then
 	file_ext="${file_in2##*.}"
 	file_in="${file_in1}.${file_ext}"
-    else
+    elif [ -z "$jump" ]
+    then
 	_log 2
     fi
     
