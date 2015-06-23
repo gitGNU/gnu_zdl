@@ -124,10 +124,12 @@ then
     if [ "$file_in2" != "${file_in2//$file_in1}" ]
     then
 	file_in="$file_in2"
+	
     elif [ -n "$file_in1" ]
     then
 	file_ext="${file_in2##*.}"
 	file_in="${file_in1}.${file_ext}"
+	
     elif [ -z "$jump" ]
     then
 	_log 2

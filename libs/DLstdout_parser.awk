@@ -73,7 +73,7 @@ function check_stdout () {
 	    (length_out[i] > 0 &&				
 	     length_saved[i] < length_out[i] &&
 	    downloader_out[i] == "Wget"))
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st .zdl_tmp/"file_out[i]"_stdout.yellow")
 	
 	if (length_saved[i] == length_out[i] &&
 	    length_out[i] > 0 &&
