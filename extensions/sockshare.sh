@@ -28,12 +28,14 @@
 ## zdl-extension name: Sockshare (HD)
 
 
-if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]; then
+if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]
+then
     url_in="${url_in%\#}"
     wget -q -t 5 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
     test_putlocker=`cat "$path_tmp/zdl.tmp" | grep "File Does Not Exist"`
     
-    if [ -z "$test_putlocker" ]; then
+    if [ -z "$test_putlocker" ]
+    then
 	unset post_data
 	input_hidden "$path_tmp/zdl.tmp"
 	post_data="${post_data}&confirm=Continue as Free User" 
@@ -47,7 +49,9 @@ if [ "$url_in" != "${url_in//'sockshare.com/file/'}" ]; then
 	url_in_file=`cat "$path_tmp"/zdl2.tmp | grep download_file_link`
 	url_in_file="http://www.sockshare.com${url_in_file#*\"}"
 	url_in_file="${url_in_file%%\"*}"
-	if [ -z "$url_in_file" ]; then
+
+	if [ -z "$url_in_file" ]
+	then
 	    links_loop - "$url_in"
 	    print_c 3 "$url_in --> $name_prog non è riuscito ad estrarre l'URL del file $file_in" | tee -a $file_log
 	    break_loop=true

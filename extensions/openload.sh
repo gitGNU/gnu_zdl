@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: download
+## zdl-extension types: streaming download
 ## zdl-extension name: Openload
 
 if [ "$url_in" != "${url_in//openload.}" ]
