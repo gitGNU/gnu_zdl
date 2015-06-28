@@ -69,7 +69,7 @@ function check_stdout () {
     }
 
     if (! check_pid(pid_out[i])) {
-	if ((! length_out[i]) ||				
+	if ((! length_saved[i]) ||				
 	    (length_out[i] > 0 &&				
 	     length_saved[i] < length_out[i] &&
 	    downloader_out[i] == "Wget"))
