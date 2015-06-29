@@ -31,11 +31,22 @@
 if [ "$url_in" != "${url_in//'videowood.'}" ]
 then
     html="$(wget -t 1 -T $max_waiting -q -O - "${url_in//'/video/'//embed/}")"
-    if [ ! -z "$html" ]
+    if [ -n "$html" ]
     then
-	url_in_file=$(grep file: <<< "$html" | head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
+	url_in_file=$(grep file: <<< "$html" | grep http | head -n1)
+	url_in_file=${url_in_file#*\'}
+	url_in_file=${url_in_file#*\"}
+	url_in_file=${url_in_file%\'*}
+	url_in_file=${url_in_file%\"*}
+	
 	ext=${url_in_file##*.}
-	file_in=$(grep title: <<< "$html" |sed -r 's|.+\"([^"]+)\".+|\1|g').$ext
+	file_in=$(grep title: <<< "$html")
+	file_in="${file_in##*title\:}"
+	file_in="${file_in// /_}"
+	file_in="${file_in##_}"
+	file_in="${file_in%,*}"
+	file_in="${file_in%%_}".$ext
+	axel_parts=1
     else
 	_log 2
     fi
