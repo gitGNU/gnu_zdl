@@ -401,9 +401,9 @@ _Video in streaming saltando il player del browser:_
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
      Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Openload,
-     Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload, Uptobox e,
-     dopo aver risolto il captcha e generato il link, anche Sharpfile,
-     Depositfiles ed altri servizi
+     Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit,
+     Uptobox e, dopo aver risolto il captcha e generato il link, anche
+     Sharpfile, Depositfiles ed altri servizi
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
@@ -1147,23 +1147,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5388
 Node: Servizi streaming/hosting10983
-Node: Avviare ZDL14082
-Node: Arrestare ZDL16520
-Node: Controllare i download17625
-Node: Manuali d'uso21913
-Node: Modi22329
-Node: Readline25595
-Node: Editor27115
-Node: Omonimie28340
-Node: Filtri29873
-Node: Creare nuove estensioni30195
-Node: Software consigliati31764
-Node: Conkeror32872
-Node: zdl-xterm e XXXTerm/Xombrero33883
-Node: Installazione e aggiornamento35807
-Node: Tags38131
-Node: Copying40290
-Node: Contatti41340
+Node: Avviare ZDL14089
+Node: Arrestare ZDL16527
+Node: Controllare i download17632
+Node: Manuali d'uso21920
+Node: Modi22336
+Node: Readline25602
+Node: Editor27122
+Node: Omonimie28347
+Node: Filtri29880
+Node: Creare nuove estensioni30202
+Node: Software consigliati31771
+Node: Conkeror32879
+Node: zdl-xterm e XXXTerm/Xombrero33890
+Node: Installazione e aggiornamento35814
+Node: Tags38138
+Node: Copying40297
+Node: Contatti41347
 
 End Tag Table
 

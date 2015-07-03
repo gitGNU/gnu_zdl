@@ -69,11 +69,11 @@ function check_stdout () {
     }
 
     if (! check_pid(pid_out[i])) {
-	if ((! length_saved[i]) ||				
-	    (length_out[i] > 0 &&				
-	     length_saved[i] < length_out[i] &&
-	    downloader_out[i] == "Wget"))
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st .zdl_tmp/"file_out[i]"_stdout.yellow")
+	# if ((! length_saved[i]) ||				
+	#     (length_out[i] > 0 &&				
+	#      length_saved[i] < length_out[i] &&
+	#     downloader_out[i] == "Wget"))
+	#     system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st .zdl_tmp/"file_out[i]"_stdout.yellow")
 	
 	if (length_saved[i] == length_out[i] &&
 	    length_out[i] > 0 &&
@@ -423,7 +423,7 @@ END {
 	    ## cancella download di file con nome diverso per uno stesso link/url
 	    if ((url_out[I] == url_out[J]) &&
 		(file_out[I] != file_out[J]) &&
-		(pid_alive[I])) {
+		(check_pid(pid_out[I]))) {
 		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st")
 	    }
 	}
