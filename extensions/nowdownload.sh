@@ -136,5 +136,12 @@ then
     fi
     
     file_in="${file_in%'?'*}"
+
+    if ! url "$url_in_file" ||
+	   [ "$url_in_file" == "$url_in" ] ||
+	   [ -z "$file_in" ]
+    then
+	_log 2
+    fi
     unset file_in2 file_in1 file_ext token preurl_in_file
 fi
