@@ -28,9 +28,10 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Nowvideo
 
-if [ "$url_in" != "${url_in//'nowvideo.'}" ] && [ "$url_in" != "${url_in//video}" ]
+if [ "$url_in" != "${url_in//'nowvideo.'}" ] &&
+       [ "$url_in" != "${url_in//video}" ]
 then
-    myip="$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)"
+    myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
     html=$(wget -t 1 -T $max_waiting                 \
 		"$url_in"                            \
 		--user-agent="$user_agent"           \
