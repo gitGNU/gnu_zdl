@@ -24,7 +24,8 @@
 # zoninoz@inventati.org
 #
 		
-if [ "$url_in" != "${url_in//'google.com/url?q='}" ]; then
+if [ "$url_in" != "${url_in//'google.com/url?q='}" ]
+then
     url_in_old="$url_in"
     url_in="${url_in_old#*'?q='}"
     url_in="${url_in%'&sa='*}"

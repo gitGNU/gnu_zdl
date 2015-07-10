@@ -30,24 +30,31 @@
 
 if [ "$url_in" != "${url_in//'videowood.'}" ]
 then
-    html="$(wget -t 1 -T $max_waiting -q -O - "${url_in//'/video/'//embed/}")"
-    if [ -n "$html" ]
+    test_ready=$(wget "$url_in" -qO- |grep 'video is not ready yet')
+    if [ -n "$test_ready" ]
     then
-	url_in_file=$(grep file: <<< "$html" | grep http | head -n1)
-	url_in_file=${url_in_file#*\'}
-	url_in_file=${url_in_file#*\"}
-	url_in_file=${url_in_file%\'*}
-	url_in_file=${url_in_file%\"*}
-	
-	ext=${url_in_file##*.}
-	file_in=$(grep title: <<< "$html")
-	file_in="${file_in##*title\:}"
-	file_in="${file_in// /_}"
-	file_in="${file_in##_}"
-	file_in="${file_in%,*}"
-	file_in="${file_in%%_}".$ext
-	axel_parts=1
+	_log 17
     else
-	_log 2
+	html="$(wget -t 1 -T $max_waiting -q -O - "${url_in//'/video/'//embed/}")"
+    
+	if [ -n "$html" ] 
+	then
+	    url_in_file=$(grep file: <<< "$html" | grep http | head -n1)
+	    url_in_file=${url_in_file#*\'}
+	    url_in_file=${url_in_file#*\"}
+	    url_in_file=${url_in_file%\'*}
+	    url_in_file=${url_in_file%\"*}
+	    
+	    ext=${url_in_file##*.}
+	    file_in=$(grep title: <<< "$html")
+	    file_in="${file_in##*title\:}"
+	    file_in="${file_in// /_}"
+	    file_in="${file_in##_}"
+	    file_in="${file_in%,*}"
+	    file_in="${file_in%%_}".$ext
+	    axel_parts=1
+	else
+	    _log 2
+	fi
     fi
 fi
