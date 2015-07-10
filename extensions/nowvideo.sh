@@ -30,17 +30,21 @@
 
 if [ "$url_in" != "${url_in//'nowvideo.'}" ] && [ "$url_in" != "${url_in//video}" ]
 then
-    myip="$(wget -t 1 -T $max_waiting -q -O - http://indirizzo-ip.com/ip.php)"
-    html="$(wget -t 1 -T $max_waiting "$url_in" -O- -q)"
+    myip="$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)"
+    html=$(wget -t 1 -T $max_waiting                 \
+		"$url_in"                            \
+		--user-agent="$user_agent"           \
+		-qO-)
 
-    if [ ! -z "$html" ]
+    if [ -n "$html" ]
     then
 	test_exist=$(grep "This file no longer exists on our servers" <<< "$html")
 
-	if [ ! -z "$test_exist" ]
+	if [ -n "$test_exist" ]
 	then
-	    not_available=true
-	    break_loop=true
+	    # not_available=true
+	    # break_loop=true
+	    _log 3
 	else
 	    flashvars_file=$(grep "flashvars.file=" <<< "$html")
 	    flashvars_file="${flashvars_file#*'flashvars.file='\"}"
@@ -55,9 +59,15 @@ then
 
 	    rm -f "$path_tmp"/zdl2.tmp
 	    axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null
+
 	    if [ ! -f "$path_tmp"/zdl2.tmp ]
 	    then
 		_log 5
+		
+	    elif [ -n "$(grep 'The video is being transfered' "$path_tmp"/zdl2.tmp)" ]
+	    then
+		_log 17
+		
 	    elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
 	    then
 		not_available=true
