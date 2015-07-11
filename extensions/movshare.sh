@@ -28,17 +28,20 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Movshare
 
-if [ "$url_in" != "${url_in//'movshare.'}" ] && [ "$url_in" != "${url_in//video}" ]
+if [ "$url_in" != "${url_in//'movshare.'}" ] &&
+       [ "$url_in" != "${url_in//video}" ]
 then
     html="$(wget -t 1 -T $max_waiting "$url_in" -O- -q)"
 
-    if [ ! -z "$html" ]
+    if [ -n "$html" ]
     then
 	test_exist=$(grep "This file no longer exists on our servers" <<< "$html")
-	if [ ! -z "$test_exist" ]
+	if [ -n "$test_exist" ]
 	then
-	    not_available=true
-	    break_loop=true
+	    # not_available=true
+	    # break_loop=true
+	    _log 3
+
 	else
 	    flashvars_file=$(grep "flashvars.file=" <<< "$html")
 	    flashvars_file="${flashvars_file#*'flashvars.file='\"}"
@@ -56,7 +59,8 @@ then
 	    if [ ! -f "$path_tmp"/zdl2.tmp ]
 	    then
 		_log 5
-	    elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
+		
+	    elif [ -z $(grep url "$path_tmp"/zdl2.tmp ) ]
 	    then
 		not_available=true
 		break_loop=true
@@ -65,10 +69,15 @@ then
 		url_in_file="${url_in_file#*'url='}"
 		url_in_file="${url_in_file%%'&'*}"
 		file_in="${url_in_file##*'/'}"
-		ext="${url_in_file##*'.'}"
-		file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "share"|grep "title=")
+		file_in=$(grep "share" "$path_tmp"/zdl.tmp |grep "title=")
 		file_in="${file_in#*'title='}"
-		file_in="${file_in%%\"*}.$ext"
+		file_in="${file_in%%\"*}.${url_in_file##*'.'}"
+
+		if [[ "$file_in" =~ ^\. ]]
+		then
+		    url_in="${url_in%%\/}"
+		    file_in="${url_in##*\/}$file_in"
+		fi
 	    fi
 	fi
     else
