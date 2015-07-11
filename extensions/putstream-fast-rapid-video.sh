@@ -65,7 +65,9 @@ then
 	url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
 	file_in="${file_in}.${url_in_file##*.}"
     fi
-    
+
+    [ -n "$file_in" ] && file_in="$file_in".${url_in_file##*.}
+
     if [ -z "$url_in_file" ]
     then
 	break_loop=true

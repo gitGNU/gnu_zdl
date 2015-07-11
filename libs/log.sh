@@ -35,7 +35,8 @@ function init_log {
 }
 
 function _log {
-    [ ! -z "$2" ] && url_in="$2"
+    [ -n "$2" ] && url_in="$2"
+    
     case $1 in
 	1)
 	    msg="File $file_in già presente in $PWD: $url_in non verrà processato."
