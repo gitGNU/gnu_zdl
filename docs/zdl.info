@@ -396,14 +396,14 @@ _Video in streaming saltando il player del browser:_
      Putstream, Rai.tv, Rapidvideo, Shortlink, Sockshare (HD),
      Speedvideo, Streamin (RTMP), Thevideo, Tvdigit.it, Videopremium
      (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube,
-     Zinwa (RTMP) 
+     youtube-dl script, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
      Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Openload,
      Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit,
-     Uptobox e, dopo aver risolto il captcha e generato il link, anche
-     Sharpfile, Depositfiles ed altri servizi
+     Uptobox, youtube-dl script e, dopo aver risolto il captcha e
+     generato il link, anche Sharpfile, Depositfiles ed altri servizi
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
@@ -1147,23 +1147,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5388
 Node: Servizi streaming/hosting10983
-Node: Avviare ZDL14089
-Node: Arrestare ZDL16527
-Node: Controllare i download17632
-Node: Manuali d'uso21920
-Node: Modi22336
-Node: Readline25602
-Node: Editor27122
-Node: Omonimie28347
-Node: Filtri29880
-Node: Creare nuove estensioni30202
-Node: Software consigliati31771
-Node: Conkeror32879
-Node: zdl-xterm e XXXTerm/Xombrero33890
-Node: Installazione e aggiornamento35814
-Node: Tags38138
-Node: Copying40297
-Node: Contatti41347
+Node: Avviare ZDL14127
+Node: Arrestare ZDL16565
+Node: Controllare i download17670
+Node: Manuali d'uso21958
+Node: Modi22374
+Node: Readline25640
+Node: Editor27160
+Node: Omonimie28385
+Node: Filtri29918
+Node: Creare nuove estensioni30240
+Node: Software consigliati31809
+Node: Conkeror32917
+Node: zdl-xterm e XXXTerm/Xombrero33928
+Node: Installazione e aggiornamento35852
+Node: Tags38176
+Node: Copying40335
+Node: Contatti41385
 
 End Tag Table
 
