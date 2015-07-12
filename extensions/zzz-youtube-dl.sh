@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: streaming download
-## zdl-extension name: youtube-dl script
+## zdl-extension name: youtube-dl (script)
 
 
 
