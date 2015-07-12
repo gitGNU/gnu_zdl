@@ -146,6 +146,7 @@ function sanitize_file_in {
     file_in="${file_in//\'/_}"
     file_in="${file_in//[\[\]\(\)]/-}"
     file_in="${file_in##*/}"
+    file_in="${file_in##-}"
     file_in="$(htmldecode "$file_in")"
     file_in="${file_in//'&'/and}"
     file_in="${file_in//'#'}"

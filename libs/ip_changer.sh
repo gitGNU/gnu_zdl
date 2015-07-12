@@ -27,31 +27,44 @@
 #### change IP address
 
 function newip_add_provider {
-    if [ -z $no_newip ]; then
-	for provider in ${newip_providers[*]} ; do	
+    if [ -z $no_newip ]
+    then
+	for provider in ${newip_providers[*]}
+	do	
 	    [ "$url_in" != "${url_in//$provider.}" ] && newip[${#newip[*]}]=$provider
 	done
     fi
 }
 
 function check_ip {
-    if [ "$reconnect_sh" == true ] && [ ! -z "$(command -v $reconnecter 2>/dev/null)" ]; then
-	    noproxy
-	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
-	    $reconnecter 
-    elif [ "$update_proxy" == true ]; then
+    if [ "$reconnect_sh" == true ] &&
+	   [ -n "$(command -v $reconnecter 2>/dev/null)" ]
+    then
+	noproxy
+	print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
+	$reconnecter
+	
+    elif [ "$update_proxy" == true ]
+    then
 	unset newip update_proxy
 	new_ip_proxy
 	update_proxy_others="true"
-    elif [ "${newip[*]}" != "${newip[*]//$1}" ]; then
-	if [ "$reconnect_sh" == true ] && [ ! -z "$(command -v reconnect.sh 2>/dev/null)" ]; then
+	
+    elif [ "${newip[*]}" != "${newip[*]//$1}" ]
+    then
+	if [ "$reconnect_sh" == true ] &&
+	       [ -n "$(command -v reconnect.sh 2>/dev/null)" ]
+	then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 	    $reconnecter 
+
 	else
 	    new_ip_proxy
 	fi
-    elif [ "$update_defined_proxy" == "true" ];then
+
+    elif [ "$update_defined_proxy" == "true" ]
+    then
 	export http_proxy=$defined_proxy
     fi
 }
@@ -59,37 +72,20 @@ function check_ip {
 function my_ip {
     #myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
     myip=$(wget -q -O - -t 1 -T 20 http://indirizzo-ip.com/ip.php)
-    echo
+    print_c 0 "\n"
     separator-
-    if [ ! -z "$myip" ]; then
+    if [ -n "$myip" ]
+    then
 	print_c 1 "Indirizzo IP: $myip"
+
     else
 	print_c 3 "Indirizzo IP non rilevato"
     fi
+
     separator-
-    echo
+    print_c 0 "\n"
 }
 
-# function add_newip {
-# 	[ "$url_in" != "${url_in//mediafire.}" ] && newip[${#newip[*]}]=mediafire
-# 	[ "$url_in" != "${url_in//uploaded.}" ] && newip[${#newip[*]}]=uploaded
-# 	#[ "$url_in" != "${url_in//shareflare.}" ] && newip[${#newip[*]}]=shareflare
-# 	[ "$url_in" != "${url_in//easybytez.}" ] && newip[${#newip[*]}]=easybytez
-# 	#[ "$url_in" != "${url_in//sharpfile.}" ] && newip[${#newip[*]}]=sharpfile
-# 	[ "$url_in" != "${url_in//billionuploads.}" ] && newip[${#newip[*]}]=billionuploads
-# }
-
-function new_ip_router {
-    noproxy
-    if [ ! -z "$admin" ] && [ ! -z "$passwd" ]; then
-	print_c 1 "Cambio indirizzo IP..."
-	wget --http-passwd=$passwd --http-user=$admin 192.168.0.1/stanet.stm  -O - &>/dev/null
-	wget --http-passwd=$passwd --http-user=$admin --post-data="disconnect=1" 192.168.0.1/cgi-bin/statusprocess.exe -O - &>/dev/null
-    else
-	echo
-	print_c 3 "Funzione di cambio indirizzo IP via router disattivata"
-    fi
-}
 
 function noproxy {
     unset http_proxy
@@ -100,13 +96,14 @@ function noproxy {
 function ip_adress {
     ## ip-adress.com
     
-    for proxy_type in ${proxy_types[*]}; do
-	cat "$path_tmp/proxy.tmp"|grep "Proxy_Details" |grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
+    for proxy_type in ${proxy_types[*]}
+    do
+	grep "Proxy_Details" "$path_tmp/proxy.tmp" |
+	    grep "${proxy_type}" >> "$path_tmp/proxy2.tmp"
     done
 
-    max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
-    
-    string_line=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"`
+    max=$(wc -l < "$path_tmp/proxy2.tmp")
+    string_line=$(sed -n "${line}p" "$path_tmp/proxy2.tmp")
     
     proxy="${string_line#*Proxy_Details\/}"
     [ "$proxy" != "${proxy%:Anonymous*}" ] && proxy_type="Anonymous"
@@ -117,8 +114,9 @@ function ip_adress {
 
 function proxy_list {
     ## proxy-list.org
-    for proxy_type in ${proxy_types[*]}; do
-	html=$(cat  "$path_tmp/proxy.tmp" | grep -B 4 "${proxy_type}" |grep class)
+    for proxy_type in ${proxy_types[*]}
+    do
+	html=$(grep -B 4 "${proxy_type}" "$path_tmp/proxy.tmp" |grep class)
     done
     n=$(( $(wc -l <<< "$html")/4 ))
     proxy_type=$(sed -n $(( ${line}*4 ))p <<< "$html")
@@ -158,14 +156,14 @@ function proxy_list_old {
 	done
     done
 
-    if [ -f "$path_tmp/proxy2.tmp" ]; then
+    if [ -f "$path_tmp/proxy2.tmp" ]
+    then
 	max=`wc -l "$path_tmp/proxy2.tmp" | awk '{ print($1) }'`
 	proxy=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"|awk '{print $1}'`
 	proxy_type=`cat "$path_tmp/proxy2.tmp" |sed -n "${line}p"|awk '{print $2}'`
     else
 	unset proxy proxy_type max
     fi
-
 }			
 
 
@@ -178,69 +176,100 @@ function new_ip_proxy {
     minspeed=25
     unset close unreached speed type_speed
     rm -f "$path_tmp/proxy.tmp"
-    while true; do
-	proxy=""
+    
+    while true
+    do
+	unset proxy
 	## tipi di proxy: Anonymous Transparent Elite
-	if [ -z "${proxy_types[*]}" ]; then 
+	if [ -z "${proxy_types[*]}" ]
+	then 
 	    proxy_types=( "Transparent" )
 	fi
 
-	[ "$url_in" != "${url_in//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
 	#[ "$url_in" != "${url_in//mediafire.}" ] && proxy_types=( "Elite" )
 	#[ "$url_in" != "${url_in//uload.}" ] && proxy_types=( "Anonymous" "Elite" )
 	#[ "$url_in" != "${url_in//shareflare.}" ] && proxy_types=( "Transparent" )
+	[ "$url_in" != "${url_in//uploaded.}" ] && proxy_types=( "Anonymous" "Elite" )
 	[ "$url_in" != "${url_in//easybytez.}" ] && proxy_types=( "Transparent" "Anonymous" "Elite" )
 	[ "$url_in" != "${url_in//glumbouploads.}" ] && proxy_types=( "Anonymous" "Elite" )
+
 	ptypes="${proxy_types[*]}"
 	print_c 1 "\nAggiorna proxy (${ptypes// /, }):"
 	old=$http_proxy
 	
 	noproxy
 	line=1
-	while [ -z "$proxy" ] ; do		
-	    if [ ! -f "$path_tmp/proxy.tmp" ]; then
-		wget -q -t 1 -T 20 --post-data="cmd=pr0xylist" --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
+	while [ -z "$proxy" ]
+	do		
+	    if [ ! -f "$path_tmp/proxy.tmp" ]
+	    then
+		#wget -q -t 1 -T 20 --post-data="cmd=pr0xylist" --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
+		wget -q -t 1 -T 20                              \
+		     --user-agent="$user_agent"                 \
+		     ${list_proxy_url[$proxy_server]}           \
+		     -qO "$path_tmp/proxy.tmp"
+		
 		print_c 4 "Ricerca lista proxy $proxy_server: ${list_proxy_url[$proxy_server]}"
 	    fi
 	    rm -f "$path_tmp/proxy2.tmp"
 	    [ -f "$path_tmp/proxy.tmp" ] && $proxy_server
 
-	    z=$(( ${#proxy_done[*]}-1 ))
-	    if (( $z<0 )) || [ "$z" == "" ]; then z=0 ; fi
-	    
-	    for p in `seq 0 $z`; do
-		if [ "${proxy_done[$p]}" == "$proxy" ]; then
-		    proxy=""
-		fi
+	    for ((p=0; p<${#proxy_done[*]}; p++))
+	    do
+		[ "${proxy_done[$p]}" == "$proxy" ] &&
+		    unset proxy
 	    done
 	    
-	    if [ "$string_line" == "" ]; then
+	    if [ -z "$string_line" ]
+	    then
 		sleeping 3
 		(( search_proxy++ ))
-		[ $search_proxy == 100 ] && print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" && noproxy && close=true && break
+		
+		[ $search_proxy == 100 ] &&
+		    print_c 3 "Finora nessun proxy disponibile: tentativo con proxy disattivato" &&
+		    noproxy &&
+		    close=true &&
+		    break
 	    fi
-	    if [ "$line" == "$max" ] || [ "$string_line" == "" ]; then
+
+	    if [ "$line" == "$max" ] ||
+		   [ -z "$string_line" ]
+	    then
 		rm -f "$path_tmp/proxy.tmp"
 		line=0
 	    fi
-	    [ ! -z "$line" ] && (( line++ ))
-	    [ "$proxy" != "" ] && [ "${proxy_done[*]}" == "${proxy_done[*]//$proxy}" ] && proxy_done[${#proxy_done[*]}]="$proxy"
+	    
+	    [ -n "$line" ] && (( line++ ))
+	    [ -n "$proxy" ] &&
+		[ "${proxy_done[*]}" == "${proxy_done[*]//$proxy}" ] &&
+		proxy_done[${#proxy_done[*]}]="$proxy"
 	done
+	
 	unset search_proxy num_speed
-	[ ! -z "$close" ] && break
+	[ -n "$close" ] && break
 	http_proxy="$proxy"
 	export http_proxy
 	print_c 0 "Proxy: $http_proxy ($proxy_type)\n"
 
 	unset myip
 	print_c 2 "\nTest velocità di download:"
+
 	i=0
-	while (( $i<3 )); do
+	while (( $i<3 ))
+	do
 	    i=${#speed[*]}
 	    #speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "http://indirizzo-ip.com/ip.php" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
-	    #speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "${list_proxy_url[$proxy_server]}" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
-	    speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
-	    if [ ! -z "${speed[$i]}" ]; then
+	    #speed[$i]=`wget -t 1 -T $max_waiting -O /dev/null "$url_in" 2>&1 | grep '\([0-9.]\+ [KM]B/s\)'`
+
+	    speed[$i]=$(wget -t 1 -T $max_waiting                \
+			     --user-agent="$user_agent"          \
+			     -O /dev/null                        \
+			     "${list_proxy_url[$proxy_server]}"  \
+			     2>&1 | grep '\([0-9.]\+ [KM]B/s\)')
+	    
+
+	    if [ -n "${speed[$i]}" ]
+	    then
 		speed[$i]="${speed[$i]#*'('}"
 		speed[$i]="${speed[$i]%%)*}"
 		
@@ -249,9 +278,12 @@ function new_ip_proxy {
 		num_speed[$i]="${num_speed[$i]//[ ]*}"
 		num_speed[$i]="${num_speed[$i]//[.,]*}"
 
-		if [ "${type_speed[$i]}" == 'B/s' ]; then
+		if [ "${type_speed[$i]}" == 'B/s' ]
+		then
 		    num_speed[$i]="0"
-		elif [ "${type_speed[$i]}" == 'MB/s' ]; then
+
+		elif [ "${type_speed[$i]}" == 'MB/s' ]
+		then
 		    num_speed[$i]=$(( ${num_speed[$i]}*1024 ))
 		fi
 	    else
@@ -260,25 +292,28 @@ function new_ip_proxy {
 		type_speed[$i]='KB/s'
 	    fi
 	    print_c 0 "${speed[$i]}"
-	    if [ "${num_speed[0]}" == 0 ]; then
+
+	    if [ "${num_speed[0]}" == 0 ]
+	    then
 		break
 	    fi
 	done 2>/dev/null
 	
-	if [ -z $unreached ]; then
-	    
-	    for k in ${num_speed[*]}; do
-		if (( $maxspeed<$k )); then 
-		    maxspeed=$k 
-		fi 
+	if [ -z "$unreached" ]
+	then
+	    for k in ${num_speed[*]}
+	    do
+		(( $maxspeed<$k )) &&  maxspeed=$k 
 	    done
 	    
-	    if (( $maxspeed<$minspeed )); then
+	    if (( $maxspeed<$minspeed ))
+	    then
 		print_c 3 "La massima velocità di download raggiunta usando il proxy è inferiore a quella minima richiesta ($minspeed KB/s)"
+
 	    else
 		print_c 1 "Massima velocità di download raggiunta usando il proxy $http_proxy: $maxspeed KB/s"
 		break
-	    fi 2>/dev/null
+	    fi 
 	fi
 	unset unreached speed
     done

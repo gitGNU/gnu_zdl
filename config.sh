@@ -50,7 +50,7 @@ path_tmp=".${prog}_tmp"
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
 proxy_server='ip_adress'
-list_proxy_url['ip_adress']="http://zoninoz.hol.es"  ### "http://www.ip-adress.com/proxy_list/"
+list_proxy_url['ip_adress']="http://www.ip-adress.com/proxy_list/" ###"http://zoninoz.hol.es"  ### 
 list_proxy_url['proxy_list']="http://proxy-list.org/en/index.php"
 
 user_agent="Mozilla/5.0 (X11; Linux x36_64; rv:10.0.7) Gecko/20100101 Firefox/10.0.7 Iceweasel/10.0.7"
