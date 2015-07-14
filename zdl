@@ -195,18 +195,7 @@ then
 	if [[ "${args[$i]}" =~ ^(--scrape-url=[^\ ]+)$ ]]
 	then
 	    url_page=$(sed -r 's|--scrape-url=["]*(.+)["]*$|\1|g' <<< "${args[$i]}")
-	    if url "$url_page"
-	    then
-		print_c 1 "Scraping URL: connessione in corso..."
-		wget -q "$url_page" -O - |                                             
-		    tr "\t\r\n'" '   "' |                                              
-		    grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' |      
-		    sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                               
-		    grep "$url_regex" |                                                
-		    sort | uniq \                                                       
-		    >> "$path_tmp/links_loop.txt" &&                                   
-		    print_c 1 "Estrazione URL dalla pagina web $url_page completata"
-	    fi
+	    scrape_url "$url_page"
 	    unset args[$i]
 	fi
     done
