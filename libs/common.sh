@@ -358,9 +358,16 @@ function pipe_files {
 	    pid_pipe_out=NULL
 	fi
 	
-	if [ ! -z "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
+	if [ -n "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
 	then
-	    cp "$path_tmp"/pipe_files.txt "$print_out"
+	    while read line
+	    do
+		if [ -z "$(grep -P '^$line$' $print_out)" ]
+		then
+		    echo "$line" >> "$print_out"
+		fi
+		
+	    done < "$path_tmp"/pipe_files.txt 
 	    
 	elif [ -z "$pipe_out" ] || check_pid $pid_pipe_out 
 	then

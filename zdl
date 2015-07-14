@@ -406,31 +406,51 @@ then
 	    fi
 	    format=${args[$i]##*-}
 	    unset args[$i]
-#	    rm -f "$path_tmp"/.pid.zdl
-	    file_output="scaricati_da_zdl.txt"
-	    export pid_prog=$$
-	    $prog ${args[*]} --out="$file_output"
-
-	    [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
-	    [ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
-	    echo
-	    header_box "Conversione in $format ($convert2format)"
-	    echo
-	    while read line
-	    do
-		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
-		then
-		    print_c 4 "Conversione del file: $line"
-		    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
-		    echo
-		fi
-	    done < $file_output
-	    rm "$file_output"
-	    [ "$xterm_stop" == true ] && xterm_stop
-	    exit
+	    print_out="scaricati_da_zdl.txt"
+	    unset args[$i]
 	fi
     done
 fi
+
+
+# if [[ "${args[*]}" =~ (--mp3|--flac) ]]
+# then
+#     for ((i=0; i<=$max_args; i++))
+#     do
+# 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]
+# 	then 
+# 	    if [ -z "$(command -v ffmpeg 2>/dev/null)$(command -v avconv 2>/dev/null)" ]
+# 	    then
+# 		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
+# 		exit
+# 	    fi
+# 	    format=${args[$i]##*-}
+# 	    unset args[$i]
+# #	    rm -f "$path_tmp"/.pid.zdl
+# 	    file_output="scaricati_da_zdl.txt"
+# 	    export pid_prog=$$
+# 	    $prog ${args[*]} --out="$file_output"
+
+# 	    [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
+# 	    [ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
+# 	    echo
+# 	    header_box "Conversione in $format ($convert2format)"
+# 	    echo
+# 	    while read line
+# 	    do
+# 		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
+# 		then
+# 		    print_c 4 "Conversione del file: $line"
+# 		    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
+# 		    echo
+# 		fi
+# 	    done < $file_output
+# 	    rm "$file_output"
+# 	    [ "$xterm_stop" == true ] && xterm_stop
+# 	    exit
+# 	fi
+#     done
+# fi
 
 
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]
@@ -1193,10 +1213,29 @@ separator-
 print_c 1 "Download completato"
 separator-
 
-if [ ! -z "$pipe_out" ] && [ "$pipe_done" != 1 ]
+if [ -n "$pipe_out" ] && [ "$pipe_done" != 1 ]
 then
     data_stdout
     pipe_files
+fi
+
+if [ -n "$format" ]
+then
+    [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
+    [ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
+    echo
+    header_box "Conversione in $format ($convert2format)"
+    echo
+    for line in $(cat $print_out)
+    do
+	if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
+	then
+	    print_c 4 "Conversione del file: $line"
+	    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
+	    echo
+	fi
+    done 
+    rm "$print_out"
 fi
 
 if [ "$zdl_exit" != "true" ]
