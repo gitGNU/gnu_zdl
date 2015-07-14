@@ -27,26 +27,30 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Youtube
 
-shopt -u nullglob
+#shopt -u nullglob
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]
 then
     links_loop - "$url_in"
     url_in=$(urldecode "$url_in")
     links_loop + "$url_in"
-    #videoType="mp4"
-
-    html=$(wget -Ncq -e convert-links=off                    \
+    
+    html=$(wget -Nc -e convert-links=off                     \
     		--keep-session-cookies                       \
     		--save-cookies="$path_tmp"/cookies.zdl       \
     		--no-check-certificate                       \
     		--user-agent="$user_agent"                   \
-    		"$url_in" -O- )
-    
+    		"$url_in" -qO- )
+
     if [ -z "$html" ]
     then
     	_log 8 
 
+    elif [[ "$html" =~ 'Questo video include contenuti di UMG che sono stati bloccati dallo stesso proprietario per motivi di copyright' ]] ||
+	     [[ "$html" =~ 'This video contains content from UMG, who has blocked it on copyright grounds' ]]
+    then
+	_log 3
+	
     elif [[ "$html" =~ \<title\>(.+)\<\/title\> ]]
     then
     	title=$(sed -r 's/([^0-9a-z])+/_/ig' <<< "${BASH_REMATCH[1]}" |
@@ -69,7 +73,7 @@ then
 	videoType=$(wget --spider -S "$url_in_file" 2>&1| grep 'Content-Type:')
 	videoType="${videoType##*\/}"
 
-	[ -n "$videoType" ] && file_in="$title.$videoType" && echo "$title.$videoType" 
+	[ -n "$videoType" ] && file_in="$title.$videoType"
 
 	
 	# 	html=$(grep 'url_encoded_fmt_stream_map' <<< "$html")
@@ -120,4 +124,4 @@ then
     axel_parts=4
 fi
 
-shopt -s nullglob
+#shopt -s nullglob

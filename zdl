@@ -411,8 +411,8 @@ then
 	    export pid_prog=$$
 	    $prog ${args[*]} --out="$file_output"
 
-	    [ ! -z "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
-	    [ ! -z "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
+	    [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
+	    [ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
 	    echo
 	    header_box "Conversione in $format ($convert2format)"
 	    echo
@@ -421,7 +421,7 @@ then
 		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
 		then
 		    print_c 4 "Conversione del file: $line"
-		    $convert2format -i "$line" "${line%mp4}$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%mp4}$format" || print_c 3 "Conversione NON riuscita: $line"
+		    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
 		    echo
 		fi
 	    done < $file_output
