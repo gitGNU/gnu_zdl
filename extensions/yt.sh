@@ -60,7 +60,29 @@ then
     		       sed -r 's/_amp//ig')
 
 
-	url_in_file=$(wget -qO- "http://zoninoz.hol.es/api.php?uri=$url_in" |tail -n1)
+	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
+	then
+	    data=$(youtube-dl --get-url --get-filename "$url_in")
+	    file_in="$(tail -n1 <<< "$data")"
+	    file_in="${file_in% _ *}"
+
+	    url_in_file="$(tail -n2 <<< "$data" | head -n1)"
+
+	    if ! url "$url_in_file"
+	    then
+		unset file_in url_in_file
+	    fi
+	fi
+
+	if ! url "$url_in_file"
+	then
+	    url_in_file=$(wget -qO- "http://zoninoz.hol.es/api.php?uri=$url_in" |tail -n1)
+
+	    videoType=$(wget --spider -S "$url_in_file" 2>&1| grep 'Content-Type:')
+	    videoType="${videoType##*\/}"
+
+	    [ -n "$videoType" ] && file_in="$title.$videoType"
+	fi
 
 	if [ -n "$(axel -o /dev/null "$url_in_file" | grep '403 Forbidden')" ]
 	then
@@ -70,10 +92,6 @@ then
 	    print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 	fi
 	
-	videoType=$(wget --spider -S "$url_in_file" 2>&1| grep 'Content-Type:')
-	videoType="${videoType##*\/}"
-
-	[ -n "$videoType" ] && file_in="$title.$videoType"
 
 	
 	# 	html=$(grep 'url_encoded_fmt_stream_map' <<< "$html")
