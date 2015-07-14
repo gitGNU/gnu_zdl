@@ -80,10 +80,10 @@ function scrape_url {
     if url "$url_page"
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
-	html=$(wget -qO- --user-agent="$user_agent" "$url_page" |
-		      tr "\t\r\n'" '   "' |    
-		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"' | 
-		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g' |                          
+	html=$(wget -qO- --user-agent="$user_agent" "$url_page"                    |
+		      tr "\t\r\n'" '   "'                                          |    
+		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"'  | 
+		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g'                           |                          
 		      grep "$url_regex")
 
 	while read line
