@@ -1219,6 +1219,8 @@ then
     pipe_files
 fi
 
+stty echo
+
 if [ -n "$format" ]
 then
     [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
@@ -1231,7 +1233,11 @@ then
 	if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
 	then
 	    print_c 4 "Conversione del file: $line"
-	    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
+	    [ "$lite" == "true" ] && convert_params="-loglevel quiet"
+	    
+	    $convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
+		rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+		    print_c 3 "Conversione NON riuscita: $line"
 	    echo
 	fi
     done 
@@ -1246,7 +1252,7 @@ else
 fi
 
 echo -e "\n\n"
-stty echo
+
 if [ -f "$file_log" ]
 then
     print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
