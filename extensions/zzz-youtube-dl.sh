@@ -29,7 +29,7 @@
 
 
 
-if [ -z "$url_in_file" ] &&
+if ( [ -z "$url_in_file" ] || [ "$url_in_file" == "$url_in" ] ) &&
        [ -n "$(command -v youtube-dl 2>/dev/null)" ]
 then
     data=$(youtube-dl --get-url --get-filename "$url_in")
