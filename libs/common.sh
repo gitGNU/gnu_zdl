@@ -133,6 +133,7 @@ function sanitize_url {
     data="${data## }"
     data="${data%% }"
     data="${data%'#20%'}"
+    data="${data%'#'}"
     data="${data// /%20}"
     data="${data//'('/%28}"
     data="${data//')'/%29}"

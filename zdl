@@ -837,7 +837,7 @@ then
 		links=$(cat "${BASE_DIR}${args[$i]}")
 		grep_urls "$(echo -e "${links// /%20}")" >> "$path_tmp"/links_loop.txt
 	    fi
-	elif [ ! -z "${args[$i]}" ]
+	elif [ -n "${args[$i]}" ]
 	then
 	    args[$i]="$(sanitize_url "${args[$i]}")"
 	    
@@ -907,7 +907,7 @@ then
 	    fi
 	done
 	unset link binding
-    elif [ ! -z "$from_editor" ]
+    elif [ -n "$from_editor" ]
     then
 	$editor "$start_file"
     fi
@@ -957,7 +957,7 @@ function main_loop {
 		break
 	    fi
 
-	    if [ ! -z "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
+	    if [ -n "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
 	    then
 		links_loop - "$url_in"
 		_log 15 "$url_in"
@@ -965,7 +965,7 @@ function main_loop {
 		break
 	    fi
 
-	    if [ ! -z "$url_regex" ] && [[ ! "${url_in}" =~ $url_regex ]]
+	    if [ -n "$url_regex" ] && [[ ! "${url_in}" =~ $url_regex ]]
 	    then
 		links_loop - "$url_in"
 		_log 16 "$url_in"
@@ -1075,7 +1075,7 @@ function main_loop {
 		fi
 
 		## opzioni filtro
-		if [ ! -z "$no_file_regex" ] &&
+		if [ -n "$no_file_regex" ] &&
 		       [[ "$file_in" =~ $no_file_regex ]]
 		then
 		    _log 13
