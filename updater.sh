@@ -165,10 +165,10 @@ NB:
 - puoi controllare il flusso del processo assegnando i nomi ai file delle estensioni: ZDL leggerà i file in ordine lessicografico (anche sostituire o arricchire le estensioni già esistenti)
 
 ESTENSIONI:
-"
-    ls -1 $SHARE/extensions/*.sh >> "$path_conf"/extensions/README.txt
+" > "$path_conf"/extensions/README.txt
+    find $SHARE/extensions/ -type f |grep -P extensions/[^/]+.sh$  >> "$path_conf"/extensions/README.txt
     
-    for extension in "$path_conf"/extensions/*.sh
+    for extension in "$path_conf"/extensions/*.sh 
     do
 	if [ ! -f $SHARE/extensions/"${extension##*\/}" ]
 	then
