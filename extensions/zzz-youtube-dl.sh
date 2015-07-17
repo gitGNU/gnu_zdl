@@ -29,7 +29,8 @@
 
 
 
-if ( [ -z "$url_in_file" ] || [ "$url_in_file" == "$url_in" ] ) &&
+if ( ! url "$url_in_file"  ||
+	   [ "$url_in_file" == "$url_in" ] ) &&
        [ -n "$(command -v youtube-dl 2>/dev/null)" ]
 then
     data=$(youtube-dl --get-url --get-filename "$url_in")
@@ -41,6 +42,8 @@ then
     if ! url "$url_in_file"
     then
 	unset file_in url_in_file
+    else
+	unset break_loop
     fi
 fi
 

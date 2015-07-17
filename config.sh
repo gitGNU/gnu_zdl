@@ -174,6 +174,7 @@ function get_conf {
     if [ "$mode" == "single" ]
     then
 	num_dl=1
+
     elif [ "$mode" == "multi" ]
     then
 	unset num_dl
@@ -182,6 +183,7 @@ function get_conf {
     if [ -f "$path_tmp/dl-mode" ]
     then
 	num_dl="$(cat "$path_tmp/dl-mode")"
+
     else
 	echo "$num_dl" > "$path_tmp/dl-mode"
     fi

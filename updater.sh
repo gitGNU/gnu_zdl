@@ -159,6 +159,24 @@ function update {
     source $SHARE/config.sh
     set_default_conf
 
+    echo -e "Di seguito, le estensioni già esistenti di ZigzagDownLoader, in $SHARE/extensions/
+NB: 
+- eventuali estensioni omonime dell'utente saranno ignorate
+- puoi controllare il flusso del processo assegnando i nomi ai file delle estensioni: ZDL leggerà i file in ordine lessicografico (anche sostituire o arricchire le estensioni già esistenti)
+
+ESTENSIONI:
+"
+    ls -1 $SHARE/extensions/*.sh >> "$path_conf"/extensions/README.txt
+    
+    for extension in "$path_conf"/extensions/*.sh
+    do
+	if [ ! -f $SHARE/extensions/"${extension##*\/}" ]
+	then
+	    try ln -s "$extension" $SHARE/extensions/"${extension##*\/}"
+	fi
+    done
+    
+    
     ## Cygwin: dipendenze
 
     if [ -e /cygdrive ]

@@ -155,6 +155,7 @@ then
     done
 fi
 
+
 #### MAIN
 init
 
@@ -277,7 +278,7 @@ then
 	then
 	    dest_dir="${args[*]#*'--cwd'}"
 	    dest_dir=$(cygpath -u "$dest_dir")
-	    [ ! -z "$dest_dir" ] && cd "$dest_dir"
+	    [ -n "$dest_dir" ] && cd "$dest_dir"
 	    $prog "$url" $parameters --stop
 	else
 	    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; zdl $parameters \\\"$url\\\" --stop \"" &
@@ -411,46 +412,6 @@ then
 	fi
     done
 fi
-
-
-# if [[ "${args[*]}" =~ (--mp3|--flac) ]]
-# then
-#     for ((i=0; i<=$max_args; i++))
-#     do
-# 	if [[ "${args[$i]}" =~ ^(--mp3|--flac)$ ]]
-# 	then 
-# 	    if [ -z "$(command -v ffmpeg 2>/dev/null)$(command -v avconv 2>/dev/null)" ]
-# 	    then
-# 		print_c 3 "La funzione di conversione in formato dipende da ffmpeg o da avconv, non trovati"
-# 		exit
-# 	    fi
-# 	    format=${args[$i]##*-}
-# 	    unset args[$i]
-# #	    rm -f "$path_tmp"/.pid.zdl
-# 	    file_output="scaricati_da_zdl.txt"
-# 	    export pid_prog=$$
-# 	    $prog ${args[*]} --out="$file_output"
-
-# 	    [ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
-# 	    [ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
-# 	    echo
-# 	    header_box "Conversione in $format ($convert2format)"
-# 	    echo
-# 	    while read line
-# 	    do
-# 		if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
-# 		then
-# 		    print_c 4 "Conversione del file: $line"
-# 		    $convert2format -aq 0 -i "$line" "${line%.*}.$format" && rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" || print_c 3 "Conversione NON riuscita: $line"
-# 		    echo
-# 		fi
-# 	    done < $file_output
-# 	    rm "$file_output"
-# 	    [ "$xterm_stop" == true ] && xterm_stop
-# 	    exit
-# 	fi
-#     done
-# fi
 
 
 if [ "${args[*]}" != "${args[*]//--daemon}" ] || [ "${args[*]}" != "${args[*]//-d}" ]
@@ -883,6 +844,7 @@ fi
 
 
 
+
 if [ -z "$start_file" ]
 then
     start_file="$path_tmp/links_loop.txt"
@@ -995,17 +957,17 @@ function main_loop {
 		print_c 1 "Connessione in corso..."
 
 		check_ip
-		## user extensions
-		if [ -d "$path_conf/extensions/" ]
-		then
-		    shopt -s nullglob
-		    for srcfile in "$path_conf"/extensions/*.sh
-		    do
-			source "$srcfile"
-		    done
-		    shopt -u nullglob
-		fi
-		##################
+		# ## user extensions --> collegate (link simbolici) in "$path_usr"/extensions/*.sh (PROG extensions)
+		# if [ -d "$path_conf/extensions/" ]
+		# then
+		#     shopt -s nullglob
+		#     for srcfile in "$path_conf"/extensions/*.sh
+		#     do
+		# 	source "$srcfile"
+		#     done
+		#     shopt -u nullglob
+		# fi
+		# ##################
 
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
@@ -1080,7 +1042,7 @@ function main_loop {
 		then
 		    _log 13
 		fi
-		if [ ! -z "$file_regex" ] &&
+		if [ -n "$file_regex" ] &&
 		       [[ ! "$file_in" =~ $file_regex ]]
 		then
 		    _log 14
@@ -1159,6 +1121,7 @@ then
     zdl_mode="lite"
     unset lite
 fi
+
 
 trap_sigint
 if [ "$zdl_mode" == "daemon" ]
