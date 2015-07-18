@@ -421,7 +421,7 @@ tar -xzf "$package"
 
 mv "${package%.tar.gz}" $prog
 cd $prog
-install_zdl-wise
+#install_zdl-wise
 
 chmod +rx -R .
 bold "Installazione in $BIN"

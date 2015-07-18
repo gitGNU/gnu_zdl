@@ -103,7 +103,7 @@ function update {
     cygdrive="${cygdrive%%\/*}"
     [ -z "$cygdrive" ] && cygdrive="C"    
 
-    update_zdl-wise
+    # update_zdl-wise
 
     chmod +rx -R .
 
@@ -167,6 +167,9 @@ NB:
   i nomi ai file delle estensioni: 
   ZDL leggerà i file in ordine lessicografico 
   (anche per sostituire o arricchire le estensioni già esistenti)
+- le nuove estensioni dell'utente devono essere collegate in
+  $SHARE/extensions/
+  (puoi collegarle automaticamente con: zdl -fu)
 
 ESTENSIONI:
 " > "$path_conf"/extensions/README.txt
