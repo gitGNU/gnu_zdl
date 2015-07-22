@@ -278,7 +278,8 @@ function link_parser {
     [ "${_domain}" != "${_domain#*:}" ] && parser_port="${_domain#*:}"
     _domain="${_domain%:*}"
 
-    if [ ! -z "${_domain//[0-9.]}" ]; then
+    if [ -n "${_domain//[0-9.]}" ]
+    then
 	[ "${_domain}" != "${_domain%'.'*}" ] && parser_domain="${_domain}"
     else 
 	parser_ip="${_domain}"

@@ -29,9 +29,6 @@ if is_wget "$url_in"
 then
     if [ "$downloader_in" == "Axel" ]
     then
-	dler=$downloader_in
-	downloader_in=Wget
-	ch_dler=1
-	print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+	force_wget
     fi
 fi
