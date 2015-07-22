@@ -27,11 +27,8 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: youtube-dl (script)
 
-
-
-if ( ! url "$url_in_file"  ||
-	   [ "$url_in_file" == "$url_in" ] ) &&
-       [ -n "$(command -v youtube-dl 2>/dev/null)" ]
+if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
+       [ -z "$url_in_file" ]
 then
     data=$(youtube-dl --get-url --get-filename "$url_in")
     file_in="$(tail -n1 <<< "$data")"

@@ -27,14 +27,22 @@
 ## zdl-extension types: download
 ## zdl-extension name: Tusfiles
 
-if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
-    wget -q -t 1 -T $max_waiting --no-check-certificate --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
+if [ "$url_in" != "${url_in//'tusfiles.net'}" ]
+then
+    wget -q -t 1 -T $max_waiting                \
+	 --no-check-certificate                 \
+	 --user-agent="$user_agent"             \
+	 --retry-connrefused                    \
+	 --keep-session-cookies                 \
+	 --save-cookies="$cookies"              \
+	 -O "$path_tmp/zdl.tmp"                 \
+	 "$url_in"
 
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
     post_data="${post_data#*&}"
 
-    file_in=`cat "$path_tmp/zdl.tmp" |grep '?q='`
+    file_in=$(grep '?q=' "$path_tmp/zdl.tmp")
     file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"
 
@@ -43,7 +51,6 @@ if [ "$url_in" != "${url_in//'tusfiles.net'}" ]; then
 	touch "$path_tmp"/cookies.zdl
     fi
     url_in_file="${url_in}"
-    #[ "$downloader_in" == "Axel" ] &&
 
     redirected="true"
 fi
