@@ -29,7 +29,14 @@
 
 if [ "$url_in" != "${url_in//swzz.xyz}" ]
 then
-    url_in_new=$(wget -qO- "$url_in" | grep 'var link =' |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    html=$(wget -qO- "$url_in")
+    if [ -z "$(grep 'var link =' <<< "$html")" ]
+    then	
+	packed_args "$(grep eval <<< "$html")"
+	html=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
+    fi
+    
+    url_in_new=$(grep -P 'var link\s*=' <<< "$html" |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
     if url "$url_in_new"
     then

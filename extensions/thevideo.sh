@@ -30,7 +30,7 @@
 if [ "$url_in" != "${url_in//'thevideo.'}" ]
 then
     html=$(wget -t 1 -T $max_waiting "$url_in" -O- -q)
-    if [ ! -z "$html" ]
+    if [ -n "$html" ]
     then
 	unset post_data
 	input_hidden "$html"
