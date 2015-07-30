@@ -35,7 +35,7 @@ then
 		--keep-session-cookies                    \
 		--save-cookies="$path_tmp"/cookies.zdl    \
 		--user-agent="$user_agent"                \
-		"$url_in")
+		"${url_in//'/embed/'//f/}")
 
     if [[ "$html" =~ 'We are sorry!' ]]
     then
