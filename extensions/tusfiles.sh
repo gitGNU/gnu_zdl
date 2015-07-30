@@ -41,7 +41,7 @@ then
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
     post_data="${post_data#*&}"
-
+    
     file_in=$(grep '?q=' "$path_tmp/zdl.tmp")
     file_in="${file_in#*'?q='}"
     file_in="${file_in%%\"*}"

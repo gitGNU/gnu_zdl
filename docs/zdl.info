@@ -391,12 +391,12 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Akstream, Dailymotion, Exashare, Fastvideo, http://swzz.xyz,
-     Junkyvideo (HD), Metacafe, Movshare, Nowvideo, Openload,
-     Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Shortlink,
-     Sockshare (HD), Speedvideo, Streamin (RTMP), Thevideo, Tvdigit.it,
-     Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD), VK
-     (HD), Youtube, youtube-dl (script), Zinwa (RTMP) 
+     Akstream, Dailymotion, Exashare, Fastvideo, Flashx.tv,
+     http://swzz.xyz, Junkyvideo (HD), Metacafe, Movshare, Nowvideo,
+     Openload, Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo,
+     Shortlink, Sockshare (HD), Speedvideo, Streamin (RTMP), Thevideo,
+     Tvdigit.it, Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo
+     (HD), VK (HD), Youtube, youtube-dl (script), Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
@@ -1148,23 +1148,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5388
 Node: Servizi streaming/hosting10983
-Node: Avviare ZDL14170
-Node: Arrestare ZDL16608
-Node: Controllare i download17713
-Node: Manuali d'uso22001
-Node: Modi22417
-Node: Readline25683
-Node: Editor27203
-Node: Omonimie28428
-Node: Filtri29961
-Node: Creare nuove estensioni30283
-Node: Software consigliati31852
-Node: Conkeror32960
-Node: zdl-xterm e XXXTerm/Xombrero33971
-Node: Installazione e aggiornamento35895
-Node: Tags38219
-Node: Copying40378
-Node: Contatti41428
+Node: Avviare ZDL14181
+Node: Arrestare ZDL16619
+Node: Controllare i download17724
+Node: Manuali d'uso22012
+Node: Modi22428
+Node: Readline25694
+Node: Editor27214
+Node: Omonimie28439
+Node: Filtri29972
+Node: Creare nuove estensioni30294
+Node: Software consigliati31863
+Node: Conkeror32971
+Node: zdl-xterm e XXXTerm/Xombrero33982
+Node: Installazione e aggiornamento35906
+Node: Tags38230
+Node: Copying40389
+Node: Contatti41439
 
 End Tag Table
 
