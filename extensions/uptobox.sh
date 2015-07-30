@@ -57,5 +57,7 @@ then
 	    [ "$url_in_file" == "$url_in" ]
     then
     	_log 2
+    else
+	axel_parts=2
     fi
 fi   
