@@ -394,9 +394,10 @@ _Video in streaming saltando il player del browser:_
      Akstream, Dailymotion, Exashare, Fastvideo, Flashx.tv,
      http://swzz.xyz, Junkyvideo (HD), Metacafe, Movshare, Nowvideo,
      Openload, Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo,
-     Shortlink, Sockshare (HD), Speedvideo, Streamin (RTMP), Thevideo,
-     Tvdigit.it, Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo
-     (HD), VK (HD), Youtube, youtube-dl (script), Zinwa (RTMP) 
+     Shortlink, Sockshare (HD), Speedvideo (HD), Streamin (RTMP),
+     Thevideo, Tvdigit.it, Videopremium (RTMP), Videowood, Vidhappy
+     (RTMP), Vimeo (HD), VK (HD), Youtube, youtube-dl (script), Zinwa
+     (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
@@ -1056,9 +1057,9 @@ Indice analitico generale
 * argomenti:                             Il comando ZDL.       (line 18)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
-                                                               (line 18)
+                                                               (line 19)
 * file hosting:                          Servizi streaming/hosting.
-                                                               (line 18)
+                                                               (line 19)
 * opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
 * sintassi:                              Il comando ZDL.       (line 13)
@@ -1148,23 +1149,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5388
 Node: Servizi streaming/hosting10983
-Node: Avviare ZDL14181
-Node: Arrestare ZDL16619
-Node: Controllare i download17724
-Node: Manuali d'uso22012
-Node: Modi22428
-Node: Readline25694
-Node: Editor27214
-Node: Omonimie28439
-Node: Filtri29972
-Node: Creare nuove estensioni30294
-Node: Software consigliati31863
-Node: Conkeror32971
-Node: zdl-xterm e XXXTerm/Xombrero33982
-Node: Installazione e aggiornamento35906
-Node: Tags38230
-Node: Copying40389
-Node: Contatti41439
+Node: Avviare ZDL14191
+Node: Arrestare ZDL16629
+Node: Controllare i download17734
+Node: Manuali d'uso22022
+Node: Modi22438
+Node: Readline25704
+Node: Editor27224
+Node: Omonimie28449
+Node: Filtri29982
+Node: Creare nuove estensioni30304
+Node: Software consigliati31873
+Node: Conkeror32981
+Node: zdl-xterm e XXXTerm/Xombrero33992
+Node: Installazione e aggiornamento35916
+Node: Tags38240
+Node: Copying40399
+Node: Contatti41449
 
 End Tag Table
 

@@ -38,15 +38,15 @@ then
 	url_link="$url_in"
     fi
 
-    html=$(wget -qO- "$url_link" \
-		--user-agent="$user_agent" \
-		--keep-session-cookies \
+    html=$(wget -qO- "$url_link"                      \
+		--user-agent="$user_agent"            \
+		--keep-session-cookies                \
 		--save-cookies=$path_tmp/cookies.zdl)
     input_hidden "$html"
     
-    html=$(wget -qO- "$url_link" \
-		--user-agent="$user_agent" \
-		--load-cookies=$path_tmp/cookies.zdl \
+    html=$(wget -qO- "$url_link"                      \
+		--user-agent="$user_agent"            \
+		--load-cookies=$path_tmp/cookies.zdl  \
 		--post-data="$post_data")
     input_hidden "$html"
     unset post_data
@@ -73,4 +73,3 @@ then
     	_log 3
     fi
 fi
- 
