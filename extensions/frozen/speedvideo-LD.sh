@@ -25,49 +25,35 @@
 #
 
 ## zdl-extension types: streaming
-## zdl-extension name: Speedvideo (HD)
+## zdl-extension name: Speedvideo
 
 
 if [[ "$url_in" =~ (speedvideo.) ]]
 then
-    if [[ "$url_in" =~ embed ]]
+    if [[ ! "$url_in" =~ embed ]]
     then
-    	url_link="${url_in//embed-}"
-	url_link="${url_link%-*}"
-    else
-	url_link="$url_in"
+	link_parser "$url_in"
+	parser_path="${parser_path%%\/*}"
+	url_link="http://speedvideo${parser_domain#*speedvideo}/embed-${parser_path%.html}-607x360.html"
     fi
 
-    html=$(wget -qO- "$url_link" \
-		--user-agent="$user_agent" \
-		--keep-session-cookies \
-		--save-cookies=$path_tmp/cookies.zdl)
-    input_hidden "$html"
-    
-    html=$(wget -qO- "$url_link" \
-		--user-agent="$user_agent" \
-		--load-cookies=$path_tmp/cookies.zdl \
-		--post-data="$post_data")
-    input_hidden "$html"
-    unset post_data
-    
+    html=$(wget "$url_link" -qO-)
     if [[ ! "$html" =~ 'File Not Found' ]]
     then
-	linkfile=$(grep 'file: base64_decode' <<< "$html" |head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
-    	var2=$(grep base64_decode <<< "$html" |sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
-    	url_in_file=$(base64_decode $linkfile $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+	linkfile=$(grep linkfile <<< "$html" |head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
+	var2=$(grep base64_decode <<< "$html" |sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
+	url_in_file=$(base64_decode $linkfile $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+	file_in=$(wget -q -O- "$url_in" |grep 'itle>' |sed -r 's|.*itle>([^<>]+)<.+|\1|g').${url_in_file##*.}
+	file_in="${file_in#Watch }"
 
-	file_in=$(wget -qO- "$url_in" |grep 'itle>' |sed -r 's|.*itle>([^<>]+)<.+|\1|g').${url_in_file##*.}
-    	file_in="${file_in#Watch }"
-
-    	axel_parts=4
+	axel_parts=4
 	
-    	if ! url "$url_in_file" ||
-    		[ "$file_in" == ".${url_in_file##*.}" ]
-    	then
-    	    break_loop=true
-    	    _log 2
-    	fi
+	if ! url "$url_in_file" ||
+		[ "$file_in" == ".${url_in_file##*.}" ]
+	then
+	    break_loop=true
+	    _log 2
+	fi
     else
     	break_loop=true
     	_log 3
