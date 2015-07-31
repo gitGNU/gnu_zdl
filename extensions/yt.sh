@@ -62,7 +62,7 @@ then
 
 	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
 	then
-	    data=$(youtube-dl --get-url --get-filename "$url_in")
+	    data=$(youtube-dl --get-url --get-filename "${url_in%%\&*}")
 	    file_in="$(tail -n1 <<< "$data")"
 	    file_in="${file_in% _ *}"
 

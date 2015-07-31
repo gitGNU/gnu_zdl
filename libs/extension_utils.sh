@@ -27,10 +27,14 @@
 #### hacking web pages
 
 function get_tmps {
-#    while [ "`cat "$path_tmp"/zdl.tmp 2>/dev/null |grep \</html`" == "" ]; do
-	wget -t 3 -T $max_waiting --no-check-certificate --retry-connrefused --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in  &>/dev/null
-	print_c 0 "...\c"
-#    done
+    wget -t 3 -T $max_waiting                    \
+	 --no-check-certificate                  \
+	 --retry-connrefused                     \
+	 --save-cookies="$path_tmp"/cookies.zdl  \
+	 --user-agent="$user_agent"              \
+	 -qO "$path_tmp/zdl.tmp"                 \
+	 "$url_in"  
+    print_c 0 "...\c"
 }
 
 function input_hidden {
@@ -72,7 +76,8 @@ function input_hidden {
 
 function pseudo_captcha { #per implementarla, analizzare ../extensions/frozen/sharpfile.sh
     j=0
-    for cod in ${ascii_dec[*]}; do 
+    for cod in ${ascii_dec[*]}
+    do 
 	captcha[$j]=`printf "\x$(printf %x $cod)"`
 	(( j++ ))
     done
@@ -88,7 +93,8 @@ function htmldecode {
     entity_decoded=( '"' '&' '<' '>' 'Œ' 'œ' 'Š' 'š' 'Ÿ' '^' '~' ' ' '  ' '' '' '' '' '' '–' '—' '‘' '’' '‚' '“' '”' '„' '†' '‡' '‰' '‹' '›' '€' )
 
     decoded_expr="$1"
-    for i in $(seq 0 $(( ${#entity[*]}-1 )) ); do
+    for i in $(seq 0 $(( ${#entity[*]}-1 )) )
+    do
 	decoded_expr="${decoded_expr//${entity[$i]}/${entity_decoded[$i]}}"
     done
     echo "$decoded_expr"
@@ -99,7 +105,8 @@ function urlencode {
     encoded=( '%2B' '%2F' '%3D' )
 
     text="$1"
-    for i in $(seq 0 $(( ${#char[*]}-1 )) ); do
+    for i in $(seq 0 $(( ${#char[*]}-1 )) )
+    do
 	text="${text//${char[$i]}/${encoded[$i]}}"
     done
     echo -n "$text"
@@ -109,7 +116,8 @@ function add_container {
     container=$(urlencode "$1")
     URLlist=$(wget -q "http://dcrypt.it/decrypt/paste" --post-data="content=${container}" -O- |egrep -e "http" -e "://")
     unset new
-    for ((i=1; i<=$(wc -l <<< "$URLlist"); i++)); do
+    for ((i=1; i<=$(wc -l <<< "$URLlist"); i++))
+    do
 	new=$(sed -n ${i}p  <<< "$URLlist" |sed -r "s|.*\"(.+)\".*|\\1|g")
 	[ "$i" == 1 ] && url_in="$new"
 	#links_loop + "$new"
@@ -120,7 +128,8 @@ function add_container {
 
 function base36 {
     b36arr=( 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z )
-    for i in $(echo "obase=36; $1"| bc); do
+    for i in $(echo "obase=36; $1"| bc)
+    do
         echo -n "${b36arr[${i#0}]}"
     done
 }
@@ -137,10 +146,13 @@ function packed {
     e=$5 #non esiste
     d=$6 #non esiste
 
-    while [ "$c" != 0 ]; do
+    while [ "$c" != 0 ]
+    do
 	 (( c-- ))
 	 int=$(base36 $c)
-	 if [ ! -z "${k[$c]}" ] && [ "${k[$c]}" != 0 ]; then
+	 if [ -n "${k[$c]}" ] &&
+		[ "${k[$c]}" != 0 ]
+	 then
 	     p=$(sed "s@\\b$int\\b@${k[$c]}@g" <<< "$p")
 	     unset int
 	 fi
@@ -162,7 +174,8 @@ function countdown+ {
     print_c 2 "Attendi $max secondi:"
     k=`date +"%s"`
     s=0
-    while (( $s<$max )); do
+    while (( $s<$max ))
+    do
 	if ! check_pid $pid_prog
 	then
 	    exit
@@ -179,7 +192,8 @@ function countdown- {
     start=`date +"%s"`
     stop=$(( $start+$max ))
     diff=$max
-    while (( $diff>0 )); do
+    while (( $diff>0 ))
+    do
 	if ! check_pid $pid_prog
 	then
 	    exit
@@ -193,7 +207,8 @@ function countdown- {
 }
 
 function tags2vars {
-    if [[ ! -z $1 ]]; then
+    if [[ -n $1 ]]
+    then
 	 eval $(sed -r 's|<([^/<>]+)>([^/<>]+)</([^<>]+)>|\1=\2; |g' <<< "$1")
     fi
 }
@@ -228,7 +243,8 @@ function base64_decode {
     var_6='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
     var_f=0
     var_10=0
-    while true; do
+    while true
+    do
 	var_a=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 ))
 	(( var_f++ ))
 	var_b=$(( $(expr index "$var_6" ${arg1:$var_f:1} )-1 )) 
@@ -241,16 +257,18 @@ function base64_decode {
 	var_7=$(( $var_e >> 16 & 0xff ))
 	var_8=$(( $var_e >> 8 & 0xff ))
 	var_9=$(( $var_e & 0xff ))
-	if (( $var_c == 64 )); then
+	if (( $var_c == 64 ))
+	then
 	    var_12[$(( var_10++ ))]=$(code2char $var_7)
 	else
-	    if (( $var_d == 64 )); then
+	    if (( $var_d == 64 ))
+	    then
 		var_12[$(( var_10++ ))]=$(code2char $var_7)$(code2char $var_8)
 	    else
 		var_12[$(( var_10++ ))]=$(code2char $var_7)$(code2char $var_8)$(code2char $var_9)
 	    fi
 	fi
-	if (( $var_f>=${#arg1} )); then break; fi
+	(( $var_f>=${#arg1} )) && break
     done
     sed -r 's| ||g' <<< "${var_12[*]}"
 }
