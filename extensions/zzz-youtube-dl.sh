@@ -31,9 +31,26 @@ if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        [ -z "$url_in_file" ]
 then
     data=$(youtube-dl --get-url --get-filename "$url_in")
-    file_in="$(tail -n1 <<< "$data")"
-    file_in="${file_in% _ *}"
 
+    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
+    for item in ${items[*]}
+    do
+	url=$(cat "$item" 2>/dev/null)
+	if [ "${url%% }" == "$url_in" ]
+	then
+	    item="${item// /_}"
+	    file_in="${item#*filename_}"
+	    file_in="${file_in%.txt}"
+	    break
+	fi
+    done
+
+    if [ -z "$file_in" ]
+    then
+	file_in="$(tail -n1 <<< "$data")"
+	file_in="${file_in% _ *}"
+    fi
+    
     url_in_file="$(tail -n2 <<< "$data" | head -n1)"
 
     if ! url "$url_in_file"
