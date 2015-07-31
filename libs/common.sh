@@ -288,7 +288,8 @@ function link_parser {
     # extract the user and password (if any)
     userpass=`echo "$parser_url" | grep @ | cut -d@ -f1`
     parser_pass=`echo "$userpass" | grep : | cut -d: -f2`
-    if [ -n "$pass" ]; then
+    if [ -n "$pass" ]
+    then
 	parser_user=`echo $userpass | grep : | cut -d: -f1 `
     else
 	parser_user="$userpass"
@@ -297,8 +298,11 @@ function link_parser {
     # extract the path (if any)
     parser_path="$(echo $parser_url | grep / | cut -d/ -f2-)"
 
-    if [ "${parser_proto}" != "${parser_proto//ftp}" ] || [ "${parser_proto}" != "${parser_proto//http}" ]; then
-	if ( [ ! -z "$parser_domain" ] || [ ! -z "$parser_ip" ] ) && [ ! -z "$parser_path" ]; then
+    if [[ "${parser_proto}" =~ ^(ftp|http) ]]
+    then
+	if ( [ -n "$parser_domain" ] || [ -n "$parser_ip" ] ) &&
+	       [ -n "$parser_path" ]
+	then
 	    return 0
 	fi
     fi
