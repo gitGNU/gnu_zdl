@@ -48,7 +48,7 @@ then
 
 	axel_parts=4
 	
-	if ! link_parser "$url_in_file" &&
+	if ! url "$url_in_file" ||
 		[ "$file_in" == ".${url_in_file##*.}" ]
 	then
 	    break_loop=true
