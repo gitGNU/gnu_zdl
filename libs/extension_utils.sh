@@ -34,7 +34,7 @@ function get_tmps {
 	 --user-agent="$user_agent"              \
 	 -qO "$path_tmp/zdl.tmp"                 \
 	 "$url_in"  
-    print_c 0 "...\c"
+#    print_c 0 "...\c"
 }
 
 function input_hidden {

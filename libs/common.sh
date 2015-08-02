@@ -392,3 +392,20 @@ function pipe_files {
 	fi
     fi
 }
+
+function file_filter {
+    ## opzioni filtro
+    filtered=true
+    if [ -n "$no_file_regex" ] &&
+	   [[ "$file_in" =~ $no_file_regex ]]
+    then
+	_log 13
+	return 1
+    fi
+    if [ -n "$file_regex" ] &&
+	   [[ ! "$file_in" =~ $file_regex ]]
+    then
+	_log 14
+	return 1
+    fi
+}

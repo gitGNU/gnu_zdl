@@ -1036,22 +1036,16 @@ function main_loop {
 		    zdl_exit="true" 
 		fi
 
-		## opzioni filtro
-		if [ -n "$no_file_regex" ] &&
-		       [[ "$file_in" =~ $no_file_regex ]]
+		if [ -z "$file_filtered" ]
 		then
-		    _log 13
+		    file_filter
+		else
+		    unset file_filtered
 		fi
-		if [ -n "$file_regex" ] &&
-		       [[ ! "$file_in" =~ $file_regex ]]
-		then
-		    _log 14
-		fi
-		
-		url "$url_in_file"
-		if [[ $? != 0 ]] && 
-		       [[ "$downloader_in" =~ (Wget|Axel) ]] ||
-			   [ "$break_loop" == "true" ]
+
+		if ! url "$url_in_file" && 
+			[[ "$downloader_in" =~ (Wget|Axel) ]] ||
+			    [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
 		    continue
