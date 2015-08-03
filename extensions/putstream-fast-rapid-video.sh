@@ -67,7 +67,7 @@ then
     fi
 
     [ -n "$file_in" ] && file_in="${file_in#Watch}".${url_in_file##*.}
-    file_in="$file_in## }"
+    file_in="${file_in## }"
     
     if [ -z "$url_in_file" ]
     then
