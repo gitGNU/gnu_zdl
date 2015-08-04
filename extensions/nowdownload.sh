@@ -137,10 +137,11 @@ then
 	# 	file_in1=${file_in1%.}
 	# done
 	
-	file_in2="${url_in_file//*'/'}"
-	file_in2="${file_in2#*_}"
-	
-	if [ "$file_in2" != "${file_in2//$file_in1}" ]
+	file_in2="${url_in_file##*\/}"
+	file_in2="${file_in2##_}"
+
+	if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
+	       [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
 	then
     	    file_in="$file_in2"
 	    
