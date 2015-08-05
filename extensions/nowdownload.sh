@@ -122,47 +122,47 @@ then
 		break
 	    fi
 	done
-
-
-	# file_in1="$(grep 'Downloading' "$path_tmp"/zdl.tmp)"
-	# file_in1="${file_in1#*'<br> '}"
-	# file_in1="${file_in1%%</h4>*}"
-	# file_in1="${file_in1%' '*}"
-	# file_in1="${file_in1%' '*}"
-	# file_in1="${file_in1%' '*}"
-	# file_in1="${file_in1//'<br>'/}"
-	
-	# while [ "$file_in1" != "${file_in1%.}" ]
-	# do
-	# 	file_in1=${file_in1%.}
-	# done
-	
-	file_in2="${url_in_file##*\/}"
-	file_in2="${file_in2##_}"
-
-	if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
-	       [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
-	then
-    	    file_in="$file_in2"
-	    
-	elif [ -n "$file_in1" ]
-	then
-    	    file_ext="${file_in2##*.}"
-    	    file_in="${file_in1}.${file_ext}"
-	    
-	elif [ -z "$jump" ]
-	then
-    	    _log 2
-	fi
-	
-	file_in="${file_in%'?'*}"
-
-	if ! url "$url_in_file" ||
-		[ "$url_in_file" == "$url_in" ] ||
-		[ -z "$file_in" ]
-	then
-	    _log 2
-	fi
     fi
+
+    # file_in1="$(grep 'Downloading' "$path_tmp"/zdl.tmp)"
+    # file_in1="${file_in1#*'<br> '}"
+    # file_in1="${file_in1%%</h4>*}"
+    # file_in1="${file_in1%' '*}"
+    # file_in1="${file_in1%' '*}"
+    # file_in1="${file_in1%' '*}"
+    # file_in1="${file_in1//'<br>'/}"
+    
+    # while [ "$file_in1" != "${file_in1%.}" ]
+    # do
+    # 	file_in1=${file_in1%.}
+    # done
+    
+    file_in2="${url_in_file##*\/}"
+    file_in2="${file_in2##_}"
+
+    if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
+	   [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
+    then
+    	file_in="$file_in2"
+	
+    elif [ -n "$file_in1" ]
+    then
+    	file_ext="${file_in2##*.}"
+    	file_in="${file_in1}.${file_ext}"
+	
+    elif [ -z "$jump" ]
+    then
+    	_log 2
+    fi
+    
+    file_in="${file_in%'?'*}"
+
+    if ! url "$url_in_file" ||
+	    [ "$url_in_file" == "$url_in" ] ||
+	    [ -z "$file_in" ]
+    then
+	_log 2
+    fi
+
     unset file_in2 file_in1 file_ext token preurl_in_file jump
 fi
