@@ -83,7 +83,7 @@ function scrape_url {
 
 	if [ -n "$(command -v curl 2>/dev/null)" ]
 	then
-	    html=$(curl "$url_page")
+	    html=$(curl --silent "$url_page")
 	else
 	    html=$(wget -qO- --user-agent="$user_agent" "$url_page")
 	fi
