@@ -30,11 +30,19 @@
 
 if [[ "$url_in" =~ (adf.ly|adfoc.us|linkbucks.com|bit.ly|goo.gl) ]]
 then
-    new_url=$(wget -qO-                                          \
-		   --post-data="url=$url_in"                     \
-		   "http://www.bypassshorturl.com/get.php")
+    if [ -n "$(command -v curl 2>/dev/null )" ]
+    then
+	new_url=$(curl -d "url=$url_in" "http://www.bypassshorturl.com/get.php")
+    fi
+
+    if [ -z "$new_url" ]
+    then
+	new_url=$(wget -qO- --post-data="url=$url_in" "http://www.bypassshorturl.com/get.php")
+    fi
+
+    new_url="$(sanitize_url "$new_url")"
     
-    if url "$new_url"
+    if [ -n "$new_url" ]
     then
 	links_loop - "$url_in"
 	url_in="$new_url"

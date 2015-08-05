@@ -80,8 +80,14 @@ function scrape_url {
     if url "$url_page"
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
-	html=$(wget -qO- --user-agent="$user_agent" "$url_page"                    |
-		      tr "\t\r\n'" '   "'                                          |    
+
+	if [ -n "$(command -v curl 2>/dev/null)" ]
+	then
+	    html=$(curl "$url_page")
+	else
+	    html=$(wget -qO- --user-agent="$user_agent" "$url_page")
+	fi
+	html=$(tr "\t\r\n'" '   "' <<< "$html"                                  |    
 		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"'  | 
 		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g'                           |                          
 		      grep "$url_regex")
@@ -320,7 +326,7 @@ function url {
 }
 
 function grep_urls {
-    grep -P '^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' <<< "$1"
+    grep -P '^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*$' <<< "$1"
 }
 
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
@@ -339,7 +345,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	touch "${file_to_clean}-rewriting"
 
 	local lines=$(
-	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-]*$' "$file_to_clean")"
+	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*$' "$file_to_clean")"
 	)
 	if [ ! -z "$lines" ]
 	then
