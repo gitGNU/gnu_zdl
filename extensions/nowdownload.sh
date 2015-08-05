@@ -67,10 +67,10 @@ then
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1//'<br>'/}"
     
-    # while [ "$file_in1" != "${file_in1%.}" ]
-    # do
-    file_in1=${file_in1%%'.'}
-    #    done
+    while [ "$file_in1" != "${file_in1%.}" ]
+    do
+	file_in1=${file_in1%'.'}
+    done
     
     file_in="${file_in1}"
     if ! file_filter
