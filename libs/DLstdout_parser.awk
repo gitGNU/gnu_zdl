@@ -223,6 +223,11 @@ function progress_out (value,           progress_line) {
 		progress_line = chunk[y]
 		break
 	    }
+	    if (chunk[y] ~ /.+K.+ ([0-9]+)[MK]+/) {
+		    progress_chunked = chunk[y]
+		    nolength = ""
+		break
+	    }
 	}
 
 	if (progress_end[i]) {
@@ -247,6 +252,10 @@ function progress_out (value,           progress_line) {
 	    sub(/[BKM]/, "", speed_out[i])
 	    length_saved[i] = size_file(file_out[i])
 	    if (! length_saved[i]) length_saved[i] = 0
+	} else if (progress_chunked) {
+	    match(progress_chunked, /.+ ([0-9]+)[MK]/, matched)
+	    speed_out[i] = matched[1]
+	    length_saved[i] = size_file(file_out[i])
 	} else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
 	    percent_out[i] = 0
@@ -405,8 +414,6 @@ BEGIN {
 
     if ($0 ~ /Length:/ && dler == "Wget") {
 	length_out[i] = $2
-	if (length_out[i] == "unspecified")
-	    length_out[i] = 0
 	array_out(length_out[i], "length_out")
     }
     if ($0 ~ /File\ size:/ && dler == "Axel") {

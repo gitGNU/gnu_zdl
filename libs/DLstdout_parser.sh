@@ -59,6 +59,8 @@ function data_stdout {
 	unset tmp_files
 	eval "$awk_data"
 	
+	[ -n "$test" ] && echo "$test" ## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
+
 	return 0
     else
 	return 1

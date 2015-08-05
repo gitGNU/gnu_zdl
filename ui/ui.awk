@@ -176,6 +176,10 @@ function make_progress (size_bar, progress_bar, progress) {
 	    bar_color = On_Green 
 	    speed = int(speed_out[i]) speed_out_type[i]
 	    eta = eta_out[i]
+	    if (length_out[i] == "unspecified") {
+		info = sprintf("%-5s", speed)	
+		progress = BBlue "dimensione file non specificata, finora scaricati "  BGreen human_length(length_saved[i])  " ("  length_saved[i] " B) " speed Color_Off
+	    }
 	} else {
 	    diff_bar_color = BYellow
 	    bar_color = On_Yellow
