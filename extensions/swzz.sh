@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: shortlinks
-## zdl-extension name: http://swzz.xyz
+## zdl-extension name: swzz.xyz
 
 if [ "$url_in" != "${url_in//swzz.xyz}" ]
 then
