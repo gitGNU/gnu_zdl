@@ -24,8 +24,8 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
-## zdl-extension name: youtube-dl (script)
+## zdl-extension types: programs
+## zdl-extension name: youtube-dl [--list-extractors]
 
 
 if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&

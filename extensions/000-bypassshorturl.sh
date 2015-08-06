@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
+## zdl-extension types: shortlinks
 ## zdl-extension name: Adf.ly, Adfoc.us, linkbucks.com, bit.ly, goo.gl
 
 

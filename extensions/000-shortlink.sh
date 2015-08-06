@@ -1,3 +1,4 @@
+
 #!/bin/bash -i
 #
 # ZigzagDownLoader (ZDL)
@@ -24,7 +25,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
+## zdl-extension types: shortlinks
 ## zdl-extension name: Shortlink
 
 

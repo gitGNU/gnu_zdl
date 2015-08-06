@@ -213,7 +213,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 	touch "$rewriting"
     fi
 
-    if [ ! -z "$item" ]
+    if [ -n "$item" ]
     then
 	case $op in
 	    +)
@@ -347,7 +347,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	local lines=$(
 	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*$' "$file_to_clean")"
 	)
-	if [ ! -z "$lines" ]
+	if [ -n "$lines" ]
 	then
 	    echo -e "$lines" > "$file_to_clean"
 	else

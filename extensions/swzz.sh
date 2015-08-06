@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: download streaming
+## zdl-extension types: shortlinks
 ## zdl-extension name: http://swzz.xyz
 
 if [ "$url_in" != "${url_in//swzz.xyz}" ]

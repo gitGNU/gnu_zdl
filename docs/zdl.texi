@@ -228,6 +228,9 @@ ZDL è software libero, rilasciato con licenza GPL (General Public License): @ur
 
 @ref{Copying}.
 
+@unnumbered Installa ZDL
+@ref{Installazione e aggiornamento}
+
 @ifinfo
 @menu
 @emph{ZDL}
@@ -481,11 +484,15 @@ __STREAMING__
 @cindex file hosting
 @item @b{File hosting:}
 __DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
-
+@cindex short links
+@item @b{Short links:}
+__SHORTLINKS__
 
 @item @b{Tutti i file scaricabili con le seguenti estensioni dei browser:}
 @emph{Flashgot} di @emph{Firefox/Iceweasel/Icecat}, funzione @kbd{M-x zdl} di @emph{Conkeror} e script @command{zdl-xterm} (@emph{XXXTerm/Xombrero} e altri)
 
+@item @b{Tutti i file scaricabili con i seguenti programmi:}
+__PROGRAMS__
 @end table
 
 @c @end man
@@ -858,6 +865,11 @@ Terminale grafico predefinito per GNU/Linux
 @item Flashgot
 Estensione di Firefox/Iceweasel/Icecat
 
+@pindex youtube-dl
+@item youtube-dl
+Script in python che amplia e potenzia le estensioni di ZDL
+
+
 @pindex editor
 @item Emacs
 @itemx Jed
@@ -893,9 +905,6 @@ Funzione @kbd{M-x zdl} autoinstallata
 @table @emph
 @item Cygwin (x86 32-bit)
 Distribuzione per il porting di software di sistemi POSIX su Microsoft Windows
-
-@item Wget
-Downloader principale di ZDL, da installare su Cygwin
 
 @end table
 

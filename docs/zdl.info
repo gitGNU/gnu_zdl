@@ -95,6 +95,11 @@ License): `http://www.gnu.org/licenses/gpl.html'
 
    *note Copying::.
 
+Installa ZDL
+************
+
+*note Installazione e aggiornamento::
+
 * Menu:
 
 _ZDL_
@@ -391,26 +396,30 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Adf.ly, Adfoc.us, Akstream, bit.ly, Dailymotion, Exashare,
-     Fastvideo, Flashx.tv, goo.gl, http://swzz.xyz, Junkyvideo (HD),
-     linkbucks.com, Metacafe, Movshare, Nowvideo, Openload,
-     Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Shortlink,
-     Sockshare (HD), Speedvideo (HD), Streamin (RTMP), Thevideo,
-     Tvdigit.it, Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo
-     (HD), VK (HD), Youtube, youtube-dl (script), Zinwa (RTMP) 
+     Akstream, Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo
+     (HD), Metacafe, Movshare, Nowvideo, Openload,
+     Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Sockshare
+     (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tvdigit.it,
+     Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD), VK
+     (HD), Youtube, Zinwa (RTMP) 
 
 _File hosting:_
-     Adf.ly, Adfoc.us, Billionuploads, bit.ly, Cloudzilla, Cyberlocker,
-     Easybytez, Glumbouploads, goo.gl, http://swzz.xyz, Junkyvideo
-     (HD), Likeupload, linkbucks.com, Mediafire, Nowdownload, Openload,
-     Shortlink, Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit,
-     Uptobox, youtube-dl (script) e, dopo aver risolto il captcha e
-     generato il link, anche Sharpfile, Depositfiles ed altri servizi
+     Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
+     Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Openload,
+     Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit, Uptobox e, dopo
+     aver risolto il captcha e generato il link, anche Sharpfile,
+     Depositfiles ed altri servizi 
+
+_Short links:_
+     Adf.ly, Adfoc.us, bit.ly, goo.gl, http://swzz.xyz, linkbucks.com,
+     Shortlink
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
      _Conkeror_ e script `zdl-xterm' (_XXXTerm/Xombrero_ e altri)
 
+_Tutti i file scaricabili con i seguenti programmi:_
+     youtube-dl [-list-extractors]
 
 Altre informazioni utili.
 =========================
@@ -864,6 +873,9 @@ _XTerm_
 _Flashgot_
      Estensione di Firefox/Iceweasel/Icecat
 
+_youtube-dl_
+     Script in python che amplia e potenzia le estensioni di ZDL
+
 _Emacs_
 _Jed_
 _Jupp_
@@ -895,9 +907,6 @@ Dipendenze per Windows:
 _Cygwin (x86 32-bit)_
      Distribuzione per il porting di software di sistemi POSIX su
      Microsoft Windows
-
-_Wget_
-     Downloader principale di ZDL, da installare su Cygwin
 
 
 
@@ -1057,11 +1066,13 @@ Indice analitico generale
 * argomenti:                             Il comando ZDL.       (line 18)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
-                                                               (line 19)
+                                                               (line 18)
 * file hosting:                          Servizi streaming/hosting.
-                                                               (line 19)
+                                                               (line 18)
 * opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
+* short links:                           Servizi streaming/hosting.
+                                                               (line 25)
 * sintassi:                              Il comando ZDL.       (line 13)
 * streaming:                             Servizi streaming/hosting.
                                                                (line 12)
@@ -1076,17 +1087,18 @@ Indice dei programmi
 
 * avconv:                                Software consigliati. (line  9)
 * axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 42)
-* editor:                                Software consigliati. (line 21)
+* conkeror:                              Software consigliati. (line 45)
+* editor:                                Software consigliati. (line 24)
 * ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 36)
+* firefox:                               Software consigliati. (line 39)
 * flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 36)
-* iceweasel:                             Software consigliati. (line 36)
+* icecat:                                Software consigliati. (line 39)
+* iceweasel:                             Software consigliati. (line 39)
 * rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 39)
+* xombrero:                              Software consigliati. (line 42)
 * xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 39)
+* xxxterm:                               Software consigliati. (line 42)
+* youtube-dl:                            Software consigliati. (line 21)
 
 
 File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
@@ -1147,25 +1159,25 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5388
-Node: Servizi streaming/hosting10983
-Node: Avviare ZDL14289
-Node: Arrestare ZDL16727
-Node: Controllare i download17832
-Node: Manuali d'uso22120
-Node: Modi22536
-Node: Readline25802
-Node: Editor27322
-Node: Omonimie28547
-Node: Filtri30080
-Node: Creare nuove estensioni30402
-Node: Software consigliati31971
-Node: Conkeror33079
-Node: zdl-xterm e XXXTerm/Xombrero34090
-Node: Installazione e aggiornamento36014
-Node: Tags38338
-Node: Copying40497
-Node: Contatti41547
+Node: Il comando ZDL5454
+Node: Servizi streaming/hosting11049
+Node: Avviare ZDL14340
+Node: Arrestare ZDL16778
+Node: Controllare i download17883
+Node: Manuali d'uso22171
+Node: Modi22587
+Node: Readline25853
+Node: Editor27373
+Node: Omonimie28598
+Node: Filtri30131
+Node: Creare nuove estensioni30453
+Node: Software consigliati32022
+Node: Conkeror33142
+Node: zdl-xterm e XXXTerm/Xombrero34153
+Node: Installazione e aggiornamento36077
+Node: Tags38401
+Node: Copying40774
+Node: Contatti41824
 
 End Tag Table
 
