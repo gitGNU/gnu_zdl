@@ -411,8 +411,8 @@ _File hosting:_
      Depositfiles ed altri servizi 
 
 _Short links:_
-     Adf.ly, Adfoc.us, bit.ly, goo.gl, http://swzz.xyz, linkbucks.com,
-     Shortlink
+     Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
+     swzz.xyz
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
@@ -1161,23 +1161,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11049
-Node: Avviare ZDL14340
-Node: Arrestare ZDL16778
-Node: Controllare i download17883
-Node: Manuali d'uso22171
-Node: Modi22587
-Node: Readline25853
-Node: Editor27373
-Node: Omonimie28598
-Node: Filtri30131
-Node: Creare nuove estensioni30453
-Node: Software consigliati32022
-Node: Conkeror33142
-Node: zdl-xterm e XXXTerm/Xombrero34153
-Node: Installazione e aggiornamento36077
-Node: Tags38401
-Node: Copying40774
-Node: Contatti41824
+Node: Avviare ZDL14333
+Node: Arrestare ZDL16771
+Node: Controllare i download17876
+Node: Manuali d'uso22164
+Node: Modi22580
+Node: Readline25846
+Node: Editor27366
+Node: Omonimie28591
+Node: Filtri30124
+Node: Creare nuove estensioni30446
+Node: Software consigliati32015
+Node: Conkeror33135
+Node: zdl-xterm e XXXTerm/Xombrero34146
+Node: Installazione e aggiornamento36070
+Node: Tags38394
+Node: Copying40767
+Node: Contatti41817
 
 End Tag Table
 
