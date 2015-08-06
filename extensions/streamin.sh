@@ -31,12 +31,12 @@
 if [ "$url_in" != "${url_in//'streamin.to'}" ]
 then
     html="$(wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)"
-    if [[ "$html" =~ 'File Deleted' ]]
+    if [[ "$html" =~ (File Deleted|file was deleted) ]]
     then
 	_log 3
 	break_loop=true
 
-    elif [ ! -z "$html" ]
+    elif [ -n "$html" ]
     then
 	input_hidden "$html"
 	file_in="$postdata_fname"

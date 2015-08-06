@@ -39,7 +39,7 @@ function force_wget {
 
 function check_axel {
     axel_out=$(axel -o /dev/null "$url_in_file") 
-    if [[ "$axel_out" =~ '400 Bad Request' ]]
+    if [[ "$axel_out" =~ (400 Bad Request|403 Forbidden) ]]
     then
 	return 1
     else 
