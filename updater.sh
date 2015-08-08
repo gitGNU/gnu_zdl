@@ -175,14 +175,16 @@ ESTENSIONI:
 " > "$path_conf"/extensions/README.txt
     find $SHARE/extensions/ -type f |grep -P extensions/[^/]+.sh$  >> "$path_conf"/extensions/README.txt
     
-    for extension in "$path_conf"/extensions/*.sh 
-    do
-	if [ ! -f $SHARE/extensions/"${extension##*\/}" ]
-	then
-	    try ln -s "$extension" $SHARE/extensions/"${extension##*\/}"
-	fi
-    done
-    
+    if [[ $(ls "$path_conf"/extensions/*.sh 2>/dev/null) ]]
+    then
+	for extension in "$path_conf"/extensions/*.sh 
+	do
+	    if [ ! -f $SHARE/extensions/"${extension##*\/}" ]
+	    then
+		try ln -s "$extension" $SHARE/extensions/"${extension##*\/}"
+	    fi
+	done
+    fi    
     
     ## Cygwin: dipendenze
 
