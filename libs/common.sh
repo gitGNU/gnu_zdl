@@ -415,3 +415,19 @@ function file_filter {
 	return 1
     fi
 }
+
+function pid_list_for_prog {
+    cmd="$1"
+    
+    if [ -n "$cmd" ]
+    then
+	if [ -e /cygdrive ]
+	then
+	    TTY=$(tty)
+	    ps ax | grep ${TTY##*\/} | grep $cmd | awk '{print $1}'
+	else
+	    _text="$(ps -aj $pid_prog | grep -P "[0-9]+ $cmd")"
+	    cut -d ' ' -f1 <<<  "${_text## }"
+	fi
+    fi
+}

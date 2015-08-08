@@ -187,14 +187,12 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
 		downloader_cmd="rtmpdump -r \"$streamer\" --playpath=\"$playpath\""
 	    fi
 
-	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ rtmpdump')"
-	    pid_list_0=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+	    pid_list_0="$(pid_list_for_prog "rtmpdump")"
 
 	    eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
 	    
 	    ## pid_in=$!
-	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ rtmpdump')"
-	    pid_list_1=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+	    pid_list_1="$(pid_list_for_prog "rtmpdump")"
 
 	    if [ -z "$pid_list_0" ]
 	    then
@@ -221,8 +219,7 @@ $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 		downloader_cmd="curl \"$streamer playpath=$playpath\""
 	    fi
 
-	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ curl')"
-	    pid_list_0=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+	    pid_list_0="$(pid_list_for_prog "curl")"
 
 	    (
 		eval $downloader_cmd -o "$file_in" 2>> "$path_tmp/${file_in}_stdout.tmp" 
@@ -230,8 +227,7 @@ $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 	      
 	    ) 2>/dev/null &
 
-	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ curl')"
-	    pid_list_1=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+	    pid_list_1="$(pid_list_for_prog "curl")"
 
 	    if [ -z "$pid_list_0" ]
 	    then
