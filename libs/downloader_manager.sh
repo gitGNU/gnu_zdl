@@ -182,65 +182,73 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.tmp"
 	    ;;
 	
 	RTMPDump)
-	    if [ ! -z "$downloader_cmd" ]
+	    if [ -z "$downloader_cmd" ]
 	    then
-		eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
-		pid_in=$!
-
-		echo -e "${pid_in}
-$url_in
-RTMPDump
-${pid_prog}
-$file_in
-$streamer
-$playpath
-$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
-		unset downloader_cmd
-
-	    else
-		rtmpdump -r "$streamer" --playpath="$playpath" -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
-		pid_in=$!
-
-		echo -e "${pid_in}
-$url_in
-RTMPDump
-${pid_prog}
-$file_in
-$streamer
-$playpath
-$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
-
+		downloader_cmd="rtmpdump -r \"$streamer\" --playpath=\"$playpath\""
 	    fi
+
+	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ rtmpdump')"
+	    pid_list_0=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+
+	    eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp" &
+	    
+	    ## pid_in=$!
+	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ rtmpdump')"
+	    pid_list_1=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+
+	    if [ -z "$pid_list_0" ]
+	    then
+		pid_in="$pid_list_1"
+	    else
+		pid_in=$(grep -v "$pid_list_0" <<< "$pid_list_1")
+	    fi
+
+	    echo -e "${pid_in}
+$url_in
+RTMPDump
+${pid_prog}
+$file_in
+$streamer
+$playpath
+$(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
+
+	    unset downloader_cmd
 	    ;;
 	
-    cURL)
-	    if [ ! -z "$downloader_cmd" ]
+	cURL)
+	    if [ -z "$downloader_cmd" ]
 	    then
-		( eval $downloader_cmd -o "$file_in" &>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
-		pid_in=$!
-
-		echo -e "${pid_in}
-$url_in
-cURL
-${pid_prog}
-$file_in
-$streamer
-$playpath" > "$path_tmp/${file_in}_stdout.tmp"
-		unset downloader_cmd
-
-	    else
-		( curl "$streamer playpath=$playpath" -o "$file_in" 2>>"$path_tmp/${file_in}_stdout.tmp"; links_loop - "$url_in" ) 2>/dev/null &
-		pid_in=$!
-
-		echo -e "${pid_in}
-$url_in
-cURL
-${pid_prog}
-$file_in
-$streamer
-$playpath" > "$path_tmp/${file_in}_stdout.tmp"
-
+		downloader_cmd="curl \"$streamer playpath=$playpath\""
 	    fi
+
+	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ curl')"
+	    pid_list_0=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+
+	    (
+		eval $downloader_cmd -o "$file_in" 2>> "$path_tmp/${file_in}_stdout.tmp" 
+		links_loop - "$url_in"
+	      
+	    ) 2>/dev/null &
+
+	    ps_text="$(ps -aj $pid_prog | grep -P '[0-9]+ curl')"
+	    pid_list_1=$(cut -d ' ' -f1 <<<  "${ps_text## }")
+
+	    if [ -z "$pid_list_0" ]
+	    then
+		pid_in="$pid_list_1"
+	    else
+		pid_in=$(grep -v "$pid_list_0" <<< "$pid_list_1")
+	    fi
+
+	    echo -e "${pid_in}
+$url_in
+cURL
+${pid_prog}
+$file_in
+$streamer
+$playpath" > "$path_tmp/${file_in}_stdout.tmp"
+
+	    unset downloader_cmd
 	    ;;
     esac
     
@@ -253,7 +261,7 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
-
+    
     ## è necessario aspettare qualche secondo
     countdown- 5
 }

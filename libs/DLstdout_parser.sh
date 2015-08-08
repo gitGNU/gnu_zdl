@@ -43,23 +43,37 @@ function data_stdout {
 	(( num_check++ ))
     fi
 
+    
     if (( ${#tmp_files[*]}>0 ))
     then
-	awk_data=$(awk                                \
-	    -v file_in="$file_in"                     \
-	    -v url_in="$url_in"                       \
-	    -v no_complete="$no_complete"             \
-	    -v num_check="$num_check"                 \
-	    -v no_check="$no_check"                   \
-	    -v wget_links_index="${#wget_links[*]}"   \
-	    -f $path_usr/libs/common.awk              \
-	    -f $path_usr/libs/DLstdout_parser.awk     \
-	    ${tmp_files[@]}                           \
+	if [[ "$(head -n3 ${tmp_files[@]})" =~ "cURL" ]]
+	then
+	    for ((i=0; i<${#tmp_files[*]}; i++))
+	    do
+		if [ "$(sed -n 3p ${tmp_files[$i]})" == "cURL" ]
+		then
+		    tr "\r" "\n" < ${tmp_files[$i]} > ${tmp_files[i]}.newline
+		    tmp_files[$i]=${tmp_files[$i]}.newline
+		fi
+	    done
+	fi
+
+	awk_data=$(awk                                           \
+		       -v file_in="$file_in"                     \
+		       -v url_in="$url_in"                       \
+		       -v no_complete="$no_complete"             \
+		       -v num_check="$num_check"                 \
+		       -v no_check="$no_check"                   \
+		       -v wget_links_index="${#wget_links[*]}"   \
+		       -f $path_usr/libs/common.awk              \
+		       -f $path_usr/libs/DLstdout_parser.awk     \
+		       ${tmp_files[@]}                           \
 		)
 	unset tmp_files
 	eval "$awk_data"
 	
-	[ -n "$test" ] && echo "$test" ## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
+	## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
+	[ -n "$test" ] && echo -e "$test" 
 
 	return 0
     else

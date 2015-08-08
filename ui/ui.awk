@@ -36,9 +36,9 @@ function human_length (length_B) {
     length_K = length_B/1024
     length_M = length_K/1024
     if (length_M > 0) {
-	return length_M " MB"
+	return sprintf("%.2f", length_M) " MB"
     } else if (length_K > 0) {
-	return length_K " KB"
+	return sprintf("%.2f", length_K) " KB"
     } else {
 	return length_B " B"
     }
@@ -64,6 +64,8 @@ function separator () {
 function show_downloads_extended () {
     for (i=0; i<length(pid_out); i++) {
 	length_H = human_length(length_out[i])
+	speed = int(speed_out[i]) speed_out_type[i]
+	
 	if (exists(file_out[i]))
 	    length_saved[i] = size_file(file_out[i])
 
@@ -85,13 +87,9 @@ function show_downloads_extended () {
 
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
-		length_H = human_length(length_saved[i])
-#		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] Color_Off "\n\n"
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "downloading") "\n\n"
+		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n\n"
 	    } else if (exists(file_out[i])) {
-		length_H = human_length(length_saved[i])
-#		code = code BBlue "Stato: " Color_Off BGreen length_saved[i] " B (" length_H ") terminato" Color_Off "\n\n"
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "complete") "\n\n"
+		code = code BGreen downloader_out[i] ": " progress_unspecified("complete") "\n\n"
 	    } else {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
 	    }
@@ -106,28 +104,18 @@ function show_downloads_extended () {
 function show_downloads () {
     for (i=0; i<length(pid_out); i++) {
 	code = code BBlue "File: " Color_Off file_out[i] BBlue "\nLink: " Color_Off url_out[i] "\n"
-	if (downloader_out[i] == "cURL") {
-	    if (check_pid(pid_out[i])) {
-		length_H = human_length(length_saved[i])
-#		code = code BGreen downloader_out[i] ": " length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] "\n" blue_line
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "downloading") "\n" blue_line
-	    } else if (exists(file_out[i])) {
-		length_H = human_length(length_saved[i])
-#		code = code BGreen downloader_out[i] ": " length_saved[i] " B (" length_H ") terminato\n" blue_line
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "complete") "\n" blue_line
-	    } else {
-		code = code BRed downloader_out[i] ": Download non attivo\n" blue_line
-	    }
-	} else {
-	    progress_bar = make_progress()
-	
-	    if (downloader_out[i] == "RTMPDump")
-		downloader = "RTMP"
-	    else
-		downloader = downloader_out[i]
+	speed = int(speed_out[i]) speed_out_type[i]
+	if (exists(file_out[i]))
+	    length_saved[i] = size_file(file_out[i])
+	    
+	progress_bar = make_progress()
+	    	
+	if (downloader_out[i] == "RTMPDump")
+	    downloader = "RTMP"
+	else
+	    downloader = downloader_out[i]
 
-	    code = code diff_bar_color downloader ": " progress_bar "\n" blue_line
-	}
+	code = code diff_bar_color downloader ": " progress_bar "\n" blue_line
     }
     return code "\n\n\n\n\n"
 }
@@ -135,48 +123,62 @@ function show_downloads () {
 function show_downloads_lite () {
     for (i=0; i<length(pid_out); i++) {
 	file_out_chunk[i] = " " substr(file_out[i], 1, col-36) " "
-	if (downloader_out[i] == "cURL") {
-	    if (check_pid(pid_out[i])) {
-		length_H = human_length(length_saved[i])
-		#code = code BGreen downloader_out[i] ": " file_out_chunk[i] " " length_saved[i] " B (" length_H ") " BBlue speed_out[i] speed_out_type[i] Color_Off
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "downloading")
-	    } else if (exists(file_out[i])) {
-		length_H = human_length(length_saved[i])
-		code = code BGreen downloader_out[i] ": " progress_unspecified(file_out_chunk[i], "complete")
-                # code = code BGreen downloader_out[i] ": "file_out_chunk[i] " " length_saved[i] " B (" length_H ") terminato" Color_Off
-	    } else {
-		code = code BRed downloader_out[i] ": " file_out_chunk[i] " Download non attivo" Color_Off
-	    }
-	} else {
-	    progress_bar = make_progress()
-	    if (downloader_out[i] == "RTMPDump")
-		downloader = "RTMP"
-	    else
-		downloader = downloader_out[i]
-	    code = code diff_bar_color downloader ": " progress_bar "\n"
-	}
+
+	progress_bar = make_progress()
+
+	if (downloader_out[i] == "RTMPDump")
+	    downloader = "RTMP"
+	else
+	    downloader = downloader_out[i]
+
+	code = code diff_bar_color downloader ": " progress_bar "\n"
     }
     return code "\n"
 }
 
 
-function progress_unspecified (file_o,           status) {
-    speed = int(speed_out[i]) speed_out_type[i]
-
-    if (zdl_mode == "lite")
-	filename = Color_Off " " file_o " " BBlue
-    else
-	filename = " "
-    
+function progress_unspecified (status) {
+    progress_text = BBlue "(grandezza del file non specificata dal server) "  BGreen human_length(length_saved[i])
     if (status == "downloading")
-	return BBlue "grandezza del file" filename "non specificata: "  BGreen human_length(length_saved[i]) " " BBlue speed Color_Off
+	return progress_text " " BBlue speed Color_Off
 
     if (status == "complete")
-	return BBlue "grandezza del file" filename "non specificata: "  BGreen human_length(length_saved[i]) " terminato" Color_Off
+	return progress_text " terminato" Color_Off
 }
 
+function bar_colors (content, I) {
+    if ((length_out[i] == "unspecified") && (check_pid(pid_out[i]))) {
+	if (odd_run) {
+	    if (! (I%2)) {
+		bg_color = On_Green
+		fg_color = Black
+	    } else {
+		bg_color = on_diff_color
+		fg_color = Black #White
+	    }
+	} else {
+	    if (! (I%2)) {
+		bg_color = on_diff_color
+		fg_color = Black #White
+	    } else {
+		bg_color = On_Green
+		fg_color = Black
+	    }
+	}
+	return fg_color bg_color content
+    } else {
+	return content
+    }
+}
 
 function make_progress (size_bar, progress_bar, progress) {
+    if (downloader_out[i] == "cURL") {
+	length_out[i] = "unspecified"
+	# if ((! check_pid(pid_out[i])) && (exists(file_out[i]))) {
+	#     percent_out[i] = 100
+	# }
+    }
+
     if (! percent_out[i])
 	percent_out[i] = 0
     size_bar = 0
@@ -194,12 +196,15 @@ function make_progress (size_bar, progress_bar, progress) {
 	}
     } else {
 	if (speed_out[i] > 0) {
+
 	    diff_bar_color = BGreen
 	    bar_color = On_Green 
 	    speed = int(speed_out[i]) speed_out_type[i]
-	    eta = eta_out[i]
-	    if (length_out[i] == "unspecified") {
-		progress = progress_unspecified(file_out[i], "downloading")
+	    if (eta_out[i])
+		eta = eta_out[i]
+	    if ((length_out[i] == "unspecified") && (zdl_mode != "lite")) {
+		progress = progress_unspecified("downloading")
+
 	    }
 	} else {
 	    diff_bar_color = BYellow
@@ -215,24 +220,30 @@ function make_progress (size_bar, progress_bar, progress) {
     bar = ""
     diff_bar = ""
     if (zdl_mode == "lite") {
+	if (tty() ~ /pts/) on_diff_color = On_Gray2
+	if ((tty() ~ /tty/) || ENVIRON["WINDIR"]) on_diff_color = On_Gray1
+
 	for (k=0; k<size_bar; k++) {
 	    if (substr(file_out_chunk[i], k+1, 1)) {
-		bar = bar substr(file_out_chunk[i], k+1, 1)
+		bar = bar bar_colors(substr(file_out_chunk[i], k+1, 1), k)
 	    } else {
-		bar = bar " "
+		bar = bar bar_colors(" ", k)
 	    }
 	}
 
 	for (h=0; h<diff_size_bar; h++) {
 	    if (substr(file_out_chunk[i], h+k+1, 1))
-		diff_bar = diff_bar substr(file_out_chunk[i], h+k+1, 1)
+		diff_bar = diff_bar bar_colors(substr(file_out_chunk[i], h+k+1, 1), k+h)
 	    else
-		diff_bar = diff_bar " "
+		diff_bar = diff_bar bar_colors(" ", k+h)
 	}
-	
-	if (tty() ~ /pts/) on_diff_color = On_Gray2
-	if ((tty() ~ /tty/) || ENVIRON["WINDIR"]) on_diff_color = On_Gray1
-	progress_bar = Black bar_color bar Color_Off on_diff_color diff_bar #_color diff_bar
+
+	if (length_out[i] == "unspecified" && (check_pid(pid_out[i]))) {
+	    info = sprintf("%-11s" Color_Off BBlue "%s", human_length(length_saved[i]), speed Color_Off)	
+	    progress_bar = bar diff_bar Color_Off BGreen
+	} else {
+	    progress_bar = Black bar_color bar Color_Off on_diff_color diff_bar #_color diff_bar
+	}
     } else {
 	for (k=0; k<size_bar; k++) bar = bar " "
 	for (k=0; k<diff_size_bar; k++) diff_bar = diff_bar "│"

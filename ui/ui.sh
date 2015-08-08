@@ -41,6 +41,9 @@ function show_downloads {
 }
 
 function show_downloads_lite {
+    (( odd_run++ ))
+    (( odd_run>1 )) && odd_run=0
+    
     if data_stdout "no_check"
     then
 	awk -f $path_usr/libs/common.awk      \
@@ -48,6 +51,7 @@ function show_downloads_lite {
 	    -f $path_usr/ui/ui.awk            \
 	    -v col="$COLUMNS"                 \
 	    -v zdl_mode="lite"                \
+	    -v odd_run="$odd_run"             \
 	    -e "BEGIN {$awk_data display()}" 
     elif [ -f "$start_file" ]
     then

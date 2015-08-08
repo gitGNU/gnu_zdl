@@ -304,19 +304,32 @@ function progress_out (value,           progress_line) {
 	}
     } else if (dler == "cURL") {
 	for (y=n; y>0; y--) {
-	    if (chunk[y] ~ /[0-9]+/) {
-		progress_line = chunk[y]
-		break
+
+	    if (chunk[y] ~ /[\ ]+[0-9]+[k]*k$/) {
+	    	progress_line = chunk[y]
+	    	break
 	    }
 	}
         if (progress_line) {
-	    split(progress_line, progress_elems, /[\ ]*/)
-	    speed_out[i] = int(progress_elems[length(progress_elems)])
+	    split(progress_line, progress_elems, /[\ ]+/)
+	    speed_out[i] = progress_elems[length(progress_elems)]
+	    if (speed_out[i] ~ /k$/) {
+		speed_out_type[i] = "KB/s"
+		sub(/k$/, "", speed_out[i])
+	    } else {
+		speed_out_type[i] = "B/s"
+	    }
+	    
+	    if (!speed_out[i])
+		speed_out[i] = 0
+	    
+	} else {
+	    speed_out[i] = 0
 	    speed_out_type[i] = "KB/s"
-	    length_saved[i] = size_file(file_out[i])
-	    length_out[i] = 0
-
 	}
+	length_saved[i] = size_file(file_out[i])
+	if (!length_out[i])
+	    length_out[i] = "unspecified"
     }
 
     if (! speed_out[i]) speed_out[i] = 0
@@ -337,7 +350,7 @@ function progress_out (value,           progress_line) {
 function progress () {
     ## estrae le ultime n righe e le processa con progress_out()
     delete test_stdout["new"]
-    for(k=0;k<n;k++) {
+    for (k=0;k<n;k++) {
 	chunk[k] = progress_data[++j%n]
 	if (! no_check)
 	    test_stdout["new"] = test_stdout["new"] chunk[k]
@@ -352,13 +365,14 @@ function progress () {
 }
 
 BEGIN {
-    i=-1
-    j=0
-    n=20
+    i = -1
+    j = 0
+    n = 20
     delete pid_alive
 }
 
 {
+ #   		code = code "test+=\" RIGA " $0 "\"; "    
     if (FNR == 1) {
 	if (j>n) {
 	    ## progress_out
