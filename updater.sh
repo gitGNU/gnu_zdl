@@ -68,7 +68,7 @@ function try {
     then	
 	if ! sudo $cmd 2>/dev/null 
 	then
-	    su -c "$cmd" || ( bold "$failure"; return 1 )
+	    su -c "$cmd" || ( print_c 3 "$failure: $cmd"; return 1 )
 	fi
     fi
 }
