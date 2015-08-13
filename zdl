@@ -343,10 +343,12 @@ then
 	    then
 		referer="$6"
 		ext="${file_in##*.}"
-		file_in2=`wget "$referer" -O - -q | grep "&amp;title="`
+		file_in2=$(wget "$referer" -qO- | grep "&amp;title=")
 		file_in2="${file_in2#*'&amp;title='}"
 		file_in2="${file_in2::240}"
-		[ ! -z "$file_in2" ] && file_in2="${file_in2// /_}" && file_in="${file_in2%%\"*}.$ext"
+		[ -n "$file_in2" ] &&
+		    file_in2="${file_in2// /_}" &&
+		    file_in="${file_in2%%\"*}.$ext"
 	    fi
 
 	    cd "$directory"
@@ -359,8 +361,10 @@ then
 	    echo -e "$cookie" > "$path_tmp/flashgot_cookie.zdl"
 
 	    url_in="${url_in%'#20%'}"
-	    echo "$url_in" > "${path_tmp}/filename_${file_in}.txt" 
-	    if [ "$4" == "--noXterm" ] || [ -e "/cygdrive" ]
+	    echo "$url_in" > "${path_tmp}/filename_${file_in}.txt"
+	    
+	    if [ "$4" == "--noXterm" ] ||
+		   [ -e "/cygdrive" ]
 	    then
 		export pid_prog=$$
 		if ! check_instance_prog
@@ -373,7 +377,10 @@ then
 		    $prog "$url_in" $stream_params --stop
 		fi
 	    else
-		xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params --stop\"" &
+		xterm -tn "xterm-256color"                                                                          \
+		      -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12"                                       \
+		      +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD"                                     \
+		      -e "/bin/bash -i -c \"export pid_prog=\$$ ; $prog \\\"$url_in\\\" $stream_params --stop\"" &
 	    fi
 	    exit
 	fi
