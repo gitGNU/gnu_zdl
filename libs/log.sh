@@ -105,13 +105,13 @@ function _log {
 	    ;;
     esac
 
-    # if [ ! -z "$from_loop" ] || [ -z "$no_msg" ]
-    # then
+    if [ -z "$break_loop" ] ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
+    then
 	init_log
 	print_c 3 "$msg"
 	echo "$msg" >> $file_log
 	# no_msg=true
 	# unset from_loop
 	break_loop=true
-#    fi
+    fi
 }
