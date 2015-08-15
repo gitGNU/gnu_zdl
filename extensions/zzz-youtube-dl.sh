@@ -27,7 +27,6 @@
 ## zdl-extension types: programs
 ## zdl-extension name: youtube-dl [--list-extractors]
 
-
 if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        [ -z "$url_in_file" ] &&
        [ -z "$break_loop" ]

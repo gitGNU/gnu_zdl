@@ -104,8 +104,9 @@ function _log {
 	    links_loop - "$url_in"
 	    ;;
     esac
-
-    if [ -z "$break_loop" ] ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
+    
+    ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
+    if [ -z "$break_loop" ] 
     then
 	init_log
 	print_c 3 "$msg"
