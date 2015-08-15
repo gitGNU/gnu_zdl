@@ -38,9 +38,16 @@ function force_wget {
 }
 
 function check_axel {
-    axel_out=$(axel -o /dev/null "$url_in_file" 2>&1)
+    if [[ "$(axel -o /dev/null "$url_in_file" 2>&1)" =~ (cannot resume|400 Bad Request|403 Forbidden|Too many redirects) ]]
+    then
+	return 1
+    else 
+	return 0
+    fi
+}
 
-    if [[ "$axel_out" =~ (cannot resume|400 Bad Request|403 Forbidden|Too many redirects) ]]
+function check_wget {
+    if [[ "$(wget -S --spider "$url_in_file" 2>&1)" =~ (Remote file does not exist) ]]
     then
 	return 1
     else 
@@ -102,12 +109,18 @@ function download {
 ##    rm -f "$path_tmp/${file_in}_stdout.tmp"
     [ "$redirected" == "true" ] && redirect
 
+    if ! check_wget
+    then
+	_log 3
+	return 1
+    fi
+    
     if [ $downloader_in == Axel ] &&
 	   ! check_axel
     then
 	force_wget
     fi
-    
+
     case $downloader_in in
 	Axel)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"

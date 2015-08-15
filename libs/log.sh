@@ -48,6 +48,7 @@ function _log {
 	3)
 	    msg="$url_in --> Indirizzo errato o file non disponibile" 
 	    links_loop - "$url_in"
+	    rm -f "$path_tmp"/"$file_in"_stdout.* "$path_tmp"/filename_"$file_in".txt
 	    ;;
 	4)
 	    msg="Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)"

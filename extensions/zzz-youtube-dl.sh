@@ -31,7 +31,7 @@ if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        [ -z "$url_in_file" ] &&
        [ -z "$break_loop" ]
 then
-    data=$(youtube-dl --get-url --get-filename "$url_in")
+    data=$(youtube-dl -R 1 --get-url --get-filename "$url_in")
 
     items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
     for item in ${items[*]}

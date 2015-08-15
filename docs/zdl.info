@@ -73,19 +73,19 @@ operazioni inutili e noiose, riducendole all'unico atto di avvio del
 programma.
 
    _Un terzo obiettivo_ del progetto ZDL consiste nel fornire nuove
-articolazioni e modalità d'uso, allo scopo di costruire interazioni fra
-programmi e di rendere possibile un'automazione potenzialmente
+articolazioni e modalità d'uso, allo scopo di costruire interazioni
+fra programmi e di rendere possibile un'automazione potenzialmente
 illimitata.  La gestione dei download può essere controllata da
 terminali distinti in modalità diverse. Per esempio, ZDL può essere
 avviato in modalità _demone_ e controllato in modalità _interattiva_.
 Anche l'avvio _predefinito_ del programma offre diversi modi di
-interazione e di output. ZDL, inoltre, può essere integrato e collegato
-con altri programmi.
+interazione e di output. ZDL, inoltre, può essere integrato e
+collegato con altri programmi.
 
-   _Infine_, una peculiarità del progetto ZDL consiste nella ricerca di
-efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash
-ne rende possibile l'esecuzione su hardware di limitate capacità e su
-sistemi operativi differenti.
+   _Infine_, una peculiarità del progetto ZDL consiste nella ricerca
+di efficienza e portabilità: l'impiego degli strumenti forniti dalla
+Bash ne rende possibile l'esecuzione su hardware di limitate capacità
+e su sistemi operativi differenti.
 
 Software Libero
 ***************
@@ -240,8 +240,8 @@ Le opzioni brevi non seguite da valori possono essere contratte:
      destinazione, prima di effettuare il download
 
 `-d, --daemon'
-     Avvia ZDL in modalità _demone_ (può essere controllato attraverso
-     l'interfaccia interattiva)
+     Avvia ZDL in modalità _demone_ (può essere controllato
+     attraverso l'interfaccia interattiva)
 
 `-i, --interactive'
      Avvia l'interfaccia interattiva di ZDL per i download che hanno
@@ -399,9 +399,9 @@ _Video in streaming saltando il player del browser:_
      Akstream, Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo
      (HD), Metacafe, Movshare, Nowvideo, Openload,
      Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Sockshare
-     (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tvdigit.it,
-     Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD), VK
-     (HD), Youtube, Zinwa (RTMP) 
+     (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tvdigit.it, VK
+     (HD), Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD),
+     Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
@@ -411,7 +411,7 @@ _File hosting:_
      Depositfiles ed altri servizi 
 
 _Short links:_
-     Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
+     Adf.ly, Adfoc.us, Shortlink, bit.ly, goo.gl, linkbucks.com,
      swzz.xyz
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
@@ -533,10 +533,10 @@ ZDL può essere fermato in diversi modi:
           download avviati da ZDL nella directory di destinazione
           specificata o in quella corrente)
 
-       2. digitando `M-q' (tutti i download già avviati nella directory
-          corrente non saranno interrotti, ma non verranno più gestiti
-          da ZDL fino ad una nuova istanza _standard_ oppure _demone_
-          del programma)
+       2. digitando `M-q' (tutti i download già avviati nella
+          directory corrente non saranno interrotti, ma non verranno
+          più gestiti da ZDL fino ad una nuova istanza _standard_
+          oppure _demone_ del programma)
 
    * Se i download sono gestiti dalla modalità "demone": attraverso la
      modalità interattiva `zdl -i' avviata nella directory gestita dal
@@ -554,11 +554,12 @@ Controllare i download: recupero, eliminazione, arresto, riavvio...
 I download possono essere controllati in modalità diverse in base al
 tipo di operazione da effettuare.  L'avvio da terminale permette
 l'esecuzione delle operazioni elencate nella presentazione del comando:
-*note Il comando ZDL::. Poiché ZDL può essere chiuso senza interrompere
-i download, questa modalità di controllo può essere adottata in ogni
-momento, a esecuzione già avviata. Per _chiudere senza interrompere i
-download_:
-   - se avviato in modalità standard, digitare `M-q' (tasti `<Alt>+<q>')
+*note Il comando ZDL::. Poiché ZDL può essere chiuso senza
+interrompere i download, questa modalità di controllo può essere
+adottata in ogni momento, a esecuzione già avviata. Per _chiudere
+senza interrompere i download_:
+   - se avviato in modalità standard, digitare `M-q' (tasti
+     `<Alt>+<q>')
 
    - da modalità interattiva, digitare `Q' (tasti `<Shift>+<q>')
 
@@ -594,10 +595,10 @@ Controllo manuale dei download.
 -------------------------------
 
 ZDL processa i _link_ registrati, generando per ciascuno un file
-temporaneo da cui può estrarre informazioni sul file da scaricare e sul
-download in corso, intattivo o completato. Grazie a tali informazioni,
-è possibile il controllo dei processi di download, sia automaticamente
-da parte di ZDL, sia manualmente da parte dell'utente.
+temporaneo da cui può estrarre informazioni sul file da scaricare e
+sul download in corso, intattivo o completato. Grazie a tali
+informazioni, è possibile il controllo dei processi di download, sia
+automaticamente da parte di ZDL, sia manualmente da parte dell'utente.
 
    I download di ZDL possono essere controllati manualmente attraverso
 la modalità interattiva, che può essere attivata da quella standard
@@ -605,8 +606,8 @@ digitando `M-i' (tasti `<Alt>+<i>') o da un qualsiasi terminale _Bash_
 dalla stessa directory di download, utilizzando l'opzione
 `-i|--interactive'. Se non è attiva alcuna istanza di avvio e gestione
 automatica dei download, dall'interfaccia interattiva è possibile
-avviare la modalità _demone_, che agisce in background come _server_ ed
-è indipendente dal terminale di avvio. Per gestire i download e la
+avviare la modalità _demone_, che agisce in background come _server_
+ed è indipendente dal terminale di avvio. Per gestire i download e la
 stessa chiusura di ZDL in modalità demone, è comunque necessario
 utilizzare l'interfaccia interattiva, che ha funzione di _client_.
 I comandi sono elencati nella stessa interfaccia interattiva: è
@@ -626,8 +627,8 @@ Controllo manuale dei download ancora da processare.
 ----------------------------------------------------
 
 In mancanza dei file temporanei relativi a _link_ non ancora
-processati, è possibile intervenire manualmente utilizzando un _editor_
-(*note Editor::).
+processati, è possibile intervenire manualmente utilizzando un
+_editor_ (*note Editor::).
 
 
 File: zdl.info,  Node: Manuali d'uso,  Next: Modi,  Prev: Controllare i download,  Up: Top
@@ -698,10 +699,10 @@ Modalità interattiva (`-i, --interactive').
 
 Permette il controllo manuale dei download (*note Controllare i
 download::) ed altre operazioni, descritte nella stessa interfaccia.
-_Non processa i link_ ed è solo un _client_: per l'avvio dei download è
-necessario eseguire un'istanza _server_ di ZDL, come quelle _in
-standard output_ oppure _demone_. Quest'ultima può essere avviata dalla
-stessa modalità interattiva.
+_Non processa i link_ ed è solo un _client_: per l'avvio dei download
+è necessario eseguire un'istanza _server_ di ZDL, come quelle _in
+standard output_ oppure _demone_. Quest'ultima può essere avviata
+dalla stessa modalità interattiva.
 Questa modalità d'uso è quella che fornisce più informazioni sullo
 _stato_ dei download. La sua schermata è aggiornata automaticamente
 ogni 15 secondi o manualmente digitando un tasto qualsiasi.
@@ -713,10 +714,10 @@ Gestisce silenziosamente tutti i processi riferiti a una directory e
 può essere controllato manualmente attraverso la _modalità
 interattiva_. È indipendente dal terminale in uso, che può essere
 chiuso senza conseguenze. È, in senso pieno, la modalità _server_ di
-ZDL: la modalità demone è sempre in attesa di nuovi link da processare
-e termina solo per intervento dell'utente, attraverso l'interfaccia
-interattiva. La modalità demone consuma meno risorse rispetto alle
-altre modalità.
+ZDL: la modalità demone è sempre in attesa di nuovi link da
+processare e termina solo per intervento dell'utente, attraverso
+l'interfaccia interattiva. La modalità demone consuma meno risorse
+rispetto alle altre modalità.
 
 
 File: zdl.info,  Node: Readline,  Next: Editor,  Prev: Modi,  Up: Top
@@ -727,9 +728,9 @@ Readline
 L'esecuzione delle _modalità in standard output_, in mancanza di un
 input esterno (_link_ immessi attraverso la linea di comando, una
 _pipe_, un _file_ container _DLC_ o testuale, l'estensione di un
-browser...), avvia la _readline di ZDL_. È quasi identica alla readline
-della Bash: usa la stessa history e digitando il tasto `Invio' si
-esegue un comando. Ma la readline di ZDL accetta, come comandi, solo
+browser...), avvia la _readline di ZDL_. È quasi identica alla
+readline della Bash: usa la stessa history e digitando il tasto `Invio'
+si esegue un comando. Ma la readline di ZDL accetta, come comandi, solo
 link che hanno la forma di un URL _http, https o ftp_.
 In presenza di spazi nell'URL, questi sono automaticamente convertiti
 nel _codice percentuale_ standard per gli URL (eventuali spazi a
@@ -743,9 +744,9 @@ file di log prodotto all'interno della stessa directory, mentre gli URL
 accettati sono registrati via via nel file gestito automaticamente da
 ZDL, come _coda di download_.
 In ogni momento, durante l'immissione di link attraverso la readline,
-si può modificare la _coda di download_ con l'editor predefinito (*note
-Editor::). I processi di download sono avviati dal comando `M-x Invio',
-che chiude la readline ed esegue la coda di download.
+si può modificare la _coda di download_ con l'editor predefinito
+(*note Editor::). I processi di download sono avviati dal comando `M-x
+Invio', che chiude la readline ed esegue la coda di download.
 
 File: zdl.info,  Node: Editor,  Next: Omonimie,  Prev: Readline,  Up: Top
 
@@ -758,17 +759,17 @@ temporaneo gestito da ZDL. I link sono processati dal primo all'ultimo:
 in caso di riavvio manuale o disconnessione involontaria, ZDL esamina
 il link successivo. Da ogni modalità d'uso del programma è possibile
 avviare un editor per alterare i link ed il loro ordine di esecuzione.
-L'editor può essere utilizzato anche in sostituzione della _readline di
-ZDL_ (*note Readline::), da riga di comando attraverso le opzioni
+L'editor può essere utilizzato anche in sostituzione della _readline
+di ZDL_ (*note Readline::), da riga di comando attraverso le opzioni
 corrispondenti (*note Il comando ZDL::).
 La scelta dell'editor può essere esplicita (da riga di comando) o
-implicita, con l'avvio dell'editor predefinito: quest'ultimo può essere
-specificato nella configurazione di ZDL (`zdl [-c|--configure]'). In
-mancanza di indicazioni specifiche (per opzioni e configurazione), ZDL
-esegue l'editor predefinito per la Bash o per il sistema operativo. Nel
-caso si usi Cygwin, l'installatore e le funzioni di aggiornamento di
-ZDL installano automaticamente l'editor _Nano_: è reso disponibile se
-non è presente altro editor predefinito.
+implicita, con l'avvio dell'editor predefinito: quest'ultimo può
+essere specificato nella configurazione di ZDL (`zdl
+[-c|--configure]'). In mancanza di indicazioni specifiche (per opzioni
+e configurazione), ZDL esegue l'editor predefinito per la Bash o per il
+sistema operativo. Nel caso si usi Cygwin, l'installatore e le funzioni
+di aggiornamento di ZDL installano automaticamente l'editor _Nano_: è
+reso disponibile se non è presente altro editor predefinito.
 
 File: zdl.info,  Node: Omonimie,  Next: Filtri,  Prev: Editor,  Up: Top
 
@@ -922,17 +923,17 @@ _Dopo aver avviato il comando, il minibuffer di Conkeror_
         - chiede di selezionare la _directory_ di destinazione
 
         - offre la  possibilità di utilizzare le _opzioni_ di ZDL
-          (lasciare il campo vuoto per non selezionarle)
+           (lasciare il campo vuoto per non selezionarle)
 
         - mostra e indicizza i _link_ nel buffer corrente (per
           esempio la pagina web), per procedere nella selezione del
           link da immettere in ZDL        (il link della pagina
           corrente corrisponde all'indice 0)
 
-        - avvia ZDL in un terminale xterm oppure, se è stata selezionata
-                l'opzione `--daemon' (oppure `-d'), in background. In
-          ogni caso è        possibile gestire i download utilizzando
-          l'interfaccia        interattiva
+        - avvia ZDL in un terminale xterm oppure, se è stata
+          selezionata        l'opzione `--daemon' (oppure `-d'), in
+          background. In ogni caso è        possibile gestire i
+          download utilizzando l'interfaccia        interattiva
 
 
 File: zdl.info,  Node: zdl-xterm e XXXTerm/Xombrero,  Next: Installazione e aggiornamento,  Prev: Conkeror,  Up: Top
@@ -941,15 +942,15 @@ Lo script `zdl-xterm': XXXTerm/Xombrero e altri software
 ********************************************************
 
 ZDL può essere avviato da XXXTerm/Xombrero e da altri software
-attraverso lo script `/usr/local/bin/zdl-xterm', che può essere avviato
-da qualunque applicazione e da un terminale. È stato pensato per
-rendere possibile l'avvio di ZDL in contesti diversi da quelli previsti
-dal programma. In particolare, XXXTerm può avviare uno script bash,
-utilizzando il comando `:run_script', passandogli un solo argomento: il
-link della pagina corrente. Questo rende impossibile l'avvio standard
-di zdl in un'istanza di xterm, perché `:run_script' non accetta
-ulteriori parametri. L'avvio di zdl in un nuovo terminale virtuale
-xterm è reso possibile, appunto, da `zdl-xterm'.
+attraverso lo script `/usr/local/bin/zdl-xterm', che può essere
+avviato da qualunque applicazione e da un terminale. È stato pensato
+per rendere possibile l'avvio di ZDL in contesti diversi da quelli
+previsti dal programma. In particolare, XXXTerm può avviare uno script
+bash, utilizzando il comando `:run_script', passandogli un solo
+argomento: il link della pagina corrente. Questo rende impossibile
+l'avvio standard di zdl in un'istanza di xterm, perché `:run_script'
+non accetta ulteriori parametri. L'avvio di zdl in un nuovo terminale
+virtuale xterm è reso possibile, appunto, da `zdl-xterm'.
 
 Uso in XXXTerm:
 ===============
@@ -981,8 +982,8 @@ configurato in molti modi.
           keybinding = run_script,C-z
 
    Con la configurazione suggerita, digitando `Ctrl-z' si avvia il
-prompt di `:run_script' con il campo già occupato dal nome dello script
-`zdl-xterm': è sufficiente premere `invio'.
+prompt di `:run_script' con il campo già occupato dal nome dello
+script `zdl-xterm': è sufficiente premere `invio'.
 
 
 File: zdl.info,  Node: Installazione e aggiornamento,  Next: Tags,  Prev: zdl-xterm e XXXTerm/Xombrero,  Up: Top
@@ -1070,7 +1071,7 @@ Indice analitico generale
 * file hosting:                          Servizi streaming/hosting.
                                                                (line 18)
 * opzioni:                               Il comando ZDL.       (line 37)
-* perché zdl:                            Top.                  (line  6)
+* perché zdl:                           Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
                                                                (line 25)
 * sintassi:                              Il comando ZDL.       (line 13)
@@ -1164,20 +1165,20 @@ Node: Servizi streaming/hosting11049
 Node: Avviare ZDL14333
 Node: Arrestare ZDL16771
 Node: Controllare i download17876
-Node: Manuali d'uso22164
-Node: Modi22580
-Node: Readline25846
-Node: Editor27366
-Node: Omonimie28591
-Node: Filtri30124
-Node: Creare nuove estensioni30446
-Node: Software consigliati32015
-Node: Conkeror33135
-Node: zdl-xterm e XXXTerm/Xombrero34146
-Node: Installazione e aggiornamento36070
-Node: Tags38394
-Node: Copying40767
-Node: Contatti41817
+Node: Manuali d'uso22169
+Node: Modi22585
+Node: Readline25851
+Node: Editor27371
+Node: Omonimie28596
+Node: Filtri30129
+Node: Creare nuove estensioni30451
+Node: Software consigliati32020
+Node: Conkeror33140
+Node: zdl-xterm e XXXTerm/Xombrero34153
+Node: Installazione e aggiornamento36077
+Node: Tags38401
+Node: Copying40773
+Node: Contatti41823
 
 End Tag Table
 
