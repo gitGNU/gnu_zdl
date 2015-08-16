@@ -38,7 +38,7 @@ function force_wget {
 }
 
 function check_axel {
-    if [[ "$(axel -o /dev/null "$url_in_file" 2>&1)" =~ (cannot resume|400 Bad Request|403 Forbidden|Too many redirects) ]]
+    if [[ "$(axel -o /dev/null "$url_in_file" 2>&1)" =~ (400 Bad Request|403 Forbidden|Too many redirects) ]] ## "cannot resume" ???
     then
 	return 1
     else 

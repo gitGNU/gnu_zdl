@@ -29,21 +29,42 @@
 
 if [ "$url_in" != "${url_in//flashx.}" ]
 then
-    if [[ ! "$url_in" =~ embed ]]
-    then
-	html=$(wget -q -O- --user-agent="Firefox" "$url_in")
-	file_in=$(grep '<Title>' <<< "$html" |sed -r 's|.*<Title>([^<>]+)<.+|\1|g')
-	file_in="${file_in#Watch}"
-	file_in="${file_in## }"
+    # if [[ ! "$url_in" =~ embed ]]
+    # then
+    # 	html=$(wget -qO- --user-agent="$user_agent" "$url_in")
+    # 	file_in=$(grep '<Title>' <<< "$html" |sed -r 's|.*<Title>([^<>]+)<.+|\1|g')
+    # 	file_in="${file_in#Watch}"
+    # 	file_in="${file_in## }"
 
-	link_parser "$url_in"
-	parser_path="${parser_path%%\/*}"
-	url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-607x360.html"
-    else
-	url_packed="$url_in"
-    fi
+    # 	link_parser "$url_in"
+    # 	parser_path="${parser_path%%\/*}"
+    # 	url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-607x360.html"
+    # else
+    # 	url_packed="$url_in"
+    # fi
 
-    html_embed=$(wget "$url_packed" -O- -q --user-agent="Firefox")
+    ##########################################################
+    html=$(wget -qO-                                     \
+		-t 1 -T $max_waiting                     \
+		--user-agent="$user_agent"               \
+		--retry-connrefused                      \
+		--keep-session-cookies                   \
+		--save-cookies="$path_tmp"/cookies.zdl   \
+		"$url_in")
+    
+    input_hidden "$html"
+    countdown- 7
+    html2=$(wget -qO-                                     \
+		 --user-agent="$user_agent"               \
+		 --post-data="$post_data"                 \
+		 --load-cookies="$path_tmp"/cookies.zdl   \
+		 "http://www.flashx.tv/dl?${url_in##*\/}")
+
+    echo -e "$html"
+    exit
+    ##########################################################
+    
+    html_embed=$(wget "$url_packed" -qO- --user-agent="$user_agent")
     html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
 
     if [ -n "$html_packed" ]
