@@ -41,7 +41,7 @@ then
     then
 	_log 3
     else
-	file_in=$(grep '<title>' <<< "$html" |sed -r 's/.+<title>([^|]+) | openload.+/\1/g')
+	file_in=$(grep '<title>' <<< "$html" |sed -r 's/.+\<title\>([^|]+) | openload.+/\1/g')
 	url_in_file=$(grep 'Click to start Download' <<< "$html" | sed -r 's|.+href=\"([^"]+)\".+|\1|g')
 	url_in_file=$(sanitize_url "$url_in_file")
     
