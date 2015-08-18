@@ -1209,6 +1209,8 @@ then
     rm "$print_out"
 fi
 
+post_process
+
 if [ "$zdl_exit" != "true" ]
 then
     rm -rf "$path_tmp"
@@ -1216,7 +1218,7 @@ then
     ## post-processing
     for line in *.MEGAenc
     do
-	if [ -f "${line%enc}" ]
+	if [ -f "${line%.MEGAenc}" ]
 	then
 	    rm -f "$line"
 	fi

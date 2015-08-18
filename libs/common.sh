@@ -441,12 +441,14 @@ function pid_list_for_prog {
 function post_process {
     for line in *.MEGAenc
     do
-	if [ -f "${path_tmp}/${line}.tmp" ]
+	if [ -f "${path_tmp}/${line}.tmp" ] &&
+	       [ ! -f "${line}.st" ]
 	then
 	    key=$(head -n1 "$path_tmp"/"$line".tmp)
 	    iv=$(tail -n1 "$path_tmp"/"$line".tmp)
-	    openssl enc -d -aes-128-ctr -K $key -iv $iv -in "$line" -out "${line%enc}" &&
-		rm -f "${path_tmp}/${line}.tmp"
+	    openssl enc -d -aes-128-ctr -K $key -iv $iv -in "$line" -out "${line%.MEGAenc}" &&
+		rm -f "${path_tmp}/${line}.tmp" &&
+		print_c 1 "Il file $line è stato decrittato come ${line%.MEGAenc}"
 	fi
     done
 }

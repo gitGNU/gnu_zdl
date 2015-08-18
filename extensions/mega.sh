@@ -26,6 +26,9 @@
 # adapted from: https://gist.github.com/KenMacD/6431823
 #
 
+## zdl-extension types: download
+## zdl-extension name: Mega
+
 if [ "$url_in" != "${url_in//mega.}" ]
 then
     id=$(awk -F '!' '{print $2}' <<< "$url_in")
@@ -43,7 +46,16 @@ then
     url_in_file="${json_data%\"*}"
     url_in_file="${url_in_file##*\"}"
 
-    file_in="$key".MEGAenc
+    ##    file_in="$key".MEGAenc
+    awk -F '"' '{print $6}' <<< "$json_data"             |
+	sed -e 's/-/+/g' -e 's/_/\//g' -e 's/,//g'       |
+	base64 --decode --ignore-garbage 2> /dev/null    |
+	xxd -p                                           |
+	tr -d '\n' > "$path_tmp"/enc_attr.mdtmp
+    
+    xxd -p -r "$path_tmp"/enc_attr.mdtmp > "$path_tmp"/enc_attr2.mdtmp
+    openssl enc -d -aes-128-cbc -K $key -iv 0 -nopad -in "$path_tmp"/enc_attr2.mdtmp -out "$path_tmp"/dec_attr.mdtmp
+    file_in=$(awk -F '"' '{print $4}' "$path_tmp"/dec_attr.mdtmp).MEGAenc
 
     if [ -z "$url_in_file" ] ||
 	   [ -z "$file_in" ]
@@ -53,5 +65,7 @@ then
 	#### for POST-PROCESSING:
 	## openssl enc -d -aes-128-ctr -K $key -iv $iv -in $enc_file -out $out_file
 	echo -e "$key\n$iv" > "$path_tmp"/"$file_in".tmp
+
+	axel_parts=1
     fi
 fi
