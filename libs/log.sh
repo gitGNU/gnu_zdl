@@ -104,6 +104,9 @@ function _log {
 	    msg="$url_in --> File ancora in trasferimento e non ancora disponibile: riprova fra qualche ora" 
 	    links_loop - "$url_in"
 	    ;;
+	18)
+	    msg="$url_in --> resume non supportato: il download potrebbe terminare incompleto"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
@@ -114,6 +117,6 @@ function _log {
 	echo "$msg" >> $file_log
 	# no_msg=true
 	# unset from_loop
-	break_loop=true
+	[ "$1" != 18 ] && break_loop=true
     fi
 }

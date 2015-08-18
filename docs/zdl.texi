@@ -483,7 +483,7 @@ __STREAMING__
 @cindex download
 @cindex file hosting
 @item @b{File hosting:}
-__DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Sharpfile, Depositfiles ed altri servizi
+__DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Depositfiles ed altri servizi
 @cindex short links
 @item @b{Short links:}
 __SHORTLINKS__
@@ -503,10 +503,10 @@ Per i servizi di hosting seguenti è consigliato l'uso della funzione
 @emph{multi} (aggiungere l'opzione @option{-m} alle istruzioni sopra elencate, 
 eventualmente indicando il massimo numero di download da effettuare in contemporanea)
 per procedere con il download in parallelo, eventualmente attraverso
-l'uso di proxy: Easybytez, Sharpfile e Mediafire
+l'uso di proxy: Easybytez e Mediafire
 
-I servizi seguenti sono abilitati solo per il
-download con Wget: Easybytez, Dailymotion, Cloudzilla e Videowood.
+Molti server non permettono il recupero di download interrotti e il download parallelo.
+Per questi (fra cui Easybytez, Dailymotion, Cloudzilla, Videowood e Uploadable) ZDL usa Wget.
 
 I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
 
@@ -1020,15 +1020,30 @@ esegui lo script: @command{./install_zdl.sh}
 @unnumberedsec Installazione per Microsoft Windows
 ZDL funziona anche su Windows, ma attraverso @emph{Cygwin}
 
-@b{Installazione su Windows in due fasi:}
+@b{Installazione su Windows:}
 @table @emph
 @item FASE 1) Installazione di Cygwin 32 bit 
 installatore automatico di Cygwin (serve anche ad aggiornare il
 sistema emulato e ad installare nuovi pacchetti): @*
-@url{http://cygwin.com/setup_x86.exe}@*@*
-È sufficiente l'installazione predefinita, ottenuta cliccando ripetutamente sul bottone @emph{Avanti} e scegliendo un mirror a caso (consigliato: @url{http://bo.mirror.garr.it})
+@url{http://cygwin.com/setup-x86.exe}@*@*
+Si consiglia il seguente mirror: @url{http://bo.mirror.garr.it}@*
+Prima di procedere con l'installazione, leggi le istruzioni per
+la @emph{fase 2}
 
-@item FASE 2) Installazione di ZDL
+@item FASE 2) Installazione delle dipendenze
+potrebbe non essere necessaria, in quanto la fase successiva
+comprende un sistema automatico (non sempre funzionante) che potrebbe
+essere in grado di installare correttamente tutti i pacchetti
+richiesti attraverso l'uso di @command{apt-cyg}. Ad ogni modo, si consiglia
+di installare le dipendenze utilizzando l'installatore di Cygwin,
+scegliendo i pacchetti aggiuntivi fin dalla @emph{fase 1}.@*@*
+@emph{Elenco dei pacchetti da installare:}
+@command{wget ffmpeg rtmpdump diffutils nano base64 xxd openssl}
+@*@*
+Per alcuni pacchetti potrebbe essere necessario aggiungere un mirror di Cygwinports:
+@command{http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/}
+
+@item FASE 3) Installazione di ZDL
 @enumerate
 @item
 salva nella cartella @file{C:\cygwin} (la cartella potrebbe trovarsi 

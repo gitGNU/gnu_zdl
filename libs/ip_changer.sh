@@ -53,7 +53,7 @@ function check_ip {
     elif [ "${newip[*]}" != "${newip[*]//$1}" ]
     then
 	if [ "$reconnect_sh" == true ] &&
-	       [ -n "$(command -v reconnect.sh 2>/dev/null)" ]
+	       [ -n "$(command -v $reconnecter 2>/dev/null)" ]
 	then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"

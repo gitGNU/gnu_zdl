@@ -407,8 +407,8 @@ _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
      Junkyvideo (HD), Likeupload, Mediafire, Nowdownload, Openload,
      Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit, Uptobox e, dopo
-     aver risolto il captcha e generato il link, anche Sharpfile,
-     Depositfiles ed altri servizi 
+     aver risolto il captcha e generato il link, anche Uploadable,
+     Hugefiles, Depositfiles ed altri servizi 
 
 _Short links:_
      Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
@@ -428,11 +428,11 @@ Per i servizi di hosting seguenti è consigliato l'uso della funzione
 _multi_ (aggiungere l'opzione `-m' alle istruzioni sopra elencate,
 eventualmente indicando il massimo numero di download da effettuare in
 contemporanea) per procedere con il download in parallelo,
-eventualmente attraverso l'uso di proxy: Easybytez, Sharpfile e
-Mediafire
+eventualmente attraverso l'uso di proxy: Easybytez e Mediafire
 
-   I servizi seguenti sono abilitati solo per il download con Wget:
-Easybytez, Dailymotion, Cloudzilla e Videowood.
+   Molti server non permettono il recupero di download interrotti e il
+download parallelo.  Per questi (fra cui Easybytez, Dailymotion,
+Cloudzilla, Videowood e Uploadable) ZDL usa Wget.
 
    I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma
 con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
@@ -1008,16 +1008,30 @@ Installazione per Microsoft Windows
 
 ZDL funziona anche su Windows, ma attraverso _Cygwin_
 
-   Installazione su Windows in due fasi:
+   Installazione su Windows:
 _FASE 1) Installazione di Cygwin 32 bit_
      installatore automatico di Cygwin (serve anche ad aggiornare il
      sistema emulato e ad installare nuovi pacchetti):
-     `http://cygwin.com/setup_x86.exe'
-     È sufficiente l'installazione predefinita, ottenuta cliccando
-     ripetutamente sul bottone _Avanti_ e scegliendo un mirror a caso
-     (consigliato: `http://bo.mirror.garr.it')
+     `http://cygwin.com/setup-x86.exe'
+     Si consiglia il seguente mirror: `http://bo.mirror.garr.it'
+     Prima di procedere con l'installazione, leggi le istruzioni per la
+     _fase 2_
 
-_FASE 2) Installazione di ZDL_
+_FASE 2) Installazione delle dipendenze_
+     potrebbe non essere necessaria, in quanto la fase successiva
+     comprende un sistema automatico (non sempre funzionante) che
+     potrebbe essere in grado di installare correttamente tutti i
+     pacchetti richiesti attraverso l'uso di `apt-cyg'. Ad ogni modo,
+     si consiglia di installare le dipendenze utilizzando
+     l'installatore di Cygwin, scegliendo i pacchetti aggiuntivi fin
+     dalla _fase 1_.
+     _Elenco dei pacchetti da installare:_ `wget ffmpeg rtmpdump
+     diffutils nano base64 xxd openssl'
+     Per alcuni pacchetti potrebbe essere necessario aggiungere un
+     mirror di Cygwinports:
+     `http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/'
+
+_FASE 3) Installazione di ZDL_
        1. salva nella cartella `C:\cygwin' (la cartella potrebbe
           trovarsi in un altro _device_: controlla eventualmente anche
           in `D:', `E:', ecc.) il seguente file:
@@ -1161,23 +1175,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11049
-Node: Avviare ZDL14322
-Node: Arrestare ZDL16760
-Node: Controllare i download17865
-Node: Manuali d'uso22153
-Node: Modi22569
-Node: Readline25835
-Node: Editor27355
-Node: Omonimie28580
-Node: Filtri30113
-Node: Creare nuove estensioni30435
-Node: Software consigliati32004
-Node: Conkeror33124
-Node: zdl-xterm e XXXTerm/Xombrero34135
-Node: Installazione e aggiornamento36059
-Node: Tags38383
-Node: Copying40756
-Node: Contatti41806
+Node: Avviare ZDL14393
+Node: Arrestare ZDL16831
+Node: Controllare i download17936
+Node: Manuali d'uso22224
+Node: Modi22640
+Node: Readline25906
+Node: Editor27426
+Node: Omonimie28651
+Node: Filtri30184
+Node: Creare nuove estensioni30506
+Node: Software consigliati32075
+Node: Conkeror33195
+Node: zdl-xterm e XXXTerm/Xombrero34206
+Node: Installazione e aggiornamento36130
+Node: Tags39134
+Node: Copying41507
+Node: Contatti42557
 
 End Tag Table
 

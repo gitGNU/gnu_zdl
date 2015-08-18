@@ -1097,6 +1097,7 @@ function main_loop {
 		    sleeping "$sleeping_pause"
 		done
 
+		post_process
 		unset break_loop post_data not_available exceeded 
 	    fi
 	done < "$start_file"
@@ -1210,7 +1211,16 @@ fi
 
 if [ "$zdl_exit" != "true" ]
 then
-    rm -rf "$path_tmp" 2>/dev/null
+    rm -rf "$path_tmp"
+
+    ## post-processing
+    for line in *.MEGAenc
+    do
+	if [ -f "${line%enc}" ]
+	then
+	    rm -f "$line"
+	fi
+    done
 else
     kill_downloads
 fi

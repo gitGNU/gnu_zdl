@@ -35,7 +35,6 @@ function check_pid {
 	    return 1
 	fi
     fi
-
 }
 
 function size_file {
@@ -128,6 +127,14 @@ function is_rtmp {
 
 function is_wget {
     for h in ${wget_links[*]}
+    do
+	[ "$1" != "${1//$h}" ] && return 
+    done
+    return 1
+}
+
+function is_noresume {
+    for h in ${noresume_links[*]}
     do
 	[ "$1" != "${1//$h}" ] && return 
     done
@@ -429,4 +436,17 @@ function pid_list_for_prog {
 	    cut -d ' ' -f1 <<<  "${_text## }"
 	fi
     fi
+}
+
+function post_process {
+    for line in *.MEGAenc
+    do
+	if [ -f "${path_tmp}/${line}.tmp" ]
+	then
+	    key=$(head -n1 "$path_tmp"/"$line".tmp)
+	    iv=$(tail -n1 "$path_tmp"/"$line".tmp)
+	    openssl enc -d -aes-128-ctr -K $key -iv $iv -in "$line" -out "${line%enc}" &&
+		rm -f "${path_tmp}/${line}.tmp"
+	fi
+    done
 }

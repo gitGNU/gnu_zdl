@@ -120,7 +120,10 @@ function download {
 
     [ "$redirected" == "true" ] && redirect
 
-    if ! check_wget
+    if ! is_noresume "$url_in" &&
+	    ! is_wget "$url_in" &&
+	    ! is_rtmp "$url_in" &&
+	    ! check_wget
     then
 	_log 3
 	return 1
@@ -132,10 +135,16 @@ function download {
 	force_wget
     fi
 
+    if is_noresume "$url_in"
+    then
+	links_loop - "$url_in"
+	_log 18
+    fi
+
     case $downloader_in in
 	Axel)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
-#	    sleeping 2
+
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
 		export AXEL_COOKIES="$path_tmp/cookies.zdl"

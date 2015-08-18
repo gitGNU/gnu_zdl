@@ -30,7 +30,10 @@
 
 if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        [ -z "$url_in_file" ] &&
-       [ -z "$break_loop" ]
+       [ -z "$break_loop" ] &&
+       ! is_noresume "$url_in" &&
+       ! is_wget "$url_in" &&
+       ! is_rtmp "$url_in"
 then
     data=$(youtube-dl -R 1 --get-url --get-filename "$url_in")
 

@@ -57,19 +57,19 @@ then
 	unset post_data
     fi
 
-    file_in=$(wget -q --user-agent="$user_agent"                    \
-		   -O- "$url_in" | grep '<span class="name">')
+    file_in=$(wget -qO- --user-agent="$user_agent" "$url_in" |
+		     grep '<span class="name">')
     
     file_in="${file_in#*>}"
     file_in="${file_in%%<*}"
     url_in_file="${url_in}"
 
-    not_available=$(wget -q -t 1 -T $max_waiting                    \
+    not_available=$(wget -qO- -t 1 -T $max_waiting                  \
 			 --user-agent="$user_agent"                 \
 			 --retry-connrefused                        \
 			 --load-cookies="$path_tmp"/cookies.zdl     \
 			 --keep-session-cookies                     \
-			 -O- "$url_in" | grep "File not available")
+			 "$url_in" | grep "File not available")
 
     if [ -n "$not_available" ]
     then

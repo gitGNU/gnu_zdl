@@ -375,6 +375,24 @@ Installazione di FFMpeg
 	apt-cyg install diffutils
     fi
 
+    if [[ ! $(command -v xxd 2>/dev/null) ]]
+    then
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install xdd
+    fi
+
+    if [[ ! $(command -v base64 2>/dev/null) ]]
+    then
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install base64
+    fi
+
+    if [[ ! $(command -v openssl 2>/dev/null) ]]
+    then
+	apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	apt-cyg install openssl
+    fi
+
     apt-cyg install bash-completion
 fi
 
