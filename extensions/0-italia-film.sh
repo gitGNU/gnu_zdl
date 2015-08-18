@@ -24,9 +24,11 @@
 # zoninoz@inventati.org
 #
 
-if [ "$url_in" != "${url_in//'italia-film.org/redirect?'}" ]; then
+if [ "$url_in" != "${url_in//'italia-film.org/redirect?'}" ]
+then
     redir=$( wget "$url_in" -O - -q |grep "Click here to play" )
-    if [ ! -z "$redir" ]; then
+    if [ -n "$redir" ]
+    then
 	links_loop - "$url_in"
 	url_in="${redir#*\"}"
 	url_in="${url_in%%\"*}"

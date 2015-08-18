@@ -38,7 +38,19 @@ function force_wget {
 }
 
 function check_axel {
-    if [[ "$(axel -o /dev/null "$url_in_file" 2>&1)" =~ (400 Bad Request|403 Forbidden|Too many redirects) ]] ## "cannot resume" ???
+    rm -f "$path_tmp"/axel_o*_test*
+    
+    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" 2>&1 >> "$path_tmp"/axel_stdout_test &
+    pid_axel_test=$!
+
+    while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download) ]]
+    do
+	sleep 0.5
+    done
+    kill -9 $pid_axel_test
+    rm -f "$path_tmp"/axel_o*_test*
+    
+    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] ## "cannot resume" ???
     then
 	return 1
     else 
@@ -106,7 +118,6 @@ function download {
     export LANGUAGE="$prog_lang"
     unset headers
 
-##    rm -f "$path_tmp/${file_in}_stdout.tmp"
     [ "$redirected" == "true" ] && redirect
 
     if ! check_wget
@@ -124,7 +135,7 @@ function download {
     case $downloader_in in
 	Axel)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
-	    sleeping 2
+#	    sleeping 2
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
 		export AXEL_COOKIES="$path_tmp/cookies.zdl"
