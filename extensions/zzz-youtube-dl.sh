@@ -27,24 +27,29 @@
 ## zdl-extension types: programs
 ## zdl-extension name: youtube-dl [--list-extractors]
 
+
 if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        [ -z "$url_in_file" ] &&
        [ -z "$break_loop" ]
 then
     data=$(youtube-dl -R 1 --get-url --get-filename "$url_in")
 
-    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
-    for item in ${items[*]}
-    do
-	url=$(cat "$item" 2>/dev/null)
-	if [ "${url%% }" == "$url_in" ]
-	then
-	    item="${item// /_}"
-	    file_in="${item#*filename_}"
-	    file_in="${file_in%.txt}"
-	    break
-	fi
-    done
+    items=( "$path_tmp"/filename_* )
+
+    if (( ${#items[@]}>0 ))
+    then
+	for item in ${items[@]}
+	do
+	    url=$(cat "$item" 2>/dev/null)
+	    if [ "${url%% }" == "$url_in" ]
+	    then
+		item="${item// /_}"
+		file_in="${item#*filename_}"
+		file_in="${file_in%.txt}"
+		break
+	    fi
+	done
+    fi
 
     if [ -z "$file_in" ]
     then
@@ -61,3 +66,4 @@ then
 	unset break_loop
     fi
 fi
+
