@@ -29,8 +29,12 @@
 ## zdl-extension types: download
 ## zdl-extension name: Mega
 
-if [ "$url_in" != "${url_in//mega.}" ]
+if [[ "$url_in" =~ (^https\:\/\/mega\.co\.nz\/|^https\:\/\/mega\.nz\/) ]]
 then
+    links_loop - "$url_in"
+    url_in="${url_in//mega.co.nz/mega.nz}"
+    links_loop + "$url_in"
+    
     id=$(awk -F '!' '{print $2}' <<< "$url_in")
 
     key=$(awk -F '!' '{print $3}' <<< "$url_in" | sed -e 's/-/+/g' -e 's/_/\//g' -e 's/,//g')
