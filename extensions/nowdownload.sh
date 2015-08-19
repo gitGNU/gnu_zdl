@@ -111,6 +111,13 @@ then
 	    s=$(( $s-$k ))
 	    
 	    print_c 0 $s"\r\c"
+
+	    if [ -n "$(grep "Click here to become Premium" "$path_tmp"/zdl2.tmp 2>/dev/null)" ]
+	    then
+		_log 11
+		break_loop=true
+		break
+	    fi
 	    
 	    url_in_file="$(grep "Click here to download" "$path_tmp"/zdl2.tmp 2>/dev/null)"
 	    url_in_file=${url_in_file//*href=\"} 
@@ -136,33 +143,35 @@ then
     # do
     # 	file_in1=${file_in1%.}
     # done
-    
-    file_in2="${url_in_file##*\/}"
-    file_in2="${file_in2##_}"
 
-    if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
-	   [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
+    if [ -z "$break_loop" ]
     then
-    	file_in="$file_in2"
+	file_in2="${url_in_file##*\/}"
+	file_in2="${file_in2##_}"
+
+	if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
+	       [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
+	then
+    	    file_in="$file_in2"
+	    
+	elif [ -n "$file_in1" ]
+	then
+    	    file_ext="${file_in2##*.}"
+    	    file_in="${file_in1}.${file_ext}"
+	    
+	elif [ -z "$jump" ]
+	then
+    	    _log 2
+	fi
 	
-    elif [ -n "$file_in1" ]
-    then
-    	file_ext="${file_in2##*.}"
-    	file_in="${file_in1}.${file_ext}"
-	
-    elif [ -z "$jump" ]
-    then
-    	_log 2
-    fi
-    
-    file_in="${file_in%'?'*}"
+	file_in="${file_in%'?'*}"
 
-    if ! url "$url_in_file" ||
-	    [ "$url_in_file" == "$url_in" ] ||
-	    [ -z "$file_in" ]
-    then
-	_log 2
+	if ! url "$url_in_file" ||
+	       [ "$url_in_file" == "$url_in" ] ||
+	       [ -z "$file_in" ]
+	then
+	    _log 2
+	fi
     fi
-
     unset file_in2 file_in1 file_ext token preurl_in_file jump
 fi

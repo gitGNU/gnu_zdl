@@ -36,14 +36,15 @@ function init_log {
 
 function _log {
     [ -n "$2" ] && url_in="$2"
+    [ -n "$file_in" ] && msg_file_in=" $file_in"
     
     case $1 in
 	1)
-	    msg="File $file_in già presente in $PWD: $url_in non verrà processato."
+	    msg="File$msg_file_in già presente in $PWD: $url_in non verrà processato."
 	    links_loop - "$url_in"
 	    ;;
 	2)
-	    msg="$url_in --> File ${file_in} non disponibile, riprovo più tardi"
+	    msg="$url_in --> File$msg_file_in non disponibile, riprovo più tardi"
 	    ;;
 	3)
 	    msg="$url_in --> Indirizzo errato o file non disponibile" 
@@ -51,20 +52,20 @@ function _log {
 	    rm -f "$path_tmp"/"$file_in"_stdout.* "$path_tmp"/filename_"$file_in".txt
 	    ;;
 	4)
-	    msg="Il file $file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)"
+	    msg="Il file$msg_file_in supera la dimensione consentita dal server per il download gratuito (link: $url_in)"
 	    links_loop - "$url_in"
 	    ;;
 	5)
 	    msg="Connessione interrotta: riprovo più tardi"
 	    ;;
 	6)
-	    msg="$url_in --> File $file_in troppo grande per lo spazio libero in $PWD su $dev"
+	    msg="$url_in --> File$msg_file_in troppo grande per lo spazio libero in $PWD su $dev"
 	    print_c 3 "$msg"
 	    echo "$msg" >> $file_log
 	    exit
 	    ;;
 	7)
-	    msg="$url_in --> File $file_in già in download (${url_out[$i]})"
+	    msg="$url_in --> File$msg_file_in già in download (${url_out[$i]})"
 	    ;;
 	8)
 	    msg="$url_in --> Indirizzo errato o file non disponibile.\nErrore nello scaricare la pagina HTML del video. Controllare che l'URL sia stato inserito correttamente o che il video non sia privato."
@@ -78,18 +79,18 @@ function _log {
 	    msg="$url_in --> Firma del video non trovata"
 	    ;;
 	11)
-	    msg="$url_in --> File scaricabile solo da utenti \"Premium\" o registrati"
+	    msg="$url_in --> File$msg_file_in scaricabile solo da utenti \"Premium\" o registrati"
 	    links_loop - "$url_in"
 	    ;;
 	12)
 	    msg="$url_in --> Non è un URL adatto per $name_prog"
 	    ;;
 	13)
-	    msg="$file_in ($url_in) --> Il file non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
+	    msg="$url_in --> Il file$msg_file_in non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
 	    links_loop - "$url_in"
 	    ;;
 	14)
-	    msg="$file_in ($url_in) --> Il file non sarà scaricato, perché non corrisponde alla regex: $file_regex"
+	    msg="$url_in --> Il file$msg_file_in non sarà scaricato, perché non corrisponde alla regex: $file_regex"
 	    links_loop - "$url_in"
 	    ;;
 	15)
@@ -101,11 +102,11 @@ function _log {
 	    links_loop - "$url_in"
 	    ;;
 	17)
-	    msg="$url_in --> File ancora in trasferimento e non ancora disponibile: riprova fra qualche ora" 
+	    msg="$url_in --> File$msg_file_in ancora in trasferimento e non ancora disponibile: riprova fra qualche ora" 
 	    links_loop - "$url_in"
 	    ;;
 	18)
-	    msg="$url_in --> resume non supportato: il download potrebbe terminare incompleto"
+	    msg="$url_in --> resume non supportato: il download del file$msg_file_in potrebbe terminare incompleto"
 	    ;;
     esac
     
