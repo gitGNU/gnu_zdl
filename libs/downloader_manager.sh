@@ -39,23 +39,26 @@ function force_wget {
 
 function check_axel {
     rm -f "$path_tmp"/axel_o*_test*
-    
+
     axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
-    while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download) ]]
+    while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
     do
 	sleep 0.5
     done
     kill -9 $pid_axel_test
     rm -f "$path_tmp"/axel_o*_test*
-    
+
     if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] ## "cannot resume" ???
     then
-	return 1
+	result="1"
     else 
-	return 0
+	result="0"
     fi
+
+    rm -f "$path_tmp"/axel_stdout_test
+    return "$result"
 }
 
 function check_wget {
@@ -87,9 +90,10 @@ function redirect {
     		 -S -O /dev/null -o "$path_tmp/redirect" &
     	    wpid=$!
     	fi
-    	[ -f "$path_tmp/redirect" ] && url_redirect=$(grep Location: < "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
+    	[ -f "$path_tmp/redirect" ] && url_redirect=$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
 
-    	if url "$url_redirect" || ! check_pid "$wpid"
+	if url "$url_redirect" ||
+		! check_pid "$wpid"
     	then 
     	    kill -9 "$wpid" &>/dev/null
     	    url_in_file="$url_redirect"
@@ -128,7 +132,7 @@ function download {
 	_log 3
 	return 1
     fi
-    
+
     if [ $downloader_in == Axel ] &&
 	   ! check_axel
     then

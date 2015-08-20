@@ -40,17 +40,16 @@ then
 
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
+
     post_data="${post_data#*&}"
-    
-    file_in=$(grep '?q=' "$path_tmp/zdl.tmp")
-    file_in="${file_in#*'?q='}"
-    file_in="${file_in%%\"*}"
+    url_in_file="${url_in}"    
+    file_in=$(grep 'URL=' "$path_tmp/zdl.tmp" |
+		     sed -r 's|.+URL=(.+) - [0-9]+.+|\1|g')
 
     if [ ! -f "$path_tmp"/cookies.zdl ]
     then
 	touch "$path_tmp"/cookies.zdl
     fi
-    url_in_file="${url_in}"
 
     redirected="true"
 fi

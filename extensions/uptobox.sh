@@ -29,7 +29,7 @@
 
 if [ "$url_in" != "${url_in//uptobox.}" ]
 then
-    html=$(wget -t 1 -T $max_waiting                      \
+    html=$(wget -t 2 -T $max_waiting                      \
 		-O- -q                                    \
 		--retry-connrefused                       \
 		--keep-session-cookies                    \
@@ -38,8 +38,8 @@ then
 		"$url_in")
     unset post_data
     input_hidden "$html" #### $file_in == POST[fname]
-    
-    html=$(wget -t 1 -T $max_waiting                         \
+    sleep 2    
+    html=$(wget -t 2 -T $max_waiting                         \
 		-O- -q                                       \
 		 --load-cookies=$path_tmp/cookies.zdl        \
 		 --save-cookies=$path_tmp/cookies2.zdl       \
