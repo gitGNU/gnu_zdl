@@ -97,7 +97,7 @@ then
 		 --save-cookies="$path_tmp"/cookies.zdl           \
 		 -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
 	    countdown="40"
-	    redirected="true"
+	    #redirected="true"
 	else
 	    check_ip easybytez
 
@@ -160,8 +160,7 @@ then
 	    length_in="${length_in%% *}"
 	    post_data="${post_data}&btn_download=Download File"
 
-	    url_in_file="$url_in"
-
+	    redirect "$url_in"
 	else
 	    _log 4
 	fi

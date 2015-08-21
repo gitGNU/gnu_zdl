@@ -27,19 +27,25 @@
 ## zdl-extension types: download
 ## zdl-extension name: Cyberlocker
 
-if [ "$url_in" != "${url_in//cyberlocker.}" ]; then
+if [ "$url_in" != "${url_in//cyberlocker.}" ]
+then
 ## esempio da escludere: http://www05.cyberlocker.ch:182/d/kj75s55bm45soelgtpcdtvptofklmgayfdixjvzxydoth5iutyhepxtt/LaGera.DiForRoi.DRip.part1.rar
     test_url_in="${url_in#http://*/}"
     test_url_in="${test_url_in%%/*}"
 fi
 
 
-if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; then
-    redirected=true
+if [ "$url_in" != "${url_in//cyberlocker.}" ] &&
+       [ "${test_url_in}" != "d" ]
+then
     cookies="$path_tmp/cookies.zdl"
     
-    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies="$cookies" -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
-    print_c 0 "...\c"
+    wget -q -t 1 -T $max_waiting                   \
+	 --retry-connrefused                       \
+	 --keep-session-cookies                    \
+	 --save-cookies="$cookies"                 \
+	 -O "$path_tmp/zdl.tmp"                    \
+	 "$url_in" &>/dev/null
     
     unset post_data
     input_hidden "$path_tmp/zdl.tmp"
@@ -47,19 +53,32 @@ if [ "$url_in" != "${url_in//cyberlocker.}" ] && [ "${test_url_in}" != "d" ]; th
     post_data="${post_data//'op=login&redirect=&'}"
     post_data="$post_data&method_free=Free Download"
     
-    if [ -z "$file_in" ]; then
-	file_in=`cat "$path_tmp/zdl.tmp"|grep "<h2>Download File"`
+    if [ -z "$file_in" ]
+    then
+	file_in=$(grep '<h2>Download File' "$path_tmp/zdl.tmp")
 	file_in="${file_in#*<h2>Download File }"
 	file_in="${file_in%</h2>*}"
     fi
     
-    wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies="$cookies" --post-data="$post_data" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
+    wget -t 1 -T $max_waiting                         \
+	 --load-cookies="$path_tmp"/cookies.zdl       \
+	 --save-cookies="$cookies"                    \
+	 --post-data="$post_data"                     \
+	 "$url_in"                                    \
+	 -O "$path_tmp"/zdl2.tmp &>/dev/null
     
     unset post_data
     input_hidden "$path_tmp/zdl2.tmp"
     post_data="${post_data//'op=login&'}"
     post_data="${post_data//'redirect=&'}"
     post_data="${post_data%&op=register_save*}"
-    
-    url_in_file="$url_in"
+
+    redirect "$url_in"
+
+    if ! url "$url_in_file" ||
+    	    [ -z "$file_in" ]
+    then
+    	_log 2
+    fi
+
 fi

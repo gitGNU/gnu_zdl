@@ -62,7 +62,8 @@ function check_axel {
 }
 
 function check_wget {
-    if [[ "$(wget -S --spider "$url_in_file" 2>&1)" =~ (Remote file does not exist) ]]
+    wget_checked="$(wget -S --spider "$url_in_file" 2>&1)"
+    if [[ "$wget_checked" =~ (Remote file does not exist) ]]
     then
 	return 1
     else 
@@ -70,66 +71,22 @@ function check_wget {
     fi
 }
 
-function redirect {
-    k=$(date +"%s")
-    s=0
-    while true
-    do
-    	if [ "$s" == 0 ] ||
-	       [ "$s" == "$max_waiting" ] ||
-	       [ "$s" == $(( $max_waiting*2 )) ]
-    	then 
-    	    kill -9 "$wpid" &>/dev/null
-    	    rm -f "$path_tmp/redirect"
-    	    wget -t 1 -T $max_waiting                     \
-    		 --user-agent="$user_agent"               \
-    		 --no-check-certificate                   \
-    		 --load-cookies=$path_tmp/cookies.zdl     \
-    		 --post-data="${post_data}"               \
-    		 "$url_in_file"                           \
-    		 -S -O /dev/null -o "$path_tmp/redirect" &
-    	    wpid=$!
-    	fi
-    	[ -f "$path_tmp/redirect" ] && url_redirect=$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null | head -n1 |sed -r 's|.*Location: ||g' |sed -r 's| |%20|g')
-
-	if url "$url_redirect" ||
-		! check_pid "$wpid"
-    	then 
-    	    kill -9 "$wpid" &>/dev/null
-    	    url_in_file="$url_redirect"
-    	    break
-    	elif (( $s>90 ))
-    	then
-    	    kill -9 "$wpid" &>/dev/null
-    	    return
-    	else
-    	    [ "$s" == 0 ] && print_c 2 "Redirezione (attendi massimo 90 secondi):"
-    	    sleeping 1
-    	    s=`date +"%s"`
-    	    s=$(( $s-$k ))
-    	    print_c 0 "$s\r\c"
-    	fi
-    done
-
-    unset redirected url_redirect post_data
-    rm -f "$path_tmp/redirect"
-    
-    print_c 4 "URL del file: $url_in_file"
-}
-
 function download {
     export LANG="$prog_lang"
     export LANGUAGE="$prog_lang"
     unset headers
-
-    [ "$redirected" == "true" ] && redirect
 
     if ! is_noresume "$url_in" &&
 	    ! is_wget "$url_in" &&
 	    ! is_rtmp "$url_in" &&
 	    ! check_wget
     then
-	_log 3
+	if [[ "$wget_checked" =~ (HTTP/1.1 503) ]]
+	then
+	    _log 2
+	else
+	    _log 3
+	fi
 	return 1
     fi
 

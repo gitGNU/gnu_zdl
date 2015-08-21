@@ -272,3 +272,69 @@ function base64_decode {
     done
     sed -r 's| ||g' <<< "${var_12[*]}"
 }
+
+
+function redirect {
+    url_input="$1"
+    sleeping 1
+
+    if ! url "$url_in" 
+    then
+	return 1
+    fi
+    
+    k=$(date +"%s")
+    s=0
+    while true
+    do
+    	if ! check_pid "$wpid" ||
+		[ "$s" == 0 ] ||
+		[ "$s" == "$max_waiting" ] ||
+		[ "$s" == $(( $max_waiting*2 )) ]
+    	then 
+    	    kill -9 "$wpid" &>/dev/null
+    	    rm -f "$path_tmp/redirect"
+    	    wget -t 1 -T $max_waiting                     \
+    		 --user-agent="$user_agent"               \
+    		 --no-check-certificate                   \
+    		 --load-cookies=$path_tmp/cookies.zdl     \
+    		 --post-data="${post_data}"               \
+    		 "$url_input"                             \
+    		 -SO /dev/null -o "$path_tmp/redirect" &
+    	    wpid=$!
+	    echo "$wpid" >> "$path_tmp"/pid_redirects
+    	fi
+	
+    	if [ -f "$path_tmp/redirect" ]
+	then
+	    url_redirect="$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null |head -n1)"
+	    url_redirect="${url_redirect#*'Location: '}"
+	    #url_redirect="$(sanitize_url "$url_redirect")"
+	fi
+
+	if url "$url_redirect" &&
+		[ "$url_redirect" != "https://tusfiles.net" ] # || ! check_pid "$wpid"
+    	then 
+    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+    	    break
+    	elif (( $s>90 ))
+    	then
+    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+    	    return
+    	else
+    	    [ "$s" == 0 ] &&
+		print_c 2 "Redirezione (attendi massimo 90 secondi):"
+
+	    sleeping 1
+    	    s=`date +"%s"`
+    	    s=$(( $s-$k ))
+    	    print_c 0 "$s\r\c"
+    	fi
+    done
+
+    url_in_file="${url_redirect}"
+
+    rm -f "$path_tmp/redirect"
+    unset url_redirect post_data
+    return 0
+}

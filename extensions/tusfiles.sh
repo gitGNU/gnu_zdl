@@ -42,14 +42,23 @@ then
     input_hidden "$path_tmp/zdl.tmp"
 
     post_data="${post_data#*&}"
-    url_in_file="${url_in}"    
-    file_in=$(grep 'URL=' "$path_tmp/zdl.tmp" |
-		     sed -r 's|.+URL=(.+) - [0-9]+.+|\1|g')
+
+    file_in=$(grep 'URL=' "$path_tmp/zdl.tmp")
+    file_in="${file_in#*\]}"
+    file_in="${file_in% - *\[*}"
 
     if [ ! -f "$path_tmp"/cookies.zdl ]
     then
 	touch "$path_tmp"/cookies.zdl
     fi
 
-    redirected="true"
+    redirect "$url_in"
+
+    if ! url "$url_in_file" ||
+    	    [ "$url_in_file" == "$url_in" ] ||
+	    [ "$url_in_file" == "https://tusfiles.net" ] ||
+    	    [ -z "$file_in" ]
+    then
+    	_log 2
+    fi
 fi

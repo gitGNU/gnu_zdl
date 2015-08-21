@@ -964,19 +964,13 @@ function main_loop {
 		print_c 1 "Connessione in corso..."
 
 		check_ip
-		# ## user extensions --> collegate (link simbolici) in "$path_usr"/extensions/*.sh (PROG extensions)
-		# if [ -d "$path_conf/extensions/" ]
-		# then
-		#     shopt -s nullglob
-		#     for srcfile in "$path_conf"/extensions/*.sh
-		#     do
-		# 	source "$srcfile"
-		#     done
-		#     shopt -u nullglob
-		# fi
-		# ##################
 
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
+
+		## se ancora presenti redirezioni fantasma:
+		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+		rm -f "$path_tmp/redirect"
+		###################
 
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]
@@ -988,6 +982,10 @@ function main_loop {
 		    done
 		    shopt -u nullglob
 		fi
+
+		## se ancora presenti redirezioni fantasma:
+		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+		rm -f "$path_tmp/redirect"
 		###################
 
 		if [ "$break_loop" == "true" ]
@@ -1066,8 +1064,7 @@ function main_loop {
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"
-		    elif [ -z "$redirected" ]
-		    then
+		    else
 			print_c 4 "URL del file: $url_in_file"
 		    fi
 
