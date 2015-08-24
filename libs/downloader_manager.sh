@@ -45,12 +45,16 @@ function check_axel {
 
     while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
     do
+	if ! check_pid $pid_axel_test
+	then
+	    break
+	fi
 	sleep 0.5
     done
     kill -9 $pid_axel_test
     rm -f "$path_tmp"/axel_o*_test*
 
-    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] ## "cannot resume" ???
+    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]]
     then
 	result="1"
     else 
@@ -63,7 +67,7 @@ function check_axel {
 
 function check_wget {
     wget_checked="$(wget -S --spider "$url_in_file" 2>&1)"
-    if [[ "$wget_checked" =~ (Remote file does not exist) ]]
+    if [[ "$wget_checked" =~ (Remote file does not exist|failed: Connection refused) ]]
     then
 	return 1
     else 

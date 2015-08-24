@@ -55,7 +55,7 @@ then
     then
 	linkfile=$(grep 'file: base64_decode' <<< "$html" |head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
     	var2=$(grep base64_decode <<< "$html" |sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
-    	url_in_file=$(base64_decode $linkfile $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+    	url_in_file=$(base64_decode "$linkfile" $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
 
 	file_in=$(wget -qO- "$url_in" |grep 'itle>' |sed -r 's|.*itle>([^<>]+)<.+|\1|g').${url_in_file##*.}
     	file_in="${file_in#Watch }"

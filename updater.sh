@@ -84,6 +84,16 @@ function update {
     failure="Aggiornamento non riuscito"
     path_conf="$HOME/.$prog"
     file_conf="$path_conf/$prog.conf"
+
+    if [ "$installer" == "true" ]
+    then
+	op="Installazione"
+	suffix="a"
+    else
+	op="Aggiornamento"
+	suffix="o"
+    fi
+    
     mkdir -p "$path_conf/extensions"
 
     if [ ! -f "$file_conf" ]
@@ -95,14 +105,15 @@ function update {
     then
 	win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
 	win_progfiles=$(cygpath -u "$PROGRAMFILES")
-    fi 
 
-    cygdrive=$(realpath /cygdrive/?/cygwin 2>/dev/null)
-    [ -z "$cygdrive" ] && cygdrive=$(realpath /cygdrive/?/Cygwin 2>/dev/null)
-    cygdrive="${cygdrive#*cygdrive\/}"
-    cygdrive="${cygdrive%%\/*}"
-    [ -z "$cygdrive" ] && cygdrive="C"    
+	cygdrive=$(realpath /cygdrive/?/cygwin 2>/dev/null)
+	[ -z "$cygdrive" ] && cygdrive=$(realpath /cygdrive/?/Cygwin 2>/dev/null)
+	cygdrive="${cygdrive#*cygdrive\/}"
+	cygdrive="${cygdrive%%\/*}"
+	[ -z "$cygdrive" ] && cygdrive="C"
 
+	
+    fi
     # update_zdl-wise
 
     chmod +rx -R .
@@ -110,15 +121,14 @@ function update {
     
     if ! try mv zdl zdl-xterm $BIN
     then
-	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
+	print_c 3 "$op non riuscit${suffix}. Riprova un'altra volta"
 	exit 1
     else
-	print_c 1 "Aggiornamento automatico in $BIN"
+	print_c 1 "$op automatic${suffix} in $BIN"
     fi
     
     [ "$?" != 0 ] && return
     cd ..
-
 
     [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
     try rm -rf "$SHARE"
@@ -136,10 +146,10 @@ function update {
 
     if [ $? != 0 ]
     then
-	print_c 3 "Aggiornamento non riuscito. Riprova un'altra volta"
+	print_c 3 "$op non riuscit${suffix}. Riprova un'altra volta"
 	exit 1
     else
-	print_c 1 "Aggiornamento automatico in $SHARE/$prog"
+	print_c 1 "$op automatic${suffix} in $SHARE/$prog"
     fi
     
     if [ -e /cygdrive ]
@@ -150,8 +160,8 @@ function update {
     fi
 
     update_zdl-conkeror
-    
-    cp *.sig "$path_conf"/zdl.sig
+
+    cp *.sig "$path_conf"/zdl.sig 2>/dev/null
     rm -fr *.gz *.sig "$prog"
     cd ..
     dir_dest=$PWD
@@ -255,7 +265,7 @@ Installazione di FFMpeg
 
 	apt-cyg install bash-completion
     fi
-    print_c 1 "Aggiornamento automatico completato"
+    print_c 1 "$op automatic${suffix} completato"
     pause
     cd $dir_dest
     $prog ${args[*]}
