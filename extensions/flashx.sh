@@ -53,6 +53,12 @@ then
 	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
     fi
 
-    [ -n "$file_in" ] && file_in="$file_in".${url_in_file##*.}
-    axel_parts=4
+    if [ -n "$file_in" ] &&
+	   url "$url_in_file"
+    then
+	file_in="$file_in".${url_in_file##*.}
+	axel_parts=4
+    else
+	_log 2
+    fi
 fi
