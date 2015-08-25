@@ -343,11 +343,6 @@ function check_editor {
 function init {
     mkdir -p "$path_tmp"
 
-    if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
-    then
-	echo "shopt -s checkwinsize" >> ~/.bashrc #&& echo "RIAVVIA IL TERMINALE: $PROG ha aggiunto in ~/.bashrc l'aggiornamento automatico del rilevamento delle dimensioni del display o della finestra di esecuzione." && pause && exit
-    fi
-    
     file_log="${prog}_log.txt"
     
     path_conf="$HOME/.${prog}"
