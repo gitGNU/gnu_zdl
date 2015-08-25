@@ -258,7 +258,7 @@ Installazione di FFMpeg
 
 	if [[ ! $(command -v xxd 2>/dev/null) ]]
 	then
-	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin
 	    apt-cyg install vim-common
 	fi
 
