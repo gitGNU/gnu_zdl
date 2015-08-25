@@ -68,7 +68,7 @@ function update_updater {
 ##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q 2>/dev/null
 
 ######## tarball dal repository git (aggiornamento rapido: disponibile subito con -u --force):
-	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q 2>/dev/null
+	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q 
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
