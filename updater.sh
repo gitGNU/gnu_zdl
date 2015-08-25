@@ -265,7 +265,7 @@ Installazione di FFMpeg
 
 	apt-cyg install bash-completion
     fi
-    print_c 1 "$op automatic${suffix} completato"
+    print_c 1 "$op automatic${suffix} completat${suffix}"
     pause
     cd $dir_dest
     $prog ${args[*]}
