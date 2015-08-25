@@ -93,7 +93,12 @@ function update {
 	op="Aggiornamento"
 	suffix="o"
     fi
-    
+
+    if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
+    then
+	echo "shopt -s checkwinsize" >> ~/.bashrc 
+    fi
+
     mkdir -p "$path_conf/extensions"
 
     if [ ! -f "$file_conf" ]
