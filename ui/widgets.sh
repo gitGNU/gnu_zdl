@@ -26,7 +26,12 @@
 
 #### layout
 
-source "$path_usr/ui/colors.awk.sh"
+if [ "$installer" == "true" ]
+then
+    source "ui/colors.awk.sh"
+else
+    source "$path_usr/ui/colors.awk.sh"
+fi
 
 function print_c {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]

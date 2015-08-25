@@ -316,12 +316,15 @@ cd $prog
 
 chmod +rx -R .
 
+## UPDATER ########
+installer="true"
+
 source updater.sh
 source ui/widgets.sh
 source ui/ui.sh
 
-installer="true"
 update
+###################
 
 ## Axel
 if [ -e "/cygdrive" ]
