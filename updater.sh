@@ -272,9 +272,13 @@ Installazione di FFMpeg
     fi
     print_c 1 "$op automatic${suffix} completat${suffix}"
     pause
-    cd $dir_dest
-    $prog ${args[*]}
 
+    if [ -z "$installer" ]
+    then
+	cd $dir_dest
+	$prog ${args[*]}
+    fi
+    
     exit
 }
 
