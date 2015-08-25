@@ -133,13 +133,18 @@ then
 	# 	else
 	# 	    _log 2
 	# 	fi
-
+	if [[ "$url_in_file" =~ (Age check) ]]
+	then
+	    _log 19
+	else
+	    axel_parts=4
+	fi
 	
     else
     	_log 9
     	not_available=true
     fi
-    axel_parts=4
+
 fi
 
 #shopt -s nullglob

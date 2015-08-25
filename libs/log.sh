@@ -108,6 +108,11 @@ function _log {
 	18)
 	    msg="$url_in --> resume non supportato: il download del file$msg_file_in potrebbe terminare incompleto"
 	    ;;
+	19)
+	    msg="$url_in --> Download non supportato: controllo età utente" 
+	    links_loop - "$url_in"
+	    ;;
+
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
