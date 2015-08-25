@@ -311,6 +311,7 @@ cp *.sig "$path_conf"/zdl.sig
 package=$(ls *.tar.gz)
 tar -xzf "$package"
 
+rm -fr "$prog"
 mv "${package%.tar.gz}" $prog
 cd $prog
 
