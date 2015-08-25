@@ -1038,7 +1038,7 @@ richiesti attraverso l'uso di @command{apt-cyg}. Ad ogni modo, si consiglia
 di installare le dipendenze utilizzando l'installatore di Cygwin,
 scegliendo i pacchetti aggiuntivi fin dalla @emph{fase 1}.@*@*
 @emph{Elenco dei pacchetti da installare:}
-@command{wget ffmpeg rtmpdump diffutils nano base64 xxd openssl}
+@command{wget ffmpeg rtmpdump diffutils nano coreutils vim-common openssl}
 @*@*
 Per alcuni pacchetti potrebbe essere necessario aggiungere un mirror di Cygwinports:
 @command{http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/}

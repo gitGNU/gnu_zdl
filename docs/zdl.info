@@ -1026,7 +1026,7 @@ _FASE 2) Installazione delle dipendenze_
      l'installatore di Cygwin, scegliendo i pacchetti aggiuntivi fin
      dalla _fase 1_.
      _Elenco dei pacchetti da installare:_ `wget ffmpeg rtmpdump
-     diffutils nano base64 xxd openssl'
+     diffutils nano coreutils vim-common openssl'
      Per alcuni pacchetti potrebbe essere necessario aggiungere un
      mirror di Cygwinports:
      `http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/'
@@ -1189,9 +1189,9 @@ Node: Software consigliati32092
 Node: Conkeror33212
 Node: zdl-xterm e XXXTerm/Xombrero34223
 Node: Installazione e aggiornamento36147
-Node: Tags39151
-Node: Copying41524
-Node: Contatti42574
+Node: Tags39161
+Node: Copying41534
+Node: Contatti42584
 
 End Tag Table
 
