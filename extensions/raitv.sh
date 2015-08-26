@@ -28,8 +28,10 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Rai.tv
 
-if [ "$url_in" != "${url_in//'rai.tv'}" ]; then
-    if [ "${url_in}" == "${url_in//dirette}" ]; then 
+if [ "$url_in" != "${url_in//'rai.tv'}" ]
+then
+    if [ "${url_in}" == "${url_in//dirette}" ]
+    then 
 	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
 	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "videoURL_MP4")
 	url_in_file="${url_in_file#*\"}"

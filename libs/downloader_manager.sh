@@ -40,16 +40,19 @@ function force_wget {
 function check_axel {
     rm -f "$path_tmp"/axel_o*_test*
 
-    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" 2>&1 >> "$path_tmp"/axel_stdout_test &
+    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -vS 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
     while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
     do
-	if ! check_pid $pid_axel_test
+	if ! check_pid $pid_axel_test ||
+		(( loops>40 ))
 	then
+	    unset loops
 	    break
 	fi
 	sleep 0.5
+	(( loops++ ))
     done
     kill -9 $pid_axel_test
     rm -f "$path_tmp"/axel_o*_test*
