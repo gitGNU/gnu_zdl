@@ -118,9 +118,9 @@ function download {
     unset headers
 
     if ! is_noresume "$url_in" &&
-	    ! is_rtmp "$1" &&
-	    ! is_wget "$1" &&
-            ! is_youtubedl "$1" &&
+	    ! is_rtmp "$url_in" &&
+	    ! is_wget "$url_in" &&
+            ! is_youtubedl "$url_in" &&
 	    ! check_wget
     then
 	if [[ "$wget_checked" =~ (HTTP/1.1 503) ]]
