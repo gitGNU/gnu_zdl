@@ -93,7 +93,7 @@ function check_axel {
 
     kill -9 $pid_axel_test
 
-    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] &&
+    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Connection gone.|Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] &&
 	   [ -z "$result_ck" ]
     then
 	result_ck="1"
