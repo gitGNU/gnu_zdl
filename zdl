@@ -972,6 +972,8 @@ function main_loop {
 		rm -f "$path_tmp/redirect"
 		###################
 
+		check_dl
+		
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]
 		then
@@ -1144,6 +1146,9 @@ then
     lite=true
 fi
 
+## provvisorio per youtube-dl non gestito
+rm -f "$path_tmp"/*_stdout.ytdl
+
 if [ "$zdl_mode" != "daemon" ]
 then
     stty -echo
@@ -1154,6 +1159,8 @@ then
 	then
 	    unset zdl_mode
 	    show_downloads_lite
+	    ## provvisorio per youtube-dl non gestito
+	    [[ $(ls $path_tmp/*_stdout.ytdl 2>/dev/null) ]] && echo -n -e "\r$(tail -n1 "$path_tmp"/*_stdout.ytdl)                                                                    "
 	    read -e -n 1 -t 2 binding_in_loop
 	    unset zdl_mode
 	else

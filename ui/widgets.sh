@@ -59,6 +59,32 @@ function print_c {
     fi
 }
 
+function print_r {
+    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
+    then
+	case "$1" in
+	    0)
+		echo -n -e ""
+		;;
+	    1)
+		echo -n -e "$BGreen" 
+		;;
+	    2)
+		echo -n -e "$BYellow"
+		;;	
+	    3)
+		echo -n -e "$BRed" 
+		;;	
+	    4)
+		echo -n -e "$BBlue"
+		;;	
+	    
+	esac
+	echo -n -e "\r$2"
+	echo -n -e "${Color_Off}"
+    fi
+}
+
 function sprint_c {
     if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
     then
@@ -141,9 +167,12 @@ function header_z {
 }
 
 function header_box {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] &&
+	   [ -z "$zdl_mode" ] ||
+	       [ -n "$redirected_link" ]
     then
-	if [ -z "$zdl_mode" ]; then
+	if [ -z "$zdl_mode" ]
+	then
 	    header "$1" "$Black${On_White}" "─"
 	fi
     fi

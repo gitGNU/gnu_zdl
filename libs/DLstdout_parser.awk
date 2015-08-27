@@ -331,7 +331,7 @@ function progress_out (value,           progress_line) {
 	if (!length_out[i])
 	    length_out[i] = "unspecified"
     }
-
+    
     if (! speed_out[i]) speed_out[i] = 0
     if (! speed_out_type[i]) speed_out_type[i] = "KB/s"
     if (! length_saved[i]) length_saved[i] = 0
@@ -406,7 +406,7 @@ BEGIN {
 	if (dler == "Axel") yellow_progress()
     }
     if (FNR == 6) {
-	if (dler ~ /Axel|Wget/) {
+	if (dler ~ /Axel|Wget|youtube-dl/) {
 	    url_out_file[i] = $0
 	    array_out(url_out_file[i], "url_out_file")
 	} else if (dler ~ /RTMPDump|cURL/) {

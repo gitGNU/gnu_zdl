@@ -125,6 +125,14 @@ function is_rtmp {
     return 1
 }
 
+function is_youtubedl {
+    for h in ${youtubedl_links[*]}
+    do
+	[ "$1" != "${1//$h}" ] && return
+    done
+    return 1
+}
+
 function is_wget {
     for h in ${wget_links[*]}
     do

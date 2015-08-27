@@ -30,11 +30,45 @@ function check_freespace {
     return 0
 }
 
-function force_wget {
+function force_dl {
     dler=$downloader_in
-    downloader_in=Wget
+    downloader_in="$1"
     ch_dler=1
     print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+}
+
+function check_dl {
+    if is_wget "$url_in"
+    then
+	force_dl "Wget"
+
+    elif is_youtubedl "$url_in"
+    then
+	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
+	then
+	    force_dl "youtube-dl"
+	else
+	    _log 20
+	fi
+
+    elif is_rtmp "$url_in"
+    then
+	if [ -n "$(command -v rtmpdump 2>/dev/null)" ]
+	then
+	    force_dl "RTMPDump"
+    	    url_in_file="http://DOMA.IN/PATH"
+	    
+	elif [ -n "$(command -v curl 2>/dev/null)" ]
+	then
+	    force_dl "cURL"
+	    url_in_file="http://DOMA.IN/PATH"
+	else
+	    print_c 3 "$url_in --> il download richiede l'uso di RTMPDump, che non è installato" | tee -a $file_log
+	    links_loop - "$url_in"
+	    break_loop=true
+	fi
+    fi
+    
 }
 
 function check_axel {
@@ -84,8 +118,9 @@ function download {
     unset headers
 
     if ! is_noresume "$url_in" &&
-	    ! is_wget "$url_in" &&
-	    ! is_rtmp "$url_in" &&
+	    ! is_rtmp "$1" &&
+	    ! is_wget "$1" &&
+            ! is_youtubedl "$1" &&
 	    ! check_wget
     then
 	if [[ "$wget_checked" =~ (HTTP/1.1 503) ]]
@@ -247,6 +282,44 @@ $streamer
 $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
 	    unset downloader_cmd
+	    ;;
+	youtube-dl)
+	    ## provvisorio per youtube-dl non gestito	    
+	    _log 21
+	    echo
+	    header_dl "youtube-dl in $PWD"
+
+	    if [ -n "$DISPLAY" ] &&
+		   [ ! -e /cygdrive ]
+	    then
+		xterm -tn "xterm-256color"                                              \
+		      -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc      \
+		      -fg grey -bg black -title "ZigzagDownLoader in $PWD"              \
+		      -e "youtube-dl \"$url_in_file\"" &
+	    else
+		kill $(cat "$path_tmp/external-dl_pids.txt")
+		
+		youtube-dl "$url_in_file" --newline &>> "$path_tmp/${file_in}_stdout.ytdl" &
+ 		pid_ytdl=$!
+		
+		echo -e "${pid_in}
+$url_in
+youtube-dl
+${pid_prog}
+$file_in
+$url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
+		
+		echo "$pid_ytdl" >> "$path_tmp/external-dl_pids.txt"
+		
+		while check_pid $pid_ytdl
+		do
+		    sleep 2
+		    print_r 0 "$(tail -n1 "$path_tmp/${file_in}_stdout.ytdl")                                                                        "
+		done
+		rm -f "$path_tmp/${file_in}_stdout.ytdl"
+	    fi
+	    
+
 	    ;;
     esac
     
@@ -422,8 +495,8 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	    break_loop=true
 	    no_newip=true
 
-	elif [ ! -z "$url_in_file" ] ||
-		 ( [ ! -z "$playpath" ] && [ ! -z "$streamer" ] )
+	elif [ -n "$url_in_file" ] ||
+		 ( [ -n "$playpath" ] && [ -n "$streamer" ] )
 	then
 	    return 0
 
@@ -446,6 +519,7 @@ function links_loop {
 }
 
 function kill_downloads {
+    kill $(cat "$path_tmp/external-dl_pids.txt") 2>/dev/null
     if data_stdout
     then
 	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null

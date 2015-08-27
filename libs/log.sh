@@ -112,7 +112,14 @@ function _log {
 	    msg="$url_in --> Download non supportato: controllo età utente" 
 	    links_loop - "$url_in"
 	    ;;
-
+	20)
+	    msg="$url_in --> Download non supportato: installa lo script youtube-dl"
+	    links_loop - "$url_in"
+	    ;;
+	21)
+	    msg="$url_in --> Download supportato da youtube-dl, avviato ma non gestito da $PROG"
+	    links_loop - "$url_in"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]

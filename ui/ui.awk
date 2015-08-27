@@ -181,7 +181,9 @@ function make_progress (size_bar, progress_bar, progress) {
 
     if (! percent_out[i])
 	percent_out[i] = 0
+
     size_bar = 0
+
     if (! check_pid(pid_out[i])) {
 	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 

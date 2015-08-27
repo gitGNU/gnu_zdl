@@ -24,11 +24,17 @@
 # zoninoz@inventati.org
 #
 
+## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Rai.tv
 
-if is_wget "$url_in"
+if [ "$url_in" != "${url_in//'rai.tv'}" ]
 then
-    if [ "$downloader_in" == "Axel" ]
+    if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
     then
-	force_wget
+	url_in_file="$url_in"
+	file_in=$(youtube-dl --get-filename "$url_in" |tail -n1)
+    else
+	_log 20
     fi
 fi
