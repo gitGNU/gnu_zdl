@@ -72,6 +72,7 @@ function check_dl {
 }
 
 function check_axel {
+    unset result_ck
     rm -f "$path_tmp"/axel_o*_test*
 
     axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -vS 2>&1 >> "$path_tmp"/axel_stdout_test &
@@ -83,6 +84,7 @@ function check_axel {
 		(( loops>40 ))
 	then
 	    unset loops
+	    (( loops>40 )) && result_ck=1
 	    break
 	fi
 	sleep 0.5
@@ -91,15 +93,16 @@ function check_axel {
     kill -9 $pid_axel_test
     rm -f "$path_tmp"/axel_o*_test*
 
-    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]]
+    if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] &&
+	   [ -z "$result_ck" ]
     then
-	result="1"
+	result_ck="1"
     else 
-	result="0"
+	result_ck="0"
     fi
 
     rm -f "$path_tmp"/axel_stdout_test
-    return "$result"
+    return "$result_ck"
 }
 
 function check_wget {
@@ -135,7 +138,7 @@ function download {
     if [ $downloader_in == Axel ] &&
 	   ! check_axel
     then
-	force_wget
+	force_dl Wget
     fi
 
     if is_noresume "$url_in"
