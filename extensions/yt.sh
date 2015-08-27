@@ -27,8 +27,6 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Youtube
 
-#shopt -u nullglob
-
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]
 then
     links_loop - "$url_in"
@@ -86,53 +84,8 @@ then
 
 	if [ -n "$(axel -o /dev/null "$url_in_file" | grep '403 Forbidden')" ]
 	then
-	    dler=$downloader_in
-	    downloader_in=Wget
-	    ch_dler=1
-	    print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+	    force_dler "Wget"
 	fi
-	
-
-	
-	# 	html=$(grep 'url_encoded_fmt_stream_map' <<< "$html")
-	# 	if [ -n "$html" ]
-	# 	then 
-	# 	    html="${html#*url_encoded_fmt_stream_map}"
-
-	#         ## quality: large -> medium -> small (qualità più alta disponibile è nella prima riga)
-	# 	    url_in_file=$(urldecode "$html" | sed -r 's|codecs|\ncodecs|g')
-	# 	    url_in_file=$(grep "$videoType" <<< "$url_in_file" |grep 'url=')
-
-	# 	    if [[ "$url_in_file" =~ quality\=hd ]]
-	# 	    then
-	# 		url_in_file="$(grep 'quality=hd' <<< "$url_in_file" | head -n1)"
-	
-	# 	    elif [[ "$url_in_file" =~ quality\=medium ]]
-	# 	    then
-	# 		url_in_file="$(grep 'quality=medium' <<< "$url_in_file" | head -n1)"
-
-	# 	    elif [[ "$url_in_file" =~ quality\=small ]]
-	# 	    then
-	# 		url_in_file="$(grep 'quality=small' <<< "$url_in_file" | head -n1)"
-	# 	    else
-	# 		url_in_file="$(grep 'quality' <<< "$url_in_file" | head -n1)"
-	# 	    fi
-
-	# 	    url_in_file=$(sed -r 's|.+url=([^,;\\]+)[,;\\]+.+|\1|g' <<< "$url_in_file")
-	# 	    url_in_file=$(urldecode "$url_in_file")
-
-
-	
-	# 	    if [ -z "$url_in_file" ]
-	# 	    then
-	# 		_log 2
-	# 	    # else
-	# 		## DEBUG:
-	# 	    # 	wget -S --spider "$url_in_file" -a zdl.log
-	# 	    fi
-	# 	else
-	# 	    _log 2
-	# 	fi
 	if [[ "$url_in_file" =~ (Age check) ]]
 	then
 	    _log 19
@@ -146,5 +99,3 @@ then
     fi
 
 fi
-
-#shopt -s nullglob

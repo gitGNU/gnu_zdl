@@ -30,37 +30,37 @@ function check_freespace {
     return 0
 }
 
-function force_dl {
+function force_dler {
     dler=$downloader_in
     downloader_in="$1"
     ch_dler=1
     print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 }
 
-function check_dl {
-    if is_wget "$url_in"
+function check_dler_forcing {
+    if dler_type "wget" "$url_in"
     then
-	force_dl "Wget"
+	force_dler "Wget"
 
-    elif is_youtubedl "$url_in"
+    elif dler_type "youtube-dl" "$url_in"
     then
 	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
 	then
-	    force_dl "youtube-dl"
+	    force_dler "youtube-dl"
 	else
 	    _log 20
 	fi
 
-    elif is_rtmp "$url_in"
+    elif dler_type "rtmp" "$url_in"
     then
 	if [ -n "$(command -v rtmpdump 2>/dev/null)" ]
 	then
-	    force_dl "RTMPDump"
+	    force_dler "RTMPDump"
     	    url_in_file="http://DOMA.IN/PATH"
 	    
 	elif [ -n "$(command -v curl 2>/dev/null)" ]
 	then
-	    force_dl "cURL"
+	    force_dler "cURL"
 	    url_in_file="http://DOMA.IN/PATH"
 	else
 	    print_c 3 "$url_in --> il download richiede l'uso di RTMPDump, che non è installato" | tee -a $file_log
@@ -120,10 +120,10 @@ function download {
     export LANGUAGE="$prog_lang"
     unset headers
 
-    if ! is_noresume "$url_in" &&
-	    ! is_rtmp "$url_in" &&
-	    ! is_wget "$url_in" &&
-            ! is_youtubedl "$url_in" &&
+    if ! dler_type "no-resume" "$url_in" &&
+	    ! dler_type "rtmp" "$url_in" &&
+	    ! dler_type "wget" "$url_in" &&
+            ! dler_type "youtube-dl" "$url_in" &&
 	    ! check_wget
     then
 	if [[ "$wget_checked" =~ (HTTP/1.1 503) ]]
@@ -135,19 +135,19 @@ function download {
 	return 1
     fi
 
-    if [ $downloader_in == Axel ] &&
+    if [ "$downloader_in" == "Axel" ] &&
 	   ! check_axel
     then
-	force_dl Wget
+	force_dler "Wget"
     fi
 
-    if is_noresume "$url_in"
+    if dler_type "no-resume" "$url_in"
     then
 	links_loop - "$url_in"
 	_log 18
     fi
 
-    case $downloader_in in
+    case "$downloader_in" in
 	Axel)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
 
@@ -300,7 +300,7 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 		      -fg grey -bg black -title "ZigzagDownLoader in $PWD"              \
 		      -e "youtube-dl \"$url_in_file\"" &
 	    else
-		kill $(cat "$path_tmp/external-dl_pids.txt")
+		[ -f "$path_tmp/external-dl_pids.txt" ] && kill $(cat "$path_tmp/external-dl_pids.txt") 
 		
 		youtube-dl "$url_in_file" --newline &>> "$path_tmp/${file_in}_stdout.ytdl" &
  		pid_ytdl=$!
@@ -321,8 +321,6 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
 		done
 		rm -f "$path_tmp/${file_in}_stdout.ytdl"
 	    fi
-	    
-
 	    ;;
     esac
     
@@ -379,7 +377,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	unset no_newip
 	return 1
 
-    elif [ -z "$url_in_file" ] ||                               \
+    elif [ -z "$url_in_file" ] ||                               
 	( [ -z "$file_in" ] && [ "$downloader_in" == "Axel" ] )
     then
 	_log 2
@@ -522,7 +520,7 @@ function links_loop {
 }
 
 function kill_downloads {
-    kill $(cat "$path_tmp/external-dl_pids.txt") 2>/dev/null
+    [ -f "$path_tmp/external-dl_pids.txt" ] && kill $(cat "$path_tmp/external-dl_pids.txt")
     if data_stdout
     then
 	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null

@@ -113,41 +113,64 @@ function redirect_links {
     echo -e "${links}\n"
     separator-
     print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
-    [ ! -z "$xterm_stop" ] && xterm_stop
+    [ -n "$xterm_stop" ] && xterm_stop
     exit 1
 }
 
-function is_rtmp {
-    for h in ${rtmp_links[*]}
+function dler_type {
+    case "$1" in
+	rtmp)
+	    type_links=( ${rtmp_links[*]} )
+	;;
+	youtube-dl)
+	    type_links=( ${youtubedl_links[*]} )
+	;;
+	wget)
+	    type_links=( ${wget_links[*]} )
+	;;
+	no-resume)
+	    type_links=( ${noresume_links[*]} )
+	;;
+    esac
+    
+    for h in ${type_links[*]}
     do
-	[ "$1" != "${1//$h}" ] && return
+	[ "$2" != "${2//$h}" ] && return
     done
     return 1
 }
 
-function is_youtubedl {
-    for h in ${youtubedl_links[*]}
-    do
-	[ "$1" != "${1//$h}" ] && return
-    done
-    return 1
-}
+# function is_rtmp {
+#     for h in ${rtmp_links[*]}
+#     do
+# 	[ "$1" != "${1//$h}" ] && return
+#     done
+#     return 1
+# }
 
-function is_wget {
-    for h in ${wget_links[*]}
-    do
-	[ "$1" != "${1//$h}" ] && return 
-    done
-    return 1
-}
+# function is_youtubedl {
+#     for h in ${youtubedl_links[*]}
+#     do
+# 	[ "$1" != "${1//$h}" ] && return
+#     done
+#     return 1
+# }
 
-function is_noresume {
-    for h in ${noresume_links[*]}
-    do
-	[ "$1" != "${1//$h}" ] && return 
-    done
-    return 1
-}
+# function is_wget {
+#     for h in ${wget_links[*]}
+#     do
+# 	[ "$1" != "${1//$h}" ] && return 
+#     done
+#     return 1
+# }
+
+# function is_noresume {
+#     for h in ${noresume_links[*]}
+#     do
+# 	[ "$1" != "${1//$h}" ] && return 
+#     done
+#     return 1
+# }
 
 function sanitize_url {
     data="${1%%'?'}"
