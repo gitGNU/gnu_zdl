@@ -31,12 +31,30 @@
 
 if [ "$url_in" != "${url_in//exashare.}" ]
 then
-    html=$(wget -t 1 -T $max_waiting -q "$url_in" -O-)
-    if [ ! -z "$html" ]
+    html=$(wget --user-agent="$user_agent" -qO- -t 1 -T $max_waiting "$url_in")
+    url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
+    file_in=$(grep 'Title' <<< "$html" |sed -r 's|.+title.{1}(.+)[<].+|\1|')
+    
+    if ! url "$url_in_file"
+    then
+	if [[ ! "$url_in" =~ embed ]]
+	then
+	    link_parser "$url_in"
+	    parser_path="${parser_path%%\/*}"
+	    url_embed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1280x720.html"
+	else
+	    url_embed="$url_in"
+	fi
+	html=$(wget --user-agent="$user_agent" -qO- -t 1 -T $max_waiting "$url_embed")
 	url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
-	ext=${url_in_file##*.}
-	file_in=$(grep 'Title' <<< "$html" |sed -r 's|.+title.{1}(.+)[<].+|\1|').$ext
-    else
+    fi
+    ext=${url_in_file##*.}
+
+    if ! url "$url_in_file" ||
+	    [ -z "$file_in" ]
+    then
 	_log 2
+    else
+	file_in="${file_in#Watch }".$ext
     fi
 fi

@@ -34,7 +34,7 @@ then
     then
 	if [[ "$url_in" =~ (putstream.) ]]
 	then
-	    html=$(wget -q -O- --user-agent="Firefox" "$url_in")
+	    html=$(wget -q -O- --user-agent="$user_agent" "$url_in")
 	    file_in=$(grep '<Title>' <<< "$html" |sed -r 's|.*<Title>([^<>]+)<.+|\1|g')
 	fi
 	link_parser "$url_in"

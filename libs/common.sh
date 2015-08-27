@@ -26,9 +26,9 @@
 
 function check_pid {
     ck_pid=$1
-    if [ ! -z "$ck_pid" ]
+    if [ -n "$ck_pid" ]
     then
-	if [[ ! -z $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]]
+	if [[ -n $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]]
 	then
 	    return 0 
 	else

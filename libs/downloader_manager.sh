@@ -75,23 +75,23 @@ function check_axel {
     unset result_ck
     rm -f "$path_tmp"/axel_o*_test*
 
-    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -vS 2>&1 >> "$path_tmp"/axel_stdout_test &
+    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -v 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
-    while [[ ! "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
+    while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
     do
 	if ! check_pid $pid_axel_test ||
-		(( loops>40 ))
+		(( $loops>40 ))
 	then
 	    unset loops
-	    (( loops>40 )) && result_ck=1
+	    (( $loops>40 )) && result_ck=1
 	    break
 	fi
 	sleep 0.5
 	(( loops++ ))
     done
+
     kill -9 $pid_axel_test
-    rm -f "$path_tmp"/axel_o*_test*
 
     if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] &&
 	   [ -z "$result_ck" ]
@@ -101,7 +101,7 @@ function check_axel {
 	result_ck="0"
     fi
 
-    rm -f "$path_tmp"/axel_stdout_test
+    rm -f "$path_tmp"/axel_*_test
     return "$result_ck"
 }
 
