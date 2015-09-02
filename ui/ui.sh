@@ -92,7 +92,7 @@ function show_downloads_extended {
 
 function services_box {
     header_dl "Servizi"
-    echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Depositfiles ed altri servizi\n\n${BBlue}Short links:${Color_Off}\n$(cat $path_usr/shortlinks.txt)\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n\n${BBlue}Tutti i file scaricabili con i seguenti programmi:${Color_Off}\n$(cat $path_usr/programs.txt)\n" 
+    echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri servizi\n\n${BBlue}Short links:${Color_Off}\n$(cat $path_usr/shortlinks.txt)\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n\n${BBlue}Tutti i file scaricabili con i seguenti programmi:${Color_Off}\n$(cat $path_usr/programs.txt)\n" 
 }
 
 function commands_box {

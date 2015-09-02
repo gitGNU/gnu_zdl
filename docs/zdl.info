@@ -396,12 +396,12 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Akstream, Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo
-     (HD), Metacafe, Movshare, Nowvideo, Openload,
-     Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Sockshare
-     (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tvdigit.it,
-     Videopremium (RTMP), Videowood, Vidhappy (RTMP), Vimeo (HD), VK
-     (HD), Youtube, Zinwa (RTMP) 
+     Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo (HD),
+     Metacafe, Movshare, Nowvideo, Openload, Portalevideo.unimi.it,
+     Putstream, Rai.tv, Rapidvideo, Sockshare (HD), Speedvideo (HD),
+     Streamin (RTMP), Thevideo, Tvdigit.it, Videopremium (RTMP),
+     Videowood, Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube, Zinwa
+     (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
@@ -1176,23 +1176,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11049
-Node: Avviare ZDL14434
-Node: Arrestare ZDL16872
-Node: Controllare i download17977
-Node: Manuali d'uso22265
-Node: Modi22681
-Node: Readline25947
-Node: Editor27467
-Node: Omonimie28692
-Node: Filtri30225
-Node: Creare nuove estensioni30547
-Node: Software consigliati32116
-Node: Conkeror33236
-Node: zdl-xterm e XXXTerm/Xombrero34247
-Node: Installazione e aggiornamento36171
-Node: Tags39185
-Node: Copying41558
-Node: Contatti42608
+Node: Avviare ZDL14424
+Node: Arrestare ZDL16862
+Node: Controllare i download17967
+Node: Manuali d'uso22255
+Node: Modi22671
+Node: Readline25937
+Node: Editor27457
+Node: Omonimie28682
+Node: Filtri30215
+Node: Creare nuove estensioni30537
+Node: Software consigliati32106
+Node: Conkeror33226
+Node: zdl-xterm e XXXTerm/Xombrero34237
+Node: Installazione e aggiornamento36161
+Node: Tags39175
+Node: Copying41548
+Node: Contatti42598
 
 End Tag Table
 
