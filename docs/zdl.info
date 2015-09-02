@@ -408,7 +408,8 @@ _File hosting:_
      Junkyvideo (HD), Likeupload, Mediafire, Mega, Nowdownload,
      Openload, Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit,
      Uptobox e, dopo aver risolto il captcha e generato il link, anche
-     Uploadable, Hugefiles, Depositfiles ed altri servizi 
+     Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri
+     servizi 
 
 _Short links:_
      Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
@@ -1086,7 +1087,7 @@ Indice analitico generale
 * opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
-                                                               (line 25)
+                                                               (line 26)
 * sintassi:                              Il comando ZDL.       (line 13)
 * streaming:                             Servizi streaming/hosting.
                                                                (line 12)
@@ -1175,23 +1176,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11049
-Node: Avviare ZDL14410
-Node: Arrestare ZDL16848
-Node: Controllare i download17953
-Node: Manuali d'uso22241
-Node: Modi22657
-Node: Readline25923
-Node: Editor27443
-Node: Omonimie28668
-Node: Filtri30201
-Node: Creare nuove estensioni30523
-Node: Software consigliati32092
-Node: Conkeror33212
-Node: zdl-xterm e XXXTerm/Xombrero34223
-Node: Installazione e aggiornamento36147
-Node: Tags39161
-Node: Copying41534
-Node: Contatti42584
+Node: Avviare ZDL14434
+Node: Arrestare ZDL16872
+Node: Controllare i download17977
+Node: Manuali d'uso22265
+Node: Modi22681
+Node: Readline25947
+Node: Editor27467
+Node: Omonimie28692
+Node: Filtri30225
+Node: Creare nuove estensioni30547
+Node: Software consigliati32116
+Node: Conkeror33236
+Node: zdl-xterm e XXXTerm/Xombrero34247
+Node: Installazione e aggiornamento36171
+Node: Tags39185
+Node: Copying41558
+Node: Contatti42608
 
 End Tag Table
 

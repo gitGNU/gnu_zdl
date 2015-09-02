@@ -483,7 +483,7 @@ __STREAMING__
 @cindex download
 @cindex file hosting
 @item @b{File hosting:}
-__DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Depositfiles ed altri servizi
+__DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri servizi
 @cindex short links
 @item @b{Short links:}
 __SHORTLINKS__
