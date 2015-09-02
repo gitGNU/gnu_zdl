@@ -140,37 +140,6 @@ function dler_type {
     return 1
 }
 
-# function is_rtmp {
-#     for h in ${rtmp_links[*]}
-#     do
-# 	[ "$1" != "${1//$h}" ] && return
-#     done
-#     return 1
-# }
-
-# function is_youtubedl {
-#     for h in ${youtubedl_links[*]}
-#     do
-# 	[ "$1" != "${1//$h}" ] && return
-#     done
-#     return 1
-# }
-
-# function is_wget {
-#     for h in ${wget_links[*]}
-#     do
-# 	[ "$1" != "${1//$h}" ] && return 
-#     done
-#     return 1
-# }
-
-# function is_noresume {
-#     for h in ${noresume_links[*]}
-#     do
-# 	[ "$1" != "${1//$h}" ] && return 
-#     done
-#     return 1
-# }
 
 function sanitize_url {
     data="${1%%'?'}"
@@ -210,17 +179,34 @@ function sanitize_file_in {
 
 ###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):
 ##
+
+function rm_deadlinks {
+    local dir
+    dir="$1"
+    if [ -n "$dir" ]
+    then
+	sudo find -L "$dir" -type l -exec rm -v {} + 2>/dev/null
+    fi
+}
+
 function zdl-ext {
     ## $1 == (download|streaming)
+    rm_deadlinks "$path_usr/extensions/$line"
+    
     while read line
     do
-	test_ext_type=$(grep "## zdl-extension types:" < $path_usr/extensions/$line 2>/dev/null |grep "$1")
-	if [ ! -z "$test_ext_type" ]
+	test_ext_type=$(grep "## zdl-extension types:" < $path_usr/extensions/$line 2>/dev/null |
+			       grep "$1")
+	
+	if [ -n "$test_ext_type" ]
 	then
-	    grep '## zdl-extension name:' < $path_usr/extensions/$line 2>/dev/null | sed -r 's|.*(## zdl-extension name: )(.+)|\2|g' |sed -r 's|\, |\n|g'
+	    grep '## zdl-extension name:' < "$path_usr/extensions/$line" 2>/dev/null |
+		sed -r 's|.*(## zdl-extension name: )(.+)|\2|g' |
+		sed -r 's|\, |\n|g'
 	fi
     done <<< "$(ls -1 $path_usr/extensions/)"
 }
+
 function zdl-ext-sorted {
     local extensions
     while read line
@@ -229,7 +215,8 @@ function zdl-ext-sorted {
     done <<< "$(zdl-ext $1)"
     extensions=${extensions%\\n}
 
-    echo $(sed -r 's|$|, |g' <<< "$(echo -e "${extensions}" |sort)") |sed -r 's|(.+)\,$|\1|g'
+    echo $(sed -r 's|$|, |g' <<< "$(echo -e "${extensions}" |sort)") |
+	sed -r 's|(.+)\,$|\1|g'
 }
 ##
 ####################
