@@ -78,7 +78,7 @@ function check_axel {
     axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -v 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
-    while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/1.1 [0-9]{3} ) ]]
+    while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/[0-9.]+ [0-9]{3} ) ]]
     do
 	if ! check_pid $pid_axel_test ||
 		(( $loops>40 ))
@@ -126,13 +126,11 @@ function download {
             ! dler_type "youtube-dl" "$url_in" &&
 	    ! check_wget
     then
-	if [[ "$wget_checked" =~ (HTTP/1.1 503) ]]
+	if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
 	then
-	    _log 2
-	else
 	    _log 3
+	    return 1
 	fi
-	return 1
     fi
 
     if [ "$downloader_in" == "Axel" ] &&
@@ -508,7 +506,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
 
 function links_loop {
-    local url_test="$2"
+    local url_test="${2}"
     if [ "$1" == "+" ] && ! url "$url_test"
     then
 	_log 12 "$url_test"

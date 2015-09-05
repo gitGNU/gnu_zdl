@@ -41,7 +41,7 @@ function _log {
     case $1 in
 	1)
 	    msg="File$msg_file_in già presente in $PWD: $url_in non verrà processato."
-	    links_loop - "$url_in"
+	    links_loop - "${url_in}"
 	    ;;
 	2)
 	    msg="$url_in --> File$msg_file_in non disponibile, riprovo più tardi"
