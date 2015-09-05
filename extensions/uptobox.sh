@@ -30,34 +30,39 @@
 if [ "$url_in" != "${url_in//uptobox.}" ]
 then
     html=$(wget -t 2 -T $max_waiting                      \
-		-O- -q                                    \
+		-qO-                                      \
 		--retry-connrefused                       \
 		--keep-session-cookies                    \
 		--save-cookies=$path_tmp/cookies.zdl      \
 		--user-agent="$user_agent"                \
 		"$url_in")
-    unset post_data
-    input_hidden "$html" #### $file_in == POST[fname]
-    sleep 2    
-    html=$(wget -t 2 -T $max_waiting                         \
-		-O- -q                                       \
-		 --load-cookies=$path_tmp/cookies.zdl        \
-		 --save-cookies=$path_tmp/cookies2.zdl       \
-		 --post-data="$post_data"                    \
-		 --user-agent="$user_agent"                  \
-		 "$url_in")
-		 
-    url_in_file=$(grep "Click here to start your download" -B2 <<< "$html" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-
-    unset post_data
-
-    url_in_file=$(sanitize_url "$url_in_file")
-
-    if ! url "$url_in_file" ||
-	    [ "$url_in_file" == "$url_in" ]
+    if [[ "$html" =~ (File not found) ]]
     then
-    	_log 2
+	_log 3
     else
-	axel_parts=2
+	unset post_data
+	input_hidden "$html" #### $file_in == POST[fname]
+	sleep 2    
+	html=$(wget -t 2 -T $max_waiting                         \
+		    -O- -q                                       \
+		    --load-cookies=$path_tmp/cookies.zdl        \
+		    --save-cookies=$path_tmp/cookies2.zdl       \
+		    --post-data="$post_data"                    \
+		    --user-agent="$user_agent"                  \
+		    "$url_in")
+	
+	url_in_file=$(grep "Click here to start your download" -B2 <<< "$html" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+
+	unset post_data
+
+	url_in_file=$(sanitize_url "$url_in_file")
+
+	if ! url "$url_in_file" ||
+		[ "$url_in_file" == "$url_in" ]
+	then
+    	    _log 2
+	else
+	    axel_parts=2
+	fi
     fi
 fi   
