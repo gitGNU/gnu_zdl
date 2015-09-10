@@ -281,9 +281,7 @@ Installazione di FFMpeg
 	print_c 1 "Installazione di pinfo"
 	try apt-get -qq -y install pinfo &>/dev/null
     fi
-    
 
-    fi
     print_c 1 "$op automatic${suffix} completat${suffix}"
     pause
 
