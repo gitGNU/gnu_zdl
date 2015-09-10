@@ -786,7 +786,7 @@ completato. Tali informazioni possono essere ricavate solo dai file
 temporanei generati da ZDL per ciascun link già processato. Cancellare
 tali file con l'opzione `--clean' provoca la perdita di questi dati.
 Nel caso in cui, in presenza di file omonimi, non esistono file
-temporanei dei link da processare, ZDL si comporta di due modi
+temporanei dei link da processare, ZDL si comporta in due modi
 alternativi:
 
 `_predefinito_'

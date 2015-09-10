@@ -778,7 +778,7 @@ La scelta dell'editor può essere esplicita (da riga di comando) o implicita, co
 @unnumbered Omonimie
 Il download può diventare problematico in presenza di file omonimi nella stessa directory, se ZDL non dispone già di informazioni grazie alle quali riconoscere un eventuale scaricamento in sospeso o completato. Tali informazioni possono essere ricavate solo dai file temporanei generati da ZDL per ciascun link già processato. Cancellare tali file con l'opzione @option{--clean} provoca la perdita di questi dati.
 @*@*
-Nel caso in cui, in presenza di file omonimi, non esistono file temporanei dei link da processare, ZDL si comporta di due modi alternativi:
+Nel caso in cui, in presenza di file omonimi, non esistono file temporanei dei link da processare, ZDL si comporta in due modi alternativi:
 
 @table @option
 @item @emph{predefinito}
