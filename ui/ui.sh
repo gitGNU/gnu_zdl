@@ -164,7 +164,7 @@ function change_mode {
     elif [ $cmd == "info" ]
     then
 	[[ "$(command -v pinfo 2>/dev/null)" ]] &&
-	    pinfo zdl ||
+	    pinfo -x zdl ||
 		info zdl
 	
     elif [ $cmd == "list" ]
