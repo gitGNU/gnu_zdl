@@ -157,8 +157,6 @@ function update {
 	print_c 1 "$op automatic${suffix} in $SHARE/$prog"
     fi
 
-    try apt-get install pinfo
-    
     if [ -e /cygdrive ]
     then
 	code_batch=$(cat $SHARE/zdl.bat)
@@ -277,6 +275,14 @@ Installazione di FFMpeg
 	fi
 
 	apt-cyg install bash-completion
+
+    elif [ -z "$(command -v pinfo 2>/dev/null)" ]
+    then
+	print_c 1 "Installazione di pinfo"
+	try apt-get -qq -y install pinfo &>/dev/null
+    fi
+    
+
     fi
     print_c 1 "$op automatic${suffix} completat${suffix}"
     pause
