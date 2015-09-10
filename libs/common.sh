@@ -157,6 +157,19 @@ function sanitize_url {
 }
 
 function sanitize_file_in {
+    local ext
+    local title
+    local length
+    
+    ext="${file_in##*.}"
+    title="${file_in%.$ext}"
+    if (( $(( ${#title}%2 ))==1 ))
+    then
+	length=$(( (${#title}-1)/2 ))
+	[ "${title:0:$length}" == "${title:$(( $length+1 )):$length}" ] &&
+	    file_in="${title:0:$length}.$ext"
+    fi
+    
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"
     file_in="${file_in//[\[\]\(\)]/-}"

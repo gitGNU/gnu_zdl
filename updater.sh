@@ -108,7 +108,7 @@ function update {
 
     if [ -e /cygdrive ]
     then
-	win_home=$(cygpath -u "$HOMEDRIVE$HOMEPATH")
+	win_home=$(cygpath -u "$HOMEPATH")
 	win_progfiles=$(cygpath -u "$PROGRAMFILES")
 
 	cygdrive=$(realpath /cygdrive/?/cygwin 2>/dev/null)
