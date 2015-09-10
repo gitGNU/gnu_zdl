@@ -216,6 +216,19 @@ then
     done
 fi
 
+if [ "${args[*]}" != "${args[*]//--list-extensions}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[$i]}" == "--list-extensions" ]
+	then
+	    unset args[$i]
+	    services_box
+	    xterm_stop force
+	    exit
+	fi
+    done
+fi
 
 if [[ "${args[*]}" =~ \-\-(mg|nano|mcedit|vi|vim|emacs|emacs-nw|jed|zile|jupp) ]]
 then

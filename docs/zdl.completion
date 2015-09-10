@@ -6,7 +6,7 @@ _zdl()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi"
+    opts="--help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi --list-extensions"
 
     if [[ ${cur} == -* ]]
     then

@@ -24,37 +24,10 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
-## zdl-extension name: Openload
+## zdl-extension types: generated
+## zdl-extension name: Openload, Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles
 
 if [ "$url_in" != "${url_in//openload.}" ]
 then
-    # html=$(wget -t 1 -T $max_waiting                      \
-    # 		-qO-                                      \
-    # 		--retry-connrefused                       \
-    # 		--keep-session-cookies                    \
-    # 		--save-cookies="$path_tmp"/cookies.zdl    \
-    # 		--user-agent="$user_agent"                \
-    # 		"${url_in//'/embed/'//f/}")
-
-    # if [[ "$html" =~ 'We are sorry!' ]]
-    # then
-    # 	_log 3
-    # fi
-    
-    # else
-    # 	file_in=$(grep '<title>' <<< "$html" |sed -r 's/.+\<title>([^|]+)\ \|\ openload.+/\1/g')
-    # 	url_in_file=$(grep 'Click to start Download' <<< "$html") # | sed -r 's|.+href=\"([^"]+)\".+|\1|g')
-    # 	url_in_file=$(sanitize_url "$url_in_file")
-
-    # 	echo "$file_in -- $url_in_file"
-    # exit
-    # 	if ! url "$url_in_file" ||
-    # 		[ "$url_in_file" == "$url_in" ] ||
-    # 		[ -z "$file_in" ]
-    # 	then
-    # 	    _log 2
-    # 	fi
-    # fi
     axel_parts=4
-fi   
+fi

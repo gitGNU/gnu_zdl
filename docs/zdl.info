@@ -215,6 +215,9 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `-h, --help'
      Help di _ZigzagDownLoader (ZDL)_
 
+`--list-extensions'
+     Elenco delle estensioni di _ZigzagDownLoader (ZDL)_
+
 `--wget'
      Forza l'uso di _Wget_
 
@@ -397,19 +400,19 @@ player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
      Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo (HD),
-     Metacafe, Movshare, Nowvideo, Openload, Portalevideo.unimi.it,
-     Putstream, Rai.tv, Rapidvideo, Sockshare (HD), Speedvideo (HD),
-     Streamin (RTMP), Thevideo, Tvdigit.it, Videopremium (RTMP),
-     Videowood, Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube, Zinwa
-     (RTMP) 
+     Metacafe, Movshare, Nowvideo, Portalevideo.unimi.it, Putstream,
+     Rai.tv, Rapidvideo, Sockshare (HD), Speedvideo (HD), Streamin
+     (RTMP), Thevideo, Tvdigit.it, Videopremium (RTMP), Videowood,
+     Vidhappy (RTMP), Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cloudzilla, Cyberlocker, Easybytez, Glumbouploads,
      Junkyvideo (HD), Likeupload, Mediafire, Mega, Nowdownload,
-     Openload, Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit,
-     Uptobox e, dopo aver risolto il captcha e generato il link, anche
-     Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri
-     servizi 
+     Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit, Uptobox 
+
+_Link generati dal web (anche dopo captcha):_
+     Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
+     ed altri servizi 
 
 _Short links:_
      Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
@@ -877,6 +880,10 @@ _Flashgot_
 _youtube-dl_
      Script in python che amplia e potenzia le estensioni di ZDL
 
+_pinfo_
+     Programma in stile _lynx_ per sfogliare i file _info_: migliore di
+     _info_ ed esteticamente più simile a ZDL
+
 _Emacs_
 _Jed_
 _Jupp_
@@ -1079,11 +1086,15 @@ Indice analitico generale
 * Menu:
 
 * argomenti:                             Il comando ZDL.       (line 18)
+* captcha:                               Servizi streaming/hosting.
+                                                               (line 22)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
-                                                               (line 18)
+                                                               (line 17)
 * file hosting:                          Servizi streaming/hosting.
-                                                               (line 18)
+                                                               (line 17)
+* generated:                             Servizi streaming/hosting.
+                                                               (line 22)
 * opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
@@ -1102,17 +1113,18 @@ Indice dei programmi
 
 * avconv:                                Software consigliati. (line  9)
 * axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 45)
-* editor:                                Software consigliati. (line 24)
+* conkeror:                              Software consigliati. (line 49)
+* editor:                                Software consigliati. (line 28)
 * ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 39)
+* firefox:                               Software consigliati. (line 43)
 * flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 39)
-* iceweasel:                             Software consigliati. (line 39)
+* icecat:                                Software consigliati. (line 43)
+* iceweasel:                             Software consigliati. (line 43)
+* pinfo:                                 Software consigliati. (line 24)
 * rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 42)
+* xombrero:                              Software consigliati. (line 46)
 * xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 42)
+* xxxterm:                               Software consigliati. (line 46)
 * youtube-dl:                            Software consigliati. (line 21)
 
 
@@ -1175,24 +1187,24 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
-Node: Servizi streaming/hosting11049
-Node: Avviare ZDL14424
-Node: Arrestare ZDL16862
-Node: Controllare i download17967
-Node: Manuali d'uso22255
-Node: Modi22671
-Node: Readline25937
-Node: Editor27457
-Node: Omonimie28682
-Node: Filtri30215
-Node: Creare nuove estensioni30537
-Node: Software consigliati32106
-Node: Conkeror33226
-Node: zdl-xterm e XXXTerm/Xombrero34237
-Node: Installazione e aggiornamento36161
-Node: Tags39175
-Node: Copying41548
-Node: Contatti42598
+Node: Servizi streaming/hosting11127
+Node: Avviare ZDL14472
+Node: Arrestare ZDL16910
+Node: Controllare i download18015
+Node: Manuali d'uso22303
+Node: Modi22719
+Node: Readline25985
+Node: Editor27505
+Node: Omonimie28730
+Node: Filtri30263
+Node: Creare nuove estensioni30585
+Node: Software consigliati32154
+Node: Conkeror33402
+Node: zdl-xterm e XXXTerm/Xombrero34413
+Node: Installazione e aggiornamento36337
+Node: Tags39351
+Node: Copying42079
+Node: Contatti43129
 
 End Tag Table
 

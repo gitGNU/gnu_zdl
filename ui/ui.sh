@@ -91,8 +91,26 @@ function show_downloads_extended {
 
 
 function services_box {
-    header_dl "Servizi"
-    echo -e "${BBlue}Video in streaming saltando il player del browser:${Color_Off}\n$(cat $path_usr/streaming.txt)\n\n${BBlue}File hosting:${Color_Off}\n$(cat $path_usr/hosting.txt) e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri servizi\n\n${BBlue}Short links:${Color_Off}\n$(cat $path_usr/shortlinks.txt)\n\n${BBlue}Tutti i file scaricabili con le seguenti estensioni dei browser:${Color_Off}\nFlashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)\n\n${BBlue}Tutti i file scaricabili con i seguenti programmi:${Color_Off}\n$(cat $path_usr/programs.txt)\n" 
+    header_z
+    header_box_interactive "Estensioni"
+    print_C 4 "\nVideo in streaming saltando il player del browser:"
+    cat $path_usr/streaming.txt 2>/dev/null
+    
+    print_C 4 "\nFile hosting:"
+    cat $path_usr/hosting.txt 2>/dev/null
+
+    print_C 4 "\nLink generati dal web (anche dopo captcha):"
+    echo -e "$(cat $path_usr/generated.txt 2>/dev/null) ed altri servizi"
+    
+    print_C 4 "\nShort links:"
+    cat $path_usr/shortlinks.txt 2>/dev/null
+
+    print_C 4 "\nTutti i file scaricabili con le seguenti estensioni dei browser:"
+    echo -e "Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror e script 'zdl-xterm' (XXXTerm/Xombrero e altri)"
+
+    print_C 4 "\nTutti i file scaricabili con i seguenti programmi:"
+    cat $path_usr/programs.txt 2>/dev/null
+    echo
 }
 
 function commands_box {
@@ -103,17 +121,20 @@ function commands_box {
 <${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
 
 <${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]"
+<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]
+
+<${BBlue} M-t ${Color_Off}>\t\tsfoglia il ${BBlue}t${Color_Off}utorial
+<${BBlue} M-l ${Color_Off}>\t\t${BBlue}l${Color_Off}ista dei servizi abilitati"
 
 }
 
 function standard_box {
-    [ ! -z "$lite" ] && header_lite=" LITE"
+    [ -n "$lite" ] && header_lite=" LITE"
     header_box "Modalità in standard output${header_lite}"
     echo -e -n "$init_msg"
 
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
-    [ -z "$1" ] && services_box
+    #[ -z "$1" ] && services_box
     commands_box
     if [ -z "$1" ]
     then
@@ -135,9 +156,20 @@ function change_mode {
 	stty echo
 	zdl -i >&1
 	stty -echo
+	
     elif [ $cmd == "editor" ]
     then
 	$editor $path_tmp/links_loop.txt
+	
+    elif [ $cmd == "info" ]
+    then
+	[[ "$(command -v pinfo 2>/dev/null)" ]] &&
+	    pinfo zdl ||
+		info zdl
+	
+    elif [ $cmd == "list" ]
+    then
+	zdl --list-extensions
     fi
 
     rm -f "$path_tmp/.stop_stdout"
@@ -156,7 +188,7 @@ function change_mode {
 	separator-
 	print_c 1 "\n..."
 	export READLINE_LINE="i"
-    elif [ ! -z "$binding" ]
+    elif [ -n "$binding" ]
     then
 	print_c 0
 	header_box "Readline: immetti URL e link dei servizi"

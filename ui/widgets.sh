@@ -33,60 +33,62 @@ else
     source "$path_usr/ui/colors.awk.sh"
 fi
 
+function print_case {
+    case "$1" in
+	0)
+	    echo -n -e ""
+	    ;;
+	1)
+	    echo -n -e "$BGreen" 
+	    ;;
+	2)
+	    echo -n -e "$BYellow"
+	    ;;	
+	3)
+	    echo -n -e "$BRed" 
+	    ;;	
+	4)
+	    echo -n -e "$BBlue"
+	    ;;	
+    esac
+}
+    
 function print_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] &&
+	   [ -z "$zdl_mode" ] ||
+	       [ -n "$redirected_link" ]
     then
-	case "$1" in
-	    0)
-		echo -n -e ""
-		;;
-	    1)
-		echo -n -e "$BGreen" 
-		;;
-	    2)
-		echo -n -e "$BYellow"
-		;;	
-	    3)
-		echo -n -e "$BRed" 
-		;;	
-	    4)
-		echo -n -e "$BBlue"
-		;;	
-	    
-	esac
+	print_case "$1"
+	
 	echo -n -e "$2\n"
 	echo -n -e "${Color_Off}"
     fi
 }
 
+function print_C {
+    ## print_c FORCED
+    print_case "$1"
+    
+    echo -n -e "$2\n"
+    echo -n -e "${Color_Off}"
+}
+
 function print_r {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] &&
+	   [ -z "$zdl_mode" ] ||
+	       [ -n "$redirected_link" ]
     then
-	case "$1" in
-	    0)
-		echo -n -e ""
-		;;
-	    1)
-		echo -n -e "$BGreen" 
-		;;
-	    2)
-		echo -n -e "$BYellow"
-		;;	
-	    3)
-		echo -n -e "$BRed" 
-		;;	
-	    4)
-		echo -n -e "$BBlue"
-		;;	
-	    
-	esac
+	print_case "$1"
+	
 	echo -n -e "\r$2"
 	echo -n -e "${Color_Off}"
     fi
 }
 
 function sprint_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ] || [ -n "$redirected_link" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ] &&
+	   [ -z "$zdl_mode" ] ||
+	       [ -n "$redirected_link" ]
     then
 	case "$1" in
 	    0)
@@ -190,7 +192,11 @@ function header_dl {
 }
 
 function pause {
-    if [ "$redir_lnx" == true ] || ( [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] ) || [ -n "$redirected_link" ]
+    if [ ! -f "$path_tmp/.stop_stdout" ]   &&
+	   [ "$zdl_mode" != "daemon" ]     ||
+	       [ "$1" == "force" ]         ||
+	       [ "$redir_lnx" == true ]    ||
+	       [ -n "$redirected_link" ]
     then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
@@ -201,7 +207,11 @@ function pause {
 }
 
 function xterm_stop {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ "$zdl_mode" != "daemon" ] && [ -z "$pipe_out" ] || [ -n "$redirected_link" ]
+    if [ "$1" == "force" ] ||
+	   ( [ ! -f "$path_tmp/.stop_stdout" ]   &&
+		 [ "$zdl_mode" != "daemon" ]     &&
+		 [ -z "$pipe_out" ]              ||
+		     [ -n "$redirected_link" ] )
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off

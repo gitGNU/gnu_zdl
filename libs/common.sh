@@ -302,6 +302,8 @@ function bindings {
     check_instance_prog
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
+    bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
+    bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
     bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null

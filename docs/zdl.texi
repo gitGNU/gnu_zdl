@@ -301,6 +301,9 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 @item -h, --help
 Help di @emph{ZigzagDownLoader (ZDL)}
 
+@item --list-extensions
+Elenco delle estensioni di @emph{ZigzagDownLoader (ZDL)}
+
 @item --wget                  
 Forza l'uso di @emph{Wget}
 
@@ -483,7 +486,11 @@ __STREAMING__
 @cindex download
 @cindex file hosting
 @item @b{File hosting:}
-__DOWNLOAD__ e, dopo aver risolto il captcha e generato il link, anche Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles ed altri servizi
+__DOWNLOAD__
+@cindex generated
+@cindex captcha
+@item @b{Link generati dal web (anche dopo captcha):}
+__GENERATED__ ed altri servizi
 @cindex short links
 @item @b{Short links:}
 __SHORTLINKS__
@@ -868,6 +875,11 @@ Estensione di Firefox/Iceweasel/Icecat
 @pindex youtube-dl
 @item youtube-dl
 Script in python che amplia e potenzia le estensioni di ZDL
+
+@pindex pinfo
+@item pinfo
+Programma in stile @emph{lynx} per sfogliare i file @emph{info}:
+migliore di @emph{info} ed esteticamente più simile a ZDL
 
 
 @pindex editor

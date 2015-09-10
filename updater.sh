@@ -156,6 +156,8 @@ function update {
     else
 	print_c 1 "$op automatic${suffix} in $SHARE/$prog"
     fi
+
+    try apt-get install pinfo
     
     if [ -e /cygdrive ]
     then
@@ -260,6 +262,12 @@ Installazione di FFMpeg
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin
 	    apt-cyg install vim-common
+	fi
+
+	if [[ ! $(command -v pinfo 2>/dev/null) ]]
+	then
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin
+	    apt-cyg install pinfo
 	fi
 
 	if [[ ! $(command -v openssl 2>/dev/null) ]]
