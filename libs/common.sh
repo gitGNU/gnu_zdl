@@ -183,7 +183,7 @@ function sanitize_file_in {
     file_in="${file_in//'!'}"
     file_in="${file_in//'$'}"
     file_in="${file_in//'%'}"
-    file_in="${file_in//'|'}"
+    file_in="${file_in//\|}"
     file_in="${file_in//'`'}"
     file_in="${file_in//[<>]}"
     file_in="${file_in::240}"
