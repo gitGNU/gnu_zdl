@@ -473,6 +473,7 @@ function pid_list_for_prog {
 }
 
 function post_process {
+    ## mega.nz
     for line in *.MEGAenc
     do
 	if [ -f "${path_tmp}/${line}.tmp" ] &&
@@ -481,8 +482,32 @@ function post_process {
 	    key=$(head -n1 "$path_tmp"/"$line".tmp)
 	    iv=$(tail -n1 "$path_tmp"/"$line".tmp)
 	    openssl enc -d -aes-128-ctr -K $key -iv $iv -in "$line" -out "${line%.MEGAenc}" &&
-		rm -f "${path_tmp}/${line}.tmp" &&
+		rm -f "${path_tmp}/${line}.tmp" "$line" &&
 		print_c 1 "Il file $line è stato decrittato come ${line%.MEGAenc}"
 	fi
     done
+
+    ## --mp3/--flac: conversione formato
+    if [ -n "$format" ]
+    then
+	[ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
+	[ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
+	echo
+	header_box "Conversione in $format ($convert2format)"
+	echo
+	for line in $(cat $print_out)
+	do
+	    if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
+	    then
+		print_c 4 "Conversione del file: $line"
+		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
+		
+		$convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
+		    rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+			print_c 3 "Conversione NON riuscita: $line"
+		echo
+	    fi
+	done 
+	rm "$print_out"
+    fi
 }
