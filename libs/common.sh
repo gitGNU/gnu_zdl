@@ -503,7 +503,8 @@ function post_process {
 		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
 		
 		$convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
-		    rm "$line" && print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+		    rm "$line" &&
+		    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
 			print_c 3 "Conversione NON riuscita: $line"
 		echo
 	    fi
