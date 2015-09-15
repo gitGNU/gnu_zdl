@@ -36,10 +36,10 @@ then
 		--save-cookies=$path_tmp/cookies.zdl      \
 		--user-agent="$user_agent"                \
 		"$url_in")
-    if [[ "$html" =~ (File not found) ]]
-    then
-	_log 3
-    else
+    # if [[ "$html" =~ (File not found) ]]
+    # then
+    # 	_log 3
+    # else
 	unset post_data
 	input_hidden "$html" #### $file_in == POST[fname]
 	sleep 2    
@@ -64,5 +64,5 @@ then
 	else
 	    axel_parts=2
 	fi
-    fi
+#    fi				
 fi   
