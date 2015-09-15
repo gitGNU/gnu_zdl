@@ -203,21 +203,22 @@ function rm_deadlinks {
 }
 
 function zdl-ext {
-    ## $1 == (download|streaming)
-    rm_deadlinks "$path_usr/extensions/$line"
+    ## $1 == (download|streaming|...)
+    #rm_deadlinks "$path_usr/extensions/$line"
+    local path_git="$HOME"/zdl-git/code
     
     while read line
     do
-	test_ext_type=$(grep "## zdl-extension types:" < $path_usr/extensions/$line 2>/dev/null |
+	test_ext_type=$(grep "## zdl-extension types:" < $path_git/extensions/$line 2>/dev/null |
 			       grep "$1")
 	
 	if [ -n "$test_ext_type" ]
 	then
-	    grep '## zdl-extension name:' < "$path_usr/extensions/$line" 2>/dev/null |
+	    grep '## zdl-extension name:' < "$path_git/extensions/$line" 2>/dev/null |
 		sed -r 's|.*(## zdl-extension name: )(.+)|\2|g' |
 		sed -r 's|\, |\n|g'
 	fi
-    done <<< "$(ls -1 $path_usr/extensions/)"
+    done <<< "$(ls -1 $path_git/extensions/)"
 }
 
 function zdl-ext-sorted {
