@@ -49,7 +49,7 @@ then
 
     url_in_file="${json_data%\"*}"
     url_in_file="${url_in_file##*\"}"
-
+    
     ##    file_in="$key".MEGAenc
     awk -F '"' '{print $6}' <<< "$json_data"             |
 	sed -e 's/-/+/g' -e 's/_/\//g' -e 's/,//g'       |
@@ -65,6 +65,11 @@ then
 	   [ -z "$file_in" ]
     then
 	_log 2
+	
+    elif ! url "$url_in_file"
+    then
+	_log 3
+	
     else
 	#### for POST-PROCESSING:
 	## openssl enc -d -aes-128-ctr -K $key -iv $iv -in $enc_file -out $out_file
