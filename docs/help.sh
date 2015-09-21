@@ -53,7 +53,9 @@ OPZIONI
   '-ufmd' equivale a '-u -f -m -d'
 
 
-  -h,  --help                  Help di ZigzagDownLoader (ZDL)
+  -h,  --help                  Help di ZigzagDownLoader ($PROG)
+
+       --list-extensions       Elenco delle estensioni di $PROG 
 
        --wget                  Forza l'uso di Wget
        --axel                  Forza l'uso di Axel
