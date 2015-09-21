@@ -513,7 +513,7 @@ per procedere con il download in parallelo, eventualmente attraverso
 l'uso di proxy: Easybytez e Mediafire
 
 Molti server non permettono il recupero di download interrotti e il download parallelo.
-Per questi (fra cui Easybytez, Dailymotion, Cloudzilla, Videowood e Uploadable) ZDL usa Wget.
+Per questi (fra cui Easybytez, Dailymotion, Videowood e Uploadable) ZDL usa Wget.
 
 I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
 
