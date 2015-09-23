@@ -30,13 +30,16 @@
 
 if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
+    # export LANG="$prog_lang"
+    # export LANGUAGE="$prog_lang"
+
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \
 		--save-cookies="$path_tmp"/cookies.zdl     \
 		--user-agent="$user_agent"                 \
 		-qO- $url_in)
     
-    if [[ "$html" =~ (File Deleted|file was deleted) ]]
+    if [[ "$html" =~ (File Deleted|file was deleted|File not found) ]]
     then
 	_log 3
 
@@ -55,7 +58,7 @@ then
 
 	unset post_data
 	input_hidden "$html"
-	post_data="${post_data#*'(&'}&code=$code&btn_download=Scarica File..."
+	post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
 	post_data="${post_data//'&down_script=1'}"
 
 	countdown- 30
@@ -71,4 +74,7 @@ then
     fi
     
     url "$url_in_file" || _log 2
+    
+    # export LANG="$user_lang"
+    # export LANGUAGE="$user_language"
 fi
