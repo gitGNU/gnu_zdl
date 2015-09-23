@@ -408,9 +408,8 @@ _Video in streaming saltando il player del browser:_
 
 _File hosting:_
      Billionuploads, Cyberlocker, Easybytez, Glumbouploads, Junkyvideo
-     (HD), Likeupload, Mediafire, Mega, Neodrive (ex Cloudzilla),
-     Nowdownload, Rockfile, Sockshare (HD), Thevideo, Tusfiles, Uload,
-     Uppit, Uptobox 
+     (HD), Likeupload, Mediafire, Mega, Nowdownload, Rockfile,
+     Sockshare (HD), Thevideo, Tusfiles, Uload, Uppit, Uptobox 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Storbit, Uploadable ed altri
@@ -1089,18 +1088,18 @@ Indice analitico generale
 
 * argomenti:                             Il comando ZDL.       (line 18)
 * captcha:                               Servizi streaming/hosting.
-                                                               (line 24)
+                                                               (line 23)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
                                                                (line 18)
 * file hosting:                          Servizi streaming/hosting.
                                                                (line 18)
 * generated:                             Servizi streaming/hosting.
-                                                               (line 24)
+                                                               (line 23)
 * opzioni:                               Il comando ZDL.       (line 37)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
-                                                               (line 28)
+                                                               (line 27)
 * sintassi:                              Il comando ZDL.       (line 13)
 * streaming:                             Servizi streaming/hosting.
                                                                (line 12)
@@ -1190,23 +1189,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14510
-Node: Arrestare ZDL16948
-Node: Controllare i download18053
-Node: Manuali d'uso22341
-Node: Modi22757
-Node: Readline26023
-Node: Editor27543
-Node: Omonimie28768
-Node: Filtri30301
-Node: Creare nuove estensioni30623
-Node: Software consigliati32192
-Node: Conkeror33440
-Node: zdl-xterm e XXXTerm/Xombrero34451
-Node: Installazione e aggiornamento36375
-Node: Tags39389
-Node: Copying42117
-Node: Contatti43167
+Node: Avviare ZDL14479
+Node: Arrestare ZDL16917
+Node: Controllare i download18022
+Node: Manuali d'uso22310
+Node: Modi22726
+Node: Readline25992
+Node: Editor27512
+Node: Omonimie28737
+Node: Filtri30270
+Node: Creare nuove estensioni30592
+Node: Software consigliati32161
+Node: Conkeror33409
+Node: zdl-xterm e XXXTerm/Xombrero34420
+Node: Installazione e aggiornamento36344
+Node: Tags39358
+Node: Copying42086
+Node: Contatti43136
 
 End Tag Table
 

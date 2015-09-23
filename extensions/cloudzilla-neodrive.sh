@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: download, streaming
+## zdl-extension types: streaming
 ## zdl-extension name: Neodrive (ex Cloudzilla)
 
 
