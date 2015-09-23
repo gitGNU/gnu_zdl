@@ -59,15 +59,16 @@ then
 	post_data="${post_data//'&down_script=1'}"
 
 	countdown- 30
-
+	sleeping 2
+	
 	url_in_file=$(wget -qO- "$url_in"                                   \
 			   --load-cookies="$path_tmp"/cookies.zdl           \
 			   --user-agent="$user_agent"                       \
 			   --post-data="$post_data"                   |
 			     grep -P '[^\#]+btn_downloadLink'         |
 			     sed -r 's|.+href=\"([^"]+)\".+|\1|g')
-
+	url_in_file=$(sanitize_url "$url_in_file")
     fi
-
+    
     url "$url_in_file" || _log 2
 fi
