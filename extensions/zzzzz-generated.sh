@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: generated
-## zdl-extension name: Openload, Uploadable, Hugefiles, Rockfile, Storbit, Depositfiles
+## zdl-extension name: Openload, Uploadable, Hugefiles, Storbit, Depositfiles
 
 if [ "$url_in" != "${url_in//openload.}" ]
 then

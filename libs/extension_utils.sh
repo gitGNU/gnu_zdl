@@ -74,13 +74,16 @@ function input_hidden {
     fi
 }
 
-function pseudo_captcha { #per implementarla, analizzare ../extensions/frozen/sharpfile.sh
-    j=0
-    for cod in ${ascii_dec[*]}
-    do 
-	captcha[$j]=`printf "\x$(printf %x $cod)"`
-	(( j++ ))
-    done
+function pseudo_captcha { ## modello d'uso in ../extensions/rockfile.sh
+    	while read line
+	do
+	    i=$(sed -r 's|.*POSITION:([0-9]+)px.+|\1|g' <<< "$line")
+	    captcha[$i]=$(htmldecode_regular "$(sed -r 's|[^>]+>&#([^;]+);.+|\1|' <<< "$line")")
+	done <<< "$(grep '&#' <<< "$1" |
+	    sed -r 's|padding-left|\nPOSITION|g' |
+	    grep POSITION)"
+
+	echo "${captcha[*]}" | tr -d ' '
 }
 
 function urldecode {
@@ -98,6 +101,13 @@ function htmldecode {
 	decoded_expr="${decoded_expr//${entity[$i]}/${entity_decoded[$i]}}"
     done
     echo "$decoded_expr"
+}
+
+function htmldecode_regular {
+    for cod in $@
+    do 
+    	printf "\x$(printf %x $cod)"
+    done
 }
 
 function urlencode {
