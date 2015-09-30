@@ -80,27 +80,40 @@ function scrape_url {
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
 
+	baseURL="${url_page%'/'*}"
+
 	if [ -n "$(command -v curl 2>/dev/null)" ]
 	then
 	    html=$(curl --silent "$url_page")
 	else
 	    html=$(wget -qO- --user-agent="$user_agent" "$url_page")
 	fi
-	html=$(tr "\t\r\n'" '   "' <<< "$html"                                  |    
-		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"'  | 
-		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g'                           |                          
-		      grep "$url_regex")
+	# html=$(tr "\t\r\n'" '   "' <<< "$html"                                  |    
+	# 	      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"'  | 
+	# 	      sed -e 's/^.*"\([^"]\+\)".*$/\1/g'                           |                          
+	# 	      grep "$url_regex")
 
+	html=$(tr "\t\r\n'" '   "' <<< "$html"                       |    
+		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"[^"]\+"'    | 
+		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g')
+echo "$html"
 	while read line
 	do
-	    if [ -z "$links" ]
+	    echo "$line -->"
+	    [[ ! "$line" =~ ^(ht|f)tp\:\/\/ ]] &&
+		line="${baseURL}/$line"
+echo -n "$line"
+	    if [[ "$line" =~ "$url_regex" ]]
 	    then
-		links="$line"
-	    else
-		links="${links}\n$line"
+		if [ -z "$links" ]
+		then
+		    links="$line"
+		else
+		    links="${links}\n$line"
+		fi
+		start_file="$path_tmp/links_loop.txt"
+		links_loop + "$line"
 	    fi
-	    start_file="$path_tmp/links_loop.txt"
-	    links_loop + "$line"
 	done <<< "$html" 
 
 	print_c 1 "Estrazione URL dalla pagina web $url_page completata"
