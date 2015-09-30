@@ -88,21 +88,16 @@ function scrape_url {
 	else
 	    html=$(wget -qO- --user-agent="$user_agent" "$url_page")
 	fi
-	# html=$(tr "\t\r\n'" '   "' <<< "$html"                                  |    
-	# 	      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"\(ht\|f\)tps\?:[^"]\+"'  | 
-	# 	      sed -e 's/^.*"\([^"]\+\)".*$/\1/g'                           |                          
-	# 	      grep "$url_regex")
-
 	html=$(tr "\t\r\n'" '   "' <<< "$html"                       |    
 		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"[^"]\+"'    | 
 		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g')
-echo "$html"
+
 	while read line
 	do
 	    echo "$line -->"
 	    [[ ! "$line" =~ ^(ht|f)tp\:\/\/ ]] &&
 		line="${baseURL}/$line"
-echo -n "$line"
+
 	    if [[ "$line" =~ "$url_regex" ]]
 	    then
 		if [ -z "$links" ]
