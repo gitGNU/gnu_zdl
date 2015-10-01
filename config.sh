@@ -66,6 +66,7 @@ youtubedl_links=( rai\.tv )
 
 noresume_links=( uploadable\. rapidgator\. uploaded\. )
 
+#no_check=( tusfiles\. )
 
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40

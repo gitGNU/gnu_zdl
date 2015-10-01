@@ -32,7 +32,11 @@ if [ "$url_in" != "${url_in//'junkyvideo.com'}" ]
 then
     html="$(wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -q -O- $url_in)"
 
-    if [ ! -z "$html" ]
+    if [[ "$html" =~ (File Not Found) ]]
+    then
+	_log 3
+    
+    elif [ -n "$html" ]
     then
 	input_hidden "$html"
 	print_c 0 "${BBlue}1/2) "

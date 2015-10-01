@@ -304,12 +304,12 @@ function redirect {
     	then 
     	    kill -9 "$wpid" &>/dev/null
     	    rm -f "$path_tmp/redirect"
-    	    wget -t 1 -T $max_waiting                     \
-    		 --user-agent="$user_agent"               \
-    		 --no-check-certificate                   \
-    		 --load-cookies=$path_tmp/cookies.zdl     \
-    		 --post-data="${post_data}"               \
-    		 "$url_input"                             \
+    	    wget -t 1 -T $max_waiting                       \
+    		 --user-agent="$user_agent"                 \
+    		 --no-check-certificate                     \
+    		 --load-cookies="$path_tmp"/cookies.zdl     \
+    		 --post-data="${post_data}"                 \
+    		 "$url_input"                               \
     		 -SO /dev/null -o "$path_tmp/redirect" &
     	    wpid=$!
 	    echo "$wpid" >> "$path_tmp"/pid_redirects

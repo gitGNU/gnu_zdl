@@ -120,29 +120,32 @@ function download {
     export LANGUAGE="$prog_lang"
     unset headers
 
-    if ! dler_type "no-resume" "$url_in" &&
-	    ! dler_type "rtmp" "$url_in" &&
-	    ! dler_type "wget" "$url_in" &&
-            ! dler_type "youtube-dl" "$url_in" &&
-	    ! check_wget
+    if ! dler_type "no-check" "$url_in"
     then
-	if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
+	if ! dler_type "no-resume" "$url_in" &&
+		! dler_type "rtmp" "$url_in" &&
+		! dler_type "wget" "$url_in" &&
+		! dler_type "youtube-dl" "$url_in" &&
+		! check_wget
 	then
-	    _log 3
-	    return 1
+	    if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
+	    then
+		_log 3
+		return 1
+	    fi
 	fi
-    fi
 
-    if [ "$downloader_in" == "Axel" ] &&
-	   ! check_axel
-    then
-	force_dler "Wget"
-    fi
+	if [ "$downloader_in" == "Axel" ] &&
+	       ! check_axel
+	then
+	    force_dler "Wget"
+	fi
 
-    if dler_type "no-resume" "$url_in"
-    then
-	links_loop - "$url_in"
-	_log 18
+	if dler_type "no-resume" "$url_in"
+	then
+	    links_loop - "$url_in"
+	    _log 18
+	fi
     fi
 
     case "$downloader_in" in

@@ -29,36 +29,40 @@
 
 if [ "$url_in" != "${url_in//'tusfiles.net'}" ]
 then
-    wget -q -t 1 -T $max_waiting                \
-	 --no-check-certificate                 \
-	 --user-agent="$user_agent"             \
-	 --retry-connrefused                    \
-	 --keep-session-cookies                 \
-	 --save-cookies="$cookies"              \
-	 -O "$path_tmp/zdl.tmp"                 \
-	 "$url_in"
+    html=$(wget -qO-                                     \
+		-t 1 -T $max_waiting                     \
+		--no-check-certificate                   \
+		--user-agent="$user_agent"               \
+		--retry-connrefused                      \
+		--keep-session-cookies                   \
+		--save-cookies="$path_tmp"/cookies.zdl   \
+		"$url_in")
 
-    unset post_data
-    input_hidden "$path_tmp/zdl.tmp"
-
-    post_data="${post_data#*&}"
-
-    file_in=$(grep 'URL=' "$path_tmp/zdl.tmp")
-    file_in="${file_in#*\]}"
-    file_in="${file_in% - *\[*}"
-
-    if [ ! -f "$path_tmp"/cookies.zdl ]
+    if [[ "$html" =~ (The file you are trying to download is no longer available) ]]
     then
-	touch "$path_tmp"/cookies.zdl
-    fi
+	_log 3
+    else
+	input_hidden "$html"
 
-    redirect "$url_in"
+	post_data="${post_data#*&}"
 
-    if ! url "$url_in_file" ||
-    	    [ "$url_in_file" == "$url_in" ] ||
-	    [ "$url_in_file" == "https://tusfiles.net" ] ||
-    	    [ -z "$file_in" ]
-    then
-    	_log 2
+	file_in=$(grep 'URL=' <<< "$html")
+	file_in="${file_in#*\]}"
+	file_in="${file_in% - *\[*}"
+
+	if [ ! -f "$path_tmp"/cookies.zdl ]
+	then
+	    touch "$path_tmp"/cookies.zdl
+	fi
+
+	redirect "$url_in"
+
+	if ! url "$url_in_file" ||
+    		[ "$url_in_file" == "$url_in" ] ||
+		[ "$url_in_file" == "https://tusfiles.net" ] ||
+    		[ -z "$file_in" ]
+	then
+    	    _log 2
+	fi
     fi
 fi
