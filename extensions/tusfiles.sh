@@ -55,14 +55,16 @@ then
 	    touch "$path_tmp"/cookies.zdl
 	fi
 
-	redirect "$url_in"
+	url_in_file="$url_in"
+	
+	# redirect "$url_in"
 
-	if ! url "$url_in_file" ||
-    		[ "$url_in_file" == "$url_in" ] ||
-		[ "$url_in_file" == "https://tusfiles.net" ] ||
-    		[ -z "$file_in" ]
-	then
-    	    _log 2
-	fi
+	# if ! url "$url_in_file" ||
+    	# 	[ "$url_in_file" == "$url_in" ] ||
+	# 	[ "$url_in_file" == "https://tusfiles.net" ] ||
+    	# 	[ -z "$file_in" ]
+	# then
+    	#     _log 2
+	# fi
     fi
 fi
