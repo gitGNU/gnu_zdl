@@ -48,10 +48,10 @@ then
 	input_hidden "$html"
 	file_in="$postdata_fname"
 
-	html=$(wget -qO-                                                           \
-		    --load-cookies="$path_tmp"/cookies.zdl                         \
-		    --user-agent="$user_agent"                                     \
-		    --post-data="${post_data#*'(&'}&method_freex=Regular Download"  \
+	html=$(wget -qO-                                                                                           \
+		    --load-cookies="$path_tmp"/cookies.zdl                                                         \
+		    --user-agent="$user_agent"                                                                     \
+		    --post-data="${post_data#*'(&'}&method_freex=Regular Download&method_freey=Regular Download"   \
 		    "$url_in")
 
 	if [[ ! "$html" =~ (You can download files up to) ]]
@@ -77,7 +77,7 @@ then
 	    _log 4
 	fi
     fi
-    
+
     [ -n "$premium" ] ||
 	url "$url_in_file" ||
 	_log 2
