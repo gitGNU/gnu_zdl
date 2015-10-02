@@ -130,7 +130,7 @@ function download {
 	then
 	    if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
 	    then
-		_log 3
+		_log 2 #3
 		return 1
 	    fi
 	fi
