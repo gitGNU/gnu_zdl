@@ -1111,7 +1111,11 @@ function main_loop {
 
 		newip_add_provider
 		from_loop=true
-		[ "$ch_dler" == "1" ] && downloader_in=$dler && unset ch_dler
+
+		[ "$ch_dler" == "1" ] &&
+		    downloader_in=$dler &&
+		    unset ch_dler
+
 		noproxy
 
 		while true 

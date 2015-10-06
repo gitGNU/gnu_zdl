@@ -30,7 +30,9 @@
 
 if [ "$url_in" != "${url_in//glumbouploads.}" ]
 then
-    [ "$num_dl" == "1" ] && [ -f "$file_data" ] && check_ip glumbouploads
+    [ "$num_dl" == "1" ] &&
+	[ -f "$file_data" ] &&
+	check_ip glumbouploads
 
     wget -q -t 1 -T $max_waiting               \
 	 --retry-connrefused                   \
@@ -40,7 +42,8 @@ then
 	 $url_in &>/dev/null
     
     test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "You have requested:"`
-    if [ ! -z "$test_exceeded" ]
+
+    if [ -n "$test_exceeded" ]
     then
 	test_exceeded="${test_exceeded#*'('}"
 	test_exceeded="${test_exceeded%')'*}"
@@ -48,7 +51,9 @@ then
 	then
 	    test_exceeded="${test_exceeded% MB}"
 	    test_exceeded="${test_exceeded%.*}"
+
 	    (( test_exceeded++ ))
+
 	    if (( $test_exceeded>1024 ))
 	    then
 		exceeded=true
@@ -104,7 +109,7 @@ then
 	
 	if [ -f "$path_tmp"/zdl3.tmp ]
 	then
-	    url_in_file=`cat "$path_tmp"/zdl3.tmp | grep "<a href=" |grep "$file_in"`
+	    url_in_file=$(cat "$path_tmp"/zdl3.tmp | grep "<a href=" |grep "$file_in")
 	    url_in_file="${url_in_file#<a href=\"}"
 	    url_in_file="${url_in_file%%\"*}"
 	fi

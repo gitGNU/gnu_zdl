@@ -58,7 +58,7 @@ user_lang="$LANG"
 user_language="$LANGUAGE"
 prog_lang='en_US.UTF-8:en'
 
-newip_providers=( mediafire easybytez uload glumbouploads billionuploads )
+newip_providers=( uptobox mediafire easybytez uload glumbouploads billionuploads )
 
 rtmp_links=( zinwa\. streamin\. vidhappy\. videopremium\. )
 wget_links=( dailymotion\/cdn dmcdn\.net uploaded\. easybytez\. rapidgator\. videowood\. uploadable\. nitroflare\. )

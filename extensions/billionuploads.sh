@@ -28,18 +28,23 @@
 ## zdl-extension name: Billionuploads
 
 
-if [ "$url_in" != "${url_in//billionuploads}" ]; then
+if [ "$url_in" != "${url_in//billionuploads}" ]
+then
     cookies="$path_tmp/cookies.zdl"
-    if [ -z "$num_dl" ];then
+
+    if [ -z "$num_dl" ]
+    then
 	check_ip billionuploads
     fi
-    html="$(wget -q -t 1 -T $max_waiting     \
+
+    html=$(wget -t 1 -T $max_waiting         \
 	--retry-connrefused                  \
 	--keep-session-cookies               \
 	--save-cookies="$cookies"            \
-	-O-                                  \
-	"$url_in" &>/dev/null)"
-    if [ ! -z "$html" ]
+	-qO-                                 \
+	"$url_in" &>/dev/null)
+
+    if [ -n "$html" ]
     then
 	print_c 1 "...\c"
 	
@@ -58,15 +63,16 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
 	k=$(date +"%s")
 	s=0
 	unset url_in_file
+	
 	while true
 	do
 	    if (( $s>29 ))
 	    then
-		html="$(wget -t 1 -T $max_waiting             \
-		    --load-cookies=$path_tmp/cookies.zdl      \
-		    --save-cookies="$cookies"                 \
-		    --post-data="$post_data"                  \
-		    $url_in -O- &>/dev/null)"
+		html=$(wget -t 1 -T $max_waiting                      \
+			    --load-cookies=$path_tmp/cookies.zdl      \
+			    --save-cookies="$cookies"                 \
+			    --post-data="$post_data"                  \
+			    "$url_in" -qO-)
 		url_in_file=$(grep ">Download</a>" <<< "$html")
 		url_in_file="${url_in_file#*product_download_url=}"
 		url_in_file="${url_in_file%%\"*}"
@@ -76,9 +82,9 @@ if [ "$url_in" != "${url_in//billionuploads}" ]; then
 	    s=$(( $s-$k ))
 	    
 	    print_c 0 "$s\r\c"
-	    if  ! check_pid $pid_prog   ||    \
-		[ ! -z "$url_in_file" ] ||    \
-		(( $s > 60 ))
+	    if  ! check_pid $pid_prog      ||    
+		    [ -n "$url_in_file" ]  ||    
+		    (( $s > 60 ))
 	    then
 		break
 	    fi

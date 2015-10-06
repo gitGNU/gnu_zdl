@@ -99,7 +99,7 @@ then
 	    countdown="40"
 	    #redirected="true"
 	else
-	    check_ip easybytez
+	    check_ip "easybytez"
 
 	    wget -q -t 1 -T $max_waiting                   \
 		 --user-agent="$user_agent"                \

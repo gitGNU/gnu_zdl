@@ -31,7 +31,8 @@ function newip_add_provider {
     then
 	for provider in ${newip_providers[*]}
 	do	
-	    [ "$url_in" != "${url_in//$provider.}" ] && newip[${#newip[*]}]=$provider
+	    [ "$url_in" != "${url_in//$provider.}" ] &&
+		newip[${#newip[*]}]=$provider
 	done
     fi
 }
@@ -42,7 +43,13 @@ function check_ip {
     then
 	noproxy
 	print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
-	$reconnecter
+
+	if [ "$zdl_mode" != "lite" ]
+	then
+	    $reconnecter 
+	else
+	    $reconnecter &>/dev/null
+	fi
 	
     elif [ "$update_proxy" == true ]
     then
@@ -57,7 +64,13 @@ function check_ip {
 	then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
-	    $reconnecter 
+
+	    if [ "$zdl_mode" != "lite" ]
+	    then
+		$reconnecter
+	    else
+		$reconnecter &>/dev/null
+	    fi
 
 	else
 	    new_ip_proxy
