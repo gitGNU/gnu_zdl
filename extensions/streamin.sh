@@ -30,11 +30,7 @@
 
 if [ "$url_in" != "${url_in//'streamin.to'}" ]
 then
-    html=$(wget -t 1 -T $max_waiting                    \
-		--keep-session-cookies                  \
-		--save-cookies=$path_tmp/cookies.zdl    \
-		--user-agent="$user_agent"              \ 
-		-qO- $url_in)
+    html=$(wget	-qO- "$url_in")
 
     if [[ "$html" =~ (File Deleted|file was deleted) ]]
     then
@@ -44,7 +40,7 @@ then
     then
 	input_hidden "$html"
 	file_in="$postdata_fname"
-	countdown+ 6
+	countdown- 6
 	html=$(wget -qO-                      \
 		    --post-data="$post_data"  \
 		    "$url_in")
