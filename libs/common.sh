@@ -180,7 +180,9 @@ function sanitize_file_in {
 	[ "${title:0:$length}" == "${title:$(( $length+1 )):$length}" ] &&
 	    file_in="${title:0:$length}.$ext"
     fi
-    
+
+    file_in="${file_in## }"
+    file_in="${file_in%% }"
     file_in="${file_in// /_}"
     file_in="${file_in//\'/_}"
     file_in="${file_in//[\[\]\(\)]/-}"
