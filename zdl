@@ -1002,8 +1002,6 @@ function main_loop {
 		rm -f "$path_tmp/redirect"
 		###################
 
-		check_dler_forcing
-		
 		## PROG extensions
 		if [ -d "$path_usr/extensions/" ]
 		then
@@ -1014,7 +1012,9 @@ function main_loop {
 		    done
 		    shopt -u nullglob
 		fi
-
+		
+		check_dler_forcing
+		
 		## se ancora presenti redirezioni fantasma:
 		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
 		rm -f "$path_tmp/redirect"
