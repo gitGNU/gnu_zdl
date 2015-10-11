@@ -29,24 +29,24 @@
 
 if [ "$url_in" != "${url_in//uptobox.}" ]
 then
-    ## aggiungere ciclo se si trova la pagina web con attesa: inserire il messaggio di attesa (per il resto dovrebbe funzionare)
-    # while true
-    # do
-    html=$(wget -t 2 -T $max_waiting                      \
-		-qO-                                      \
-		--retry-connrefused                       \
-		--keep-session-cookies                    \
-		--save-cookies=$path_tmp/cookies.zdl      \
-		--user-agent="$user_agent"                \
-		"$url_in")
+    while true
+    do
+	html=$(wget -t 2 -T $max_waiting                      \
+		    -qO-                                      \
+		    --retry-connrefused                       \
+		    --keep-session-cookies                    \
+		    --save-cookies=$path_tmp/cookies.zdl      \
+		    --user-agent="$user_agent"                \
+		    "$url_in")
 	
-    # 	if [[ "$html" =~ "..aspetta tot tempo ..." ]] <--- recupera messaggio da sito web
-    # 	then
-    # 	    check_ip uptobox
-    # 	else
-    # 	    break
-    # 	fi
-    # done
+    	if [[ "$html" =~ "You have to wait" ]] 
+    	then
+	    newip+=( uptobox )
+    	    check_ip uptobox
+    	else
+    	    break
+    	fi
+    done
 
     unset post_data
     input_hidden "$html" #### $file_in == POST[fname]
