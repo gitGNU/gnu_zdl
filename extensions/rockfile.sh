@@ -60,7 +60,11 @@ then
 	post_data="${post_data//'&down_script=1'}"
 
 
-	if [[ ! "$html" =~ (You can download files up to) ]]
+	if [[ "$html" =~ (You can download files up to) ]]
+	then
+	    _log 4
+
+	elif [ -n "$code" ]
 	then
 	    countdown- 30
 	    sleeping 2
@@ -72,8 +76,6 @@ then
 				 grep -P '[^\#]+btn_downloadLink'         |
 				 sed -r 's|.+href=\"([^"]+)\".+|\1|g')
 	    url_in_file=$(sanitize_url "$url_in_file")
-	else
-	    _log 4
 	fi
     fi
 
