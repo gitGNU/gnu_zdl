@@ -30,9 +30,7 @@
 
 if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
-    # export LANG="$prog_lang"
-    # export LANGUAGE="$prog_lang"
-
+    
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \
 		--save-cookies="$path_tmp"/cookies.zdl     \
@@ -52,17 +50,18 @@ then
 		    --load-cookies="$path_tmp"/cookies.zdl                                                         \
 		    --user-agent="$user_agent"                                                                     \
 		    --post-data="${post_data#*'(&'}&method_freex=Regular Download&method_freey=Regular Download"   \
-		    "$url_in")
+		    "${url_in}" )
+
+	code=$(pseudo_captcha "$html")
+
+	unset post_data
+	input_hidden "$html"
+	post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
+	post_data="${post_data//'&down_script=1'}"
+
 
 	if [[ ! "$html" =~ (You can download files up to) ]]
 	then
-	    code=$(pseudo_captcha "$html")
-
-	    unset post_data
-	    input_hidden "$html"
-	    post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
-	    post_data="${post_data//'&down_script=1'}"
-
 	    countdown- 30
 	    sleeping 2
 	    
@@ -82,6 +81,4 @@ then
 	url "$url_in_file" ||
 	_log 2
     
-    # export LANG="$user_lang"
-    # export LANGUAGE="$user_language"
 fi

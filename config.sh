@@ -42,7 +42,7 @@ key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="R
 key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
 
 
-prog=`basename $0`
+prog=$(basename $0)
 name_prog="ZigzagDownLoader"
 PROG="ZDL"  #`echo $prog | tr a-z A-Z`
 path_tmp=".${prog}_tmp"
@@ -58,7 +58,7 @@ user_lang="$LANG"
 user_language="$LANGUAGE"
 prog_lang='en_US.UTF-8:en'
 
-newip_providers=( uptobox mediafire easybytez uload glumbouploads billionuploads )
+newip_providers=( rockfile uptobox mediafire easybytez uload glumbouploads billionuploads )
 
 rtmp_links=( zinwa\. streamin\. vidhappy\. videopremium\. )
 wget_links=( dailymotion\/cdn dmcdn\.net uploaded\. easybytez\. rapidgator\. videowood\. uploadable\. nitroflare\. )

@@ -30,6 +30,8 @@
 
 if [ "$url_in" != "${url_in//easybytez}" ]
 then
+    proxy_types=( "Transparent" "Anonymous" "Elite" )
+    
     if [ "$login" == "1" ]
     then
 	wget -q -t 1 -T $max_waiting                   \
