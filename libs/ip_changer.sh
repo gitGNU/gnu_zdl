@@ -204,10 +204,11 @@ function check_speed {
     if (( $maxspeed<$minspeed ))
     then
     	print_c 3 "La massima velocità di download raggiunta usando il proxy è inferiore a quella minima richiesta ($minspeed KB/s)"
+	return 1
 
     else
     	print_c 1 "Massima velocità di download raggiunta usando il proxy $http_proxy: $maxspeed KB/s"
-    	break
+    	return 0
     fi 
 }
 
