@@ -73,12 +73,13 @@ function check_dler_forcing {
 
 function check_axel {
     unset result_ck
-    rm -f "$path_tmp"/axel_o*_test*
+    rm -f "$path_tmp"/axel_*_test
 
     axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -v 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
-    while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/[0-9.]+ [0-9]{3} ) ]]
+    while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/[0-9.]+ [0-9]{3} ) ]] &&
+	      check_pid $pid_prog
     do
 	if ! check_pid $pid_axel_test ||
 		(( $loops>40 ))
@@ -90,8 +91,8 @@ function check_axel {
 	sleep 0.5
 	(( loops++ ))
     done
-
-    kill -9 $pid_axel_test
+    
+    kill -9 $pid_axel_test 2>/dev/null
 
     if [[ "$(cat "$path_tmp"/axel_stdout_test 2>/dev/null)" =~ (Connection gone.|Unable to connect to server|Server unsupported|400 Bad Request|403 Forbidden|Too many redirects) ]] &&
 	   [ -z "$result_ck" ]

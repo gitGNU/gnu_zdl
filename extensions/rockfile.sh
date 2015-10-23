@@ -30,7 +30,6 @@
 
 if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
-    
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \
 		--save-cookies="$path_tmp"/cookies.zdl     \
@@ -46,11 +45,17 @@ then
 	input_hidden "$html"
 	file_in="$postdata_fname"
 
-	html=$(wget -qO-                                                                                           \
-		    --load-cookies="$path_tmp"/cookies.zdl                                                         \
-		    --user-agent="$user_agent"                                                                     \
-		    --post-data="${post_data#*'(&'}&method_freex=Regular Download&method_freey=Regular Download"   \
-		    "${url_in}" )
+	method_free=$(grep -P 'method_free[^"]+\"' <<< "$html" |
+			     sed -r 's|.+(method_free[^"]+)\".+|\1|g' |
+			     tr -d '\r')
+
+	post_data="${post_data#*'(&'}&${method_free}=Regular Download"
+
+	html=$(wget -qO-                                        \
+		    --load-cookies="$path_tmp"/cookies.zdl      \
+		    --user-agent="$user_agent"                  \
+		    --post-data="$post_data"                    \
+		    "$url_in")
 
 	code=$(pseudo_captcha "$html")
 
@@ -58,7 +63,6 @@ then
 	input_hidden "$html"
 	post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
 	post_data="${post_data//'&down_script=1'}"
-
 
 	if [[ "$html" =~ (You can download files up to) ]]
 	then
