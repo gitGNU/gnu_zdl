@@ -70,7 +70,11 @@ then
 
 	elif [ -n "$code" ]
 	then
-	    countdown- 30
+	    timer=$(grep countdown_str <<< "$html" |
+			   head -n1 |
+			   sed -r 's|.+>([0-9]+)<.+|\1|g')
+
+	    countdown- $timer
 	    sleeping 2
 	    
 	    url_in_file=$(wget -qO- "$url_in"                                   \
