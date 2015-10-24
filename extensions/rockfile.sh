@@ -64,14 +64,19 @@ then
 	post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
 	post_data="${post_data//'&down_script=1'}"
 
+	errMsg=$(grep 'Devi attendere' <<< "$html" |
+			sed -r 's|[^>]+>([^<]+)<.+|\1|g')
+	# [ -n "$errMsg" ] &&
+	#     print_c 3 "$errMsg"
+
 	if [[ "$html" =~ (You can download files up to) ]]
 	then
 	    _log 4
 
 	elif [ -n "$code" ]
 	then
-	    timer=$(grep countdown_str <<< "$html" |
-			   head -n1 |
+	    timer=$(grep countdown_str <<< "$html"          |
+			   head -n1                         |
 			   sed -r 's|.+>([0-9]+)<.+|\1|g')
 
 	    countdown- $timer
@@ -87,8 +92,7 @@ then
 	fi
     fi
 
-    [ -n "$premium" ] ||
-	url "$url_in_file" ||
+    [ -n "$premium" ]               ||
+	url "$url_in_file"          ||
 	_log 2
-    
 fi

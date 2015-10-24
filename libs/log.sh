@@ -35,8 +35,11 @@ function init_log {
 }
 
 function _log {
-    [ -n "$2" ] && url_in="$2"
-    [ -n "$file_in" ] && msg_file_in=" $file_in"
+    url "$2" &&
+	url_in="$2"
+    
+    [ -n "$file_in" ] &&
+	msg_file_in=" $file_in"
     
     case $1 in
 	1)
@@ -44,7 +47,9 @@ function _log {
 	    links_loop - "${url_in}"
 	    ;;
 	2)
-	    msg="$url_in --> File$msg_file_in non disponibile, riprovo più tardi"
+	    [ -n "$errMsg" ] &&
+		errMsg=":\n$errMsg"
+	    msg="$url_in --> File$msg_file_in non disponibile, riprovo più tardi${errMsg}"
 	    ;;
 	3)
 	    msg="$url_in --> Indirizzo errato o file non disponibile" 
