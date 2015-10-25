@@ -62,6 +62,7 @@ newip_providers=( rockfile uptobox mediafire easybytez uload glumbouploads billi
 
 rtmp_links=( zinwa\. streamin\. vidhappy\. videopremium\. )
 wget_links=( dailymotion\/cdn dmcdn\.net uploaded\. easybytez\. rapidgator\. videowood\. uploadable\. nitroflare\. )
+
 youtubedl_links=( rai\.tv )
 
 noresume_links=( uploadable\. rapidgator\. uploaded\. )

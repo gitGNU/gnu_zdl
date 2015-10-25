@@ -330,7 +330,37 @@ function progress_out (value,           progress_line) {
 	length_saved[i] = size_file(file_out[i])
 	if (!length_out[i])
 	    length_out[i] = "unspecified"
+    } else if (dler == "FFMpeg") {
+	for (y=n; y>0; y--) {
+
+	    if (chunk[y] ~ /kbits/) {
+	    	progress_line = chunk[y]
+	    	break
+	    }
+	}
+	
+        if (progress_line) {
+	    split(progress_line, progress_elems, /[\ ]+/)
+	    speed_out[i] = progress_elems[length(progress_elems)]
+	    if (speed_out[i] ~ /k$/) {
+		speed_out_type[i] = "KB/s"
+		sub(/k$/, "", speed_out[i])
+	    } else {
+		speed_out_type[i] = "B/s"
+	    }
+	    
+	    if (!speed_out[i])
+		speed_out[i] = 0
+	    
+	} else {
+	    speed_out[i] = 0
+	    speed_out_type[i] = "KB/s"
+	}
+	length_saved[i] = size_file(file_out[i])
+	if (!length_out[i])
+	    length_out[i] = "unspecified"
     }
+
     
     if (! speed_out[i]) speed_out[i] = 0
     if (! speed_out_type[i]) speed_out_type[i] = "KB/s"

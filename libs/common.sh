@@ -125,32 +125,6 @@ function redirect_links {
     exit 1
 }
 
-function dler_type {
-    case "$1" in
-	rtmp)
-	    type_links=( ${rtmp_links[*]} )
-	    ;;
-	youtube-dl)
-	    type_links=( ${youtubedl_links[*]} )
-	    ;;
-	wget)
-	    type_links=( ${wget_links[*]} )
-	    ;;
-	no-resume)
-	    type_links=( ${noresume_links[*]} )
-	    ;;
-	no-check)
-	    type_links=( ${no_check[*]} )
-	    ;;
-    esac
-    
-    for h in ${type_links[*]}
-    do
-	[ "$2" != "${2//$h}" ] && return
-    done
-    return 1
-}
-
 
 function sanitize_url {
     data="${1%%'?'}"

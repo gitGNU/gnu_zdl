@@ -37,6 +37,33 @@ function force_dler {
     print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 }
 
+
+function dler_type {
+    case "$1" in
+	rtmp)
+	    type_links=( ${rtmp_links[*]} )
+	    ;;
+	youtube-dl)
+	    type_links=( ${youtubedl_links[*]} )
+	    ;;
+	wget)
+	    type_links=( ${wget_links[*]} )
+	    ;;
+	no-resume)
+	    type_links=( ${noresume_links[*]} )
+	    ;;
+	no-check)
+	    type_links=( ${no_check[*]} )
+	    ;;
+    esac
+    
+    for h in ${type_links[*]}
+    do
+	[ "$2" != "${2//$h}" ] && return
+    done
+    return 1
+}
+
 function check_dler_forcing {
     if dler_type "wget" "$url_in"
     then
@@ -288,6 +315,20 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
 	    unset downloader_cmd
 	    ;;
+
+	FFMpeg)
+	    ## URL-FILE.M3U8
+	    ffmpeg -y -i "$url_in_file" -c copy "$file_in" 2>&1 |
+		tr '\r' '\n' > "$path_tmp/${file_in}_stdout.tmp" &
+	    pid_in=$!
+	    echo -e "${pid_in}
+$url_in
+FFMpeg
+${pid_prog}
+$file_in" > "$path_tmp/${file_in}_stdout.tmp"
+
+ 	    ;;
+	
 	youtube-dl)
 	    ## provvisorio per youtube-dl non gestito	    
 	    _log 21

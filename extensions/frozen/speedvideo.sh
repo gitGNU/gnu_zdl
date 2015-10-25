@@ -30,46 +30,69 @@
 
 if [[ "$url_in" =~ (speedvideo.) ]]
 then
-    if [[ "$url_in" =~ embed ]]
+    ## url_embed=$(grep -oP 'http://[^"]+embed-[^"]+' <<< "$html")
+    
+    if [[ ! "$url_in" =~ embed ]]
     then
-    	url_link="${url_in//embed-}"
-	url_link="${url_link%-*}"
-    else
-	url_link="$url_in"
+	html=$(wget -qO- "$url_in"                        \
+		    --user-agent="$user_agent"            \
+		    --keep-session-cookies                \
+		    --save-cookies=$path_tmp/cookies.zdl)
+
+	input_hidden "$html"
     fi
 
-    html=$(wget -qO- "$url_link"                      \
-		--user-agent="$user_agent"            \
-		--keep-session-cookies                \
-		--save-cookies=$path_tmp/cookies.zdl)
-    input_hidden "$html"
-    
-    html=$(wget -qO- "$url_link"                      \
+    html=$(wget -qO- "$url_in"                        \
 		--user-agent="$user_agent"            \
 		--load-cookies=$path_tmp/cookies.zdl  \
 		--post-data="$post_data")
-    input_hidden "$html"
+
     unset post_data
     
     if [[ ! "$html" =~ 'File Not Found' ]]
     then
-	linkfile=$(grep 'file: base64_decode' <<< "$html" |head -n1 |sed -r 's|.+\"([^"]+)\".+|\1|g')
-    	var2=$(grep base64_decode <<< "$html" |sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
-    	url_in_file=$(base64_decode "$linkfile" $(grep "$var2" <<< "$html" |head -n1 |sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+	linkfile=$(grep 'file: base64_decode' <<< "$html"   |
+			  head -n1                          |
+			  sed -r 's|.+\"([^"]+)\".+|\1|g')
+	
+	if [ -z "$linkfile" ]
+	then
+	    linkfile=$(grep 'var linkfile ="' <<< "$html" |
+			      sed -r 's|.+\"([^"]+)\".+|\1|g')
+	fi
+	
 
-	file_in=$(wget -qO- "$url_in" |grep 'itle>' |sed -r 's|.*itle>([^<>]+)<.+|\1|g').${url_in_file##*.}
-    	file_in="${file_in#Watch }"
+	var2=$(grep base64_decode <<< "$html" |
+		      sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
+	
 
+	url_in_file=$(base64_decode "$linkfile"                      \
+				    $(grep "$var2" <<< "$html"                |
+					     head -n1                         |
+					     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+
+	## FFMpeg
+	if [[ "$url_in_file" =~ .m3u8$ ]]
+	then
+	    downloader_in="FFMpeg"
+	    noresume_links+=( speedvideo\. )
+
+	    ##wget -qO- "$url_in_file" |sed -n 5p ##<-- quinta riga: risoluzione più bassa della terza
+	    url_in_file="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
+
+	    ext=".ts"
+	fi
+
+	file_in="${file_in}$ext"
+	
     	axel_parts=4
 	
     	if ! url "$url_in_file" ||
     		[ "$file_in" == ".${url_in_file##*.}" ]
     	then
-    	    break_loop=true
     	    _log 2
     	fi
     else
-    	break_loop=true
     	_log 3
     fi
 fi
