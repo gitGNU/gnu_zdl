@@ -210,7 +210,7 @@ function xterm_stop {
     if [ "$1" == "force" ] ||
 	   ( [ ! -f "$path_tmp/.stop_stdout" ]   &&
 		 [ "$zdl_mode" != "daemon" ]     &&
-		 [ -z "$pipe_out" ]              ||
+		 [ -z "${pipe_out[*]}" ]         ||
 		     [ -n "$redirected_link" ] )
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"

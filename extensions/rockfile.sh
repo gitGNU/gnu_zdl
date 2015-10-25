@@ -66,8 +66,6 @@ then
 
 	errMsg=$(grep 'Devi attendere' <<< "$html" |
 			sed -r 's|[^>]+>([^<]+)<.+|\1|g')
-	# [ -n "$errMsg" ] &&
-	#     print_c 3 "$errMsg"
 
 	if [[ "$html" =~ (You can download files up to) ]]
 	then

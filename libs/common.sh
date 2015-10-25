@@ -414,7 +414,7 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 }
 
 function pipe_files { 
-    [ -z "$print_out" ] && [ -z "$pipe_out" ] && return
+    [ -z "$print_out" ] && [ -z "${pipe_out[*]}" ] && return
 
     if [ -f "$path_tmp"/pipe_files.txt ]
     then
@@ -436,16 +436,16 @@ function pipe_files {
 		
 	    done < "$path_tmp"/pipe_files.txt 
 	    
-	elif [ -z "$pipe_out" ] || check_pid $pid_pipe_out 
+	elif [ -z "${pipe_out[*]}" ] || check_pid $pid_pipe_out 
 	then
 	    return
 
 	else
 	    outfiles=( $(cat "$path_tmp"/pipe_files.txt) )
 
-	    if [ ! -z "${outfiles[*]}" ]
+	    if [ -n "${outfiles[*]}" ]
 	    then
-		nohup $pipe_out ${outfiles[*]} &>/dev/null &
+		nohup "${pipe_out[@]}" "${outfiles[@]}" 2>/dev/null &
 		pid_pipe_out="$!"
 		echo $pid_pipe_out > "$path_tmp"/pid_pipe
 		pipe_done=1
@@ -511,7 +511,10 @@ function post_process {
 	echo
 	for line in $(cat $print_out)
 	do
-	    if [[ "$(file --mime-type $line |cut -d ' ' -f 2 2>/dev/null)" =~ (audio|video) ]]
+	    mime="$(file --mime-type "$line")"
+	    mime="${mime##* }"
+	    
+	    if [[ "$mime" =~ (audio|video) ]]
 	    then
 		print_c 4 "Conversione del file: $line"
 		[ "$lite" == "true" ] && convert_params="-loglevel quiet"

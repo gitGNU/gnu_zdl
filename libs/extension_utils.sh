@@ -34,7 +34,6 @@ function get_tmps {
 	 --user-agent="$user_agent"              \
 	 -qO "$path_tmp/zdl.tmp"                 \
 	 "$url_in"  
-#    print_c 0 "...\c"
 }
 
 function input_hidden {
@@ -224,13 +223,11 @@ function tags2vars {
 }
 
 function char2code {
-    char=$1
-    printf "%d" "'$char"
+    printf "%d" "'$1"
 }
 
 function code2char {
-    code=$1
-    printf \\$(printf "%03o" "$code" )
+    printf \\$(printf "%03o" "$1" )
 }
 
 function parse_int {
