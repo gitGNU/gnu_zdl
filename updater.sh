@@ -24,6 +24,20 @@
 # zoninoz@inventati.org
 #
 
+## Axel - Cygwin
+function install_axel-cygwin {
+    if ! command -v axel &>/dev/null
+    then
+	cd /
+	wget "$cygaxel_url"
+	tar -xvjf "${cygaxel_url##*'/'}"
+	cd -
+    fi
+}
+
+##############
+
+
 function update_zdl-wise {
     if [ ! -e "/cygdrive" ]
     then
@@ -205,9 +219,10 @@ ESTENSIONI:
 
     if [ -e /cygdrive ]
     then
+	install_axel-cygwin
 	cd /tmp
-
-	if [[ ! $(command -v apt-cyg 2>/dev/null) ]]
+	
+	if ! command -v apt-cyg &>/dev/null
 	then
 	    echo -e "
 Installazione di apt-cyg
@@ -216,7 +231,7 @@ Installazione di apt-cyg
 	    install apt-cyg /bin
 	fi
 
-	if [[ ! $(command -v ffmpeg 2>/dev/null) ]]
+	if ! command -v ffmpeg &>/dev/null
 	then
 	    echo -e "
 Installazione di FFMpeg
@@ -232,43 +247,43 @@ Installazione di FFMpeg
 	    apt-cyg install ${pkts[*]} 
 	fi
 	
-	if [[ ! $(command -v rtmpdump 2>/dev/null) ]]
+	if ! command -v rtmpdump &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/
 	    apt-cyg install rtmpdump
 	fi
 	
-	if [[ ! $(command -v nano 2>/dev/null) ]]
+	if ! command -v nano &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install nano
 	fi
 	
-	if [[ ! $(command -v diff 2>/dev/null) ]]
+	if ! command -v diff &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install diffutils
 	fi
 
-	if [[ ! $(command -v base64 2>/dev/null) ]]
+	if ! command -v base64 &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install coreutils
 	fi
 
-	if [[ ! $(command -v xxd 2>/dev/null) ]]
+	if ! command -v xxd &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin
 	    apt-cyg install vim-common
 	fi
 
-	if [[ ! $(command -v pinfo 2>/dev/null) ]]
+	if ! command -v pinfo &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin
 	    apt-cyg install pinfo
 	fi
 
-	if [[ ! $(command -v openssl 2>/dev/null) ]]
+	if ! command -v openssl &>/dev/null
 	then
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install openssl
@@ -276,7 +291,7 @@ Installazione di FFMpeg
 
 	apt-cyg install bash-completion
 
-    elif [ -z "$(command -v pinfo 2>/dev/null)" ]
+    elif ! command -v pinfo 2>/dev/null
     then
 	print_c 1 "Installazione di pinfo"
 	try apt-get -qq -y install pinfo &>/dev/null
