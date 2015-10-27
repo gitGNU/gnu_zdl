@@ -87,7 +87,7 @@ function required-pkt {
 
 ## Axel - Cygwin
 function install_axel-cygwin {
-    if command -v axel &>/dev/null
+    if ! command -v axel &>/dev/null
     then
 	cd /
 	wget "$cygaxel_url"
