@@ -26,6 +26,9 @@
 
 ## Axel - Cygwin
 function install_axel-cygwin {
+    ## source: http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
+    cygaxel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" 
+    
     if ! command -v axel &>/dev/null
     then
 	cd /
