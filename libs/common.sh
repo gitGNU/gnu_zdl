@@ -514,7 +514,7 @@ function post_process {
 			    print_c 1 "Segmento $i recuperato" &&
 			    break
 		    else
-	    		segments+=( "$filename" )
+	    		segments[i]="$filename"
 		    fi
 		done
 	    done
