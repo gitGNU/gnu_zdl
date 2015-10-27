@@ -504,8 +504,8 @@ function post_process {
 		   command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg" ||
 		       command -v avconv &>/dev/null && ffmpeg="avconv"
 	    then
-		preset=veryslow # -preset ultrafast fast medium slow veryslow placebo
-		$ffmpeg -i "${fprefix%__M3U8__}.ts" -acodec libfaac -ab 160k -vcodec libx264 -crf 18 -y "${fprefix%__M3U8__}.mp4"
+		preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
+		$ffmpeg -i "${fprefix%__M3U8__}.ts" -acodec libfaac -ab 160k -vcodec libx264 -crf 18 -preset $preset -y "${fprefix%__M3U8__}.mp4"
 		
 	    else
 		dep=ffmpeg
