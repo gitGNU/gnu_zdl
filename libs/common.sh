@@ -460,6 +460,17 @@ function pid_list_for_prog {
     fi
 }
 
+function ffmpeg_stdout {
+    while check_pid $2
+    do
+	sleep 1
+	tail $1-*.log |
+	    grep -oP 'frame.+size.+' |
+	    sed -r 's|^(.+)$|\1                                         |g' |
+	    tr '\n' '\r'
+    done
+}
+
 function post_process {
     ## mega.nz
     for line in *.MEGAenc
@@ -482,35 +493,64 @@ function post_process {
 
 	for fprefix in "${list_fprefix[@]}"
 	do
-	    unset segments
-	    for ((i=1; i<=$(ls -1 | grep "$fprefix" |wc -l); i++))
+	    last_seg=$(ls -1 | grep "$fprefix" |wc -l)
+	    
+	    while (( $i<=$last_seg ))
 	    do
-		filename=$(ls -1 | grep "${fprefix}seg-${i}-") 
+		unset segments
+		for ((i=1; i<=$last_seg; i++))
+		do
+		    filename=$(ls -1                                     |
+				      grep -P "${fprefix}seg-[0-9]+-"    |
+				      head -n1                           |
+				      sed -r "s|(${fprefix}seg-)[^-]+(-.+)|\1$i\2|g")
 
-		if [ ! -f "$filename" ]
-		then
-		    _log 22
-		    uncomplete=true
-		    break
-		else
-	    	    segments+=( "$filename" )
-		fi
+		    if [ ! -f "$filename" ] ||
+			   [ ! -s "$filename" ]
+		    then
+			_log 22
+			url_resume=$(cat $path_tmp/filename_${fprefix}* | grep "seg-${i}-")
+			wget -qO "$filename" "$url_resume" &&
+			    print_c 1 "Segmento $i recuperato" &&
+			    break
+		    else
+	    		segments+=( "$filename" )
+		    fi
+		done
 	    done
 
 	    echo
 	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
-	    if [ -z "$uncomplete" ] &&
-		   cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" &&
-		   rm -f "$fprefix"* &&
-		   command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg" ||
-		       command -v avconv &>/dev/null && ffmpeg="avconv"
+
+	    if cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" 2>/dev/null
 	    then
-		preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
-		$ffmpeg -i "${fprefix%__M3U8__}.ts" -acodec libfaac -ab 160k -vcodec libx264 -crf 18 -preset $preset -y "${fprefix%__M3U8__}.mp4"
-		
-	    else
-		dep=ffmpeg
-		_log 23 
+		unset ffmpeg
+		command -v avconv &>/dev/null && ffmpeg="avconv"
+		command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg"
+
+		if [ -z "$ffmpeg" ]
+		then
+		    dep=ffmpeg
+		    _log 23
+		    
+		else
+		    preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
+		    rm -f $ffmpeg-*.log
+		    
+		    ( $ffmpeg -i "${fprefix%__M3U8__}.ts"       \
+			      -report                           \
+			      -acodec libfaac                   \
+			      -ab 160k                          \
+			      -vcodec libx264                   \
+			      -crf 18                           \
+			      -preset $preset                   \
+			      -y                                \
+			      "${fprefix%__M3U8__}.mp4" &>/dev/null &&
+			    rm -f "$fprefix"* ) &
+		    pid_ffmpeg=$!
+		    
+		    ffmpeg_stdout $ffmpeg $pid_ffmpeg
+		fi		
 	    fi
 
 	    unset uncomplete
@@ -533,12 +573,15 @@ function post_process {
 	    if [[ "$mime" =~ (audio|video) ]]
 	    then
 		print_c 4 "Conversione del file: $line"
-		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
+#		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
 		
-		$convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
-		    rm "$line" &&
-		    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
-			print_c 3 "Conversione NON riuscita: $line"
+		( $convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
+			rm "$line" &&
+			print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+			    print_c 3 "Conversione NON riuscita: $line" ) &
+		pid_ffmpeg=$!
+		
+		ffmpeg_stdout $convert2format $pid_ffmpeg
 		echo
 	    fi
 	done 

@@ -102,4 +102,8 @@ then
     else
     	_log 3
     fi
+
+    url "${url_in_file}" ||
+	url "$url_m3u8" ||
+	_log 2
 fi

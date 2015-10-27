@@ -126,7 +126,8 @@ function _log {
 	    links_loop - "$url_in"
 	    ;;
 	22)
-	    msg="Il file ${fprefix%__M3U8__}.ts non può essere ricostruito perché incompleto:\nmanca almeno il segmento $i"
+	    # msg="Il file ${fprefix%__M3U8__}.ts non può essere ricostruito perché incompleto:\nmanca almeno il segmento $i"
+	    msg="Manca il segmento $i: tentativo di recupero con Wget dal file links.txt"
 	    ;;
 	23)
 	    msg="Operazione non riuscita perché $dep non è installato"

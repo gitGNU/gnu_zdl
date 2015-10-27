@@ -30,6 +30,8 @@
 
 if [ "$url_in" != "${url_in//'rai.tv'}" ]
 then
+    unset youtubedl_links
+    
     html=$(wget -qO-                         \
 		--user-agent="$user_agent"   \
 		"$url_in")

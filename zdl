@@ -1223,6 +1223,8 @@ then
 fi
 
 wait $loops_pid
+
+trap_sigint
 noproxy
 
 separator-
