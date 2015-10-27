@@ -307,6 +307,7 @@ Installazione di FFMpeg
     then
 	cd $dir_dest
 	$prog ${args[*]}
+	exit
     fi
 }
 
