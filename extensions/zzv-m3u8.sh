@@ -24,29 +24,29 @@
 # zoninoz@inventati.org
 #
 
-## ZDL add-on
 ## zdl-extension types: streaming
-## zdl-extension name: Rai.tv
+## zdl-extension name: Tutti i video in streaming di tipo .m3u8
 
-if [ "$url_in" != "${url_in//'rai.tv'}" ]
+if [[ "$url_in" =~ .m3u8$ ]]
 then
-    html=$(wget -qO-                         \
-		--user-agent="$user_agent"   \
-		"$url_in")
+    files=$(wget -qO- "$url_in" |grep -vP '^#')
+    baseurl="${url_in%\/*}"
+    links_loop - "$url_in"
     
-    url_in_file='http:'$(grep 'videoURL_MP4 =' <<< "$html" | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-    file_in=$(youtube-dl --get-filename "$url_in" |tail -n1)
+    while read line
+    do
+	echo "$baseurl"/"$line" > "${path_tmp}/filename_${file_in}__M3U8__${line}.txt"
+	links_loop + "$baseurl"/"$line"
+    done <<< "$files"
 
-    user_agent="Firefox"
+    file_in="${file_in}_${line}"
+    url_in=$(head -n1 <<< "$files")
+    url_in_file="$url_in"
 
-    if command -v youtube-dl &>/dev/null &&
-	    [ -z "$url_in_file" ]
-    then
-    	url_in_file="$url_in"
-	youtubedl_links+=( rai\.tv )
-	
-    elif [ -z "$url_in_file" ]
-    then
-    	_log 20
-    fi
+    unset files baseurl
+fi
+
+if [[ "$url_in" =~ \.ts$ ]]
+then
+    axel_parts=1
 fi

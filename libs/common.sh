@@ -475,6 +475,47 @@ function post_process {
 	fi
     done
 
+    ## *.M3U8
+    if ls *__M3U8__* &>/dev/null
+    then
+	list_fprefix=( $(awk '!($0 in a){a[$0]; print}' <<< "$(ls -1 *__M3U8__* |grep -oP '.+__M3U8__')") )
+
+	for fprefix in "${list_fprefix[@]}"
+	do
+	    unset segments
+	    for ((i=1; i<=$(ls -1 | grep "$fprefix" |wc -l); i++))
+	    do
+		filename=$(ls -1 | grep "${fprefix}seg-${i}-") 
+
+		if [ ! -f "$filename" ]
+		then
+		    _log 22
+		    uncomplete=true
+		    break
+		else
+	    	    segments+=( "$filename" )
+		fi
+	    done
+
+	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
+	    if [ -z "$uncomplete" ] &&
+		   cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" &&
+		   rm -f "$fprefix"* &&
+		   command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg" ||
+		       command -v avconv &>/dev/null && ffmpeg="avconv"
+	    then
+		preset=veryslow # -preset ultrafast fast medium slow veryslow placebo
+		$ffmpeg -i "${fprefix%__M3U8__}.ts" -acodec libfaac -ab 160k -vcodec libx264 -crf 18 -y "${fprefix%__M3U8__}.mp4"
+		
+	    else
+		dep=ffmpeg
+		_log 23 
+	    fi
+
+	    unset uncomplete
+	done
+    fi
+
     ## --mp3/--flac: conversione formato
     if [ -n "$format" ]
     then

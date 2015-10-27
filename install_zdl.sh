@@ -87,8 +87,8 @@ function required-pkt {
 
 ## Axel - Cygwin
 function install_axel-cygwin {
-    test_axel=`command -v axel`
-    if [ -z $test_axel ]; then
+    if command -v axel &>/dev/null
+    then
 	cd /
 	wget "$cygaxel_url"
 	tar -xvjf "${cygaxel_url##*'/'}"
@@ -107,7 +107,7 @@ function bold {
 #### Axel
 
 function check_downloader {
-    while [ -z "`command -v axel 2>/dev/null`" ]
+    while ! command -v axel &>/dev/null
     do
 	bold "ATTENZIONE: Axel non è installato nel tuo sistema"
 	
@@ -224,17 +224,17 @@ function install_test_xterm {
 function install_pk_xterm {
     echo "Installo XTerm ..."
 
-    if [[ $(command -v apt-get 2>/dev/null) ]]
+    if command -v apt-get &>/dev/null
     then
 	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install xterm || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install xterm" )
 	install_test_xterm pk apt-get
 	
-    elif [[ $(command -v yum 2>/dev/null) ]]
+    elif command -v yum &>/dev/null
     then
 	sudo yum install xterm || ( echo "Digita la password di root" ; su -c "yum install xterm" )
 	install_test_xterm pk yum
 
-    elif [[ $(command -v pacman 2>/dev/null) ]]
+    elif command -v pacman &>/dev/null
     then
 	sudo pacman -S xterm 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S xterm" )
 	install_test_xterm pk pacman
@@ -282,7 +282,7 @@ BinStream.Open();
 BinStream.Write(WinHttpReq.ResponseBody);
 BinStream.SaveToFile(WScript.Arguments(1));' > downloader_tmp.js 
 
-    if [[ ! $(command -v wget 2>/dev/null) ]] 
+    if ! command -v wget &>/dev/null
     then
 	echo -e "
 Installazione di Wget
@@ -338,9 +338,10 @@ update
 if [ -e "/cygdrive" ]
 then
     install_axel-cygwin
+
 else
     check_downloader
-    [ -n "$(command -v X 2>/dev/null )" ] && check_xterm
+    command -v X &>/dev/null && check_xterm
 fi
 
 cd "$DIR"

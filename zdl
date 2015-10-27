@@ -1144,7 +1144,6 @@ function main_loop {
 		    sleeping "$sleeping_pause"
 		done
 
-		post_process
 		unset break_loop post_data not_available exceeded 
 	    fi
 	done < "$start_file"

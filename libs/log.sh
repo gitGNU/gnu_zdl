@@ -125,6 +125,12 @@ function _log {
 	    msg="$url_in --> Download supportato da youtube-dl, avviato ma non gestito da $PROG"
 	    links_loop - "$url_in"
 	    ;;
+	22)
+	    msg="Il file ${fprefix%__M3U8__}.ts non può essere ricostruito perché incompleto:\nmanca almeno il segmento $i"
+	    ;;
+	23)
+	    msg="Operazione non riuscita perché $dep non è installato"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]

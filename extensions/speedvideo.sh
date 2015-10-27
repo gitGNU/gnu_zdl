@@ -74,24 +74,31 @@ then
 	## FFMpeg
 	if [[ "$url_in_file" =~ .m3u8$ ]]
 	then
-	    downloader_in="FFMpeg"
-	    noresume_links+=( speedvideo\. )
+	    # downloader_in="FFMpeg"
+	    # noresume_links+=( speedvideo\. )
 
 	    ##wget -qO- "$url_in_file" |sed -n 5p ##<-- quinta riga: risoluzione più bassa della terza
-	    url_in_file="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
+	    #url_in_file="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
 
-	    ext=".ts"
+	    ## senza ffmpeg
+	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
+	    unset url_in_file
+
+	    links_loop - "$url_in"
+	    url_in="$url_m3u8"
+	    links_loop + "$url_in"
+	    #ext=".ts"
 	fi
 
 	file_in="${file_in}$ext"
+	unset url_in_files
+    	# axel_parts=4
 	
-    	axel_parts=4
-	
-    	if ! url "$url_in_file" ||
-    		[ "$file_in" == ".${url_in_file##*.}" ]
-    	then
-    	    _log 2
-    	fi
+    	# if ! url "$url_in_file" ||
+    	# 	[ "$file_in" == ".${url_in_file##*.}" ]
+    	# then
+    	#     _log 2
+    	# fi
     else
     	_log 3
     fi
