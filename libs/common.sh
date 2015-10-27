@@ -497,6 +497,7 @@ function post_process {
 		fi
 	    done
 
+	    echo
 	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
 	    if [ -z "$uncomplete" ] &&
 		   cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" &&
