@@ -72,7 +72,8 @@ then
 					     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
 
 	## FFMpeg
-	if [[ "$url_in_file" =~ .m3u8$ ]]
+	if [[ "$url_in_file" =~ .m3u8$ ]] &&
+	       	[ -n "$file_in" ]
 	then
 	    # downloader_in="FFMpeg"
 	    # noresume_links+=( speedvideo\. )
@@ -88,10 +89,11 @@ then
 	    url_in="$url_m3u8"
 	    links_loop + "$url_in"
 	    #ext=".ts"
+	    
+	    unset url_in_file
+
 	fi
 
-	file_in="${file_in}"
-	unset url_in_files
     	# axel_parts=4
 	
     	# if ! url "$url_in_file" ||
@@ -104,7 +106,7 @@ then
     fi
 
     url "${url_in_file}" ||
+	[ -n "$file_in" ] ||
 	url "$url_m3u8" ||
-	[ -z "$file_in" ] ||
 	_log 2
 fi
