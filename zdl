@@ -919,7 +919,6 @@ then
 	do
 	    read -e link
 	    [ "$binding" == 1 ] &&
-		unset binding &&
 		break
 	    
 	    if [ -n "${link// }" ]
@@ -928,7 +927,8 @@ then
 		links_loop + "$link"
 	    fi
 	done
-	unset link
+	unset link binding
+	bind -x "\"\ex\":\"\"" 2>/dev/null
 	
     elif [ -n "$from_editor" ]
     then

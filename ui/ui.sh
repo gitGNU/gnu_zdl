@@ -154,7 +154,7 @@ function standard_box {
 
 
 function trap_sigint {
-    trap "trap SIGINT; echo; kill -9 $loops_pid &>/dev/null; exit" SIGINT
+    trap "trap SIGINT; echo; kill -9 $loops_pid &>/dev/null; stty echo; exit" SIGINT
 }
 
 
@@ -165,8 +165,8 @@ function bindings {
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
-    bind -x "\"\eq\":\"clean_countdown; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\ek\":\"clean_countdown; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
+    bind -x "\"\eq\":\"clean_countdown; stty echo; kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
 }
 
@@ -212,7 +212,6 @@ function change_mode {
 }
 
 function interactive {
-    #trap "trap SIGINT; stty echo; exit" SIGINT
     trap "trap SIGINT; exit" SIGINT
 
     while true
@@ -258,7 +257,6 @@ function interactive {
 	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)\n"
 	cursor off
-	#stty -echo
 	read -e -n 1 -t 15 action
 	cursor on
 
@@ -270,9 +268,8 @@ function interactive {
 		show_downloads_extended
 		header_box_interactive "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
 		echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
-		#stty echo
+
 		read -e input
-		#stty -echo
 
 		if [ -n "$input" ]
 		then
@@ -290,9 +287,9 @@ function interactive {
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
 		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
-		    #stty echo
+
 		    read -e input2
-		    #stty -echo
+
 		    for ((i=0; i<${#inputs[*]}; i++))
 		    do
 			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
@@ -404,7 +401,7 @@ function interactive {
 	unset action input2
     done
     echo -e "\e[0m\e[J"
-    #stty echo
+
     exit
 }
 
