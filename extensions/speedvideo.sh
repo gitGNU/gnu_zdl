@@ -90,7 +90,7 @@ then
 	    #ext=".ts"
 	fi
 
-	file_in="${file_in}$ext"
+	file_in="${file_in}"
 	unset url_in_files
     	# axel_parts=4
 	
@@ -105,5 +105,6 @@ then
 
     url "${url_in_file}" ||
 	url "$url_m3u8" ||
+	[ -z "$file_in" ] ||
 	_log 2
 fi
