@@ -441,13 +441,18 @@ function pid_list_for_prog {
 }
 
 function ffmpeg_stdout {
+    pattern='frame.+size.+'
+
+    [[ "$format" =~ (mp3|flac) ]] &&
+	pattern='size.+kbits/s'
+    
     while check_pid $2
     do
-	sleep 1
-	tail $1-*.log |
-	    grep -oP 'frame.+size.+' |
+	tail $1-*.log             |
+	    grep -oP "$pattern"   |
 	    sed -r 's|^(.+)$|\1                                         |g' |
 	    tr '\n' '\r'
+	sleep 1
     done
 }
 
@@ -528,7 +533,7 @@ function post_process {
 			      "${fprefix%__M3U8__}.mp4" &>/dev/null &&
 			    rm -f "$fprefix"* ) &
 		    pid_ffmpeg=$!
-		    
+
 		    ffmpeg_stdout $ffmpeg $pid_ffmpeg
 		fi		
 	    fi
@@ -547,24 +552,33 @@ function post_process {
 	echo
 	for line in $(cat $print_out)
 	do
-	    mime="$(file --mime-type "$line")"
-	    mime="${mime##* }"
-	    
-	    if [[ "$mime" =~ (audio|video) ]]
+	    if [ -f "$line" ]
 	    then
-		print_c 4 "Conversione del file: $line"
-#		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
+		mime="$(file --mime-type "$line")"
+		mime="${mime##* }"
 		
-		( $convert2format $convert_params -i "$line" -aq 0 "${line%.*}.$format" &&
-			rm "$line" &&
-			print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
-			    print_c 3 "Conversione NON riuscita: $line" ) &
-		pid_ffmpeg=$!
-		
-		ffmpeg_stdout $convert2format $pid_ffmpeg
-		echo
+		if [[ "$mime" =~ (audio|video) ]]
+		then
+		    print_c 4 "Conversione del file: $line"
+		    #		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
+		    
+		    ( $convert2format $convert_params                   \
+				      -i "$line"                        \
+				      -report                           \
+				      -aq 0                             \
+				      -y                                \
+				      "${line%.*}.$format" &>/dev/null     &&
+			    rm "$line"                                     &&
+			    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+				print_c 3 "Conversione NON riuscita: $line" ) &
+		    pid_ffmpeg=$!
+		    
+		    ffmpeg_stdout $convert2format $pid_ffmpeg
+		    echo
+		fi
 	    fi
-	done 
+	done
+
 	rm "$print_out"
     fi
 }
