@@ -151,30 +151,33 @@ function change_mode {
     local cmd=$1
 
     touch "$path_tmp/.stop_stdout"
-    if [ $cmd == "interactive" ]
-    then
-	stty echo
-	zdl -i >&1
-	stty -echo
+
+    case $cmd in
+	interactive)
+	    stty echo
+	    zdl -i >&1
+	    stty -echo
+	    ;;
 	
-    elif [ $cmd == "editor" ]
-    then
-	$editor $path_tmp/links_loop.txt
+	editor)
+	    $editor "$path_tmp"/links_loop.txt
+	    ;;
+    
+	info)
+	    command -v pinfo &>/dev/null &&
+		pinfo -x zdl ||
+		    info zdl
+	    ;;
 	
-    elif [ $cmd == "info" ]
-    then
-	[[ "$(command -v pinfo 2>/dev/null)" ]] &&
-	    pinfo -x zdl ||
-		info zdl
-	
-    elif [ $cmd == "list" ]
-    then
-	zdl --list-extensions
-    fi
+	list)
+	    zdl --list-extensions
+	    ;;
+    esac
 
     rm -f "$path_tmp/.stop_stdout"
     
-    if [ -z "$lite" ] || [ ! -z "$binding" ]
+    if [ -z "$lite" ] ||
+	   [ -n "$binding" ]
     then
 	header_z
 	header_box "Modalità in standard output"
@@ -184,7 +187,8 @@ function change_mode {
 	commands_box
     fi
 
-    if [ -z "$lite" ] && [ -z "$binding" ] 
+    if [ -z "$lite" ] &&
+	   [ -z "$binding" ] 
     then
 	separator-
 	print_c 1 "\n..."
@@ -221,20 +225,25 @@ function interactive {
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
 <${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
 	
-	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Axel ]] && \
+	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Axel ]] && 
 	    echo -e "<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get"
-	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Wget ]] && \
+	
+	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Wget ]] && 
 	    echo -e "<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel"
 
 	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
 <${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
 
-	[ -z "$tty" ] && [ -z "$daemon_pid" ] && \
+	[ -z "$tty" ] &&
+	    [ -z "$daemon_pid" ] &&
 	    echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
+
 	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n
 <${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
-	[ ! -z "$daemon_pid" ] && \
+
+	[ -n "$daemon_pid" ] && 
 	    echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi Axel e Wget se avviati"
+	
 	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)\n"
 	cursor off
@@ -242,139 +251,144 @@ function interactive {
 	read -e -n 1 -t 15 action
 	cursor on
 
-	if [ "$action" == "s" ]
-	then
-	    fclear
-	    header_z
-	    echo
-	    show_downloads_extended
-	    header_box_interactive "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
-	    echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
-	    stty echo
-	    read -e input
-	    stty -echo
+	case "$action" in
+	    s)
+		fclear
+		header_z
+		echo
+		show_downloads_extended
+		header_box_interactive "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
+		echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
+		stty echo
+		read -e input
+		stty -echo
 
-	    if [ ! -z "$input" ]
-	    then
-		unset inputs
-		inputs=( $input )
-		echo
-		header_box_interactive "Riavvia o Elimina"
-		echo -e -n "${BYellow}Cosa vuoi fare con i download selezionati?${Color_Off}\n"
-		echo
-		echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
+		if [ -n "$input" ]
+		then
+		    unset inputs
+		    inputs=( $input )
+		    echo
+		    header_box_interactive "Riavvia o Elimina"
+		    echo -e -n "${BYellow}Cosa vuoi fare con i download selezionati?${Color_Off}\n\n"
+
+		    echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
 <${BRed} E ${Color_Off}> ${BRed}e${Color_Off}liminarli definitivamente (e cancellare il file scaricato)
 <${BRed} T ${Color_Off}> ${BRed}t${Color_Off}erminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
 
 <${BGreen} p ${Color_Off}> riprodurre (${BGreen}p${Color_Off}lay) i file audio/video
 
 <${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
-		echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
-		stty echo
-		read -e input2
-		stty -echo
-		for ((i=0; i<${#inputs[*]}; i++))
-		do
-		    [[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
-		done
-
-		if [ "$input2" == "r" ]
-		then
-		    for i in ${inputs[*]}
+		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
+		    stty echo
+		    read -e input2
+		    stty -echo
+		    for ((i=0; i<${#inputs[*]}; i++))
 		    do
-			kill -9 ${pid_out[$i]} &>/dev/null
-			if [ ! -f "${file_out[$i]}.st" ]
-			then
-			    rm -f "${file_out[$i]}" 
-			fi
+			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
 		    done
 
-		elif [ "$input2" == "E" ]
-		then
-		    for i in ${inputs[*]}
-		    do
-			kill -9 ${pid_out[$i]} &>/dev/null
-			rm -f "${file_out[$i]}" "${file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-			links_loop - "${url_out[$i]}"
-		    done
+		    case "$input2" in
+			r)
+			    for i in ${inputs[*]}
+			    do
+				kill -9 ${pid_out[$i]} &>/dev/null
+				if [ ! -f "${file_out[$i]}.st" ]
+				then
+				    rm -f "${file_out[$i]}" 
+				fi
+			    done
+			    ;;
 
-		elif [ "$input2" == "T" ]
-		then
-		    for i in ${inputs[*]}
-		    do
-			kill -9 ${pid_out[$i]} &>/dev/null
-			rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-			links_loop - "${url_out[$i]}"
-		    done
+			E)
+			    for i in ${inputs[*]}
+			    do
+				kill -9 ${pid_out[$i]} &>/dev/null
+				rm -f "${file_out[$i]}" "${file_out[$i]}.st" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+				links_loop - "${url_out[$i]}"
+			    done
+			    ;;
 
-		elif [ "$input2" == "p" ]
-		then
-		    if [ -z "$player" ]
-		    then
-			configure_key 10
-			get_conf
-		    fi
+			T)
+			    for i in ${inputs[*]}
+			    do
+				kill -9 ${pid_out[$i]} &>/dev/null
+				rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+				links_loop - "${url_out[$i]}"
+			    done
+			    ;;
 
-		    if [ ! -z "$player" ]
-		    then
-			for i in ${inputs[*]}
-			do
-			    playing_files="$playing_files ${file_out[$i]// /\\ }"
-			done
-			
-			$player $playing_files &>/dev/null &
-			unset playing_files
-		    fi
+			p)
+			    if [ -n "$player" ] #&>/dev/null
+			    then
+				for i in ${inputs[*]}
+				do
+				    playing_files+=( "${file_out[$i]}" )
+				done
+
+				nohup $player "${playing_files[@]}" &>/dev/null &
+				unset playing_files
+
+			    else
+				configure_key 10
+				get_conf
+			    fi
+			    ;;
+		    esac
 		fi
-	    fi
+		;;
+	    
+	    [0-9])
+		echo "$action" > "$path_tmp/dl-mode"
+		;;
+	
+	    m)
+		echo > "$path_tmp/dl-mode"
+		;;
+	    
+	    e)
+		$editor "$path_tmp/links_loop.txt"
+		;;
+	    
+	    c)
+		no_complete=true
+		data_stdout
+		unset no_complete
+		;;
+	    
+	    q)
+		fclear
+		break
+		;;
+	    
+	    a)
+		echo "Axel" > "$path_tmp/downloader"
+		;;
+	    
+	    w)
+		echo "Wget" > "$path_tmp/downloader"
+		;;
+	    
+	    Q)
+		kill "$daemon_pid"
+		unset daemon_pid
+		;;
+	    
+	    K)
+		kill_downloads
+		[ -n "$daemon_pid" ] &&
+		    kill -9 "$daemon_pid" &&
+		    unset daemon_pid &>/dev/null
 
-	elif [[ "$action" =~ ^[0-9]+$ ]]
-	then
-	    echo "$action" > "$path_tmp/dl-mode"
-	
-	elif [ "$action" == "m" ]
-	then
-	    echo > "$path_tmp/dl-mode"
-	
-	elif [ "$action" == "e" ]
-	then
-	    $editor "$path_tmp/links_loop.txt"
-	
-	elif [ "$action" == "c" ]
-	then
-	    no_complete=true
-	    data_stdout
-	    unset no_complete
-	
-	elif [ "$action" == "q" ]
-	then
-	    fclear
-	    break
-	
-	elif [ "$action" == "a" ]
-	then
-	    echo "Axel" > "$path_tmp/downloader"
-	
-	elif [ "$action" == "w" ]
-	then
-	    echo "Wget" > "$path_tmp/downloader"
-	
-	elif [ "$action" == "Q" ]
-	then
-	    kill "$daemon_pid"
-	    unset daemon_pid
-
-	elif [ "$action" == "K" ]
-	then
-	    kill_downloads
-	    [ ! -z "$daemon_pid" ] && kill -9 "$daemon_pid" && unset daemon_pid &>/dev/null
-	    check_instance_prog
-	    [ $? == 1 ] && [ $pid != $PPID ] && kill -9 $pid &>/dev/null
-
-	elif [ "$action" == "d" ] && [ -z "$tty" ]
-	then
-	    zdl --daemon #&>/dev/null
-	fi
+		! check_instance_prog &&
+		    [ $pid != $PPID ] &&
+		    kill -9 $pid &>/dev/null
+		;;
+	    
+	    d)
+		[ -z "$tty" ] &&
+		    zdl --daemon
+		;;
+	esac
 
 	unset action input2
     done
