@@ -911,9 +911,10 @@ then
 	## binding = {     0 -> while immissione URL
 	##                 1 -> immissione URL terminata: premere invio
 	##             unset -> break immissione URL                    }
-	
+
+	msg_end_input="Immissione URL terminata: premi invio per avviare i download"
 	bind -x "\"\C-l\":\"\"" 2>/dev/null
-	bind -x "\"\ex\":\"binding=1; print_c 1 'Immissione URL terminata: premi invio per avviare i download'\"" 2>/dev/null
+	bind -x "\"\ex\":\"binding=1; print_c 2 '${msg_end_input}'\"" 2>/dev/null
 
 	while [ -n "$binding" ]
 	do

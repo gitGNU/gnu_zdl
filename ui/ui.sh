@@ -206,7 +206,7 @@ function change_mode {
 	    standard_box
 
     [ "$binding" == 1 ] &&
-	print_c 1 'Immissione URL terminata: premi invio per avviare i download'
+	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
 	
     [ -z "$lite" ] &&
 	[ -z "$binding" ] &&
