@@ -265,12 +265,15 @@ function display () {
     info_space = 34
     init_colors()
     blue_line = separator()
+
     if (zdl_mode == "extended") {
 	result = show_downloads_extended()
-    } else if (zdl_mode == "lite") {
+    }
+    else if (zdl_mode == "lite") {
 	result = "\033c" White On_Black "\033[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result "\n\n" show_downloads_lite()
-    } else {
+    }
+    else {
 	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result show_downloads()
     }

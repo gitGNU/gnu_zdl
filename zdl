@@ -903,27 +903,37 @@ then
     then
 	echo "$pid_prog" > "$path_tmp/.pid.zdl"
     fi
+
     if [ -z "$from_editor" ] && [ "$zdl_mode" != "daemon" ]
     then
-	standard_box
-
-	bind -x "\"\C-l\":\"\"" 2>/dev/null
-	bind -x "\"\ex\":\"binding=1\"" 2>/dev/null
 	binding=0
-	while [ "$binding" != 1 ]
+	standard_box
+	## binding = {     0 -> while immissione URL
+	##             unset -> break immissione URL  }
+	
+	bind -x "\"\C-l\":\"\"" 2>/dev/null
+	bind -x "\"\ex\":\"binding=1; print_c 1 'Immissione URL terminata: premi invio per avviare i download'\"" 2>/dev/null
+
+	while [ -n "$binding" ]
 	do
 	    read -e link
+	    [ "$binding" == 1 ] &&
+		unset binding &&
+		break
+	    
 	    if [ -n "${link// }" ]
 	    then
 		link="$(sanitize_url "$link")"
 		links_loop + "$link"
 	    fi
 	done
-	unset link binding
+	unset link
+	
     elif [ -n "$from_editor" ]
     then
 	$editor "$start_file"
     fi
+    
     if [ -f "$start_file" ]
     then
 	clean_file "$start_file"
@@ -1176,14 +1186,12 @@ if [ "$zdl_mode" == "daemon" ]
 then
     while true
     do
-	main_loop
-	[ $? == 1 ] && break
+	main_loop || break
     done
 else
     while true
     do
-	main_loop
-	[ $? == 1 ] && break
+	main_loop || break
     done 2>/dev/null &
     loops_pid=$!
 fi
@@ -1207,7 +1215,9 @@ then
 	    unset zdl_mode
 	    show_downloads_lite
 	    ## provvisorio per youtube-dl non gestito
-	    [[ $(ls $path_tmp/*_stdout.ytdl 2>/dev/null) ]] && echo -n -e "\r$(tail -n1 "$path_tmp"/*_stdout.ytdl)                                                                    "
+	    [[ $(ls $path_tmp/*_stdout.ytdl 2>/dev/null) ]] &&
+		echo -n -e "\r$(tail -n1 "$path_tmp"/*_stdout.ytdl)                                                                    "
+
 	    read -e -n 1 -t 2 binding_in_loop
 	    unset zdl_mode
 	else

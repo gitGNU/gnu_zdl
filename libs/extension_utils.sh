@@ -215,6 +215,10 @@ function countdown- {
     done 
 }
 
+function clean_countdown {
+    rm -f "$path_tmp"/.wise-code
+}
+
 function tags2vars {
     if [[ -n $1 ]]
     then

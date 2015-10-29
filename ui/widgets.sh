@@ -143,17 +143,14 @@ function cursor {
 }
 
 function header { # $1=label ; $2=color ; $3=header pattern
-    if [ -z "$zdl_mode" ]
-    then
-	text="$1"
-	[ ! -z "$text" ] && text=" $text " 
-	color="$2"
-	hpattern="$3"
-	[ -z "$hpattern" ] && hpattern="\ "
-
-	eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
-	echo -e "${color}${text}$line${Color_Off}"
-    fi
+    text="$1"
+    [ -n "$text" ] && text=" $text " 
+    color="$2"
+    hpattern="$3"
+    [ -z "$hpattern" ] && hpattern="\ "
+    
+    eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
+    echo -e "${color}${text}$line${Color_Off}"
 }
 
 
@@ -169,8 +166,7 @@ function header_z {
 }
 
 function header_box {
-    if [ ! -f "$path_tmp/.stop_stdout" ] &&
-	   [ -z "$zdl_mode" ] ||
+    if [ ! -f "$path_tmp/.stop_stdout" ] ||
 	       [ -n "$redirected_link" ]
     then
 	if [ -z "$zdl_mode" ]
@@ -215,7 +211,7 @@ function xterm_stop {
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	cursor off
-	read -e
+	read -e 
 	cursor on
     fi
 }
