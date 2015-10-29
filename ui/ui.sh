@@ -174,6 +174,7 @@ function change_mode {
     local cmd=$1
 
     touch "$path_tmp/.stop_stdout"
+    stty echo
 
     case $cmd in
 	interactive)
@@ -195,6 +196,7 @@ function change_mode {
 	    ;;
     esac
 
+    stty -echo
     rm -f "$path_tmp/.stop_stdout"
     export READLINE_LINE=" "
     
