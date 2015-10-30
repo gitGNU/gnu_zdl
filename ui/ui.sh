@@ -152,9 +152,14 @@ function standard_box {
     fi
 }
 
-
 function trap_sigint {
-    trap "trap SIGINT; echo; kill -9 $loops_pid &>/dev/null; stty echo; exit" SIGINT
+    if (( "$#">0 ))
+    then
+	kill_pids="kill -9 $@"
+	trap "$kill_pids" SIGINT
+    else
+	trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit" SIGINT
+    fi
 }
 
 

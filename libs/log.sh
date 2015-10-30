@@ -127,11 +127,16 @@ function _log {
 	    ;;
 	22)
 	    # msg="Il file ${fprefix%__M3U8__}.ts non può essere ricostruito perché incompleto:\nmanca almeno il segmento $i"
-	    msg="Manca il segmento $i: tentativo di recupero con Wget dal file links.txt"
+	    msg="Manca il segmento $i: tentativo di recupero con Wget estraendo l'URL da un file temporaneo"
 	    ;;
 	23)
 	    msg="Operazione non riuscita perché $dep non è installato"
 	    ;;
+	
+	24)
+	    msg="Impossibile completare l\'operazione: manca il file temporaneo per il recupero del segmento"
+	    ;;
+	
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]

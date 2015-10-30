@@ -1243,11 +1243,14 @@ separator-
 print_c 1 "Download completato"
 separator-
 
+stty echo
+
 if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
 then
     data_stdout
     pipe_files
 fi
+
 
 post_process
 
@@ -1274,6 +1277,6 @@ fi
 
 echo -en "\e[0m\e[J"
 
-stty echo
+
 
 

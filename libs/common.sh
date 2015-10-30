@@ -441,18 +441,38 @@ function pid_list_for_prog {
 }
 
 function ffmpeg_stdout {
+    ppid=$2
+    cpid=$(children_pids $ppid)
+    trap_sigint $cpid $ppid
+    
     pattern='frame.+size.+'
 
     [[ "$format" =~ (mp3|flac) ]] &&
 	pattern='size.+kbits/s'
     
-    while check_pid $2
+    while check_pid $cpid
     do
-	tail $1-*.log             |
-	    grep -oP "$pattern"   |
-	    sed -r 's|^(.+)$|\1                                         |g' |
+	tail $1-*.log 2>/dev/null             |
+	    grep -oP "$pattern"               |
+	    sed -r "s|^(.+)$|\1                                         \n|g" |
 	    tr '\n' '\r'
 	sleep 1
+    done
+}
+
+function children_pids {
+    ppid=$1
+    proc_pids=(
+	$(ls -1 /proc |grep -oP '^[0-9]+$')
+    )
+
+    for proc_pid in ${proc_pids[@]}
+    do
+	if [ -e /proc/$proc_pid/status ] &&
+	       [ "$(awk '/PPid/{print $2}' /proc/$proc_pid/status)" == "${ppid}" ]
+	then
+	    echo $proc_pid
+	fi
     done
 }
 
@@ -474,32 +494,50 @@ function post_process {
     ## *.M3U8
     if ls *__M3U8__* &>/dev/null
     then
-	list_fprefix=( $(awk '!($0 in a){a[$0]; print}' <<< "$(ls -1 *__M3U8__* |grep -oP '.+__M3U8__')") )
+	list_fname=$(ls -1 "$path_tmp"/filename_*__M3U8__* 2>/dev/null    |
+			    sed -r "s|$path_tmp/filename_(.+).txt|\1|g")
+
+	[ -z "$list_fname" ] &&
+	    list_fname=$(ls -1 *__M3U8__*)
+
+	list_fprefix=(
+	    $(grep -oP '.+__M3U8__' <<< "$list_fname" |
+		     awk '!($0 in a){a[$0]; print}')
+	)
 
 	for fprefix in "${list_fprefix[@]}"
 	do
-	    last_seg=$(ls -1 | grep "$fprefix" |wc -l)
-	    
+	    last_seg=$(grep "$fprefix" <<< "$list_fname" | wc -l)
+
 	    while (( $i<=$last_seg ))
 	    do
 		unset segments
 		for ((i=1; i<=$last_seg; i++))
 		do
-		    filename=$(ls -1                                     |
-				      grep -P "${fprefix}seg-[0-9]+-"    |
-				      head -n1                           |
+		    filename=$(grep -P "${fprefix}seg-[0-9]+-" <<< "$list_fname"     |
+				      head -n1                                       |
 				      sed -r "s|(${fprefix}seg-)[^-]+(-.+)|\1$i\2|g")
 
 		    if [ ! -f "$filename" ] ||
-			   [ ! -s "$filename" ]
+		    	   [ ! -s "$filename" ]
 		    then
-			_log 22
-			url_resume=$(cat $path_tmp/filename_${fprefix}* | grep "seg-${i}-")
-			wget -qO "$filename" "$url_resume" &&
-			    print_c 1 "Segmento $i recuperato" &&
-			    break
+		    	_log 22
+		    	url_resume=$(grep -h "seg-${i}-" "$path_tmp"/filename_"${fprefix}"* 2>/dev/null)
+
+			if url "$url_resume"
+			then
+		    	    wget -qO "$filename" "$url_resume" &&
+		    		print_c 1 "Segmento $i recuperato" &&
+		    		break
+			else
+			    #_log 24
+			    msg="Impossibile completare l'operazione: manca il file temporaneo per il recupero del segmento"
+			    print_c 3 "$msg"
+			    echo "$msg" >> $file_log
+			    exit 1
+			fi
 		    else
-	    		segments[i]="$filename"
+	    	    	segments[i]="$filename"
 		    fi
 		done
 	    done
@@ -572,7 +610,7 @@ function post_process {
 			    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
 				print_c 3 "Conversione NON riuscita: $line" ) &
 		    pid_ffmpeg=$!
-		    
+
 		    ffmpeg_stdout $convert2format $pid_ffmpeg
 		    echo
 		fi
