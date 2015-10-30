@@ -1252,7 +1252,7 @@ then
 fi
 
 
-post_process
+post_process || exit 1
 
 if [ "$zdl_exit" != "true" ]
 then

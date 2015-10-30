@@ -530,10 +530,7 @@ function post_process {
 		    		print_c 1 "Segmento $i recuperato" &&
 		    		break
 			else
-			    #_log 24
-			    msg="Impossibile completare l'operazione: manca il file temporaneo per il recupero del segmento"
-			    print_c 3 "$msg"
-			    echo "$msg" >> $file_log
+			    _log 24
 			    exit 1
 			fi
 		    else
@@ -575,8 +572,6 @@ function post_process {
 		    ffmpeg_stdout $ffmpeg $pid_ffmpeg
 		fi		
 	    fi
-
-	    unset uncomplete
 	done
     fi
 
