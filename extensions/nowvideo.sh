@@ -43,10 +43,20 @@ then
 
 	if [ -n "$test_exist" ]
 	then
-	    # not_available=true
-	    # break_loop=true
 	    _log 3
+
 	else
+	    if [[ "$html" =~ (Continue to the video) ]]
+	    then
+		input_hidden "$html"
+
+		html=$(wget -t 1 -T $max_waiting                     \
+			    "$url_in"                                \
+			    --user-agent="$user_agent"               \
+			    --post-data="${post_data}&submit=submit" \
+			    -qO-)
+	    fi
+	    
 	    flashvars_file=$(grep "flashvars.file=" <<< "$html")
 	    flashvars_file="${flashvars_file#*'flashvars.file='\"}"
 	    flashvars_file="${flashvars_file%\"*}"
