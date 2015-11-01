@@ -31,30 +31,27 @@
 
 if [ "$url_in" != "${url_in//exashare.}" ]
 then
-    html=$(wget --user-agent="$user_agent" -qO- -t 1 -T $max_waiting "$url_in")
-    url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
-    file_in=$(grep 'Title' <<< "$html" |sed -r 's|.+title.{1}(.+)[<].+|\1|')
+    html=$(wget -qO- -t 1 -T $max_waiting                \
+		--user-agent="$user_agent"               \
+		"$url_in")
+
+    input_hidden "$html"
+
+    countdown- $(grep 'countdown_str" style' <<< "$html" |
+			sed -r 's|.+>([0-9]+)<.+|\1|g' )
     
-    if ! url "$url_in_file"
-    then
-	if [[ ! "$url_in" =~ embed ]]
-	then
-	    link_parser "$url_in"
-	    parser_path="${parser_path%%\/*}"
-	    url_embed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1280x720.html"
-	else
-	    url_embed="$url_in"
-	fi
-	html=$(wget --user-agent="$user_agent" -qO- -t 1 -T $max_waiting "$url_embed")
-	url_in_file=$(grep file: <<< "$html" | head -n1 | sed -r 's|.+file: \"(.+)\".+|\1|')
-    fi
-    ext=${url_in_file##*.}
+    url_in_file=$(wget -qO-                                                              \
+		       --user-agent="$user_agent"                                        \
+		       --post-data="${post_data#op=search&}&imhuman=Proceed to video"    \
+		       "$url_in"                             |
+			 grep 'file: "'                      |
+			 sed -r 's|[^"]+"([^"]+)"[^"]+|\1|g')
+
+    file_in="${file_in}.${url_in_file##*.}"
 
     if ! url "$url_in_file" ||
 	    [ -z "$file_in" ]
     then
 	_log 2
-    else
-	file_in="${file_in#Watch }".$ext
     fi
 fi
