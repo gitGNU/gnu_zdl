@@ -1049,16 +1049,12 @@ function main_loop {
 		if [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
+		    show_downloads
 		    continue
 		fi
 
 		if [ -z "$file_in" ] || [ -z "$url_in_file" ]
 		then
-		    if [ "$update_proxy_others_list" == "true" ]
-		    then
-			new_ip_proxy
-		    fi
-		    
 		 
 		## streaming downloader
 		    items=( $(ls "$path_tmp"/filename_* 2>/dev/null) )
@@ -1084,11 +1080,6 @@ function main_loop {
 		    url_in_file="${url_in%% }"
 		    url_in_file="${url_in_file## }"
 		    
-		    if [ "$update_proxy_others" == "true" ]
-		    then
-			update_proxy_others_list="true"
-		    fi
-		    
 		fi
 
 		sanitize_file_in
@@ -1111,6 +1102,7 @@ function main_loop {
 			    [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
+		    show_downloads
 		    continue
 		fi
 

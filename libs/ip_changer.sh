@@ -53,9 +53,8 @@ function check_ip {
 	
     elif [ "$update_proxy" == true ]
     then
-	unset newip update_proxy
+	unset newip 
 	new_ip_proxy
-	update_proxy_others="true"
 	
     elif [ "${newip[*]}" != "${newip[*]//$1}" ]
     then
@@ -295,7 +294,8 @@ function new_ip_proxy {
 	unset myip
 	unset speed
 
-	check_speed && break
+	check_speed && break ||
+		show_downloads
 
     done
     unset maxspeed 
