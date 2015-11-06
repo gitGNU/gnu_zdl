@@ -71,36 +71,16 @@ then
 					     head -n1                         |
 					     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
 
-	## FFMpeg
-	if [[ "$url_in_file" =~ .m3u8$ ]] &&
+	if url "$url_in_file" &&
 	       	[ -n "$file_in" ]
 	then
-	    # downloader_in="FFMpeg"
-	    # noresume_links+=( speedvideo\. )
-
-	    ##wget -qO- "$url_in_file" |sed -n 5p ##<-- quinta riga: risoluzione più bassa della terza
-	    #url_in_file="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
-
-	    ## senza ffmpeg
-	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" |sed -n 3p)"
+	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" | grep -v '^#' |head -n1)"
 	    unset url_in_file
 
 	    links_loop - "$url_in"
 	    url_in="$url_m3u8"
 	    links_loop + "$url_in"
-	    #ext=".ts"
-	    
-	    unset url_in_file
-
 	fi
-
-    	# axel_parts=4
-	
-    	# if ! url "$url_in_file" ||
-    	# 	[ "$file_in" == ".${url_in_file##*.}" ]
-    	# then
-    	#     _log 2
-    	# fi
     else
     	_log 3
     fi
