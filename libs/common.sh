@@ -608,13 +608,12 @@ function post_process {
 		if [[ "$mime" =~ (audio|video) ]]
 		then
 		    print_c 4 "Conversione del file: $line"
-		    [ "$lite" == "true" ] && convert_params="-loglevel quiet"
+		    [ "$lite" == "true" ] && convert_params="-report -loglevel quiet"
 
 		    if [ -e /cygdrive ]
 		    then
 			$convert2format $convert_params                   \
 					-i "$line"                        \
-					-report                           \
 					-aq 0                             \
 					-y                                \
 					"${line%.*}.$format" &>/dev/null     &&
