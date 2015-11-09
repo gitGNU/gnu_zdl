@@ -567,7 +567,7 @@ function post_process {
 				-crf 18                           \
 				-preset $preset                   \
 				-y                                \
-				"${fprefix%__M3U8__}.mp4" &>/dev/null &&
+				"${fprefix%__M3U8__}.mp4"   &&
 			    rm -f "$fprefix"*
 			
 		    else
@@ -616,8 +616,8 @@ function post_process {
 					-i "$line"                        \
 					-aq 0                             \
 					-y                                \
-					"${line%.*}.$format" &>/dev/null     &&
-			    rm "$line"                                     &&
+					"${line%.*}.$format"         &&
+			    rm "$line"                               &&
 			    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
 				print_c 3 "Conversione NON riuscita: $line"
 			
