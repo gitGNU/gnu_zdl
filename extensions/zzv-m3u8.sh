@@ -46,7 +46,7 @@ then
     unset files baseurl
 fi
 
-if [[ "$url_in" =~ \.ts$ ]]
+if [[ "$url_in" =~ __M3U8__.+\.ts$ ]]
 then
     axel_parts=1
 fi

@@ -556,20 +556,35 @@ function post_process {
 		else
 		    preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
 		    rm -f $ffmpeg-*.log
-		    
-		    ( $ffmpeg -i "${fprefix%__M3U8__}.ts"       \
-			      -report                           \
-			      -acodec libfaac                   \
-			      -ab 160k                          \
-			      -vcodec libx264                   \
-			      -crf 18                           \
-			      -preset $preset                   \
-			      -y                                \
-			      "${fprefix%__M3U8__}.mp4" &>/dev/null &&
-			    rm -f "$fprefix"* ) &
-		    pid_ffmpeg=$!
 
-		    ffmpeg_stdout $ffmpeg $pid_ffmpeg
+		    if [ -e /cygdrive ]
+		    then
+			$ffmpeg -i "${fprefix%__M3U8__}.ts"       \
+				-report                           \
+				-acodec libfaac                   \
+				-ab 160k                          \
+				-vcodec libx264                   \
+				-crf 18                           \
+				-preset $preset                   \
+				-y                                \
+				"${fprefix%__M3U8__}.mp4" &>/dev/null &&
+			    rm -f "$fprefix"*
+			
+		    else
+			( $ffmpeg -i "${fprefix%__M3U8__}.ts"       \
+				  -report                           \
+				  -acodec libfaac                   \
+				  -ab 160k                          \
+				  -vcodec libx264                   \
+				  -crf 18                           \
+				  -preset $preset                   \
+				  -y                                \
+				  "${fprefix%__M3U8__}.mp4" &>/dev/null &&
+				rm -f "$fprefix"* ) &
+			pid_ffmpeg=$!
+
+			ffmpeg_stdout $ffmpeg $pid_ffmpeg
+		    fi
 		fi		
 	    fi
 	done
@@ -593,20 +608,34 @@ function post_process {
 		if [[ "$mime" =~ (audio|video) ]]
 		then
 		    print_c 4 "Conversione del file: $line"
-		    #		[ "$lite" == "true" ] && convert_params="-loglevel quiet"
-		    
-		    ( $convert2format $convert_params                   \
-				      -i "$line"                        \
-				      -report                           \
-				      -aq 0                             \
-				      -y                                \
-				      "${line%.*}.$format" &>/dev/null     &&
+		    [ "$lite" == "true" ] && convert_params="-loglevel quiet"
+
+		    if [ -e /cygdrive ]
+		    then
+			$convert2format $convert_params                   \
+					-i "$line"                        \
+					-report                           \
+					-aq 0                             \
+					-y                                \
+					"${line%.*}.$format" &>/dev/null     &&
 			    rm "$line"                                     &&
 			    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
-				print_c 3 "Conversione NON riuscita: $line" ) &
-		    pid_ffmpeg=$!
+				print_c 3 "Conversione NON riuscita: $line"
+			
+		    else
+			( $convert2format                                   \
+					  -i "$line"                        \
+					  -report                           \
+					  -aq 0                             \
+					  -y                                \
+					  "${line%.*}.$format" &>/dev/null     &&
+				rm "$line"                                     &&
+				print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+				    print_c 3 "Conversione NON riuscita: $line" ) &
+			pid_ffmpeg=$!
 
-		    ffmpeg_stdout $convert2format $pid_ffmpeg
+			ffmpeg_stdout $convert2format $pid_ffmpeg
+		    fi
 		    echo
 		fi
 	    fi
