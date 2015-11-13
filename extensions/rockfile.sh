@@ -45,8 +45,8 @@ then
 	input_hidden "$html"
 	file_in="$postdata_fname"
 
-	method_free=$(grep -P 'method_free[^"]+\"' <<< "$html" |
-			     sed -r 's|.+(method_free[^"]+)\".+|\1|g' |
+	method_free=$(grep -P 'method_free.+freeDownload' <<< "$html" |
+			     sed -r 's|.+(method_free[^"]*)\".+|\1|g' |
 			     tr -d '\r')
 
 	post_data="${post_data#*'(&'}&${method_free}=Regular Download"
@@ -66,7 +66,7 @@ then
 
 	errMsg=$(grep 'Devi attendere' <<< "$html" |
 			sed -r 's|[^>]+>([^<]+)<.+|\1|g')
-
+	
 	if [[ "$html" =~ (You can download files up to) ]]
 	then
 	    _log 4
