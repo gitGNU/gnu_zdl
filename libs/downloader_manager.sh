@@ -144,6 +144,7 @@ function check_wget {
 }
 
 function download {
+    downwait=5
     export LANG="$prog_lang"
     export LANGUAGE="$prog_lang"
     unset headers
@@ -278,7 +279,8 @@ $file_in
 $streamer
 $playpath
 $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
-
+	    
+	    downwait=10
 	    unset downloader_cmd
 	    ;;
 	
@@ -378,7 +380,7 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
     
     ## è necessario aspettare qualche secondo
-    countdown- 5
+    countdown- $downwait
 }
 
 function check_in_loop { 
