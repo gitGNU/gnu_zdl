@@ -82,24 +82,21 @@ function scrape_url {
 
 	baseURL="${url_page%'/'*}"
 
-	if [ -n "$(command -v curl 2>/dev/null)" ]
-	then
-	    html=$(curl --silent "$url_page")
-	else
-	    html=$(wget -qO- --user-agent="$user_agent" "$url_page")
-	fi
-	html=$(tr "\t\r\n'" '   "' <<< "$html"                       |    
+	html=$(wget -qO-                         \
+		    --user-agent="$user_agent"   \
+		    "$url_page"                    |
+		      tr "\t\r\n'" '   "'                             | 
 		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"[^"]\+"'    | 
 		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g')
 
 	while read line
 	do
-	    echo "$line -->"
 	    [[ ! "$line" =~ ^(ht|f)tp\:\/\/ ]] &&
 		line="${baseURL}/$line"
 
 	    if [[ "$line" =~ "$url_regex" ]]
 	    then
+		echo "$line"
 		if [ -z "$links" ]
 		then
 		    links="$line"
