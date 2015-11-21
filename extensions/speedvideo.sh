@@ -72,7 +72,8 @@ then
 					     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
 
 	if url "$url_in_file" &&
-	       	[ -n "$file_in" ]
+	       	[ -n "$file_in" ] &&
+		[[ ! "$(wget --spider -S "$url_in_file" 2>&1 | grep Content-Type)" =~ octet-stream ]]
 	then
 	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" | grep -v '^#' |head -n1)"
 	    unset url_in_file
@@ -80,6 +81,10 @@ then
 	    links_loop - "$url_in"
 	    url_in="$url_m3u8"
 	    links_loop + "$url_in"
+	    
+	else
+	    file_in="$file_in"."${url_in_file##*.}"
+	    axel_parts=4
 	fi
     else
     	_log 3
