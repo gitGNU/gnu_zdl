@@ -34,27 +34,30 @@ then
     
     if [[ ! "$url_in" =~ embed ]]
     then
-	html=$(wget -qO- "$url_in"                        \
+	htm=$(wget -qO- "$url_in"                        \
 		    --user-agent="$user_agent"            \
 		    --keep-session-cookies                \
-		    --save-cookies=$path_tmp/cookies.zdl)
+		    --save-cookies="$path_tmp"/cookies.zdl)
 
-	input_hidden "$html"
+	input_hidden "$htm"
     fi
 
-    html=$(wget -qO- "$url_in"                        \
-		--user-agent="$user_agent"            \
-		--load-cookies=$path_tmp/cookies.zdl  \
+    html=$(wget -qO- "$url_in"                          \
+		--user-agent="$user_agent"              \
+		--load-cookies="$path_tmp"/cookies.zdl  \
 		--post-data="$post_data")
 
     unset post_data
     
-    if [[ ! "$html" =~ 'File Not Found' ]]
+    if [[ "$htm$html" =~ 'File Not Found' ]] 
     then
+	_log 3
+
+    else
 	linkfile=$(grep 'file: base64_decode' <<< "$html"   |
 			  head -n1                          |
 			  sed -r 's|.+\"([^"]+)\".+|\1|g')
-	
+
 	if [ -z "$linkfile" ]
 	then
 	    linkfile=$(grep 'var linkfile ="' <<< "$html" |
@@ -83,15 +86,14 @@ then
 	    links_loop + "$url_in"
 	    
 	else
-	    file_in="$file_in"."${url_in_file##*.}"
+	    ext="${url_in_file##*.}"
+	    file_in="$file_in%.$ext}".$ext
 	    axel_parts=4
 	fi
-    else
-    	_log 3
     fi
 
-    url "${url_in_file}" ||
-	[ -n "$file_in" ] ||
-	url "$url_m3u8" ||
-	_log 2
+    [ -n "$file_in" ] &&
+	url "${url_in_file}" ||
+	    url "$url_m3u8" ||
+	    _log 2
 fi
