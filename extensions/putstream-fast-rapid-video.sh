@@ -63,16 +63,11 @@ then
     elif [ -n "$html_sources" ]
     then
 	url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
-	file_in="${file_in}.${url_in_file##*.}"
     fi
 
-    [ -n "$file_in" ] &&
-	file_in="${file_in#Watch}".${url_in_file##*.}
-    
-    if [ -z "$url_in_file" ]
-    then
-	break_loop=true
-    else
-	axel_parts=4
-    fi
+    url "$url_in_file" &&
+	[ -n "$file_in" ] &&
+	file_in="${file_in#Watch}".${url_in_file##*.} &&
+	axel_parts=4 ||
+	    _log 2
 fi

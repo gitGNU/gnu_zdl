@@ -87,7 +87,7 @@ then
 	    
 	else
 	    ext="${url_in_file##*.}"
-	    file_in="$file_in%.$ext}".$ext
+	    file_in="${file_in%.$ext}".$ext
 	    axel_parts=4
 	fi
     fi
