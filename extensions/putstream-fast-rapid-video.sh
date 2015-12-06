@@ -65,9 +65,15 @@ then
 	url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
     fi
 
-    url "$url_in_file" &&
-	[ -n "$file_in" ] &&
-	file_in="${file_in#Watch}".${url_in_file##*.} &&
-	axel_parts=4 ||
-	    _log 2
+    if url "$url_in_file" &&
+	    [ -n "$file_in" ]
+    then
+	ext=${url_in_file##*.} 
+	file_in="${file_in#Watch}"
+	file_in="${file_in%.$ext}".$ext
+	axel_parts=4
+	
+    else
+	_log 2
+    fi
 fi
