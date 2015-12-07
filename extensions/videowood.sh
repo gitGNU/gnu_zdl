@@ -41,26 +41,32 @@ then
 		      --user-agent="$user_agent"             \
 		      "$url_packed")
     
-    html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
-
-    if [ -n "$html_packed" ]
+    if [[ "$html_embed" =~ (This video doesn\'t exist) ]]
     then
-	packed_args "$html_packed"
-	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+	_log 3
 
-	url_in_file="${packed_code%%.mp4*}.mp4"
-	url_in_file="${url_in_file##*\"}"
-	url_in_file="${url_in_file//'\\'}"
+    else
+	html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
 
-	file_in="$(grep '<span' <<< "$html_embed" |
+	if [ -n "$html_packed" ]
+	then
+	    packed_args "$html_packed"
+	    packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+
+	    url_in_file="${packed_code%%.mp4*}.mp4"
+	    url_in_file="${url_in_file##*\"}"
+	    url_in_file="${url_in_file//'\\'}"
+
+	    file_in="$(grep '<span' <<< "$html_embed" |
 			  head -n1                |
 			  sed -r 's|[^>]+>([^<]+)<.+|\1|g' ).${url_in_file##*.}"
-    fi
+	fi
 
-    if ! url "$url_in_file" &&
-	    [[ "$url_in_file" =~ ^(http://[^0-9]+) ]] ||
-    		[ -z "$file_in" ]
-    then
-    	_log 2
+	if ! url "$url_in_file" &&
+		[[ "$url_in_file" =~ ^(http://[^0-9]+) ]] ||
+    		    [ -z "$file_in" ]
+	then
+    	    _log 2
+	fi
     fi
 fi
