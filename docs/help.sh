@@ -26,7 +26,10 @@
 
 
 function usage {
-    echo -e -n "ZigzagDownLoader (ZDL)
+    streaming="$(fold -w 80 -s $path_usr/streaming.txt)"
+    hosting="$(fold -w 80 -s $path_usr/hosting.txt)"
+    
+    echo -en "ZigzagDownLoader (ZDL)
 
 Uso (l'ordine degli argomenti non è importante):
   zdl [OPZIONI] [FILE_1 FILE_2 ...] [LINK_1 LINK_2 ...] [DIR]
@@ -182,10 +185,10 @@ il modello generico dei parametri per le componenti aggiuntive (rispettare l'ord
 
 SERVIZI
 ______ Video in streaming saltando il player del browser:
-$(fold -w 80 -s $path_usr/streaming.txt)
+$streaming
 
 ______ File hosting:
-$(fold -w 80 -s $path_usr/hosting.txt)
+$hosting.txt
 e, dopo aver risolto il captcha e generato il link, anche Sharpfile,
 Depositfiles ed altri servizi
 
