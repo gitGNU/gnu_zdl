@@ -133,7 +133,9 @@ function standard_box {
     [ -n "$lite" ] && header_lite=" LITE"
     header_box "Modalità in standard output${header_lite}"
     echo -e -n "$init_msg"
-
+    
+    [ -f "$path_tmp/downloader" ] && 
+	downloader_in=$(cat "$path_tmp/downloader")
     print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     #[ -z "$1" ] && services_box
     
