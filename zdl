@@ -977,24 +977,24 @@ function main_loop {
 	    then
 		links_loop - "$url_in"
 		_log 12 "$url_in"
-		unset url_in
-		break
 	    fi
+	    
 
 	    if [ -n "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
 	    then
 		links_loop - "$url_in"
 		_log 15 "$url_in"
-		unset url_in
-		break
 	    fi
 
 	    if [ -n "$url_regex" ] && [[ ! "${url_in}" =~ $url_regex ]]
 	    then
 		links_loop - "$url_in"
 		_log 16 "$url_in"
-		unset url_in
-		break
+	    fi
+
+	    if ! links_loop in "$url_in"
+	    then
+		continue
 	    fi
 
 	    unset pid_in file_in url_in_file
