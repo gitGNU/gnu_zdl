@@ -994,7 +994,7 @@ function main_loop {
 
 	    if ! links_loop in "$url_in"
 	    then
-		continue
+		break
 	    fi
 
 	    unset pid_in file_in url_in_file
