@@ -67,7 +67,8 @@ wget_links=( dailymotion\/cdn dmcdn\.net uploaded\. easybytez\. rapidgator\. vid
 
 noresume_links=( uploadable\. rapidgator\. uploaded\. )
 
-#no_check=( tusfiles\. )
+no_check_links=( nowdownload\. )
+#no_check_links=( tusfiles\. nowdownload\. )
 
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40

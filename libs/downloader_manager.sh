@@ -41,19 +41,19 @@ function force_dler {
 function dler_type {
     case "$1" in
 	rtmp)
-	    type_links=( ${rtmp_links[*]} )
+	    type_links=( "${rtmp_links[@]}" )
 	    ;;
 	youtube-dl)
-	    type_links=( ${youtubedl_links[*]} )
+	    type_links=( "${youtubedl_links[@]}" )
 	    ;;
 	wget)
-	    type_links=( ${wget_links[*]} )
+	    type_links=( "${wget_links[@]}" )
 	    ;;
 	no-resume)
-	    type_links=( ${noresume_links[*]} )
+	    type_links=( "${noresume_links[@]}" )
 	    ;;
 	no-check)
-	    type_links=( ${no_check[*]} )
+	    type_links=( "${no_check_links[@]}" )
 	    ;;
     esac
     

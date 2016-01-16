@@ -114,14 +114,38 @@ then
 
 	    if [ -n "$(grep "Click here to become Premium" "$path_tmp"/zdl2.tmp 2>/dev/null)" ]
 	    then
-		_log 11
-		break_loop=true
-		break
+		html_url=$(wget --keep-session-cookies                                 \
+			    --save-cookies="$path_tmp/cookies.zdl"                     \
+			    --post-data="link=$url_in&submit=GENERATE TEXT LINKS"      \
+			    "https://simply-debrid.com/generate#show"                  \
+			    -qO-                                              |
+				  grep -Po "inc/generate/name.php[^']+")
+		
+		json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"      \
+				 "https://simply-debrid.com/$html_url"       \
+				 -qO-                                     |
+				   sed -r 's|\\\/|/|g')
+
+		if [[ "$json_data" =~ '"error":0' ]]
+		then
+		    print_c 1 "URL del file estratto da https://simple-debrid.com"
+		    file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
+		    url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
+		    axel_parts=1
+		    
+		else
+		    _log 11
+		    print_c 3 "Riprova cambiando indirizzo IP (verrà estratto da https://simple-debrid.com)\nPuoi usare le opzioni --reconnect oppure --proxy" |
+			tee -a $file_log
+		    breakloop=true
+		    break
+		fi		    
+	    else
+		url_in_file="$(grep "Click here to download" "$path_tmp"/zdl2.tmp 2>/dev/null)"
+		url_in_file=${url_in_file//*href=\"} 
+		url_in_file=${url_in_file//\"*}
 	    fi
 	    
-	    url_in_file="$(grep "Click here to download" "$path_tmp"/zdl2.tmp 2>/dev/null)"
-	    url_in_file=${url_in_file//*href=\"} 
-	    url_in_file=${url_in_file//\"*}
 	    sleeping 0.1
 	    if url "$url_in_file" ||
 		    (( $s > 60 ))
@@ -144,7 +168,7 @@ then
     # 	file_in1=${file_in1%.}
     # done
 
-    if [ -z "$break_loop" ]
+    if [ -z "$breakloop" ]
     then
 	file_in2="${url_in_file##*\/}"
 	file_in2="${file_in2##_}"
