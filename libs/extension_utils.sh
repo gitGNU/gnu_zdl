@@ -349,3 +349,31 @@ function redirect {
     unset url_redirect post_data
     return 0
 }
+
+function simply_debrid {
+    html_url=$(wget --keep-session-cookies                                 \
+		    --save-cookies="$path_tmp/cookies.zdl"                 \
+		    --post-data="link=$1&submit=GENERATE TEXT LINKS"       \
+		    "https://simply-debrid.com/generate#show"              \
+		    -qO-                                              |
+		      grep -Po "inc/generate/name.php[^']+")
+    
+    json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"      \
+		     "https://simply-debrid.com/$html_url"       \
+		     -qO-                                     |
+		       sed -r 's|\\\/|/|g')
+    
+    if [[ "$json_data" =~ '"error":0' ]]
+    then
+	print_c 1 "URL del file estratto da https://simple-debrid.com"
+	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
+	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
+	url_in_file=$(sanitize_url "$url_in_file")
+	
+    else
+	_log 11
+	print_c 3 "Riprova cambiando indirizzo IP (verrà estratto da https://simple-debrid.com)\nPuoi usare le opzioni --reconnect oppure --proxy" |
+	    tee -a $file_log
+	breakloop=true
+    fi		    
+}

@@ -54,6 +54,7 @@ then
     then
 	_log 3
 	jump=true
+
     elif [ -n "$(grep "The file is being transfered. Please wait" "$path_tmp"/zdl.tmp)" ]
     then
 	_log 17
@@ -66,25 +67,23 @@ then
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1%' '*}"
     file_in1="${file_in1//'<br>'/}"
-    
+
     while [ "$file_in1" != "${file_in1%.}" ]
     do
 	file_in1=${file_in1%'.'}
     done
     
-    file_in="${file_in1}"
-    if ! file_filter
+    if ! file_filter "$file_in1"
     then
 	jump=true
     fi
-    unset file_in
     
-    now="$(grep "Download Now" "$path_tmp"/zdl.tmp)"
-    if [ -n "$now" ]
+    if grep "Download Now" "$path_tmp"/zdl.tmp &>/dev/null
     then
 	url_in_file="${now#*\"}"
 	url_in_file="${url_in_file%%\"*}"
 	unset now
+
     elif [ -z "$jump" ]
     then
 	token="$(grep token "$path_tmp"/zdl.tmp)"
@@ -114,32 +113,10 @@ then
 
 	    if [ -n "$(grep "Click here to become Premium" "$path_tmp"/zdl2.tmp 2>/dev/null)" ]
 	    then
-		html_url=$(wget --keep-session-cookies                                 \
-			    --save-cookies="$path_tmp/cookies.zdl"                     \
-			    --post-data="link=$url_in&submit=GENERATE TEXT LINKS"      \
-			    "https://simply-debrid.com/generate#show"                  \
-			    -qO-                                              |
-				  grep -Po "inc/generate/name.php[^']+")
+		simply_debrid "$url_in"
+		[ "$breakloop" == true ] && break
+		axel_parts=6
 		
-		json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"      \
-				 "https://simply-debrid.com/$html_url"       \
-				 -qO-                                     |
-				   sed -r 's|\\\/|/|g')
-
-		if [[ "$json_data" =~ '"error":0' ]]
-		then
-		    print_c 1 "URL del file estratto da https://simple-debrid.com"
-		    file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
-		    url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
-		    axel_parts=1
-		    
-		else
-		    _log 11
-		    print_c 3 "Riprova cambiando indirizzo IP (verrà estratto da https://simple-debrid.com)\nPuoi usare le opzioni --reconnect oppure --proxy" |
-			tee -a $file_log
-		    breakloop=true
-		    break
-		fi		    
 	    else
 		url_in_file="$(grep "Click here to download" "$path_tmp"/zdl2.tmp 2>/dev/null)"
 		url_in_file=${url_in_file//*href=\"} 
@@ -155,40 +132,30 @@ then
 	done
     fi
 
-    # file_in1="$(grep 'Downloading' "$path_tmp"/zdl.tmp)"
-    # file_in1="${file_in1#*'<br> '}"
-    # file_in1="${file_in1%%</h4>*}"
-    # file_in1="${file_in1%' '*}"
-    # file_in1="${file_in1%' '*}"
-    # file_in1="${file_in1%' '*}"
-    # file_in1="${file_in1//'<br>'/}"
-    
-    # while [ "$file_in1" != "${file_in1%.}" ]
-    # do
-    # 	file_in1=${file_in1%.}
-    # done
-
     if [ -z "$breakloop" ]
     then
-	file_in2="${url_in_file##*\/}"
-	file_in2="${file_in2##_}"
+	if [ -z "$file_in" ]
+	then
+	    file_in2="${url_in_file##*\/}"
+	    file_in2="${file_in2##_}"
 
-	if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
-	       [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
-	then
-    	    file_in="$file_in2"
+	    if [ "$file_in2" != "${file_in2//$file_in1}" ] ||
+		   [[ "$file_in2" =~ (part[0-9]+|[cC]{1}[dD]{1}[ _-]*[0-9]+) ]] 
+	    then
+    		file_in="$file_in2"
+		
+	    elif [ -n "$file_in1" ]
+	    then
+    		file_ext="${file_in2##*.}"
+    		file_in="${file_in1}.${file_ext}"
+		
+	    elif [ -z "$jump" ]
+	    then
+    		_log 2
+	    fi
 	    
-	elif [ -n "$file_in1" ]
-	then
-    	    file_ext="${file_in2##*.}"
-    	    file_in="${file_in1}.${file_ext}"
-	    
-	elif [ -z "$jump" ]
-	then
-    	    _log 2
+	    file_in="${file_in%'?'*}"
 	fi
-	
-	file_in="${file_in%'?'*}"
 
 	if ! url "$url_in_file" ||
 	       [ "$url_in_file" == "$url_in" ] ||

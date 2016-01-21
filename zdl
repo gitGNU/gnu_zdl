@@ -1091,7 +1091,7 @@ function main_loop {
 
 		if [ -z "$file_filtered" ]
 		then
-		    file_filter
+		    file_filter "$url_in"
 		else
 		    unset file_filtered
 		fi
