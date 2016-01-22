@@ -1,5 +1,6 @@
 .3dm	x-world/x-3dmf
 .3dmf	x-world/x-3dmf
+.3gp	video/3gpp
 .a	application/octet-stream
 .aab	application/x-authorware-bin
 .aam	application/x-authorware-map
@@ -17,7 +18,7 @@
 .aim	application/x-aim
 .aip	text/x-audiosoft-intra
 .ani	application/x-navi-animation
-.aos	 >application/x-nokia-9000-communicator-add-on-software
+.aos	application/x-nokia-9000-communicator-add-on-software
 .aps	application/mime
 .arc	application/octet-stream
 .arj	application/arj
@@ -129,9 +130,12 @@
 .fdf	application/vnd.fdf
 .fif	application/fractals
 .fif	image/fif
+.flac	audio/x-flac
+.flac	audio/flac
 .fli	video/fli
 .fli	video/x-fli
 .flo	image/florian
+.flv	video/x-flv
 .flx	text/vnd.fmi.flexstor
 .fmf	video/x-atomic3d-feature
 .for	text/plain
@@ -249,6 +253,7 @@
 .m2a	audio/mpeg
 .m2v	video/mpeg
 .m3u 	audio/x-mpequrl
+.m3u8	application/x-mpegURL
 .man	application/x-troff-man
 .map	application/x-navimap
 .mar	text/plain
@@ -298,6 +303,10 @@
 .mp3	audio/x-mpeg-3
 .mp3	video/mpeg
 .mp3	video/x-mpeg
+.mp4	video/mp4
+.mp4	video/x-mp4
+.mp4	audio/mp4
+.mp4	audio/x-mp4
 .mpa	audio/mpeg
 .mpa	video/mpeg
 .mpc	application/x-project
@@ -508,6 +517,7 @@
 .tiff	image/tiff
 .tiff	image/x-tiff
 .tr	application/x-troff
+.ts	video/MP2T
 .tsi	audio/tsp-audio
 .tsp	application/dsptype
 .tsp	audio/tsplayer
@@ -565,6 +575,7 @@
 .wmlc 	application/vnd.wap.wmlc
 .wmls	text/vnd.wap.wmlscript
 .wmlsc 	application/vnd.wap.wmlscriptc
+.wmv	video/x-ms-wmv
 .word 	application/msword
 .wp	application/wordperfect
 .wp5	application/wordperfect
