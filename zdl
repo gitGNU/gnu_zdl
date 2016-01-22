@@ -1082,7 +1082,7 @@ function main_loop {
 		fi
 
 		sanitize_file_in
-
+		
 		if ! check_freespace
 		then
 		    break_loop="true"

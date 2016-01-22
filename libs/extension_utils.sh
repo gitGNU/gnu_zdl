@@ -377,3 +377,44 @@ function simply_debrid {
 	breakloop=true
     fi		    
 }
+
+function set_ext {
+    local filename="$1"
+    rm -f "$path_tmp/test_mime"
+    
+    if [ ! -f "$filename" ] &&
+	   url "$url_in_file"
+    then
+	wget -qO "$path_tmp/test_mime" "$url_in_file" &
+	mime_pid=$!
+
+	counter=0
+	while [ ! -f "$path_tmp/test_mime" ] &&
+		  (( counter<10 )) &&
+		  [ ! -f "$path_tmp/test_mime" ] ||
+		      [[ "$(file --mime-type "$path_tmp/test_mime")" =~ empty ]]
+	do
+	    sleep 0.5
+	    ((counter++))
+	done
+	
+	kill -9 $mime_pid
+	mime_type=$(file --mime-type "$path_tmp/test_mime" | cut -d' ' -f2)
+	rm -f "$path_tmp/test_mime"
+
+    elif [ -f "$filename" ]
+    then
+	mime_type=$(file --mime-type "$filename" | cut -d' ' -f2)
+    fi
+
+    if [ -n "$mime_type" ]
+    then
+	echo "$mime_type" >MIME
+	grep "$mime_type" $path_usr/mimetypes.txt |
+	    awk '{print $1}' |
+	    head -n1
+	
+    else
+	return 1
+    fi
+}

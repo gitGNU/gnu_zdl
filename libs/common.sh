@@ -143,13 +143,16 @@ function sanitize_file_in {
     local title
     local length
     
-    ext="${file_in##*.}"
-    title="${file_in%.$ext}"
+    #ext="${file_in##*.}"
+    ext=$(set_ext "$file_in")
+    file_in="${file_in%.$ext}"
+    
+    title="${file_in}"
     if (( $(( ${#title}%2 ))==1 ))
     then
 	length=$(( (${#title}-1)/2 ))
 	[ "${title:0:$length}" == "${title:$(( $length+1 )):$length}" ] &&
-	    file_in="${title:0:$length}.$ext"
+	    file_in="${title:0:$length}"
     fi
 
     file_in="${file_in## }"
@@ -172,6 +175,7 @@ function sanitize_file_in {
     file_in="${file_in//[<>]}"
     file_in="${file_in::240}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
+    file_in="${file_in%$ext}$ext"
 }
 
 ###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):
