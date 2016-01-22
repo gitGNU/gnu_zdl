@@ -383,7 +383,11 @@ function set_ext {
     rm -f "$path_tmp/test_mime"
     
     if [ ! -f "$filename" ] &&
-	   url "$url_in_file"
+	   url "$url_in_file" &&
+	   ! dler_type "no-resume" "$url_in" &&
+	   ! dler_type "rtmp" "$url_in" &&
+	   ! dler_type "wget" "$url_in" &&
+	   ! dler_type "youtube-dl" "$url_in"
     then
 	wget -qO "$path_tmp/test_mime" "$url_in_file" &
 	mime_pid=$!
