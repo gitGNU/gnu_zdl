@@ -413,7 +413,6 @@ function set_ext {
 
     if [ -n "$mime_type" ]
     then
-	echo "$mime_type" >MIME
 	grep "$mime_type" $path_usr/mimetypes.txt |
 	    awk '{print $1}' |
 	    head -n1
