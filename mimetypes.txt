@@ -409,6 +409,7 @@
 .ra	audio/x-pn-realaudio-plugin
 .ra	audio/x-realaudio
 .ram	audio/x-pn-realaudio
+.rar	application/x-rar
 .ras	application/x-cmu-raster
 .ras	image/cmu-raster
 .ras	image/x-cmu-raster
