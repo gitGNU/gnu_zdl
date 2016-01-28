@@ -305,6 +305,8 @@
 .mp3	video/x-mpeg
 .mp4	video/mp4
 .mp4	video/x-mp4
+.mp4	video/x-m4v
+.mp4	audio/x-m4a
 .mp4	audio/mp4
 .mp4	audio/x-mp4
 .mpa	audio/mpeg
