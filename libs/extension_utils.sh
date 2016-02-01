@@ -365,7 +365,7 @@ function simply_debrid {
     
     if [[ "$json_data" =~ '"error":0' ]]
     then
-	print_c 1 "URL del file estratto da https://simple-debrid.com"
+	print_c 1 "URL del file estratto da https://simply-debrid.com"
 	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sanitize_url "$url_in_file")
@@ -387,7 +387,7 @@ function set_ext {
 	   ! dler_type "rtmp" "$url_in" &&
 	   ! dler_type "youtube-dl" "$url_in"
     then
-	wget -qO "$path_tmp/test_mime" "$url_in_file" &
+	wget --user-agent=Firefox -qO "$path_tmp/test_mime" "$url_in_file" &
 	mime_pid=$!
 
 	counter=0
