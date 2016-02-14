@@ -47,7 +47,8 @@ then
 
     file_in=$(grep '<title>' <<< "$html" |
 		     sed -r 's|\ *<title>([^<]+)<.+|\1|')
-    
+    file_in="${file_in#Download }"
+
     if ! url "$url_in_file" ||
 	    [ -z "$file_in" ]
     then
