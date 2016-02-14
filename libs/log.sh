@@ -35,7 +35,7 @@ function init_log {
 }
 
 function _log {
-    url "$2" &&
+    [ -n "$2" ] &&
 	url_in="$2"
     
     [ -n "$file_in" ] &&
