@@ -407,10 +407,10 @@ _Video in streaming saltando il player del browser:_
      Vidhappy (RTMP), Vidto, Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
 
 _File hosting:_
-     Billionuploads, Cyberlocker, Easybytez, Glumbouploads, Junkyvideo
-     (HD), Likeupload, Mediafire, Mega, Nowdownload, Ozofiles,
-     Rockfile, Sockshare (HD), Thevideo, Tusfiles, Uload, Uploadshub,
-     Uppit, Uptobox 
+     Billionuploads, Cyberlocker, Easybytez, Glumbouploads, Go4Up
+     (link), Junkyvideo (HD), Likeupload, Mediafire, Mega, Nowdownload,
+     Ozofiles, Rockfile, Sockshare (HD), Thevideo, Tusfiles, Uload,
+     Uploadshub, Uppit, Uptobox 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Storbit, Uploadable ed altri
@@ -1190,23 +1190,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14551
-Node: Arrestare ZDL16989
-Node: Controllare i download18094
-Node: Manuali d'uso22382
-Node: Modi22798
-Node: Readline26064
-Node: Editor27584
-Node: Omonimie28809
-Node: Filtri30342
-Node: Creare nuove estensioni30664
-Node: Software consigliati32233
-Node: Conkeror33481
-Node: zdl-xterm e XXXTerm/Xombrero34492
-Node: Installazione e aggiornamento36416
-Node: Tags39430
-Node: Copying42158
-Node: Contatti43208
+Node: Avviare ZDL14565
+Node: Arrestare ZDL17003
+Node: Controllare i download18108
+Node: Manuali d'uso22396
+Node: Modi22812
+Node: Readline26078
+Node: Editor27598
+Node: Omonimie28823
+Node: Filtri30356
+Node: Creare nuove estensioni30678
+Node: Software consigliati32247
+Node: Conkeror33495
+Node: zdl-xterm e XXXTerm/Xombrero34506
+Node: Installazione e aggiornamento36430
+Node: Tags39444
+Node: Copying42172
+Node: Contatti43222
 
 End Tag Table
 
