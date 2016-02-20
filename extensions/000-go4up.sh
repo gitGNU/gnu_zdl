@@ -27,8 +27,32 @@
 ## zdl-extension types: download
 ## zdl-extension name: Go4Up (link)
 
+if [[ "$url_in" =~ 'go4up.com/dl/' ]]
+then
+    html=$(wget -qO- "$url_in")
+    
+    url_js=$(grep -A4 'function loadlinks' <<< "$html" |
+		    grep 'url: '                       |
+		    sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    url_js="http://go4up.com${url_js}"
 
-if [[ "$url_in" =~ 'go4up.com/rd' ]]
+    url_json=$(wget -qO- "$url_js" | tr -d '\')
+    
+    url_json="${url_json#*href=\"}"
+    url_json="http://go4up.com${url_json%%\"*}"
+
+    if url "$url_json"
+    then
+	links_loop - "$url_in"
+	url_in="$url_json"
+	links_loop + "$url_in"
+	
+    else
+	_log 2
+    fi
+fi
+
+if [[ "$url_in" =~ 'go4up.com/rd/' ]]
 then
     html=$(wget -qO- "$url_in")
 
