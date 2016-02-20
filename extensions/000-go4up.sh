@@ -41,15 +41,7 @@ then
     url_json="${url_json#*href=\"}"
     url_json="http://go4up.com${url_json%%\"*}"
 
-    if url "$url_json"
-    then
-	links_loop - "$url_in"
-	url_in="$url_json"
-	links_loop + "$url_in"
-	
-    else
-	_log 2
-    fi
+    replace_url_in "$url_json" || _log 2
 fi
 
 if [[ "$url_in" =~ 'go4up.com/rd/' ]]
@@ -69,14 +61,7 @@ then
 	fi
     done
 
-    if url "$url_html"
-    then
-	links_loop - "$url_in"
-	url_in="$url_html"
-	links_loop + "$url_in"
-	
-    else
-	_log 2
-    fi
+    replace_url_in "$url_html" || _log 2
+
 fi
 	    

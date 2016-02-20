@@ -419,3 +419,16 @@ function set_ext {
 	return 1
     fi
 }
+
+function replace_url_in {
+    if url "$1"
+    then
+	links_loop - "$url_in"
+	url_in="$1"
+	links_loop + "$url_in"
+	return 0
+	
+    else
+	return 1
+    fi
+}
