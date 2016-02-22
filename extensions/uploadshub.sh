@@ -37,21 +37,27 @@ then
 		--user-agent="$user_agent"                \
 		"$url_in")
 
-    input_hidden "$html"
-
-
-    html2=$(wget -qO- --user-agent="$user_agent" --post-data="${post_data}" "$url_in")
-
-    url_in_file=$(grep -P '<a href.+uploadshub.com.+<!--' <<< "$html2" |
-			 sed -r 's|[^"]+\"([^"]+)\".+|\1|')
-
-    file_in=$(grep '<title>' <<< "$html" |
-		     sed -r 's|\ *<title>([^<]+)<.+|\1|')
-    file_in="${file_in#Download }"
-
-    if ! url "$url_in_file" ||
-	    [ -z "$file_in" ]
+    if [[ "$html" =~ (File Not Found) ]]
     then
-	_log 2
+	_log 3
+
+    else
+	input_hidden "$html"
+
+
+	html2=$(wget -qO- --user-agent="$user_agent" --post-data="${post_data}" "$url_in")
+
+	url_in_file=$(grep -P '<a href.+uploadshub.com.+<!--' <<< "$html2" |
+			     sed -r 's|[^"]+\"([^"]+)\".+|\1|')
+
+	file_in=$(grep '<title>' <<< "$html" |
+			 sed -r 's|\ *<title>([^<]+)<.+|\1|')
+	file_in="${file_in#Download }"
+
+	if ! url "$url_in_file" ||
+		[ -z "$file_in" ]
+	then
+	    _log 2
+	fi
     fi
 fi
