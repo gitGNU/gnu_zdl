@@ -32,16 +32,11 @@ if [ "$url_in" != "${url_in//'nowdownload'}" ]
 then
     if [ "$url_in" != "${url_in//'down.php?id='}" ]
     then
-	url_in_old="$url_in"
-	url_in="${url_in_old//'down.php?id='/dl/}"
-	links_loop - "$url_in_old"
-	links_loop + "$url_in"
+	replace_url_in "${url_in_old//'down.php?id='/dl/}"
+
     elif [ "$url_in" != "${url_in//'download.php?id='/dl/}" ]
     then
-	url_in_old="$url_in"
-	url_in="${url_in_old//'download.php?id='/dl/}"
-	links_loop - "$url_in_old"
-	links_loop + "$url_in"
+	replace_url_in "${url_in_old//'download.php?id='/dl/}"
     fi
 fi
 

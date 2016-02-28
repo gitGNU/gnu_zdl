@@ -369,10 +369,15 @@ function simply_debrid {
 	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sanitize_url "$url_in_file")
-	
+
+    elif [[ "$url_in" =~ (nowdownload) ]]
+    then
+	_log 2
+	breakloop=true
+    
     else
 	_log 11
-	print_c 3 "Riprova cambiando indirizzo IP (verrà estratto da https://simple-debrid.com)\nPuoi usare le opzioni --reconnect oppure --proxy" |
+	print_c 3 "Riprova cambiando indirizzo IP (verrà estratto da https://simply-debrid.com)\nPuoi usare le opzioni --reconnect oppure --proxy" |
 	    tee -a $file_log
 	breakloop=true
     fi		    
