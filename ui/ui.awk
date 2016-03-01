@@ -58,7 +58,7 @@ function header (text, pattern, fgcolor, bgcolor,       max, pattern_line) {
 }
 
 function separator () {
-    return header("", "─", BBlue, On_Black)
+    return header("", "─", BBlue, Color_Off)
 }
 
 function show_downloads_extended () {

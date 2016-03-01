@@ -72,5 +72,5 @@ function init_colors () {
     # On_ICyan="\033[0;106m"    # Ciano
     # On_IWhite="\033[0;107m"   # Bianco
 
-    Color_Off="\033[0m${White}$Background" #\033[40m"
+#    Color_Off="\033[0m${White}${Background}" #\033[40m"
 }

@@ -20,7 +20,7 @@
 # https://savannah.nongnu.org/projects/zdl
 # 
 # Gianluca Zoni (author)
-# http://inventati.org/zoninoz
+# http://inventati.org/zoninoz    
 # zoninoz@inventati.org
 #
 
@@ -33,6 +33,7 @@ function show_downloads {
 		-f $path_usr/ui/colors.awk.sh     \
 		-f $path_usr/ui/ui.awk            \
 		-v col="$COLUMNS"                 \
+		-v Color_Off="$Color_Off"         \
 		-e "BEGIN {$awk_data display()}" 
 	fi
     else
@@ -52,6 +53,7 @@ function show_downloads_lite {
 	    -v col="$COLUMNS"                 \
 	    -v zdl_mode="lite"                \
 	    -v odd_run="$odd_run"             \
+	    -v Color_Off="$Color_Off"         \
 	    -e "BEGIN {$awk_data display()}" 
 
     elif [ -f "$start_file" ]
@@ -86,6 +88,7 @@ function show_downloads_extended {
 	    -f $path_usr/ui/ui.awk                \
 	    -v col="$COLUMNS"                     \
 	    -v zdl_mode="extended"                \
+	    -v Color_Off="$Color_Off"             \
 	    -e "BEGIN {$awk_data display()}" 
     fi
 }

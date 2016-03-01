@@ -211,6 +211,9 @@ function get_conf {
     then
 	Background="$On_Black"
     fi
+    
+    init_colors
+    Color_Off="\033[0m${White}${Background}" #\033[40m"
 }
 
 
