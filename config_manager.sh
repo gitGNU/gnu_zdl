@@ -26,9 +26,9 @@
 
 function configure_key {
     opt=$1
-    if [[ "$opt" =~ ^[0-9]+$ ]] && \
-	(( $opt > 0 )) && \
-	(( $opt <= ${#key_conf[*]} ))
+    if [[ "$opt" =~ ^[0-9]+$ ]] && 
+	   (( $opt > 0 )) && 
+	   (( $opt <= ${#key_conf[*]} ))
     then 
 	(( opt-- ))
 	header_box "Scrivi il nuovo valore"
@@ -37,14 +37,16 @@ function configure_key {
 	then
 	    extra_string=" [è necessario indicare il path completo e valido]"
 	fi
+	
 	print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
 	read new_value
 	
-	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] && \
-	    [[ -z $(command -v ${new_value%% *} 2>/dev/null) ]]
+	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] &&
+	       [[ -z $(command -v ${new_value%% *} 2>/dev/null) ]]
 	then
 	    print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
 	    pause
+
 	else
 	    set_item_conf ${key_conf[$opt]} "$new_value"
 	fi
@@ -64,7 +66,7 @@ function configure {
 	cursor off
 	read -n 1 option_0
 	cursor on
-	echo -e -n "\r \r"
+	echo -en "\r \r"
 	case $option_0 in
 	    1)	header_z
 		header_box "Configurazione di $name_prog"
@@ -96,11 +98,13 @@ function show_conf {
 function show_accounts {
     header_box "Account registrati per $host:"
 
-    if [ ! -z "${accounts_user[*]}" ];then
+    if [ -n "${accounts_user[*]}" ]
+    then
 	for name_account in ${accounts_user[*]}
 	do
 	    echo "$name_account"
 	done
+	
     else
 	print_c 3 "Nessun account registrato per $host"
     fi
@@ -108,12 +112,13 @@ function show_accounts {
 
 function get_accounts {
     unset accounts_user accounts_pass
-    if [ -f "$path_conf"/accounts/$host ];then
-	lines=$(wc -l < "$path_conf"/accounts/$host)
-	for line in $(seq 1 $lines)
+
+    if [ -f "$path_conf"/accounts/$host ]
+    then
+	while read line
 	do
-	    accounts_user[${#accounts_user[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($1) }'`
-	    accounts_pass[${#accounts_pass[*]}]=`cat "$path_conf"/accounts/$host | sed -n "${line}p"|awk '{ print($2) }'`
-	done
+	    accounts_user+=( "${line%% *}" )
+	    accounts_pass+=( "${line#* }" )
+	done < "$path_conf"/accounts/$host
     fi
 }

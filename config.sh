@@ -32,7 +32,7 @@ key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Nu
 key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
 key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
 key_conf[4]=num_dl;           val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
-key_conf[5]=skin;             val_conf[5]=color;              string_conf[5]="Aspetto (color)"
+key_conf[5]=background;       val_conf[5]=black;              string_conf[5]="Colore sfondo (black|transparent)"
 key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
 key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
 key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di ZDL (enabled|*)"
@@ -92,54 +92,57 @@ function set_default_conf {
     
     for ((i=0; i<${#key_conf[*]}; i++))
     do
-	[[ ! $(grep ^${key_conf[$i]}= "$file_conf") ]] && echo "${key_conf[$i]}=${val_conf[$i]}" >> "$file_conf"
+	[[ ! $(grep ^${key_conf[$i]}= "$file_conf") ]] &&
+	    echo "${key_conf[$i]}=${val_conf[$i]}" >> "$file_conf"
     done
 }
 
 function get_item_conf {
-    if [ -f  "$file_conf" ]
+    if [ -f "$file_conf" ]
     then
-	item=$1
-	lines=`cat "$file_conf" |wc -l`
-	for line in `seq 1 $lines`
+	item="$1"
+	while read line
 	do
-	    text=`cat "$file_conf" | sed -n "${line}p"`
-	    if [ "$text" != "${text#${item}=}" ]
+	    if [[ "$line" =~ ^${item}'=\"*(.+)[" ]*'$ ]]
 	    then
-		value="${text#${item}=}"
-		value="${value%% *}"
-		value="${value//\"}"
-		break
+		echo "${BASH_REMATCH[1]}"
+		return 0
 	    fi
-	done
+	done < "$file_conf" 
     fi
+    return 1
 }
 
 function set_item_conf {
-    if [ -f  "$file_conf" ]
+    if [ -f "$file_conf" ]
     then
 	item="$1"
 	value="\"$2\""
-	lines=`cat "$file_conf" |wc -l`
-	for line in `seq 1 $lines`
-	do
-	    text=`cat "$file_conf" | sed -n "${line}p"`
-	    if [ "$text" != "${text#${item}=}" ]
-	    then
-		echo "${item}=$value" >> "${file_conf}.new"
-		
-	    else
-		echo "$text" >> "${file_conf}.new"
-	    fi
-	done
-	if [ -f "${file_conf}.new" ]
+
+	if grep -P ^${item}= "${file_conf}"
 	then
-	    mv "${file_conf}" "${file_conf}.old"
-	    mv "${file_conf}.new" "${file_conf}"
+	    while read line
+	    do
+		if [[ "$line" =~ ^${item}= ]]
+		then
+		    echo "${item}=$value" >> "${file_conf}.new"
+		    
+		else
+		    echo "$line" >> "${file_conf}.new"
+		fi
+	    done < "$file_conf"
+
+	    if [ -f "${file_conf}.new" ]
+	    then
+		mv "${file_conf}" "${file_conf}.old"
+		mv "${file_conf}.new" "${file_conf}"
+	    fi
+	    
+	else
+	    echo  "${item}=$value" >> "${file_conf}"
 	fi
     fi
 }
-
 
 function get_conf {
     run_mode=$zdl_mode
@@ -163,13 +166,12 @@ function get_conf {
 	axel_parts_conf=32
     fi
     ## CYGWIN
-    if [ -e "/cygdrive" ]
+    if [ -e "/cygdrive" ] &&
+	   (( $axel_parts_conf>10 ))
     then
-	if (( $axel_parts_conf>10 ))
-	then
-	    axel_parts_conf=10
-	fi
+	axel_parts_conf=10
     fi
+
     axel_parts="$axel_parts_conf"
     
     # if [ -z "$skin" ]; then
@@ -203,6 +205,11 @@ function get_conf {
     if [[ ! $(command -v $editor 2>/dev/null) ]]
     then
 	unset editor
+    fi
+
+    if [ "$background" == "black" ]
+    then
+	Background="$On_Black"
     fi
 }
 
@@ -336,12 +343,19 @@ function configure_accounts {
 }
 
 function check_editor {
-    [ ! -z "$EDITOR" ] && editor="$EDITOR" && return
-    [[ ! -z $(ls -L /usr/bin/editor 2>/dev/null) ]] && editor=/usr/bin/editor && return
+    [ -n "$EDITOR" ] &&
+	editor="$EDITOR" &&
+	return
+
+    [[ -n $(ls -L /usr/bin/editor 2>/dev/null) ]] &&
+	editor=/usr/bin/editor &&
+	return
 
     for cmd in nano "emacs -nw" nano mcedit vim vi
     do
-	[[ ! -z $(command -v $cmd) ]] && editor=$cmd && return
+	[[ -n $(command -v $cmd) ]] &&
+	    editor=$cmd &&
+	    return
     done
 }
 

@@ -1,7 +1,6 @@
 function init_colors () {
-    Color_Off="\033[0m\033[0;37m\033[40m"
 
-	# Regular Colors
+    ## Regular Colors
     Black="\033[0;30m"        # Nero
     # Red="\033[0;31m"          # Rosso
     # Green="\033[0;32m"        # Verde
@@ -72,4 +71,6 @@ function init_colors () {
     # On_IPurple="\033[10;95m"  # Viola
     # On_ICyan="\033[0;106m"    # Ciano
     # On_IWhite="\033[0;107m"   # Bianco
+
+    Color_Off="\033[0m${White}$Background" #\033[40m"
 }
