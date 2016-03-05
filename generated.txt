@@ -1,1 +1,1 @@
-Depositfiles, Hugefiles, Openload, Storbit, Uploadable
+Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
