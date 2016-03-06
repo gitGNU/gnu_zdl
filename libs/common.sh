@@ -169,6 +169,7 @@ function sanitize_file_in {
     file_in="${file_in//'!'}"
     file_in="${file_in//'$'}"
     file_in="${file_in//'%20'/_}"
+    file_in="$(urldecode "$file_in")"
     file_in="${file_in//'%'}"
     file_in="${file_in//\|}"
     file_in="${file_in//'`'}"
