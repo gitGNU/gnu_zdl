@@ -48,20 +48,25 @@ if [[ "$url_in" =~ 'go4up.com/rd/' ]]
 then
     html=$(wget -qO- "$url_in")
 
-    for line in $(sed -r 's|, |\n|g' < $path_usr/hosting.txt  |
-			 tr '[A-Z]' '[a-z]'                   |
-			 grep -Po '^[^ ]+')
-    do
-	if [ "$line" != "go4up" ] &&
-	       [[ "$html" =~ $line\. ]]
-	then
-	    url_html=$(grep -P "$line\." <<< "$html" |
-			      sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-	    break
-	fi
-    done
+    if [[ "$html" =~ (Error link not available) ]]
+    then
+	_log 3
 
-    replace_url_in "$url_html" || _log 2
+    else
+	for line in $(sed -r 's|, |\n|g' < $path_usr/hosting.txt  |
+			     tr '[A-Z]' '[a-z]'                   |
+			     grep -Po '^[^ ]+')
+	do
+	    if [ "$line" != "go4up" ] &&
+		   [[ "$html" =~ $line\. ]]
+	    then
+		url_html=$(grep -P "$line\." <<< "$html" |
+				  sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+		break
+	    fi
+	done
 
+	replace_url_in "$url_html" || _log 2
+    fi
 fi
 	    
