@@ -40,8 +40,14 @@ then
     html_embed=$(wget -qO-                                   \
 		      --user-agent="$user_agent"             \
 		      "$url_packed")
+
+    if [ -z "$html_embed" ] &&
+	   command -v curl >/dev/null
+    then
+	html_embed=$(curl "$url_packed")
+    fi
     
-    if [[ "$html_embed" =~ (This video doesn\'t exist) ]]
+    if [[ "$html_embed" =~ "This video doesn't exist" ]]
     then
 	_log 3
 
