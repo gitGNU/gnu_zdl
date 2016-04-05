@@ -294,7 +294,7 @@ Installazione di FFMpeg
 
 	apt-cyg install bash-completion
 
-    elif ! command -v pinfo 2>/dev/null
+    elif ! command -v pinfo &>/dev/null
     then
 	print_c 1 "Installazione di pinfo"
 	try apt-get -qq -y install pinfo &>/dev/null
