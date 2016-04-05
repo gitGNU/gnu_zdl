@@ -385,6 +385,12 @@ function simply_debrid {
 
 function set_ext {
     local filename="$1"
+    local exts ext
+
+    [[ "$filename" =~ MEGAenc$ ]] &&
+	echo .MEGAenc &&
+	return 0
+
     rm -f "$path_tmp/test_mime"
     
     if [ ! -f "$filename" ] &&
@@ -416,9 +422,13 @@ function set_ext {
 
     if [ -n "$mime_type" ]
     then
-	grep "$mime_type" $path_usr/mimetypes.txt |
-	    awk '{print $1}' |
-	    head -n1
+	exts=$(grep "$mime_type" $path_usr/mimetypes.txt | awk '{print $1}')
+	for ext in $exts
+	do
+	    [[ "$filename" =~ $ext$ ]] &&
+		return 0
+	done
+	head -n1 <<< "$exts"
 	
     else
 	return 1
