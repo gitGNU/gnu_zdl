@@ -203,7 +203,7 @@
 
 @c @man{3}
 
-@c @ifman  @unnumberedsec DESCRIZIONE
+@c @ifman @unnumberedsec DESCRIZIONE
 @emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Wget}, @emph{Axel}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
 @c @end man
 

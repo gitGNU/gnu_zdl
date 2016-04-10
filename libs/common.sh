@@ -143,9 +143,9 @@ function sanitize_file_in {
     local title
     local length
     
-    #ext="${file_in##*.}"
+    ext0=$(grep -o '\.'"${file_in##*.}" $path_usr/mimetypes.txt)
     ext=$(set_ext "$file_in")
-    file_in="${file_in%$ext}"
+    file_in="${file_in%$ext0}"
 
     if (( $(( ${#file_in}%2 ))==1 ))
     then
@@ -153,7 +153,7 @@ function sanitize_file_in {
 	[ "${file_in:0:$length}" == "${file_in:$(( $length+1 )):$length}" ] &&
 	    file_in="${file_in:0:$length}"
     fi
-
+    
     file_in="${file_in## }"
     file_in="${file_in%% }"
     file_in="${file_in// /_}"
