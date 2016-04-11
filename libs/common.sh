@@ -144,7 +144,6 @@ function sanitize_file_in {
     local length
     
     ext0=$(grep -o '\.'"${file_in##*.}" $path_usr/mimetypes.txt)
-    ext=$(set_ext "$file_in")
     file_in="${file_in%$ext0}"
 
     if (( $(( ${#file_in}%2 ))==1 ))
@@ -176,6 +175,8 @@ function sanitize_file_in {
     file_in="${file_in//[<>]}"
     file_in="${file_in::240}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
+
+    ext=$(set_ext "$file_in")    
     file_in="${file_in%$ext}$ext"
 }
 
