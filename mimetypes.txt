@@ -1,6 +1,7 @@
 .3dm	x-world/x-3dmf
 .3dmf	x-world/x-3dmf
 .3gp	video/3gpp
+.ts	application/octet-stream
 .a	application/octet-stream
 .aab	application/x-authorware-bin
 .aam	application/x-authorware-map
