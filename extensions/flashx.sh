@@ -38,7 +38,9 @@ then
 
     	link_parser "$url_in"
     	parser_path="${parser_path%%\/*}"
-    	url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1024x427.html"
+    	# url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1024x427.html"
+	# url_packed="${parser_proto}${parser_domain}/embed.php?c=${parser_path%.html*}"
+	url_packed="${parser_proto}${parser_domain}/playthis-${parser_path}"
     else
     	url_packed="$url_in"
     fi
