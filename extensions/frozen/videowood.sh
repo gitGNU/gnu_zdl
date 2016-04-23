@@ -28,34 +28,51 @@
 ## zdl-extension name: Videowood
 
 
-if [ "$url_in" != "${url_in//'videowood.'}" ]
+if [[ "$url_in" =~ (videowood.) ]]
 then
-    test_ready=$(wget "$url_in" -qO- |grep 'video is not ready yet')
-    if [ -n "$test_ready" ]
+    if [[ ! "$url_in" =~ embed ]]
     then
-	_log 17
-	
+	url_packed="${url_in//'/video/'//embed/}"
     else
-	html=$(wget -t 1 -T $max_waiting -qO- "${url_in//'/video/'//embed/}")
+	url_packed="${url_in}"
+    fi
+
+    html_embed=$(wget -qO-                                   \
+		      --user-agent="$user_agent"             \
+		      "$url_packed")
+
+    if [ -z "$html_embed" ] &&
+	   command -v curl >/dev/null
+    then
+	html_embed=$(curl "$url_packed")
+    fi
     
-	if [ -n "$html" ] 
+    if [[ "$html_embed" =~ "This video doesn't exist" ]]
+    then
+	_log 3
+
+    else
+	html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
+
+	if [ -n "$html_packed" ]
 	then
-	    url_in_file=$(grep file: <<< "$html" | grep http | head -n1)
-	    url_in_file=${url_in_file#*\'}
-	    url_in_file=${url_in_file#*\"}
-	    url_in_file=${url_in_file%\'*}
-	    url_in_file=${url_in_file%\"*}
-	    
-	    ext=${url_in_file##*.}
-	    file_in=$(grep title: <<< "$html")
-	    file_in="${file_in##*title\:}"
-	    file_in="${file_in// /_}"
-	    file_in="${file_in##_}"
-	    file_in="${file_in%,*}"
-	    file_in="${file_in%%_}".$ext
-	    axel_parts=1
-	else
-	    _log 2
+	    packed_args "$html_packed"
+	    packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+
+	    url_in_file="${packed_code%%.mp4*}.mp4"
+	    url_in_file="${url_in_file##*\"}"
+	    url_in_file="${url_in_file//'\\'}"
+
+	    file_in="$(grep '<span' <<< "$html_embed" |
+			  head -n1                |
+			  sed -r 's|[^>]+>([^<]+)<.+|\1|g' ).${url_in_file##*.}"
+	fi
+
+	if ! url "$url_in_file" &&
+		[[ "$url_in_file" =~ ^(http://[^0-9]+) ]] ||
+    		    [ -z "$file_in" ]
+	then
+    	    _log 2
 	fi
     fi
 fi
