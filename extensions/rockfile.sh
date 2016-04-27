@@ -30,11 +30,13 @@
 
 if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
+    real_ip_rockfile=217.23.3.237
+    
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \
 		--save-cookies="$path_tmp"/cookies.zdl     \
 		--user-agent="$user_agent"                 \
-		-qO- $url_in)
+		-qO- ${url_in//rockfile.eu/$real_ip_rockfile})
     
     if [[ "$html" =~ (File Deleted|file was deleted|File not found) ]]
     then
@@ -49,19 +51,19 @@ then
 			     sed -r 's|.+(method_free[^"]*)\".+|\1|g' |
 			     tr -d '\r')
 
-	post_data="${post_data#*'(&'}&${method_free}=Regular Download"
+	post_data="${post_data##*document.write\(\&}&${method_free}=Regular Download"
 
 	html=$(wget -qO-                                        \
 		    --load-cookies="$path_tmp"/cookies.zdl      \
 		    --user-agent="$user_agent"                  \
 		    --post-data="$post_data"                    \
-		    "$url_in")
+		    "${url_in//rockfile.eu/$real_ip_rockfile}")
 
 	code=$(pseudo_captcha "$html")
 
 	unset post_data
 	input_hidden "$html"
-	post_data="${post_data#*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
+	post_data="${post_data##*'(&'}&code=$code" #&btn_download=Download File"  #Scarica File..."
 	post_data="${post_data//'&down_script=1'}"
 
 	errMsg=$(grep 'Devi attendere' <<< "$html" |
@@ -80,7 +82,7 @@ then
 	    countdown- $timer
 	    sleeping 2
 	    
-	    url_in_file=$(wget -qO- "$url_in"                                   \
+	    url_in_file=$(wget -qO- "${url_in//rockfile.eu/$real_ip_rockfile}"       \
 			       --load-cookies="$path_tmp"/cookies.zdl           \
 			       --user-agent="$user_agent"                       \
 			       --post-data="$post_data"                   |
