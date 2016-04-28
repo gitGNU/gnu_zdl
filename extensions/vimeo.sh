@@ -32,7 +32,7 @@ if [[ "$url_in" =~ vimeo\.com\/([0-9]+) ]]
 then
     html=$(wget https://player.vimeo.com/video/${BASH_REMATCH[1]} -qO-)
 
-    url_in_file=$(grep -P 'mp4\?token=' <<< "$(echo -e "${html//http/\\nhttp}")")
+    url_in_file=$(grep -P 'token=' <<< "$(echo -e "${html//http/\\nhttp}")")
     url_in_file="${url_in_file%%\"*}"
 
     ## M3U8: alternativa valida ma incompleta
