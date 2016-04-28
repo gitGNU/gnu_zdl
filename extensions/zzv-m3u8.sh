@@ -27,7 +27,7 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Tutti i video in streaming di tipo .m3u8
 
-if [[ "$url_in" =~ .m3u8$ ]]
+if [[ "$url_in" =~ \.m3u8\?*.* ]]
 then
     files=$(wget -qO- "$url_in" |grep -vP '^#')
     baseurl="${url_in%\/*}"

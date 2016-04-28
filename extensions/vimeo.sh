@@ -28,21 +28,29 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Vimeo (HD)
 
-if [ "$url_in" != "${url_in//'vimeo.com/'[0-9]}" ]; then
-	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
-	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "data-config-url")
-	url_in_file="${url_in_file#*data-config-url=\"}"
-	url_in_file="${url_in_file%%\"*}"
-	url_in_file=$(htmldecode "${url_in_file}")
-	url_in_file=$(wget "$url_in_file" -O- -q)
-	url_in_file="${url_in_file#*\"url\":\"}"
-	url_in_file="${url_in_file%%\"*}"
+if [[ "$url_in" =~ vimeo\.com\/([0-9]+) ]]
+then
+    html=$(wget https://player.vimeo.com/video/${BASH_REMATCH[1]} -qO-)
 
-	ext="${url_in_file%'?'*}"
-	ext="${ext##*'.'}"
-	file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "title>")
-	file_in="${file_in#*'title>'}"
-	file_in="${file_in%%'</title'*}"
-	file_in="${file_in//\//-}.$ext"
-	file_in=$(htmldecode "$file_in")
+    url_in_file=$(grep -P 'mp4\?token=' <<< "$(echo -e "${html//http/\\nhttp}")")
+    url_in_file="${url_in_file%%\"*}"
+
+    ## M3U8: alternativa valida ma incompleta
+    #
+    # m3u8_url=$(echo -e "${html//http/\\nhttp}"  |
+    # 		      grep m3u8                   |
+    # 		      tail -n1                    |
+    # 		      sed -r 's|([^"]+)\".+|\1|g')
+    #
+    # m3u8_url=${m3u8_url%%video*}$(wget -qO- "$m3u8_url" | tail -n1 | sed -r "s|\.\.\/\.\.\/(.+)|\1|g")
+    #
+    # replace_url_in "$m3u8_url"
+    
+    ext="${url_in_file%'?'*}"
+    ext="${ext##*'.'}"
+    file_in=$(grep "title>" <<< "$html")
+    file_in="${file_in#*'title>'}"
+    file_in="${file_in%%'</title'*}"
+    file_in="${file_in//\//-}.$ext"
+    file_in=$(htmldecode "$file_in")
 fi
