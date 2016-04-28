@@ -31,6 +31,15 @@
 if [[ "$url_in" =~ vimeo\.com\/([0-9]+) ]]
 then
     html=$(wget https://player.vimeo.com/video/${BASH_REMATCH[1]} -qO-)
+    html2="$html"
+
+    if [ -z "$html" ]
+    then
+	html2=$(wget -qO- "$url_in")
+	url_embed=$(grep GET <<< "$html2" |
+			   sed -r 's|.+GET\",\"([^"]+)\".+|\1|g')
+	html=$(wget -qO- "$url_embed")
+    fi
 
     url_in_file=$(grep -P 'token=' <<< "$(echo -e "${html//http/\\nhttp}")")
     url_in_file="${url_in_file%%\"*}"
@@ -48,11 +57,10 @@ then
     
     ext="${url_in_file%'?'*}"
     ext="${ext##*'.'}"
-    file_in=$(grep "title>" <<< "$html")
+    file_in=$(grep "title>" <<< "$html2")
     file_in="${file_in#*'title>'}"
     file_in="${file_in%%'</title'*}"
-    file_in="${file_in//\//-}.$ext"
-    file_in=$(htmldecode "$file_in")
+    file_in="${file_in}.$ext"
 
     ! url "$url_in_file" ||
 	[ -z "$file_in" ] &&
