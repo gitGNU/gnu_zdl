@@ -53,4 +53,8 @@ then
     file_in="${file_in%%'</title'*}"
     file_in="${file_in//\//-}.$ext"
     file_in=$(htmldecode "$file_in")
+
+    ! url "$url_in_file" ||
+	[ -z "$file_in" ] &&
+	    _log 2
 fi
