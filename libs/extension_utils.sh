@@ -365,7 +365,7 @@ function simply_debrid {
     
     if [[ "$json_data" =~ '"error":0' ]]
     then
-	print_c 1 "URL del file estratto da https://simply-debrid.com"
+	print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
 	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sanitize_url "$url_in_file")
