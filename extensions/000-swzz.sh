@@ -36,14 +36,10 @@ then
 	html=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
     fi
     
-    url_in_new=$(grep -P 'var link\s*=' <<< "$html" |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    url_in_new=$(grep -P 'var link\s*=' <<< "$html" |
+			sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    url_in_new=$(sanitize_url "${url_in_new}")
 
-    if url "$url_in_new"
-    then
-	links_loop - "$url_in"
-	url_in="$url_in_new"
-	links_loop + "$url_in"
-    else
+    replace_url_in "$url_in_new" ||
 	_log 2
-    fi
 fi
