@@ -35,7 +35,8 @@ if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
        ! dler_type "wget" "$url_in" &&
        ! dler_type "rtmp" "$url_in"
 then
-    data=$(youtube-dl -R 1 --get-url --get-filename "$url_in")
+    data=$(youtube-dl -R 1 --get-url --get-filename "$url_in" 2>&1 |
+		  grep -Pv '(WARNING|xml$|html$|xhtml$)')
 
     items=( "$path_tmp"/filename_* )
 
