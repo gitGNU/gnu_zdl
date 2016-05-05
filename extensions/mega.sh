@@ -29,12 +29,9 @@
 ## zdl-extension types: download
 ## zdl-extension name: Mega
 
-if [[ "$url_in" =~ (^https\:\/\/mega\.co\.nz\/|^https\:\/\/mega\.nz\/) ]]
+if [[ "$url_in" =~ (^https\:\/\/mega\.co\.nz\/|^https\:\/\/mega\.nz\/) ]] &&
+       replace_url_in "${url_in//mega.co.nz/mega.nz}"
 then
-    links_loop - "$url_in"
-    url_in="${url_in//mega.co.nz/mega.nz}"
-    links_loop + "$url_in"
-    
     id=$(awk -F '!' '{print $2}' <<< "$url_in")
 
     key=$(awk -F '!' '{print $3}' <<< "$url_in" | sed -e 's/-/+/g' -e 's/_/\//g' -e 's/,//g')
@@ -60,7 +57,8 @@ then
     xxd -p -r "$path_tmp"/enc_attr.mdtmp > "$path_tmp"/enc_attr2.mdtmp
     openssl enc -d -aes-128-cbc -K $key -iv 0 -nopad -in "$path_tmp"/enc_attr2.mdtmp -out "$path_tmp"/dec_attr.mdtmp
     file_in=$(awk -F '"' '{print $4}' "$path_tmp"/dec_attr.mdtmp).MEGAenc
-
+    sanitize_file_in
+    
     if [ -z "$url_in_file" ] ||
 	   [ -z "$file_in" ]
     then

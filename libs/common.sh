@@ -482,19 +482,24 @@ function children_pids {
 
 function post_process {
     ## mega.nz
+    ls *.MEGAenc
+    echo "===================="
     for line in *.MEGAenc
     do
+	echo "$line"
 	if [ -f "${path_tmp}/${line}.tmp" ] &&
 	       [ ! -f "${line}.st" ]
 	then
 	    key=$(head -n1 "$path_tmp"/"$line".tmp)
 	    iv=$(tail -n1 "$path_tmp"/"$line".tmp)
+
+echo -e "line: $line\nkey: $key\niv: $iv"
 	    openssl enc -d -aes-128-ctr -K $key -iv $iv -in "$line" -out "${line%.MEGAenc}" &&
 		rm -f "${path_tmp}/${line}.tmp" "$line" &&
 		print_c 1 "Il file $line è stato decrittato come ${line%.MEGAenc}"
 	fi
     done
-
+exit
     ## *.M3U8
     if ls *__M3U8__* &>/dev/null
     then
