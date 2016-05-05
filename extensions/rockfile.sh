@@ -94,5 +94,6 @@ then
 
     [ -n "$premium" ]               ||
 	url "$url_in_file"          ||
-	_log 2
+	_log 2                      &&
+	    print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web"
 fi
