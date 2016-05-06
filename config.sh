@@ -70,7 +70,8 @@ noresume_links=( uploadable\. rapidgator\. uploaded\. )
 no_check_links=( nowdownload\. )
 #no_check_links=( tusfiles\. nowdownload\. )
 
-no_check_ext=( tusfiles\. mega\. )
+no_check_ext=( easybytez\. tusfiles\. mega\. )
+
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40
 

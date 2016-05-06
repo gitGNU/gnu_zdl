@@ -289,7 +289,7 @@ function redirect {
     url_input="$1"
     sleeping 1
 
-    if ! url "$url_in" 
+    if ! url "$url_input" 
     then
 	return 1
     fi
@@ -328,11 +328,13 @@ function redirect {
     	then 
     	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
     	    break
-    	elif (( $s>90 ))
+
+	elif (( $s>90 ))
     	then
     	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
     	    return
-    	else
+
+	else
     	    [ "$s" == 0 ] &&
 		print_c 2 "Redirezione (attendi massimo 90 secondi):"
 

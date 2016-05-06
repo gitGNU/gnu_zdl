@@ -115,55 +115,53 @@ then
 	
 	input_hidden "$path_tmp/zdl.tmp"
 	
-	wget -t 1 -T $max_waiting                                       \
-	     --user-agent="$user_agent" -q                              \
-	     --load-cookies="$path_tmp"/cookies.zdl                     \
-	     --keep-session-cookies                                     \
-	     --save-cookies="$path_tmp"/cookies.zdl                     \
-	     --post-data="${post_data}&method_free=Free Download"       \
-	     "$url_in" -O "$path_tmp"/zdl2.tmp &>/dev/null
+	html=$(wget -t 1 -T $max_waiting                                       \
+		    --user-agent="$user_agent" -q                              \
+		    --load-cookies="$path_tmp"/cookies.zdl                     \
+		    --keep-session-cookies                                     \
+		    --save-cookies="$path_tmp"/cookies.zdl                     \
+		    --post-data="${post_data}&method_free=Free Download"       \
+		    "$url_in" -qO-) 
 
-	exceeded=$(grep "Upgrade your account to download bigger files" "$path_tmp"/zdl2.tmp)
+	countdown=$(grep Wait <<< "$html" |
+			   sed -r 's|.+\">(.+)<\/span>.+<\/span.+|\1|')
 
-	if [ -z "$exceeded_login" ]
-	then
-	    exceeded_login=$(grep 'You have reached the download-limit:' "$path_tmp"/zdl2.tmp)
-	fi
+	exceeded=$(grep "Upgrade your account to download bigger files" <<< "$html")
 
-	unset post_data
-
-	if check_in_file &&
-	       [ -z "$not_available" ] &&
+	if check_in_file                 &&
+	       [ -z "$not_available" ]   &&
 	       [ -z "$exceeded" ]
 	then
-	    input_hidden "$path_tmp/zdl2.tmp"
+	    input_hidden "$html"
+	    post_data="${post_data%op=payments*}btn_download=Download File"
 	    
-	    wget -t 1 -T $max_waiting                                    \
-		 --user-agent="$user_agent" -q                           \
-		 --load-cookies="$path_tmp"/cookies.zdl                  \
-		 --keep-session-cookies                                  \
-		 --save-cookies="$path_tmp"/cookies.zdl                  \
-		 --post-data="${post_data}&btn_download=Download File"   \
-		 "$url_in" -O "$path_tmp"/zdl3.tmp &>/dev/null
-	    unset post_data
-	    
-	    print_c 2 "Attendi $countdown secondi:"
-	    
-	    for ((s=0; s<=$countdown; s++))
-	    do
-		print_c 0 "$s\r\c"
-		sleeping 1
-	    done
-	    print_c 0 "  \r\c"
+	    html=$(wget -t 1 -T $max_waiting                                    \
+			--user-agent="$user_agent" -q                           \
+			--load-cookies="$path_tmp"/cookies.zdl                  \
+			--keep-session-cookies                                  \
+			--save-cookies="$path_tmp"/cookies.zdl                  \
+			--post-data="${post_data}"                              \
+			"$url_in" -qO-)
 
-	    input_hidden "$path_tmp/zdl3.tmp"
-	    length_in=$(grep Size .zdl_tmp/zdl3.tmp)
-	    length_in="${length_in#*\(}"
-	    length_in="${length_in%% *}"
-	    post_data="${post_data}&btn_download=Download File"
+	    if [[ "$countdown" =~ ^([0-9]+)$ ]]
+	    then
+		print_c 2 "\nAttendi:"
+		countdown- "$countdown"
 
-	    redirect "$url_in"
+		user_agent=Firefox
+		redirect "$url_in"
+
+	    else
+		_log 2
+	    fi
+
+	elif [ -n "$exceded_login" ]
+	then
+	    print_c 3 "$exceded_login"
+	    _log 4
+	    
 	else
+	    print_c 3 "$exceded_login"
 	    _log 4
 	fi
     fi
