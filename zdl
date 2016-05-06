@@ -1038,7 +1038,7 @@ function main_loop {
 		    shopt -u nullglob
 		fi
 		
-		check_dler_forcing
+####		check_dler_forcing
 		
 		## se ancora presenti redirezioni fantasma:
 		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
@@ -1110,6 +1110,11 @@ function main_loop {
 		       check_in_file &&                                                         
 		       links_loop "in" "$url_in" 
 		then
+		    #
+		    ## check in nuova posizione da testare: prima era più in alto
+		    #
+		    check_dler_forcing
+
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"

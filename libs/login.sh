@@ -26,28 +26,40 @@
 
 function host_login {
     unset user pass
-    if [ -z "${accounts_user_loop[*]}" ] && [ -z "${accounts_pass_loop[*]}" ]; then
+    host="$1"
+
+    if [ -z "${accounts_user_loop[*]}" ] &&
+	   [ -z "${accounts_pass_loop[*]}" ]
+    then
 	get_accounts
-	if [ ! -z "${accounts_user[*]}" ]; then
+	
+	if [ -n "${accounts_user[*]}" ]
+	then
 	    accounts_user_loop=( ${accounts_user[*]} )
 	    accounts_pass_loop=( ${accounts_pass[*]} )
 	fi
     fi	
 
-    if [ ! -z "${accounts_user_loop[*]}" ] && [ ! -z "${accounts_pass_loop[*]}" ]; then
+    if [ -n "${accounts_user_loop[*]}" ] &&
+	   [ -n "${accounts_pass_loop[*]}" ]
+    then
 	max=$(( ${#accounts_user_loop[*]}-1 ))
 	j=$max
-	if [ ! -z "${accounts_alive[*]}" ]; then
-	    for i in `seq 0 $max`; do
-		for account_alive in ${accounts_alive[*]}; do
-					#for user_loop in ${accounts_user_loop[*]}; do
-		    if [ "${account_alive#${accounts_user_loop[$i]}@${host}:}" != "${account_alive}" ]; then
+
+	if [ -n "${accounts_alive[*]}" ]
+	then
+	    for i in `seq 0 $max`
+	    do
+		for account_alive in ${accounts_alive[*]}
+		do
+		    if [ "${account_alive#${accounts_user_loop[$i]}@${host}:}" != "${account_alive}" ]
+		    then
 			if check_pid "${account_alive#${accounts_user_loop[$i]}@${host}:}"
 			then
 			    (( j++ ))
 			    accounts_user_loop[$j]="${accounts_user_loop[$i]}"
 			    accounts_pass_loop[$j]="${accounts_pass_loop[$i]}"
-# NON FUNZIONA! --------->  unset accounts_user_loop[$i] accounts_pass_loop[$i]
+
 			    accounts_user_loop[$i]=""
 			    accounts_pass_loop[$i]=""
 			fi
@@ -64,12 +76,16 @@ function host_login {
 	
 	accounts_user_loop[ ${#accounts_user_loop[*]} ]="${accounts_user_loop[0]}"
 	accounts_pass_loop[ ${#accounts_pass_loop[*]} ]="${accounts_pass_loop[0]}"
-# unset non funziona!
+	
 	accounts_user_loop[0]=""
 	accounts_pass_loop[0]=""
     fi
-    if [ -z "$user" ] || [ -z "$pass" ]; then
+
+    if [ -z "$user" ] ||
+	   [ -z "$pass" ]
+    then
 	print_c 3 "Nessun account disponibile"
+
     else
 	print_c 1 "Login: ${user}@${host}"
     fi

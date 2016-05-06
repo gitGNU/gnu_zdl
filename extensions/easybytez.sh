@@ -31,96 +31,70 @@
 if [ "$url_in" != "${url_in//easybytez}" ]
 then
     proxy_types=( "Transparent" "Anonymous" "Elite" )
+    user_agent=Firefox
     
     if [ "$login" == "1" ]
     then
-	wget -q -t 1 -T $max_waiting                   \
-	     --user-agent="$user_agent"                \
-	     --retry-connrefused                       \
-	     --keep-session-cookies                    \
-	     --save-cookies="$path_tmp"/cookies.zdl    \
-	     -O "$path_tmp/login.tmp"                  \
-	     "http://www.easybytez.com/login.html" &>/dev/null
+	html=$(wget -qO- -t1 -T$max_waiting                   \
+		    --user-agent="$user_agent"                \
+		    --retry-connrefused                       \
+		    --keep-session-cookies                    \
+		    --save-cookies="$path_tmp"/cookies.zdl    \
+		    "http://www.easybytez.com/login.html")
 
-	input_hidden "$path_tmp/login.tmp"
-	
-	host="easybytez"
-	host_login
+	## post_data
+	input_hidden "$html"
 
-	wget -q -t 1 -T $max_waiting                                      \
+	## user, pass
+	host_login "easybytez"
+
+	wget -q -t1 -T$max_waiting                                        \
      	     --user-agent="$user_agent"                                   \
 	     --retry-connrefused                                          \
 	     --load-cookies="$path_tmp"/cookies.zdl                       \
 	     --keep-session-cookies                                       \
 	     --save-cookies="$path_tmp"/cookies.zdl                       \
-	     -O "$path_tmp/zdl.tmp"                                       \
+	     -O /dev/null                                                 \
 	     --post-data="${post_data}&login=${user}&password=${pass}"    \
-	     "http://www.easybytez.com" &>/dev/null
-	unset post_data
+	     "http://www.easybytez.com"
+	unset post_data user pass
     fi
 
-    file_in=$(wget -qO- --user-agent="$user_agent" "$url_in" |
-		     grep '<span class="name">')
-    
+    html=$(wget -qO- -t1 -T$max_waiting                    \
+		--user-agent="$user_agent"                 \
+		--retry-connrefused                        \
+		--load-cookies="$path_tmp"/cookies.zdl     \
+		--keep-session-cookies                     \
+		--save-cookies="$path_tmp"/cookies.zdl     \
+		"$url_in") 
+
+    file_in=$(grep '<span class="name">' <<< "$html")
     file_in="${file_in#*>}"
     file_in="${file_in%%<*}"
     url_in_file="${url_in}"
 
-    not_available=$(wget -qO- -t 1 -T $max_waiting                  \
-			 --user-agent="$user_agent"                 \
-			 --retry-connrefused                        \
-			 --load-cookies="$path_tmp"/cookies.zdl     \
-			 --keep-session-cookies                     \
-			 "$url_in" | grep "File not available")
+    exceeded_msg="You have reached the download-limit"
 
-    if [ -n "$not_available" ]
+    if [[ "$html" =~ (File not available) ]]
     then
 	_log 3
-    fi
-    
-    check_in_file
 
-    if [ -n "${file_in}" ] &&
-	   [ ! -f "${file_in}" ] &&
-	   [ -z "$not_available" ]
+    elif check_in_file &&
+	    [ -n "${file_in}" ] &&
+	    [ ! -f "${file_in}" ] 
     then
-	if [ -n "$exceeded_login" ]
-	then
-	    check_ip "easybytez"
-	fi
-	
-	if [ "$login" == "1" ]
-	then
-	    wget -q -t 1 -T $max_waiting                          \
-		 --user-agent="$user_agent"                       \
-		 --retry-connrefused                              \
-		 --load-cookies="$path_tmp"/cookies.zdl           \
-		 --keep-session-cookies                           \
-		 --save-cookies="$path_tmp"/cookies.zdl           \
-		 -O "$path_tmp/zdl.tmp" "$url_in" &>/dev/null
-	    countdown="40"
-	    #redirected="true"
-	else
+	[ "$login" != 1 ] &&
 	    check_ip "easybytez"
 
-	    wget -q -t 1 -T $max_waiting                   \
-		 --user-agent="$user_agent"                \
-		 --retry-connrefused                       \
-		 --keep-session-cookies                    \
-		 --save-cookies="$path_tmp"/cookies.zdl    \
-		 -O "$path_tmp/zdl.tmp"                    \
-		 "$url_in" &>/dev/null
-	    countdown="60"
-	fi
+	input_hidden "$html" # "$path_tmp/zdl.tmp"
+	post_data="${post_data}&method_free=Free Download"       
 	
-	input_hidden "$path_tmp/zdl.tmp"
-	
-	html=$(wget -t 1 -T $max_waiting                                       \
-		    --user-agent="$user_agent" -q                              \
-		    --load-cookies="$path_tmp"/cookies.zdl                     \
-		    --keep-session-cookies                                     \
-		    --save-cookies="$path_tmp"/cookies.zdl                     \
-		    --post-data="${post_data}&method_free=Free Download"       \
+	html=$(wget -t 1 -T $max_waiting                             \
+		    --user-agent="$user_agent"                       \
+		    --load-cookies="$path_tmp"/cookies.zdl           \
+		    --keep-session-cookies                           \
+		    --save-cookies="$path_tmp"/cookies.zdl           \
+		    --post-data="${post_data}"                       \
 		    "$url_in" -qO-) 
 
 	countdown=$(grep Wait <<< "$html" |
@@ -130,7 +104,9 @@ then
 
 	if check_in_file                 &&
 	       [ -z "$not_available" ]   &&
-	       [ -z "$exceeded" ]
+	       [ -z "$exceeded" ] &&
+	       [[ "$countdown" =~ ^([0-9]+)$ ]] &&
+	       [[ ! "$html" =~ ($exceeded_msg) ]]
 	then
 	    input_hidden "$html"
 	    post_data="${post_data%op=payments*}btn_download=Download File"
@@ -142,27 +118,12 @@ then
 			--save-cookies="$path_tmp"/cookies.zdl                  \
 			--post-data="${post_data}"                              \
 			"$url_in" -qO-)
+	    print_c 2 "\nAttendi:"
+	    countdown- "$countdown"
+	    redirect "$url_in"
 
-	    if [[ "$countdown" =~ ^([0-9]+)$ ]]
-	    then
-		print_c 2 "\nAttendi:"
-		countdown- "$countdown"
-
-		user_agent=Firefox
-		redirect "$url_in"
-
-	    else
-		_log 2
-	    fi
-
-	elif [ -n "$exceded_login" ]
-	then
-	    print_c 3 "$exceded_login"
-	    _log 4
-	    
 	else
-	    print_c 3 "$exceded_login"
-	    _log 4
+	    _log 25
 	fi
     fi
 fi

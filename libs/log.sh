@@ -138,7 +138,10 @@ function _log {
 	    msg="Impossibile completare l'operazione: manca il file temporaneo per il recupero del segmento"
 	    unset break_loop
 	    ;;
-	
+	25)
+	    msg="Raggiunto il limite di download per il tuo indirizzo IP o account (link: $url_in): prova --proxy o --reconnect"
+	    no_msg=true
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
