@@ -142,10 +142,14 @@ function sanitize_file_in {
     local ext
     local title
     local length
-    
-    ext0=$(grep -o '\.'"${file_in##*.}" $path_usr/mimetypes.txt)
-    file_in="${file_in%$ext0}"
 
+    if ! dler_type "no-check-ext" "$url_in"
+    then
+	ext0=$(grep -o '\.'"${file_in##*.}" $path_usr/mimetypes.txt)
+	file_in="${file_in%$ext0}"
+    fi
+    
+    ## elimina doppione nel nome del file generato da youtube-dl
     if (( $(( ${#file_in}%2 ))==1 ))
     then
 	length=$(( (${#file_in}-1)/2 ))
@@ -177,8 +181,11 @@ function sanitize_file_in {
     file_in="${file_in::240}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
 
-    ext=$(set_ext "$file_in")    
-    file_in="${file_in%$ext}$ext"
+    if ! dler_type "no-check-ext" "$url_in"
+    then
+	ext=$(set_ext "$file_in")
+	file_in="${file_in%$ext}$ext"
+    fi
 }
 
 ###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):

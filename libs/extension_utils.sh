@@ -386,11 +386,7 @@ function simply_debrid {
 function set_ext {
     local filename="$1"
     local exts ext
-
-    [[ "$filename" =~ MEGAenc$ ]] &&
-	echo .MEGAenc &&
-	return 0
-
+    
     rm -f "$path_tmp/test_mime"
     
     if [ ! -f "$filename" ] &&

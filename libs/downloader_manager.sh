@@ -55,6 +55,9 @@ function dler_type {
 	no-check)
 	    type_links=( "${no_check_links[@]}" )
 	    ;;
+	no-check-ext)
+	    type_links=( "${no_check_ext[@]}" )
+	    ;;
     esac
     
     for h in ${type_links[*]}
