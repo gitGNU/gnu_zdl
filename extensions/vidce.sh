@@ -27,7 +27,6 @@
 ## zdl-extension types: streaming 
 ## zdl-extension name: Vidce
 
-
 if [ "$url_in" != "${url_in//'vidce.'}" ]
 then
     html=$(wget  -qO- -t 5 -T $max_waiting                \

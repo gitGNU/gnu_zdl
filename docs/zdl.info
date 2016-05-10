@@ -403,8 +403,8 @@ _Video in streaming saltando il player del browser:_
      Metacafe, Movshare, Neodrive (ex Cloudzilla), Nowvideo,
      Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Rocvideo,
      Sockshare (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tutti
-     i video in streaming di tipo .m3u8, Tvdigit.it, Vidce, Vidhappy
-     (RTMP), Vidto, Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
+     i video in streaming di tipo .m3u8, Tvdigit.it, Vidce, Videomega,
+     Vidhappy (RTMP), Vidto, Vimeo (HD), VK (HD), Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cyberlocker, Easybytez, Glumbouploads, Go4Up
@@ -911,6 +911,13 @@ _Conkeror_
      Funzione `M-x zdl' autoinstallata
 
 
+Dipendenze:
+-----------
+
+_Nodejs_
+     Motore Javascript per l'acquisizione di informazioni dal web
+
+
 Dipendenze per Windows:
 -----------------------
 
@@ -1190,23 +1197,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14564
-Node: Arrestare ZDL17002
-Node: Controllare i download18107
-Node: Manuali d'uso22395
-Node: Modi22811
-Node: Readline26077
-Node: Editor27597
-Node: Omonimie28822
-Node: Filtri30355
-Node: Creare nuove estensioni30677
-Node: Software consigliati32246
-Node: Conkeror33494
-Node: zdl-xterm e XXXTerm/Xombrero34505
-Node: Installazione e aggiornamento36429
-Node: Tags39443
-Node: Copying42171
-Node: Contatti43221
+Node: Avviare ZDL14575
+Node: Arrestare ZDL17013
+Node: Controllare i download18118
+Node: Manuali d'uso22406
+Node: Modi22822
+Node: Readline26088
+Node: Editor27608
+Node: Omonimie28833
+Node: Filtri30366
+Node: Creare nuove estensioni30688
+Node: Software consigliati32257
+Node: Conkeror33607
+Node: zdl-xterm e XXXTerm/Xombrero34618
+Node: Installazione e aggiornamento36542
+Node: Tags39556
+Node: Copying42284
+Node: Contatti43334
 
 End Tag Table
 

@@ -70,7 +70,7 @@ noresume_links=( uploadable\. rapidgator\. uploaded\. )
 no_check_links=( nowdownload\. )
 #no_check_links=( tusfiles\. nowdownload\. )
 
-no_check_ext=( easybytez\. tusfiles\. mega\. )
+no_check_ext=( easybytez\. tusfiles\. 'mega.(co|nz)' )
 
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40
@@ -78,6 +78,16 @@ max_waiting=40
 ## durata attesa 
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
+
+if [ -d /cygdrive ] &&
+       ! command -v node &>/dev/null
+then
+    chmod 777 /usr/local/share/zdl/node.exe
+    nodejs="/usr/local/share/zdl/node.exe"
+
+else
+    nodejs=node
+fi
 
 init_colors
 

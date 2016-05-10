@@ -62,7 +62,7 @@ function dler_type {
     
     for h in ${type_links[*]}
     do
-	[ "$2" != "${2//$h}" ] && return
+	[[ "$2" =~ ($h) ]] && return
     done
     return 1
 }

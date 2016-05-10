@@ -143,17 +143,43 @@ function base36 {
     done
 }
 
+function e {
+    if (( $code_c<$code_a ))
+    then
+	result=$(e $(($code_c/$code_a)) )
+
+    else
+	result=0
+    fi
+
+    
+}
+
 function packed {
-    p=$(sed -r 's@(.+)@\U\1@g' <<< "$1") ## <-- va convertito con base36, quindi servono le lettere maiuscole
-    a=$2
-    c=$3
+    if [ "$#" == 1 ]
+    then
+	## eccetta come parametro il pezzo di codice "eval...packed..."
+	packed_args "$1"
+	p=$(sed -r 's@(.+)@\U\1@g' <<< "$code_p") ## <-- va convertito con base36, quindi servono le lettere maiuscole
+	a="$code_a"
+	c="$code_c"
 
-    IFS="|"
-    k=( $4 )
-    unset IFS
+	IFS="|"
+	k=( "$code_k" )
+	unset IFS
 
-    e=$5 #non esiste
-    d=$6 #non esiste
+    else
+	p=$(sed -r 's@(.+)@\U\1@g' <<< "$1") ## <-- va convertito con base36, quindi servono le lettere maiuscole
+	a=$2
+	c=$3
+
+	IFS="|"
+	k=( $4 )
+	unset IFS
+
+	e=$5 #non esiste
+	d=$6 #non esiste
+    fi
 
     while [ "$c" != 0 ]
     do

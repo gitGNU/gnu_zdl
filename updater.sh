@@ -217,8 +217,10 @@ ESTENSIONI:
 	    fi
 	done
     fi    
-    
-    ## Cygwin: dipendenze
+
+    ## DIPENDENZE
+    #
+    ## Cygwin:
 
     if [ -e /cygdrive ]
     then
@@ -291,13 +293,23 @@ Installazione di FFMpeg
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install openssl
 	fi
-
+	
 	apt-cyg install bash-completion
 
-    elif ! command -v pinfo &>/dev/null
-    then
-	print_c 1 "Installazione di pinfo"
-	try apt-get -qq -y install pinfo &>/dev/null
+	
+	## GNU/LINUX
+    else
+	if ! command -v pinfo &>/dev/null 
+	then
+	    print_c 1 "Installazione di pinfo"
+	    try apt-get -qq -y install pinfo &>/dev/null
+	fi
+
+	if ! command -v node &>/dev/null 
+	then
+	    print_c 1 "Installazione di Nodejs"
+	    try apt-get -qq -y install nodejs &>/dev/null
+	fi
     fi
 
     print_c 1 "$op automatic${suffix} completat${suffix}"

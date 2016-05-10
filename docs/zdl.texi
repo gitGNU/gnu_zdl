@@ -913,6 +913,13 @@ Funzione @kbd{M-x zdl} autoinstallata
 
 @end table
 
+@unnumberedsubsec Dipendenze: 
+@table @emph
+@item Nodejs
+Motore Javascript per l'acquisizione di informazioni dal web
+
+@end table
+
 @unnumberedsubsec Dipendenze per Windows: 
 @table @emph
 @item Cygwin (x86 32-bit)
