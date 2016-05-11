@@ -63,9 +63,9 @@ function update_updater {
 	remote_version=0
     
     local_version=$(cat "$path_conf/version")
-    [[ ! "$local_version" =~ ^([0-9]+)$ ]] &&
-	local_version=0
-    echo "$local_version<$remote_version "
+    [[ ! "$local_version" =~ ^(-1|[0-9]+)$ ]] &&
+	local_version='-1'
+
     if (( $local_version<$remote_version ))
     then
 	#### aggiornamento versione da URL_ROOT
@@ -542,7 +542,7 @@ then
 	       [ "${args[i]}" == '-f' ]
 	then
 	    unset args[i]
-	    rm -f "$path_conf/version"
+	    echo '-1' >"$path_conf/version"
 	fi
     done
     for ((i=0; i<=$max_args; i++))
@@ -554,6 +554,7 @@ then
 	    update_updater
 	fi
     done
+    
 elif [ "$autoupdate" == "enabled" ] &&
 	 [ "${args[*]}" == "${args[*]//--interactive}" ] &&
 	 [ "${args[*]}" == "${args[*]//-i}" ]
@@ -564,7 +565,7 @@ then
 	       [ "${args[i]}" == '-f' ]
 	then
 	    unset args[i]
-	    rm "$path_conf/version"
+	    echo '-1' >"$path_conf/version"
 	fi
     done
     update_updater
