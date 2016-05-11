@@ -139,23 +139,7 @@ function sanitize_url {
 }
 
 function sanitize_file_in {
-    local ext
-    local title
-    local length
-
-    if ! dler_type "no-check-ext" "$url_in"
-    then
-	ext0=$(grep -o '\.'"${file_in##*.}" $path_usr/mimetypes.txt)
-	file_in="${file_in%$ext0}"
-    fi
-    
-    ## elimina doppione nel nome del file generato da youtube-dl
-    if (( $(( ${#file_in}%2 ))==1 ))
-    then
-	length=$(( (${#file_in}-1)/2 ))
-	[ "${file_in:0:$length}" == "${file_in:$(( $length+1 )):$length}" ] &&
-	    file_in="${file_in:0:$length}"
-    fi
+    local ext ext0
     
     file_in="${file_in## }"
     file_in="${file_in%% }"

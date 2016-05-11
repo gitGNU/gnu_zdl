@@ -59,8 +59,19 @@ then
     then
 	file_in="$(tail -n1 <<< "$data")"
 	file_in="${file_in% _ *}"
+
+	ext0=$(grep -o '^\.'"${file_in##*.}" $path_usr/mimetypes.txt | head -n1)
+	file_in="${file_in%$ext0}"
+
+	## elimina doppione nel nome del file
+	if (( $(( ${#file_in}%2 ))==1 ))
+	then
+	    length=$(( (${#file_in}-1)/2 ))
+	    [ "${file_in:0:$length}" == "${file_in:$(( $length+1 )):$length}" ] &&
+		file_in="${file_in:0:$length}"
+	fi
     fi
-    
+
     url_in_file="$(tail -n2 <<< "$data" | head -n1)"
 
     if ! url "$url_in_file"

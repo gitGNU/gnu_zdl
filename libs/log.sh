@@ -88,7 +88,7 @@ function _log {
 	    links_loop - "$url_in"
 	    ;;
 	12)
-	    msg="$url_in --> Non è un URL adatto per $name_prog"
+	    msg="$url_in --> Non è un URL adatto per $name_prog\n"
 	    ;;
 	13)
 	    msg="$url_in --> Il file$msg_file_in non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
