@@ -42,8 +42,7 @@ then
 
     if [ -n "$html" ]
     then
-	url_in_file=$($nodejs -e "$(grep eval <<< "$html" |
-			     sed -r 's/eval/console.log/g')" |
+	url_in_file=$($nodejs -e "$(grep eval <<< "$html" | sed -r 's/eval/console.log/g')" |
 			     sed -r 's|.+src\",\"([^"]+)\".+|\1|g')
 	file_in=$(grep '<title>' <<< "$html" |
 			 sed -r 's|[^>]+>([^<]+)<.+|\1|g')

@@ -44,16 +44,9 @@ source $path_usr/libs/log.sh
 
 
 function update_updater {
-    URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
+    ## "...-mirror..." è quello principale (veloce)
+    URL_ROOT="http://download-mirror.savannah.gnu.org/releases/zdl/"
     header_box "Aggiornamento automatico di $name_prog"
-
-    mkdir -p "$path_tmp"
-    cd "$path_tmp"
-    rm -fr *.gz *.sig "$prog" 2>/dev/null
-    print_c 1 "Download in corso: attendere..."
-    ## wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q 2>/dev/null
-    cd ..
-    ## directory di download
 
     [ ! -f $path_conf/version ] &&
 	echo "0" >"$path_conf/version"
@@ -69,17 +62,20 @@ function update_updater {
     if (( $local_version<$remote_version ))
     then
 	#### aggiornamento versione da URL_ROOT
-	# echo "$remote_version" >$path_conf/version
-	#
-	#### aggiornamento versione dal repo GIT (attuale download)
-	date +%s >"$path_conf/version"
-	
-	cd "$path_tmp"
-######## tarball dal mirror (aggiornamento lento):
-##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q 2>/dev/null
+	echo "$remote_version" >$path_conf/version
 
-######## tarball dal repository git (aggiornamento rapido: disponibile subito con -u --force):
-	wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q 
+	mkdir -p "$path_tmp"
+	cd "$path_tmp"
+	rm -fr *.gz *.sig "$prog" 2>/dev/null
+	
+	print_c 1 "Download in corso: attendere..."
+	
+	#### dal repo git: 
+	# wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q
+	#
+	#### dal mirror principale (veloce):
+	wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q 
+
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
@@ -106,7 +102,7 @@ do
     [ "${tags[i]}" == "TTY" ] && ps_ax_tty="\$$j"
 done
 
-## è una pipe?
+#### è una pipe?
 # stdin="$(ls -l /dev/fd/0)"
 # stdin="${stdin/*-> /}"
 # if [ "${stdin}" != "${stdin//'pipe:['}" ]
@@ -114,6 +110,7 @@ if [ -p /dev/fd/0 ]
 then    
     pipe=$(cat /dev/fd/0)
     exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
+
     for pipezed in $pipe
     do
 	args[${#args[*]}]="$pipezed"
