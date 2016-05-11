@@ -51,18 +51,29 @@ function update_updater {
     cd "$path_tmp"
     rm -fr *.gz *.sig "$prog" 2>/dev/null
     print_c 1 "Download in corso: attendere..."
-    wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q 2>/dev/null
+    ## wget "$URL_ROOT" -r -l 1 -A sig -np -nd -q 2>/dev/null
     cd ..
-    if [ -f "$path_conf"/zdl.sig ]
-    then
-	test_version=$(diff "$path_conf"/zdl.sig "$path_tmp"/*.sig )
-    fi
+    ## directory di download
 
-    if [ -z "$test_version" ] &&
-	   [ -f "$path_conf"/zdl.sig ]
+    [ ! -f $path_conf/version ] &&
+	echo 0 >"$path_conf/version"
+    
+    remote_version=$(wget -qO- "${URL_ROOT}version")
+    [[ ! "$remote_version" =~ ^([0-9]+)$ ]] &&
+	remote_version=0
+    
+    local_version=$(cat "$path_conf/version")
+    [[ ! "$local_version" =~ ^([0-9]+)$ ]] &&
+	local_version=0
+
+    if (( $local_version<$remote_version ))
     then
-	print_c 1 "$PROG è già alla versione più recente"
-    else
+	#### aggiornamento versione da URL_ROOT
+	# echo "$remote_version" >$path_conf/version
+	#
+	#### aggiornamento versione dal repo GIT (attuale download)
+	date +%s >"$path_conf/version"
+	
 	cd "$path_tmp"
 ######## tarball dal mirror (aggiornamento lento):
 ##	wget "$URL_ROOT" -r -l 1 -A gz,txt -np -nd -q 2>/dev/null
@@ -78,6 +89,9 @@ function update_updater {
 
 	source updater.sh
 	update
+
+    else
+	print_c 1 "$PROG è già alla versione più recente"
     fi
 }
 
@@ -528,7 +542,7 @@ then
 	       [ "${args[i]}" == '-f' ]
 	then
 	    unset args[i]
-	    rm -f "$path_conf"/*.sig
+	    rm -f "$path_conf/version"
 	fi
     done
     for ((i=0; i<=$max_args; i++))
@@ -550,7 +564,7 @@ then
 	       [ "${args[i]}" == '-f' ]
 	then
 	    unset args[i]
-	    rm "$path_conf"/*.sig
+	    rm "$path_conf/version"
 	fi
     done
     update_updater

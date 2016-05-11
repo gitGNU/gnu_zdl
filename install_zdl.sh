@@ -313,7 +313,9 @@ fi
 
 wget "$URL_ROOT" -r -l 1 -A sig,txt -np -nd -q
 wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q 
-cp *.sig "$path_conf"/zdl.sig
+cp *.sig "$path_conf/zdl.sig"
+
+date +%s >"$path_conf/version"
 
 package=$(ls *.tar.gz)
 tar -xzf "$package"
