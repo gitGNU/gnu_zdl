@@ -87,7 +87,7 @@ function update_updater {
 	update
 
     else
-	print_c 1 "$PROG è già alla versione più recente"
+	print_c 1 "$PROG è già alla versione più recente\n"
     fi
 }
 
