@@ -80,7 +80,8 @@ sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
 
 if [ -d /cygdrive ] &&
-       ! command -v node &>/dev/null
+       ! command -v node &>/dev/null &&
+       [ -f "/usr/local/share/zdl/node.exe" ]
 then
     chmod 777 /usr/local/share/zdl/node.exe
     nodejs="/usr/local/share/zdl/node.exe"
