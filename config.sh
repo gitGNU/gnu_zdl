@@ -79,6 +79,8 @@ max_waiting=40
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
 
+init_colors
+
 if [ -d /cygdrive ] &&
        ! command -v node &>/dev/null &&
        [ -f "/usr/local/share/zdl/node.exe" ]
@@ -91,11 +93,12 @@ then
     nodejs=nodejs
 
 else
+    print_c 4 "${name_prog}:"
     print_c 3 "Manca una dipendenza (necessaria per alcune estensioni dei servizi): nodejs"
+    pause
 fi
 
-init_colors
-
+## functions
 
 function set_default_conf {
     mkdir -p "$path_conf"
