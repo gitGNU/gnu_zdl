@@ -155,6 +155,11 @@ function e {
     
 }
 
+function packedjs {
+    html="$1"
+    $nodejs -e "$(grep eval <<< "$html" | sed -r 's/eval/console.log/g')" 
+}
+
 function packed {
     if [ "$#" == 1 ]
     then
