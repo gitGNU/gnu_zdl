@@ -321,7 +321,7 @@ Installazione di FFMpeg
 	    try apt-get -qq -y install pinfo &>/dev/null
 	fi
 
-	if ! command -v node &>/dev/null 
+	if ! command -v nodejs &>/dev/null 
 	then
 	    print_c 1 "Installazione di Nodejs"
 	    try apt-get -qq -y install nodejs &>/dev/null

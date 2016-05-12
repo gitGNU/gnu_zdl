@@ -86,8 +86,12 @@ then
     chmod 777 /usr/local/share/zdl/node.exe
     nodejs="/usr/local/share/zdl/node.exe"
 
+elif command -v nodejs &>/dev/null
+then
+    nodejs=nodejs
+
 else
-    nodejs=node
+    print_c 3 "Manca una dipendenza (necessaria per alcune estensioni dei servizi): nodejs"
 fi
 
 init_colors
