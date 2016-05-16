@@ -143,21 +143,9 @@ function base36 {
     done
 }
 
-function e {
-    if (( $code_c<$code_a ))
-    then
-	result=$(e $(($code_c/$code_a)) )
-
-    else
-	result=0
-    fi
-
-    
-}
-
-function packedjs {
+function unpack {
     html="$1"
-    $nodejs -e "$(grep eval <<< "$html" | sed -r 's/eval/console.log/g')" 
+    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$html" | sed -r 's|eval||g')" 
 }
 
 function packed {

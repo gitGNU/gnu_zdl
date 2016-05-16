@@ -42,8 +42,7 @@ then
 
     if [ -n "$html" ]
     then
-	## function packedjs{}: ../libs/extension_utils.sh
-	url_in_file=$(packedjs "$html" |
+	url_in_file=$(unpack "$html" |
 			     sed -r 's|.+src\",\"([^"]+)\".+|\1|g')
 	file_in=$(grep '<title>' <<< "$html" |
 			 sed -r 's|[^>]+>([^<]+)<.+|\1|g')

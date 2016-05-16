@@ -58,19 +58,54 @@ user_lang="$LANG"
 user_language="$LANGUAGE"
 prog_lang='en_US.UTF-8:en'
 
-newip_providers=( rockfile uptobox mediafire easybytez uload glumbouploads billionuploads )
+newip_providers=(
+    rockfile
+    uptobox
+    mediafire
+    easybytez
+    uload
+    glumbouploads
+    billionuploads
+)
 
-rtmp_links=( zinwa\. streamin\. vidhappy\. videopremium\. )
-wget_links=( dailymotion\/cdn dmcdn\.net uploaded\. easybytez\. rapidgator\. videowood\. uploadable\. nitroflare\. rai\.tv )
+rtmp_links=(
+    zinwa\.
+    streamin\.
+    vidhappy\.
+    videopremium\.
+)
+
+wget_links=(
+    dailymotion\/cdn
+    dmcdn\.net
+    uploaded\.
+    easybytez\.
+    rapidgator\.
+    videowood\.
+    uploadable\.
+    nitroflare\.
+    rai\.tv
+    videomega\.
+)
 
 #youtubedl_links=( rai\.tv )
 
-noresume_links=( uploadable\. rapidgator\. uploaded\. )
+noresume_links=(
+    uploadable\.
+    rapidgator\.
+    uploaded\.
+)
 
-no_check_links=( nowdownload\. )
+no_check_links=(
+    nowdownload\.
+)
 #no_check_links=( tusfiles\. nowdownload\. )
 
-no_check_ext=( easybytez\. tusfiles\. 'mega.(co|nz)' )
+no_check_ext=(
+    easybytez\.
+    tusfiles\.
+    'mega.(co|nz)'
+)
 
 ## massima durata tentativi di connessione (Wget)
 max_waiting=40
@@ -91,7 +126,7 @@ then
 elif command -v nodejs &>/dev/null
 then
     nodejs=nodejs
-
+    evaljs=$path_usr/libs/eval.js
 else
     print_c 4 "${name_prog}:"
     print_c 3 "Manca una dipendenza (necessaria per alcune estensioni dei servizi): nodejs"
