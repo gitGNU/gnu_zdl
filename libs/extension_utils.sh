@@ -144,8 +144,7 @@ function base36 {
 }
 
 function unpack {
-    html="$1"
-    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$html" | sed -r 's|eval||g')" 
+    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|eval||g')" 
 }
 
 function packed {
