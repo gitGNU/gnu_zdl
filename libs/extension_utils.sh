@@ -156,7 +156,7 @@ function aaextract {
 }
 
 function unpack {
-    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|eval||g')" 
+    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')" 
 }
 
 function packed {

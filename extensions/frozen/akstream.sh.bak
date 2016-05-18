@@ -1,0 +1,74 @@
+#!/bin/bash -i 
+#
+# ZigzagDownLoader (ZDL)
+# 
+# This program is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published 
+# by the Free Software Foundation; either version 3 of the License, 
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License 
+# along with this program. If not, see http://www.gnu.org/licenses/. 
+# 
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
+# 
+# For information or to collaborate on the project:
+# https://savannah.nongnu.org/projects/zdl
+# 
+# Gianluca Zoni (author)
+# http://inventati.org/zoninoz
+# zoninoz@inventati.org
+#
+
+## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: Akstream
+
+
+
+if [[ "$url_in" =~ (akstream\.video\/) ]]
+then
+    html=$(wget -t1 -T$max_waiting                      \
+		"$url_in"                               \
+		--keep-session-cookies                  \
+		--save-cookies="$path_tmp/cookies.zdl"  \
+		--user-agent="$user_agent"              \
+		-qO-)
+
+    input_hidden "$html"
+    
+    submit=$(grep -P 'submit.+tmr' <<< "$html" |
+		    sed -r 's|.+value=\"([^"]+)\".+|\1|g')
+
+    post_data="${post_data}&${submit// /%20}"
+
+    countdown- 10
+    
+    html=$(wget "http://akstream.video/viewvideo.php"       \
+    		--keep-session-cookies                      \
+    		--save-cookies="$path_tmp/cookies.zdl"      \
+    		--load-cookies="$path_tmp/cookies.zdl"      \
+    		--post-data="$post_data"     \
+    		-qO-)
+    echo -e "$html" > html2
+    sleep 1
+
+    ## cloudflare?
+    # wget "/${post_data#*=}" \
+    # 		-SO- \
+    # 		--post-data="$post_data"                    \
+    # 		--load-cookies="$path_tmp/cookies.zdl" &>html2
+    
+    # echo -e "$html" > html3
+    # grep source <<< "$html3"
+    
+    if ! url "$url_in_file" ||
+	    [ -z "$file_in" ]
+    then
+	_log 2
+    fi
+fi

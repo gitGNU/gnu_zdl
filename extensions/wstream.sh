@@ -24,29 +24,31 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: shortlinks
-## zdl-extension name: swzz.xyz
+## ZDL add-on
+## zdl-extension types: streaming
+## zdl-extension name: WStream
 
-if [ "$url_in" != "${url_in//swzz.xyz}" ]
+
+if [ "$url_in" != "${url_in//wstream.}" ]
 then
-    if wget -q --spider "$url_in"
-    then
-	html=$(wget -qO- "$url_in")
+    html=$(wget -t1 -T$max_waiting              \
+		"$url_in"                       \
+		--user-agent="$user_agent"      \
+		-qO-)
 
-	if [ -z "$(grep 'var link =' <<< "$html")" ]
-	then	
-	    packed_args "$(grep eval <<< "$html")"
-	    html=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
-	fi
-	
-	url_in_new=$(grep -P 'var link\s*=' <<< "$html" |
-			    sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-	url_in_new=$(sanitize_url "${url_in_new}")
-	
-	replace_url_in "$url_in_new" ||
-	    _log 2
-	
-    else
-	_log 3
+    input_hidden "$html"
+    countdown- 10
+
+    html=$(wget "$url_in"                       \
+		--post-data="$post_data"        \
+		-qO-)
+
+    url_in_file=$(unpack "$html" |
+			 sed -r 's|.+file:\"([^"]+)\".+|\1|g')
+    
+    if ! url "$url_in_file" ||
+	    [ -z "$file_in" ]
+    then
+	_log 2
     fi
 fi
