@@ -399,13 +399,13 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Backin, Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo
-     (HD), Metacafe, Movshare, Neodrive (ex Cloudzilla), Nowvideo,
-     Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Rocvideo,
-     Sockshare (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tutti
-     i video in streaming di tipo .m3u8, Tvdigit.it, Vidce, Videomega,
-     Videowood, Vidhappy (RTMP), Vidto, Vimeo (HD), VK (HD), WStream,
-     Youtube, Zinwa (RTMP) 
+     Backin, Dailymotion, Exashare, Fastvideo, Flashx.tv, IDoWatch,
+     Junkyvideo (HD), Metacafe, Movshare, Neodrive (ex Cloudzilla),
+     Nowvideo, Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo,
+     Rocvideo, Sockshare (HD), Speedvideo (HD), Streamin (RTMP),
+     Thevideo, Tutti i video in streaming di tipo .m3u8, Tvdigit.it,
+     Vidce, Videomega, Videowood, Vidhappy (RTMP), Vidto, Vimeo (HD),
+     VK (HD), WStream, Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Cyberlocker, Easybytez, Glumbouploads, Go4Up
@@ -1198,23 +1198,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14608
-Node: Arrestare ZDL17046
-Node: Controllare i download18151
-Node: Manuali d'uso22439
-Node: Modi22855
-Node: Readline26121
-Node: Editor27641
-Node: Omonimie28866
-Node: Filtri30399
-Node: Creare nuove estensioni30721
-Node: Software consigliati32290
-Node: Conkeror33640
-Node: zdl-xterm e XXXTerm/Xombrero34651
-Node: Installazione e aggiornamento36575
-Node: Tags39589
-Node: Copying42317
-Node: Contatti43367
+Node: Avviare ZDL14618
+Node: Arrestare ZDL17056
+Node: Controllare i download18161
+Node: Manuali d'uso22449
+Node: Modi22865
+Node: Readline26131
+Node: Editor27651
+Node: Omonimie28876
+Node: Filtri30409
+Node: Creare nuove estensioni30731
+Node: Software consigliati32300
+Node: Conkeror33650
+Node: zdl-xterm e XXXTerm/Xombrero34661
+Node: Installazione e aggiornamento36585
+Node: Tags39599
+Node: Copying42327
+Node: Contatti43377
 
 End Tag Table
 

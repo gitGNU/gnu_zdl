@@ -85,6 +85,7 @@ wget_links=(
     nitroflare\.
     rai\.tv
     videomega\.
+    idowatch\.
 )
 
 #youtubedl_links=( rai\.tv )
