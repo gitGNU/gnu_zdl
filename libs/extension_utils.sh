@@ -144,7 +144,7 @@ function base36 {
 }
 
 function aaextract {
-    ## php-aaencode (aa[en|de]code)
+    ## php-aaencoder (also decoder)
     echo "window = this;" >"$path_tmp/encoded.js"
     grep '\^' <<< "$1" |
 	sed -r 's|<\/script>||g' >>"$path_tmp/encoded.js"
