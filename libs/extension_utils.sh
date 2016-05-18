@@ -144,13 +144,15 @@ function base36 {
 }
 
 function aaextract {
-    ## php-aaencoder (also decoder)
-    echo "window = this;" >"$path_tmp/encoded.js"
-    grep '\^' <<< "$1" |
-	sed -r 's|<\/script>||g' >>"$path_tmp/encoded.js"
-    echo -e 'for(var index in window){console.log(window[index]);}' >>"$path_tmp/encoded.js"
+    ## php-aaencoder
 
-    $nodejs "$path_tmp/encoded.js"
+    encoded="window = this;"
+    encoded+=$(grep '\^' <<< "$1" |
+		      sed -r 's|<\/script>||g') 
+
+    encoded+='for(var index in window){window[index];}'
+
+    $nodejs $evaljs "$encoded"
 }
 
 function unpack {
