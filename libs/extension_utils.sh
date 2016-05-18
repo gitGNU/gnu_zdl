@@ -143,6 +143,16 @@ function base36 {
     done
 }
 
+function aaextract {
+    ## php-aaencode (aa[en|de]code)
+    echo "window = this;" >"$path_tmp/encoded.js"
+    grep '\^' <<< "$1" |
+	sed -r 's|<\/script>||g' >>"$path_tmp/encoded.js"
+    echo -e 'for(var index in window){console.log(window[index]);}' >>"$path_tmp/encoded.js"
+
+    $nodejs "$path_tmp/encoded.js"
+}
+
 function unpack {
     $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|eval||g')" 
 }

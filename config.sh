@@ -81,7 +81,6 @@ wget_links=(
     uploaded\.
     easybytez\.
     rapidgator\.
-    videowood\.
     uploadable\.
     nitroflare\.
     rai\.tv
