@@ -399,8 +399,8 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo (HD),
-     Metacafe, Movshare, Neodrive (ex Cloudzilla), Nowvideo,
+     Backin, Dailymotion, Exashare, Fastvideo, Flashx.tv, Junkyvideo
+     (HD), Metacafe, Movshare, Neodrive (ex Cloudzilla), Nowvideo,
      Portalevideo.unimi.it, Putstream, Rai.tv, Rapidvideo, Rocvideo,
      Sockshare (HD), Speedvideo (HD), Streamin (RTMP), Thevideo, Tutti
      i video in streaming di tipo .m3u8, Tvdigit.it, Vidce, Videomega,
@@ -1198,23 +1198,23 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5454
 Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14591
-Node: Arrestare ZDL17029
-Node: Controllare i download18134
-Node: Manuali d'uso22422
-Node: Modi22838
-Node: Readline26104
-Node: Editor27624
-Node: Omonimie28849
-Node: Filtri30382
-Node: Creare nuove estensioni30704
-Node: Software consigliati32273
-Node: Conkeror33623
-Node: zdl-xterm e XXXTerm/Xombrero34634
-Node: Installazione e aggiornamento36558
-Node: Tags39572
-Node: Copying42300
-Node: Contatti43350
+Node: Avviare ZDL14599
+Node: Arrestare ZDL17037
+Node: Controllare i download18142
+Node: Manuali d'uso22430
+Node: Modi22846
+Node: Readline26112
+Node: Editor27632
+Node: Omonimie28857
+Node: Filtri30390
+Node: Creare nuove estensioni30712
+Node: Software consigliati32281
+Node: Conkeror33631
+Node: zdl-xterm e XXXTerm/Xombrero34642
+Node: Installazione e aggiornamento36566
+Node: Tags39580
+Node: Copying42308
+Node: Contatti43358
 
 End Tag Table
 
