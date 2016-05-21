@@ -318,15 +318,20 @@ Installazione di FFMpeg
 	    fi
 	fi
 
-	apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	if ! command -v php &>/dev/null
+	then
+	    apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install php
+	fi
+	# apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 
-	for pack in php # php-json php-phar php-iconv
-	do
-	    if ! command -v "$pack" &>/dev/null
-	    then
-		apt-cyg install "$pack"
-	    fi
-	done
+	# for pack in php php-json php-phar php-iconv
+	# do
+	#     if ! command -v "$pack" &>/dev/null
+	#     then
+	# 	apt-cyg install "$pack"
+	#     fi
+	# done
 	
 	# if ! command -v composer &>/dev/null
 	# then
