@@ -127,10 +127,6 @@ elif command -v nodejs &>/dev/null
 then
     nodejs=nodejs
     evaljs=$path_usr/libs/eval.js
-else
-    print_c 4 "${name_prog}:"
-    print_c 3 "Manca una dipendenza (necessaria per alcune estensioni dei servizi): nodejs"
-    pause
 fi
 
 ## functions

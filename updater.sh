@@ -323,8 +323,11 @@ Installazione di FFMpeg
 	    apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install php
 	fi
-	# apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 
+	## per installare COMPOSER (installatore di pacchetti php: vedi funzione in alto) 
+	#
+	# apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	#
 	# for pack in php php-json php-phar php-iconv
 	# do
 	#     if ! command -v "$pack" &>/dev/null
@@ -332,7 +335,7 @@ Installazione di FFMpeg
 	# 	apt-cyg install "$pack"
 	#     fi
 	# done
-	
+	#
 	# if ! command -v composer &>/dev/null
 	# then
 	#     install_phpcomposer

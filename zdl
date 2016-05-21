@@ -91,6 +91,13 @@ function update_updater {
     fi
 }
 
+## controllo dipendenze (da implementare)
+if [ -z "$nodejs" ]
+then
+    print_c 4 "${name_prog}:"
+    print_c 3 "Manca una dipendenza (necessaria per alcune estensioni dei servizi): nodejs"
+    pause
+fi
 
 args=( "$@" )
 
