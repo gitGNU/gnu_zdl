@@ -36,19 +36,25 @@ then
 		--user-agent="$user_agent"      \
 		-qO-)
 
-    input_hidden "$html"
-    countdown- 10
-
-    html=$(wget "$url_in"                       \
-		--post-data="$post_data"        \
-		-qO-)
-
-    url_in_file=$(unpack "$html" |
-			 sed -r 's|.+file:\"([^"]+)\".+|\1|g')
-    
-    if ! url "$url_in_file" ||
-	    [ -z "$file_in" ]
+    if [[ "$html" =~ (File Not Found) ]]
     then
-	_log 2
+	_log 3
+
+    else
+	input_hidden "$html"
+	countdown- 10
+	
+	html=$(wget "$url_in"                       \
+		    --post-data="$post_data"        \
+		    -qO-)
+	
+	url_in_file=$(unpack "$html" |
+			     sed -r 's|.+file:\"([^"]+)\".+|\1|g')
+	
+	if ! url "$url_in_file" ||
+		[ -z "$file_in" ]
+	then
+	    _log 2
+	fi
     fi
 fi
