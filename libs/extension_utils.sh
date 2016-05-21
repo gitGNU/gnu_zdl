@@ -143,71 +143,6 @@ function base36 {
     done
 }
 
-function aaextract {
-    ## php-aaencoder
-
-    encoded="window = this;"
-    encoded+=$(grep '\^' <<< "$1" |
-		      sed -r 's|<\/script>||g') 
-
-    encoded+='for(var index in window){window[index];}'
-
-    $nodejs $evaljs "$encoded"
-}
-
-function unpack {
-    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')" 
-}
-
-function packed {
-    if [ "$#" == 1 ]
-    then
-	## eccetta come parametro il pezzo di codice "eval...packed..."
-	packed_args "$1"
-	p=$(sed -r 's@(.+)@\U\1@g' <<< "$code_p") ## <-- va convertito con base36, quindi servono le lettere maiuscole
-	a="$code_a"
-	c="$code_c"
-
-	IFS="|"
-	k=( "$code_k" )
-	unset IFS
-
-    else
-	p=$(sed -r 's@(.+)@\U\1@g' <<< "$1") ## <-- va convertito con base36, quindi servono le lettere maiuscole
-	a=$2
-	c=$3
-
-	IFS="|"
-	k=( $4 )
-	unset IFS
-
-	e=$5 #non esiste
-	d=$6 #non esiste
-    fi
-
-    while [ "$c" != 0 ]
-    do
-	 (( c-- ))
-	 int=$(base36 $c)
-	 if [ -n "${k[$c]}" ] &&
-		[ "${k[$c]}" != 0 ]
-	 then
-	     p=$(sed "s@\\b$int\\b@${k[$c]}@g" <<< "$p")
-	     unset int
-	 fi
-    done
-    echo "$p"
-}
-
-function packed_args {
-    code="${1#*\}\(\'}"
-    code="${code%%\'.split*}"
-    code_p=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\1@g" <<< "$code") 
-    code_a=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\2@g" <<< "$code") 
-    code_c=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\3@g" <<< "$code") 
-    code_k=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\4@g" <<< "$code") 
-}
-
 function countdown+ {
     max=$1
     print_c 2 "Attendi $max secondi:"
@@ -474,4 +409,85 @@ function replace_url_in {
     else
 	return 1
     fi
+}
+
+function php_aadecode {
+    php $path_usr/libs/aadecoder.php "$1"
+}
+
+function aaextract {
+    ## php-aaencoder
+
+    encoded="window = this;"
+    encoded+=$(grep '\^' <<< "$1" |
+		      sed -r 's|<\/script>||g') 
+
+    encoded+='for(var index in window){window[index];}'
+
+    $nodejs $evaljs "$encoded"
+}
+
+function nodejs_eval {
+    if [ -f "$1" ]
+    then
+	jscode="$(cat "$1")"
+
+    else
+	jscode="$1"
+    fi
+    
+    $nodejs $evaljs "$1"
+}
+
+function unpack {
+    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')" 
+}
+
+function packed {
+    if [ "$#" == 1 ]
+    then
+	## eccetta come parametro il pezzo di codice "eval...packed..."
+	packed_args "$1"
+	p=$(sed -r 's@(.+)@\U\1@g' <<< "$code_p") ## <-- va convertito con base36, quindi servono le lettere maiuscole
+	a="$code_a"
+	c="$code_c"
+
+	IFS="|"
+	k=( "$code_k" )
+	unset IFS
+
+    else
+	p=$(sed -r 's@(.+)@\U\1@g' <<< "$1") ## <-- va convertito con base36, quindi servono le lettere maiuscole
+	a=$2
+	c=$3
+
+	IFS="|"
+	k=( $4 )
+	unset IFS
+
+	e=$5 #non esiste
+	d=$6 #non esiste
+    fi
+
+    while [ "$c" != 0 ]
+    do
+	 (( c-- ))
+	 int=$(base36 $c)
+	 if [ -n "${k[$c]}" ] &&
+		[ "${k[$c]}" != 0 ]
+	 then
+	     p=$(sed "s@\\b$int\\b@${k[$c]}@g" <<< "$p")
+	     unset int
+	 fi
+    done
+    echo "$p"
+}
+
+function packed_args {
+    code="${1#*\}\(\'}"
+    code="${code%%\'.split*}"
+    code_p=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\1@g" <<< "$code") 
+    code_a=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\2@g" <<< "$code") 
+    code_c=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\3@g" <<< "$code") 
+    code_k=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\4@g" <<< "$code") 
 }

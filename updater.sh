@@ -40,6 +40,14 @@ function install_axel-cygwin {
 
 ##############
 
+function install_phpcomposer {
+    cd /tmp
+    try php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    try php -r "if (hash_file('SHA384', 'composer-setup.php') === '92102166af5abdb03f49ce52a40591073a7b859a86e8ff13338cf7db58a19f7844fbc0bb79b2773bf30791e935dbd938') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    try php composer-setup.php --install-dir=/usr/local/bin/ --filename=composer
+    try php -r "unlink('composer-setup.php');"
+    cd -
+}
 
 function update_zdl-wise {
     if [ ! -e "/cygdrive" ]
@@ -310,7 +318,22 @@ Installazione di FFMpeg
 	    fi
 	fi
 
-	apt-cyg install bash-completion
+	apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+
+	for pack in php # php-json php-phar php-iconv
+	do
+	    if ! command -v "$pack" &>/dev/null
+	    then
+		apt-cyg install "$pack"
+	    fi
+	done
+	
+	# if ! command -v composer &>/dev/null
+	# then
+	#     install_phpcomposer
+	# fi
+
+	apt-cyg install bash-completion 2>/dev/null
 
 	
 	## GNU/LINUX
@@ -325,6 +348,12 @@ Installazione di FFMpeg
 	then
 	    print_c 1 "Installazione di Nodejs"
 	    try apt-get -qq -y install nodejs &>/dev/null
+	fi
+
+	if ! command -v php &>/dev/null 
+	then
+	    print_c 1 "Installazione di php5-cli"
+	    try apt-get -qq -y install php5-cli &>/dev/null
 	fi
     fi
 
