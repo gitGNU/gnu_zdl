@@ -126,8 +126,9 @@ then
 elif command -v nodejs &>/dev/null
 then
     nodejs=nodejs
-    evaljs=$path_usr/libs/eval.js
 fi
+
+evaljs=$path_usr/libs/eval.js
 
 ## functions
 
