@@ -456,7 +456,7 @@ function unpack {
     
     if [ -d /cygdrive ]
     then
-	$nodejs -e "console.log($jscode)"
+	$nodejs -e "console.log$jscode"
 	
     else
 	$nodejs $evaljs "$jscode"
