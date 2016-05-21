@@ -320,7 +320,7 @@ Installazione di FFMpeg
 
 	if ! command -v php &>/dev/null
 	then
-	    apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
 	    apt-cyg install php
 	fi
 
