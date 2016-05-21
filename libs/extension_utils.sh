@@ -452,7 +452,8 @@ function nodejs_eval {
 }
 
 function unpack {
-    jscode="$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')"
+    jscode=$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | 
+		    sed -r 's|.*eval||g')
     
     if [ -d /cygdrive ]
     then
