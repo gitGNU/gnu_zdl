@@ -416,7 +416,7 @@ function php_aadecode {
 }
 
 function aaextract {
-    ## php-aaencoder
+    ## codificato con php-aaencoder, ma non lo usiamo per decodificarlo
 
     encoded="window = this;"
     encoded+=$(grep '\^' <<< "$1" |
@@ -424,7 +424,13 @@ function aaextract {
 
     encoded+='for(var index in window){window[index];}'
 
-    $nodejs $evaljs "$encoded"
+    if [ -d /cygdrive ]
+    then
+	$nodejs -e "console.log($encoded)"
+
+    else
+	$nodejs $evaljs "$encoded"
+    fi
 }
 
 function nodejs_eval {
@@ -435,12 +441,26 @@ function nodejs_eval {
     else
 	jscode="$1"
     fi
-    
-    $nodejs $evaljs "$1"
+
+    if [ -d /cygdrive ]
+    then
+	$nodejs -e "console.log($jscode)"
+	
+    else
+	$nodejs $evaljs "var a = $jscode; a"
+    fi
 }
 
 function unpack {
-    $nodejs $evaljs "$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')" 
+    jscode="$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | sed -r 's|.+eval||g')"
+    
+    if [ -d /cygdrive ]
+    then
+	$nodejs -e "console.log($jscode)"
+	
+    else
+	$nodejs $evaljs "$jscode"
+    fi
 }
 
 function packed {

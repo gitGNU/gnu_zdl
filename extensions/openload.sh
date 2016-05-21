@@ -51,9 +51,10 @@ then
 	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js"
 
 	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
-	sed -r 's|.+\"href\",\((.+)\)\)\;$|var a = \1;|g' -i "$path_tmp/aadecoded.js"
+	sed -r 's|.+\"href\",\((.+)\)\)\;$|\1|g' -i "$path_tmp/aadecoded.js"
 
-	url_in_file=$(nodejs_eval "$(cat "$path_tmp/aadecoded.js") a")
+	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
+	
     fi
 
     if ! url "$url_in_file" ||
