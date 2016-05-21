@@ -324,6 +324,13 @@ Installazione di FFMpeg
 	    apt-cyg install php
 	fi
 
+	## funzione necessaria per php-aaencoder: 
+	if ! php -r 'echo mb_strpos("", "")' 2>/dev/null
+	then
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install php-mbstring
+	fi
+
 	## per installare COMPOSER (installatore di pacchetti php: vedi funzione in alto) 
 	#
 	# apt-cyg apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
