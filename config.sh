@@ -126,6 +126,10 @@ then
 elif command -v nodejs &>/dev/null
 then
     nodejs=nodejs
+
+elif command -v node &>/dev/null
+then
+    nodejs=node
 fi
 
 evaljs=$path_usr/libs/eval.js
