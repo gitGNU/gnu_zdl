@@ -34,14 +34,20 @@ then
 		 --save-cookies="$path_tmp/cookies.zdl"   \
 		 --user-agent="$user_agent"               \
 		 "$url_in")
-
-    input_hidden "$html"
-    link_parser "$url_in"
-    url_in_file="${parser_proto}${parser_domain}/vidembed-${parser_path%%\/*}.mp4"
-
-    if ! url "$url_in_file" ||
-	    [ -z "$file_in" ]
+    
+    if [[ "$html" =~ (File Not Found) ]]
     then
-	_log 2
+	_log 3
+
+    else
+	input_hidden "$html"
+	link_parser "$url_in"
+	url_in_file="${parser_proto}${parser_domain}/vidembed-${parser_path%%\/*}.mp4"
+	
+	if ! url "$url_in_file" ||
+		[ -z "$file_in" ]
+	then
+	    _log 2
+	fi
     fi
 fi
