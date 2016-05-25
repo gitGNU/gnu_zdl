@@ -46,15 +46,37 @@ then
 	_log 3
 	
     else
+
+## soluzione senza lo script php-aaencoder (NON SICURA):
+#
+# 	aaencoded="
+# $ = function (id) {
+#     return {
+#         attr: function (x, y) {
+#               console.log(y);
+#         }
+#     }
+# }
+# "
+#
+#       aaencoded+=$(grep -P '\^o' <<< "$html"      |
+#       		    head -n1                |
+#	 		    sed -r 's|[^>]+>(.+)</script.+|\1|g') # >>"$path_tmp/aaencoded.js"
+#	url_in_file=(nodejs -e "$aaencoded")
+#######################
+	
+	## soluzione alternativa usando lo script php-aaencoder (SICURA: nodejs_eval)
+	#
 	grep -P '\^o' <<< "$html"   |
 	    head -n1                |
 	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js"
-
-	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
-	sed -r 's|.+\"href\",\((.+)\)\)\;$|\1|g' -i "$path_tmp/aadecoded.js"
-
-	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
 	
+	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
+
+	sed -r 's|.+\"href\",\((.+)\)\)\;$|\1|g' -i "$path_tmp/aadecoded.js"
+	
+	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
+
     fi
 
     if ! url "$url_in_file" ||

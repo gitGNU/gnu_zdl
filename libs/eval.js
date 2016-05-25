@@ -7,6 +7,6 @@ console.log(script.runInNewContext(context));
 //////// ALTERNATIVE VERSION:
 //
 // var a = process.argv.slice(2);
-// eval("var unpacked=String" + a[0]);
-// console.log(unpacked);
+// eval("var out=String" + a[0]);
+// console.log(out);
 

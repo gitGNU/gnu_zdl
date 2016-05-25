@@ -30,11 +30,12 @@
 
 if [[ "$url_in" =~ (videowood.) ]]
 then
-    if [[ ! "$url_in" =~ embed ]]
+    if [[ "$url_in" =~ embed ]]
     then
-	url_packed="${url_in//'/video/'//embed/}"
-    else
 	url_packed="${url_in}"
+
+    else
+	url_packed="${url_in//'/video/'//embed/}"	
     fi
 
     html_embed=$(wget -qO-                                   \

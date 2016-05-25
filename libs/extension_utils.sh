@@ -447,7 +447,7 @@ function nodejs_eval {
 	$nodejs -e "console.log($jscode)"
 	
     else
-	$nodejs $evaljs "var a = $jscode; a"
+	$nodejs $evaljs "($jscode)" 
     fi
 }
 
