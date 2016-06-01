@@ -33,10 +33,9 @@ then
     then
 	html=$(wget -qO- "$url_in")
 
-	if [ -z "$(grep 'var link =' <<< "$html")" ]
-	then	
-	    packed_args "$(grep eval <<< "$html")"
-	    html=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
+	if [[ ! "$html" =~ 'var link\s*=' ]]
+	then
+	    html=$(unpack "$html")
 	fi
 	
 	url_in_new=$(grep -P 'var link\s*=' <<< "$html" |
@@ -47,6 +46,6 @@ then
 	    _log 2
 	
     else
-	_log 3
+	_log 2
     fi
 fi
