@@ -30,7 +30,9 @@
 
 if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
-    real_ip_rockfile=217.23.3.237
+    # real_ip_rockfile=217.23.3.237
+    ## real_ip_rockfile=217.23.3.215
+    real_ip_rockfile="rockfile.eu"
     
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \

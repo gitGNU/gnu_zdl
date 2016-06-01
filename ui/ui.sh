@@ -19,7 +19,7 @@
 # For information or to collaborate on the project:
 # https://savannah.nongnu.org/projects/zdl
 # 
-# Gianluca Zoni (author)
+# Gianluca Zoni
 # http://inventati.org/zoninoz    
 # zoninoz@inventati.org
 #
@@ -236,7 +236,7 @@ function interactive {
 
 	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
-	num_dl=$(cat "$path_tmp/dl-mode")
+	num_dl=$(cat "$path_tmp/dl-mode" 2>/dev/null)
 	
 	[ ! -f "$path_tmp/dl-mode" ] && num_dl=1
 	if [ -z "$num_dl" ]
