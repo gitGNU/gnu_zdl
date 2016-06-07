@@ -33,15 +33,22 @@ then
     then
 	html=$(wget -qO- "$url_in")
 
-	if [[ ! "$html" =~ 'var link\s*=' ]]
+	if [[ "$html" =~ 'p,a,c,k,e,d' ]]
 	then
 	    html=$(unpack "$html")
 	fi
 	
 	url_in_new=$(grep -P 'var link\s*=' <<< "$html" |
 			    sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-	url_in_new=$(sanitize_url "${url_in_new}")
 	
+	if [ -z "$url_in_new" ]
+	then
+	    url_in_new=$(grep 'btn-wrapper link' <<< "$html" |
+				sed -r 's|[^"]+\"([^"]+)\".+|\1|')
+	fi
+	
+	url_in_new=$(sanitize_url "${url_in_new}")
+
 	replace_url_in "$url_in_new" ||
 	    _log 2
 	

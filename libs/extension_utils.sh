@@ -512,3 +512,23 @@ function packed_args {
     code_c=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\3@g" <<< "$code") 
     code_k=$(sed -r "s@(.+)'\,([0-9]+)\,([0-9]+)\,'(.+)@\4@g" <<< "$code") 
 }
+
+function get_title {
+    html="$1"
+    if [ -f "$html" ]
+    then
+	html=$(cat "$html")
+    fi
+
+    grep -P '<[Tt]{1}itle>' <<< "$html" |
+	sed -r 's|.+<[Tt]{1}itle>([^<]+)<.+|\1|g'
+}
+
+function end_extension {
+    if ! url "$url_in_file" ||
+	    [ -z "$file_in" ]
+    then
+	_log 2
+	return 1
+    fi
+}

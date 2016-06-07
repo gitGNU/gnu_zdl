@@ -105,7 +105,7 @@ function check_axel {
     unset result_ck
     rm -f "$path_tmp"/axel_*_test
 
-    axel -U "$user_agent" -n $axel_parts -o "$path_tmp"/axel_o_test "$url_in_file" -v 2>&1 >> "$path_tmp"/axel_stdout_test &
+    axel -U "$user_agent" -n $axel_parts $headers -o "$path_tmp"/axel_o_test "$url_in_file" -v 2>&1 >> "$path_tmp"/axel_stdout_test &
     pid_axel_test=$!
 
     while [[ ! "$(cat "$path_tmp"/axel_stdout_test)" =~ (Starting download|HTTP/[0-9.]+ [0-9]{3} ) ]] &&
@@ -150,7 +150,6 @@ function download {
     downwait=5
     export LANG="$prog_lang"
     export LANGUAGE="$prog_lang"
-    unset headers
 
     if ! dler_type "no-check" "$url_in"
     then
@@ -183,24 +182,23 @@ function download {
     case "$downloader_in" in
 	Axel)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
-
+	
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
 		export AXEL_COOKIES="$path_tmp/cookies.zdl"
-		axel -U "$user_agent" -n $axel_parts "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 
 	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 	    then
 		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
 		if [ -n "$COOKIES" ]
 		then
-		    headers="-H \"Cookie:$COOKIES\""
-		    axel -U "$user_agent" -n $axel_parts "$headers" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-		else
-		    axel -U "$user_agent" -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		    headers+=( "-H" "Cookie:$COOKIES" )
 		fi
+		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		
 	    else
-		axel -U "$user_agent" -n $axel_parts "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
 	    fi
 	    pid_in=$!
 	    echo -e "${pid_in}
@@ -377,7 +375,7 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
 	accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
 	unset user host
     fi
-    unset post_data checked
+    unset post_data checked headers
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
