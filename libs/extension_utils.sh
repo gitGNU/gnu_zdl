@@ -521,7 +521,7 @@ function get_title {
     fi
 
     grep -P '<[Tt]{1}itle>' <<< "$html" |
-	sed -r 's|.+<[Tt]{1}itle>([^<]+)<.+|\1|g'
+	sed -r 's|.*<[Tt]{1}itle>([^<]+)<.+|\1|g'
 }
 
 function end_extension {
