@@ -57,10 +57,6 @@ then
 	file_in=$(grep -P '^<span style="vertical-align: middle">' <<< "$html_embed"|
 			 sed -r 's|[^>]+>([^<]+)<.+|\1|g')
 
-	if ! url "$url_in_file" ||
-    		[ -z "$file_in" ]
-	then
-    	    _log 2
-	fi
+	end_extension
     fi
 fi

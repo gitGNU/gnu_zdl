@@ -51,11 +51,7 @@ then
 
     url_in_file=$(sanitize_url "$url_in_file")
 
-    if [ -z "$url_in_file" ] ||
-	   [ -z "$file_in" ]
-    then
-	_log 2
-    fi
-
     axel_parts=2
+    
+    end_extension
 fi

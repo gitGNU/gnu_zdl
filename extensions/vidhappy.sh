@@ -36,8 +36,9 @@ then
 	parser_path="${parser_path%%\/*}"
 	url_link="http://www.vidhappy${parser_domain#*vidhappy}/embed-${parser_path%.html}-607x360.html"
     fi
-    html="$(wget -t 1 -T $max_waiting -q "$url_link" -O -)"
-    if [ ! -z "$html" ]
+    html=$(wget -t 1 -T $max_waiting "$url_link" -qO-)
+
+    if [ -n "$html" ]
     then
 	streamer=$(grep streamer <<< "$html" |sed -r 's|^.+\"([^"]+)\".+$|\1|')
 	playpath=$(grep file:  <<< "$html" |head -n1|sed -r 's|^.+\"([^"]+)\".+$|\1|')

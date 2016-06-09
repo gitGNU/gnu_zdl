@@ -27,37 +27,54 @@
 ## zdl-extension types: download
 ## zdl-extension name: Uload
 
-if [ "$url_in" != "${url_in//uload.}" ]; then
+if [ "$url_in" != "${url_in//uload.}" ]
+then
     check_ip uload
-    wget -q -t 1 -T $max_waiting --retry-connrefused --keep-session-cookies --save-cookies=$path_tmp/cookies.zdl -O "$path_tmp/zdl.tmp" $url_in &>/dev/null
+    wget -q -t 1 -T $max_waiting                 \
+	 --retry-connrefused                     \
+	 --keep-session-cookies                  \
+	 --save-cookies="$path_tmp/cookies.zdl"  \
+	 -O "$path_tmp/zdl.tmp" "$url_in"
 
-    test_exceeded=`cat "$path_tmp/zdl.tmp" | grep "h2"`
-    if [ ! -z "$test_exceeded" ]; then
+    test_exceeded=$(grep "h2" "$path_tmp/zdl.tmp")
+    if [ -n "$test_exceeded" ];
+    then
 	test_exceeded="${test_exceeded#*- }"
 	test_exceeded="${test_exceeded%% *}"
 	test_exceeded="${test_exceeded%.*}"
-	if (( $test_exceeded>400 )); then
-	    exceeded=true
-	fi
+	(( $test_exceeded>400 )) &&  exceeded=true
     fi
     
-    if [ -z "$exceeded" ]; then
+    if [ -z "$exceeded" ]
+    then
 	unset post_data
 	input_hidden "$path_tmp/zdl.tmp"
 	post_data="${post_data//'op=catalogue&'}"
 	
-	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl2.tmp &>/dev/null
+	wget -t 1 -T $max_waiting                    \
+	     --load-cookies="$path_tmp/cookies.zdl"  \
+	     --save-cookies="$path_tmp/cookies2.zdl" \
+	     --post-data="$post_data&method_free=Free Download / Stream"  \
+	     "$url_in" -qO "$path_tmp"/zdl2.tmp 
 	
 	unset post_data
 	input_hidden "$path_tmp/zdl2.tmp"
 	post_data="${post_data//'op=catalogue&'}&btn_download=Create Download Link"
 	
-	wget -t 1 -T $max_waiting --load-cookies=$path_tmp/cookies.zdl --keep-session-cookies --save-cookies=$path_tmp/cookies2.zdl --post-data="$post_data&method_free=Free Download / Stream" $url_in -O "$path_tmp"/zdl3.tmp &>/dev/null
+	wget -t 1 -T $max_waiting                       \
+	     --load-cookies="$path_tmp/cookies.zdl"     \
+	     --keep-session-cookies                     \
+	     --save-cookies="$path_tmp/cookies2.zdl"    \
+	     --post-data="$post_data&method_free=Free Download / Stream" \
+	     "$url_in" -qO "$path_tmp"/zdl3.tmp 
 	
-	if [ -f "$path_tmp"/zdl3.tmp ];then
-	    url_in_file=`cat "$path_tmp"/zdl3.tmp | grep "http://uload.to/images/download.png"`
+	if [ -f "$path_tmp"/zdl3.tmp ]
+	then
+	    url_in_file=$(grep "http://uload.to/images/download.png" "$path_tmp"/zdl3.tmp)
 	    url_in_file="${url_in_file#<a href=\"}"
 	    url_in_file="${url_in_file%%\"*}"
 	fi
     fi
+
+    end_extension
 fi

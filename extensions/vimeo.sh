@@ -57,12 +57,7 @@ then
     
     ext="${url_in_file%'?'*}"
     ext="${ext##*'.'}"
-    file_in=$(grep "title>" <<< "$html2")
-    file_in="${file_in#*'title>'}"
-    file_in="${file_in%%'</title'*}"
-    file_in="${file_in}.$ext"
+    file_in=$(get_title "$html2").$ext
 
-    ! url "$url_in_file" ||
-	[ -z "$file_in" ] &&
-	    _log 2
+    end_extension
 fi

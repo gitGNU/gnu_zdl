@@ -64,13 +64,17 @@ then
     
 elif [ "$url_in" != "${url_in//vk.com\/video}" ]
 then
-    html="$(wget -t 1 -T $max_waiting --keep-session-cookies --save-cookies="$path_tmp"/cookies.zdl "$url_in" -q -O-)"
+    html=$(wget -t 1 -T $max_waiting                     \
+		--keep-session-cookies                   \
+		--save-cookies="$path_tmp"/cookies.zdl   \
+		"$url_in" -qO-)
 
-    if [ ! -z "$html" ]
+    if [ -n "$html" ]
     then
-	if [[ $(grep prohibited <<< "$html") ]]
+	if grep prohibited <<< "$html" >/dev/null
 	then
 	    _log 11
+	    
 	else
 	    data_in_file=$(grep cache <<< "$html" 2>/dev/null)
 	    url_in_file="${data_in_file##*cache}"
@@ -92,7 +96,7 @@ fi
 
 if [ "$url_in" != "${url_in//vk.com}" ]
 then
-    if [ ! -z "$file_in" ]
+    if [ -n "$file_in" ]
     then
 	file_in=$(urldecode "$file_in" |sed -r 's|/||g' 2>/dev/null).$ext
     else

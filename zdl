@@ -985,6 +985,7 @@ function main_loop {
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
+
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]
     then
 	clean_file "$start_file"
@@ -1068,6 +1069,7 @@ function main_loop {
 		then
 		    unset break_loop
 		    show_downloads
+		    sleep 1
 		    continue
 		fi
 
@@ -1121,6 +1123,7 @@ function main_loop {
 		then
 		    unset break_loop
 		    show_downloads
+		    sleep 1
 		    continue
 		fi
 

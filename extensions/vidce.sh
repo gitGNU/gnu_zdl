@@ -43,11 +43,7 @@ then
 	input_hidden "$html"
 	link_parser "$url_in"
 	url_in_file="${parser_proto}${parser_domain}/vidembed-${parser_path%%\/*}.mp4"
-	
-	if ! url "$url_in_file" ||
-		[ -z "$file_in" ]
-	then
-	    _log 2
-	fi
+
+	end_extension
     fi
 fi

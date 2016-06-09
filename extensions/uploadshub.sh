@@ -54,10 +54,6 @@ then
 			 sed -r 's|\ *<title>([^<]+)<.+|\1|')
 	file_in="${file_in#Download }"
 
-	if ! url "$url_in_file" ||
-		[ -z "$file_in" ]
-	then
-	    _log 2
-	fi
+	end_extension
     fi
 fi
