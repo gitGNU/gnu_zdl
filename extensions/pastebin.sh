@@ -32,6 +32,9 @@ then
     url_in_file=http://pastebin.com/download/${BASH_REMATCH[1]}
     file_in=$(get_title "$(wget -qO- "$url_in")").txt
     headers=(-H "Referer: pastebin")
-
+    no_check_links+=(pastebin.)
+    no_check_ext+=(pastebin.)
+    axel_parts=1
+    
     end_extension
 fi
