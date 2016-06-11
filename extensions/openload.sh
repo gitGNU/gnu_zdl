@@ -77,7 +77,7 @@ then
 	
 	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
 
-	if [[ "$url_in_file" =~ (https.+openload.+stream.+) ]]
+	if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
 	then
 	    url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
 			      grep Location                    |
