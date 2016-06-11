@@ -1051,11 +1051,17 @@ function main_loop {
 		if [ -d "$path_usr/extensions/" ]
 		then
 		    shopt -s nullglob
+		    export LANG="$prog_lang"
+		    export LANGUAGE="$prog_lang"
+
 		    for srcfile in "$path_usr"/extensions/*.sh
 		    do
 			source "$srcfile"
 		    done
-		    shopt -u nullglob
+
+		    export LANG="$user_lang"
+		    export LANGUAGE="$user_language"
+    		    shopt -u nullglob
 		fi
 		
 ####		check_dler_forcing
