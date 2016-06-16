@@ -86,6 +86,7 @@ wget_links=(
     rai\.tv
     videomega\.
     idowatch\.
+    dropbox\.
 )
 
 #youtubedl_links=( rai\.tv )
@@ -98,10 +99,14 @@ noresume_links=(
 
 no_check_links=(
     nowdownload\.
+    dropbox\.
+    pastebin\.
 )
 #no_check_links=( tusfiles\. nowdownload\. )
 
 no_check_ext=(
+    dropbox\.
+    pastebin\.
     easybytez\.
     tusfiles\.
     'mega.(co|nz)'

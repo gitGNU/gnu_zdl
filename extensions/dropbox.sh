@@ -25,14 +25,24 @@
 #
 
 ## zdl-extension types: download
-## zdl-extension name: Pastebin
+## zdl-extension name: Dropbox
 
-if [[ "$url_in" =~ pastebin.com/([^/]+) ]]
+if [[ "$url_in" =~ dropbox.com ]]
 then
-    url_in_file=http://pastebin.com/download/${BASH_REMATCH[1]}
-    file_in=$(get_title "$(wget -qO- "$url_in")").txt
-    headers=(-H "Referer: pastebin")
-    axel_parts=1
+    out=$(wget -S --spider                             \
+	       --keep-session-cookies                  \
+	       --save-cookies="$path_tmp/cookies.zdl"  \
+	       "$url_in"                               \
+	       2>&1)
+    
+    url_in_file=$(grep -P 'Location: ' <<< "$out"     |
+			 head -n1                     |
+			 sed -r 's|.*Location:\s*||')
+    
+    file_in=$(grep -P 'filename="' <<< "$out" |
+		     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    
+    headers=(-H "Referer: dropbox.com")
     
     end_extension
 fi
