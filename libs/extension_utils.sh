@@ -520,8 +520,8 @@ function get_title {
 	html=$(cat "$html")
     fi
 
-    grep -P '<[Tt]{1}itle>' <<< "$html" |
-	sed -r 's|.*<[Tt]{1}itle>([^<]+)<.+|\1|g'
+    grep -P '<[Tt]{1}itle[^>]*>' <<< "$html" |
+	sed -r 's|.*<[Tt]{1}itle[^>]*>([^<]+)<.+|\1|g'
 }
 
 function end_extension {
