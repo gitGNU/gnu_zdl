@@ -449,9 +449,15 @@ function nodejs_eval {
 	result=$($nodejs $evaljs "$jscode")
     fi
        
-    if [ -d /cygdrive ] #&&    	   [ -z "$result" ]
+    if [ -d /cygdrive ] &&
+	   [ -z "$result" ]
     then
 	result=$($nodejs -e "console.log($jscode)")
+
+	if [ -z "$result" ]
+	then
+	    result=$($nodejs -e "console.log('(' + $jscode + ')'))")
+	fi
     fi
 
     echo "$result"
