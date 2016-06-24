@@ -442,26 +442,27 @@ function nodejs_eval {
 	jscode="$1"
     fi
 
-    if [ -d /cygdrive ]
+    result=$($nodejs $evaljs "($jscode)")
+
+    if [ -z "$result" ]
     then
-	$nodejs -e "console.log($jscode)"
-	
-    else
-	$nodejs $evaljs "($jscode)" 
+	result=$($nodejs $evaljs "$jscode")
     fi
+       
+    if [ -d /cygdrive ] &&
+    	   [ -z "$result" ]
+    then
+	result=$($nodejs -e "console.log($jscode)")
+    fi
+
+    echo "$result"
 }
 
 function unpack {
     jscode=$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | 
 		    sed -r 's|.*eval||g')
     
-    if [ -d /cygdrive ]
-    then
-	$nodejs -e "console.log$jscode"
-	
-    else
-	$nodejs $evaljs "$jscode"
-    fi
+    nodejs_eval "$jscode"    
 }
 
 function packed {

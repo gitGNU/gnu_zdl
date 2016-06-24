@@ -31,10 +31,15 @@
 
 if [ "$url_in" != "${url_in//wstream.}" ]
 then
-    html=$(wget -t1 -T$max_waiting              \
-		"$url_in"                       \
-		--user-agent="$user_agent"      \
+    html=$(wget -t1 -T$max_waiting                               \
+		"$url_in"                                        \
+		--user-agent="Firefox"                           \
+		--keep-session-cookies="$path_tmp/cookies.zdl"   \
 		-qO-)
+    
+    [ -z "$html" ] &&
+	command -v curl >/dev/null && 
+	html=$(curl "$url_in") 
 
     if [[ "$html" =~ (File Not Found) ]]
     then
@@ -42,19 +47,19 @@ then
 
     else
 	input_hidden "$html"
+	post_data+="&imhuman=Proceed to video"
+	
 	countdown- 10
+
+	file_in=$(get_title "$html" |sed -r 's|Watch\s||')
 	
 	html=$(wget "$url_in"                       \
 		    --post-data="$post_data"        \
 		    -qO-)
-	
+
 	url_in_file=$(unpack "$html" |
 			     sed -r 's|.+file:\"([^"]+)\".+|\1|g')
 	
-	if ! url "$url_in_file" ||
-		[ -z "$file_in" ]
-	then
-	    _log 2
-	fi
+	end_extension
     fi
 fi
