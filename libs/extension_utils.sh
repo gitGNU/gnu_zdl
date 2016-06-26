@@ -456,7 +456,7 @@ function nodejs_eval {
 
 	if [ -z "$result" ]
 	then
-	    result=$($nodejs -e "console.log('(' + $jscode + ')'))")
+	    result=$($nodejs -e "console.log('(' + $jscode + ')')")
 	fi
     fi
 
@@ -473,7 +473,7 @@ function unpack {
 function packed {
     if [ "$#" == 1 ]
     then
-	## eccetta come parametro il pezzo di codice "eval...packed..."
+	## accetta come parametro il pezzo di codice "eval...packed..."
 	packed_args "$1"
 	p=$(sed -r 's@(.+)@\U\1@g' <<< "$code_p") ## <-- va convertito con base36, quindi servono le lettere maiuscole
 	a="$code_a"
