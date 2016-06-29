@@ -45,7 +45,8 @@ then
     then
 	_log 3
 	
-    else
+    elif [ -n "$html" ]
+    then
 
 ## soluzione senza lo script php-aaencoder (NON SICURA):
 #
@@ -67,7 +68,10 @@ then
 	
 	## soluzione alternativa usando lo script php-aaencoder (SICURA: nodejs_eval)
 	#
-	grep -P '\^o' <<< "$html"   |
+	## grep -P '\^o' <- non funziona con cygwin
+	#
+	
+	awk '/\^o/{print}' <<< "$html"   |
 	    head -n1                |
 	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js"
 	
@@ -86,10 +90,5 @@ then
 	fi
     fi
 
-    if ! url "$url_in_file" ||
-    	    [ "$url_in_file" == "$url_in" ] ||
-    	    [ -z "$file_in" ]
-    then
-    	_log 2
-    fi
+    end_extension
 fi   

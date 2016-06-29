@@ -453,11 +453,6 @@ function nodejs_eval {
 	   [ -z "$result" ]
     then
 	result=$($nodejs -e "console.log($jscode)")
-
-	if [ -z "$result" ]
-	then
-	    result=$($nodejs -e "console.log(eval($jscode))")
-	fi
     fi
 
     echo "$result"
