@@ -84,7 +84,7 @@ wget_links=(
     uploadable\.
     nitroflare\.
     rai\.tv
-    videomega\.
+#    videomega\.
     idowatch\.
     dropbox\.
 )

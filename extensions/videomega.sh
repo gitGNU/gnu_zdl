@@ -44,11 +44,10 @@ then
     then
 	url_in_file=$(unpack "$html" |
 			     sed -r 's|.+src\",\"([^"]+)\".+|\1|g')
-	file_in=$(grep '<title>' <<< "$html" |
-			 sed -r 's|[^>]+>([^<]+)<.+|\1|g')
+	file_in=$(get_title "$html")
 	file_in="${file_in#Videomega.tv - }"
-	
-    else
-	_log 2
+	(( axel_parts>4 )) && axel_parts=4
     fi
+
+    end_extension
 fi
