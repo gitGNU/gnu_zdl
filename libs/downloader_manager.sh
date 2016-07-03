@@ -151,7 +151,8 @@ function download {
     export LANG="$prog_lang"
     export LANGUAGE="$prog_lang"
 
-    if ! dler_type "no-check" "$url_in"
+    if ! dler_type "no-check" "$url_in" &&
+	    [ -z "$debrided" ]
     then
 	if ! dler_type "no-resume" "$url_in" &&
 		! dler_type "rtmp" "$url_in" &&
@@ -177,6 +178,9 @@ function download {
 	    links_loop - "$url_in"
 	    _log 18
 	fi
+
+    else
+	unset debrided
     fi
 
     case "$downloader_in" in

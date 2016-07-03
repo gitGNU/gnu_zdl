@@ -329,13 +329,19 @@ function simply_debrid {
 		     "https://simply-debrid.com/$html_url"       \
 		     -qO-                                     |
 		       sed -r 's|\\\/|/|g')
-    
+
     if [[ "$json_data" =~ '"error":0' ]]
     then
 	print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
 	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sanitize_url "$url_in_file")
+
+	if url "$url_in_file" &&
+		[ -n "$file_in" ]
+	then
+	    debrided=true
+	fi
 
     elif [[ "$url_in" =~ (nowdownload) ]]
     then
