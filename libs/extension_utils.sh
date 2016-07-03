@@ -340,6 +340,7 @@ function simply_debrid {
 	if url "$url_in_file" &&
 		[ -n "$file_in" ]
 	then
+	    (( axel_parts>4 )) && axel_parts=4
 	    debrided=true
 	fi
 
