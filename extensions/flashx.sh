@@ -56,6 +56,6 @@ then
 	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
     fi
 
-    axel_parts=4
+    (( axel_parts>4 )) && axel_parts=4
     end_extension
 fi
