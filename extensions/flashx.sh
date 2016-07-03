@@ -29,10 +29,10 @@
 
 if [ "$url_in" != "${url_in//flashx.}" ]
 then
-    if [[ ! "$url_in" =~ embed ]]
+    if [[ ! "$url_in" =~ playit ]]
     then
     	html=$(wget -qO- --user-agent="$user_agent" "$url_in")
-    	file_in=$(grep '<Title>' <<< "$html" |sed -r 's|.*<Title>([^<>]+)<.+|\1|g')
+    	file_in=$(get_title "$html")
     	file_in="${file_in#Watch}"
     	file_in="${file_in## }"
 
@@ -40,7 +40,7 @@ then
     	parser_path="${parser_path%%\/*}"
     	# url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1024x427.html"
 	# url_packed="${parser_proto}${parser_domain}/embed.php?c=${parser_path%.html*}"
-	url_packed="${parser_proto}${parser_domain}/playthis-${parser_path}"
+	url_packed="${parser_proto}${parser_domain}/playit-${parser_path}"
     else
     	url_packed="$url_in"
     fi
@@ -52,15 +52,10 @@ then
     then
 	packed_args "$html_packed"
 	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+
 	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
     fi
 
-    if [ -n "$file_in" ] &&
-	   url "$url_in_file"
-    then
-	file_in="$file_in".${url_in_file##*.}
-	axel_parts=4
-    else
-	_log 2
-    fi
+    axel_parts=4
+    end_extension
 fi
