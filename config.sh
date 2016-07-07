@@ -27,7 +27,7 @@
 #unset autoupdate
 
 # chiavi di configurazione -- valori predefiniti  --          descrizione per il config-manager
-key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Downloader predefinito (Axel|Wget)"
+key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
 key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
 key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
 key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
@@ -84,10 +84,10 @@ wget_links=(
     uploadable\.
     nitroflare\.
     rai\.tv
-#    videomega\.
     idowatch\.
     dropbox\.
 )
+#    videomega\.
 
 #youtubedl_links=( rai\.tv )
 
@@ -180,7 +180,7 @@ function set_item_conf {
 	item="$1"
 	value="\"$2\""
 
-	if grep -P ^${item}= "${file_conf}"
+	if grep -P ^${item}= "${file_conf}" >/dev/null
 	then
 	    while read line
 	    do

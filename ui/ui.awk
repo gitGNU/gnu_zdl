@@ -115,7 +115,10 @@ function show_downloads () {
 	else
 	    downloader = downloader_out[i]
 
-	code = code diff_bar_color downloader ": " progress_bar "\n" blue_line
+	if (length(downloader)<5)
+	    downloader = downloader ":" 
+
+	code = code diff_bar_color downloader " " progress_bar "\n" blue_line
     }
     return code "\n\n\n\n\n"
 }
@@ -131,7 +134,10 @@ function show_downloads_lite () {
 	else
 	    downloader = downloader_out[i]
 
-	code = code diff_bar_color downloader ": " progress_bar "\n"
+	if (length(downloader)<5)
+	    downloader = downloader ":"
+	
+	code = code diff_bar_color downloader " " progress_bar "\n"
     }
     return code "\n"
 }

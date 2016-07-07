@@ -77,7 +77,8 @@ function check_stdout () {
 	
 	if (length_saved[i] == length_out[i] &&
 	    length_out[i] > 0 &&
-	    ! exists(file_out[i] ".st"))
+	    ! exists(file_out[i] ".st") &&
+	    ! exists(file_out[i] ".aria2"))
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	
 	##############################################################################################
@@ -107,7 +108,8 @@ function check_stdout () {
 
 	if (no_complete == "true") {
 	    if ((exists(file_out[i]) &&
-		 ! exists(file_out[i])".st" &&
+		 ! exists(file_out[i]".st") &&
+		 ! exists(file_out[i]".aria2") &&
 		 length_saved[i] == length_out[i]) ||
 		(downloader_out[i] == "cURL" &&
 		 ! length_saved[i] &&
@@ -204,6 +206,44 @@ function progress_out (value,           progress_line) {
 		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / int(speed_out[i]))
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
+	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
+	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
+		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
+	}
+	
+    } else if (dler == "Aria2") {
+	for (y=n; y>0; y--) {
+	    if (chunk[y] ~ /(404 Not Found)/) {
+	    	progress_abort[i] = chunk[y]
+	    	break
+	    } 
+	    if ((chunk[y] ~ "download completed") && (! exists(file_out[i]".aria2"))) {
+	    	progress_end[i] = chunk[y]
+	    	break
+	    } 
+	    if (chunk[y] ~ /\%/) {
+		progress_line = chunk[y]
+		split(progress_line, progress_elems, /[(]*[\%]*[:]*[K]*[\]]*/)
+		percent_out[i] = int(progress_elems[2])
+		speed_out[i] = int(progress_elems[5])
+		eta_out[i] = progress_elems[7]
+		break
+	    }
+
+	}
+
+	if (progress_end[i]) {
+	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (url_in == url_out[i]) bash_var("url_in", "")
+	    length_saved[i] = size_file(file_out[i])
+	    percent_out[i] = 100
+	} else if (progress_abort[i]) {
+	    bash_var("url_in", "")
+	    percent_out[i] = 0
+	    code = code "_log 3 \"" url_out[i] "\"; "
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2")
+	} else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
+	    speed_out_type[i] = "KB/s"
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
 	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
@@ -397,6 +437,7 @@ function progress () {
 BEGIN {
     i = -1
     j = 0
+    ## numero righe coda del chunk:
     n = 20
     delete pid_alive
 }
@@ -433,10 +474,10 @@ BEGIN {
     if (FNR == 5) {
 	file_out[i] = $0
 	array_out(file_out[i], "file_out")
-	if (dler == "Axel") yellow_progress()
+	if (dler ~ /Aria2|Axel/) yellow_progress()
     }
     if (FNR == 6) {
-	if (dler ~ /Axel|Wget|youtube-dl/) {
+	if (dler ~ /Aria2|Axel|Wget|youtube-dl/) {
 	    url_out_file[i] = $0
 	    array_out(url_out_file[i], "url_out_file")
 	} else if (dler ~ /RTMPDump|cURL/) {
@@ -448,9 +489,11 @@ BEGIN {
 	if (dler ~ /RTMPDump|cURL/) {
 	    playpath_out[i] = $0
 	    array_out(playpath_out[i], "playpath_out")
-	} else if (dler == "Axel") {
+	} else if (dler ~ /Aria2|Axel/) {
 	    axel_parts_out[i] = $0
-	    array_out(axel_parts_out[i], "axel_parts_out") 
+	    aria2_parts_out[i] = $0
+	    array_out(axel_parts_out[i], "axel_parts_out")
+	    array_out(aria2_parts_out[i], "aria2_parts_out") 
 	}
     }
     if (FNR == 8) start_time = $0
@@ -464,6 +507,11 @@ BEGIN {
 	length_out[i] = $3
 	array_out(length_out[i], "length_out")
     }
+    if ($0 ~ /Content-Length:/ && dler == "Aria2") {
+    	length_out[i] = $2
+    	array_out(length_out[i], "length_out")
+    }
+
 } 
 
 END {

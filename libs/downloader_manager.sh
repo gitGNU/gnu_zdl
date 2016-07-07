@@ -183,14 +183,15 @@ function download {
 	unset debrided
     fi
 
+    aria2_parts=$axel_parts
+
     case "$downloader_in" in
-	Axel)
+	Aria2)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
 	
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
-		export AXEL_COOKIES="$path_tmp/cookies.zdl"
-		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "${url_in_file}" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+		opt_cookies="--load-cookies=$path_tmp/cookies.zdl"
 
 	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 	    then
@@ -199,11 +200,64 @@ function download {
 		then
 		    headers+=( "-H" "Cookie:$COOKIES" )
 		fi
-		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
-		
-	    else
-		axel -U "$user_agent" -n $axel_parts "${headers[@]}" "$url_in_file" $argout "$fileout" >> "$path_tmp/${file_in}_stdout.tmp" &
+
 	    fi
+
+	    length_in=$(wget -S --spider "$url_in_file" 2>&1 |
+			    grep 'Content-Length:'           |
+			    sed -r 's|\s*Content-Length:\s+(.+)|\1|g')
+
+	    stdbuf -oL -eL                                   \
+		   aria2c -U "$user_agent"                   \
+		   -s $aria2_parts                           \
+		   -j $aria2_parts                           \
+		   -x $aria2_parts                           \
+		   -k 1M                                     \
+		   --continue=true                           \
+		   --header="${headers[@]}"                  \
+		   $opt_cookies                              \
+		   --auto-file-renaming=false                \
+		   -o "$fileout"                             \
+		   "$url_in_file"                            \
+		   >>"$path_tmp/${file_in}_stdout.tmp" &
+
+	    pid_in=$!
+	    touch "$file_in".aria2
+		    
+	    echo -e "${pid_in}
+$url_in
+Aria2
+${pid_prog}
+$file_in
+$url_in_file
+$aria2_parts
+Content-Length: $length_in" > "$path_tmp/${file_in}_stdout.tmp"
+	    ;;
+
+	Axel)
+	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
+	
+	    if [ -f "$path_tmp"/cookies.zdl ]
+	    then
+		export AXEL_COOKIES="$path_tmp/cookies.zdl"
+
+	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
+	    then
+		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
+		if [ -n "$COOKIES" ]
+		then
+		    headers+=( "-H" "Cookie:$COOKIES" )
+		fi
+	    fi
+
+	    stdbuf -oL -eL                                  \
+		   axel -U "$user_agent"                    \
+		   -n $axel_parts                           \
+		   "${headers[@]}"                          \
+		   "$url_in_file"                           \
+		   $argout "$fileout"                       \
+		   >> "$path_tmp/${file_in}_stdout.tmp" &
+
 	    pid_in=$!
 	    echo -e "${pid_in}
 $url_in
@@ -237,15 +291,16 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 		argout="--trust-server-names"
 	    fi
 
-            ## -t 1 -T $max_waiting 
-	    wget --user-agent="$user_agent"            \
-		 --no-check-certificate                \
-		 --retry-connrefused                   \
-		 -c -nc -k -S                          \
-		 --load-cookies=$COOKIES               \
-		 $method_post "$url_in_file"           \
-		 $argout "$fileout"                    \
-		 -a "$path_tmp/${file_in}_stdout.tmp" &
+            ## -t 1 -T $max_waiting
+	    stdbuf -oL -eL                               \
+		   wget --user-agent="$user_agent"       \
+		   --no-check-certificate                \
+		   --retry-connrefused                   \
+		   -c -nc -k -S                          \
+		   --load-cookies=$COOKIES               \
+		   $method_post "$url_in_file"           \
+		   $argout "$fileout"                    \
+		   -a "$path_tmp/${file_in}_stdout.tmp" &
 	    pid_in=$!
 
 	    echo -e "${pid_in}
@@ -349,6 +404,7 @@ $file_in" > "$path_tmp/${file_in}_stdout.tmp"
 		      -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc      \
 		      -fg grey -bg black -title "ZigzagDownLoader in $PWD"              \
 		      -e "youtube-dl \"$url_in_file\"" &
+		
 	    else
 		[ -f "$path_tmp/external-dl_pids.txt" ] && kill $(cat "$path_tmp/external-dl_pids.txt") 
 		
@@ -428,7 +484,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 	return 1
 
     elif [ -z "$url_in_file" ] ||                               
-	( [ -z "$file_in" ] && [ "$downloader_in" == "Axel" ] )
+	( [ -z "$file_in" ] && [[ "$downloader_in" =~ (Aria2|Axel) ]] )
     then
 	_log 2
 	unset no_newip
@@ -492,11 +548,11 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			    ;;
 		    esac
 
-		elif [ "$downloader_in" == "Axel" ]
+		elif [[ "$downloader_in" =~ (Aria2|Axel) ]]
 		then
 		    case "$i" in
 			resume_dl) 
-			    if [ -f "${file_in}.st" ] &&
+			    if ( [ -f "${file_in}.st" ] || [ -f "${file_in}.aria2" ] ) &&
 				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then                     
 				unset no_newip
@@ -507,7 +563,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			    if ( [ -z "$bis" ] || [ "$no_bis" == true ] ) &&
 				   [ -n "$length_in" ] && (( $length_in > $length_saved_in ))
 			    then
-				rm -f "$file_in" "${file_in}.st" 
+				rm -f "$file_in" "${file_in}.st" "${file_in}.aria2" 
 	 			unset no_newip
 	 			[ -n "$url_in_file" ] && return 0
 			    fi

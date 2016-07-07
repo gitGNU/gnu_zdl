@@ -657,6 +657,19 @@ then
     done
 fi
 
+if [ "${args[*]}" != "${args[*]//--aria2}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--aria2' ]
+	then 
+	    unset args[i]
+	    downloader_in=Aria2
+	    echo $downloader_in > "$path_tmp/downloader"
+	fi
+    done
+fi
+
 if [ "${args[*]}" != "${args[*]//--configure}" ] ||
        [ "${args[*]}" != "${args[*]//-c}" ]
 then
@@ -1124,7 +1137,7 @@ function main_loop {
 		fi
 
 		if ! url "$url_in_file" && 
-			[[ "$downloader_in" =~ (Wget|Axel) ]] ||
+			[[ "$downloader_in" =~ (Aria2|Wget|Axel) ]] ||
 			    [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
