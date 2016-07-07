@@ -82,10 +82,12 @@ then
 	    [ -n "$videoType" ] && file_in="$title.$videoType"
 	fi
 
-	if [ -n "$(axel -o /dev/null "$url_in_file" | grep '403 Forbidden')" ]
+	if [ "$downloader_in" == "Axel" ] &&
+	       [ -n "$(axel -o /dev/null "$url_in_file" | grep '403 Forbidden')" ]
 	then
 	    force_dler "Wget"
 	fi
+
 	if [[ "$url_in_file" =~ (Age check) ]]
 	then
 	    _log 19
