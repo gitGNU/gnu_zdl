@@ -29,7 +29,9 @@ function check_freespace {
     
     test_space=( $(df .) )
     (( test_space[11] < 51200 )) &&
-	return 1 
+	return 1
+
+    return 0
 }
 
 function force_dler {
