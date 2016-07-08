@@ -183,8 +183,6 @@ function download {
 	unset debrided
     fi
 
-    aria2_parts=$axel_parts
-
     case "$downloader_in" in
 	Aria2)
 	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
@@ -207,12 +205,13 @@ function download {
 			    grep 'Content-Length:'           |
 			    sed -r 's|\s*Content-Length:\s+(.+)|\1|g')
 
+	    # -s $aria2_parts                           \
+	    # -j $aria2_parts                           \
+
 	    stdbuf -oL -eL                                   \
 		   aria2c -U "$user_agent"                   \
-		   -s $aria2_parts                           \
-		   -j $aria2_parts                           \
-		   -x $aria2_parts                           \
 		   -k 1M                                     \
+		   -x 16                                     \
 		   --continue=true                           \
 		   --header="${headers[@]}"                  \
 		   $opt_cookies                              \
