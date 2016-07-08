@@ -549,13 +549,16 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
 		elif [[ "$downloader_in" =~ (Aria2|Axel) ]]
 		then
+		    [ "$downloader_in" == Axel ] && rm -f "${file_in}" "${file_in}.aria2"
+		    [ "$downloader_in" == Aria2 ] && rm -f "${file_in}.st"
+		    
 		    case "$i" in
 			resume_dl) 
 			    if ( [ -f "${file_in}.st" ] || [ -f "${file_in}.aria2" ] ) &&
 				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then                     
 				unset no_newip
-				[ ! -z "$url_in_file" ] && return 0
+				[ -n "$url_in_file" ] && return 0
 			    fi
 			    ;;
 			rewrite_dl)
