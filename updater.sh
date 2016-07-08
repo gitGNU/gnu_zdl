@@ -269,6 +269,12 @@ Installazione di FFMpeg
 	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwinports/
 	    apt-cyg install rtmpdump
 	fi
+
+	if ! command -v aria2c &>/dev/null
+	then
+	    apt-cyg mirror http://bo.mirror.garr.it/mirrors/sourceware.org/cygwin/
+	    apt-cyg install aria2
+	fi
 	
 	if ! command -v nano &>/dev/null
 	then
