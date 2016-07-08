@@ -25,9 +25,11 @@
 #
 
 function check_freespace {
+    ## per spazio minore di 50 megabyte (51200 Kb), return 1
+    
     test_space=( $(df .) )
-    (( ${test_space[11]} < 6000 )) && return 1 ## spazio minore di (circa) 5 megabyte
-    return 0
+    (( test_space[11] < 51200 )) &&
+	return 1 
 }
 
 function force_dler {

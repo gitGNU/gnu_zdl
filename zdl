@@ -41,6 +41,7 @@ source $path_usr/libs/extension_utils.sh
 source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
+source $path_usr/libs/post_processor.sh
 
 
 function update_updater {
@@ -631,44 +632,19 @@ then
 fi
 
 
-if [ "${args[*]}" != "${args[*]//--wget}" ]
+if [[ "${args[*]}" =~ '--'(wget|aria2|axel) ]]
 then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[i]}" == '--wget' ]
+	if [[ "${args[i]}" =~ ^'--'(aria2|axel|wget)$ ]]
 	then 
 	    unset args[i]
-	    downloader_in=Wget
-	    echo $downloader_in > "$path_tmp/downloader"
+	    	    
+	    set_downloader $(tr [:lower:] [:upper:] <<< ${BASH_REMATCH[1]:0:1})${BASH_REMATCH[1]:1}
 	fi
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--axel}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--axel' ]
-	then 
-	    unset args[i]
-	    downloader_in=Axel
-	    echo $downloader_in > "$path_tmp/downloader"
-	fi
-    done
-fi
-
-if [ "${args[*]}" != "${args[*]//--aria2}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--aria2' ]
-	then 
-	    unset args[i]
-	    downloader_in=Aria2
-	    echo $downloader_in > "$path_tmp/downloader"
-	fi
-    done
-fi
 
 if [ "${args[*]}" != "${args[*]//--configure}" ] ||
        [ "${args[*]}" != "${args[*]//-c}" ]

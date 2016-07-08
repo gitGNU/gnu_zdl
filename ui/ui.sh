@@ -249,13 +249,15 @@ function interactive {
 	header_box_interactive "Opzioni [numero download alla volta: $num_downloads]"
 	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
 <${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
-	
-	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Axel ]] && 
-	    echo -e "<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get"
-	
-	[[ -f "$path_tmp/downloader" && $(cat "$path_tmp/downloader") == Wget ]] && 
-	    echo -e "<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel"
 
+	local Axel Aria2 Wget
+	Axel="<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel\n"
+	Aria2="<${BGreen} A ${Color_Off}> scarica con ${BGreen}A${Color_Off}ria2\n"
+	Wget="<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get\n"
+	
+	unset $downloader_in
+	echo -en "$Axel$Aria2$Wget" 
+	
 	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
 <${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
 
@@ -384,11 +386,15 @@ function interactive {
 		;;
 	    
 	    a)
-		echo "Axel" > "$path_tmp/downloader"
+		set_downloader "Axel" 
+		;;
+	    
+	    A)
+		set_downloader "Aria2" 
 		;;
 	    
 	    w)
-		echo "Wget" > "$path_tmp/downloader"
+		set_downloader "Wget" 
 		;;
 	    
 	    Q)
