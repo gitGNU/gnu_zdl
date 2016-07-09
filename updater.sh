@@ -129,7 +129,7 @@ echo -e "${alert_msg[dep]}
 3) Salta l'installazione di $dep e continua con l'installazione di $PROG e delle altre sue dipendenze
 4) Esci da $PROG per installare $dep manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=$dep)"
 
-	print_c 2 "Scegli cosa fare (1-3):"
+	print_c 2 "Scegli cosa fare (1-4):"
 	read -e input
 	
 	case $input in
