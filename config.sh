@@ -474,7 +474,8 @@ function check_default_downloader {
 
     elif [ "$(get_item_conf downloader)" == "Aria2" ]
     then
-	sed -r "s|($TAG1|$TAG2)||g" -i "$file_conf" 
+	sed -r "s|$TAG1||g" -i "$file_conf"
+	sed -r "s|$TAG2||g" -i "$file_conf" 
     fi
 }
 
