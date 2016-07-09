@@ -175,7 +175,7 @@ cd $prog
 chmod +rx -R .
 
 ## UPDATER ########
-installer="true"
+installer_zdl="true"
 
 source updater.sh
 source ui/widgets.sh
