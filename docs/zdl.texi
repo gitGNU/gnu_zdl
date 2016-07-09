@@ -104,7 +104,7 @@
 @item
 @uref{https://savannah.nongnu.org/projects/zdl,,Progetto di sviluppo in Savannah/GNU}
 @item
-@uref{http://download.savannah.gnu.org/releases/zdl/,,Pacchetti rilasciati di ZDL}
+@uref{http://download-mirror.savannah.gnu.org/releases/zdl/,,Pacchetti rilasciati di ZDL}
 @item
 @uref{http://git.savannah.gnu.org/cgit/zdl.git,,Repository Git (controllo versione sorgenti)}
 @end itemize
@@ -1034,7 +1034,7 @@ ZDL si installa automaticamente con uno script per la @emph{Bash}.
 @enumerate
 @item
 Scarica l'installatore (è uno script per la Bash):
-    @url{http://download.savannah.gnu.org/releases/zdl/install_zdl.sh}
+    @url{http://download-mirror.savannah.gnu.org/releases/zdl/install_zdl.sh}
 @item
 Attribuisci i diritti di esecuzione allo script:
    @command{chmod +x install_zdl.sh}
@@ -1075,7 +1075,7 @@ Per alcuni pacchetti potrebbe essere necessario aggiungere un mirror di Cygwinpo
 salva nella cartella @file{C:\cygwin} (la cartella potrebbe trovarsi 
 in un altro @emph{device}: controlla eventualmente anche in @file{D:}, 
 @file{E:}, ecc.) il seguente file:
-@url{http://download.savannah.gnu.org/releases/zdl/install_zdl.sh}
+@url{http://download-mirror.savannah.gnu.org/releases/zdl/install_zdl.sh}
 
 @item
 avvia @emph{Cygwin} installato nella fase 1
@@ -1104,7 +1104,7 @@ L'aggiornamento manuale può essere forzato aggiungendo l'opzione
 
 
 @unnumberedsec Disinstallare ZDL
-È disponibile uno script di disinstallazione: @url{http://download.savannah.gnu.org/releases/zdl/uninstall_zdl.sh}.
+È disponibile uno script di disinstallazione: @url{http://download-mirror.savannah.gnu.org/releases/zdl/uninstall_zdl.sh}.
 
 @htmlend
 

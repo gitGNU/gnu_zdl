@@ -1021,7 +1021,7 @@ Installazione per GNU/Linux
 ===========================
 
   1. Scarica l'installatore (è uno script per la Bash):
-     `http://download.savannah.gnu.org/releases/zdl/install_zdl.sh'
+     `http://download-mirror.savannah.gnu.org/releases/zdl/install_zdl.sh'
 
   2. Attribuisci i diritti di esecuzione allo script:    `chmod +x
      install_zdl.sh'
@@ -1060,7 +1060,7 @@ _FASE 3) Installazione di ZDL_
        1. salva nella cartella `C:\cygwin' (la cartella potrebbe
           trovarsi in un altro _device_: controlla eventualmente anche
           in `D:', `E:', ecc.) il seguente file:
-          `http://download.savannah.gnu.org/releases/zdl/install_zdl.sh'
+          `http://download-mirror.savannah.gnu.org/releases/zdl/install_zdl.sh'
 
        2. avvia _Cygwin_ installato nella fase 1
 
@@ -1088,7 +1088,7 @@ Disinstallare ZDL
 =================
 
 È disponibile uno script di disinstallazione:
-`http://download.savannah.gnu.org/releases/zdl/uninstall_zdl.sh'.
+`http://download-mirror.savannah.gnu.org/releases/zdl/uninstall_zdl.sh'.
 
 
 File: zdl.info,  Node: Tags,  Next: Copying,  Prev: Installazione e aggiornamento,  Up: Top
@@ -1220,9 +1220,9 @@ Node: Software consigliati32389
 Node: Conkeror33790
 Node: zdl-xterm e XXXTerm/Xombrero34801
 Node: Installazione e aggiornamento36725
-Node: Tags39739
-Node: Copying42540
-Node: Contatti43590
+Node: Tags39760
+Node: Copying42561
+Node: Contatti43611
 
 End Tag Table
 
