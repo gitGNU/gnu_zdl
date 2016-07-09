@@ -30,12 +30,16 @@ function usage {
 }
 
 function try {
-    cmd=$*
-    $cmd 2>/dev/null
-    if [ "$?" != 0 ]; then
-	sudo $cmd 
-	if [ "$?" != 0 ]; then
-	    su -c "$cmd" || ( echo "$failure"; exit )
+    cmdline=( "$@" )
+    
+    if ! "${cmdline[@]}" 2>/dev/null 
+    then	
+	if ! sudo "${cmdline[@]}" 2>/dev/null 
+	then
+	    su -c "${cmdline[@]}" || (
+		print_c 3 "$failure: ${cmdline[@]}"
+		return 1
+	    )
 	fi
     fi
 }
@@ -49,17 +53,23 @@ success="Disinstallazione completata"
 failure="Disinstallazione non riuscita"
 path_conf="$HOME/.$prog"
 
+option=$1
+
 echo -e "\e[1mDisinstallazione di $PROG\e[0m\n"
 
-
-option=$1
-if [ "$option" == "--help" ] || [ "$option" == "-h" ]; then
+if [ "$option" == "--help" ] ||
+       [ "$option" == "-h" ]
+then
     usage
     exit
+
 else
     read -p "Vuoi davvero disinstallare ZigzagDownLoader? [sì|*]" result
-    if [ "$result" == "sì" ]; then
-	if [ "$option" == "--purge" ]; then
+    
+    if [ "$result" == "sì" ]
+    then
+	if [ "$option" == "--purge" ]
+	then
 	    rm -rf $HOME/.zdl
 	fi
 	try rm -rf "$SHARE" $BIN/zdl $BIN/zdl-xterm
