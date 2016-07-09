@@ -114,7 +114,7 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
     
     alert_msg['xterm']="$PROG utilizza XTerm se avviato da un'applicazione grafica come Firefox/Iceweasel/Icecat (tramite Flashgot), Chrome/Chromium (attraverso Download Assistant o Simple Get), XXXTerm/Xombrero e Conkeror:
 "
-    
+    read -p $dep
     while ! command -v $dep &>/dev/null
     do
 	print_c 3 "ATTENZIONE: $dep non è installato nel tuo sistema"
@@ -138,12 +138,17 @@ echo -e "${alert_msg[dep]}
 }
 
 function install_test {
-    local test_type installer dep
+    local test_type installer dep cmd
     test_type=$1
     installer=$2
     dep=$3
-    
-    if ! command -v $dep &>/dev/null
+
+    for cmd in "${!deps[@]}"
+    do
+	[ "$dep" == "${deps[$cmd]}" ] && break
+    done
+
+    if ! command -v $cmd &>/dev/null
     then
 	print_c 3 "Installazione automatica non riuscita"
 	case $test_type in
@@ -164,6 +169,7 @@ function install_test {
 
 function install_pk {
     local dep
+    dep=$1
     
     print_c 1 "Installazione di: $dep"
 
@@ -205,6 +211,7 @@ function make_install {
 
 function install_src {
     local dep
+    dep=$1
     
     case $dep in
 	axel)
@@ -231,8 +238,6 @@ function install_src {
 
 
 function update {
-    TAG='## NEW: ...ARIA2!'
-
     PROG=ZigzagDownLoader
     prog=zdl
     BIN="/usr/local/bin"
@@ -436,11 +441,11 @@ ESTENSIONI:
 
 	for cmd in "${!deps[@]}"
 	do
-	    if ! command -v $cmd  &>/dev/null 
+	    if ! command -v $cmd &>/dev/null 
 	    then
 		apt-cyg mirror "${mirrors[0]}"
-		print_c 1 "Installazione di ${deps[cmd]}"
-		apt-cyg install ${deps[cmd]}
+		print_c 1 "Installazione di ${deps[$cmd]}"
+		apt-cyg install ${deps[$cmd]}
 	    fi
 	done
 
@@ -491,13 +496,17 @@ ESTENSIONI:
 	do
 	    if ! command -v $cmd  &>/dev/null 
 	    then
-		print_c 1 "Installazione di ${deps[cmd]}"
-		install_dep ${deps[cmd]}
+		print_c 1 "Installazione di ${deps[$cmd]}"
+		install_dep ${deps[$cmd]}
 	    fi
 	done
     fi
 
-    check_default_downloader
+    grep "$TAG2" "$file_conf" &>/dev/null ||
+	echo "$TAG1" >> "$file_conf"
+
+    grep "$TAG2" "$file_conf"  &>/dev/null ||
+	check_default_downloader
     
     print_c 1 "$op automatic${suffix} completat${suffix}"
     pause
