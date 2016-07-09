@@ -1182,7 +1182,7 @@ Puoi creare liberamente nuove estensioni in @file{$HOME/.zdl/extensions/}. Il pr
 Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e salva la lista dei @emph{link} in @file{links.txt}. Inoltre, ZDL registra eventuali problemi nel file @file{zdl_log.txt}.
 
 @unnumberedsec VEDERE ANCHE
-@command{xterm}(1), @command{conkeror}(1), @command{axel}(1), @command{wget}(1), @command{curl}(1), @command{rtmpdump}(1), @command{ffmpeg}(1), @command{avconv}(1)
+@command{xterm}(1), @command{conkeror}(1), @command{aria2c}(1), @command{axel}(1), @command{wget}(1), @command{curl}(1), @command{rtmpdump}(1), @command{ffmpeg}(1), @command{avconv}(1)
 
 @unnumberedsec COPYING
 @itemize @w{}
