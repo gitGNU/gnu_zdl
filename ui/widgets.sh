@@ -26,7 +26,7 @@
 
 #### layout
 
-if [ "$installer" == "true" ]
+if [ "$installer_zdl" == "true" ]
 then
     source "ui/colors.awk.sh"
 else

@@ -177,9 +177,9 @@ chmod +rx -R .
 ## UPDATER ########
 installer_zdl="true"
 
-source updater.sh
 source ui/widgets.sh
 source ui/ui.sh
+source updater.sh
 
 update
 ###################
@@ -193,12 +193,12 @@ fi
 cd "$DIR"
 rm -fr "$path_conf/src"
 
-print_c 1 "$op completat$suffix"
-echo -e "Per informazioni su ZigzagDownLoader (zdl): 
-zdl --help
-man zdl
-pinfo zdl
-info zdl
-http://nongnu.org/zdl"
+print_c 0 "Per informazioni su ZigzagDownLoader (zdl): 
+~\$ zdl --help
+~\$ man zdl
+~\$ pinfo zdl
+~\$ info zdl
+"
+print_c 4 "http://nongnu.org/zdl"
 
 exit
