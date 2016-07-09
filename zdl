@@ -81,6 +81,8 @@ function update_updater {
 	tar -xzf "$package"
 	mv "${package%.tar.gz}" $prog
 
+	## manutenzione: ##############
+	# cp -r $HOME/zdl-git/code $prog
 	cd $prog
 
 	source updater.sh

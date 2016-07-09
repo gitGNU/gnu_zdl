@@ -506,11 +506,7 @@ ESTENSIONI:
 	done
     fi
 
-    grep "$TAG2" "$file_conf" &>/dev/null ||
-	echo "$TAG1" >> "$file_conf"
-
-    grep "$TAG2" "$file_conf"  &>/dev/null ||
-	check_default_downloader
+    check_default_downloader
     
     print_c 1 "$op automatic${suffix} completat${suffix}"
 

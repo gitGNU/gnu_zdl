@@ -439,43 +439,47 @@ function check_editor {
 
 function check_default_downloader {
     if command -v aria2c &>/dev/null &&
-	    [ -f "$file_conf" ] &&
-	    ( [ "$(get_item_conf downloader)" != "Aria2" ] ||
-		  grep "$TAG1" "$file_conf" &>/dev/null )
+	    [ -f "$file_conf" ]
     then
-	unset def
-	while [[ ! "$def" =~ ^(sì|no)$ ]]
-	do
-	    echo
-	    header_box "NOVITÀ:"
-	    print_c 4 "$PROG supporta Aria2:"
-	    print_c 0 "\t- acceleratore di download\n\t- più potente e stabile di Axel\n\t- scarica anche i torrent (sia dai \"file torrent\" sia dai link \"magnet\")\n\t- molto altro ancora...\n"
+	if [ "$(get_item_conf downloader)" == "Aria2" ]
+	then
+	    sed -r "s|$TAG1||g" -i "$file_conf"
+	    sed -r "s|$TAG2||g" -i "$file_conf"
+	    
+	elif [ "$(get_item_conf downloader)" != "Aria2" ] &&
+		! grep "$TAG2" "$file_conf" &>/dev/null 
+	then
+	    unset def
+	    while [[ ! "$def" =~ ^(sì|no)$ ]]
+	    do
+		echo
+		header_box "NOVITÀ:"
+		print_c 4 "$PROG supporta Aria2:"
+		print_c 0 "\t- acceleratore di download\n\t- più potente e stabile di Axel\n\t- scarica anche i torrent (sia dai \"file torrent\" sia dai link \"magnet\")\n\t- molto altro ancora...\n"
 
-	    print_c 4 "NOTA BENE:"
-	    print_c 0 "- puoi sempre modificare le impostazioni predefinite con il comando 'zdl --configure' oppure cambiando il valore della variabile 'downloader' nel file $file_conf"
-	    print_c 0 "- puoi sempre usare il downloader che preferisci attraverso i parametri --wget, --axel e --aria2 oppure dai comandi dell'interfaccia interattiva\n"
+		print_c 4 "NOTA BENE:"
+		print_c 0 "- puoi sempre modificare le impostazioni predefinite con il comando 'zdl --configure' oppure cambiando il valore della variabile 'downloader' nel file $file_conf"
+		print_c 0 "- puoi sempre usare il downloader che preferisci attraverso i parametri --wget, --axel e --aria2 oppure dai comandi dell'interfaccia interattiva\n"
 
-	    print_c 2 "Vuoi utilizzarlo come downloader predefinito? (s|n):"
-	    read -e def
+		print_c 2 "Vuoi utilizzarlo come downloader predefinito? (sì|no):"
+		read -e def
 
-	    case $def in
-		sì)
-		    set_item_conf downloader Aria2
+		case $def in
+		    sì)
+			set_item_conf downloader Aria2
 
-		    sed -r "s|$TAG1||g" -i "$file_conf" 
-		    break
-		    ;;
-		no)
-		    sed -r "s|$TAG1|$TAG2|g" -i "$file_conf" 
-		    break
-		    ;;
-	    esac
-	done
-
-    elif [ "$(get_item_conf downloader)" == "Aria2" ]
-    then
-	sed -r "s|$TAG1||g" -i "$file_conf"
-	sed -r "s|$TAG2||g" -i "$file_conf" 
+			sed -r "s|$TAG1||g" -i "$file_conf"
+			sed -r "s|$TAG2||g" -i "$file_conf" 
+			break
+			;;
+		    no)
+			sed -r "s|$TAG1||g" -i "$file_conf"
+			echo "$TAG2" >> "$file_conf"
+			break
+			;;
+		esac
+	    done 
+	fi
     fi
 }
 
