@@ -32,7 +32,6 @@ source $path_usr/ui/ui.sh
 source $path_usr/docs/help.sh
 source $path_usr/config.sh
 source $path_usr/config_manager.sh
-source $path_usr/axel_installer.sh
 
 source $path_usr/libs/common.sh
 source $path_usr/libs/downloader_manager.sh

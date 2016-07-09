@@ -473,11 +473,6 @@ function children_pids {
 
 
 function set_downloader {
-    declare -A _downloader
-    _downloader['Axel']=axel
-    _downloader['Aria2']=aria2c
-    _downloader['Wget']=wget
-
     if command -v ${_downloader[$1]} &>/dev/null
     then
 	downloader_in=$1
@@ -487,4 +482,3 @@ function set_downloader {
 	return 1
     fi
 }
-

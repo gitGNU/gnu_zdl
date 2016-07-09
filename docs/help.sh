@@ -28,6 +28,9 @@
 function usage {
     streaming="$(fold -w 80 -s $path_usr/streaming.txt)"
     hosting="$(fold -w 80 -s $path_usr/hosting.txt)"
+    generated="$(fold -w 80 -s $path_usr/generated.txt)"
+    shortlinks="$(fold -w 80 -s $path_usr/shortlinks.txt)"
+    programs="$(fold -w 80 -s $path_usr/programs.txt)"
     
     echo -en "ZigzagDownLoader (ZDL)
 
@@ -60,8 +63,9 @@ OPZIONI
 
        --list-extensions       Elenco delle estensioni di $PROG 
 
-       --wget                  Forza l'uso di Wget
-       --axel                  Forza l'uso di Axel
+       --aria2                 Scarica con Aria2
+       --wget                  Scarica con Wget
+       --axel                  Scarica con Axel
 
   -m [N], --multi [NUM]        Download parallelo. È possibile indicare
                                il numero massimo di download da effettuare
@@ -188,9 +192,16 @@ ______ Video in streaming saltando il player del browser:
 $streaming
 
 ______ File hosting:
-$hosting.txt
-e, dopo aver risolto il captcha e generato il link, anche Sharpfile,
-Depositfiles ed altri servizi
+$hosting
+
+______ Link generati dal web (anche dopo captcha):
+$generated
+
+______ Short links:
+$shortlinks
+
+______ Tutti i file scaricabili con i seguenti programmi:
+$programs
 
 ______ Tutti i file scaricabili con le seguenti estensioni dei browser:
 Flashgot di Firefox/Iceweasel/Icecat, funzione 'M-x zdl' di Conkeror

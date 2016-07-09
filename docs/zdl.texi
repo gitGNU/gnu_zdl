@@ -204,7 +204,7 @@
 @c @man{3}
 
 @c @ifman @unnumberedsec DESCRIZIONE
-@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Wget}, @emph{Axel}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
+@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Aria2}, @emph{Axel}, @emph{Wget}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
 @c @end man
 
 @unnumbered Perché questo programma
@@ -304,11 +304,14 @@ Help di @emph{ZigzagDownLoader (ZDL)}
 @item --list-extensions
 Elenco delle estensioni di @emph{ZigzagDownLoader (ZDL)}
 
-@item --wget                  
-Forza l'uso di @emph{Wget}
+@item --aria2
+Scarica con @emph{Aria2}
 
 @item --axel
-Forza l'uso di @emph{Axel}
+Scarica con @emph{Axel}
+
+@item --wget                  
+Scarica con @emph{Wget}
 
 @item -m [@emph{numero}], --multi [@emph{numero}]
 Download parallelo. È possibile indicare il numero massimo di download da effettuare contemporaneamente 
@@ -851,6 +854,10 @@ modificare il sorgente
 @c @man{13}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
+@pindex aria2
+@item Aria2                            
+Downloader con accelerazione e altro
+
 @pindex axel
 @item Axel                            
 Acceleratore di download

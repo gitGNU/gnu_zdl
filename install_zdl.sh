@@ -5,12 +5,13 @@ path_usr="/usr/local/share/zdl"
 path_tmp=".zdl_tmp"
 
 PROG=ZigzagDownLoader
-name_prog=ZigzagDownLoader
 prog=zdl
 BIN="/usr/local/bin"
 SHARE="/usr/local/share/zdl"
 URL_ROOT="http://download.savannah.gnu.org/releases/zdl/"
-cygaxel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" #http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
+
+## from: http://fd0.x0.to/cygwin/release/axel/axel-2.4-1bl1.tar.bz2
+cygaxel_url="http://www.inventati.org/zoninoz/html/upload/files/axel-2.4-1.tar.bz2" 
 success="Installazione completata"
 failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
@@ -95,8 +96,7 @@ function install_axel-cygwin {
 	cd -
     fi
 }
-
-##############
+################
 
 
 function bold {
@@ -104,162 +104,10 @@ function bold {
 }
 
 
-#### Axel
 
-function check_downloader {
-    while ! command -v axel &>/dev/null
-    do
-	bold "ATTENZIONE: Axel non è installato nel tuo sistema"
-	
-	echo -e "$PROG può scaricare con Wget ma raccomanda fortemente Axel, perché:\n
-	- può accelerare sensibilmente il download
-	- permette il recupero dei download in caso di interruzione
-	
-Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
-
-1) Installa automaticamente Axel da pacchetti
-2) Installa automaticamente Axel da sorgenti
-3) Esci da $PROG per installare Axel manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=axel)"
-
-	bold "Scegli cosa fare (1-3)"
-	read input
-	
-	case $input in
-	    
-	    1) install_pk ;;
-	    2) install_src ;;
-	    3) exit ;;
-	    
-	esac
-    done
-}
-
-function install_test {
-    if [[ ! $(command -v axel 2>/dev/null) ]]
-    then
-	bold "Installazione automatica non riuscita"
-	case $1 in
-	    pk) echo "$2 non ha trovato il pacchetto di Axel" ;;
-	    src) echo "Errori nella compilazione o nell'installazione";;
-	esac
-    fi
-    echo
-    bold "<Premi un INVIO per continuare>"
-    read
-}
-
-function install_pk {
-    echo "Installo Axel ..."
-    if [[ $(command -v apt-get 2>/dev/null) ]]
-    then
-	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install axel || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install axel" )
-	install_test pk apt-get
-
-    elif [[ $(command -v yum 2>/dev/null) ]]
-    then
-	sudo yum install axel || ( echo "Digita la password di root" ; su -c "yum install axel" )
-	install_test pk yum
-
-    elif [[ $(command -v pacman 2>/dev/null) ]]
-    then
-	sudo pacman -S axel 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S axel" )
-	install_test pk pacman
-    else
-	install_test
-    fi
-}
-
-function install_src {
-    cd /usr/src
-    wget https://alioth.debian.org/frs/download.php/file/3015/axel-2.4.tar.gz
-
-    tar -xzvf axel-2.4.tar.gz
-    cd axel-2.4
-    
-    make
-    sudo make install || ( echo "Digita la password di root" ; su -c "make install" )
-    make clean
-    install_test src
-    cd -
-}
-
-
-## Xterm
-function check_xterm {
-    while [ -z "`command -v xterm 2>/dev/null`" ]
-    do
-	bold "ATTENZIONE: XTerm non è installato nel tuo sistema"
-	
-	echo -e "$name_prog utilizza XTerm se avviato da un'applicazione grafica come Firefox/Iceweasel/Icecat (tramite Flashgot), Chrome/Chromium (attraverso Download Assistant o Simple Get), XXXTerm/Xombrero e Conkeror:
-
-1) Installa automaticamente XTerm da pacchetti
-2) Installa automaticamente XTerm da sorgenti
-3) Esci da $name_prog per installare Xterm manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=xterm)"
-
-	bold "Scegli cosa fare (1-3)"
-	read input
-	
-	case $input in
-	    1) install_pk_xterm ;;
-	    2) install_src_xterm ;;
-	    3) exit ;;
-	esac
-    done
-}
-
-function install_test_xterm {
-    if [[ ! $(command -v xterm 2>/dev/null) ]]
-    then
-	bold "Installazione automatica non riuscita"
-	case $1 in
-	    pk) echo "$2 non ha trovato il pacchetto di XTerm" ;;
-	    src) echo "Errori nella compilazione o nell'installazione";;
-	esac
-    fi
-    echo
-    bold "<Premi un INVIO per continuare>"
-    read
-}
-
-function install_pk_xterm {
-    echo "Installo XTerm ..."
-
-    if command -v apt-get &>/dev/null
-    then
-	DEBIAN_FRONTEND=noninteractive sudo apt-get --no-install-recommends -q -y install xterm || (  echo "Digita la password di root" ; DEBIAN_FRONTEND=noninteractive su -c "apt-get --no-install-recommends -q -y install xterm" )
-	install_test_xterm pk apt-get
-	
-    elif command -v yum &>/dev/null
-    then
-	sudo yum install xterm || ( echo "Digita la password di root" ; su -c "yum install xterm" )
-	install_test_xterm pk yum
-
-    elif command -v pacman &>/dev/null
-    then
-	sudo pacman -S xterm 2>/dev/null || ( echo "Digita la password di root" ; su -c "pacman -S xterm" )
-	install_test_xterm pk pacman
-	
-    else
-	install_test_xterm
-    fi
-}
-
-function install_src_xterm {
-    cd /usr/src
-    wget http://invisible-island.net/datafiles/release/xterm.tar.gz
-
-    tar -xzvf xterm.tar.gz
-    cd xterm-300
-    
-    make
-    sudo make install || ( echo "Digita la password di root" ; su -c "make install" )
-    make clean
-    install_test_xterm src
-    cd -
-}
-
-
+##############################################
 echo "Installazione di ZigzagDownLoader (ZDL)"
+##############################################
 
 mkdir -p "$path_conf/src"
 cd "$path_conf/src"
@@ -340,10 +188,6 @@ update
 if [ -e "/cygdrive" ]
 then
     install_axel-cygwin
-
-else
-    check_downloader
-    command -v X &>/dev/null && check_xterm
 fi
 
 cd "$DIR"

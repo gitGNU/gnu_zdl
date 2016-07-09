@@ -1,4 +1,4 @@
-.TH "ZigzagDownLoader (ZDL)" "1" "Fri Jul  8 19:15:04 2016" "GNU" "User Commands"\
+.TH "ZigzagDownLoader (ZDL)" "1" "Sat Jul  9 00:11:25 2016" "GNU" "User Commands"\
 .SH NOME	
 \fBzdl\fP - CLI download manager per \fIGNU/Linux\fP e \fIMicrosoft Windows + Cygwin\fP.\
 
@@ -8,9 +8,9 @@
 
 
 .SH DESCRIZIONE\	
-\fIZigzagDownLoader\fP gestisce gli scaricamenti di alcuni downloader come \fIWget\fP, \fIAxel\fP, \fIRTMPDump\fP o \fIcURL\fP\&. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con \fIConkeror\fP, \fIXXXTerm/Xombrero\fP, \fIFirefox\fP (attraverso l'estensione \fIFlashgot\fP) e \fIMicrosoft Windows\fP (tramite \fICygwin\fP).
-
-.SS Argomenti\	
+\fIZigzagDownLoader\fP gestisce gli scaricamenti di alcuni downloader come \fIAria2\fP, \fIAxel\fP, \fIWget\fP, \fIRTMPDump\fP o \fIcURL\fP\&. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con \fIConkeror\fP, \fIXXXTerm/Xombrero\fP, \fIFirefox\fP (attraverso l'estensione \fIFlashgot\fP) e \fIMicrosoft Windows\fP (tramite \fICygwin\fP).
+\
+.SS Argomenti	
 L'ordine delle opzioni e degli altri argomenti non è importante:
 
 
@@ -53,14 +53,19 @@ Help di \fIZigzagDownLoader (ZDL)\fP
 Elenco delle estensioni di \fIZigzagDownLoader (ZDL)\fP
 
 .RS -5
-\fB--wget                  \fP
+\fB--aria2\fP
 .RS 5
-Forza l'uso di \fIWget\fP
+Scarica con \fIAria2\fP
 
 .RS -5
 \fB--axel\fP
 .RS 5
-Forza l'uso di \fIAxel\fP
+Scarica con \fIAxel\fP
+
+.RS -5
+\fB--wget                  \fP
+.RS 5
+Scarica con \fIWget\fP
 
 .RS -5
 \fB-m [\fP\fInumero\fP\fB], --multi [\fP\fInumero\fP\fB]\fP
@@ -157,8 +162,8 @@ Cancella i file temporanei dei download completati
 .RS -5
 
 
-
-.SS Filtri:\	
+\
+.SS Filtri:	
 
 .RS 5
 
@@ -252,8 +257,8 @@ usa Zile, un micro editor GNU in stile Emacs
 .RS -5
 
 
-
-.SS Avvio con proxy:\	
+\
+.SS Avvio con proxy:	
 
 .RS 5
 
@@ -314,10 +319,10 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 .RS -5
 
-
-.SH PANORAMICA\	
-
-.SS Servizi\	
+\
+.SH PANORAMICA	
+\
+.SS Servizi	
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion\&...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
 
 
@@ -360,8 +365,8 @@ youtube-dl [--list-extractors]
 .RS -5
 
 
-\
-.SS Avvio	
+
+.SS Avvio\	
 ZDL può essere avviato in diversi modi:
 
 
@@ -378,8 +383,9 @@ ZDL può essere avviato in diversi modi:
 .IP "\fI1.\fP" 3
 generando automaticamente la lista dei link per il download:
 
-.RS 0
-.IP "\fI1.\fP" 3ize @minus
+
+.RS 5
+
 .RS 0
 .IP "\fI-\fP" 2
 apri un terminale ed entra nella directory che dovrà contenere i file scaricati
@@ -404,9 +410,8 @@ digita \fBM-x\fP e poi \fB<Invio>\fP (\fBM\fP è il tasto \fIMeta\fP, cioè \fB<
 .IP "\fI2.\fP" 3
 Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indica un path valido):
 
-
-.RS 5
-
+.RS 0
+.IP "\fI2.\fP" 3ize @minus
 .RS 0
 .IP "\fI-\fP" 2
 apri un terminale ed entra nella directory che dovrà contenere i file scaricati (in alternativa, puoi indicare a \fIZDL\fP la directory di lavoro)
@@ -496,10 +501,16 @@ attraverso la modalità interattiva \fBzdl -i\fP avviata nella directory gestita
 
 
 
-
-.SS Software consigliati\	
+\
+.SS Software consigliati	
 
 .RS 5
+
+
+.RS -5
+\fIAria2                            \fP
+.RS 5
+Downloader con accelerazione e altro
 
 
 .RS -5
@@ -668,7 +679,7 @@ Nella directory di download, ZDL produce file temporanei in \fI.zdl_tmp/\fP e sa
 .SH COPYING	
 
 .RS 5
-
+ @w{}
 .RS 0
 .IP "\fI \fP" 2
 Copyright (C) 2011: Gianluca Zoni (zoninoz) <\fBzoninoz@inventati.org\fP>
@@ -685,7 +696,7 @@ ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e successive)\&.
 .SS Per informazioni e per collaborare al progetto:	
 
 .RS 5
-
+ @bullet
 .RS 0
 .IP "\fI*\fP" 2
 \fBhttp://nongnu.org/zdl\fP

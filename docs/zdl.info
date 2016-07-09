@@ -36,10 +36,11 @@ ZigzagDownLoader (ZDL)
 **********************
 
 _ZigzagDownLoader_ gestisce gli scaricamenti di alcuni downloader come
-_Wget_, _Axel_, _RTMPDump_ o _cURL_. Inoltre, può estrarre l'URL dei
-file da scaricare da servizi di file hosting e video streaming. È
-compatibile con _Conkeror_, _XXXTerm/Xombrero_, _Firefox_ (attraverso
-l'estensione _Flashgot_) e _Microsoft Windows_ (tramite _Cygwin_).
+_Aria2_, _Axel_, _Wget_, _RTMPDump_ o _cURL_. Inoltre, può estrarre
+l'URL dei file da scaricare da servizi di file hosting e video
+streaming. È compatibile con _Conkeror_, _XXXTerm/Xombrero_, _Firefox_
+(attraverso l'estensione _Flashgot_) e _Microsoft Windows_ (tramite
+_Cygwin_).
 
 Perché questo programma
 ************************
@@ -218,11 +219,14 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `--list-extensions'
      Elenco delle estensioni di _ZigzagDownLoader (ZDL)_
 
-`--wget'
-     Forza l'uso di _Wget_
+`--aria2'
+     Scarica con _Aria2_
 
 `--axel'
-     Forza l'uso di _Axel_
+     Scarica con _Axel_
+
+`--wget'
+     Scarica con _Wget_
 
 `-m [_numero_], --multi [_numero_]'
      Download parallelo. È possibile indicare il numero massimo di
@@ -865,6 +869,9 @@ File: zdl.info,  Node: Software consigliati,  Next: Conkeror,  Prev: Creare nuov
 Software consigliati
 ********************
 
+_Aria2_
+     Downloader con accelerazione e altro
+
 _Axel_
      Acceleratore di download
 
@@ -1121,21 +1128,22 @@ Indice dei programmi
  [index ]
 * Menu:
 
-* avconv:                                Software consigliati. (line  9)
-* axel:                                  Software consigliati. (line  6)
-* conkeror:                              Software consigliati. (line 49)
-* editor:                                Software consigliati. (line 28)
-* ffmpeg:                                Software consigliati. (line  9)
-* firefox:                               Software consigliati. (line 43)
-* flashgot:                              Software consigliati. (line 18)
-* icecat:                                Software consigliati. (line 43)
-* iceweasel:                             Software consigliati. (line 43)
-* pinfo:                                 Software consigliati. (line 24)
-* rtmpdump:                              Software consigliati. (line 12)
-* xombrero:                              Software consigliati. (line 46)
-* xterm:                                 Software consigliati. (line 15)
-* xxxterm:                               Software consigliati. (line 46)
-* youtube-dl:                            Software consigliati. (line 21)
+* aria2:                                 Software consigliati. (line  6)
+* avconv:                                Software consigliati. (line 12)
+* axel:                                  Software consigliati. (line  9)
+* conkeror:                              Software consigliati. (line 52)
+* editor:                                Software consigliati. (line 31)
+* ffmpeg:                                Software consigliati. (line 12)
+* firefox:                               Software consigliati. (line 46)
+* flashgot:                              Software consigliati. (line 21)
+* icecat:                                Software consigliati. (line 46)
+* iceweasel:                             Software consigliati. (line 46)
+* pinfo:                                 Software consigliati. (line 27)
+* rtmpdump:                              Software consigliati. (line 15)
+* xombrero:                              Software consigliati. (line 49)
+* xterm:                                 Software consigliati. (line 18)
+* xxxterm:                               Software consigliati. (line 49)
+* youtube-dl:                            Software consigliati. (line 24)
 
 
 File: zdl.info,  Node: Copying,  Next: Contatti,  Prev: Tags,  Up: Top
@@ -1196,25 +1204,25 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5454
-Node: Servizi streaming/hosting11127
-Node: Avviare ZDL14668
-Node: Arrestare ZDL17106
-Node: Controllare i download18211
-Node: Manuali d'uso22499
-Node: Modi22915
-Node: Readline26181
-Node: Editor27701
-Node: Omonimie28926
-Node: Filtri30459
-Node: Creare nuove estensioni30781
-Node: Software consigliati32350
-Node: Conkeror33700
-Node: zdl-xterm e XXXTerm/Xombrero34711
-Node: Installazione e aggiornamento36635
-Node: Tags39649
-Node: Copying42377
-Node: Contatti43427
+Node: Il comando ZDL5463
+Node: Servizi streaming/hosting11166
+Node: Avviare ZDL14707
+Node: Arrestare ZDL17145
+Node: Controllare i download18250
+Node: Manuali d'uso22538
+Node: Modi22954
+Node: Readline26220
+Node: Editor27740
+Node: Omonimie28965
+Node: Filtri30498
+Node: Creare nuove estensioni30820
+Node: Software consigliati32389
+Node: Conkeror33790
+Node: zdl-xterm e XXXTerm/Xombrero34801
+Node: Installazione e aggiornamento36725
+Node: Tags39739
+Node: Copying42540
+Node: Contatti43590
 
 End Tag Table
 

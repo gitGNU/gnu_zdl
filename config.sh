@@ -41,6 +41,10 @@ key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="E
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
 key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
 
+declare -A _downloader
+_downloader['Axel']=axel
+_downloader['Aria2']=aria2c
+_downloader['Wget']=wget
 
 prog=$(basename $0)
 name_prog="ZigzagDownLoader"
@@ -164,7 +168,7 @@ function get_item_conf {
 	item="$1"
 	while read line
 	do
-	    if [[ "$line" =~ ^${item}'=\"*(.+)[" ]*'$ ]]
+	    if [[ "$line" =~ ^'[ ]*'${item}'=\"*([^"]+)[" ]*'$ ]]
 	    then
 		echo "${BASH_REMATCH[1]}"
 		return 0
@@ -184,7 +188,7 @@ function set_item_conf {
 	then
 	    while read line
 	    do
-		if [[ "$line" =~ ^${item}= ]]
+		if [[ "$line" =~ ^'[ ]*'${item}= ]]
 		then
 		    echo "${item}=$value" >> "${file_conf}.new"
 		    
@@ -214,11 +218,18 @@ function get_conf {
     fi
     
     ## downloader predefinito
-    downloader_in="$downloader"
-    if [ -z "$downloader_in" ]
-    then
-	downloader_in=${val_conf[0]}
-    fi
+    [ -z "$downloader" ] &&
+	downloader=${val_conf[0]}
+
+    for dlr in "$downloader" Aria2 Axel Wget
+    do
+	if command -v "${_downloader[$dlr]}" &>/dev/null
+	then
+	    downloader_in="$dlr"
+	    break
+	fi
+    done
+    set_downloader "$downloader_in"
     
     ## parti di Axel:
     axel_parts_conf="$axel_parts"
@@ -423,6 +434,41 @@ function check_editor {
     done
 }
 
+function check_default_downloader {
+    if command -v aria2c &>/dev/null &&
+	    [ -f "$file_conf" ] &&
+	    grep "$TAG" "$file_conf" &>/dev/null
+    then
+	unset def
+	while [[ ! "$def" =~ ^(s|n)$ ]]
+	do
+	    header_z
+	    header_box "NOVITÀ"
+	    print_c 4 "Aria2:"
+	    print_c 0 "$PROG supporta Aria2, più potente e stabile di Axel, acceleratore di download, scarica i torrent (sia dai \"file torrent\" sia dai link \"magnet\") e molto altro ancora...\n"
+	    print_c 2 "Vuoi utilizzarlo come downloader predefinito? (s|n):"
+	    read -e def
+
+	    case $def in
+		s)
+		    sed -i "$file_conf" \
+			-r "s|$TAG||g"
+		    set_item_conf downloader Aria2
+		    break
+		    ;;
+		n)
+		    sed -i "$file_conf" \
+			-r "s|$TAG||g"
+		    break
+		    ;;
+	    esac
+	    print_c 4 "NOTA BENE:"
+	    print_c 0 "- puoi modificare le impostazioni predefinite con il comando 'zdl --configure' oppure cambiando il valore della variabile 'downloader' nel file $file_conf\n"
+	    print_c 0 "- puoi sempre usare il downloader che preferisci attraverso i parametri --wget, --axel e --aria2 oppure dai comandi dell'interfaccia interattiva"
+	done
+    fi
+}
+
 function init {
     mkdir -p "$path_tmp"
 
@@ -454,3 +500,4 @@ function init {
 
     trap_sigint
 }
+
