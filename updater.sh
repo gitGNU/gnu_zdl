@@ -114,7 +114,12 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
     
     alert_msg['xterm']="$PROG utilizza XTerm se avviato da un'applicazione grafica come Firefox/Iceweasel/Icecat (tramite Flashgot), Chrome/Chromium (attraverso Download Assistant o Simple Get), XXXTerm/Xombrero e Conkeror:
 "
-    while ! command -v $dep &>/dev/null
+    for cmd in "${!deps[@]}"
+    do
+	[ "$dep" == "${deps[$cmd]}" ] && break
+    done
+
+    while ! command -v $cmd &>/dev/null
     do
 	print_c 3 "ATTENZIONE: $dep non è installato nel tuo sistema"
 
