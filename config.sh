@@ -30,7 +30,7 @@ TAG2='## ARIA2: già chiesto'
 
 
 # chiavi di configurazione -- valori predefiniti  --          descrizione per il config-manager
-key_conf[0]=downloader;       val_conf[0]=Axel;               string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
+key_conf[0]=downloader;       val_conf[0]=Aria2;              string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
 key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
 key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
 key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
@@ -440,10 +440,11 @@ function check_editor {
 function check_default_downloader {
     if command -v aria2c &>/dev/null &&
 	    [ -f "$file_conf" ] &&
-	    grep "$TAG1" "$file_conf" &>/dev/null
+	    ( [ "$(get_item_conf downloader)" != "Aria2" ] ||
+		  grep "$TAG1" "$file_conf" &>/dev/null )
     then
 	unset def
-	while [[ ! "$def" =~ ^(s|n)$ ]]
+	while [[ ! "$def" =~ ^(sì|no)$ ]]
 	do
 	    echo
 	    header_box "NOVITÀ:"
@@ -458,18 +459,22 @@ function check_default_downloader {
 	    read -e def
 
 	    case $def in
-		s)
+		sì)
 		    set_item_conf downloader Aria2
 
-		    sed -r "s|$TAG1|$TAG2|g" -i "$file_conf" 
+		    sed -r "s|$TAG1||g" -i "$file_conf" 
 		    break
 		    ;;
-		n)
+		no)
 		    sed -r "s|$TAG1|$TAG2|g" -i "$file_conf" 
 		    break
 		    ;;
 	    esac
 	done
+
+    elif [ "$(get_item_conf downloader)" == "Aria2" ]
+    then
+	sed -r "s|($TAG1|$TAG2)||g" -i "$file_conf" 
     fi
 }
 
