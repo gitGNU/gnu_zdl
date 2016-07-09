@@ -193,6 +193,12 @@ fi
 cd "$DIR"
 rm -fr "$path_conf/src"
 
-bold "$success"
-bold "Per informazioni su ZigzagDownLoader (zdl): zdl --help"
+print_c 1 "$op completat$suffix"
+echo -e "Per informazioni su ZigzagDownLoader (zdl): 
+zdl --help
+man zdl
+pinfo zdl
+info zdl
+http://nongnu.org/zdl"
+
 exit

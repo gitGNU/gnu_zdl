@@ -253,7 +253,7 @@ function update {
     path_conf="$HOME/.$prog"
     file_conf="$path_conf/$prog.conf"
 
-    if [ "$installer" == "true" ]
+    if [ "$installer_zdl" == "true" ]
     then
 	op="Installazione"
 	suffix="a"
@@ -513,10 +513,10 @@ ESTENSIONI:
 	check_default_downloader
     
     print_c 1 "$op automatic${suffix} completat${suffix}"
-    pause
 
-    if [ -z "$installer" ]
+    if [ -z "$installer_zdl" ]
     then
+	pause
 	cd $dir_dest
 	$prog ${args[*]}
 	exit
