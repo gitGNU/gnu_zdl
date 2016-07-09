@@ -193,11 +193,11 @@ fi
 cd "$DIR"
 rm -fr "$path_conf/src"
 
-print_c 0 "Per informazioni su ZigzagDownLoader (zdl): 
-~\$ zdl --help
-~\$ man zdl
-~\$ pinfo zdl
-~\$ info zdl
+print_c 4 "Per informazioni su ZigzagDownLoader (zdl):"
+print_c 0 "\tzdl --help
+\tman zdl
+\tpinfo zdl
+\tinfo zdl
 "
 print_c 4 "http://nongnu.org/zdl"
 
