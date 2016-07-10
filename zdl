@@ -598,11 +598,12 @@ then
 	then
 	    if [[ "${args[i+1]}" =~ (^[^-]+.*) ]]
 	    then
-		if [ -f "$BASE_DIR${BASH_REMATCH[1]}" ]
+		ftorrent=${BASH_REMATCH[1]}
+		if [ -f "$BASE_DIR${ftorrent}" ]
 		then
-		    [ "$BASE_DIR${BASH_REMATCH[1]}" == "$BASE_DIR${BASH_REMATCH[1]%.torrent}" ] &&
-			mv "$BASE_DIR${BASH_REMATCH[1]}" "$BASE_DIR${BASH_REMATCH[1]}.torrent"
-		    links_loop + "$BASE_DIR${BASH_REMATCH[1]%.torrent}.torrent"
+		    [ "$BASE_DIR${ftorrent}" == "$BASE_DIR${ftorrent%.torrent}" ] &&
+			mv "$BASE_DIR${ftorrent}" "$BASE_DIR${ftorrent}.torrent"
+		    links_loop + "$BASE_DIR${ftorrent%.torrent}.torrent"
 		fi	
 		unset args[i+1]
 	    fi
@@ -611,11 +612,12 @@ then
 	
 	if [[ "${args[i]}" =~ ^\-\-torrent-file=(.+)$ ]]
 	then
-	    if [ -f "$BASE_DIR${BASH_REMATCH[1]}" ]
+	    ftorrent=${BASH_REMATCH[1]}
+	    if [ -f "$BASE_DIR${ftorrent}" ]
 	    then
-		[ "$BASE_DIR${BASH_REMATCH[1]}" == "$BASE_DIR${BASH_REMATCH[1]%.torrent}" ] &&
-		    mv "$BASE_DIR${BASH_REMATCH[1]}" "$BASE_DIR${BASH_REMATCH[1]}.torrent"
-		links_loop + "$BASE_DIR${BASH_REMATCH[1]%.torrent}.torrent"
+		[ "$BASE_DIR${ftorrent}" == "$BASE_DIR${ftorrent%.torrent}" ] &&
+		    mv "$BASE_DIR${ftorrent}" "$BASE_DIR${ftorrent}.torrent"
+		links_loop + "$BASE_DIR${ftorrent%.torrent}.torrent"
 	    fi	
 	    unset args[i]
 	fi
