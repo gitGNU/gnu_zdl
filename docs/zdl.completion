@@ -1,30 +1,36 @@
 #!/bin/bash
 
+## manuale: http://yasb.altervista.org/blog/2012_07_24/compgen-un-comando-sui-comandi/?doing_wp_cron=1468161646.9426960945129394531250
+ 
+
 _zdl() 
 {
     local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi --list-extensions"
+    opts="--tcp-port= --udp-port= --torrent-file= --help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi= --list-extensions"
 
     if [[ ${cur} == -* ]]
     then
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
+	    
+	
     elif [[ ${cur} == h* ]]
     then
 	COMPREPLY=( $(compgen -W "http://" -- ${cur}) )
+	COMPREPLY=( $(compgen -f -- ${cur}) )
         return 0
+
     else
-	if [[ -d $prev ]]
-	then
-	    COMPREPLY=( $(compgen -W "$(ls $prev)" -- ${cur}) )
-            return 0
-	else
-	    COMPREPLY=( $(compgen -W "$(ls)" -- ${cur}) )
-            return 0
-	fi
+	COMPREPLY=( $(compgen -f -- $cur) )
+
+	[ "$prev" == '--out=' ] &&
+	    COMPREPLY+=( $(compgen -c -- ${cur}) )
+
+        return 0
     fi
 }
+
 complete -o nospace -F _zdl zdl
