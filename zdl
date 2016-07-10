@@ -598,9 +598,12 @@ then
 	then
 	    if [[ "${args[i+1]}" =~ (^[^-]+.*) ]]
 	    then
-		[ -f "$BASE_DIR${BASH_REMATCH[1]}" ] &&
-		    links_loop + "$BASE_DIR${BASH_REMATCH[1]}"
-		
+		if [ -f "$BASE_DIR${BASH_REMATCH[1]}" ]
+		then
+		    [ "$BASE_DIR${BASH_REMATCH[1]}" == "$BASE_DIR${BASH_REMATCH[1]%.torrent}" ] &&
+			mv "$BASE_DIR${BASH_REMATCH[1]}" "$BASE_DIR${BASH_REMATCH[1]}.torrent"
+		    links_loop + "$BASE_DIR${BASH_REMATCH[1]%.torrent}.torrent"
+		fi	
 		unset args[i+1]
 	    fi
 	    unset args[i] 
@@ -608,9 +611,12 @@ then
 	
 	if [[ "${args[i]}" =~ ^\-\-torrent-file=(.+)$ ]]
 	then
-	    [ -f "$BASE_DIR${BASH_REMATCH[1]}" ] &&
-		links_loop + "$BASE_DIR${BASH_REMATCH[1]}"
-
+	    if [ -f "$BASE_DIR${BASH_REMATCH[1]}" ]
+	    then
+		[ "$BASE_DIR${BASH_REMATCH[1]}" == "$BASE_DIR${BASH_REMATCH[1]%.torrent}" ] &&
+		    mv "$BASE_DIR${BASH_REMATCH[1]}" "$BASE_DIR${BASH_REMATCH[1]}.torrent"
+		links_loop + "$BASE_DIR${BASH_REMATCH[1]%.torrent}.torrent"
+	    fi	
 	    unset args[i]
 	fi
 	
