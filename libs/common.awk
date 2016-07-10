@@ -33,7 +33,7 @@ function tty () {
 
 function check_instance_daemon () {
     pid = $1
-    c = "cat /proc/" pid "/cmdline" #2>/dev/null"
+    c = "cat /proc/" pid "/cmdline"
     c | getline dir
     close(c)
     if (dir ~ /zdl.+silent/) {

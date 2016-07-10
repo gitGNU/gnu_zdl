@@ -39,8 +39,10 @@ Uso (l'ordine degli argomenti non è importante):
 
          FILE_n                Nomi dei file da cui estrarre i LINK.
                                I file devono essere testuali
-                               oppure container DLC (se omessi, 
-                               $PROG processa i LINK in memoria
+                               oppure container DLC o file TORRENT, 
+                               questi ultimi contrassegnati rispettivamente 
+                               dalle estensioni .dlc e .torrent
+                               ($PROG processa comunque i LINK in memoria
                                nella DIR e quelli in input)
 
          LINK_n                URL dei file oppure delle pagine web 
@@ -67,7 +69,7 @@ OPZIONI
        --wget                  Scarica con Wget
        --axel                  Scarica con Axel
 
-  -m [N], --multi [NUM]        Download parallelo. È possibile indicare
+  -m [N], --multi=[NUM]        Download parallelo. È possibile indicare
                                il numero massimo di download da effettuare
                                contemporaneamente
        
@@ -119,22 +121,30 @@ OPZIONI
        --no-complete           Cancella i file temporanei dei download completati
 
 
+Torrent (Aria2):
+  -T <FILE>,  --torrent-file=<FILE>     File torrent per Aria2: 
+                                        può non avere estensione .torrent
+
+       --tcp-port=<NUM>        Porte TCP e UDP aperte: 
+       --udp-port=<NUM>        verificare le impostazioni del router
+
+
 Filtri:
-       --scrape-url=URL        Estrae gli URL/link dalla pagina web indicata e
+       --scrape-url=<URL>      Estrae gli URL/link dalla pagina web indicata e
                                li accoda all'elenco registrato
 
        --scrape-url            Estrae gli URL (i link) dalle pagina web indicate 
                                come LINK
 
-       --url=REGEX             Processa solo gli URL (i link) che corrispondono 
+       --url=<REGEX>           Processa solo gli URL (i link) che corrispondono 
                                alla REGEX
 
-       --no-url=REGEX          Non processa gli URL (i link) che corrispondono 
+       --no-url=<REGEX>        Non processa gli URL (i link) che corrispondono 
                                alla REGEX
 
-       --file=REGEX            Scarica solo file il cui nome corrisponde alla REGEX
+       --file=<REGEX>          Scarica solo file il cui nome corrisponde alla REGEX
 
-       --no-file=REGEX         Non scarica i file il cui nome corrisponde alla REGEX
+       --no-file=<REGEX>       Non scarica i file il cui nome corrisponde alla REGEX
 
        --no-rev                Non scarica i file con estensione '.rev'
 
@@ -162,13 +172,13 @@ Avvio con proxy:
 		               automaticamente (il tipo di proxy
 		               predefinito è Transparent) 
 
-       --proxy=[t|a|e]         Avvia ZDL attivando un proxy del tipo
+       --proxy=<t|a|e>         Avvia ZDL attivando un proxy del tipo
 		               definito dall'utente:
 			    	 t = Transparent
 			    	 a = Anonymous
 			    	 e = Elite
 			
-       --proxy=IP:PORTA        Avvia ZDL attivando il proxy indicato
+       --proxy=<IP:PORTA>      Avvia ZDL attivando il proxy indicato
 		               all'utente, per l'intera durata del
 		               download (il proxy viene sostituito
 			       automaticamente solo per i link dei

@@ -38,12 +38,16 @@ function force_dler {
     dler=$downloader_in
     downloader_in="$1"
     ch_dler=1
-    print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
+    [ "$dler" != "$downloader_in" ] &&
+	print_c 3 "Il server non permette l'uso di $dler: il download verrà effettuato con $downloader_in"
 }
 
 
 function dler_type {
     case "$1" in
+	aria2)
+	    type_links=( "${aria2_links[@]}" )
+	    ;;
 	rtmp)
 	    type_links=( "${rtmp_links[@]}" )
 	    ;;
@@ -76,9 +80,16 @@ function check_dler_forcing {
     then
 	force_dler "Wget"
 
+    elif dler_type "aria2" "$url_in"
+    then
+	if command -v aria2c &>/dev/null
+	then
+	    force_dler "Aria2"
+	fi
+
     elif dler_type "youtube-dl" "$url_in"
     then
-	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
+	if command -v youtube-dl &>/dev/null
 	then
 	    force_dler "youtube-dl"
 	else
@@ -87,12 +98,12 @@ function check_dler_forcing {
 
     elif dler_type "rtmp" "$url_in"
     then
-	if [ -n "$(command -v rtmpdump 2>/dev/null)" ]
+	if command -v rtmpdump &>/dev/null
 	then
 	    force_dler "RTMPDump"
     	    url_in_file="http://DOMA.IN/PATH"
 	    
-	elif [ -n "$(command -v curl 2>/dev/null)" ]
+	elif command -v curl &>/dev/null
 	then
 	    force_dler "cURL"
 	    url_in_file="http://DOMA.IN/PATH"
@@ -189,43 +200,62 @@ function download {
 
     case "$downloader_in" in
 	Aria2)
-	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
-	
-	    if [ -f "$path_tmp"/cookies.zdl ]
-	    then
-		opt_cookies="--load-cookies=$path_tmp/cookies.zdl"
 
-	    elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
+	    if [[ "$url_in_file" =~ ^(magnet:) ]] ||
+		   [ -f "$url_in_file" ]
 	    then
-		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
-		if [ -n "$COOKIES" ]
+	    	[ -n "$tcp_port" ] && opts+=( "--listen-port=$tcp_port" )
+	    	[ -n "$udp_port" ] && opts+=( '--enable-dht=true' "--dht-listen-port=$udp_port" )
+		
+	    elif [ -n "$file_in" ]
+	    then
+		length_in=$(wget -S --spider "$url_in_file" 2>&1 |
+				grep 'Content-Length:'           |
+				sed -r 's|\s*Content-Length:\s+(.+)|\1|g')
+		
+		fileout=( -o "$file_in" )
+		
+		if [ -f "$path_tmp"/cookies.zdl ]
 		then
-		    headers+=( "-H" "Cookie:$COOKIES" )
+		    opts+=( "--load-cookies=$path_tmp/cookies.zdl" )
+		    
+		elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
+		then
+		    COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
+		    if [ -n "$COOKIES" ]
+		    then
+			headers+=( "-H" "Cookie:$COOKIES" )
+		    fi
+		    
 		fi
 
+
+		opts+=(
+		    -U "$user_agent"
+		    -k 1M
+		    -x 16
+		    --continue=true
+		    --header="${headers[@]}"
+		    --auto-file-renaming=false
+		)
 	    fi
 
-	    length_in=$(wget -S --spider "$url_in_file" 2>&1 |
-			    grep 'Content-Length:'           |
-			    sed -r 's|\s*Content-Length:\s+(.+)|\1|g')
-
-	    # -s $aria2_parts                           \
-	    # -j $aria2_parts                           \
-
+	    ##################
+	    ## -s $aria2_parts
+	    ## -j $aria2_parts
+	    ##################
+	    
 	    stdbuf -oL -eL                                   \
-		   aria2c -U "$user_agent"                   \
-		   -k 1M                                     \
-		   -x 16                                     \
-		   --continue=true                           \
-		   --header="${headers[@]}"                  \
-		   $opt_cookies                              \
-		   --auto-file-renaming=false                \
-		   -o "$fileout"                             \
+		   aria2c                                    \
+		   "${opts[@]}"                              \
+		   --allow-overwrite=true                    \
+		   --follow-torrent=false                    \
+		   "${fileout[@]}"                           \
 		   "$url_in_file"                            \
 		   >>"$path_tmp/${file_in}_stdout.tmp" &
 
 	    pid_in=$!
-	    touch "$file_in".aria2
+	    unset opts fileout
 		    
 	    echo -e "${pid_in}
 $url_in
@@ -621,18 +651,24 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
 function links_loop {
     local url_test="${2}"
-    if [ "$1" == "+" ] && ! url "$url_test"
+    if [ "$1" == "+" ] &&
+	   ! url "$url_test"
     then
 	_log 12 "$url_test"
 	links_loop - "$url_test"
+
     else
-	[ "$1" == "+" ] && url_test="${url_test%'#20\x'}"
+	[ "$1" == "+" ] &&
+	    url_test="${url_test%'#20\x'}"
+
 	line_file "$1" "$url_test" "$path_tmp/links_loop.txt"
     fi
 }
 
 function kill_downloads {
-    [ -f "$path_tmp/external-dl_pids.txt" ] && kill $(cat "$path_tmp/external-dl_pids.txt")
+    [ -f "$path_tmp/external-dl_pids.txt" ] &&
+	kill $(cat "$path_tmp/external-dl_pids.txt")
+
     if data_stdout
     then
 	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null

@@ -43,6 +43,8 @@ key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Sc
 key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
 key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
 key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
+key_conf[13]=tcp_port;        val_conf[13]="";                string_conf[11]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+key_conf[14]=udp_port;        val_conf[14]="";                string_conf[12]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 
 declare -A _downloader
 _downloader['Axel']=axel
@@ -96,7 +98,12 @@ wget_links=(
 )
 #    videomega\.
 
-#youtubedl_links=( rai\.tv )
+##youtubedl_links=( rai\.tv )
+
+aria2_links=(
+    ^magnet\:
+    \.torrent$
+)
 
 noresume_links=(
     uploadable\.
@@ -108,6 +115,9 @@ no_check_links=(
     nowdownload\.
     dropbox\.
     pastebin\.
+    ^magnet\:
+    \.torrent$
+
 )
 #no_check_links=( tusfiles\. nowdownload\. )
 
@@ -117,6 +127,9 @@ no_check_ext=(
     easybytez\.
     tusfiles\.
     'mega.(co|nz)'
+    ^magnet\:
+    \.torrent$
+
 )
 
 ## massima durata tentativi di connessione (Wget)

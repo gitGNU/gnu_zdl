@@ -83,6 +83,7 @@
 * Readline::@*La riga di comando di ZDL@*
 * Editor::@*Editor integrato, per modificare la coda di download@*
 * Omonimie::@*Gestione dei file omonimi e recupero dei download interrotti@*
+* Torrent::@*Scaricamento dei torrent con Aria2: URL magnet oppure file torrent@*
 * Filtri::@*Filtri per l'estrazione e la selezione di file e URL@*
 @end macro
 
@@ -280,7 +281,7 @@ L'ordine delle opzioni e degli altri argomenti non è importante:
 
 @table @emph
 @item file
-Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC (se omessi, ZDL processa i @emph{link} in memoria nella @emph{directory} e quelli in input)
+Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC o file TORRENT, questi ultimi contrassegnati rispettivamente dalle estensioni @emph{.dlc} e @emph{.torrent} (ZDL processa comunque i @emph{link} in memoria nella @emph{directory} e quelli in input)
 
 @item link
 URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file})
@@ -369,8 +370,22 @@ Cancella i file temporanei dei download completati
 @end table
 
 @c @end man
-@unnumberedsubsubsec Filtri:
+@unnumberedsubsubsec Torrent:
 @c @man{6}
+@c @ifman @unnumberedsubsec Torrent:
+@table @option
+@item -T @emph{file}, --torrent-file=@emph{file}
+File torrent per Aria2: può non avere estensione .torrent
+
+@item --tcp-port=@emph{porta}
+@itemx --udp-port=@emph{porta}
+Porte TCP e UDP aperte: verificare le impostazioni del router
+
+@end table
+
+@c @end man
+@unnumberedsubsubsec Filtri:
+@c @man{7}
 @c @ifman @unnumberedsubsec Filtri:
 @table @option
 @item --scrape-url=@emph{URL pagina web}
@@ -401,7 +416,7 @@ Non scarica i file il cui nome contiene la stringa 'sub' (in lettere maiuscole e
 
 @c @end man
 @unnumberedsubsubsec Avvio con un editor:
-@c @man{7}
+@c @man{8}
 @c @ifman @unnumberedsubsec Avvio con un editor:
 @table @option
 @item -e, --editor
@@ -427,7 +442,7 @@ usa Zile, un micro editor GNU in stile Emacs
 
 @c @end man
 @unnumberedsubsubsec Avvio con Proxy:
-@c @man{8}
+@c @man{9}
 @c @ifman @unnumberedsubsec Avvio con proxy:
 @table @option
 
@@ -456,7 +471,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @c @end man
 @unnumberedsubsubsec Configurazione:
 
-@c @man{9}
+@c @man{10}
 @c @ifman @unnumberedsubsec Configurazione:
 @table @option
 
@@ -476,7 +491,7 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 @unnumbered Scaricare da servizi di @emph{video streaming} e di @emph{file hosting}
 
-@c @man{10}
+@c @man{11}
 @c @ifman @unnumberedsec PANORAMICA
 @c @ifman @unnumberedsubsec Servizi
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
@@ -544,7 +559,7 @@ Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connetters
 
 @unnumbered Modalità di avvio
 
-@c @man{11}
+@c @man{12}
 @c @ifman @unnumberedsubsec Avvio
 ZDL può essere avviato in diversi modi:
 
@@ -618,7 +633,7 @@ nella modalità "non interattiva" (standard), digitando il tasto @kbd{i}
 
 @unnumbered Modalità di arresto
 
-@c @man{12}
+@c @man{13}
 @c @ifman @unnumberedsubsec Arresto
 ZDL può essere fermato in diversi modi:
 @itemize
@@ -775,7 +790,7 @@ La scelta dell'editor può essere esplicita (da riga di comando) o implicita, co
 @*@*
 @htmlend
 
-@node Omonimie,Filtri,Editor,Top
+@node Omonimie,Torrent,Editor,Top
 @htmlstart
 
 @unnumbered Omonimie
@@ -793,7 +808,16 @@ l'uso di questa opzione comporta la sovrascrittura del file omonimo. In mancanza
 
 @htmlend
 
-@node Filtri,Creare nuove estensioni,Omonimie,Top
+@node Torrent,Filtri,Omonimie,Top
+@htmlstart
+
+@unnumbered Torrent
+Aria2 permette lo scaricamento dei @emph{torrent}. Questo downloader non deve essere esplicitamente indicato a ZDL, ma è necessario che sia installato correttamente. Un @emph{torrent} può essere avviato tramite il semplice invio dell'@emph{URL magnet} (attraverso tutti i sistemi previsti per gli URL in generale, ZDL riconosce il @emph{magnet} automaticamente) oppure inviando il @emph{file torrent}, utilizzando l'opzione @code{--torrent-file=} o il file contrassegnato dell'estensione @emph{.torrent}.
+@**
+Le porte @emph{TCP} e @emph{UDP} possono essere fissate nella configurazione di ZDL (con il comando @command{zdl --configure} oppure nel file @file{$HOME/.zdl/zdl.conf}), indicate esplicitamente con le opzioni @code{--tcp-port=} e @code{--udp-port=} oppure indicate nella configurazione di @emph{Aria2}. È importante che le porte siano aperte dal router.
+@htmlend
+
+@node Filtri,Creare nuove estensioni,Torrent,Top
 @htmlstart
 
 @unnumbered Filtri
@@ -851,7 +875,7 @@ modificare il sorgente
 
 @unnumbered Software consigliati
 
-@c @man{13}
+@c @man{14}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
 @pindex aria2
@@ -1164,7 +1188,7 @@ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
 
 @bye
 
-@c @man{14}
+@c @man{15}
 @unnumberedsec MANUALI
 Oltre alla presente guida, puoi consultare:
 @table @command

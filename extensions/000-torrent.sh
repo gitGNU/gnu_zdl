@@ -24,29 +24,29 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: shortlinks
-## zdl-extension name: Adf.ly, Adfoc.us, linkbucks.com, bit.ly, goo.gl
-
-
-if [[ "$url_in" =~ (adf.ly|adfoc.us|linkbucks.com|bit.ly|goo.gl) ]]
+if ( [ -f "$url_in" ] && [[ "$url_in" =~ \.torrent$ ]] ) ||
+       [[ "$url_in" =~ ^magnet\: ]]
 then
-    if command -v curl &>/dev/null
+    if [ -f "$url_in" ]
     then
-	new_url=$(curl -d "url=$url_in" "http://www.bypassshorturl.com/get.php")
-    fi
+    	bt_data=$(aria2c --show-files "$url_in")
 
-    if [ -z "$new_url" ]
-    then
-	new_url=$(wget -qO- --post-data="url=$url_in" "http://www.bypassshorturl.com/get.php")
-    fi
+	###### MAGNET URI:
+	## url_in_file=$(urldecode "$(grep 'Magnet URI: ' <<< "$bt_data" |
+	##			     sed -r 's|Magnet URI: (.+)$|\1|g')")
+	url_in_file="$url_in"
+	
+	file_in=$(grep 'Name: ' <<< "$bt_data" |
+			 sed -r 's|.*Name:\s(.+)$|\1|g')
 
-    new_url="$(sanitize_url "$new_url")"
-    
-    if url "$new_url"
-    then
-	replace_url_in "$url_in"
-
+	length_in=$(grep 'Total Length' <<< "$bt_data")
+	length_in="${length_in#*\(}"
+	length_in="${length_in%\)*}"
+	length_in="${length_in//,}"
+	
     else
-	break_loop=true
+	url_in_file="$url_in"
+	file_in=$(sed -r 's|.+&dn=([^\&]+)&.+|\1|' <<< "$(urldecode "$url_in")")
+	length_in=$(sed -r 's|.+&xl=([^\&]+)&.+|\1|' <<< "$(urldecode "$url_in")")
     fi
 fi

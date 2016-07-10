@@ -589,22 +589,72 @@ then
     done
 fi
 
-if [ "${args[*]}" != "${args[*]//--multi}" ] ||
-       [ "${args[*]}" != "${args[*]//-m}" ]
-then 
+## -T | --torrent-file=
+if [[ "${args[*]}" =~ \-(T|\-torrent-file=) ]]
+then
     for ((i=0; i<=$max_args; i++))
     do
-	if [ "${args[i]}" == '--multi' ] ||
-	       [ "${args[i]}" == '-m' ]
+	if [ "${args[i]}" == "-T" ]
 	then
-	    unset args[i] num_dl
-	    if [[ "${args[i+1]}" =~ ^[0-9]+$ ]]
+	    if [[ "${args[i+1]}" =~ (^[^-]+.*) ]]
 	    then
-		num_dl="${args[i+1]}"
+		[ -f "$BASE_DIR${BASH_REMATCH[1]}" ] &&
+		    links_loop + "$BASE_DIR${BASH_REMATCH[1]}"
+		
 		unset args[i+1]
 	    fi
-	    echo $num_dl > "$path_tmp/dl-mode"
+	    unset args[i] 
 	fi
+	
+	if [[ "${args[i]}" =~ ^\-\-torrent-file=(.+)$ ]]
+	then
+	    [ -f "$BASE_DIR${BASH_REMATCH[1]}" ] &&
+		links_loop + "$BASE_DIR${BASH_REMATCH[1]}"
+
+	    unset args[i]
+	fi
+	
+    done
+    
+fi
+
+## --(tcp|udp)-port=
+if [[ "${args[*]}" =~ \-\-(tcp|udp)\-port= ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^\-\-(tcp|udp)-port=([0-9]+)$ ]]
+	then
+	    eval ${BASH_REMATCH[1]}_port="${BASH_REMATCH[2]}"
+	    unset args[i]
+	fi
+    done
+fi
+
+
+if [[ "${args[*]}" =~ \-(m|\-multi=) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == "-m" ]
+	then
+	    if [[ "${args[i+1]}" =~ ^([0-9]+)$ ]]
+	    then
+		unset num_dl
+		num_dl="${BASH_REMATCH[1]}"
+		echo $num_dl > "$path_tmp/dl-mode"
+		unset args[i+1]
+	    fi
+	    unset args[i]
+	fi
+	
+	if [[ "${args[i]}" =~ ^\-\-multi=([0-9]+)$ ]]
+	then
+	    num_dl="${BASH_REMATCH[1]}"
+	    echo $num_dl > "$path_tmp/dl-mode"
+	    unset args[i]
+	fi
+
     done
 fi
 
@@ -843,8 +893,6 @@ do
     fi
 done
 
-
-
 if [ -n "${args[*]}" ]
 then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
@@ -854,11 +902,22 @@ then
 	then
 	    if [ "${args[i]}" != "${args[i]%.dlc}" ]
 	    then
-		add_container $(cat "${BASE_DIR}${args[i]}") ## container_file)
+		add_container $(cat "${BASE_DIR}${args[i]}") ## container_file
+
+	    elif [ "${args[i]}" != "${args[i]%.torrent}" ]
+	    then
+		links_loop + "${BASE_DIR}${args[i]}"
+		
 	    else
-		links=$(cat "${BASE_DIR}${args[i]}")
-		grep_urls "$(echo -e "${links// /%20}")" >> "$path_tmp"/links_loop.txt
+		while read line
+		do
+		    sanitize_url "$line" >>"$path_tmp/sanitized_links"
+
+		done <"${BASE_DIR}${args[i]}"
+
+		grep_urls "$path_tmp/sanitized_links" >"$path_tmp"/links_loop.txt
 	    fi
+	    
 	elif [ -n "${args[i]}" ]
 	then
 	    args[i]="$(sanitize_url "${args[i]}")"
@@ -868,6 +927,7 @@ then
 		if [ "$scrapeURL" == "true" ]
 		then
 		    scrape_url "${args[i]}"
+		    
 		else
 		    if [ -z "$links" ]
 		    then
@@ -895,6 +955,7 @@ then
 	[ -z "$lite" ] && standard_box 1
     fi
 fi
+
 
 if [ -f "$path_tmp/downloader" ]
 then

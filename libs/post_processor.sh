@@ -153,8 +153,7 @@ function post_process {
 	do
 	    if [ -f "$line" ]
 	    then
-		mime="$(file --mime-type "$line")"
-		mime="${mime##* }"
+		mime="$(file -b --mime-type "$line")"
 		
 		if [[ "$mime" =~ (audio|video) ]]
 		then

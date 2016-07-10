@@ -225,8 +225,13 @@ function progress_out (value,           progress_line) {
 		progress_line = chunk[y]
 		split(progress_line, progress_elems, /[(]*[\%]*[:]*[K]*[\]]*/)
 		percent_out[i] = int(progress_elems[2])
-		speed_out[i] = int(progress_elems[5])
-		eta_out[i] = progress_elems[7]
+		
+		match(progress_line, /DL:([0-9]+)/, matched)
+		speed_out[i] = matched[1]
+
+		match(progress_line, /ETA:(.+)\]/, matched)
+		eta_out[i] = matched[1]
+
 		break
 	    }
 
@@ -234,15 +239,19 @@ function progress_out (value,           progress_line) {
 
 	if (progress_end[i]) {
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+
 	    if (url_in == url_out[i]) bash_var("url_in", "")
+
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
-	} else if (progress_abort[i]) {
+	}
+	else if (progress_abort[i]) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
 	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2")
-	} else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
+	}
+	else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
 	    speed_out_type[i] = "KB/s"
 	    length_saved[i] = int((length_out[i] * percent_out[i]) / 100)
 	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))

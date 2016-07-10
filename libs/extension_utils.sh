@@ -122,17 +122,25 @@ function urlencode {
 }
 
 function add_container {
+    local new
+    unset new
     container=$(urlencode "$1")
-    URLlist=$(wget -q "http://dcrypt.it/decrypt/paste" --post-data="content=${container}" -O- |egrep -e "http" -e "://")
-    unset new
-    for ((i=1; i<=$(wc -l <<< "$URLlist"); i++))
+    URLlist=$(wget "http://dcrypt.it/decrypt/paste"     \
+		   --post-data="content=${container}"   \
+		   -qO- |
+		     egrep -e "http" -e "://")
+
+    while read line
     do
-	new=$(sed -n ${i}p  <<< "$URLlist" |sed -r "s|.*\"(.+)\".*|\\1|g")
-	[ "$i" == 1 ] && url_in="$new"
-	#links_loop + "$new"
-	echo -e "${new// /%20}" >> "$path_tmp"/links_loop.txt && print_c 1 "Aggiunto URL: $new"
-    done
-    unset new
+	new=$(sed -r "s|.*\"(.+)\".*|\\1|g" <<< "$line")
+	new=$(sanitize_url "$new")
+	
+	(( i == 1 )) && url_in="$new"
+
+	echo "$new" >> "$path_tmp"/links_loop.txt &&
+	    print_c 1 "Aggiunto URL: $new"
+
+    done <<< "$URLlist"
 }
 
 function base36 {
@@ -382,12 +390,12 @@ function set_ext {
 	done
 	
 	kill -9 $mime_pid
-	mime_type=$(file --mime-type "$path_tmp/test_mime" | cut -d' ' -f2)
+	mime_type=$(file -b --mime-type "$path_tmp/test_mime")
 	rm -f "$path_tmp/test_mime"
 
     elif [ -f "$filename" ]
     then
-	mime_type=$(file --mime-type "$filename" | cut -d' ' -f2)
+	mime_type=$(file -b --mime-type "$filename")
     fi
 
     if [ -n "$mime_type" ]

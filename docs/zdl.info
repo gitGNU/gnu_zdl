@@ -143,6 +143,9 @@ Editor integrato, per modificare la coda di download
 * Omonimie::
 Gestione dei file omonimi e recupero dei download interrotti
 
+* Torrent::
+Scaricamento dei torrent con Aria2: URL magnet oppure file torrent
+
 * Filtri::
 Filtri per l'estrazione e la selezione di file e URL
 
@@ -194,8 +197,10 @@ L'ordine delle opzioni e degli altri argomenti non è importante:
 
 _file_
      Nomi dei file da cui estrarre i _link_. I file devono essere
-     testuali oppure container DLC (se omessi, ZDL processa i _link_ in
-     memoria nella _directory_ e quelli in input)
+     testuali oppure container DLC o file TORRENT, questi ultimi
+     contrassegnati rispettivamente dalle estensioni _.dlc_ e
+     _.torrent_ (ZDL processa comunque i _link_ in memoria nella
+     _directory_ e quelli in input)
 
 _link_
      URL dei file oppure delle pagine web dei servizi di hosting,
@@ -289,6 +294,17 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 
 `--no-complete'
      Cancella i file temporanei dei download completati
+
+
+Torrent:
+........
+
+`-T _file_, --torrent-file=_file_'
+     File torrent per Aria2: può non avere estensione .torrent
+
+`--tcp-port=_porta_'
+`--udp-port=_porta_'
+     Porte TCP e UDP aperte: verificare le impostazioni del router
 
 
 Filtri:
@@ -781,7 +797,7 @@ caso si usi Cygwin, l'installatore e le funzioni di aggiornamento di
 ZDL installano automaticamente l'editor _Nano_: è reso disponibile se
 non è presente altro editor predefinito.
 
-File: zdl.info,  Node: Omonimie,  Next: Filtri,  Prev: Editor,  Up: Top
+File: zdl.info,  Node: Omonimie,  Next: Torrent,  Prev: Editor,  Up: Top
 
 Omonimie
 ********
@@ -814,7 +830,26 @@ alternativi:
      comportamento predefinito (`zdl [-c|--configure]').
 
 
-File: zdl.info,  Node: Filtri,  Next: Creare nuove estensioni,  Prev: Omonimie,  Up: Top
+File: zdl.info,  Node: Torrent,  Next: Filtri,  Prev: Omonimie,  Up: Top
+
+Torrent
+*******
+
+Aria2 permette lo scaricamento dei _torrent_. Questo downloader non
+deve essere esplicitamente indicato a ZDL, ma è necessario che sia
+installato correttamente. Un _torrent_ può essere avviato tramite il
+semplice invio dell'_URL magnet_ (attraverso tutti i sistemi previsti
+per gli URL in generale, ZDL riconosce il _magnet_ automaticamente)
+oppure inviando il _file torrent_, utilizzando l'opzione
+`--torrent-file=' o il file contrassegnato dell'estensione _.torrent_.
+* Le porte _TCP_ e _UDP_ possono essere fissate nella configurazione di
+ZDL (con il comando `zdl --configure' oppure nel file
+`$HOME/.zdl/zdl.conf'), indicate esplicitamente con le opzioni
+`--tcp-port=' e `--udp-port=' oppure indicate nella configurazione di
+_Aria2_. È importante che le porte siano aperte dal router.
+
+
+File: zdl.info,  Node: Filtri,  Next: Creare nuove estensioni,  Prev: Torrent,  Up: Top
 
 Filtri
 ******
@@ -1112,7 +1147,7 @@ Indice analitico generale
                                                                (line 19)
 * generated:                             Servizi streaming/hosting.
                                                                (line 25)
-* opzioni:                               Il comando ZDL.       (line 37)
+* opzioni:                               Il comando ZDL.       (line 39)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
                                                                (line 29)
@@ -1204,25 +1239,26 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL5463
-Node: Servizi streaming/hosting11166
-Node: Avviare ZDL14707
-Node: Arrestare ZDL17145
-Node: Controllare i download18250
-Node: Manuali d'uso22538
-Node: Modi22954
-Node: Readline26220
-Node: Editor27740
-Node: Omonimie28965
-Node: Filtri30498
-Node: Creare nuove estensioni30820
-Node: Software consigliati32389
-Node: Conkeror33790
-Node: zdl-xterm e XXXTerm/Xombrero34801
-Node: Installazione e aggiornamento36725
-Node: Tags39760
-Node: Copying42561
-Node: Contatti43611
+Node: Il comando ZDL5543
+Node: Servizi streaming/hosting11582
+Node: Avviare ZDL15123
+Node: Arrestare ZDL17561
+Node: Controllare i download18666
+Node: Manuali d'uso22954
+Node: Modi23370
+Node: Readline26636
+Node: Editor28156
+Node: Omonimie29381
+Node: Torrent30915
+Node: Filtri31801
+Node: Creare nuove estensioni32122
+Node: Software consigliati33691
+Node: Conkeror35092
+Node: zdl-xterm e XXXTerm/Xombrero36103
+Node: Installazione e aggiornamento38027
+Node: Tags41062
+Node: Copying43863
+Node: Contatti44913
 
 End Tag Table
 

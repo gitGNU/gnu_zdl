@@ -320,8 +320,7 @@ function link_parser {
 }
 
 function url {
-    #    if [[ "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))$' <<< "$1")" ]]
-    if [[ "$(grep_urls "$1")" ]]
+    if grep_urls "$1" &>/dev/null
     then
 	return 0
     else
@@ -330,7 +329,34 @@ function url {
 }
 
 function grep_urls {
-    grep -P '^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*$' <<< "$1"
+    local input result
+    result=1
+    
+    if [ -f "$1" ] &&
+	   [ "$(file -b --mime-type "$1")" == 'text/plain' ]
+    then
+	input=$(cat "$1")
+
+    else
+	input="$1"
+    fi
+
+    while read line
+    do
+        if [ -f "$line" ] &&
+	       [[ "$line" =~ \.torrent$ ]]
+	then
+	    echo "$line" 
+	    result=0
+	fi
+
+    done <<< "$input"
+    
+    grep -P '(magnet:.+|^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*)$' <<< "$input" &&
+	result=0
+
+    return $result
+    
 }
 
 function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizioni
@@ -349,11 +375,11 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
 	touch "${file_to_clean}-rewriting"
 
 	local lines=$(
-	    awk '!($0 in a){a[$0]; print}' <<< "$(grep -P '^\b(((http|https|ftp)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*$' "$file_to_clean")"
+	    awk '!($0 in a){a[$0]; print}' < "$file_to_clean"
 	)
 	if [ -n "$lines" ]
 	then
-	    echo -e "$lines" > "$file_to_clean"
+	    grep_urls "$lines" > "$file_to_clean"
 	else
 	    rm -f "$file_to_clean"
 	fi
