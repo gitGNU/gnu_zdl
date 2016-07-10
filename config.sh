@@ -305,134 +305,6 @@ function get_conf {
 }
 
 
-function configure_accounts {
-    mkdir -p "$path_conf"/accounts
-    ##
-    ## esempio per implementare il login per nuovi servizi di hosting:
-    ##
-    # while true; do
-    # 	print_c 2 "Servizi di hosting abilitati per l'uso di account:"
-    # 	echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
-    # 	print_c 2 "Scegli il servizio (1):"
-    # 	cursor off
-    # 	read -n 1 option_1
-    # 	cursor on
-    # 	case $option_1 in
-    # 	    1)
-    # 		host="easybytez"
-    # 		break
-    # 		;;
-    # 	    2)
-    # 		host="uload"
-    # 		break
-    # 		;;
-    # 	    3)	
-    # 		host="glumbouploads"
-    # 		break
-    # 		;;
-    # 	esac
-    # done
-    ##
-
-    
-    print_c 1 "\rAttualmente $name_prog è abilitato per gli account di Easybytez\n"
-    host="easybytez"
-    
-    while true
-    do
-	touch "$path_conf"/accounts/$host
-	header_z
-	get_accounts
-	show_accounts
-
-	echo
-	header_box "Opzioni"
-	echo -e "\t<${BBlue} 1 ${Color_Off}> aggiungi un account\n\t<${BBlue} 2 ${Color_Off}> elimina un account\n\t<${BBlue} * ${Color_Off}> torna alla pagina principale di configurazione\n"
-
-	cursor off
-	read -n 1 option_2
-	echo -e -n "\r \r"
-	cursor on
-	case $option_2 in
-	    1)	##add
-		while true
-		do
-		    header_box "Registra un account per il login automatico ($host)"
-		    print_c 2 "\rNome utente:"
-		    read user
-		    print_c 2 "Password (i caratteri non saranno stampati):"
-		    read -ers pass
-		    print_c 2 "Ripeti la password (per verifica):"
-		    read -ers pass2
-		    if [ ! -z "$user" ] && [ ! -z "$pass" ] && [ "$pass" == "$pass2" ]
-		    then
-			lines=`cat "$path_conf"/accounts/$host |wc -l`
-			unset noadd
-			for line in `seq 1 $lines`
-			do
-			    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
-			    if [ "$account" == "$user" ]
-			    then
-				noadd=1
-				break
-			    fi
-			done
-			if [ -z "$noadd" ]
-			then
-			    echo "$user $pass" >> "$path_conf"/accounts/$host
-			fi
-			
-		    elif [ "$pass" != "$pass2" ]
-		    then
-			print_c 3 "Ripeti l'operazione: password non corrispondenti\n"
-		    else
-			print_c 3 "Ripeti l'operazione: nome utente o password mancante\n"
-		    fi
-		    echo
-		    print_c 2 "Vuoi registrare un nuovo account? (s|*)"
-		    cursor off
-		    read -n 1 new_input
-		    cursor on
-		    [ "$new_input" != "s" ] && break
-		done
-		;;
-	    2)	##remove
-		while true
-		do
-		    print_c 2 "Nome utente dell'account da cancellare:"
-		    read user
-		    
-		    if [ ! -z "$user" ]
-		    then
-			break
-		    else
-			print_c 3 "Ripeti l'operazione: nome utente mancante"
-		    fi
-		done
-		lines=`cat "$path_conf"/accounts/$host |wc -l`
-		unset noadd
-		for line in `seq 1 $lines`
-		do
-		    account=`cat "$path_conf"/accounts/$host |sed -n "${line}p" |awk '{ print($1) }'`
-		    if [ "$account" != "$user" ]
-		    then
-			cat "$path_conf"/accounts/$host |sed -n "${line}p" >> "$path_conf"/accounts/host
-		    fi
-		done
-		rm -f "$path_conf"/accounts/$host
-		
-		if [ -f "$path_conf"/accounts/host ]
-		then
-		    cat "$path_conf"/accounts/host > "$path_conf"/accounts/$host
-		fi
-		;;
-	    *)	##return	
-		break
-		;;
-	esac
-    done
-}
-
 function check_editor {
     [ -n "$EDITOR" ] &&
 	editor="$EDITOR" &&
@@ -495,6 +367,9 @@ function check_default_downloader {
 	fi
     fi
 }
+
+
+
 
 function init {
     mkdir -p "$path_tmp"

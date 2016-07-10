@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: programs
-## zdl-extension name: youtube-dl [--list-extractors]
+## zdl-extension name: youtube-dl (comando per elenco delle estensioni: youtube-dl --list-extractors), Aria2 (anche torrent), Axel, Wget, RTMPDump, cURL
 
 
 if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&

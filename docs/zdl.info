@@ -446,7 +446,8 @@ _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Conkeror_ e script `zdl-xterm' (_XXXTerm/Xombrero_ e altri)
 
 _Tutti i file scaricabili con i seguenti programmi:_
-     youtube-dl [-list-extractors]
+     Aria2 (anche torrent), Axel, cURL, RTMPDump, Wget, youtube-dl
+     (comando per elenco delle estensioni: youtube-dl -list-extractors)
 
 Altre informazioni utili.
 =========================
@@ -1242,24 +1243,24 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5543
 Node: Servizi streaming/hosting11582
-Node: Avviare ZDL15124
-Node: Arrestare ZDL17562
-Node: Controllare i download18667
-Node: Manuali d'uso22956
-Node: Modi23372
-Node: Readline26638
-Node: Editor28158
-Node: Omonimie29383
-Node: Torrent30917
-Node: Filtri31803
-Node: Creare nuove estensioni32124
-Node: Software consigliati33694
-Node: Conkeror35095
-Node: zdl-xterm e XXXTerm/Xombrero36106
-Node: Installazione e aggiornamento38030
-Node: Tags41065
-Node: Copying43866
-Node: Contatti44916
+Node: Avviare ZDL15228
+Node: Arrestare ZDL17666
+Node: Controllare i download18771
+Node: Manuali d'uso23060
+Node: Modi23476
+Node: Readline26742
+Node: Editor28262
+Node: Omonimie29487
+Node: Torrent31021
+Node: Filtri31907
+Node: Creare nuove estensioni32228
+Node: Software consigliati33798
+Node: Conkeror35199
+Node: zdl-xterm e XXXTerm/Xombrero36210
+Node: Installazione e aggiornamento38134
+Node: Tags41169
+Node: Copying43970
+Node: Contatti45020
 
 End Tag Table
 

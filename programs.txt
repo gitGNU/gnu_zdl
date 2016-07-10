@@ -1,1 +1,1 @@
-youtube-dl [--list-extractors]
+Aria2 (anche torrent), Axel, cURL, RTMPDump, Wget, youtube-dl (comando per elenco delle estensioni: youtube-dl --list-extractors)

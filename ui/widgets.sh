@@ -36,19 +36,22 @@ fi
 function print_case {
     case "$1" in
 	0)
-	    echo -n -e ""
+	    echo -ne ""
 	    ;;
 	1)
-	    echo -n -e "$BGreen" 
+	    echo -ne "$BGreen" 
 	    ;;
 	2)
-	    echo -n -e "$BYellow"
+	    echo -ne "$BYellow"
 	    ;;	
 	3)
-	    echo -n -e "$BRed" 
+	    echo -ne "$BRed" 
 	    ;;	
 	4)
-	    echo -n -e "$BBlue"
+	    echo -ne "$BBlue"
+	    ;;	
+	5)
+	    echo -ne "$Color_Off"
 	    ;;	
     esac
 }
@@ -60,8 +63,10 @@ function print_c {
     then
 	print_case "$1"
 	
-	echo -n -e "$2\n"
-	echo -n -e "${Color_Off}"
+	echo -ne "$2\n"
+	[ -z "$3" ] &&
+	    echo -ne "${Color_Off}" ||
+		print_case "$3"
     fi
 }
 
@@ -69,8 +74,8 @@ function print_C {
     ## print_c FORCED
     print_case "$1"
     
-    echo -n -e "$2\n"
-    echo -n -e "${Color_Off}"
+    echo -ne "$2\n"
+    echo -ne "${Color_Off}"
 }
 
 function print_r {
@@ -80,8 +85,10 @@ function print_r {
     then
 	print_case "$1"
 	
-	echo -n -e "\r$2"
-	echo -n -e "${Color_Off}"
+	echo -ne "\r$2"
+	[ -z "$3" ] &&
+	    echo -ne "${Color_Off}" ||
+		print_case "$3"
     fi
 }
 
@@ -90,26 +97,12 @@ function sprint_c {
 	   [ -z "$zdl_mode" ] ||
 	       [ -n "$redirected_link" ]
     then
-	case "$1" in
-	    0)
-		echo -n ""
-		;;
-	    1)
-		echo -n "$BGreen" 
-		;;
-	    2)
-		echo -n "$BYellow"
-		;;	
-	    3)
-		echo -n "$BRed" 
-		;;	
-	    4)
-		echo -n "$BBlue"
-		;;	
-	    
-	esac
-	echo -n "$2\n"
-	echo -n "${Color_Off}"
+	print_case "$1"
+	echo -n "$2"
+
+	[ -z "$3" ] &&
+	    echo -n "${Color_Off}" ||
+		print_case "$3"
     fi
 }
 
@@ -134,10 +127,10 @@ function cursor {
 	stato=$1
 	case $stato in
 	    off)
-		echo -e -n "\033[?30;30;30c"
+		echo -en "\033[?30;30;30c"
 		;;
 	    on)
-		echo -e -n "\033[?0;0;0c"
+		echo -en "\033[?0;0;0c"
 		;;
 	esac
     fi

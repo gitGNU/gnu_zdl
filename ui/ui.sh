@@ -122,16 +122,20 @@ function services_box {
 
 function commands_box {
     header_dl "Comandi in modalità standard output (M è il tasto Meta, cioè <Alt>)"
-    echo -e "<${BGreen} M-x RETURN ${Color_Off}>\tesegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
-<${BGreen} M-e ${Color_Off}>\t\tavvia l'${BGreen}e${Color_Off}ditor predefinito
-<${BGreen} M-c ${Color_Off}>\t\t${BGreen}c${Color_Off}ancella le informazioni dei download completati
-<${BYellow} M-i ${Color_Off}>\t\tmodalità ${BYellow}i${Color_Off}nterattiva
 
-<${BRed} M-q ${Color_Off}>\t\tchiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-<${BRed} M-k ${Color_Off}>\t\tuccidi tutti i processi [${BRed}k${Color_Off}ill]
+    echo -e "${BGreen} M-x INVIO ${BBlue}│${Color_Off}  esegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
+${BGreen} M-e       ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor predefinito
+${BGreen} M-c       ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
+           ${BBlue}│${Color_Off} 
+${BYellow} M-i       ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
+           ${BBlue}│${Color_Off} 
+${BRed} M-q       ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
+${BRed} M-k       ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
+           ${BBlue}│${Color_Off}
+${BBlue} M-t       │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
+${BBlue} M-l       │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
 
-<${BBlue} M-t ${Color_Off}>\t\tsfoglia il ${BBlue}t${Color_Off}utorial
-<${BBlue} M-l ${Color_Off}>\t\t${BBlue}l${Color_Off}ista dei servizi abilitati"
+    #${BYellow} M-C       ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
 
 }
 
@@ -175,6 +179,7 @@ function bindings {
     trap_sigint
     check_instance_prog
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
+#    bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
@@ -190,6 +195,9 @@ function change_mode {
     stty echo
 
     case $cmd in
+	configure)
+	    zdl -c
+	    ;;
 	interactive)
 	    zdl -i
 	    ;;
@@ -247,32 +255,35 @@ function interactive {
 	fi
 	
 	header_box_interactive "Opzioni [numero download alla volta: $num_downloads]"
-	echo -e "<${BYellow} s ${Color_Off}> ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n
-<${BGreen} e ${Color_Off}> modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito\n"
-
+	echo -e "${BYellow}   s ${Color_Off}│ ${BYellow}s${Color_Off}eleziona uno o più download (per riavviare, eliminare, riprodurre file audio/video)\n     │
+${BGreen}   e ${Color_Off}│ modifica la coda dei link da scaricare, usando l'${BGreen}e${Color_Off}ditor predefinito
+     │"
 	local Axel Aria2 Wget
-	Axel="<${BGreen} a ${Color_Off}> scarica con ${BGreen}a${Color_Off}xel\n"
-	Aria2="<${BGreen} A ${Color_Off}> scarica con ${BGreen}A${Color_Off}ria2\n"
-	Wget="<${BGreen} w ${Color_Off}> scarica con ${BGreen}w${Color_Off}get\n"
+	Axel="${BGreen}   a ${Color_Off}│ scarica con ${BGreen}a${Color_Off}xel\n"
+	Aria2="${BGreen}   A ${Color_Off}│ scarica con ${BGreen}A${Color_Off}ria2\n"
+	Wget="${BGreen}   w ${Color_Off}│ scarica con ${BGreen}w${Color_Off}get\n"
 	
 	unset $downloader_in
 	echo -en "$Axel$Aria2$Wget" 
 	
-	echo -e "<${BGreen} 1-9 ${Color_Off}> scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
-<${BGreen} m ${Color_Off}> scarica ${BGreen}m${Color_Off}olti file alla volta\n"
+	echo -e "     │\n${BGreen} 1-9 ${Color_Off}│ scarica ${BGreen}un numero da 1 a 9${Color_Off} file alla volta
+${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
+     │"
 
 	[ -z "$tty" ] &&
 	    [ -z "$daemon_pid" ] &&
-	    echo -e "<${BGreen} d ${Color_Off}> avvia ${BGreen}d${Color_Off}emone"
+	    echo -e "${BGreen}   d ${Color_Off}│ avvia ${BGreen}d${Color_Off}emone"
 
-	echo -e "<${BGreen} c ${Color_Off}> ${BGreen}c${Color_Off}ancella i file temporanei dei download completati\n
-<${BRed} K ${Color_Off}> interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
+	echo -e "${BGreen}   c ${Color_Off}│ ${BGreen}c${Color_Off}ancella i file temporanei dei download completati
+     │
+${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
 
 	[ -n "$daemon_pid" ] && 
-	    echo -e "<${BRed} Q ${Color_Off}> ferma il demone di $name_prog in $PWD lasciando attivi i downloader già avviati"
+	    echo -e "${BRed}   Q ${Color_Off}│ ferma il demone di $name_prog in $PWD lasciando attivi i downloader già avviati"
 	
-	echo -e "\n<${BBlue} q ${Color_Off}> esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
-	echo -e "<${BBlue} * ${Color_Off}> ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)\n"
+	echo -e "     │\n${BBlue}   q ${Color_Off}│ esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
+	echo -e "${BBlue}   * ${Color_Off}│ ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)
+     │"
 	cursor off
 	read -e -n 1 -t 15 action
 	cursor on
@@ -296,13 +307,14 @@ function interactive {
 		    header_box_interactive "Riavvia o Elimina"
 		    echo -e -n "${BYellow}Cosa vuoi fare con i download selezionati?${Color_Off}\n\n"
 
-		    echo -e "<${BYellow} r ${Color_Off}> ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
-<${BRed} E ${Color_Off}> ${BRed}e${Color_Off}liminarli definitivamente (e cancellare il file scaricato)
-<${BRed} T ${Color_Off}> ${BRed}t${Color_Off}erminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
+		    echo -e "${BYellow} r ${Color_Off}│ ${BYellow}r${Color_Off}iavviarli se è attiva un'istanza di ZDL, altrimenti sospenderli
+${BRed} E ${Color_Off}│ ${BRed}e${Color_Off}liminarli definitivamente (e cancellare il file scaricato)
+${BRed} T ${Color_Off}│ ${BRed}t${Color_Off}erminarli definitivamente SENZA cancellare il file scaricato (cancella il link dalla coda di download)
+   │
+${BGreen} p ${Color_Off}│ riprodurre (${BGreen}p${Color_Off}lay) i file audio/video
+   │
+${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
-<${BGreen} p ${Color_Off}> riprodurre (${BGreen}p${Color_Off}lay) i file audio/video
-
-<${BBlue} * ${Color_Off}> ${BBlue}schermata principale${Color_Off}\n"
 		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
 
 		    read -e input2

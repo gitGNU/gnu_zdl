@@ -24,6 +24,36 @@
 # zoninoz@inventati.org
 #
 
+function colorize_values {
+    local text
+    text="$1"
+    
+    bg_color="$(print_case $2)"
+    
+    text="${text//\(/\($BBlue}"
+    text="${text//|/$bg_color|$BBlue}"
+    text="${text//\)/$bg_color\)}"
+
+    sprint_c "$bg_color" "$text" "$bg_color"
+}
+
+function check_read {
+    local input
+    if [ -z "$1" ]
+    then
+	print_c 2 "Nessun valore inserito: vuoi cancellare il valore precedente? (sì|*)"
+	read -e input
+	if [ "$input" == "sì" ]
+	then
+	    return 0
+
+	else
+	    return 1
+	fi
+    fi
+    return 0
+}
+
 function configure_key {
     opt=$1
     if [[ "$opt" =~ ^[0-9]+$ ]] && 
@@ -38,20 +68,31 @@ function configure_key {
 	    extra_string=" [è necessario indicare il path completo e valido]"
 	fi
 	
-	print_c 2 "${string_conf[$opt]} (chiave: ${key_conf[$opt]})$extra_string:"
-	read new_value
+	print_c 2 "$(colorize_values "${string_conf[$opt]}" 2) (nome: $(sprint_c 3 "${key_conf[$opt]}" 2))$extra_string:"
+	read -e new_value
 
-	if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] &&
-	       ! command -v ${new_value%% *} >/dev/null
-	then
-	    print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
-	    pause
+	check_read "$new_value" &&
+	    if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] &&
+		   ! command -v ${new_value%% *} >/dev/null
+	    then
+		print_c 3 "Riconfigurazione non riuscita: programma inesistente${extra_string}"
+		pause
 
-	else
-	    set_item_conf ${key_conf[$opt]} "$new_value"
-	fi
+	    else
+		set_item_conf ${key_conf[$opt]} "$new_value"
+	    fi
+	
 	touch "$path_conf/updated"
     fi
+}
+
+function show_conf {
+    header_box "Configurazione attuale:"
+    for ((i=0; i<${#key_conf[*]}; i++))
+    do
+	printf "%b %+4s %b│  " "${BBlue}" "$(( $i+1 ))" "$Color_Off"
+	echo -ne "$(colorize_values "${string_conf[$i]}" 5): $(sprint_c 1 "$(eval echo \$${key_conf[$i]})")\n"
+    done
 }
 
 function configure {
@@ -60,27 +101,43 @@ function configure {
     do
 	header_z
 	header_box "Preferenze"
-	print_c 2 "Scegli un'opzione (1|2|3)"
-	echo -e "\t<${BBlue} 1 ${Color_Off}> modifica la configurazione\n\t<${BBlue} 2 ${Color_Off}> gestisci gli account dei servizi di hosting\n\t<${BBlue} 3 ${Color_Off}> esci\n"
+	echo -e "   ${BBlue} 1 ${Color_Off}│  Modifica la configurazione
+   ${BBlue} 2 ${Color_Off}│  Gestisci gli account dei servizi di hosting
+   ${BBlue} q ${Color_Off}│  Esci
+"
+	print_c 2 "$(colorize_values "Scegli un'opzione (1|2|q)" 2)"
 	
 	cursor off
-	read -n 1 option_0
+	read -s -n1 option_0
 	cursor on
 	echo -en "\r \r"
 	case $option_0 in
-	    1)	header_z
-		header_box "Configurazione di $name_prog"
-		get_conf
-		show_conf
-		unset zdl_mode
-		print_c 2 "\nSeleziona l'elemento predefinito da modificare (1-${#key_conf[*]} | *):"
-		read opt
-		configure_key $opt
+	    1)
+		while true
+		do
+		    header_z
+		    header_box "Configurazione di $name_prog"
+		    print_c 0 "La configurazione è composta da ${BRed}nomi${Color_Off} e ${BBlue}valori${Color_Off}: per ogni chiave può essere specificato un valore.\n"
+		    print_c 4 "I valori disponibili sono suggeriti tra le parentesi tonde:"
+		    print_c 0 "- i valori alternativi disponibili, in blu, sono separati dalla barra verticale
+- $(sprint_c 4 "*") significa un valore qualsiasi diverso dagli altri
+- i valori registrati attualmente sono in verde\n\n"
+		    get_conf
+		    show_conf
+		    
+		    unset zdl_mode
+		    print_c 2 "\nSeleziona l'elemento predefinito da modificare ($(sprint_c 4 "1-${#key_conf[*]}" 2) | $(sprint_c 4 "q" 2) per tornare indietro):"
+		    read opt
+
+		    [ "$opt" == "q" ] && break 
+		    configure_key $opt
+		done
 		;;
 	    2)	
 		configure_accounts
 		;;
-	    3) 	echo -e -n "\e[0m\e[J"
+
+	    q) 	echo -e -n "\e[0m\e[J"
 		fclear
 		exit
 		;;
@@ -88,26 +145,150 @@ function configure {
     done
 }
 
-function show_conf {
-    for ((i=0; i<${#key_conf[*]}; i++))
+function configure_accounts {
+    ##
+    ## esempio per implementare il login per nuovi servizi di hosting:
+    ##
+    # while true; do
+    # 	print_c 2 "Servizi di hosting abilitati per l'uso di account:"
+    # 	echo -e "\t1) easybytez" #\n\t2) uload\n\t3) glumbouploads\n"
+    # 	print_c 2 "Scegli il servizio (1):"
+    # 	cursor off
+    # 	read -n 1 option_1
+    # 	cursor on
+    # 	case $option_1 in
+    # 	    1)
+    # 		host="easybytez"
+    # 		break
+    # 		;;
+    # 	    2)
+    # 		host="uload"
+    # 		break
+    # 		;;
+    # 	    3)	
+    # 		host="glumbouploads"
+    # 		break
+    # 		;;
+    # 	esac
+    # done
+    ##
+    
+    host="easybytez"
+
+    while true
     do
-	echo -e "\t< ${BBlue}$(( $i+1 ))$Color_Off > ${string_conf[$i]}: ${BBlue}$(eval echo \$${key_conf[$i]})$Color_Off"
+	init_accounts
+	
+	header_box "Opzioni"
+	echo -e "   ${BBlue} 1 ${Color_Off}│  Aggiungi/modifica un account
+   ${BBlue} 2 ${Color_Off}│  Elimina un account
+   ${BBlue} 3 ${Color_Off}│  Visualizza password degli account
+   ${BBlue} q ${Color_Off}│  Torna alla pagina principale di configurazione
+"
+
+	cursor off
+	read -n 1 option_2
+	echo -e -n "\r \r"
+	cursor on
+	case $option_2 in
+	    1)	##add
+		while true
+		do
+		    ## clean file "$path_conf"/accounts/$host
+		    init_accounts
+
+		    header_box "Registra un account per il login automatico ($host)"
+
+		    print_c 2 "\rNome utente:"
+		    read user
+		    
+		    if [ -n "$user" ]
+		    then
+			
+			print_c 2 "Password (i caratteri non saranno stampati):"
+			read -ers pass
+			
+			print_c 2 "Ripeti la password (per verifica):"
+			read -ers pass2
+
+			if [ -n "$pass" ] &&
+			       [ "$pass" == "$pass2" ]
+			then
+			    grep -P "^$user\s.+$" "$path_conf"/accounts/$host &>/dev/null &&
+				sed -r "s|^$user\s.+$|$user $pass|g" -i "$path_conf"/accounts/$host ||
+				    echo "$user $pass" >>"$path_conf"/accounts/$host
+			    
+			elif [ "$pass" != "$pass2" ]
+			then
+			    print_c 3 "Ripeti l'operazione: password non corrispondenti"
+			else
+			    print_c 3 "Ripeti l'operazione: nome utente o password mancante"
+			fi
+
+			print_c 2 "\nVuoi registrare un nuovo account? (s|*)"
+			cursor off
+			read -s -n1 new_input
+			cursor on
+			[ "$new_input" != "s" ] && break
+
+		    else
+			print_c 3 "Nessun nome utente selezionato"
+			pause
+			break
+		    fi
+		done
+		;;
+	    2)	##remove
+		print_c 2 "Nome utente dell'account da cancellare:"
+		read user
+		
+		if grep -P "^$user\s.+$" "$path_conf"/accounts/$host &>/dev/null
+		then
+		    sed -r "s|^$user\s.+$||g" -i "$path_conf"/accounts/$host
+
+		else
+		    print_c 3 "Nessun account selezionato"
+		    pause
+		fi
+		;;
+
+	    3)
+		init_accounts pass
+		pause
+		;;
+	    q)	##quit
+		break
+		;;
+	esac
     done
 }
 
+
 function show_accounts {
+    local accounts
     header_box "Account registrati per $host:"
 
-    if [ -n "${accounts_user[*]}" ]
+    accounts=$(cat "$path_conf"/accounts/$host)
+
+    [ -z "$accounts" ] &&
+	print_c 3 "Nessun account registrato" &&
+	return 1
+
+    if [ "$1" == "pass" ]
     then
-	for name_account in ${accounts_user[*]}
-	do
-	    echo "$name_account"
-	done
+	get_accounts
+	((length_user+=4))
 	
+	print_c 4 "$(printf "%+${length_user}s ${Color_Off}│${BBlue} %s" "Utenti:" "Password:")"
+	for ((i=0; i<${#accounts_user[@]}; i++))
+	do
+	    print_c 0 "$(printf "%+${length_user}s │ %s" "${accounts_user[i]}" "${accounts_pass[i]}")"
+	done
+
     else
-	print_c 3 "Nessun account registrato per $host"
+	awk '{print $1}' <<< "$accounts"
     fi
+    return 0
 }
 
 function get_accounts {
@@ -117,8 +298,28 @@ function get_accounts {
     then
 	while read line
 	do
-	    accounts_user+=( "${line%% *}" )
+	    username=${line%% *}
+	    accounts_user+=( "$username" )
+
+	    ((${#username}>length_user)) &&
+		length_user="${#username}"
+	    
 	    accounts_pass+=( "${line#* }" )
+	    
 	done < "$path_conf"/accounts/$host
     fi
 }
+
+
+function init_accounts {
+    mkdir -p "$path_conf"/accounts
+    touch "$path_conf"/accounts/$host
+    ftemp=$(tempfile)
+    awk '($0)&&!($0 in a){a[$0]; print}' "$path_conf"/accounts/$host >$ftemp
+    mv $ftemp "$path_conf"/accounts/$host
+
+    header_z
+    show_accounts $1
+    echo
+}
+
