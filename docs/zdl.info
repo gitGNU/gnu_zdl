@@ -233,7 +233,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `--wget'
      Scarica con _Wget_
 
-`-m [_numero_], --multi [_numero_]'
+`-m [_numero_], --multi=[_numero_]'
      Download parallelo. È possibile indicare il numero massimo di
      download da effettuare contemporaneamente
 
@@ -478,7 +478,7 @@ servizio di hosting. In particolare, la registrazione di molti account
 per Easybytez non solo permette il download di file di grandezza fino a
 600 MB, ma consente anche lo scaricamento in parallelo di più file
 senza l'uso di proxy (in questo caso è necessario specificare anche
-`-m' oppure `--multi'). Per configurare l'uso di account: `zdl
+`-m' oppure `--multi='). Per configurare l'uso di account: `zdl
 [-c|--configure]'
 
    Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire
@@ -597,7 +597,7 @@ Un esempio, partendo da un problema pratico: aggiungere opzioni a download avvia
 
 _Problema:_
      voglio scaricare dei file da Easybytez usando _Flashgot_, ma voglio
-     anche usare le opzioni `--login', `--multi' e `--clean', che non
+     anche usare le opzioni `--login', `--multi=' e `--clean', che non
      sono impostate di default. Come posso utilizzare queste funzioni
      aggiuntive usando il browser (con _Flashgot_), se queste possono
      essere attivate solo dal terminale?
@@ -887,10 +887,11 @@ attraverso una regex nel PATTERN.  Lo script modifica il link del
 download in `$url_in' per ottenere l'URL del file in `$url_in_file',
 aggiungendo USER e PASSWORD per accedere al server.  Inoltre, indica
 come ricavare il nome del file da scaricare (variabile `$file_in') e
-aggiunge o modifica opzioni: disattiva l'opzione `--multi' se applicata
-al comando e stabilisce il numero di parti da scaricare con Axel (il
-grado di accelerazione, che per default è 32 ma che per diversi server
-può essere eccessivo o insufficiente, peggiorando le prestazioni).
+aggiunge o modifica opzioni: disattiva l'opzione `--multi=' se
+applicata al comando e stabilisce il numero di parti da scaricare con
+Axel (il grado di accelerazione, che per default è 32 ma che per
+diversi server può essere eccessivo o insufficiente, peggiorando le
+prestazioni).
 
    In questo modo, è possibile estendere ZDL ad altri servizi di file
 hosting (anche a scopo sperimentale), aggiungere opzioni mirate e
@@ -1241,24 +1242,24 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL5543
 Node: Servizi streaming/hosting11582
-Node: Avviare ZDL15123
-Node: Arrestare ZDL17561
-Node: Controllare i download18666
-Node: Manuali d'uso22954
-Node: Modi23370
-Node: Readline26636
-Node: Editor28156
-Node: Omonimie29381
-Node: Torrent30915
-Node: Filtri31801
-Node: Creare nuove estensioni32122
-Node: Software consigliati33691
-Node: Conkeror35092
-Node: zdl-xterm e XXXTerm/Xombrero36103
-Node: Installazione e aggiornamento38027
-Node: Tags41062
-Node: Copying43863
-Node: Contatti44913
+Node: Avviare ZDL15124
+Node: Arrestare ZDL17562
+Node: Controllare i download18667
+Node: Manuali d'uso22956
+Node: Modi23372
+Node: Readline26638
+Node: Editor28158
+Node: Omonimie29383
+Node: Torrent30917
+Node: Filtri31803
+Node: Creare nuove estensioni32124
+Node: Software consigliati33694
+Node: Conkeror35095
+Node: zdl-xterm e XXXTerm/Xombrero36106
+Node: Installazione e aggiornamento38030
+Node: Tags41065
+Node: Copying43866
+Node: Contatti44916
 
 End Tag Table
 

@@ -314,7 +314,7 @@ Scarica con @emph{Axel}
 @item --wget                  
 Scarica con @emph{Wget}
 
-@item -m [@emph{numero}], --multi [@emph{numero}]
+@item -m [@emph{numero}], --multi=[@emph{numero}]
 Download parallelo. È possibile indicare il numero massimo di download da effettuare contemporaneamente 
 
 @item --login
@@ -548,7 +548,7 @@ servizio di hosting. In particolare, la registrazione di molti account
 per Easybytez non solo permette il download di file di grandezza fino
 a 600 MB, ma consente anche lo scaricamento in parallelo di più file
 senza l'uso di proxy (in questo caso è necessario specificare anche
-@option{-m} oppure @option{--multi}). Per configurare l'uso di account: @command{zdl [-c|--configure]}
+@option{-m} oppure @option{--multi=}). Per configurare l'uso di account: @command{zdl [-c|--configure]}
 
 Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connettersi si consiglia di provare ad usare Wget.
 
@@ -677,7 +677,7 @@ Una volta @emph{chiuso} (o anche @emph{ucciso} interrompendo i download), ZDL pu
 @table @emph
 @item Problema:
 voglio scaricare dei file da Easybytez usando @emph{Flashgot}, ma voglio
-anche usare le opzioni @option{--login}, @option{--multi} e @option{--clean}, che non sono
+anche usare le opzioni @option{--login}, @option{--multi=} e @option{--clean}, che non sono
 impostate di default. Come posso utilizzare queste funzioni aggiuntive
 usando il browser (con @emph{Flashgot}), se queste possono essere attivate
 solo dal terminale?
@@ -858,7 +858,7 @@ per ottenere l'URL del file in @code{$url_in_file},
 aggiungendo USER e PASSWORD per accedere al server. 
 Inoltre, indica come ricavare il nome del file da scaricare 
 (variabile @code{$file_in}) e aggiunge o modifica opzioni:
-disattiva l'opzione @option{--multi} se applicata al comando
+disattiva l'opzione @option{--multi=} se applicata al comando
 e stabilisce il numero di parti da scaricare con Axel (il
 grado di accelerazione, che per default è 32 ma che per diversi server
 può essere eccessivo o insufficiente, peggiorando le prestazioni).
