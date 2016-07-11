@@ -109,7 +109,19 @@ function sprint_c {
 function separator- {
     if [ -z "$zdl_mode" ]
     then
-	header "" "$BBlue" "─"
+	if [[ "$1" =~ ^([0-9]+)$ ]]
+	then
+	    COLS=$COLUMNS
+	    COLUMNS="$1"
+	    header "" "$BBlue" "─"
+	    echo -ne "$BBlue┴"
+	    COLUMNS=$((COLS-$1-1))
+	    header "" "$BBlue" "─"
+
+	else
+	    header "" "$BBlue" "─"
+	    echo -ne "\n"
+	fi
     fi
 }
 
@@ -144,7 +156,7 @@ function header { # $1=label ; $2=color ; $3=header pattern
     [ -z "$hpattern" ] && hpattern="\ "
     
     eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
-    echo -e "${color}${text}$line${Color_Off}"
+    echo -en "${color}${text}$line${Color_Off}"
 }
 
 
@@ -155,7 +167,8 @@ function header_z {
 	text_start="$name_prog ($prog)"
 	text_end="$(zclock)"
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
-	header "$text_start$text_space$text_end" "$On_Blue" 
+	header "$text_start$text_space$text_end" "$On_Blue"
+	echo -ne "\n"
     fi
 }
 
@@ -166,18 +179,21 @@ function header_box {
 	if [ -z "$zdl_mode" ]
 	then
 	    header "$1" "$Black${On_White}" "─"
+	    echo -ne "\n"
 	fi
     fi
 }
 
 function header_box_interactive {
     header "$1" "$Black${On_White}" "─"
+    echo -ne "\n"
 }
 
 function header_dl {
     if [ -z "$zdl_mode" ]
     then
-	header "$1 " "$White${On_Blue}" 
+	header "$1 " "$White${On_Blue}"
+	echo -ne "\n"
     fi
 }
 

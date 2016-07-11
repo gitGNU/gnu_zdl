@@ -153,13 +153,13 @@ function standard_box {
     if [ -z "$1" ] &&
 	   [ -n "$binding" ]
     then
-	echo
+	echo -e "${BBlue}           │${Color_Off}"
 	header_box "Readline: immetti URL e link dei servizi"
     
     elif [ -z "$lite" ] &&
 	   [ -z "$binding" ]
     then
-	separator-
+	separator- 11
 	echo
     fi
 }
