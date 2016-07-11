@@ -206,6 +206,7 @@ function pause {
     then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
+	echo -ne "\n"
 	cursor off
 	read -e
 	cursor on
@@ -220,6 +221,7 @@ function xterm_stop {
 		     [ -n "$redirected_link" ] )
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
+	echo -ne "\n"
 	cursor off
 	read -e 
 	cursor on
