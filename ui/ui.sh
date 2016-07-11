@@ -279,7 +279,7 @@ ${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
 ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL nella directory (${BRed}K${Color_Off}ill-all)"
 
 	[ -n "$daemon_pid" ] && 
-	    echo -e "${BRed}   Q ${Color_Off}│ ferma il demone di $name_prog in $PWD lasciando attivi i downloader già avviati"
+	    echo -e "${BRed}   Q ${Color_Off}│ ferma il demone di $PROG in $PWD lasciando attivi i downloader già avviati"
 	
 	echo -e "     │\n${BBlue}   q ${Color_Off}│ esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "${BBlue}   * ${Color_Off}│ ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)
