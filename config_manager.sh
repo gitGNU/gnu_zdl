@@ -117,7 +117,7 @@ function configure {
 		do
 		    header_z
 		    header_box "Configurazione di $name_prog"
-		    print_c 0 "La configurazione è composta da ${BRed}nomi${Color_Off} e ${BBlue}valori${Color_Off}: per ogni chiave può essere specificato un valore.\n"
+		    print_c 0 "La configurazione è composta da ${BRed}nomi${Color_Off} e ${BBlue}valori${Color_Off}: per ogni nome può essere specificato un valore.\n"
 		    print_c 4 "I valori disponibili sono suggeriti tra le parentesi tonde:"
 		    print_c 0 "- i valori alternativi disponibili, in blu, sono separati dalla barra verticale
 - $(sprint_c 4 "*") significa un valore qualsiasi diverso dagli altri
