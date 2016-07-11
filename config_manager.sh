@@ -286,6 +286,7 @@ function show_accounts {
 	done
 
     else
+	print_c 4 "Lista utenti registrati:"
 	awk '{print $1}' <<< "$accounts"
     fi
     return 0
