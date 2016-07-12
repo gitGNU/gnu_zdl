@@ -58,16 +58,17 @@ function data_stdout {
 	    done
 	fi
 
-	awk_data=$(awk                                           \
-		       -v file_in="$file_in"                     \
-		       -v url_in="$url_in"                       \
-		       -v no_complete="$no_complete"             \
-		       -v num_check="$num_check"                 \
-		       -v no_check="$no_check"                   \
-		       -v wget_links_index="${#wget_links[*]}"   \
-		       -f $path_usr/libs/common.awk              \
-		       -f $path_usr/libs/DLstdout_parser.awk     \
-		       ${tmp_files[@]}                           \
+	awk_data=$(stdbuf -oL -eL                                   \
+			  awk                                       \
+			  -v file_in="$file_in"                     \
+			  -v url_in="$url_in"                       \
+			  -v no_complete="$no_complete"             \
+			  -v num_check="$num_check"                 \
+			  -v no_check="$no_check"                   \
+			  -v wget_links_index="${#wget_links[*]}"   \
+			  -f $path_usr/libs/common.awk              \
+			  -f $path_usr/libs/DLstdout_parser.awk     \
+			  ${tmp_files[@]}                           \
 		)
 	unset tmp_files
 	eval "$awk_data"

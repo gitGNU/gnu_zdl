@@ -180,8 +180,8 @@ then
 	then 
 	    unset args[i]
 	    rm -r ".zdl_tmp"/* 2>/dev/null && 
-		init_msg="${init_msg}$(sprint_c 1 'File temporanei cancellati')" ||            
-		    init_msg="${init_msg}$(sprint_c 3 'Pulizia file temporanei non effettuata (file inesistenti)')"
+		init_msg+="$(sprint_c 1 "File temporanei cancellati\n")" ||            
+		    init_msg+="$(sprint_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n")"
 	fi
     done
 fi
@@ -190,11 +190,6 @@ fi
 #### MAIN
 init
 
-if [ "$zdl_mode" == "lite" ]
-then
-    lite=true
-    unset zdl_mode
-fi
 
 if [[ "${args[*]}" =~ \-\-url=[^\ ]+ ]]
 then
@@ -253,6 +248,7 @@ then
 	if [ "${args[i]}" == "--list-extensions" ]
 	then
 	    unset args[i]
+	    this_mode=list
 	    services_box
 	    xterm_stop force
 	    exit
@@ -280,6 +276,7 @@ then
 	if [[ "${args[i]}" =~ ^(--editor|-e)$ ]]
 	then
 	    unset args[i]
+	    this_mode=editor
 	    from_editor=true
 	fi
     done
@@ -291,8 +288,8 @@ then
     do
 	if [ "${args[i]}" == "--silent" ]
 	then
-	    unset args[i] lite
-	    zdl_mode="daemon"
+	    unset args[i]
+	    this_mode="daemon"
 	    sleeping_pause=5
 	fi
 
@@ -307,7 +304,7 @@ fi
 ## conkeror
 if [ "${args[*]}" != "${args[*]//--zigzag-xterm}" ]
 then
-    if [ "$zdl_mode" != "daemon" ]
+    if [ "$this_mode" != "daemon" ]
     then 
 	if [ -z "$DISPLAY" ]
 	then
@@ -526,6 +523,7 @@ then
 	       [ "${args[i]}" == '-i' ]
 	then 
 	    unset args[i]
+	    this_mode=interactive
 	    interactive
 	fi
     done
@@ -533,6 +531,32 @@ fi
 ## se non è modalità interattiva, allora sono validi i comandi "standard"
 bindings
 
+
+if [[ "${args[*]}" =~ (--lite|-l) ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^(--lite|-l)$ ]]
+	then
+	    this_mode=lite
+	    lite_mode=true
+	    unset args[i]
+	fi
+    done
+fi
+
+
+## change mode di avvio
+if check_instance_prog ||
+	[ ! -f "$path_tmp/.stop_stdout" ]
+then
+    echo "$this_tty $this_mode" >"$path_tmp/.stop_stdout"
+
+elif [ -f "$path_tmp/.stop_stdout" ]
+then
+    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
+    echo "$that_tty $this_mode" >"$path_tmp/.stop_stdout"
+fi
 
 ##########
 header_z
@@ -598,12 +622,12 @@ then
 	then
 	    if [[ "${args[i+1]}" =~ (^[^-]+.*) ]]
 	    then
-		ftorrent=${BASH_REMATCH[1]}
-		if [ -f "$BASE_DIR${ftorrent}" ]
+		ftorrent="$BASE_DIR${BASH_REMATCH[1]}"
+		if [ -f "${ftorrent}" ]
 		then
-		    [ "$BASE_DIR${ftorrent}" == "$BASE_DIR${ftorrent%.torrent}" ] &&
-			mv "$BASE_DIR${ftorrent}" "$BASE_DIR${ftorrent}.torrent"
-		    links_loop + "$BASE_DIR${ftorrent%.torrent}.torrent"
+		    [ "${ftorrent}" == "${ftorrent%.torrent}" ] &&
+			mv "${ftorrent}" "${ftorrent}.torrent"
+		    links_loop + "${ftorrent%.torrent}.torrent"
 		fi	
 		unset args[i+1]
 	    fi
@@ -612,12 +636,12 @@ then
 	
 	if [[ "${args[i]}" =~ ^\-\-torrent-file=(.+)$ ]]
 	then
-	    ftorrent=${BASH_REMATCH[1]}
-	    if [ -f "$BASE_DIR${ftorrent}" ]
+	    ftorrent="$BASE_DIR${BASH_REMATCH[1]}"
+	    if [ -f "${ftorrent}" ]
 	    then
-		[ "$BASE_DIR${ftorrent}" == "$BASE_DIR${ftorrent%.torrent}" ] &&
-		    mv "$BASE_DIR${ftorrent}" "$BASE_DIR${ftorrent}.torrent"
-		links_loop + "$BASE_DIR${ftorrent%.torrent}.torrent"
+		[ "${ftorrent}" == "${ftorrent%.torrent}" ] &&
+		    mv "${ftorrent}" "${ftorrent}.torrent"
+		links_loop + "${ftorrent%.torrent}.torrent"
 	    fi	
 	    unset args[i]
 	fi
@@ -650,7 +674,7 @@ then
 	    then
 		unset num_dl
 		num_dl="${BASH_REMATCH[1]}"
-		echo $num_dl > "$path_tmp/dl-mode"
+		echo $num_dl >"$path_tmp/dl-mode"
 		unset args[i+1]
 	    fi
 	    unset args[i]
@@ -659,7 +683,7 @@ then
 	if [[ "${args[i]}" =~ ^\-\-multi=([0-9]+)$ ]]
 	then
 	    num_dl="${BASH_REMATCH[1]}"
-	    echo $num_dl > "$path_tmp/dl-mode"
+	    echo $num_dl >"$path_tmp/dl-mode"
 	    unset args[i]
 	fi
 
@@ -737,13 +761,13 @@ then
 
 		if [ -e "$print_out" ] 
 		then
-		    init_msg="$init_msg$(sprint_c 3 "Esiste già un file con lo stesso nome di ${print_out}")"
+		    init_msg+="$(sprint_c 3 "Esiste già un file con lo stesso nome di ${print_out}\n")"
 		    print_out="$file_output"
 		elif [ -z "$print_out" ]
 		then
 		    print_out="$file_output"
 		fi
-		init_msg="$init_msg$(sprint_c 1 "La lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n")"
+		init_msg+="$(sprint_c 1 "La lista dei file verrà salvata in $print_out\n(puoi anche usarla per comunicare i file in scaricamento a un altro programma)\n")"
 		touch "$print_out"
 	    fi
 	    unset args[i]
@@ -878,19 +902,6 @@ then
 fi
 
 
-if [[ "${args[*]}" =~ (--lite|-l) ]]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [[ "${args[i]}" =~ ^(--lite|-l)$ ]]
-	then
-	    lite="true"
-	    unset args[i]
-	fi
-    done
-fi
-
-
 for ((i=0; i<=$max_args; i++))
 do
     if [ "${args[i]}" != "${args[i]#-}" ]
@@ -928,7 +939,7 @@ then
 	    
 	elif [ -n "${args[i]}" ]
 	then
-	    args[i]="$(sanitize_url "${args[i]}")"
+	    args[i]=$(sanitize_url "${args[i]}")
 	    
 	    if url "${args[i]}"
 	    then
@@ -959,8 +970,12 @@ then
 	echo >> links.txt 2>/dev/null
 	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
-	init_msg="$init_msg$(sprint_c 1 "L'elenco completo dei link è in links.txt")"
-	[ -z "$lite" ] && standard_box 1
+	init_msg+="$(sprint_c 1 "L'elenco completo dei link è in links.txt\n")"
+
+	if [ "$this_mode" == "stdout" ]
+	then
+	    standard_box
+	fi
     fi
 fi
 
@@ -981,7 +996,7 @@ then
 	echo "$pid_prog" > "$path_tmp/.pid.zdl"
     fi
 
-    if [ -z "$from_editor" ] && [ "$zdl_mode" != "daemon" ]
+    if [ -z "$from_editor" ] && [ "$this_mode" != "daemon" ]
     then
 	binding=0
 	standard_box
@@ -1001,7 +1016,7 @@ then
 	    
 	    if [ -n "${link// }" ]
 	    then
-		link="$(sanitize_url "$link")"
+		link=$(sanitize_url "$link")
 		links_loop + "$link"
 	    fi
 	done
@@ -1024,7 +1039,7 @@ then
     fi
 fi
 
-if [ ! check_instance_daemon ] && [ "$zdl_mode" != "daemon" ]
+if [ ! check_instance_daemon ] && [ "$this_mode" != "daemon" ]
 then
     redirect_links 
 fi
@@ -1036,11 +1051,11 @@ else
     echo "$pid_prog" > "$path_tmp/.pid.zdl"
 fi
 
-rm -f "$path_tmp/.stop_stdout"
-echo "$downloader_in" > "$path_tmp/downloader"
+[ -f "$path_tmp/downloader" ] ||    
+    echo "$downloader_in" > "$path_tmp/downloader"
 
 function main_loop {
-    if [ "$zdl_mode" == "daemon" ] && [ ! -f "$start_file" ]
+    if [ "$this_mode" == "daemon" ] && [ ! -f "$start_file" ]
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
@@ -1259,61 +1274,54 @@ function main_loop {
     fi
 }
 
-if [ "$lite" == "true" ]
-then
-    zdl_mode="lite"
-    unset lite
-fi
-
 
 trap_sigint
-if [ "$zdl_mode" == "daemon" ]
+if [ "$this_mode" == "daemon" ]
 then
     while true
     do
 	main_loop || break
     done
 else
+    if [ "$lite_mode" == true ] ||
+	   [ "$this_mode" == lite ]
+    then
+	lite_mode=true
+	this_mode=daemon
+	echo "${this_tty} lite" > "$path_tmp/.stop_stdout"
+    fi
+    
     while true
     do
 	main_loop || break
     done 2>/dev/null &
+
+    [ "$lite_mode" == true ] &&
+	this_mode=lite
+    
     loops_pid=$!
 fi
 
-if [ "$zdl_mode" == "lite" ]
-then
-    lite=true
-fi
-
-## provvisorio per youtube-dl non gestito
-[[ $(ls $path_tmp/*_stdout.ytdl 2>/dev/null) ]] && rm -f "$path_tmp"/*_stdout.ytdl
-
-if [ "$zdl_mode" != "daemon" ]
+if [ "$this_mode" != "daemon" ]
 then
     stty -echo
     bindings
     while check_pid $loops_pid
     do
-	if [ "$lite" == "true" ]
+	if [ "$this_mode" == "lite" ]
 	then
-	    unset zdl_mode
 	    show_downloads_lite
-	    ## provvisorio per youtube-dl non gestito
-	    [[ $(ls $path_tmp/*_stdout.ytdl 2>/dev/null) ]] &&
-		echo -n -e "\r$(tail -n1 "$path_tmp"/*_stdout.ytdl)                                                                    "
 
 	    read -e -n 1 -t 2 binding_in_loop
-	    unset zdl_mode
+
 	else
 	    read -e -n 1 -t 1 binding_in_loop
 	fi
     done
-    if [ "$lite" == "true" ]
+
+    if [ "$this_mode" == "lite" ]
     then
-	unset zdl_mode
 	show_downloads_lite
-	unset zdl_mode
     fi
 fi
 

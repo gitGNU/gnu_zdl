@@ -229,11 +229,20 @@ function download {
 		    
 		fi
 
+		if [ -d /cygdrive ]
+		then
+		    ((aria2_connections>8)) &&
+			aria2_connections=8
 
+		else
+		    ((aria2_connections>16)) &&
+			aria2_connections=16
+		fi
+		
 		opts+=(
 		    -U "$user_agent"
 		    -k 1M
-		    -x 16
+		    -x $aria2_connections
 		    --continue=true
 		    --header="${headers[@]}"
 		    --auto-file-renaming=false

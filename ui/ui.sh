@@ -25,17 +25,18 @@
 #
 
 function show_downloads {
-    if [ ! -f "$path_tmp/.stop_stdout" ] && [ -z "$zdl_mode" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	if data_stdout
 	then
-	    awk -f $path_usr/libs/common.awk      \
-		-f $path_usr/ui/colors.awk.sh     \
-		-f $path_usr/ui/ui.awk            \
-		-v col="$COLUMNS"                 \
-		-v Color_Off="$Color_Off"         \
-		-v Background="$Background"       \
-		-e "BEGIN {$awk_data display()}" 
+	    stdbuf -oL -eL                            \
+		   awk -f $path_usr/libs/common.awk   \
+		   -f $path_usr/ui/colors.awk.sh      \
+		   -f $path_usr/ui/ui.awk             \
+		   -v col="$COLUMNS"                  \
+		   -v Color_Off="$Color_Off"          \
+		   -v Background="$Background"        \
+		   -e "BEGIN {$awk_data display()}" 
 	fi
     else
 	data_stdout
@@ -48,15 +49,16 @@ function show_downloads_lite {
     
     if data_stdout "no_check"
     then
-	awk -f $path_usr/libs/common.awk      \
-	    -f $path_usr/ui/colors.awk.sh     \
-	    -f $path_usr/ui/ui.awk            \
-	    -v col="$COLUMNS"                 \
-	    -v zdl_mode="lite"                \
-	    -v odd_run="$odd_run"             \
-	    -v Color_Off="$Color_Off"         \
-	    -v Background="$Background"       \
-	    -e "BEGIN {$awk_data display()}" 
+	stdbuf -oL -eL                           \
+	       awk -f $path_usr/libs/common.awk  \
+	       -f $path_usr/ui/colors.awk.sh     \
+	       -f $path_usr/ui/ui.awk            \
+	       -v col="$COLUMNS"                 \
+	       -v this_mode="lite"               \
+	       -v odd_run="$odd_run"             \
+	       -v Color_Off="$Color_Off"         \
+	       -v Background="$Background"       \
+	       -e "BEGIN {$awk_data display()}" 
 
     elif [ -f "$start_file" ]
     then
@@ -69,30 +71,34 @@ function show_downloads_lite {
 function show_downloads_extended {
     header_z
     header_box_interactive "Modalità interattiva"
+
     [ -f "$path_tmp/downloader" ] && downloader_in=$(cat "$path_tmp/downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
     if ! check_instance_daemon
     then
 	print_c 1 "$PROG è attivo in modalità demone\n"
+
     else
 	if ! check_instance_prog
 	then
-	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $tty\n${Color_Off}"
+	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $that_tty\n${Color_Off}"
 	else
 	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
 	fi
     fi
+
     if data_stdout "no_check"
     then
-	awk -f $path_usr/libs/common.awk          \
-	    -f $path_usr/ui/colors.awk.sh         \
-	    -f $path_usr/ui/ui.awk                \
-	    -v col="$COLUMNS"                     \
-	    -v zdl_mode="extended"                \
-	    -v Color_Off="$Color_Off"             \
-	    -v Background="$Background"           \
-	    -e "BEGIN {$awk_data display()}" 
+	stdbuf -oL -eL                               \
+	       awk -f $path_usr/libs/common.awk      \
+	       -f $path_usr/ui/colors.awk.sh         \
+	       -f $path_usr/ui/ui.awk                \
+	       -v col="$COLUMNS"                     \
+	       -v zdl_mode="extended"                \
+	       -v Color_Off="$Color_Off"             \
+	       -v Background="$Background"           \
+	       -e "BEGIN {$awk_data display()}" 
     fi
 }
 
@@ -128,6 +134,7 @@ ${BGreen} M-e       ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor
 ${BGreen} M-c       ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
            ${BBlue}│${Color_Off} 
 ${BYellow} M-i       ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
+${BYellow} M-C       ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
            ${BBlue}│${Color_Off} 
 ${BRed} M-q       ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
 ${BRed} M-k       ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
@@ -135,12 +142,10 @@ ${BRed} M-k       ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Co
 ${BBlue} M-t       │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
 ${BBlue} M-l       │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
 
-    #${BYellow} M-C       ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
-
 }
 
 function standard_box {
-    [ -n "$lite" ] && header_lite=" LITE"
+    [ "$this_mode" == "lite" ] && header_lite=" LITE"
     header_box "Modalità in standard output${header_lite}"
     echo -e -n "$init_msg"
     
@@ -156,11 +161,11 @@ function standard_box {
 	echo -e "${BBlue}           │${Color_Off}"
 	header_box "Readline: immetti URL e link dei servizi"
     
-    elif [ -z "$lite" ] &&
+    elif [ "$this_mode" != "lite" ] &&
 	   [ -z "$binding" ]
     then
 	separator- 11
-	echo
+	print_c 0 "\n"
     fi
 }
 
@@ -179,7 +184,7 @@ function bindings {
     trap_sigint
     check_instance_prog
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
-#    bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
+    bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
@@ -190,16 +195,19 @@ function bindings {
 
 function change_mode {
     local cmd=$1
-
-    touch "$path_tmp/.stop_stdout"
+    
+    echo "$(tty) $cmd" > "$path_tmp/.stop_stdout"
+    
     stty echo
 
     case $cmd in
 	configure)
-	    zdl -c
+	    zdl --configure
+	    init
 	    ;;
+
 	interactive)
-	    zdl -i
+	    zdl --interactive
 	    ;;
 	
 	editor)
@@ -218,18 +226,21 @@ function change_mode {
     esac
 
     stty -echo
+
     rm -f "$path_tmp/.stop_stdout"
     export READLINE_LINE=" "
     
-    [ -z "$lite" ] ||
-	[ -n "$binding" ] &&
-	    header_z &&
-	    standard_box
+    if [ "$this_mode" != "lite" ] ||
+	   [ -n "$binding" ]
+    then
+	header_z
+	standard_box
+    fi
 
     [ "$binding" == 1 ] &&
 	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
 	
-    [ -z "$lite" ] &&
+    [ "$this_mode" == "lite" ] &&
 	[ -z "$binding" ] &&
 	print_c 1 "\nAttendi..."
 }
@@ -239,10 +250,8 @@ function interactive {
 
     while true
     do
-	header_z
-	header_box_interactive "Modalità interattiva"
+	unset that_tty list file_stdout file_out url_out downloader_out pid_out length_out
 
-	unset tty list file_stdout file_out url_out downloader_out pid_out length_out 
 	show_downloads_extended
 	num_dl=$(cat "$path_tmp/dl-mode" 2>/dev/null)
 	
@@ -270,7 +279,7 @@ ${BGreen}   e ${Color_Off}│ modifica la coda dei link da scaricare, usando l'$
 ${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
      │"
 
-	[ -z "$tty" ] &&
+	[ -z "$that_tty" ] &&
 	    [ -z "$daemon_pid" ] &&
 	    echo -e "${BGreen}   d ${Color_Off}│ avvia ${BGreen}d${Color_Off}emone"
 
@@ -290,12 +299,12 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 
 	case "$action" in
 	    s)
-		fclear
 		header_z
 		echo
 		show_downloads_extended
 		header_box_interactive "Seleziona (Riavvia/sospendi, Elimina, Riproduci audio/video)"
-		echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
+		#echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
+		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
 
 		read -e input
 
@@ -426,7 +435,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	    
 	    d)
-		[ -z "$tty" ] &&
+		[ -z "$that_tty" ] &&
 		    zdl --daemon
 		;;
 	esac

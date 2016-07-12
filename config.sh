@@ -29,22 +29,23 @@ TAG1='## NEW: ...ARIA2!'
 TAG2='## ARIA2: già chiesto'
 
 
-# chiavi di configurazione -- valori predefiniti  --          descrizione per il config-manager
-key_conf[0]=downloader;       val_conf[0]=Aria2;              string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
-key_conf[1]=axel_parts;       val_conf[1]="";                 string_conf[1]="Numero di parti in download parallelo per Axel"
-key_conf[2]=mode;             val_conf[2]=single;             string_conf[2]="Modalità di download predefinita (single|multi)"
-key_conf[3]=stream_mode;      val_conf[3]=single;             string_conf[3]="Modalità di download predefinita per lo stream dal browser (single|multi)"
-key_conf[4]=num_dl;           val_conf[4]="";                 string_conf[4]="Numero massimo di download simultanei"
-key_conf[5]=background;       val_conf[5]=black;              string_conf[5]="Colore sfondo (black|transparent)"
-key_conf[6]=language;         val_conf[6]=$LANG;              string_conf[6]="Lingua"
-key_conf[7]=reconnecter;      val_conf[7]="";                 string_conf[7]="Script/comando/programma per riconnettere il modem/router"
-key_conf[8]=autoupdate;       val_conf[8]=enabled;            string_conf[8]="Aggiornamenti automatici di ZDL (enabled|*)"
-key_conf[9]=player;           val_conf[9]="";                 string_conf[9]="Script/comando/programma per riprodurre un file audio/video"
-key_conf[10]=editor;          val_conf[10]="nano";            string_conf[10]="Editor predefinito per modificare la lista dei link in coda"
-key_conf[11]=resume;          val_conf[11]="";                string_conf[11]="Recupero file omonimi come con opzione --resume (enabled|*)"
-key_conf[12]=zdl_mode;        val_conf[12]="";                string_conf[12]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
-key_conf[13]=tcp_port;        val_conf[13]="";                string_conf[13]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
-key_conf[14]=udp_port;        val_conf[14]="";                string_conf[14]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+# chiavi di configurazione --    valori predefiniti  --    descrizione per il config-manager
+key_conf[0]=downloader;          val_conf[0]=Aria2;        string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
+key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numero di parti in download parallelo per Axel"
+key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2"
+key_conf[3]=mode;                val_conf[3]=single;       string_conf[3]="Modalità di download predefinita (single|multi)"
+key_conf[4]=stream_mode;         val_conf[4]=single;       string_conf[4]="Modalità di download predefinita per lo stream dal browser (single|multi)"
+key_conf[5]=num_dl;              val_conf[5]="";           string_conf[5]="Numero massimo di download simultanei"
+key_conf[6]=background;          val_conf[6]=black;        string_conf[6]="Colore sfondo (black|transparent)"
+key_conf[7]=language;            val_conf[7]=$LANG;        string_conf[7]="Lingua"
+key_conf[8]=reconnecter;         val_conf[8]="";           string_conf[8]="Script/comando/programma per riconnettere il modem/router"
+key_conf[9]=autoupdate;          val_conf[9]=enabled;      string_conf[9]="Aggiornamenti automatici di ZDL (enabled|*)"
+key_conf[10]=player;             val_conf[10]="";          string_conf[10]="Script/comando/programma per riprodurre un file audio/video"
+key_conf[11]=editor;             val_conf[11]="nano";      string_conf[11]="Editor predefinito per modificare la lista dei link in coda"
+key_conf[12]=resume;             val_conf[12]="";          string_conf[12]="Recupero file omonimi come con opzione --resume (enabled|*)"
+key_conf[13]=zdl_mode;           val_conf[13]="";          string_conf[13]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
+key_conf[14]=tcp_port;           val_conf[14]="";          string_conf[14]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+key_conf[15]=udp_port;           val_conf[15]="";          string_conf[15]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 
 declare -A _downloader
 _downloader['Axel']=axel
@@ -226,27 +227,35 @@ function set_item_conf {
 }
 
 function get_conf {
-    run_mode=$zdl_mode
     source "$file_conf"
-    if [ -n "$run_mode" ]
+    [ -z "$zdl_mode" ] &&
+	zdl_mode=stdout
+    
+    if [ -z "$this_mode" ]
     then
-	zdl_mode="$run_mode"
+	this_mode="$zdl_mode"
     fi
     
     ## downloader predefinito
-    [ -z "$downloader" ] &&
-	downloader=${val_conf[0]}
+    if [ -f "$path_tmp/downloader" ]
+    then
+	downloader_in=$(cat "$path_tmp/downloader")
+	
+    else
+	[ -z "$downloader" ] &&
+	    downloader=${val_conf[0]}
 
-    for dlr in "$downloader" Aria2 Axel Wget
-    do
-	if command -v "${_downloader[$dlr]}" &>/dev/null
-	then
-	    downloader_in="$dlr"
-	    break
-	fi
-    done
-    set_downloader "$downloader_in"
-    
+	for dlr in "$downloader" Aria2 Axel Wget
+	do
+	    if command -v "${_downloader[$dlr]}" &>/dev/null
+	    then
+		downloader_in="$dlr"
+		break
+	    fi
+	done
+	set_downloader "$downloader_in"
+    fi    
+
     ## parti di Axel:
     axel_parts_conf="$axel_parts"
     if [ -z "$axel_parts_conf" ]
@@ -259,9 +268,15 @@ function get_conf {
     then
 	axel_parts_conf=10
     fi
-
     axel_parts="$axel_parts_conf"
     
+
+    ## connessioni di Aria2:
+    if [ -z "$aria2_connections" ]
+    then
+	aria2_connections=16
+    fi
+
     # if [ -z "$skin" ]; then
     # 	skin=${val_conf[5]}
     # fi
@@ -379,17 +394,20 @@ function init {
         
     [ -z "$pid_prog" ] && pid_prog=$$ 
 
-    check_instance_prog
-    [ "$?" != 1 ] && rm -f "$path_tmp"/*rewriting
+    get_conf
+    this_tty=$(tty)
+
+    if check_instance_prog
+    then
+	rm -f "$path_tmp"/*rewriting 
+    fi
     
     # CYGWIN
     if [ -e "/cygdrive" ]
     then
 	kill -SIGWINCH $$
     fi
-
-    get_conf
-
+    
     if [ -f "$file_log" ]
     then
 	log=1

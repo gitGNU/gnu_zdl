@@ -28,7 +28,7 @@ function check_pid {
     ck_pid=$1
     if [ -n "$ck_pid" ]
     then
-	if [[ -n $(ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid 2>/dev/null) ]]
+	if ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid &>/dev/null
 	then
 	    return 0 
 	else
@@ -38,7 +38,7 @@ function check_pid {
 }
 
 function size_file {
-    echo "$(stat -c '%s' "$1")"
+    stat -c '%s' "$1"
 }
 
 
@@ -53,25 +53,21 @@ function check_instance_daemon {
 }
 
 function check_instance_prog {
+    local test_pid
+    
     if [ -f "$path_tmp/.pid.zdl" ]
     then
 	test_pid="$(cat "$path_tmp/.pid.zdl" 2>/dev/null)"
 	if check_pid "$test_pid" && [ "$pid_prog" != "$test_pid" ]
 	then
-	    pid=$test_pid
-	    if [ -e "/cygdrive" ]
-	    then
-		tty="$(cat /proc/$test_pid/ctty)"
-	    else
-		tty="$(ps ax |grep -P '^[\ ]*'$pid)"
-		tty="${tty## }"
-		tty="/dev/$(cut -d ' ' -f 2 <<< "${tty## }")"
-	    fi
+	    that_pid=$test_pid
+	    that_tty=$(tty_pid "$test_pid")
 	    return 1
 	else
 	    return 0
 	fi
     fi
+    return 0
 }
 
 function scrape_url {
@@ -117,7 +113,7 @@ function redirect_links {
     header_box "Links da processare"
     echo -e "${links}\n"
     separator-
-    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $test_pid), nel seguente terminale: $tty"
+    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $that_pid), nel seguente terminale: $that_tty"
     [ -n "$xterm_stop" ] && xterm_stop
     exit 1
 }
@@ -482,19 +478,24 @@ function ffmpeg_stdout {
 }
 
 function children_pids {
+    local result ppid 
     ppid=$1
     proc_pids=(
 	$(ls -1 /proc |grep -oP '^[0-9]+$')
     )
 
+    result=1
+    
     for proc_pid in ${proc_pids[@]}
     do
 	if [ -e /proc/$proc_pid/status ] &&
 	       [ "$(awk '/PPid/{print $2}' /proc/$proc_pid/status)" == "${ppid}" ]
 	then
 	    echo $proc_pid
+	    result=0
 	fi
     done
+    return $result
 }
 
 
@@ -507,4 +508,147 @@ function set_downloader {
     else
 	return 1
     fi
+}
+
+
+function tty_pid {
+    local that_tty pid
+    pid="$1"
+    
+    if [ -e "/cygdrive" ]
+    then
+	that_tty="$(cat /proc/$pid/ctty)"
+    else
+	that_tty=$(ps ax |grep -P '^[\ ]*'$pid)
+	that_tty="${that_tty## }"
+	that_tty="/dev/"$(cut -d ' ' -f 2 <<< "${that_tty## }")
+    fi
+    echo "$that_tty"
+}
+
+function grep_tty {
+    ## regex -> tty
+
+    local matched_tty
+
+    ## gnu/linux
+    if [ -z "$2" ]
+    then
+	matched_tty=$(ps ax | grep -v grep | grep -P "$1")
+
+    else
+	matched_tty=$(grep -P "$1" <<< "$2")
+    fi
+    matched_tty="${matched_tty## }"
+    matched_tty=$(cut -d ' ' -f 2 <<< "${matched_tty## }")
+
+    if [ -n "$matched_tty" ]
+    then
+	echo "/dev/$matched_tty"
+	return 0
+
+    else
+	return 1
+    fi
+}
+
+function grep_pid {
+    ## regex -> pid
+    local matched_pid
+
+    ## gnu/linux
+    if [ -z "$2" ]
+    then
+	matched_pid=$(ps ax | grep -v grep | grep -P "$1")
+
+    else
+	matched_pid=$(grep -P "$1" <<< "$2")
+    fi
+
+    matched_pid="${matched_pid## }"
+    matched_pid="/dev/"$(cut -d ' ' -f 2 <<< "${matched_pid## }")
+
+    if [[ "$matched_pid" =~ ^([0-9]+)$ ]]
+    then
+	echo "$matched_pid"
+	return 0
+
+    else
+	return 1
+    fi
+}
+
+
+## check: può stampare in stdout? (params: 1-modalità e 2-terminale)
+function show_mode_in_tty {
+    local this_mode this_tty B1 B2 pattern psax
+    this_mode="$1"
+    this_tty="$2"
+
+    ## livelli: priorità di stampa in ordine crescente
+    ## per sistema "on the fly" valido solo su gnu/linux
+    ##
+    # declare -A _mode
+    # _mode['daemon']=0
+    # _mode['stdout']=1
+    # _mode['lite']=2
+    # _mode['interactive']=3
+    # _mode['configure']=4
+    # _mode['list']=5
+    # _mode['info']=6
+    # _mode['editor']=7
+
+    if [ "$this_mode" == "daemon" ]
+    then
+	return 1
+
+    elif [ "$this_mode" == "stdout" ] &&
+	     [ -f "$path_tmp/.stop_stdout" ] &&
+	     [ "$this_tty $this_mode" != "$(cat "$path_tmp/.stop_stdout" 2>/dev/null)" ]
+    then
+	return 1
+
+	###########################################
+	## sistema "on the fly" valido solo su gnu/linux (a causa dell'output di `ps ax`, incompleto su cygwin
+	##
+	# else
+	# 	level="${_mode[$this_mode]}"
+	# 	pattern="${this_tty##'/dev/'}"
+	# 	pattern="${pattern//\//\\/}\s+[^ ]+\s+[^ ]+\s+(?!grep).+"
+	# 	B1='('
+	
+	# 	((level<2)) && {
+	# 	    pattern+="${B1}zdl\s(-l|--lite)|" 
+	# 	    unset B1
+	# 	}
+	# 	((level<3)) && {
+	# 	    pattern+="${B1}zdl\s--interactive|"
+	# 	    unset B1
+	# 	}
+	# 	((level<4)) && {
+	# 	    pattern+="${B1}zdl\s--configure|"
+	# 	    unset B1
+	# 	}
+	# 	((level<5)) && {
+	# 	    pattern+="${B1}zdl\s--list-extensions|" 
+	# 	    unset B1
+	# 	}
+	# 	((level<6)) && {
+	# 	    pattern+="${B1}p*info.+zdl|" 
+	# 	    unset B1
+	# 	}
+	# 	((level<7)) && {
+	# 	    pattern+="${B1}\/links_loop\.txt|" 
+	# 	    unset B1
+	# 	}
+
+	# 	[ -z "$B1" ] &&
+	# 	    B2=')'
+	
+	# 	pattern=${pattern%'|'}"$B2"
+
+	# 	ps ax | grep -P "$pattern" &>/dev/null &&
+	# 	    return 1
+    fi
+    return 0
 }

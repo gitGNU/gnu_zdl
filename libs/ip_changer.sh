@@ -39,12 +39,12 @@ function newip_add_provider {
 
 function check_ip {
     if [ "$reconnect_sh" == true ] &&
-	   [ -n "$(command -v $reconnecter 2>/dev/null)" ]
+	   command -v $reconnecter &>/dev/null
     then
 	noproxy
 	print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 
-	if [ "$zdl_mode" != "lite" ]
+	if [ "$this_mode" != "lite" ]
 	then
 	    $reconnecter 
 	else
@@ -59,12 +59,12 @@ function check_ip {
     elif [ "${newip[*]}" != "${newip[*]//$1}" ]
     then
 	if [ "$reconnect_sh" == true ] &&
-	       [ -n "$(command -v $reconnecter 2>/dev/null)" ]
+	       command -v $reconnecter &>/dev/null
 	then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 
-	    if [ "$zdl_mode" != "lite" ]
+	    if [ "$this_mode" != "lite" ]
 	    then
 		$reconnecter
 	    else

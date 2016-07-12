@@ -158,7 +158,7 @@ function post_process {
 		if [[ "$mime" =~ (audio|video) ]]
 		then
 		    print_c 4 "Conversione del file: $line"
-		    [ "$lite" == "true" ] && convert_params="-report -loglevel quiet"
+		    [ "$this_mode" == "lite" ] && convert_params="-report -loglevel quiet"
 
 		    if [ -e /cygdrive ]
 		    then

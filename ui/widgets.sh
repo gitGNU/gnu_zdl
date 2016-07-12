@@ -57,8 +57,7 @@ function print_case {
 }
     
 function print_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] &&
-	   [ -z "$zdl_mode" ] ||
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
 	       [ -n "$redirected_link" ]
     then
 	print_case "$1"
@@ -79,8 +78,7 @@ function print_C {
 }
 
 function print_r {
-    if [ ! -f "$path_tmp/.stop_stdout" ] &&
-	   [ -z "$zdl_mode" ] ||
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
 	       [ -n "$redirected_link" ]
     then
 	print_case "$1"
@@ -93,8 +91,7 @@ function print_r {
 }
 
 function sprint_c {
-    if [ ! -f "$path_tmp/.stop_stdout" ] &&
-	   [ -z "$zdl_mode" ] ||
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
 	       [ -n "$redirected_link" ]
     then
 	print_case "$1"
@@ -107,7 +104,7 @@ function sprint_c {
 }
 
 function separator- {
-    if [ -z "$zdl_mode" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	if [[ "$1" =~ ^([0-9]+)$ ]]
 	then
@@ -120,21 +117,23 @@ function separator- {
 
 	else
 	    header "" "$BBlue" "─"
-	    echo -ne "\n"
+	    print_c 0 ""
 	fi
     fi
 }
 
 function fclear {
-    if [ "$zdl_mode" != "daemon" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
-	#	echo -n -e "\033c${White}${Background}\033[J"
+	## echo -ne "\033c${White}${Background}\033[J"
 	echo -ne "\033c${Color_Off}\033[J"
+	already_clean=true
+	export already_clean
     fi
 }
 
 function cursor {
-    if [ -z "$zdl_mode" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	stato=$1
 	case $stato in
@@ -161,52 +160,54 @@ function header { # $1=label ; $2=color ; $3=header pattern
 
 
 function header_z {
-    if [ -z "$zdl_mode" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
-	fclear
+	if [ "$already_clean" != true ]
+	then
+	    fclear
+	fi
+	unset already_clean
+	export already_clean
+	
 	text_start="$name_prog ($prog)"
 	text_end="$(zclock)"
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
 	header "$text_start$text_space$text_end" "$On_Blue"
-	echo -ne "\n"
+	print_c 0 ""
     fi
 }
 
 function header_box {
-    if [ ! -f "$path_tmp/.stop_stdout" ] ||
-	       [ -n "$redirected_link" ]
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
+	    [ -n "$redirected_link" ]
     then
-	if [ -z "$zdl_mode" ]
-	then
-	    header "$1" "$Black${On_White}" "─"
-	    echo -ne "\n"
-	fi
+	header "$1" "$Black${On_White}" "─"
+	print_c 0 ""
     fi
 }
 
 function header_box_interactive {
     header "$1" "$Black${On_White}" "─"
-    echo -ne "\n"
+    print_c 0 ""
 }
 
 function header_dl {
-    if [ -z "$zdl_mode" ]
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	header "$1 " "$White${On_Blue}"
-	echo -ne "\n"
+	print_c 0 ""
     fi
 }
 
 function pause {
-    if [ ! -f "$path_tmp/.stop_stdout" ]   &&
-	   [ "$zdl_mode" != "daemon" ]     ||
-	       [ "$1" == "force" ]         ||
-	       [ "$redir_lnx" == true ]    ||
-	       [ -n "$redirected_link" ]
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
+	    [ "$1" == "force" ]                  ||
+	    [ "$redir_lnx" == true ]             ||
+	    [ -n "$redirected_link" ]
     then
 	echo
 	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
-	echo -ne "\n"
+	print_c 0 ""
 	cursor off
 	read -e
 	cursor on
@@ -215,10 +216,9 @@ function pause {
 
 function xterm_stop {
     if [ "$1" == "force" ] ||
-	   ( [ ! -f "$path_tmp/.stop_stdout" ]   &&
-		 [ "$zdl_mode" != "daemon" ]     &&
-		 [ -z "${pipe_out[*]}" ]         ||
-		     [ -n "$redirected_link" ] )
+	   ( show_mode_in_tty "$this_mode" "$this_tty" &&
+		   [ -z "${pipe_out[*]}" ]             ||
+		       [ -n "$redirected_link" ] )
     then
 	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	echo -ne "\n"

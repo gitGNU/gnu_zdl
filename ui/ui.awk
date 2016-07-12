@@ -210,7 +210,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	    speed = int(speed_out[i]) speed_out_type[i]
 	    if (eta_out[i])
 		eta = eta_out[i]
-	    if ((length_out[i] == "unspecified") && (zdl_mode != "lite")) {
+	    if ((length_out[i] == "unspecified") && (this_mode != "lite")) {
 		progress = progress_unspecified("downloading")
 
 	    }
@@ -227,7 +227,7 @@ function make_progress (size_bar, progress_bar, progress) {
 
     bar = ""
     diff_bar = ""
-    if (zdl_mode == "lite") {
+    if (this_mode == "lite") {
 	if (tty() ~ /pts/) on_diff_color = On_Gray2
 	if ((tty() ~ /tty/) || ENVIRON["WINDIR"]) on_diff_color = On_Gray1
 
@@ -275,7 +275,7 @@ function display () {
     if (zdl_mode == "extended") {
 	result = show_downloads_extended()
     }
-    else if (zdl_mode == "lite") {
+    else if (this_mode == "lite") {
 	result = "\033c" White Background "\033[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
 	result = result "\n\n" show_downloads_lite()
     }

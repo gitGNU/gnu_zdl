@@ -96,7 +96,8 @@ function show_conf {
 }
 
 function configure {
-    unset zdl_mode
+    this_mode=configure
+
     while true
     do
 	header_z
@@ -117,17 +118,18 @@ function configure {
 		do
 		    header_z
 		    header_box "Configurazione di $name_prog"
-		    print_c 0 "La configurazione è composta da ${BRed}nomi${Color_Off} e ${BBlue}valori${Color_Off}: per ogni nome può essere specificato un valore.\n"
-		    print_c 4 "I valori disponibili sono suggeriti tra le parentesi tonde:"
-		    print_c 0 "- i valori alternativi disponibili, in blu, sono separati dalla barra verticale
-- $(sprint_c 4 "*") significa un valore qualsiasi diverso dagli altri
-- i valori registrati attualmente sono in verde\n\n"
+
+		    print_c 0 "La configurazione è composta da ${BRed}nomi${Color_Off} e ${BBlue}valori${Color_Off}.\n"
+		    print_c 2 "Per ogni nome può essere specificato un valore:"
+		    print_c 0 "- i $(sprint_c 4 "valori alternativi disponibili"), in blu, possono essere suggeriti tra le parentesi tonde e separati dalla barra verticale
+- di fianco, in rosso, è indicato il $(sprint_c 3 "nome") a cui verrà assegnato il valore
+- $(sprint_c 4 "*") significa un valore qualsiasi diverso dagli altri, anche nullo
+- gli attuali $(sprint_c 1 "valori registrati") sono in verde\n\n"
 		    get_conf
 		    show_conf
 		    
-		    unset zdl_mode
 		    print_c 2 "\nSeleziona l'elemento predefinito da modificare ($(sprint_c 4 "1-${#key_conf[*]}" 2) | $(sprint_c 4 "q" 2) per tornare indietro):"
-		    read opt
+		    read -e opt
 
 		    [ "$opt" == "q" ] && break 
 		    configure_key $opt
@@ -187,7 +189,7 @@ function configure_accounts {
 "
 
 	cursor off
-	read -n 1 option_2
+	read -s -n1 option_2
 	echo -e -n "\r \r"
 	cursor on
 	case $option_2 in
@@ -200,7 +202,7 @@ function configure_accounts {
 		    header_box "Registra un account per il login automatico ($host)"
 
 		    print_c 2 "\rNome utente:"
-		    read user
+		    read -e user
 		    
 		    if [ -n "$user" ]
 		    then
@@ -240,7 +242,7 @@ function configure_accounts {
 		;;
 	    2)	##remove
 		print_c 2 "Nome utente dell'account da cancellare:"
-		read user
+		read -e user
 		
 		if grep -P "^$user\s.+$" "$path_conf"/accounts/$host &>/dev/null
 		then
@@ -315,7 +317,7 @@ function get_accounts {
 function init_accounts {
     mkdir -p "$path_conf"/accounts
     touch "$path_conf"/accounts/$host
-    ftemp=$(tempfile)
+    ftemp="$path_tmp/init_accounts"
     awk '($0)&&!($0 in a){a[$0]; print}' "$path_conf"/accounts/$host >$ftemp
     mv $ftemp "$path_conf"/accounts/$host
 
