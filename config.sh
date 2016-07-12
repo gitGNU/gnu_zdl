@@ -43,7 +43,7 @@ key_conf[9]=autoupdate;          val_conf[9]=enabled;      string_conf[9]="Aggio
 key_conf[10]=player;             val_conf[10]="";          string_conf[10]="Script/comando/programma per riprodurre un file audio/video"
 key_conf[11]=editor;             val_conf[11]="nano";      string_conf[11]="Editor predefinito per modificare la lista dei link in coda"
 key_conf[12]=resume;             val_conf[12]="";          string_conf[12]="Recupero file omonimi come con opzione --resume (enabled|*)"
-key_conf[13]=zdl_mode;           val_conf[13]="";          string_conf[13]="Modalità predefinita di avvio (lite|daemon|<vuota>)"
+key_conf[13]=zdl_mode;           val_conf[13]="";          string_conf[13]="Modalità predefinita di avvio (lite|daemon|stdout)"
 key_conf[14]=tcp_port;           val_conf[14]="";          string_conf[14]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[15]=udp_port;           val_conf[15]="";          string_conf[15]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 
