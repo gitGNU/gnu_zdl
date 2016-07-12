@@ -514,6 +514,22 @@ then
     done
 fi
 
+
+if [ "${args[*]}" != "${args[*]//--configure}" ] ||
+       [ "${args[*]}" != "${args[*]//-c}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^(\-\-configure|\-c)$ ]]
+	then
+	    this_mode=configure
+	    unset args[i]
+	    configure
+	fi
+    done
+fi
+
+
 if [ "${args[*]}" != "${args[*]//--interactive}" ] ||
        [ "${args[*]}" != "${args[*]//-i}" ]
 then
@@ -728,19 +744,6 @@ then
     done
 fi
 
-
-if [ "${args[*]}" != "${args[*]//--configure}" ] ||
-       [ "${args[*]}" != "${args[*]//-c}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [[ "${args[i]}" =~ ^(\-\-configure|\-c)$ ]]
-	then 
-	    unset args[i]
-	    configure
-	fi
-    done
-fi
 
 if [ "${args[*]}" != "${args[*]//--out=}" ]
 then
