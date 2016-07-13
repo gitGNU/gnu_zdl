@@ -304,10 +304,7 @@ function update {
     cd ..
 
     [ ! -e "$SHARE" ] && try mkdir -p "$SHARE"
-    if [ -f $SHARE/node.exe ]
-    then
-	cp $SHARE/node.exe /tmp/
-    fi
+
     try rm -rf "$SHARE"
     try mkdir -p /usr/share/info
     try mkdir -p /usr/share/man/it/man1
@@ -400,14 +397,8 @@ ESTENSIONI:
 	if ! command -v node &>/dev/null
 	then
 	    print_c 1 "Installazione di Nodejs.exe in $SHARE"
-	    
-	    if [ ! -f /tmp/node.exe ]
-	    then
-		wget -O $SHARE/node.exe https://nodejs.org/dist/v4.4.4/win-x86/node.exe
-
-	    else
-		cp /tmp/node.exe $SHARE/
-	    fi
+	    wget -O $SHARE/node.exe https://nodejs.org/dist/v4.4.4/win-x86/node.exe
+	    mv node.exe $SHARE/
 	fi
 
 	if ! command -v ffmpeg &>/dev/null
