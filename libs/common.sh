@@ -579,12 +579,31 @@ function grep_pid {
 }
 
 
-## check: può stampare in stdout? (params: 1-modalità e 2-terminale)
-function show_mode_in_tty {
-    local this_mode this_tty B1 B2 pattern psax
+function start_mode_in_tty {
     this_mode="$1"
     this_tty="$2"
 
+    if [ "$this_mode" != daemon ]
+    then
+	if [ ! -f "$path_tmp/.stop_stdout" ]
+	then
+	    that_tty="$this_tty"
+
+	elif [ -f "$path_tmp/.stop_stdout" ]
+	then
+	    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
+	fi
+	    
+	if [ "$that_tty" == "$that_tty" ]
+	then
+	    echo "$that_tty $this_mode" >"$path_tmp/.stop_stdout"
+	fi
+    fi
+}
+
+
+## check: può stampare in stdout? (params: 1-modalità e 2-terminale)
+function show_mode_in_tty {
     ## livelli: priorità di stampa in ordine crescente
     ## per sistema "on the fly" valido solo su gnu/linux
     ##
@@ -597,6 +616,20 @@ function show_mode_in_tty {
     # _mode['list']=5
     # _mode['info']=6
     # _mode['editor']=7
+
+    local this_mode this_tty B1 B2 pattern psax
+    this_mode="$1"
+    this_tty="$2"
+
+    if  [ -f "$path_tmp/.stop_stdout" ]
+    then
+	that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
+	that_mode=$(cut -d' ' -f2 "$path_tmp/.stop_stdout")
+    fi
+
+    [ "$that_tty" == "$that_tty" ] &&
+    return 0
+       
 
     if [ "$this_mode" == "daemon" ]
     then
@@ -652,3 +685,4 @@ function show_mode_in_tty {
     fi
     return 0
 }
+

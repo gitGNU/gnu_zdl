@@ -167,7 +167,6 @@ then
 	    BASE_DIR="$PWD/"
 	    cd "${args[i]}"
 	    unset args[i]
-#	    break
 	fi
     done
 fi
@@ -290,7 +289,9 @@ then
 	then
 	    unset args[i]
 	    this_mode="daemon"
+	    ## this_tty= importato da zdl --daemon
 	    sleeping_pause=5
+	    tty >prova.tty
 	fi
 
 	if [ "${args[i]}" == "$PWD" ]
@@ -480,6 +481,8 @@ then
 	    then
 		if check_instance_daemon
 		then
+		    export this_tty
+		    start_mode_in_tty daemon "$this_tty"
 		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 		    header_z
 		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
@@ -561,20 +564,19 @@ then
     done
 fi
 
+
+
+
+
 ###
-## change mode di avvio: dopo list-extensions, lite, daemon, interactive, configure
+## change_mode di avvio: dopo list-extensions, lite, daemon, interactive, configure
 ## (tutte le modalità output che assegnano un valore a $this_mode)
 ###
-if check_instance_prog ||
-	[ ! -f "$path_tmp/.stop_stdout" ]
-then
-    echo "$this_tty $this_mode" >"$path_tmp/.stop_stdout"
+start_mode_in_tty "$this_mode" "$this_tty"
 
-elif [ -f "$path_tmp/.stop_stdout" ]
-then
-    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
-    echo "$that_tty $this_mode" >"$path_tmp/.stop_stdout"
-fi
+
+
+
 
 ##########
 header_z
@@ -1044,14 +1046,12 @@ then
     fi
 fi
 
-if [ ! check_instance_daemon ] && [ "$this_mode" != "daemon" ]
+if ! check_instance_daemon &&
+	[ "$this_mode" != "daemon" ] ||
+	    ! check_instance_prog	    
 then
     redirect_links 
-fi
 
-if ! check_instance_prog
-then
-    redirect_links 
 else
     echo "$pid_prog" > "$path_tmp/.pid.zdl"
 fi
