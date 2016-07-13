@@ -438,8 +438,10 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	    
 	    d)
-		[ -z "$daemon_pid" ] &&
+		[ -z "$daemon_pid" ] && {
 		    zdl --daemon
+		    start_mode_in_tty "$this_mode" "$this_tty"
+		}
 		;;
 	esac
 
