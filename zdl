@@ -481,15 +481,21 @@ then
 	    then
 		if check_instance_daemon
 		then
+		    mkdir -p "$path_tmp"
 		    export this_tty
 		    start_mode_in_tty daemon "$this_tty"
 		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
-		    header_z
-		    print_c 1 "$PROG è stato avviato come demone: puoi controllarlo dalla stessa directory ($PWD) attraverso $PROG interactive --> \"$prog -i\"\n"
-		    mkdir -p "$path_tmp"
+		    #header_z
+		    print_c 4 "${name_prog}:"
+		    print_c 1 "Avviato in modalità demone in $PWD"
+		    print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+
 		else
 		    header_z
-		    print_c 3 "Esiste già un'istanza attiva del demone di $PROG in $PWD\n"
+		    echo daemon >daemon
+		    print_c 4 "${name_prog}:"
+		    print_c 3 "Esiste già un'istanza attiva del demone di $name_prog in $PWD\n"
+		    print_c 4 "Puoi controllarlo con: ${Color_Off}\"$prog -i\"\n"
 		    add=true
 		fi
 	    fi

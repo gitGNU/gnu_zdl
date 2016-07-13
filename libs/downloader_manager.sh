@@ -229,16 +229,6 @@ function download {
 		    
 		fi
 
-		if [ -d /cygdrive ]
-		then
-		    ((aria2_connections>8)) &&
-			aria2_connections=8
-
-		else
-		    ((aria2_connections>16)) &&
-			aria2_connections=16
-		fi
-		
 		opts+=(
 		    -U "$user_agent"
 		    -k 1M

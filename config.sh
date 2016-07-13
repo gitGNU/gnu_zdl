@@ -276,11 +276,18 @@ function get_conf {
     then
 	aria2_connections=16
     fi
+    ## Valori massimi:
+    if [ -d /cygdrive ]
+    then
+	((aria2_connections>8)) &&
+	    aria2_connections=8
 
-    # if [ -z "$skin" ]; then
-    # 	skin=${val_conf[5]}
-    # fi
+    else
+	((aria2_connections>16)) &&
+	    aria2_connections=16
+    fi
 
+    
     ## single/multi
     if [ "$mode" == "single" ]
     then
