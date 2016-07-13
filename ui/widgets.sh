@@ -174,6 +174,8 @@ function header_z {
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
 	header "$text_start$text_space$text_end" "$On_Blue"
 	print_c 0 ""
+    else
+	unset no_header_z
     fi
 }
 
