@@ -110,8 +110,8 @@ function htmldecode_regular {
 }
 
 function urlencode {
-    char=( '+' '/' '=' )
-    encoded=( '%2B' '%2F' '%3D' )
+    char=( '+' '/' '=' ' ' )
+    encoded=( '%2B' '%2F' '%3D' '%20' )
 
     text="$1"
     for i in $(seq 0 $(( ${#char[*]}-1 )) )

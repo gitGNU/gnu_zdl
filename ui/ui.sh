@@ -246,6 +246,9 @@ function change_mode {
 }
 
 function interactive {
+    this_mode=interactive
+    start_mode_in_tty "$this_mode" "$this_tty"
+    
     trap "trap SIGINT; exit" SIGINT
 
     while true

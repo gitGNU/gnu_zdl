@@ -482,8 +482,9 @@ then
 	    then
 		mkdir -p "$path_tmp"
 		export this_tty
-		start_mode_in_tty daemon "$this_tty"
-		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
+		this_mode=stdout
+		start_mode_in_tty "$this_mode" "$this_tty"
+		nohup /bin/bash $prog ${args[*]} --silent "$(urlencode "$PWD")" &>/dev/null &
 
 		print_c 4 "${name_prog}:"
 		print_c 1 "Avviato in modalità demone in $PWD\n"
@@ -496,7 +497,7 @@ then
 		print_c 3 "Esiste già un'istanza attiva della modalità demone in $PWD\n"
 		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
 		this_mode=daemon
-		no_header_z=true
+		#no_header_z=true
 	    fi
 	fi
     done
@@ -526,7 +527,6 @@ then
     do
 	if [[ "${args[i]}" =~ ^(\-\-configure|\-c)$ ]]
 	then
-	    this_mode=configure
 	    unset args[i]
 	    configure
 	fi
@@ -543,7 +543,6 @@ then
 	       [ "${args[i]}" == '-i' ]
 	then 
 	    unset args[i]
-	    this_mode=interactive
 	    interactive
 	fi
     done

@@ -96,8 +96,9 @@ function show_conf {
 }
 
 function configure {
-    this_mode=configure
-
+    this_mode="configure"
+    start_mode_in_tty "$this_mode" "$this_tty"
+    
     while true
     do
 	header_z

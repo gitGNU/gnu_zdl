@@ -33,15 +33,15 @@ function tty () {
 
 function check_instance_daemon () {
     pid = $1
-    c = "cat /proc/" pid "/cmdline"
+    c = "cat /proc/" pid "/cmdline 2>/dev/null"
     c | getline dir
     close(c)
-    if (dir ~ /zdl.+silent/) {
-	sub(/.+silent/, "", dir)
-	if (sprintf (CONVFMT, dir) == sprintf (CONVFMT, ENVIRON["PWD"])) { 
+    if (dir ~ /zdl.*silent/) {
+	match(dir, /zdl.*silent(.+)/, matched)
+	if (sprintf (CONVFMT, matched[1]) == sprintf (CONVFMT, pwd)) { 
 	    result = 0
 	    print pid
-	    exit
+	    exit 0
 	}
     }
 }

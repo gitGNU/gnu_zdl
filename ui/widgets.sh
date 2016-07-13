@@ -123,11 +123,14 @@ function separator- {
 }
 
 function fclear {
-    if show_mode_in_tty "$this_mode" "$this_tty"
+    if [ -z "$already_clean" ] &&
+	   show_mode_in_tty "$this_mode" "$this_tty"
     then
 	## echo -ne "\033c${White}${Background}\033[J"
 	echo -ne "\033c${Color_Off}\033[J"
-	already_clean=true
+
+    else
+	unset already_clean
 	export already_clean
     fi
 }
@@ -160,14 +163,10 @@ function header { # $1=label ; $2=color ; $3=header pattern
 
 
 function header_z {
-    if [ -z "$no_header_z" ] && show_mode_in_tty "$this_mode" "$this_tty"
+    if [ -z "$no_header_z" ] &&
+	   show_mode_in_tty "$this_mode" "$this_tty"
     then
-	if [ "$already_clean" != true ]
-	then
-	    fclear
-	fi
-	unset already_clean
-	export already_clean
+	fclear
 	
 	text_start="$name_prog ($prog)"
 	text_end="$(zclock)"
