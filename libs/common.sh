@@ -115,9 +115,8 @@ function redirect_links {
 	header_box "Links da processare"
 	echo -e "${links}\n"
 	separator-
-    
-	print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $that_pid), nel seguente terminale: $that_tty"
     fi
+    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid $that_pid), nel seguente terminale: $that_tty"
     
     [ -n "$xterm_stop" ] && xterm_stop
     exit 1
@@ -632,7 +631,7 @@ function show_mode_in_tty {
 	that_mode=$(cut -d' ' -f2 "$path_tmp/.stop_stdout")
     fi
 
-    [ "$that_tty" == "$that_tty" ] &&
+    [ "$this_tty" != "$that_tty" ] &&
     return 0
        
 
@@ -640,8 +639,7 @@ function show_mode_in_tty {
     then
 	return 1
 
-    elif [ "$this_mode" == "stdout" ] &&
-	     [ -f "$path_tmp/.stop_stdout" ] &&
+    elif [ -f "$path_tmp/.stop_stdout" ] &&
 	     [ "$this_tty $this_mode" != "$(cat "$path_tmp/.stop_stdout" 2>/dev/null)" ]
     then
 	return 1

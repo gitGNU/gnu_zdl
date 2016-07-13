@@ -980,7 +980,7 @@ then
 	cat "$start_file" >> links.txt 2>/dev/null
 	init_msg+="$(sprint_c 1 "L'elenco completo dei link è in links.txt\n")"
 
-	if [ "$this_mode" == "stdout" ]
+	if check_instance_prog
 	then
 	    standard_box
 	fi
@@ -1034,6 +1034,7 @@ then
     elif [ -n "$from_editor" ]
     then
 	$editor "$start_file"
+	standard_box
     fi
     
     if [ -f "$start_file" ]
