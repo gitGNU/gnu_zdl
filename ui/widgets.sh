@@ -160,7 +160,7 @@ function header { # $1=label ; $2=color ; $3=header pattern
 
 
 function header_z {
-    if show_mode_in_tty "$this_mode" "$this_tty"
+    if [ -z "$no_header_z" ] && show_mode_in_tty "$this_mode" "$this_tty"
     then
 	if [ "$already_clean" != true ]
 	then

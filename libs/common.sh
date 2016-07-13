@@ -110,10 +110,15 @@ function scrape_url {
 
 function redirect_links {
     redirected_link="true"
-    header_box "Links da processare"
-    echo -e "${links}\n"
-    separator-
-    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $that_pid), nel seguente terminale: $that_tty"
+    if [ -n "$links" ]
+    then
+	header_box "Links da processare"
+	echo -e "${links}\n"
+	separator-
+    
+	print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $PROG (pid $that_pid), nel seguente terminale: $that_tty"
+    fi
+    
     [ -n "$xterm_stop" ] && xterm_stop
     exit 1
 }

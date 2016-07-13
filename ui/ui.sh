@@ -279,8 +279,8 @@ ${BGreen}   e ${Color_Off}│ modifica la coda dei link da scaricare, usando l'$
 ${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
      │"
 
-	[ -z "$that_tty" ] &&
-	    [ -z "$daemon_pid" ] &&
+	
+	[ -z "$daemon_pid" ] &&
 	    echo -e "${BGreen}   d ${Color_Off}│ avvia ${BGreen}d${Color_Off}emone"
 
 	echo -e "${BGreen}   c ${Color_Off}│ ${BGreen}c${Color_Off}ancella i file temporanei dei download completati
@@ -435,7 +435,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	    
 	    d)
-		[ -z "$that_tty" ] &&
+		[ -z "$daemon_pid" ] &&
 		    zdl --daemon
 		;;
 	esac

@@ -477,35 +477,30 @@ then
 	       [ "${args[i]}" == "-d" ]
 	then
 	    unset args[i]
-	    if check_instance_prog
+	    already_clean=true
+	    if check_instance_daemon
 	    then
-		if check_instance_daemon
-		then
-		    mkdir -p "$path_tmp"
-		    export this_tty
-		    start_mode_in_tty daemon "$this_tty"
-		    nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
-		    #header_z
-		    print_c 4 "${name_prog}:"
-		    print_c 1 "Avviato in modalità demone in $PWD"
-		    print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+		mkdir -p "$path_tmp"
+		export this_tty
+		start_mode_in_tty daemon "$this_tty"
+		nohup /bin/bash $prog ${args[*]} --silent $PWD &>/dev/null &
 
-		else
-		    header_z
-		    echo daemon >daemon
-		    print_c 4 "${name_prog}:"
-		    print_c 3 "Esiste già un'istanza attiva del demone di $name_prog in $PWD\n"
-		    print_c 4 "Puoi controllarlo con: ${Color_Off}\"$prog -i\"\n"
-		    add=true
-		fi
+		print_c 4 "${name_prog}:"
+		print_c 1 "Avviato in modalità demone in $PWD\n"
+		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+		[ -n "$xterm_stop" ] && xterm_stop
+		exit 0
+
+	    else
+		print_c 4 "${name_prog}:"
+		print_c 3 "Esiste già un'istanza attiva della modalità demone in $PWD\n"
+		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+		this_mode=daemon
+		no_header_z=true
 	    fi
-
-	    [ -n "$xterm_stop" ] && xterm_stop
-	    exit
 	fi
     done
 fi
-
 
 export pid_prog=$$
 
