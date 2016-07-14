@@ -27,7 +27,7 @@
 #### hacking web pages
 
 function get_tmps {
-    wget -t 3 -T $max_waiting                    \
+    wget -t 1 -T $max_waiting                    \
 	 --no-check-certificate                  \
 	 --retry-connrefused                     \
 	 --save-cookies="$path_tmp"/cookies.zdl  \

@@ -94,10 +94,10 @@ then
 	do
 	    if (( $s>29 ))
 	    then
-		wget -t 1 -T $max_waiting                 \
-		     --load-cookies=$path_tmp/cookies.zdl \
-		     -O "$path_tmp/zdl2.tmp"              \
-		     "$preurl_in_file" &>/dev/null 
+		wget -q -t1 -T10                             \
+		     --load-cookies="$path_tmp/cookies.zdl"  \
+		     -O "$path_tmp/zdl2.tmp"                 \
+		     "$preurl_in_file"
 	    fi
 	    
 	    sleeping 1
