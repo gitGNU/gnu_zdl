@@ -293,9 +293,9 @@ then
 	    sleeping_pause=5
 	fi
 
-	if [ "${args[i]}" == "$PWD" ]
+	if [ -d "$(urldecode ${args[i+1]})" ]
 	then
-	    unset args[i]
+	    unset args[i+1]
 	fi
     done
 fi
