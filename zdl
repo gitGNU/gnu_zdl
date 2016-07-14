@@ -291,7 +291,6 @@ then
 	    this_mode="daemon"
 	    ## this_tty= importato da zdl --daemon
 	    sleeping_pause=5
-	    tty >prova.tty
 	fi
 
 	if [ "${args[i]}" == "$PWD" ]
@@ -493,11 +492,13 @@ then
 		exit 0
 
 	    else
+		start_mode_in_tty stdout "$this_tty"
+		
 		print_c 4 "${name_prog}:"
 		print_c 3 "Esiste già un'istanza attiva della modalità demone in $PWD\n"
 		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+
 		this_mode=daemon
-		#no_header_z=true
 	    fi
 	fi
     done

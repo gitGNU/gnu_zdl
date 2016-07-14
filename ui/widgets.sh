@@ -163,8 +163,7 @@ function header { # $1=label ; $2=color ; $3=header pattern
 
 
 function header_z {
-    if [ -z "$no_header_z" ] &&
-	   show_mode_in_tty "$this_mode" "$this_tty"
+    if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	fclear
 	
@@ -173,8 +172,6 @@ function header_z {
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
 	header "$text_start$text_space$text_end" "$On_Blue"
 	print_c 0 ""
-    else
-	unset no_header_z
     fi
 }
 
