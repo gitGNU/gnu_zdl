@@ -291,11 +291,11 @@ then
 	    this_mode="daemon"
 	    ## this_tty= importato da zdl --daemon
 	    sleeping_pause=5
-	fi
 
-	if [ -d "$(urldecode ${args[i+1]})" ]
-	then
-	    unset args[i+1]
+	    if [ "$(urldecode ${args[i+1]})" == "$PWD" ]
+	    then
+		unset args[i+1]
+	    fi
 	fi
     done
 fi
