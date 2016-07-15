@@ -368,7 +368,17 @@ function simply_debrid {
 function set_ext {
     local filename="$1"
     local exts ext
+
+    test_ext="${url_in_file%?*}"
+    test_ext=".${url_in_file##*.}"
     
+    if [ -n "$test_ext" ] &&
+	   grep -P "^$test_ext\s" $path_usr/mimetypes.txt &>/dev/null
+    then
+	echo $test_ext 
+	return 0
+    fi
+        echo $test_ext >test_ext1
     rm -f "$path_tmp/test_mime"
     
     if [ ! -f "$filename" ] &&
@@ -376,7 +386,25 @@ function set_ext {
 	   ! dler_type "rtmp" "$url_in" &&
 	   ! dler_type "youtube-dl" "$url_in"
     then
-	wget --user-agent=Firefox -qO "$path_tmp/test_mime" "$url_in_file" &
+	if [ -f "$path_tmp"/cookies.zdl ]
+	then
+	    COOKIES="$path_tmp/cookies.zdl"
+
+	elif [ -f "$path_tmp"/flashgot_cfile.zdl ]
+	then
+	    COOKIES="$path_tmp/flashgot_cfile.zdl"
+	fi
+
+	if [ -n "${post_data}" ]
+	then
+	    method_post="--post-data=${post_data}"
+	fi
+	
+
+	wget --user-agent=Firefox                  \
+	     --load-cookies=$COOKIES               \
+	     $method_post                          \
+	     -qO "$path_tmp/test_mime" "$url_in_file" &
 	mime_pid=$!
 
 	counter=0

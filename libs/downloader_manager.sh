@@ -180,6 +180,11 @@ function download {
 		_log 2 #3
 		return 1
 	    fi
+	    if [[ "$wget_checked" =~ (HTTP/[0-9.]+ 404) ]]
+	    then
+		_log 3
+		return 1
+	    fi
 	fi
 
 	if [ "$downloader_in" == "Axel" ] &&

@@ -822,13 +822,11 @@ then
 		    update_defined_proxy=true
 		    unset update_proxy
 		else
-		    print_c 3 "${args[i]}: argomento non valido\n"
-		    echo
+		    print_c 3 "${args[i]}: argomento non valido\n\n"
 		    usage
 		fi
 	    else
-		print_c 3 "${args[i]}: argomento non valido\n"
-		echo
+		print_c 3 "${args[i]}: argomento non valido\n\n"
 		usage
 	    fi
 	    unset args[i]
@@ -914,8 +912,7 @@ for ((i=0; i<=$max_args; i++))
 do
     if [ "${args[i]}" != "${args[i]#-}" ]
     then
-	print_c 3 "${args[i]}: argomento non valido"
-	echo
+	print_c 3 "${args[i]}: argomento non valido\n\n"
 	usage
     fi
 done
@@ -1144,7 +1141,7 @@ function main_loop {
 		    export LANGUAGE="$user_language"
     		    shopt -u nullglob
 		fi
-		
+
 ####		check_dler_forcing
 		
 		## se ancora presenti redirezioni fantasma:
@@ -1190,7 +1187,7 @@ function main_loop {
 		fi
 
 		sanitize_file_in
-		
+
 		if ! check_freespace
 		then
 		    break_loop="true"
