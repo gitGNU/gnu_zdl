@@ -224,17 +224,23 @@ function download {
 		    COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
 		    if [ -n "$COOKIES" ]
 		    then
-			headers+=( "-H" "Cookie:$COOKIES" )
+			headers+=( --header="Cookie:$COOKIES" )
 		    fi
-		    
 		fi
 
+		if [ -n "${headers[*]}" ]
+		then
+		    for header in "${headers[@]}"
+		    do
+			opts+=( --header="$header" )
+		    done
+		fi
+		
 		opts+=(
 		    -U "$user_agent"
 		    -k 1M
 		    -x $aria2_connections
 		    --continue=true
-		    --header="${headers[@]}"
 		    --auto-file-renaming=false
 		)
 	    fi
@@ -251,7 +257,7 @@ function download {
 		   --follow-torrent=false                    \
 		   "${fileout[@]}"                           \
 		   "$url_in_file"                            \
-		   >>"$path_tmp/${file_in}_stdout.tmp" &
+		   &>>"$path_tmp/${file_in}_stdout.tmp" &
 
 	    pid_in=$!
 	    unset opts fileout
