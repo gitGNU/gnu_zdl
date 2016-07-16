@@ -151,6 +151,7 @@ function cursor {
 }
 
 function header { # $1=label ; $2=color ; $3=header pattern
+    local text line hpattern color
     text="$1"
     [ -n "$text" ] && text=" $text " 
     color="$2"
@@ -176,11 +177,17 @@ function header_z {
 }
 
 function header_box {
+    local text line
+    text=$1
+    
     if show_mode_in_tty "$this_mode" "$this_tty" ||
 	    [ -n "$redirected_link" ]
     then
-	header "$1" "$Black${On_White}" "─"
-	print_c 0 ""
+	####### strano: header funziona solo all'inizio (!?)
+	## header "$1" "${Black}${On_White}" "─"
+	
+	eval printf -v line "%.0s─" {1..$(( $COLUMNS-${#text} ))}
+	print_c 0 "${Black}${On_White}$text$line${Color_Off}"
     fi
 }
 

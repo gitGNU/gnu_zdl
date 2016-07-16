@@ -640,7 +640,7 @@ function show_mode_in_tty {
 	return 1
 
     elif [ -f "$path_tmp/.stop_stdout" ] &&
-	     [ "$this_tty $this_mode" != "$(cat "$path_tmp/.stop_stdout" 2>/dev/null)" ]
+	     [ "$this_tty $this_mode" != "$that_tty $that_mode" ]
     then
 	return 1
 

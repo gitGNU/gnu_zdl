@@ -275,7 +275,6 @@ then
 	if [[ "${args[i]}" =~ ^(--editor|-e)$ ]]
 	then
 	    unset args[i]
-	    this_mode=editor
 	    from_editor=true
 	fi
     done
@@ -977,7 +976,8 @@ then
 	cat "$start_file" >> links.txt 2>/dev/null
 	init_msg+="$(sprint_c 1 "L'elenco completo dei link è in links.txt\n")"
 
-	if check_instance_prog
+	if check_instance_prog &&
+		[ -z "$from_editor" ]
 	then
 	    standard_box
 	fi
@@ -990,6 +990,15 @@ then
     downloader_in=$(cat "$path_tmp/downloader")
 else
     echo $downloader_in > "$path_tmp/downloader"
+fi
+
+if [ -n "$from_editor" ]
+then
+    start_mode_in_tty editor "$this_tty"
+    $editor "$start_file"
+    standard_box
+    this_mode=stdout
+    start_mode_in_tty "$this_mode" "$this_tty"
 fi
 
 
@@ -1027,11 +1036,6 @@ then
 	done
 	unset link binding
 	bind -x "\"\ex\":\"\"" 2>/dev/null
-	
-    elif [ -n "$from_editor" ]
-    then
-	$editor "$start_file"
-	standard_box
     fi
     
     if [ -f "$start_file" ]

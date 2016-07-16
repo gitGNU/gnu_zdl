@@ -209,20 +209,19 @@ function download {
 	    if [[ "$url_in_file" =~ ^(magnet:) ]] ||
 		   [ -f "$url_in_file" ]
 	    then
-	    	[ -n "$tcp_port" ] && opts+=( "--listen-port=$tcp_port" )
-	    	[ -n "$udp_port" ] && opts+=( '--enable-dht=true' "--dht-listen-port=$udp_port" )
+	    	[ -n "$tcp_port" ] &&
+		    aria2_opts+=( "--listen-port=$tcp_port" )
+
+		[ -n "$udp_port" ] &&
+		    aria2_opts+=( '--enable-dht=true' "--dht-listen-port=$udp_port" )
 		
 	    elif [ -n "$file_in" ]
-	    then
-		length_in=$(wget -S --spider "$url_in_file" 2>&1 |
-				grep 'Content-Length:'           |
-				sed -r 's|\s*Content-Length:\s+(.+)|\1|g')
-		
+	    then		
 		fileout=( -o "$file_in" )
 		
 		if [ -f "$path_tmp"/cookies.zdl ]
 		then
-		    opts+=( "--load-cookies=$path_tmp/cookies.zdl" )
+		    aria2_opts+=( "--load-cookies=$path_tmp/cookies.zdl" )
 		    
 		elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 		then
@@ -237,11 +236,11 @@ function download {
 		then
 		    for header in "${headers[@]}"
 		    do
-			opts+=( --header="$header" )
+			aria2_opts+=( --header="$header" )
 		    done
 		fi
 		
-		opts+=(
+		aria2_opts+=(
 		    -U "$user_agent"
 		    -k 1M
 		    -x $aria2_connections
@@ -257,15 +256,16 @@ function download {
 	    
 	    stdbuf -oL -eL                                   \
 		   aria2c                                    \
-		   "${opts[@]}"                              \
+		   "${aria2_opts[@]}"                        \
 		   --allow-overwrite=true                    \
 		   --follow-torrent=false                    \
+		   --human-readable=false                    \
 		   "${fileout[@]}"                           \
 		   "$url_in_file"                            \
 		   &>>"$path_tmp/${file_in}_stdout.tmp" &
 
 	    pid_in=$!
-	    unset opts fileout
+	    unset aria2_opts fileout COOKIES headers header
 		    
 	    echo -e "${pid_in}
 $url_in
@@ -273,8 +273,7 @@ Aria2
 ${pid_prog}
 $file_in
 $url_in_file
-$aria2_parts
-Content-Length: $length_in" > "$path_tmp/${file_in}_stdout.tmp"
+$aria2_parts" >"$path_tmp/${file_in}_stdout.tmp"
 	    ;;
 
 	Axel)

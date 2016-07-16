@@ -378,7 +378,7 @@ function set_ext {
 	echo $test_ext 
 	return 0
     fi
-        echo $test_ext >test_ext1
+
     rm -f "$path_tmp/test_mime"
     
     if [ ! -f "$filename" ] &&
@@ -388,11 +388,11 @@ function set_ext {
     then
 	if [ -f "$path_tmp"/cookies.zdl ]
 	then
-	    COOKIES="$path_tmp/cookies.zdl"
+	    COOKIES="--load-cookies=$path_tmp/cookies.zdl"
 
 	elif [ -f "$path_tmp"/flashgot_cfile.zdl ]
 	then
-	    COOKIES="$path_tmp/flashgot_cfile.zdl"
+	    COOKIES="--load-cookies=$path_tmp/flashgot_cfile.zdl"
 	fi
 
 	if [ -n "${post_data}" ]
@@ -402,7 +402,7 @@ function set_ext {
 	
 
 	wget --user-agent=Firefox                  \
-	     --load-cookies=$COOKIES               \
+	     $COOKIES                              \
 	     $method_post                          \
 	     -qO "$path_tmp/test_mime" "$url_in_file" &
 	mime_pid=$!

@@ -227,10 +227,13 @@ function progress_out (value,           progress_line) {
 		percent_out[i] = int(progress_elems[2])
 		
 		match(progress_line, /DL:([0-9]+)/, matched)
-		speed_out[i] = matched[1]
+		speed_out[i] = matched[1]/1024
 
 		match(progress_line, /ETA:(.+)\]/, matched)
 		eta_out[i] = matched[1]
+
+		match(progress_line, /\/([0-9]+)B/, matched)
+		length_out[i] = matched[1]
 
 		break
 	    }
@@ -421,6 +424,7 @@ function progress_out (value,           progress_line) {
     array_out(eta_out[i], "eta_out")
     array_out(length_saved[i], "length_saved")
     array_out(percent_out[i], "percent_out")
+    array_out(length_out[i], "length_out")
 
     if (! no_check)
 	check_stdout()
@@ -510,16 +514,14 @@ BEGIN {
 
     if ($0 ~ /Length:/ && dler == "Wget") {
 	length_out[i] = $2
-	array_out(length_out[i], "length_out")
     }
     if ($0 ~ /File\ size:/ && dler == "Axel") {
 	length_out[i] = $3
-	array_out(length_out[i], "length_out")
     }
-    if ($0 ~ /Content-Length:/ && dler == "Aria2") {
-    	length_out[i] = $2
-    	array_out(length_out[i], "length_out")
-    }
+    # if ($0 ~ /Content-Length:/ && dler == "Aria2") {
+    # 	length_out[i] = $2
+    # 	array_out(length_out[i], "length_out")
+    # }
 
 } 
 
