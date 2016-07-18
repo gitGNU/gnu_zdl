@@ -995,7 +995,7 @@ fi
 if [ -n "$from_editor" ]
 then
     start_mode_in_tty editor "$this_tty"
-    $editor "$start_file"
+    $editor "$path_tmp/links_loop.txt"
     standard_box
     this_mode=stdout
     start_mode_in_tty "$this_mode" "$this_tty"
@@ -1129,7 +1129,7 @@ function main_loop {
 		rm -f "$path_tmp/redirect"
 		###################
 
-		## PROG extensions
+		## extensions
 		if [ -d "$path_usr/extensions/" ]
 		then
 		    shopt -s nullglob
@@ -1138,7 +1138,8 @@ function main_loop {
 
 		    for srcfile in "$path_usr"/extensions/*.sh
 		    do
-			source "$srcfile"
+			[ -f "$srcfile" ] &&
+			    source "$srcfile"
 		    done
 
 		    export LANG="$user_lang"
