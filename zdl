@@ -1044,6 +1044,7 @@ then
 	echo >> links.txt 2>/dev/null
 	date >> links.txt 2>/dev/null
 	cat "$start_file" >> links.txt 2>/dev/null
+	
     else
 	rm -f "$path_tmp/rewriting"
     fi
@@ -1063,7 +1064,9 @@ fi
     echo "$downloader_in" > "$path_tmp/downloader"
 
 function main_loop {
-    if [ "$this_mode" == "daemon" ] && [ ! -f "$start_file" ]
+    if [ "$this_mode" == "daemon" ] &&
+	   [ ! -f "$start_file" ] &&
+	   [ -z "$lite_mode" ]
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
@@ -1291,6 +1294,7 @@ then
     do
 	main_loop || break
     done
+    
 else
     if [ "$lite_mode" == true ] ||
 	   [ "$this_mode" == lite ]
