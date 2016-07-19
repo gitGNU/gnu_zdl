@@ -574,5 +574,8 @@ function end_extension {
     then
 	_log 2
 	return 1
+
+    else
+	return 0
     fi
 }
