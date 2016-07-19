@@ -429,7 +429,7 @@ function progress_out (chunk,           progress_line) {
     array_out(length_out[i], "length_out")
 
     if ((percent_out[i] == 0) && (! check_pid(pid_out[i])))
-	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2 " file_out[i] ".st")
+	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp")
 
 
     if (! no_check)
