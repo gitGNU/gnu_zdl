@@ -61,7 +61,8 @@ function check_stdout () {
 	if (file_in == file_out[i]) {
 	    code = code bash_var("file_in", "")
 	    code = code bash_var("url_in", "")
-	}
+	}	    
+
 	# if (percent_out[i] == 100) {
 	#     system("kill -9 " pid_out[i] " 2>/dev/null")
 	#     system("rm -f " file_out[i] ".st")
@@ -80,7 +81,8 @@ function check_stdout () {
 	    ! exists(file_out[i] ".st") &&
 	    ! exists(file_out[i] ".aria2"))
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
-	
+
+		
 	##############################################################################################
 	## cancella i file temporanei se il link non è in coda e il file non esiste
 	## (potrebbe essere stato spostato o decompresso).
@@ -161,7 +163,7 @@ function yellow_progress () {
     }
 }
 
-function progress_out (value,           progress_line) {
+function progress_out (chunk,           progress_line) {
     ## eta, %, speed, speed type, length-saved (length-out)
 
     if (dler == "Axel") {
@@ -198,7 +200,7 @@ function progress_out (value,           progress_line) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st")
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".st " file_out[i] ".aria2")
 	} else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
 	    speed_out_type[i] = "KB/s"
 	    ## mancano ancora (secondi):
@@ -252,7 +254,7 @@ function progress_out (value,           progress_line) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
-	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2")
+	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2 " file_out[i] ".st")
 	}
 	else if ((speed_out[i] > 0) && (speed_out[i] ~ /^[0-9]+$/)) {
 	    speed_out_type[i] = "KB/s"
@@ -426,6 +428,10 @@ function progress_out (value,           progress_line) {
     array_out(percent_out[i], "percent_out")
     array_out(length_out[i], "length_out")
 
+    if ((percent_out[i] == 0) && (! check_pid(pid_out[i])))
+	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp " file_out[i] " " file_out[i] ".aria2 " file_out[i] ".st")
+
+
     if (! no_check)
 	check_stdout()
 }
@@ -433,6 +439,7 @@ function progress_out (value,           progress_line) {
 function progress () {
     ## estrae le ultime n righe e le processa con progress_out()
     delete test_stdout["new"]
+    
     for (k=0;k<n;k++) {
 	chunk[k] = progress_data[++j%n]
 	if (! no_check)
@@ -444,7 +451,6 @@ function progress () {
 	print test_stdout["new"] > ".zdl_tmp/" file_out[i] "_stdout.old"
     progress_out(chunk)
     delete chunk
-    j=0
 }
 
 BEGIN {
@@ -456,11 +462,12 @@ BEGIN {
 }
 
 {
- #   		code = code "test+=\" RIGA " $0 "\"; "    
+ #   		code = code "test+=\" RIGA " $0 "\"; "
     if (FNR == 1) {
-	if (j>n) {
+	if (j > 1) {
 	    ## progress_out
 	    progress()
+	    j = 0
 	} 
 	i++
 	pid_out[i] = $0
@@ -518,11 +525,6 @@ BEGIN {
     if ($0 ~ /File\ size:/ && dler == "Axel") {
 	length_out[i] = $3
     }
-    # if ($0 ~ /Content-Length:/ && dler == "Aria2") {
-    # 	length_out[i] = $2
-    # 	array_out(length_out[i], "length_out")
-    # }
-
 } 
 
 END {

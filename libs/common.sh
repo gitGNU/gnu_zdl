@@ -26,15 +26,12 @@
 
 function check_pid {
     ck_pid=$1
-    if [ -n "$ck_pid" ]
+    if [ -n "$ck_pid" ] &&
+	   ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid &>/dev/null
     then
-	if ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid &>/dev/null
-	then
-	    return 0 
-	else
-	    return 1
-	fi
+	return 0 
     fi
+    return 1
 }
 
 function size_file {
@@ -47,9 +44,8 @@ function check_instance_daemon {
     if daemon_pid="$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1; pwd=\"$(urlencode "$PWD")\"} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")"
     then
 	return 1
-    else
-    	return 0
     fi
+    return 0
 }
 
 function check_instance_prog {
@@ -63,8 +59,6 @@ function check_instance_prog {
 	    that_pid=$test_pid
 	    that_tty=$(tty_pid "$test_pid")
 	    return 1
-	else
-	    return 0
 	fi
     fi
     return 0
