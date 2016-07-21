@@ -16,6 +16,7 @@ success="Installazione completata"
 failure="Installazione non riuscita"
 path_conf="$HOME/.$prog"
 file_conf="$path_conf/$prog.conf"
+installer_zdl="true"
 
 if [[ -z "$(grep 'shopt -s checkwinsize' $HOME/.bashrc)" ]]
 then
@@ -175,8 +176,7 @@ cd $prog
 chmod +rx -R .
 
 ## UPDATER ########
-installer_zdl="true"
-
+source libs/common.sh
 source ui/widgets.sh
 source ui/ui.sh
 source updater.sh

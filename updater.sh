@@ -406,13 +406,13 @@ ESTENSIONI:
 	    print_c 1 "Installazione di FFMpeg"
 	    
 	    rm -f /tmp/list-pkts.txt
-	    apt-cyg mirror "${mirror[1]}"
+	    apt-cyg mirror "${mirrors[1]}"
 	    apt-cyg install ffmpeg | tee -a /tmp/list-pkts.txt
 	    
 	    unset pkts
 	    mapfile pkts <<< "$(grep Unable /tmp/list-pkts.txt | sed -r 's|.+ ([^\ ]+)$|\1|g')"
 	    print_c 1 "\nRecupero pacchetti non trovati:\n${pkts[*]}\n"
-	    apt-cyg mirror "${mirror[0]}"
+	    apt-cyg mirror "${mirrors[0]}"
 	    apt-cyg install ${pkts[*]} 
 	fi
 	
@@ -420,7 +420,7 @@ ESTENSIONI:
 	then
 	    print_c 1 "Installazione di RTMPDump"
 	    
-	    apt-cyg mirror "${mirror[1]}"
+	    apt-cyg mirror "${mirrors[1]}"
 	    apt-cyg install rtmpdump
 	fi
 
