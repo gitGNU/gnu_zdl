@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: download
-## zdl-extension name: Go4Up (link)
+## zdl-extension name: Go4Up (multi-link)
 
 if [[ "$url_in" =~ 'go4up.com/dl/' ]]
 then
