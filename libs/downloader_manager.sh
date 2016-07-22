@@ -228,7 +228,7 @@ function download {
 		    COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
 		    if [ -n "$COOKIES" ]
 		    then
-			headers+=( --header="Cookie:$COOKIES" )
+			headers+=( "Cookie:$COOKIES" )
 		    fi
 		fi
 
@@ -253,7 +253,7 @@ function download {
 	    ## -s $aria2_parts
 	    ## -j $aria2_parts
 	    ##################
-	    
+
 	    stdbuf -oL -eL                                   \
 		   aria2c                                    \
 		   "${aria2_opts[@]}"                        \

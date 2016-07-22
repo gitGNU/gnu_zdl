@@ -525,6 +525,9 @@ BEGIN {
     if ($0 ~ /File\ size:/ && dler == "Axel") {
 	length_out[i] = $3
     }
+    if ($0 ~ /errorCode=8/ && dler == "Aria2") {
+	system("rm -f " file_out[i] " " file_out[i] ".aria2")
+    }
 } 
 
 END {
