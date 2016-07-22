@@ -195,8 +195,8 @@ function bindings {
 
 function change_mode {
     local cmd=$1
-    
-    echo "$this_tty $cmd" >"$path_tmp/.stop_stdout"
+
+    start_mode_in_tty "$cmd" "$this_tty"
     
     stty echo
 
@@ -227,7 +227,7 @@ function change_mode {
 
     stty -echo
 
-    echo "$this_tty $this_mode" >"$path_tmp/.stop_stdout"
+    start_mode_in_tty "$this_mode" "$this_tty"
     export READLINE_LINE=" "
     
     if [ "$this_mode" != "lite" ] ||

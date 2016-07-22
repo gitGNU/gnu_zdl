@@ -578,6 +578,7 @@ function grep_pid {
 
 
 function start_mode_in_tty {
+    local this_mode this_tty
     this_mode="$1"
     this_tty="$2"
 
@@ -592,7 +593,7 @@ function start_mode_in_tty {
 	    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
 	fi
 	    
-	if [ "$that_tty" == "$that_tty" ]
+	if [ "$this_tty" == "$that_tty" ]
 	then
 	    echo "$that_tty $this_mode" >"$path_tmp/.stop_stdout"
 	fi
@@ -626,7 +627,7 @@ function show_mode_in_tty {
     fi
 
     [ "$this_tty" != "$that_tty" ] &&
-    return 0
+	return 0
        
 
     if [ "$this_mode" == "daemon" ]
