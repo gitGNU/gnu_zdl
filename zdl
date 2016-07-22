@@ -1302,7 +1302,6 @@ else
 	lite_mode=true
 	this_mode=daemon
 	start_mode_in_tty "lite" "${this_tty}" 
-	#echo "${this_tty} lite" > "$path_tmp/.stop_stdout"
     fi
     
     while true
