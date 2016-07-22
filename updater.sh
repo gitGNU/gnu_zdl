@@ -398,7 +398,6 @@ ESTENSIONI:
 	then
 	    print_c 1 "Installazione di Nodejs.exe in $SHARE"
 	    wget -O $SHARE/node.exe https://nodejs.org/dist/v4.4.4/win-x86/node.exe
-	    mv node.exe $SHARE/
 	fi
 
 	if ! command -v ffmpeg &>/dev/null
