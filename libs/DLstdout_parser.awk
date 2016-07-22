@@ -43,6 +43,15 @@ function check_stdout () {
 	array_out(pid_alive[i], "pid_alive")
     }
 
+    if ((percent_out[i] == 0) && (! check_pid(pid_out[i]))) {
+	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp")
+	if (error_code[i] == 8) {
+	    system("rm -f " file_out[i] " " file_out[i] ".aria2")
+	    delete error_code[i]
+	}
+    }
+
+
     if ((downloader_out[i] !~ /RTMPDump|cUrl/) &&
 	(pid_alive[i]) &&
 	(num_check > 10)){
@@ -428,10 +437,6 @@ function progress_out (chunk,           progress_line) {
     array_out(percent_out[i], "percent_out")
     array_out(length_out[i], "length_out")
 
-    if ((percent_out[i] == 0) && (! check_pid(pid_out[i])))
-	system("rm -f .zdl_tmp/"file_out[i]"_stdout.tmp")
-
-
     if (! no_check)
 	check_stdout()
 }
@@ -526,7 +531,7 @@ BEGIN {
 	length_out[i] = $3
     }
     if ($0 ~ /errorCode=8/ && dler == "Aria2") {
-	system("rm -f " file_out[i] " " file_out[i] ".aria2")
+	error_code[i] = 8
     }
 } 
 
