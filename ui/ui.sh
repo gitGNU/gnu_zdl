@@ -77,12 +77,21 @@ function show_downloads_extended {
 
     if ! check_instance_daemon
     then
-	print_c 1 "$PROG è attivo in modalità demone\n"
-
+	print_c 1 "$PROG è attivo in modalità demone (pid: $daemon_pid)\n"
+	instance_pid="$daemon_pid"
+	
     else
 	if ! check_instance_prog
-	then
+	then	    
 	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $that_tty\n${Color_Off}"
+
+	    if [ "$that_tty" != "$this_tty" ]
+	    then
+		instance_pid="$that_pid"
+
+	    else
+		unset instance_pid
+	    fi
 	else
 	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
 	fi
@@ -283,7 +292,7 @@ ${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
      │"
 
 	
-	[ -z "$daemon_pid" ] &&
+	[ -z "$daemon_pid" ] && [ -z "$that_pid" ] &&
 	    echo -e "${BGreen}   d ${Color_Off}│ avvia ${BGreen}d${Color_Off}emone"
 
 	echo -e "${BGreen}   c ${Color_Off}│ ${BGreen}c${Color_Off}ancella i file temporanei dei download completati
@@ -422,23 +431,26 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	    
 	    Q)
-		kill "$daemon_pid"
-		unset daemon_pid
+		[ -n "$daemon_pid" ] && {
+		    kill "$daemon_pid" &>/dev/null
+		    unset daemon_pid
+		}
 		;;
 	    
 	    K)
 		kill_downloads
-		[ -n "$daemon_pid" ] &&
-		    kill -9 "$daemon_pid" &&
-		    unset daemon_pid &>/dev/null
+		[ -n "$instance_pid" ] && {
+		    kill -9 "$instance_pid" &>/dev/null 
+		    unset daemon_pid
+		}
 
-		! check_instance_prog &&
-		    [ $pid != $PPID ] &&
-		    kill -9 $pid &>/dev/null
+		# ! check_instance_prog &&
+		#     [ $that_pid != $PPID ] &&
+		#     kill -9 $that_pid &>/dev/null
 		;;
 	    
 	    d)
-		[ -z "$daemon_pid" ] && {
+		[ -z "$daemon_pid" ] && [ -z "$that_pid" ] && {
 		    zdl --daemon
 		    start_mode_in_tty "$this_mode" "$this_tty"
 		}

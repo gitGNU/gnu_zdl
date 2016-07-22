@@ -40,12 +40,23 @@ function size_file {
 
 
 function check_instance_daemon {
-    [ -d /cygdrive ] && cyg_condition='&& ($2 == 1)'
-    if daemon_pid="$(ps ax | awk -f "$path_usr/libs/common.awk" -e "BEGIN{result = 1; pwd=\"$(urlencode "$PWD")\"} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")"
+    unset daemon_pid
+    
+    [ -d /cygdrive ] &&
+	cyg_condition='&& ($2 == 1)'
+
+    daemon_pid=$(ps ax |
+			awk -f "$path_usr/libs/common.awk" \
+			    -e "BEGIN{result = 1; pwd=\"$(urlencode "$PWD")\"} /bash/ $cyg_condition {check_instance_daemon()} END {exit result}")
+
+    if [[ "$daemon_pid" =~ ^([0-9]+)$ ]]
     then
 	return 1
+
+    else
+	unset daemon_pid
+	return 0
     fi
-    return 0
 }
 
 function check_instance_prog {
@@ -110,7 +121,7 @@ function redirect_links {
 	echo -e "${links}\n"
 	separator-
     fi
-    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid $that_pid), nel seguente terminale: $that_tty\n"
+    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
     
     [ -n "$xterm_stop" ] && xterm_stop
     exit 1
@@ -584,13 +595,13 @@ function start_mode_in_tty {
 
     if [ "$this_mode" != daemon ]
     then
-	if [ ! -f "$path_tmp/.stop_stdout" ]
-	then
-	    that_tty="$this_tty"
-
-	elif [ -f "$path_tmp/.stop_stdout" ]
+	if [ -f "$path_tmp/.stop_stdout" ] &&
+	       ! check_instance_prog
 	then
 	    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
+
+	else
+	    that_tty="$this_tty"
 	fi
 	    
 	if [ "$this_tty" == "$that_tty" ]
