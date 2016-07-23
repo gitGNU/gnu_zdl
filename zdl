@@ -996,9 +996,9 @@ if [ -n "$from_editor" ]
 then
     start_mode_in_tty editor "$this_tty"
     $editor "$path_tmp/links_loop.txt"
-    standard_box
     this_mode=stdout
     start_mode_in_tty "$this_mode" "$this_tty"
+    standard_box
 fi
 
 
