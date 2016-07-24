@@ -103,8 +103,8 @@ fi
 
 args=( "$@" )
 
-tags=( `ps ax |sed -n '1p'` )
-for ((i=0; i<=$(( ${#tags[*]}-1 )); i++))
+tags=( $(ps ax |head -n1) )
+for ((i=0; i<${#tags[*]}; i++))
 do
     j=$(( $i+1 ))
     [ "${tags[i]}" == "PID" ] && ps_ax_pid="\$$j"
@@ -119,7 +119,7 @@ if [ -p /dev/fd/0 ]
 then    
     pipe=$(cat /dev/fd/0)
     exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
-
+    
     for pipezed in $pipe
     do
 	args[${#args[*]}]="$pipezed"

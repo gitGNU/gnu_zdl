@@ -178,7 +178,7 @@ function header_z {
 
 function header_box {
     local text line
-    text=$1
+    text=" $1 "
     
     if show_mode_in_tty "$this_mode" "$this_tty" ||
 	    [ -n "$redirected_link" ]
