@@ -69,6 +69,8 @@ function show_downloads_lite {
 }
 
 function show_downloads_extended {
+    unset instance_pid daemon_pid
+    
     header_z
     header_box_interactive "Modalità interattiva"
 
@@ -262,7 +264,7 @@ function interactive {
 
     while true
     do
-	unset that_tty list file_stdout file_out url_out downloader_out pid_out length_out
+	unset instance_pid daemon_pid that_pid that_tty list file_stdout file_out url_out downloader_out pid_out length_out
 
 	show_downloads_extended
 	num_dl=$(cat "$path_tmp/dl-mode" 2>/dev/null)

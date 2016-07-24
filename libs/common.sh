@@ -26,8 +26,8 @@
 
 function check_pid {
     ck_pid=$1
-    if [ -n "$ck_pid" ] &&
-	   ps ax | grep -P '^[\ a-zA-Z]*'$ck_pid &>/dev/null
+    if [[ "$ck_pid" =~ ^[0-9]+$ ]] &&
+	   ps ax | grep -P '^[^0-9]*'$ck_pid'[^0-9]+' &>/dev/null
     then
 	return 0 
     fi
