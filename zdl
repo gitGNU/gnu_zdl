@@ -33,9 +33,10 @@ source $path_usr/docs/help.sh
 source $path_usr/config.sh
 source $path_usr/config_manager.sh
 
-source $path_usr/libs/common.sh
+source $path_usr/libs/core.sh
 source $path_usr/libs/downloader_manager.sh
 source $path_usr/libs/DLstdout_parser.sh
+source $path_usr/libs/utils.sh
 source $path_usr/libs/extension_utils.sh
 source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
