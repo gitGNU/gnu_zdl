@@ -210,10 +210,10 @@ function download {
 		   [ -f "$url_in_file" ]
 	    then
 	    	[ -n "$tcp_port" ] &&
-		    aria2_opts+=( "--listen-port=$tcp_port" )
+		    opts+=( "--listen-port=$tcp_port" )
 
 		[ -n "$udp_port" ] &&
-		    aria2_opts+=( '--enable-dht=true' "--dht-listen-port=$udp_port" )
+		    opts+=( '--enable-dht=true' "--dht-listen-port=$udp_port" )
 		
 	    elif [ -n "$file_in" ]
 	    then		
@@ -221,7 +221,7 @@ function download {
 		
 		if [ -f "$path_tmp"/cookies.zdl ]
 		then
-		    aria2_opts+=( "--load-cookies=$path_tmp/cookies.zdl" )
+		    opts+=( --load-cookies="$path_tmp/cookies.zdl" )
 		    
 		elif [ -f "$path_tmp"/flashgot_cookie.zdl ]
 		then
@@ -236,16 +236,19 @@ function download {
 		then
 		    for header in "${headers[@]}"
 		    do
-			aria2_opts+=( --header="$header" )
+			opts+=( --header="$header" )
 		    done
 		fi
 		
-		aria2_opts+=(
+		opts+=(
 		    -U "$user_agent"
 		    -k 1M
 		    -x $aria2_connections
 		    --continue=true
 		    --auto-file-renaming=false
+		    --allow-overwrite=true              
+		    --follow-torrent=false 
+		    --human-readable=false
 		)
 	    fi
 
@@ -256,16 +259,12 @@ function download {
 
 	    stdbuf -oL -eL                                   \
 		   aria2c                                    \
-		   "${aria2_opts[@]}"                        \
-		   --allow-overwrite=true                    \
-		   --follow-torrent=false                    \
-		   --human-readable=false                    \
+		   "${opts[@]}"                              \
 		   "${fileout[@]}"                           \
 		   "$url_in_file"                            \
 		   &>>"$path_tmp/${file_in}_stdout.tmp" &
 
-	    pid_in=$!
-	    unset aria2_opts fileout COOKIES headers header
+	    pid_in=$!    
 		    
 	    echo -e "${pid_in}
 $url_in
@@ -277,7 +276,8 @@ $aria2_parts" >"$path_tmp/${file_in}_stdout.tmp"
 	    ;;
 
 	Axel)
-	    [ -n "$file_in" ] && argout="-o" && fileout="$file_in"
+	    [ -n "$file_in" ] &&
+		fileout+=( -o "$file_in" )
 	
 	    if [ -f "$path_tmp"/cookies.zdl ]
 	    then
@@ -288,16 +288,29 @@ $aria2_parts" >"$path_tmp/${file_in}_stdout.tmp"
 		COOKIES="$(cat "$path_tmp"/flashgot_cookie.zdl)"
 		if [ -n "$COOKIES" ]
 		then
-		    headers+=( "-H" "Cookie:$COOKIES" )
+		    headers+=( "Cookie:$COOKIES" )
 		fi
 	    fi
 
+	    if [ -n "${headers[*]}" ]
+	    then
+		for header in "${headers[@]}"
+		do
+		    opts+=( -H "$header" )
+		done
+	    fi
+
+	    opts+=(
+		-U "$user_agent"
+		-n $axel_parts
+	    )
+
+	    
 	    stdbuf -oL -eL                                  \
-		   axel -U "$user_agent"                    \
-		   -n $axel_parts                           \
-		   "${headers[@]}"                          \
+		   axel                                     \
+		   "${opts[@]}"                             \
 		   "$url_in_file"                           \
-		   $argout "$fileout"                       \
+		   "${fileout[@]}"                          \
 		   >> "$path_tmp/${file_in}_stdout.tmp" &
 
 	    pid_in=$!
@@ -320,28 +333,36 @@ $axel_parts" > "$path_tmp/${file_in}_stdout.tmp"
 		COOKIES="$path_tmp/flashgot_cfile.zdl"
 	    fi
 
+	    if [ -n "$COOKIES" ]
+	    then
+	    	opts+=( --load-cookies="$COOKIES" )
+	    fi
+
 	    if [ -n "${post_data}" ]
 	    then
-		method_post="--post-data=${post_data}"
+		opts+=( --post-data="${post_data}" )
 	    fi
 
 	    if [ -n "$file_in" ]
 	    then
-		argout="-O"
-		fileout="$file_in"
+		fileout+=( -O "$file_in" )
 	    else
-		argout="--trust-server-names"
+		fileout+=( "--trust-server-names" )
 	    fi
 
+	    opts+=(
+		--user-agent="$user_agent"
+		--no-check-certificate
+		--retry-connrefused
+		-c -nc -k -S       
+	    )
+	    
             ## -t 1 -T $max_waiting
 	    stdbuf -oL -eL                               \
-		   wget --user-agent="$user_agent"       \
-		   --no-check-certificate                \
-		   --retry-connrefused                   \
-		   -c -nc -k -S                          \
-		   --load-cookies=$COOKIES               \
-		   $method_post "$url_in_file"           \
-		   $argout "$fileout"                    \
+		   wget                                  \
+		   "${opts[@]}"                          \
+		   "$url_in_file"                        \
+		   "${fileout[@]}"                       \
 		   -a "$path_tmp/${file_in}_stdout.tmp" &
 	    pid_in=$!
 
@@ -477,7 +498,7 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
 	accounts_alive[${#accounts_alive[*]}]="${user}@${host}:${pid_in}"
 	unset user host
     fi
-    unset post_data checked headers
+    unset post_data checked headers opts fileout COOKIES header
     export LANG="$user_lang"
     export LANGUAGE="$user_language"
     rm -f "$path_tmp/._stdout.tmp" "$path_tmp/_stdout.tmp"
