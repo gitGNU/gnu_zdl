@@ -41,6 +41,12 @@ function size_file {
 
 function check_instance_daemon {
     unset daemon_pid
+
+    ## ritardare il controllo
+    while (( $(date +%s) < $(cat "$path_tmp"/.date_daemon 2>/dev/null)+1 ))
+    do
+	sleep 0.1
+    done
     
     if [ -d /cygdrive ]
     then
@@ -49,8 +55,8 @@ function check_instance_daemon {
 				 -e "BEGIN{pwd=\"$PWD\"} /bash/ $cyg_condition {check_instance_daemon()}")
     else
 	daemon_pid=$(ps ax| awk "/zdl.+\-\-silent\s${PWD//\//\\/}/{print \$1}")
-    fi
-
+    fi    
+    
     if [[ "$daemon_pid" =~ ^([0-9]+)$ ]]
     then
 	return 1
