@@ -341,7 +341,7 @@ function set_ext {
 	
 
 	wget --user-agent=Firefox                  \
-	     -t 2 -T 10                            \
+	     -t 2 -T 30                            \
 	     $COOKIES                              \
 	     $method_post                          \
 	     -qO "$path_tmp/test_mime" "$url_in_file" &

@@ -544,7 +544,7 @@ END {
 	    if ((url_out[I] == url_out[J]) &&
 		(file_out[I] != file_out[J]) &&
 		(check_pid(pid_out[I]))) {
-		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st")
+		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st " file_out[J] ".aria2")
 	    }
 	}
     }
