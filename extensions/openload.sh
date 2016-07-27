@@ -81,6 +81,7 @@ then
 	sed -r 's|.+realdllink=\((.+)\)\;|\1|g' -i "$path_tmp/aadecoded.js"
 	
 	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
+	url_in_file="https:${url_in_file#'https:'}"
 
 	if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
 	then
