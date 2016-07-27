@@ -42,11 +42,14 @@ function size_file {
 function check_instance_daemon {
     unset daemon_pid
     
-    [ -d /cygdrive ] &&
+    if [ -d /cygdrive ]
+    then
 	cyg_condition='&& ($2 == 1)'
-
-    daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" \
-			     -e "BEGIN{pwd=\"$PWD\"} /bash/ $cyg_condition {check_instance_daemon()}")
+	daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" \
+				 -e "BEGIN{pwd=\"$PWD\"} /bash/ $cyg_condition {check_instance_daemon()}")
+    else
+	daemon_pid=$(ps ax| awk "/zdl.+\-\-silent\s${PWD//\//\\/}/{print \$1}")
+    fi
 
     if [[ "$daemon_pid" =~ ^([0-9]+)$ ]]
     then
