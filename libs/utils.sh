@@ -301,17 +301,22 @@ function redirect_links {
 
 function set_ext {
     local filename="$1"
-    local exts ext
+    local exts ext item
 
-    test_ext="${url_in_file%?*}"
-    test_ext=".${url_in_file##*.}"
+    for item in "$filename" "$url_in_file"
+    do
+	url "$item" &&
+	    item="${item%?*}"
+	
+	test_ext=".${item##*.}"
     
-    if [ -n "$test_ext" ] &&
-	   grep -P "^$test_ext\s" $path_usr/mimetypes.txt &>/dev/null
-    then
-	echo $test_ext 
-	return 0
-    fi
+	if [ -n "$test_ext" ] &&
+	       grep -P "^$test_ext\s" $path_usr/mimetypes.txt &>/dev/null
+	then
+	    echo $test_ext 
+	    return 0
+	fi
+    done
 
     rm -f "$path_tmp/test_mime"
     
@@ -336,16 +341,17 @@ function set_ext {
 	
 
 	wget --user-agent=Firefox                  \
+	     -t 2 -T 10                            \
 	     $COOKIES                              \
 	     $method_post                          \
 	     -qO "$path_tmp/test_mime" "$url_in_file" &
 	mime_pid=$!
 
 	counter=0
-	while [ ! -f "$path_tmp/test_mime" ] &&
-		  (( counter<10 )) &&
-		  [ ! -f "$path_tmp/test_mime" ] ||
-		      [[ "$(file --mime-type "$path_tmp/test_mime")" =~ empty ]]
+	while ( [ ! -f "$path_tmp/test_mime" ] &&
+		    (( counter<10 )) ||
+			[[ "$(file --mime-type "$path_tmp/test_mime")" =~ empty ]] ) &&
+		  check_pid $mime_pid
 	do
 	    sleep 0.5
 	    ((counter++))
@@ -363,12 +369,8 @@ function set_ext {
     if [ -n "$mime_type" ]
     then
 	exts=$(grep "$mime_type" $path_usr/mimetypes.txt | awk '{print $1}')
-	for ext in $exts
-	do
-	    [[ "$filename" =~ $ext$ ]] &&
-		return 0
-	done
 	head -n1 <<< "$exts"
+	return 0
 	
     else
 	return 1

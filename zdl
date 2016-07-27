@@ -1361,7 +1361,11 @@ post_process || exit 1
 
 if [ "$zdl_exit" != "true" ]
 then
-    rm -rf "$path_tmp"
+    test_pid="$(cat "$path_tmp"/.pid.zdl 2>/dev/null)"
+
+    [ "$test_pid" == "$pid_prog" ] &&
+	rm -rf "$path_tmp"
+    
 else
     kill_downloads
 fi
