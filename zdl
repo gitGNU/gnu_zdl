@@ -483,9 +483,10 @@ then
 		export this_tty
 		this_mode=stdout
 		start_mode_in_tty "$this_mode" "$this_tty"
-		nohup /bin/bash $prog ${args[*]} --silent "$PWD" &>/dev/null &
-
+		
 		date +%s >"$path_tmp"/.date_daemon
+
+		nohup /bin/bash $prog ${args[*]} --silent "$PWD" &>/dev/null &
 		
 		print_c 4 "${name_prog}:"
 		print_c 1 "Avviato in modalità demone in $PWD\n"

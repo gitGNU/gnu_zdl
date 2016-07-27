@@ -43,7 +43,7 @@ function check_instance_daemon {
     unset daemon_pid
 
     ## ritardare il controllo
-    while (( $(date +%s) < $(cat "$path_tmp"/.date_daemon 2>/dev/null)+1 ))
+    while (( $(date +%s) < $(cat "$path_tmp"/.date_daemon 2>/dev/null)+2 ))
     do
 	sleep 0.1
     done
