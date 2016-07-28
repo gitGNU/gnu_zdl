@@ -41,6 +41,7 @@ function check_instance_daemon () {
 
 	if (matched[1] == pwd) { 
 	    print pid
+	    exit
 	}
     }
 }
