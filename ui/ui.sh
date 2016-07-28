@@ -84,8 +84,16 @@ function show_downloads_extended {
 	
     else
 	if ! check_instance_prog
-	then	    
-	    echo -e "${BGreen}$PROG è attivo in $PWD in modalità standard nel terminale $that_tty\n${Color_Off}"
+	then
+	    if [ "$this_tty" == "$that_tty" ]
+	    then
+		term_msg="in questo stesso terminale ($that_tty)"
+
+	    else
+		term_msg="nel terminale $that_tty"
+	    fi
+	    
+	    echo -e "${BGreen}$PROG è attivo in modalità standard $term_msg\n${Color_Off}"
 
 	    if [ "$that_tty" != "$this_tty" ]
 	    then
