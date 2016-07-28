@@ -316,7 +316,7 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 	echo -e "${BBlue}   * ${Color_Off}│ ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)
      │"
 	cursor off
-	read -e -n 1 -t 15 action
+	read -s -n 1 -t 15 action
 	cursor on
 
 	case "$action" in
@@ -463,7 +463,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    
 	    d)
 		[ -z "$daemon_pid" ] && [ -z "$that_pid" ] && {
-		    zdl --daemon
+		    zdl --daemon &>/dev/null
 		    start_mode_in_tty "$this_mode" "$this_tty"
 		}
 		;;
