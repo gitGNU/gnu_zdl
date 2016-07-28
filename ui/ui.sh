@@ -87,10 +87,10 @@ function show_downloads_extended {
 	then
 	    if [ "$this_tty" == "$that_tty" ]
 	    then
-		term_msg="in questo stesso terminale ($that_tty)"
+		term_msg="in questo stesso terminale: $this_tty"
 
 	    else
-		term_msg="nel terminale $that_tty"
+		term_msg="in un altro terminale: $that_tty"
 	    fi
 	    
 	    echo -e "${BGreen}$PROG è attivo in modalità standard $term_msg\n${Color_Off}"
@@ -259,7 +259,7 @@ function change_mode {
     [ "$binding" == 1 ] &&
 	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
 	
-    [ "$this_mode" == "lite" ] &&
+    [ "$this_mode" != "lite" ] &&
 	[ -z "$binding" ] &&
 	print_c 1 "\nAttendi..."
 }
