@@ -300,7 +300,7 @@ ${BGreen}   e ${Color_Off}│ modifica la coda dei link da scaricare, usando l'$
 	unset $downloader_in
 	echo -en "$Axel$Aria2$Wget" 
 	
-	echo -e "     │\n${BGreen} 1-9 ${Color_Off}│ scarica ${BGreen}un numero da 1 a 9${Color_Off} di file alla volta
+	echo -e "     │\n${BGreen} 0-9 ${Color_Off}│ scarica ${BGreen}un numero da 0 a 9${Color_Off} di file alla volta (pausa di $PROG = 0)
 ${BGreen}   m ${Color_Off}│ scarica ${BGreen}m${Color_Off}olti file alla volta
      │"
 
