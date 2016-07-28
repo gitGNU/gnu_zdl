@@ -227,10 +227,9 @@ function progress_out (chunk,           progress_line) {
 	    if (chunk[y] ~ /(404 Not Found)/) {
 	    	progress_abort[i] = chunk[y]
 	    	break
-	    } 
+	    }
 	    if ((chunk[y] ~ "download completed") && (! exists(file_out[i]".aria2"))) {
 	    	progress_end[i] = chunk[y]
-	    	break
 	    } 
 	    if (chunk[y] ~ /\%/) {
 		progress_line = chunk[y]
@@ -256,7 +255,7 @@ function progress_out (chunk,           progress_line) {
 
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 
-	    length_saved[i] = size_file(file_out[i])
+	    length_saved[i] = length_out[i]
 	    percent_out[i] = 100
 	}
 	else if (progress_abort[i]) {
