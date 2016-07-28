@@ -443,6 +443,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    Q)
 		[ -n "$daemon_pid" ] && {
 		    kill "$daemon_pid" &>/dev/null
+		    rm -f "$path_tmp"/.date_daemon
 		    unset daemon_pid
 		}
 		;;
@@ -450,7 +451,8 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    K)
 		kill_downloads
 		[ -n "$instance_pid" ] && {
-		    kill -9 "$instance_pid" &>/dev/null 
+		    kill -9 "$instance_pid" &>/dev/null
+		    rm -f "$path_tmp"/.date_daemon
 		    unset daemon_pid
 		}
 
