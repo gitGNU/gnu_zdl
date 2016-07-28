@@ -103,7 +103,7 @@ function show_downloads_extended {
 		unset instance_pid
 	    fi
 	else
-	    echo -e "${BRed}Non ci sono istanze attive di $PROG in $PWD\n${Color_Off}"
+	    echo -e "${BRed}Non ci sono istanze attive di $PROG\n${Color_Off}"
 	fi
     fi
 
