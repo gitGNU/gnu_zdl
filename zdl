@@ -1070,10 +1070,15 @@ fi
 function main_loop {
     if [ "$this_mode" == "daemon" ] &&
 	   [ ! -f "$start_file" ] &&
-	   [ -z "$lite_mode" ]
+	   [ -z "$lite_mode" ]	
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
+
+    elif zero_dl
+    then
+	start_file="$path_tmp/links_loop.txt"
+	sleep 5
 
     elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]
     then

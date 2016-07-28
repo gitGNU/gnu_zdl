@@ -496,3 +496,24 @@ function show_mode_in_tty {
     return 0
 }
 
+function zero_dl {
+    [ "$1" == show ] &&
+	unset hide_zero
+    
+    num_dl=$(cat "$path_tmp"/dl-mode)
+
+    if ((num_dl < 1))
+    then
+	if [ -z "$hide_zero" ]
+	then
+	    print_c 3 "$PROG in pausa"
+	    print_c 4 "Per processare nuovi link scegliere di scaricare un numero di file maggiore di zero"
+	    hide_zero=true
+	fi
+	return 0
+
+    else
+	unset hide_zero
+	return 1
+    fi
+}

@@ -259,9 +259,12 @@ function change_mode {
     [ "$binding" == 1 ] &&
 	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
 	
-    [ "$this_mode" != "lite" ] &&
-	[ -z "$binding" ] &&
-	print_c 1 "\nAttendi..."
+    if [ "$this_mode" != "lite" ] &&
+	   [ -z "$binding" ]
+    then
+	zero_dl show ||
+	    print_c 1 "\nAttendi..."
+    fi
 }
 
 function interactive {
@@ -486,3 +489,4 @@ function sleeping {
 	sleep $timer
     # fi
 }
+
