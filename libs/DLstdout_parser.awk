@@ -233,18 +233,21 @@ function progress_out (chunk,           progress_line) {
 	    } 
 	    if (chunk[y] ~ /\%/) {
 		progress_line = chunk[y]
-		split(progress_line, progress_elems, /[(]*[\%]*[:]*[K]*[\]]*/)
-		percent_out[i] = int(progress_elems[2])
+
+		if (! progress_end[i]) {
+		    split(progress_line, progress_elems, /[(]*[\%]*[:]*[K]*[\]]*/)
+		    percent_out[i] = int(progress_elems[2])
 		
-		match(progress_line, /DL:([0-9]+)/, matched)
-		speed_out[i] = matched[1]/1024
+		    match(progress_line, /DL:([0-9]+)/, matched)
+		    speed_out[i] = matched[1]/1024
 
-		match(progress_line, /ETA:(.+)\]/, matched)
-		eta_out[i] = matched[1]
-
+		    match(progress_line, /ETA:(.+)\]/, matched)
+		    eta_out[i] = matched[1]
+		}
+		
 		match(progress_line, /\/([0-9]+)B/, matched)
 		length_out[i] = matched[1]
-
+		
 		break
 	    }
 
