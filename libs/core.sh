@@ -48,14 +48,11 @@ function check_instance_daemon {
 	sleep 0.1
     done
     
-    if [ -d /cygdrive ]
-    then
+    [ -d /cygdrive ] &&
 	cyg_condition='&& ($2 == 1)'
-	daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" \
-				 -e "BEGIN{pwd=\"$PWD\"} /bash/ $cyg_condition {check_instance_daemon()}")
-    else
-	daemon_pid=$(ps ax| awk "/zdl.+\-\-silent\s${PWD//\//\\/}/{print \$1}")
-    fi    
+
+    daemon_pid=$(ps ax | awk -f "$path_usr/libs/common.awk" \
+			     -e "BEGIN{pwd=\"$PWD\"} /bash/ $cyg_condition {check_instance_daemon()}")
     
     if [[ "$daemon_pid" =~ ^([0-9]+)$ ]]
     then
