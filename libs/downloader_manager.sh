@@ -48,6 +48,9 @@ function dler_type {
 	aria2)
 	    type_links=( "${aria2_links[@]}" )
 	    ;;
+	dcc_xfer)
+	    type_links=( "${dcc_zfer_links[@]}" )
+	    ;;
 	rtmp)
 	    type_links=( "${rtmp_links[@]}" )
 	    ;;
@@ -86,6 +89,10 @@ function check_dler_forcing {
 	then
 	    force_dler "Aria2"
 	fi
+
+    elif dler_type "dcc_xfer" "$url_in"
+    then
+	force_dler "DCC_Xfer"	
 
     elif dler_type "youtube-dl" "$url_in"
     then
@@ -162,7 +169,7 @@ function check_wget {
 }
 
 function download {
-    downwait=5
+    downwait=6
     export LANG="$prog_lang"
     export LANGUAGE="$prog_lang"
 
@@ -204,6 +211,47 @@ function download {
     fi
 
     case "$downloader_in" in
+	DCC_Xfer)
+	    unset irc ctcp
+	    declare -A ctcp
+	    declare -A irc
+	    if [[ "$url_in" =~ ^irc:\/\/([^/]+)\/([^/]+)\/([^/]+) ]]
+	    then
+		irc=(
+		    [host]="${BASH_REMATCH[1]}"
+		    [port]=6667
+		    [chan]="${BASH_REMATCH[2]}"
+		    [msg]=$(urldecode "${BASH_REMATCH[3]#'msg%20'}")
+		    [nick]=$(obfuscate "$USER")
+		)
+	    fi
+
+	    # rm -f "$path_tmp/${irc[nick]}" "$path_tmp/${irc[nick]}".fifo
+	    # mkfifo "$path_tmp/${irc[nick]}".fifo
+
+	    stdbuf -i0 -o0 -e0 \
+		   $path_usr/irc_client.sh "${irc[host]}" "${irc[port]}" "${irc[chan]}" "${irc[msg]}" "${irc[nick]}" "$url_in" &
+	    pid_in=$!
+	    echo "$pid_in" >>"$path_tmp/external-dl_pids.txt"
+	    
+	    while [ ! -f "$path_tmp/${irc[nick]}" ]
+	    do sleep 0.1
+	    done
+
+	    file_in=$(head -n1 "$path_tmp/${irc[nick]}")
+	    url_in_file=$(tail -n1 "$path_tmp/${irc[nick]}")
+	    rm -f "$path_tmp/${irc[nick]}"
+	    
+#	    echo -e "$pid_in	    
+	    echo -e "____PID_IN____
+$url_in
+DCC_Xfer
+${pid_prog}
+$file_in
+$url_in_file" >"$path_tmp/${file_in}_stdout.tmp"
+
+
+	;;
 	Aria2)
 
 	    if [[ "$url_in_file" =~ ^(magnet:) ]] ||
@@ -587,7 +635,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 				   (( $length_in > $length_saved_in )) &&      
 				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
 			    then
-				rm -f "$file_in" "${file_in}.st" 
+				rm -f "$file_in" "${file_in}.st" "${file_in}.aria2" #"${file_in}.zdl"  
 	 			unset no_newip
 	 			[ -n "$url_in_file" ] && return 0
 			    fi
@@ -615,6 +663,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 		then
 		    [ "$downloader_in" == Axel ] && rm -f "${file_in}" "${file_in}.aria2"
 		    [ "$downloader_in" == Aria2 ] && rm -f "${file_in}.st"
+		    #[ "$downloader_in" == DCC_Xfer ] && rm -f "${file_in}.zdl"
 		    
 		    case "$i" in
 			resume_dl) 
@@ -662,7 +711,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 
 	    elif [[ "$length_saved_in" =~ ^[0-9]+$ ]] && (( "$length_saved_in" == 0 ))
 	    then
-		rm -f "$file_in" "$file_in".st
+		rm -f "$file_in" "$file_in".st 
 
 	    fi
 	    break_loop=true
@@ -695,12 +744,3 @@ function links_loop {
     fi
 }
 
-function kill_downloads {
-    [ -f "$path_tmp/external-dl_pids.txt" ] &&
-	kill $(cat "$path_tmp/external-dl_pids.txt")
-
-    if data_stdout
-    then
-	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
-    fi
-}
