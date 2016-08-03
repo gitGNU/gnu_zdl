@@ -1,0 +1,1 @@
+/home/zoninoz/.zdl/extensions/t8.sh
