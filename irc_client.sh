@@ -341,9 +341,21 @@ function irc_client {
 		unset irc[msg]
 	    fi
 
+	    ## per ricerche e debug:
+	    #print_c 3 "$line"
+
 	    case "${line%% *}" in
 		PING)
-		    irc_send "PONG ${irc[nick]}"
+		    unset chunk
+		    if [ -n "$txt" ]
+		    then
+			chunk=":$txt"
+
+		    else
+			chunk="${irc[nick]}"
+		    fi
+		    ## print_c 2 "PONG $chunk"
+		    irc_send "PONG $chunk"
 		    ;;
 		NOTICE)
 		    print_c 4 "$line"
@@ -359,7 +371,7 @@ function irc_client {
 		    #
 		    # ch="${line%% :*}"
 		    # ch="${ch#* }"
-		    # print_c 2 "<$user@$ch> $txt"
+		    #print_c 0 "<$user@$ch> $txt"
 
 		    if check_ctcp "$txt"
 		    then
@@ -416,6 +428,7 @@ function start_timeout {
 
 	elif (( diff_now >= 90 ))
 	then
+	    touch "$path_tmp/${irc[nick]}"
 	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
 	    kill_url "$url_in" 'xfer-pids'
 	    kill_url "$url_in" 'irc-pids'

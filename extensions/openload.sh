@@ -70,25 +70,28 @@ then
 	#
 	## grep -P '\^o' <- non funziona con cygwin
 	#
-	
+
 	awk '/\^o/{print}' <<< "$html"   |
 	    head -n1                |
-	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js"
+	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
 	
 	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
 
 #	sed -r 's|.+\"href\",\((.+)\)\)\;|\1|g' -i "$path_tmp/aadecoded.js"
 	sed -r 's|.+realdllink=\((.+)\)\;|\1|g' -i "$path_tmp/aadecoded.js"
-	
-	url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
-	url_in_file="https:${url_in_file#'https:'}"
 
-	if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
-	then
-	    url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
-			      grep Location                    |
-			      head -n1                         |
-			      sed -r 's|.*Location: ||') 
+	if [ -n "$(cat "$path_tmp/aadecoded.js")" ]
+	then	    
+	    url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
+	    url_in_file="https:${url_in_file#'https:'}"
+
+	    if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
+	    then
+		url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
+				  grep Location                    |
+				  head -n1                         |
+				  sed -r 's|.*Location: ||') 
+	    fi
 	fi
     fi
 
