@@ -50,12 +50,13 @@ function xdcc_cancel {
 			  cut -d' ' -f1 | tail -n1)
     irc_ctcp "PRIVMSG $ctcp_src" "XDCC CANCEL"
     irc_ctcp "PRIVMSG $ctcp_src" "XDCC REMOVE"
-#    kill_url "$url_in"    
+    kill_url "$url_in" "xfer-pids"
 }
 
 function irc_quit {
     [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&
 	kill $(head -n1 "$path_tmp/${file_in}_stdout.tmp") 2>/dev/null
+
     xdcc_cancel
     exec 4>&-
     irc_send "QUIT"
@@ -68,6 +69,7 @@ function irc_quit {
     else
 	kill -9 $(ps -o pid --no-headers --ppid $PID)
     fi
+    kill_url "$url_in" "irc-pids"
 }
 
 function irc_send {
@@ -157,11 +159,17 @@ function set_resume {
 }
 
 function get_resume {
-    grep -P "^$url_in$" "$path_tmp"/irc_xdcc_resume &>/dev/null
+    if [ -f "$path_tmp"/irc_xdcc_resume ]
+    then
+	grep -P "^$url_in$" "$path_tmp"/irc_xdcc_resume &>/dev/null
+    fi
 }
 
 function init_resume {
-    sed -r "s,^$url_in$,,g" -i "$path_tmp"/irc_xdcc_resume
+    if [ -f "$path_tmp"/irc_xdcc_resume ]
+    then
+	sed -r "s,^$url_in$,,g" -i "$path_tmp"/irc_xdcc_resume
+    fi
 }
 
 function check_dcc_resume {
@@ -234,7 +242,8 @@ function dcc_xfer {
 		print_c 1 "Connesso all'indirizzo: ${ctcp[address]}:${ctcp[port]}"
 		set_mode "daemon"
 		echo "$url_in"  >"$file_in.zdl"
-		echo "$pid_cat $url_in" >>"$path_tmp/pid-url"
+		add_pid_url "$pid_cat" "$url_in" "xfer-pids"
+					
 		#echo "$pid_cat" >>"$path_tmp/external-dl_pids.txt"
 		
 		while [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]
@@ -364,7 +373,7 @@ function irc_client {
 			
 			dcc_xfer &
 			pid_xfer=$!
-			echo "$pid_xfer $url_in" >>"$path_tmp/pid-url"
+			add_pid_url "$pid_xfer" "$url_in" "xfer-pids"
 		    fi
 		    ;;
 		# *)
@@ -375,7 +384,7 @@ function irc_client {
 
 	done <&3
 	irc_pid=$!
-	echo "$irc_pid $url_in" >>"$path_tmp/pid-url"
+	add_pid_url "$irc_pid" "$url_in" "irc-pids"
 	echo "$irc_pid" >>"$path_tmp/external-dl_pids.txt"
 
 	return 0
@@ -387,6 +396,7 @@ function irc_client {
 
 
 PID=$$
+add_pid_url "$PID" "$url_in" "irc-pids"
 
 set_mode "stdout"
 this_tty=$(tty)

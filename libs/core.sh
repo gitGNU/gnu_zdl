@@ -646,16 +646,20 @@ function redirect_links {
     exit 1
 }
 
-function kill_url {
+
+function kill_external {
     local pid
-    local url_in="$1"
     
-    grep -P "^[0-9]+ $url_in$" "$path_tmp/pid-url" 2>/dev/null | cut -d' ' -f1 |
-	while read pid
-	do
-	    [[ "$pid" =~ ^[0-9]+$ ]] &&
-		kill -9 $pid 2>/dev/null
-	done
+    if [ -f "$path_tmp/external-dl_pids.txt" ]
+    then
+	cat "$path_tmp/external-dl_pids.txt" 2>/dev/null |
+	    while read pid
+	    do
+		[[ "$pid" =~ ^[0-9]+$ ]] &&
+		    kill -9 $pid 2>/dev/null
+	    done
+	rm -f "$path_tmp/external-dl_pids.txt"
+    fi
 }
 
 function kill_downloads {
@@ -670,8 +674,10 @@ function kill_downloads {
 
 function kill_urls {
     local test_url
+    local type_pid="$2"
+    [ -z "$type_pid" ] && type_pid='pid-url'
 
-    if [ -f "$path_tmp/pid-url" ] &&
+    if [ -f "$path_tmp/${type_pid}" ] &&
 	   [ -f "$path_tmp/links_loop.txt" ]
     then
 	cat "$path_tmp/links_loop.txt" 2>/dev/null |
@@ -683,17 +689,56 @@ function kill_urls {
     fi
 }
 
-function kill_external {
+function kill_url {
     local pid
-    
-    if [ -f "$path_tmp/external-dl_pids.txt" ]
+    local url="$1"
+    local type_pid="$2"
+    [ -z "$type_pid" ] && type_pid='pid-url'
+
+    if [ -f "$path_tmp/${type_pid}" ]
     then
-	cat "$path_tmp/external-dl_pids.txt" 2>/dev/null |
+	grep -P "^[0-9]+ $url$" "$path_tmp/${type_pid}" 2>/dev/null | cut -d' ' -f1 |
 	    while read pid
 	    do
-		[[ "$pid" =~ ^[0-9]+$ ]] &&
+		if [[ "$pid" =~ ^[0-9]+$ ]]
+		then
 		    kill -9 $pid 2>/dev/null
+		    del_pid_url "$url" "$type_pid"
+		fi
 	    done
-	rm -f "$path_tmp/external-dl_pids.txt"
+    fi
+}
+
+function kill_pid_urls {
+    local type_pid="$1"
+    [ -z "$type_pid" ] && type_pid='pid-url'
+    
+    if [ -f "$path_tmp/${type_pid}" ]
+    then
+	cat "$path_tmp/${type_pid}" | cut -d' ' -f1 |
+	    while read pid
+	    do
+		kill -9 "$pid" 2>/dev/null
+	    done
+    fi
+}
+
+function add_pid_url {
+    local pid="$1"
+    local url="$2"
+    local type_pid="$3"
+    [ -z "$type_pid" ] && type_pid='pid-url'
+    
+    echo "$pid $url" >>"$path_tmp/${type_pid}"
+}
+
+function del_pid_url {
+    local url="$1"
+    local type_pid="$2"
+    [ -z "$type_pid" ] && type_pid='pid-url'
+
+    if [ -f "$path_tmp/${type_pid}" ]
+    then
+	sed -r "s,^.+$url$,,g" -i "$path_tmp/${type_pid}"
     fi
 }

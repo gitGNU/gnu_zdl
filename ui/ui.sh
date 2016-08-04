@@ -208,8 +208,8 @@ function bindings {
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
-    bind -x "\"\eq\":\"clean_countdown; stty echo; kill_external;kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\eq\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
 }
 
@@ -364,6 +364,9 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 			    
 			    for i in ${inputs[*]}
 			    do
+				kill_url "${url_out[$i]}" 'xfer-pids'
+				kill_url "${url_out[$i]}" 'irc-pids'
+
 				kill -9 ${pid_out[$i]} &>/dev/null
 				if [ ! -f "${file_out[$i]}.st" ] &&
 				       [ ! -f "${file_out[$i]}.aria2" ] &&
@@ -378,7 +381,8 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 			E)
 			    for i in ${inputs[*]}
 			    do
-				kill_url "${url_out[$i]}"
+				kill_url "${url_out[$i]}" 'xfer-pids'
+				kill_url "${url_out[$i]}" 'irc-pids'
 				
 				kill -9 ${pid_out[$i]} &>/dev/null
 				rm -f "${file_out[$i]}" "${file_out[$i]}.st" "${file_out[$i]}.zdl" "${file_out[$i]}.aria2" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
