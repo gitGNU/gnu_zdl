@@ -1,4 +1,4 @@
-ZigzagDownLoader (ZDL version 2.0) - Download manager 
+ZigzagDownLoader (ZDL version 1.0) - Download manager 
 =====================================================
 
 Leggi da:
@@ -6,7 +6,6 @@ Leggi da:
 - http://nongnu.org/zdl
 - man zdl
 - info zdl
-- zdl --help
 
 
 Progetto ZDL:

@@ -205,26 +205,24 @@
 @c @man{3}
 
 @c @ifman @unnumberedsec DESCRIZIONE
-@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Aria2}, @emph{Axel}, @emph{Wget}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming, scaricare TORRENT e richiedere e ricevere file via IRC/XDCC, senza alcuna interazione via CHAT. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
+@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Aria2}, @emph{Axel}, @emph{Wget}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
 @c @end man
 
 @unnumbered Perché questo programma
-ZigzagDownLoader è un gestore di download estensibile, robusto ed interamente controllabile da terminale.
-È nato come script specifico per la Bash e si è trasformato in un gestore per downloader come @emph{Wget}, @emph{Axel} ed @emph{Aria2} (downloader predefinito), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni. Oggi ZigzagDownLoader è anche un downloader per @emph{IRC/XDCC}: l'intero processo di scaricamento e recupero è automatico e non richiede alcuna interazione via CHAT. Inoltre, grazie all'adozione di Aria2, ZigzagDownLoader gestisce anche i @emph{TORRENT}.
-
-Nonostante i suoi limiti strutturali, il linguaggio della @emph{Bash} si è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Una progressiva efficienza è stata raggiunta attraverso lo sviluppo di script @emph{monolitici} nel linguaggio di @emph{Awk} (@emph{Gawk}). Il software include, inoltre, interpreti di altri linguaggi (attualmente: @emph{node.js} e @emph{php}, necessari al trattamento dei link di alcuni servizi), fornendo un supporto per ulteriori estensioni e sviluppi.
+ZigzagDownLoader esiste perché serve un gestore di download, indefinitamente estensibile e robusto, che sia pienamente controllabile da terminale.
+È nato come script specifico per la Bash e si è trasformato in un gestore per downloader che ne avevano bisogno (in particolare, Wget e Axel), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni.
+Nonostante i suoi limiti strutturali, il linguaggio della @emph{Bash} si è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Una progressiva efficienza è stata raggiunta attraverso lo sviluppo di script @emph{monolitici} nel linguaggio di @emph{Awk} (@emph{Gawk}).
 
 @unnumberedsubsec Almeno quattro direttrici di sviluppo
-L'esecuzione dei downloader può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o coincidere con altri di file già salvati, ecc. 
-@emph{In primo luogo}, ZigzagDownLoader serve ad automatizzare la gestione ed il recupero dei download o a semplificarne eventuali interventi manuali. ZDL è pensato, soprattutto, per il download @emph{accelerato} di grossi file e per il recupero del loro @emph{URL} a partire da informazioni disponibili nel web o fornite dall'utente. 
+L'esecuzione di downloader come Wget e Axel può richiedere assistenza: la connessione può interrompersi, l'indirizzo IP cambiare, i download incepparsi, i nomi dei file scaricati possono non essere intelligibili o coincidere con altri di file già salvati, ecc. 
+@emph{In primo luogo}, ZigzagDownLoader serve ad automatizzare la gestione dei download e a semplificarne eventuali recuperi manuali. ZDL è pensato, soprattutto, per il download @emph{accelerato} di grossi file. 
 
-@emph{In secondo luogo}, la gestione automatica è estesa a servizi di file hosting, video streaming, torrent e irc/xdcc: ZDL si sostituisce all'utente nelle operazioni inutili e noiose, riducendole all'unico atto di avvio del programma.
+@emph{In secondo luogo}, la gestione automatica è estesa a servizi di file hosting e video streaming: ZDL si sostituisce all'utente nelle operazioni inutili e noiose, riducendole all'unico atto di avvio del programma.
 
 @emph{Un terzo obiettivo} del progetto ZDL consiste nel fornire nuove articolazioni e modalità d'uso, allo scopo di costruire interazioni fra programmi e di rendere possibile un'automazione potenzialmente illimitata. 
 La gestione dei download può essere controllata da terminali distinti in modalità diverse. Per esempio, ZDL può essere avviato in modalità @emph{demone} e controllato in modalità @emph{interattiva}. Anche l'avvio @emph{predefinito} del programma offre diversi modi di interazione e di output. ZDL, inoltre, può essere integrato e collegato con altri programmi. 
 
-@emph{Infine}, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash ne rende possibile l'esecuzione su hardware di limitate capacità e su sistemi operativi differenti. Pensato per @emph{GNU/Linux}, ZDL è interamente funzionante anche su @emph{Windows} tramite @emph{Cygwin} (NB: perdendo molto in termini di efficienza). È tecnicamente possibile estenderne l'uso su altri sistemi operativi che supportano la Bash (per esempio @emph{MacOSX}).
-
+@emph{Infine}, una peculiarità del progetto ZDL consiste nella ricerca di efficienza e portabilità: l'impiego degli strumenti forniti dalla Bash ne rende possibile l'esecuzione su hardware di limitate capacità e su sistemi operativi differenti.
 
 @unnumbered Software Libero
 ZDL è software libero, rilasciato con licenza GPL (General Public License): @url{http://www.gnu.org/licenses/gpl.html}
@@ -286,8 +284,7 @@ L'ordine delle opzioni e degli altri argomenti non è importante:
 Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC o file TORRENT, questi ultimi contrassegnati rispettivamente dalle estensioni @emph{.dlc} e @emph{.torrent} (ZDL processa comunque i @emph{link} in memoria nella @emph{directory} e quelli in input)
 
 @item link
-URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file}). Per scaricare via @emph{IRC/XDCC}, il link deve avere la seguente forma: @emph{irc://[HOST]/[CHAN]/msg [PRIVMSG]}
-
+URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file})
 
 @item directory
 Directory di avvio di ZDL e di destinazione dei download (se omessa, è quella corrente)
@@ -373,32 +370,8 @@ Cancella i file temporanei dei download completati
 @end table
 
 @c @end man
-@unnumberedsubsubsec IRC/XDCC:
-@c @man{6}
-@c @ifman @unnumberedsubsec IRC/XDCC:
-@table @option
-@item -x, --xdcc
-Avvia l'inserimento interattivo di tre dati:
-
-@enumerate
-@item
-l'host del server IRC (@emph{HOST})
-
-@item
-il canale a cui connettersi (@emph{CHAN})
-
-@item
-il messaggio privato (@emph{PRIVMSG}) che contiene il comando @command{XDCC SEND}
-@end enumerate
-
-Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni nel link, che deve avere la forma seguente: @emph{irc://[HOST]/[CHAN]/msg [PRIVMSG]}
-
-@end table
-
-
-@c @end man
 @unnumberedsubsubsec Torrent:
-@c @man{7}
+@c @man{6}
 @c @ifman @unnumberedsubsec Torrent:
 @table @option
 @item -T @emph{file}, --torrent-file=@emph{file}
@@ -412,7 +385,7 @@ Porte TCP e UDP aperte: verificare le impostazioni del router
 
 @c @end man
 @unnumberedsubsubsec Filtri:
-@c @man{8}
+@c @man{7}
 @c @ifman @unnumberedsubsec Filtri:
 @table @option
 @item --scrape-url=@emph{URL pagina web}
@@ -443,7 +416,7 @@ Non scarica i file il cui nome contiene la stringa 'sub' (in lettere maiuscole e
 
 @c @end man
 @unnumberedsubsubsec Avvio con un editor:
-@c @man{9}
+@c @man{8}
 @c @ifman @unnumberedsubsec Avvio con un editor:
 @table @option
 @item -e, --editor
@@ -469,7 +442,7 @@ usa Zile, un micro editor GNU in stile Emacs
 
 @c @end man
 @unnumberedsubsubsec Avvio con Proxy:
-@c @man{10}
+@c @man{9}
 @c @ifman @unnumberedsubsec Avvio con proxy:
 @table @option
 
@@ -498,7 +471,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @c @end man
 @unnumberedsubsubsec Configurazione:
 
-@c @man{11}
+@c @man{10}
 @c @ifman @unnumberedsubsec Configurazione:
 @table @option
 
@@ -518,7 +491,7 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 @unnumbered Scaricare da servizi di @emph{video streaming} e di @emph{file hosting}
 
-@c @man{12}
+@c @man{11}
 @c @ifman @unnumberedsec PANORAMICA
 @c @ifman @unnumberedsubsec Servizi
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
@@ -586,7 +559,7 @@ Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connetters
 
 @unnumbered Modalità di avvio
 
-@c @man{13}
+@c @man{12}
 @c @ifman @unnumberedsubsec Avvio
 ZDL può essere avviato in diversi modi:
 
@@ -660,7 +633,7 @@ nella modalità "non interattiva" (standard), digitando il tasto @kbd{i}
 
 @unnumbered Modalità di arresto
 
-@c @man{14}
+@c @man{13}
 @c @ifman @unnumberedsubsec Arresto
 ZDL può essere fermato in diversi modi:
 @itemize
@@ -902,7 +875,7 @@ modificare il sorgente
 
 @unnumbered Software consigliati
 
-@c @man{15}
+@c @man{14}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
 @pindex aria2
@@ -1215,7 +1188,7 @@ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
 
 @bye
 
-@c @man{16}
+@c @man{15}
 @unnumberedsec MANUALI
 Oltre alla presente guida, puoi consultare:
 @table @command

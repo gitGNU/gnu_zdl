@@ -34,6 +34,11 @@ function check_pid {
     return 1
 }
 
+function size_file {
+    stat -c '%s' "$1"
+}
+
+
 function check_instance_daemon {
     unset daemon_pid
 
@@ -282,20 +287,6 @@ function ffmpeg_stdout {
     done
 }
 
-# function children_pids {
-#     local children
-#     children=$(ps -o pid --no-headers --ppid $$1)
-
-#     if [ -n "$children" ]
-#     then
-# 	printf "%s" "$children"
-# 	return 0
-
-#     else
-# 	return 1
-#     fi
-# }
-
 function children_pids {
     local result ppid 
     ppid=$1
@@ -525,175 +516,5 @@ function zero_dl {
     else
 	unset hide_zero
 	return 1
-    fi
-}
-
-function input_xdcc {
-    declare -A out_msg=(
-	[host]="Indirizzo dell'host irc (il protocollo 'irc://' non è necessario):"
-	[chan]="Canale (il cancelletto '#' non è necessario):"
-	[msg]="Messaggio privato (il comando '/msg' non è necessario):"
-    )
-    
-    header_box "Acquisizione dati mancanti per XDCC (inserisci 'quit' per annullare)"
-    for index in host chan msg
-    do
-	while [ -z "${irc[$index]}" ]
-	do
-	    print_c 2 "${out_msg[$index]}"
-	    read -e irc[$index]
-	    irc[$index]=$(head -n1 <<< "${irc[$index]}")
-	    echo 
-	    
-	    if [ "$index" == host ]
-	    then
-		test_chan="${irc[$index]#'irc://'}"
-		if [[ "${test_chan}" =~ ^.+\/([^/]+) ]] &&
-		       [ -z "${irc[chan]}" ]
-		then
-		    irc[chan]=${BASH_REMATCH[1]}
-		fi
-	    fi
-	    
-	    if [ "${irc[$index]}" == quit ]
-	    then
-		unset irc
-		return 1
-	    fi
-	done
-    done
-    return 0
-}
-
-function redirect {
-    url_input="$1"
-    sleeping 1
-
-    if ! url "$url_input" 
-    then
-	return 1
-    fi
-    
-    k=$(date +"%s")
-    s=0
-    while true
-    do
-    	if ! check_pid "$wpid" ||
-		[ "$s" == 0 ] ||
-		[ "$s" == "$max_waiting" ] ||
-		[ "$s" == $(( $max_waiting*2 )) ]
-    	then 
-    	    kill -9 "$wpid" &>/dev/null
-    	    rm -f "$path_tmp/redirect"
-    	    wget -t 1 -T $max_waiting                       \
-    		 --user-agent="$user_agent"                 \
-    		 --no-check-certificate                     \
-    		 --load-cookies="$path_tmp"/cookies.zdl     \
-    		 --post-data="${post_data}"                 \
-    		 "$url_input"                               \
-    		 -SO /dev/null -o "$path_tmp/redirect" &
-    	    wpid=$!
-	    echo "$wpid" >> "$path_tmp"/pid_redirects
-    	fi
-	
-    	if [ -f "$path_tmp/redirect" ]
-	then
-	    url_redirect="$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null |head -n1)"
-	    url_redirect="${url_redirect#*'Location: '}"
-	    #url_redirect="$(sanitize_url "$url_redirect")"
-	fi
-
-	if url "$url_redirect" &&
-		[ "$url_redirect" != "https://tusfiles.net" ] # || ! check_pid "$wpid"
-    	then 
-    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
-    	    break
-
-	elif (( $s>90 ))
-    	then
-    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
-    	    return
-
-	else
-    	    [ "$s" == 0 ] &&
-		print_c 2 "Redirezione (attendi massimo 90 secondi):"
-
-	    sleeping 1
-    	    s=`date +"%s"`
-    	    s=$(( $s-$k ))
-    	    print_c 0 "$s\r\c"
-    	fi
-    done
-
-    url_in_file="${url_redirect}"
-
-    rm -f "$path_tmp/redirect"
-    unset url_redirect post_data
-    return 0
-}
-
-function redirect_links {
-    redirected_link="true"
-    if [ -n "$links" ]
-    then
-	header_box "Links da processare"
-	echo -e "${links}\n"
-	separator-
-    fi
-    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
-    
-    [ -n "$xterm_stop" ] && xterm_stop
-    exit 1
-}
-
-function kill_url {
-    local pid
-    local url_in="$1"
-    
-    grep -P "^[0-9]+ $url_in$" "$path_tmp/pid-url" 2>/dev/null | cut -d' ' -f1 |
-	while read pid
-	do
-	    [[ "$pid" =~ ^[0-9]+$ ]] &&
-		kill -9 $pid 2>/dev/null
-	done
-}
-
-function kill_downloads {
-    kill_urls    
-    kill_external
-    
-    if data_stdout
-    then
-	[ -n "${pid_alive[*]}" ] && kill -9 ${pid_alive[*]} &>/dev/null
-    fi
-}
-
-function kill_urls {
-    local test_url
-
-    if [ -f "$path_tmp/pid-url" ] &&
-	   [ -f "$path_tmp/links_loop.txt" ]
-    then
-	cat "$path_tmp/links_loop.txt" 2>/dev/null |
-	    while read test_url
-	    do
-		url "$test_url" &&
-		    kill_url "$test_url"
-	    done
-    fi
-}
-
-function kill_external {
-    local pid
-    
-    if [ -f "$path_tmp/external-dl_pids.txt" ]
-    then
-	cat "$path_tmp/external-dl_pids.txt" 2>/dev/null |
-	    while read pid
-	    do
-		[[ "$pid" =~ ^[0-9]+$ ]] &&
-		    kill -9 $pid 2>/dev/null
-	    done
-	rm -f "$path_tmp/external-dl_pids.txt"
     fi
 }
