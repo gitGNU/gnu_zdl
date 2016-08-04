@@ -378,8 +378,10 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 			E)
 			    for i in ${inputs[*]}
 			    do
+				kill_url "${url_out[$i]}"
+				
 				kill -9 ${pid_out[$i]} &>/dev/null
-				rm -f "${file_out[$i]}" "${file_out[$i]}.st" "${file_out[$i]}.aria2" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
+				rm -f "${file_out[$i]}" "${file_out[$i]}.st" "${file_out[$i]}.zdl" "${file_out[$i]}.aria2" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
 				links_loop - "${url_out[$i]}"
 			    done
 			    ;;

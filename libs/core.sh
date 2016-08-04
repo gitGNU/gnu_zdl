@@ -152,7 +152,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 	    -)
 		if [ -f "$file_target" ]
 		then
-		    sed -e "s|^${item//'*'/\*}$||g" \
+		    sed -e "s,^${item//'*'/\*}$,,g" \
 			-e '/^$/d' -i "$file_target"
 
 		    if (( $(wc -l < "$file_target") == 0 ))

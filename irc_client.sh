@@ -45,13 +45,12 @@ function get_mode {
 }
 
 function xdcc_cancel {
-    kill_url "$url_in"
     [ -z "$ctcp_src" ] &&
 	ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
 			  cut -d' ' -f1 | tail -n1)
     irc_ctcp "PRIVMSG $ctcp_src" "XDCC CANCEL"
     irc_ctcp "PRIVMSG $ctcp_src" "XDCC REMOVE"
-    
+#    kill_url "$url_in"    
 }
 
 function irc_quit {
@@ -269,11 +268,7 @@ function dcc_xfer {
 	    if [ "$(size_file "$file_in")" == "${ctcp[size]}" ]
 	    then
 		rm -f "${file_in}.zdl"
-
-		## non funziona: perchè? (invece funziona: links_loop in "$url_in")
-		#links_loop - "$url_in"
-		## lo sostituisco con:
-		sed -r "s,^$url_in$,,g" -i .zdl_tmp/links_loop.txt
+		links_loop - "$url_in"
 	    fi
 
 	    irc_quit
@@ -380,6 +375,7 @@ function irc_client {
 
 	done <&3
 	irc_pid=$!
+	echo "$irc_pid $url_in" >>"$path_tmp/pid-url"
 	echo "$irc_pid" >>"$path_tmp/external-dl_pids.txt"
 
 	return 0
