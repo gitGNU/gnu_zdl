@@ -76,9 +76,15 @@ function update_updater {
 	#
 	#### dal mirror principale (veloce):
 
+<<<<<<< HEAD
 	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
 	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
-
+#	wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q 
+=======
+	#wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q
+	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
+	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+>>>>>>> 311ab543b0d15fc116c667aa5342db78c7431e4b
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
