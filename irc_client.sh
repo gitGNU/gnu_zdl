@@ -168,7 +168,7 @@ function get_resume {
 function init_resume {
     if [ -f "$path_tmp"/irc_xdcc_resume ]
     then
-	sed -r "s,^$url_in$,,g" -i "$path_tmp"/irc_xdcc_resume
+	sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp"/irc_xdcc_resume
     fi
 }
 
@@ -261,6 +261,9 @@ function dcc_xfer {
 	    
 	    while [ "$offset" != "${ctcp[size]}" ]
 	    do
+		! grep -P "^$url_in$" "$path_tmp/irc-timeout" &&
+		    echo "$url_in" >>"$path_tmp/irc-timeout"
+		
 		offset=$(size_file "$file_in")
 		[ -z "$offset" ] && offset=0
 		[ -z "$old_offset" ] && old_offset=$offset
@@ -394,15 +397,42 @@ function irc_client {
     fi
 }
 
+function start_timeout {
+    local start=$(date +%s)
+    local now
+    local diff_now
+    
+    touch "$path_tmp/irc-timeout"
+    sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
+    
+    for i in {0..10}
+    do
+	now=$(date +%s)
+	diff_now=$(( now - start ))
 
+	if grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null
+	then
+	    exit
+
+	elif (( diff_now >= 90 ))
+	then
+	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
+	    kill_url "$url_in" 'xfer-pids'
+	    kill_url "$url_in" 'irc-pids'
+	    exit
+	fi
+		
+	sleep 10
+    done &
+}
+
+
+################ main:
 PID=$$
-add_pid_url "$PID" "$url_in" "irc-pids"
 
 set_mode "stdout"
 this_tty=$(tty)
 path_tmp=".zdl_tmp"
-
-init_resume
 
 declare -A ctcp
 declare -A irc
@@ -416,6 +446,9 @@ irc=(
 )
 
 url_in="$6"
+add_pid_url "$PID" "$url_in" "irc-pids"
+start_timeout
+init_resume
 
 exec 3>&-
 

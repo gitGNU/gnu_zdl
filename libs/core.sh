@@ -739,6 +739,6 @@ function del_pid_url {
 
     if [ -f "$path_tmp/${type_pid}" ]
     then
-	sed -r "s,^.+$url$,,g" -i "$path_tmp/${type_pid}"
+	sed -r "/^.+ ${url//\//\\/}$/d" -i "$path_tmp/${type_pid}"
     fi
 }
