@@ -72,13 +72,19 @@ function update_updater {
 	print_c 1 "Download in corso: attendere..."
 	
 	#### dal repo git: 
-	# wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-1.0.tar.gz" -q
+	# wget "http://git.savannah.gnu.org/cgit/zdl.git/snapshot/zdl-2.0.tar.gz" -q
 	#
 	#### dal mirror principale (veloce):
 
+<<<<<<< HEAD
+	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
+	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+#	wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q 
+=======
 	#wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q
 	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
 	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+>>>>>>> 311ab543b0d15fc116c667aa5342db78c7431e4b
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
@@ -583,7 +589,6 @@ start_mode_in_tty "$this_mode" "$this_tty"
 
 
 
-
 ##########
 header_z
 ##########
@@ -635,6 +640,35 @@ then
 	then
 	    unset args[i]
 	    reconnect_sh=true
+	fi
+    done
+fi
+
+################################################# IRC-XDCC
+## 1) link "irc://[host]/[chan]/msg\ [privmsg]"
+## 2) -x, --xdcc //-->interattivo: 1) /connect irc://irc.host; 2) /join #channel; 3) /msg ...
+## 3) da fare: --irc=[host], --chan=[chan], --msg=[privmsg] (se manca un parametro: input_xdcc)
+
+if [[ "${args[*]}" =~ \-x ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^(-x|--xdcc)$ ]]
+	then
+	    declare -A irc
+	    if input_xdcc
+	    then
+		irc[host]="${irc[host]#'irc://'}"
+		irc[host]="${irc[host]%%'/'*}"
+
+		irc[chan]="${irc[chan]##'#'}"
+
+		irc[msg]="${irc[msg]#'/msg '}"
+		
+		args+=( "irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}" )
+		(( max_args++ ))
+	    fi
+	    unset args[i] irc
 	fi
     done
 fi
@@ -1277,7 +1311,7 @@ function main_loop {
 		    sleeping "$sleeping_pause"
 		done
 
-		unset break_loop post_data not_available exceeded 
+		unset break_loop post_data not_available exceeded url_in
 	    fi
 	done < "$start_file"
 

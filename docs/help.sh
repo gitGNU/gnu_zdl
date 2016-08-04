@@ -49,7 +49,10 @@ Uso (l'ordine degli argomenti non è importante):
                                dei servizi di hosting, streaming 
                                o di reindirizzamento (se omessi, 
                                $PROG processa quelli in memoria 
-                               nella DIR e nei FILE)
+                               nella DIR e nei FILE). 
+                               Per scaricare via IRC/XDCC, il link
+                               deve avere la seguente forma:
+                               irc://[HOST]/[CHAN]/msg [PRIVMSG]
 
          DIR                   Directory di avvio di $PROG 
                                e di destinazione dei download 
@@ -119,6 +122,20 @@ OPZIONI
                                Può essere configurato come comportamento predefinito.
 
        --no-complete           Cancella i file temporanei dei download completati
+
+
+IRC/XDCC:
+  -x,  --xdcc                  Avvia l'inserimento interattivo di tre dati:
+                               1) l'host del server IRC (HOST)
+                               2) il canale a cui connettersi (CHAN)
+                               3) il messaggio privato (PRIVMSG) che contiene 
+                                  il comando XDCC SEND
+
+                               Il download via IRC/XDCC può essere affettuato, 
+                               alternativamente e senza usare opzioni, inserendo le 
+                               informazioni nel link, che deve avere la forma 
+                               seguente:
+                                  irc://[HOST]/[CHAN]/msg [PRIVMSG]
 
 
 Torrent (Aria2):

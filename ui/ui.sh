@@ -202,13 +202,14 @@ function trap_sigint {
 function bindings {
     trap_sigint
     check_instance_prog
+
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
     bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
-    bind -x "\"\eq\":\"clean_countdown; stty echo; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_downloads; kill -9 $loops_pid $pid_prog $pid\"" &>/dev/null
+    bind -x "\"\eq\":\"clean_countdown; stty echo; kill_external;kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
 }
 
@@ -360,10 +361,14 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
 		    case "$input2" in
 			r)
+			    
 			    for i in ${inputs[*]}
 			    do
 				kill -9 ${pid_out[$i]} &>/dev/null
-				if [ ! -f "${file_out[$i]}.st" ]
+				if [ ! -f "${file_out[$i]}.st" ] &&
+				       [ ! -f "${file_out[$i]}.aria2" ] &&
+				       [ ! -f "${file_out[$i]}.zdl" ] &&
+				       [ "${percent_out[i]}" != 100 ]
 				then
 				    rm -f "${file_out[$i]}" 
 				fi
