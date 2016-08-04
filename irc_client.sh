@@ -261,7 +261,7 @@ function dcc_xfer {
 	    
 	    while [ "$offset" != "${ctcp[size]}" ]
 	    do
-		! grep -P "^$url_in$" "$path_tmp/irc-timeout" 2>/dev/null &&
+		! grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null &&
 		    echo "$url_in" >>"$path_tmp/irc-timeout"
 		
 		offset=$(size_file "$file_in")
