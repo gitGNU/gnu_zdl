@@ -24,9 +24,6 @@
 # zoninoz@inventati.org
 #
 
-function size_file {
-    stat -c '%s' "$1" 2>/dev/null
-}
 
 function urldecode {
     printf '%b' "${1//%/\\x}" 2>/dev/null
@@ -94,35 +91,6 @@ function base36 {
     done
 }
 
-function split {
-    if [[ "$2" ]]
-    then
-	IFS="$2"
-	splitted=($1)
-	for i in ${splitted[*]}
-	do echo $i
-	done
-	unset IFS
-
-    else
-	sed -r "s|(.{1})|\1\n|g" <<< "$1"
-    fi
-}
-
-function obfuscate {
-    local obfs
-    for i in $(split "$1")
-    do
-	 obfs+=$(char2code "$i")
-    done
-    obfs=$(( obfs + obfs - RANDOM * RANDOM + $(date +%s) ))
-
-    for i in $(split "$obfs")
-    do
-	code2char "10$i"
-    done
-}
-
 function countdown+ {
     max=$1
     print_c 2 "Attendi $max secondi:"
@@ -185,6 +153,73 @@ function make_index {
 }
 
 
+
+function redirect {
+    url_input="$1"
+    sleeping 1
+
+    if ! url "$url_input" 
+    then
+	return 1
+    fi
+    
+    k=$(date +"%s")
+    s=0
+    while true
+    do
+    	if ! check_pid "$wpid" ||
+		[ "$s" == 0 ] ||
+		[ "$s" == "$max_waiting" ] ||
+		[ "$s" == $(( $max_waiting*2 )) ]
+    	then 
+    	    kill -9 "$wpid" &>/dev/null
+    	    rm -f "$path_tmp/redirect"
+    	    wget -t 1 -T $max_waiting                       \
+    		 --user-agent="$user_agent"                 \
+    		 --no-check-certificate                     \
+    		 --load-cookies="$path_tmp"/cookies.zdl     \
+    		 --post-data="${post_data}"                 \
+    		 "$url_input"                               \
+    		 -SO /dev/null -o "$path_tmp/redirect" &
+    	    wpid=$!
+	    echo "$wpid" >> "$path_tmp"/pid_redirects
+    	fi
+	
+    	if [ -f "$path_tmp/redirect" ]
+	then
+	    url_redirect="$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null |head -n1)"
+	    url_redirect="${url_redirect#*'Location: '}"
+	    #url_redirect="$(sanitize_url "$url_redirect")"
+	fi
+
+	if url "$url_redirect" &&
+		[ "$url_redirect" != "https://tusfiles.net" ] # || ! check_pid "$wpid"
+    	then 
+    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+    	    break
+
+	elif (( $s>90 ))
+    	then
+    	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
+    	    return
+
+	else
+    	    [ "$s" == 0 ] &&
+		print_c 2 "Redirezione (attendi massimo 90 secondi):"
+
+	    sleeping 1
+    	    s=`date +"%s"`
+    	    s=$(( $s-$k ))
+    	    print_c 0 "$s\r\c"
+    	fi
+    done
+
+    url_in_file="${url_redirect}"
+
+    rm -f "$path_tmp/redirect"
+    unset url_redirect post_data
+    return 0
+}
 
 
 function nodejs_eval {
@@ -250,6 +285,19 @@ function scrape_url {
     fi
 }
 
+function redirect_links {
+    redirected_link="true"
+    if [ -n "$links" ]
+    then
+	header_box "Links da processare"
+	echo -e "${links}\n"
+	separator-
+    fi
+    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
+    
+    [ -n "$xterm_stop" ] && xterm_stop
+    exit 1
+}
 
 function set_ext {
     local filename="$1"
@@ -471,7 +519,7 @@ function grep_urls {
 
     done <<< "$input"
     
-    grep -P '(^irc://{1}.+|^magnet:.+|^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*)$' <<< "$input" &&
+    grep -P '(magnet:.+|^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*)$' <<< "$input" &&
 	result=0
 
     return $result
@@ -492,30 +540,5 @@ function file_filter {
     then
 	_log 14
 	return 1
-    fi
-}
-
-function join {
-    tr " " "$2" <<< "$1"
-}
-
-function dotless2ip {
-    local k
-    local dotless=$1
-    local i=$2
-    [ -z "$i" ] && i=3
-    
-    if ((i == 0))
-    then
-	ip+=( $dotless )
-	join "${ip[*]}" '.'
-	return
-
-    else
-	k=$((256**i))
-	
-	ip+=( $((dotless / k)) )
-	((i--))
-	dotless2ip $((dotless - ip[-1] * k )) $i
     fi
 }

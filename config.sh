@@ -106,10 +106,6 @@ aria2_links=(
     \.torrent$
 )
 
-dcc_xfer_links=(
-    ^irc\:
-)
-
 noresume_links=(
     uploadable\.
     rapidgator\.
@@ -122,7 +118,7 @@ no_check_links=(
     pastebin\.
     ^magnet\:
     \.torrent$
-    ^irc\:
+
 )
 #no_check_links=( tusfiles\. nowdownload\. )
 
@@ -134,7 +130,7 @@ no_check_ext=(
     'mega.(co|nz)'
     ^magnet\:
     \.torrent$
-    ^irc\:
+
 )
 
 ## massima durata tentativi di connessione (Wget)
