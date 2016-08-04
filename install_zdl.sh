@@ -178,7 +178,7 @@ cd $prog
 chmod +rx -R .
 
 ## UPDATER ########
-source libs/common.sh
+source libs/core.sh
 source ui/widgets.sh
 source ui/ui.sh
 source updater.sh
