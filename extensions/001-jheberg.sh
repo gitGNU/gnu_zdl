@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: download
-## zdl-extension name: jheberg (multi-link)
+## zdl-extension name: Jheberg (multi-link)
 
 if [[ "$url_in" =~ 'jheberg.net' ]]
 then
