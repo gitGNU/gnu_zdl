@@ -29,9 +29,17 @@ path_usr="/usr/local/share/zdl"
 source $path_usr/libs/core.sh
 source $path_usr/libs/utils.sh
 source $path_usr/libs/downloader_manager.sh
+source $path_usr/libs/log.sh
 
 source $path_usr/ui/widgets.sh
 init_colors
+
+file_log="$zdl_log.txt"
+    
+if [ -f "$file_log" ]
+then
+    log=1
+fi
 
 
 function set_mode {
@@ -467,6 +475,15 @@ exec 3>&-
 
 irc_client ||
     {
-	print_c 2 "Connessione al server IRC non riuscita"
-	exit 1
+	touch "$path_tmp/${irc[nick]}"
+	_log 26
+	exec 3>&-
+
+	if [ -f /cygdrive ]
+	then
+	    kill -9 $(children_pids $PID)
+	    
+	else
+	    kill -9 $(ps -o pid --no-headers --ppid $PID)
+	fi
     }

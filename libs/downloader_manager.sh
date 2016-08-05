@@ -225,6 +225,12 @@ function download {
 		    [nick]=$(obfuscate "$USER")
 		)
 	    fi
+	    
+	    [[ "${irc[host]}" =~ ^(.+)\:([0-9]+)$ ]] &&
+		{
+		    irc[host]="${BASH_REMATCH[1]}"
+		    irc[port]="${BASH_REMATCH[2]}"
+		}
 
 	    # rm -f "$path_tmp/${irc[nick]}" "$path_tmp/${irc[nick]}".fifo
 	    # mkfifo "$path_tmp/${irc[nick]}".fifo
@@ -242,7 +248,7 @@ function download {
 	    url_in_file=$(tail -n1 "$path_tmp/${irc[nick]}")
 	    rm -f "$path_tmp/${irc[nick]}"
 	    
-#	    echo -e "$pid_in	    
+##	    echo -e "$pid_in	    
 	    echo -e "____PID_IN____
 $url_in
 DCC_Xfer

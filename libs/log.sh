@@ -142,6 +142,9 @@ function _log {
 	    msg="Raggiunto il limite di download per il tuo indirizzo IP o account (link: $url_in): prova --proxy o --reconnect"
 	    no_msg=true
 	    ;;
+	26)
+	    msg="Connessione al server IRC non riuscita: indirizzo errato o connessione o file non disponibili"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]

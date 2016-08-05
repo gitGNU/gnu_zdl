@@ -582,8 +582,6 @@ fi
 start_mode_in_tty "$this_mode" "$this_tty"
 
 
-
-
 ##########
 header_z
 ##########
