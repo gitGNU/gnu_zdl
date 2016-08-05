@@ -286,7 +286,7 @@ L'ordine delle opzioni e degli altri argomenti non è importante:
 Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC o file TORRENT, questi ultimi contrassegnati rispettivamente dalle estensioni @emph{.dlc} e @emph{.torrent} (ZDL processa comunque i @emph{link} in memoria nella @emph{directory} e quelli in input)
 
 @item link
-URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file}). Per scaricare via @emph{IRC/XDCC}, il link deve avere la seguente forma: @emph{irc://[HOST]/[CHAN]/msg [PRIVMSG]}
+URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file}). Per scaricare via @emph{IRC/XDCC}, il link deve avere la seguente forma (porta non necessaria se è 6667): @emph{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}
 
 
 @item directory
@@ -391,7 +391,7 @@ il canale a cui connettersi (@emph{CHAN})
 il messaggio privato (@emph{PRIVMSG}) che contiene il comando @command{XDCC SEND}
 @end enumerate
 
-Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni nel link, che deve avere la forma seguente: @emph{irc://[HOST]/[CHAN]/msg [PRIVMSG]}
+Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni nel link, che deve avere la forma seguente (porta non necessaria se è 6667): @emph{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}
 
 @end table
 

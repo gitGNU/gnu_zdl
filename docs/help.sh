@@ -51,8 +51,9 @@ Uso (l'ordine degli argomenti non è importante):
                                $PROG processa quelli in memoria 
                                nella DIR e nei FILE). 
                                Per scaricare via IRC/XDCC, il link
-                               deve avere la seguente forma:
-                               irc://[HOST]/[CHAN]/msg [PRIVMSG]
+                               deve avere la seguente forma (porta 
+                               non necessaria se è 6667):
+                                 irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]
 
          DIR                   Directory di avvio di $PROG 
                                e di destinazione dei download 
@@ -134,8 +135,8 @@ IRC/XDCC:
                                Il download via IRC/XDCC può essere affettuato, 
                                alternativamente e senza usare opzioni, inserendo le 
                                informazioni nel link, che deve avere la forma 
-                               seguente:
-                                  irc://[HOST]/[CHAN]/msg [PRIVMSG]
+                               seguente (porta non necessaria se è 6667):
+                                  irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]
 
 
 Torrent (Aria2):
