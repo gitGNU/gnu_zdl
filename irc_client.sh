@@ -34,7 +34,7 @@ source $path_usr/libs/log.sh
 source $path_usr/ui/widgets.sh
 init_colors
 
-file_log="$zdl_log.txt"
+file_log="zdl_log.txt"
     
 if [ -f "$file_log" ]
 then
@@ -120,7 +120,8 @@ function trim {
 function check_notice {
     if [ "$errors" != "${errors//$1}" ]
     then
-	print_c 3 "$1"
+	notice="$1"
+	_log 27
 	irc_quit
     fi
 }
@@ -458,6 +459,7 @@ PID=$$
 set_mode "stdout"
 this_tty=$(tty)
 path_tmp=".zdl_tmp"
+file_log
 
 errors=$(grep -P '(743|883|878|879|1124|1131)' $path_usr/irc/* -h |cut -d'"' -f2)
 

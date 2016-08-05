@@ -143,7 +143,10 @@ function _log {
 	    no_msg=true
 	    ;;
 	26)
-	    msg="Connessione al server IRC non riuscita: indirizzo errato o connessione o file non disponibili"
+	    msg="$url_in --> Connessione al server IRC non riuscita: indirizzo errato o connessione o file non disponibili"
+	    ;;
+	27)
+	    msg="$url_in --> $notice"
 	    ;;
     esac
     
