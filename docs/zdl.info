@@ -220,8 +220,8 @@ _link_
      URL dei file oppure delle pagine web dei servizi di hosting,
      streaming o di reindirizzamento (se omessi, ZDL processa quelli in
      memoria nella _directory_ e nei _file_). Per scaricare via
-     _IRC/XDCC_, il link deve avere la seguente forma:
-     _irc://[HOST]/[CHAN]/msg [PRIVMSG]_
+     _IRC/XDCC_, il link deve avere la seguente forma (porta non
+     necessaria se è 6667): _irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]_
 
 _directory_
      Directory di avvio di ZDL e di destinazione dei download (se
@@ -327,7 +327,8 @@ IRC/XDCC:
 
      Il download via IRC/XDCC può essere affettuato, alternativamente e
      senza usare opzioni, inserendo le informazioni nel link, che deve
-     avere la forma seguente: _irc://[HOST]/[CHAN]/msg [PRIVMSG]_
+     avere la forma seguente (porta non necessaria se è 6667):
+     _irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]_
 
 
 Torrent:
@@ -1277,25 +1278,25 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL6434
-Node: Servizi streaming/hosting13065
-Node: Avviare ZDL16753
-Node: Arrestare ZDL19191
-Node: Controllare i download20296
-Node: Manuali d'uso24585
-Node: Modi25001
-Node: Readline28267
-Node: Editor29787
-Node: Omonimie31012
-Node: Torrent32546
-Node: Filtri33432
-Node: Creare nuove estensioni33753
-Node: Software consigliati35323
-Node: Conkeror36724
-Node: zdl-xterm e XXXTerm/Xombrero37735
-Node: Installazione e aggiornamento39659
-Node: Tags42694
-Node: Copying45495
-Node: Contatti46545
+Node: Servizi streaming/hosting13152
+Node: Avviare ZDL16840
+Node: Arrestare ZDL19278
+Node: Controllare i download20383
+Node: Manuali d'uso24672
+Node: Modi25088
+Node: Readline28354
+Node: Editor29874
+Node: Omonimie31099
+Node: Torrent32633
+Node: Filtri33519
+Node: Creare nuove estensioni33840
+Node: Software consigliati35410
+Node: Conkeror36811
+Node: zdl-xterm e XXXTerm/Xombrero37822
+Node: Installazione e aggiornamento39746
+Node: Tags42781
+Node: Copying45582
+Node: Contatti46632
 
 End Tag Table
 
