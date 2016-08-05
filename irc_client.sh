@@ -53,15 +53,17 @@ function get_mode {
 }
 
 function xdcc_cancel {
-    [ -z "$ctcp_src" ] &&
-	ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
-			  cut -d' ' -f1 | tail -n1)
-    irc_ctcp "PRIVMSG $ctcp_src" "XDCC CANCEL"
-    irc_ctcp "PRIVMSG $ctcp_src" "XDCC REMOVE"
+    # [ -z "$ctcp_src" ] &&
+    # 	ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
+    # 			  cut -d' ' -f1 | tail -n1)
+    #irc_ctcp "PRIVMSG $ctcp_src" "XDCC CANCEL"
+    #irc_ctcp "PRIVMSG $ctcp_src" "XDCC REMOVE"
     kill_url "$url_in" "xfer-pids"
 }
 
 function irc_quit {
+    touch "$path_tmp/${irc[nick]}"
+    
     [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&
 	kill $(head -n1 "$path_tmp/${file_in}_stdout.tmp") 2>/dev/null
 
@@ -91,10 +93,12 @@ function irc_ctcp {
 }
 
 function get_irc_code {
-    local msg="$@"
+    local msg="$1"
     local code
-    code=$(grep -h "$msg" $path_usr/irc/* | cut -d' ' -f1)
-
+    #code=$(grep -h "$msg" $path_usr/irc/* |
+		  # cut -d' ' -f1 |
+		  #     head -n1) 
+    code=$(awk "/$msg/{print $1}" $path_usr/irc/*)
     ## metodo alternativo (rivedere codifica dei file dei messaggi in $path_usr/irc/)
     # [[ "$(cat $path_usr/irc/*)" =~ ([0-9]+)' "'[^\"]*$msg ]] &&
     # 	code=${BASH_REMATCH[1]}
@@ -109,30 +113,34 @@ function get_irc_code {
     fi
 }
 
-function check_notice {
-    notice_883=(
-	"Hai già richiesto questo pack"
-	"Du hast diese Datei bereits angefordert"
-	"You already requested that pack"
-	"Vous demandez déjà ce paquet"
-    )
+function trim {
+    echo $1
+}
 
-    [[ "${notice_883[*]}" =~ "$1" ]] && return 1
-    return 0
+function check_notice {
+    if [ "$errors" != "${errors//$1}" ]
+    then
+	print_c 3 "$1"
+	irc_quit
+    fi
 }
 
 function check_ctcp {
     local irc_code key
     unset ctcp_msg ctcp_src
 
-    ctcp_msg=( $(tr -d "\001\015\012" <<< "$@") )
+    ctcp_msg=( $(tr -d "\001\015\012" <<< "$*") )
     ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
 		      cut -d' ' -f1 | tail -n1)
-    
-    #### da usare e modificare per filtrare problemi da messaggi NOTICE (vedere anche get_irc_code):
-    ##    check_notice "${ctcp_msg[*]}" || irc_quit
-    ##########
-    
+
+    ########### codice del msg (strano: non funziona il match): 
+    # irc_code=$(check_irc_code "${ctcp_msg[*]}")
+    # case $irc_code in
+    # 	743|883|878|879|1124|1131)
+    # 	    irc_quit
+    # 	    ;;
+    # esac
+
     if [ "${ctcp_msg[0]}" == 'DCC' ] &&
 	   [ -n "$ctcp_src" ]
     then
@@ -318,6 +326,7 @@ function irc_client {
 	    from="${from:1}"
 	    user=${from%%\!*}
 	    txt="${line#*:}"
+	    txt=$(trim "${txt}")
 
 	    if [[ "$line" =~ (MODE ${irc[nick]}) ]] &&
 		   [ -n "${irc[chan]}" ]
@@ -344,7 +353,7 @@ function irc_client {
 		xdcc_cancel
 		sleep 3
 		irc_ctcp "PRIVMSG $to" "$msg"
-		print_c 2 "-> $to> $msg"
+		print_c 2 "CTCP>> PRIVMSG $to :$msg"
 		
 		unset irc[msg]
 	    fi
@@ -366,14 +375,9 @@ function irc_client {
 		    irc_send "PONG $chunk"
 		    ;;
 		NOTICE)
-		    print_c 4 "$line"
-		    
-		    # [[ "$line" =~ (Auto-ignore) ]] && {
-		    # 	countdown- 90
-		    # 	irc_quit
-		    # }
-		    
-		    ;;
+		     check_notice "${txt}" 
+		     print_c 4 "$line"
+		     ;;
 		PRIVMSG)
 		    ## messaggi dal canale
 		    #
@@ -434,7 +438,7 @@ function start_timeout {
 	then
 	    exit
 
-	elif (( diff_now >= 90 ))
+	elif (( diff_now >= 60 ))
 	then
 	    touch "$path_tmp/${irc[nick]}"
 	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
@@ -454,6 +458,8 @@ PID=$$
 set_mode "stdout"
 this_tty=$(tty)
 path_tmp=".zdl_tmp"
+
+errors=$(grep -P '(743|883|878|879|1124|1131)' $path_usr/irc/* -h |cut -d'"' -f2)
 
 declare -A ctcp
 declare -A irc

@@ -77,8 +77,28 @@ function update_updater {
 	#### dal mirror principale (veloce):
 
 	#wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q
-	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
-	wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+	rm -f zdl-2.0.tar.gz.sig zdl-2.0.tar.gz
+	while [ ! -f zdl-2.0.tar.gz ] ||
+		  [ ! -f zdl-2.0.tar.gz ]
+	do
+	    [ ! -f zdl-2.0.tar.gz ] &&
+		{
+		    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz" -O zdl-2.0.tar.gz
+		    sleep 1
+		}
+	    [ ! -f zdl-2.0.tar.gz.sig ] &&
+		{
+		    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig" -O zdl-2.0.tar.gz.sig
+		    sleep 1
+		}
+
+	    if [ ! -f zdl-2.0.tar.gz ] ||
+		   [ ! -f zdl-2.0.tar.gz ]
+	    then
+		print_c 3 "Problemi di connessione: se non dovesse risolversi, chiudi il programma con <Control+c>"
+	    fi
+	done
+	
 
 	package=$(ls *.tar.gz)
 	print_c 1 "Aggiornamento di $PROG con $package"
