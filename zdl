@@ -100,7 +100,7 @@ function update_updater {
 	done
 	
 
-	package=$(ls *.tar.gz)
+	package="zdl-2.0.tar.gz"
 	print_c 1 "Aggiornamento di $PROG con $package"
 	tar -xzf "$package"
 	mv "${package%.tar.gz}" $prog

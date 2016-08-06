@@ -98,7 +98,21 @@ then
 	#     echo "$url_in_file"
 	    
 	#     url_in_file=$(nodejs_eval "$url_in_file")
-	#     echo "$url_in_file"
+	    #     echo "$url_in_file"
+
+	# else
+	#     	chunk1=${url_in#*\/f\/}
+	# chunk1=${chunk1%%\/*}
+	# chunk2=$(grep hiddenurl <<< "$html" |
+	# 		sed -r 's|[^~]+~([^<]+)<.+|\1|g')
+
+	# echo "chunk2: $chunk2"
+	
+	# wget --referer=openload.co \
+	#      --user-agent=Firefox  \
+	#      "https://openload.co/stream/$chunk1$chunk2" \
+	#      -SO out
+
 	fi
     fi
 
