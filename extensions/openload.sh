@@ -92,6 +92,13 @@ then
 				  head -n1                         |
 				  sed -r 's|.*Location: ||') 
 	    fi
+
+	# else
+	#     url_in_file=$(unpack "$html")
+	#     echo "$url_in_file"
+	    
+	#     url_in_file=$(nodejs_eval "$url_in_file")
+	#     echo "$url_in_file"
 	fi
     fi
 

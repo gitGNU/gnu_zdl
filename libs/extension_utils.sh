@@ -202,7 +202,7 @@ function aaextract {
 function unpack {
     jscode=$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | 
 		    sed -r 's|.*eval||g')
-    
+
     nodejs_eval "$jscode"    
 }
 
