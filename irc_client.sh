@@ -72,7 +72,7 @@ function irc_quit {
     irc_send "QUIT"
     exec 3>&-
 
-    if [ -f /cygdrive ]
+    if [ -d /cygdrive ]
     then
 	kill -9 $(children_pids $PID)
 
@@ -426,6 +426,12 @@ function start_timeout {
     local start=$(date +%s)
     local now
     local diff_now
+    local max_seconds=60
+    if [ -d /cygdrive ]
+    then
+	max_seconds=120
+    fi
+ 
     
     touch "$path_tmp/irc-timeout"
     sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
@@ -439,7 +445,7 @@ function start_timeout {
 	then
 	    exit
 
-	elif (( diff_now >= 60 ))
+	elif (( diff_now >= $max_seconds ))
 	then
 	    touch "$path_tmp/${irc[nick]}"
 	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
@@ -487,7 +493,7 @@ irc_client ||
 	_log 26
 	exec 3>&-
 
-	if [ -f /cygdrive ]
+	if [ -d /cygdrive ]
 	then
 	    kill -9 $(children_pids $PID)
 	    
