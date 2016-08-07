@@ -103,7 +103,6 @@ then
 	    chunk2=$(nodejs -e "var s = '$hiddenurl'; console.log(s.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);}));")
 	    
 	    url_in_file="https://openload.co/stream/${chunk1}~${chunk2}"
-	    echo "file: $file_in\nurl: $url_in_file"
 	fi
 
 	
