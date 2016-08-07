@@ -28,6 +28,10 @@ function size_file {
     stat -c '%s' "$1" 2>/dev/null
 }
 
+function trim {
+    echo $1
+}
+
 function urldecode {
     printf '%b' "${1//%/\\x}" 2>/dev/null
 }

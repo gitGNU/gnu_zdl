@@ -113,10 +113,6 @@ function get_irc_code {
     fi
 }
 
-function trim {
-    echo $1
-}
-
 function check_notice {
     if [ "$errors" != "${errors//$1}" ]
     then

@@ -217,13 +217,16 @@ function download {
 	    declare -A irc
 	    if [[ "$url_in" =~ ^irc:\/\/([^/]+)\/([^/]+)\/([^/]+) ]]
 	    then
-		MSG=$(urldecode "${BASH_REMATCH[3]#'msg%20'}")
+		MSG=$(urldecode "${BASH_REMATCH[3]}")
+		MSG="${MSG#ctcp}"
+		MSG="${MSG#msg}"
+		MSG=$(trim "$MSG")
 		
 		irc=(
 		    [host]="${BASH_REMATCH[1]}"
 		    [port]=6667
 		    [chan]="${BASH_REMATCH[2]}"
-		    [msg]="${MSG#'ctcp%20'}"
+		    [msg]="${MSG}"
 		    [nick]=$(obfuscate "$USER")
 		)
 	    fi
