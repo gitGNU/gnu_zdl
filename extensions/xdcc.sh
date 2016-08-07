@@ -24,6 +24,11 @@
 # zoninoz@inventati.org
 #
 
+if [[ "$url_in" =~ ^xdcc://[^/]+/([^/]+)/([^/]+)/([^/]+)/([^/]+) ]]
+then
+    replace_url_in "$(sanitize_url "irc://${BASH_REMATCH[1]}/${BASH_REMATCH[2]##\#}/msg ${BASH_REMATCH[3]} xdcc send ${BASH_REMATCH[4]}")"
+fi
+									   
 if [[ "$url_in" =~ ^irc:\/\/ ]]
 then
     file_in="temporaneo-$(date +%s)"

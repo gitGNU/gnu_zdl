@@ -471,7 +471,7 @@ function grep_urls {
 
     done <<< "$input"
     
-    grep -P '(^irc://{1}.+|^magnet:.+|^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*)$' <<< "$input" &&
+    grep -P '(^xdcc://.+|^irc://.+|^magnet:.+|^\b(((http|https|ftp)://?|www[.]*)[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))[-_]*)$' <<< "$input" &&
 	result=0
 
     return $result
