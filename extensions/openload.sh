@@ -82,39 +82,33 @@ then
 
 	if [ -n "$(cat "$path_tmp/aadecoded.js")" ]
 	then	    
-	    url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
-	    url_in_file="https:${url_in_file#'https:'}"
+	    # url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
+	    # url_in_file="https:${url_in_file#'https:'}"
 
-	    if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
-	    then
-		url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
-				  grep Location                    |
-				  head -n1                         |
-				  sed -r 's|.*Location: ||') 
-	    fi
+	    # if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
+	    # then
+	    # 	url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
+	    # 			  grep Location                    |
+	    # 			  head -n1                         |
+	    # 			  sed -r 's|.*Location: ||') 
+	    # fi
 
-	# else
-	#     url_in_file=$(unpack "$html")
-	#     echo "$url_in_file"
+
+	    chunk1=${url_in#*\/f\/}
+	    chunk1=${chunk1%%\/*}
+
+	    hiddenurl=$(grep hiddenurl <<< "$html" |
+			       sed -r 's|[^~]+~([^<]+)<.+|\1|g')
+
+	    chunk2=$(nodejs -e "var s = '$hiddenurl'; console.log(s.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);}));")
 	    
-	#     url_in_file=$(nodejs_eval "$url_in_file")
-	    #     echo "$url_in_file"
-
-	# else
-	#     	chunk1=${url_in#*\/f\/}
-	# chunk1=${chunk1%%\/*}
-	# chunk2=$(grep hiddenurl <<< "$html" |
-	# 		sed -r 's|[^~]+~([^<]+)<.+|\1|g')
-
-	# echo "chunk2: $chunk2"
-	
-	# wget --referer=openload.co \
-	#      --user-agent=Firefox  \
-	#      "https://openload.co/stream/$chunk1$chunk2" \
-	#      -SO out
-
+	    url_in_file="https://openload.co/stream/${chunk1}~${chunk2}"
+	    echo "file: $file_in\nurl: $url_in_file"
 	fi
+
+	
     fi
 
     end_extension
 fi   
+
