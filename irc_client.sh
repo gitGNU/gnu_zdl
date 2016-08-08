@@ -62,6 +62,7 @@ function xdcc_cancel {
 }
 
 function irc_quit {
+    local pid_list
     touch "$path_tmp/${irc[nick]}"
     
     [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&
@@ -72,14 +73,22 @@ function irc_quit {
     irc_send "QUIT"
     exec 3>&-
 
+    #kill_url "$url_in" "irc-pids"
+    
     if [ -d /cygdrive ]
     then
-	kill -9 $(children_pids $PID)
+    	pid_list=( $(children_pids $PID) $PID )
 
     else
-	kill -9 $(ps -o pid --no-headers --ppid $PID)
+    	pid_list=( $(ps -o pid --no-headers --ppid $PID) $PID )
     fi
-    kill_url "$url_in" "irc-pids"
+
+    for pid in ${pid_list[@]} 
+    do
+	kill -9 $pid
+    done &
+    
+    exit
 }
 
 function irc_send {
@@ -114,9 +123,10 @@ function get_irc_code {
 }
 
 function check_notice {
-    if [ "$errors" != "${errors//$1}" ]
+    notice="$1"
+    notice2=${notice%%:*}
+    if [ "$errors" != "${errors//$notice2}" ]
     then
-	notice="$1"
 	_log 27
 	irc_quit
     fi
@@ -271,10 +281,11 @@ function dcc_xfer {
 	    do
 		sleep 0.1
 	    done
-	    
-	    while [ "$offset" != "${ctcp[size]}" ]
+
+	    while check_pid "$pid_cat" && [ "$offset" != "${ctcp[size]}" ]
 	    do
-		! grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null &&
+		[ -f "$path_tmp/irc-timeout" ] &&
+		    ! grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null &&
 		    echo "$url_in" >>"$path_tmp/irc-timeout"
 		
 		offset=$(size_file "$file_in")
@@ -287,7 +298,7 @@ function dcc_xfer {
 		old_offset=$offset
 
 		## (offset - old_offset /1024) KB/s --> sleep 1 (ogni secondo)
-		sleep 1		
+		sleep 1
 	    done
 
 	    if [ "$(size_file "$file_in")" == "${ctcp[size]}" ]
@@ -396,7 +407,7 @@ function irc_client {
 			done
 			
 			dcc_xfer &
-			pid_xfer=$!
+			pid_xfer=$!			
 			add_pid_url "$pid_xfer" "$url_in" "xfer-pids"
 		    fi
 		    ;;
@@ -432,7 +443,7 @@ function start_timeout {
     touch "$path_tmp/irc-timeout"
     sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
     
-    for i in {0..10}
+    for i in {0..12}
     do
 	now=$(date +%s)
 	diff_now=$(( now - start ))
@@ -463,7 +474,7 @@ this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
-errors=$(grep -P '(743|883|878|879|1124|1131)' $path_usr/irc/* -h |cut -d'"' -f2)
+errors=$(grep -P '(743|883|878|879|1124|1131|1381|1382)' $path_usr/irc/* -h |cut -d'"' -f2)
 
 declare -A ctcp
 declare -A irc
@@ -480,7 +491,7 @@ url_in="$6"
 add_pid_url "$PID" "$url_in" "irc-pids"
 start_timeout
 init_resume
-
+add_pid_url "$PID" "$url_in" "irc-client-pid"
 exec 3>&-
 
 irc_client ||

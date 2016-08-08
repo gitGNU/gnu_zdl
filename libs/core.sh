@@ -657,7 +657,7 @@ function kill_external {
 	    do
 		[[ "$pid" =~ ^[0-9]+$ ]] &&
 		    kill -9 $pid 2>/dev/null
-	    done
+	    done &
 	rm -f "$path_tmp/external-dl_pids.txt"
     fi
 }
@@ -685,7 +685,7 @@ function kill_urls {
 	    do
 		url "$test_url" &&
 		    kill_url "$test_url"
-	    done
+	    done &
     fi
 }
 
@@ -705,7 +705,7 @@ function kill_url {
 		    kill -9 $pid 2>/dev/null
 		    del_pid_url "$url" "$type_pid"
 		fi
-	    done
+	    done &
     fi
 }
 
@@ -719,7 +719,7 @@ function kill_pid_urls {
 	    while read pid
 	    do
 		kill -9 "$pid" 2>/dev/null
-	    done
+	    done &
     fi
 }
 
