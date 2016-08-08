@@ -241,7 +241,7 @@ function download {
 	    # mkfifo "$path_tmp/${irc[nick]}".fifo
 
 	    stdbuf -i0 -o0 -e0 \
-		   $path_usr/irc_client.sh "${irc[host]}" "${irc[port]}" "${irc[chan]}" "${irc[msg]}" "${irc[nick]}" "$url_in" &
+		   $path_usr/irc_client.sh "${irc[host]}" "${irc[port]}" "${irc[chan]}" "${irc[msg]}" "${irc[nick]}" "$url_in" "$this_tty" &
 	    pid_in=$!
 	    echo "$pid_in" >>"$path_tmp/external-dl_pids.txt"
 	    

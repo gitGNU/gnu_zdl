@@ -459,7 +459,7 @@ function start_timeout {
 PID=$$
 
 set_mode "stdout"
-this_tty=$(tty)
+this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
