@@ -184,10 +184,8 @@ function bar_colors (content, I) {
 function check_irc_pid () {
     c = "grep '" url_out[i] "$' .zdl_tmp/irc-pids"
     while (c | getline line) {
-#	if (line ~ url_out[i]) {
-	    split(line, irc_pid, " ")
-	    if (check_pid(irc_pid[1])) return 1
-#	}
+	split(line, irc_pid, " ")
+	if (check_pid(irc_pid[1])) return 1
     }
     close(c)
     return 0
@@ -207,16 +205,16 @@ function make_progress (size_bar, progress_bar, progress) {
     size_bar = 0
 
     if (! check_pid(pid_out[i])) {
-	if (check_irc_pid()) {
-	    diff_bar_color = BYellow
-	    bar_color = On_Yellow
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi" Color_Off)	
-	}    
-	else if (percent_out[i] == 100) {
+	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
 	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato" Color_Off)	
 	}
+	else if (check_irc_pid()) {
+	    diff_bar_color = BYellow
+	    bar_color = On_Yellow
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi" Color_Off)	
+	}    
 	else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
