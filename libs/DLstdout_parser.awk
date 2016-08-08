@@ -223,6 +223,8 @@ function progress_out (chunk,           progress_line) {
 	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	}
+	else
+	    yellow_progress()
 
     } else if (dler == "DCC_Xfer") {
 	for (y=n; y>0; y--) {
@@ -255,6 +257,8 @@ function progress_out (chunk,           progress_line) {
 	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	}
+	else
+	    yellow_progress()
 
     } else if (dler == "Aria2") {
 	for (y=n; y>0; y--) {
@@ -307,6 +311,8 @@ function progress_out (chunk,           progress_line) {
 	    if ((! no_check) && (percent_out[i] ~ /^[0-9]+$/) && (percent_out[i] > 0))
 		print percent_out[i] "\n" speed_out[i] "\n" speed_out_type[i] "\n" eta_out[i] "\n" length_saved[i] > ".zdl_tmp/"file_out[i]"_stdout.yellow"
 	}
+	else
+	    yellow_progress()
 	
     } else if (dler == "Wget") {
 	for (y=n; y>0; y--) {
@@ -364,6 +370,7 @@ function progress_out (chunk,           progress_line) {
 	    eta_out[i] = ""
 	    length_saved[i] = 0
 	}
+
     } else if (dler == "RTMPDump") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "Download complete") {
@@ -401,6 +408,7 @@ function progress_out (chunk,           progress_line) {
 	    if (! pid_alive[i] && length_saved[i] < length_out[i])
 		system("rm -f " file_out[i])
 	}
+
     } else if (dler == "cURL") {
 	for (y=n; y>0; y--) {
 

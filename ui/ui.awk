@@ -113,7 +113,7 @@ function show_downloads () {
 	if (downloader_out[i] == "RTMPDump")
 	    downloader = "RTMP"
 	else if (downloader_out[i] == "DCC_Xfer")
-	    downloader = "Xfer"
+	    downloader = "xdcc"
 	else
 	    downloader = downloader_out[i]
 
@@ -134,7 +134,7 @@ function show_downloads_lite () {
 	if (downloader_out[i] == "RTMPDump")
 	    downloader = "RTMP"
 	else if (downloader_out[i] == "DCC_Xfer")
-	    downloader = "Xfer"
+	    downloader = "xdcc"
 	else
 	    downloader = downloader_out[i]
 
