@@ -181,6 +181,17 @@ function bar_colors (content, I) {
     }
 }
 
+function check_irc_pid () {
+    while (getline line < ".zdl_tmp/irc-pids") {
+	if (line ~ url_out[i]) {
+	    split(line, irc_pid, " ")
+	    if (check_pid(irc_pid[1])) return 1
+	}
+    }
+    close(c)
+    return 0
+}
+
 function make_progress (size_bar, progress_bar, progress) {
     if (downloader_out[i] == "cURL") {
 	length_out[i] = "unspecified"
@@ -195,11 +206,17 @@ function make_progress (size_bar, progress_bar, progress) {
     size_bar = 0
 
     if (! check_pid(pid_out[i])) {
-	if (percent_out[i] == 100) {
+	if (check_irc_pid()) {
+	    diff_bar_color = BYellow
+	    bar_color = On_Yellow
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi" Color_Off)	
+	}    
+	else if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
 	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato" Color_Off)	
-	} else {	    
+	}
+	else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
 	    # if (downloader_out[i] == "Wget")
