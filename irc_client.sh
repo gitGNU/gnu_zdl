@@ -97,8 +97,11 @@ function irc_send {
 
 
 function irc_ctcp {
+    local pre=$1
+    local post=$2
     ## \015 -> \r ; \012 -> \n
-    printf "%s :\001%s\001\015\012" "$1" "$2" >&3
+
+    printf "%s :\001%s\001\015\012" "$pre" "$post" >&3
 }
 
 function get_irc_code {
@@ -161,12 +164,12 @@ function check_ctcp {
     then
 	if [ "${ctcp_msg[1]}" == 'ACCEPT' ]
 	then
-	    print_c 1 "CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
+	    print_c 1 "$CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
 	    set_resume
 	
 	elif [ "${ctcp_msg[1]}" == 'SEND' ]
 	then
-	    print_c 1 "CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
+	    print_c 1 "$CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
 	    
 	    ctcp[file]="${ctcp_msg[2]}"
 	    ctcp[address]="${ctcp_msg[3]}"
@@ -211,7 +214,7 @@ function check_dcc_resume {
     then
 
 	irc_ctcp "PRIVMSG $ctcp_src" "DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" >&3
-	print_c 2 "CTCP>> PRIVMSG $ctcp_src :DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" 
+	print_c 2 "$CTCP>> PRIVMSG $ctcp_src :DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" 
 
 	for ((i=0; i<10; i++))
 	do		    
@@ -275,8 +278,6 @@ function dcc_xfer {
 		echo "$url_in"  >"$file_in.zdl"
 		add_pid_url "$pid_cat" "$url_in" "xfer-pids"
 					
-		#echo "$pid_cat" >>"$path_tmp/external-dl_pids.txt"
-		
 		while [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]
 		do
 		    sleep 0.1
@@ -355,21 +356,23 @@ function irc_client {
 	    if [ -n "$irc_mode" ]
 	    then
 		irc_send "JOIN #${irc[chan]}"
+		print_c 2 ">> JOIN #${irc[chan]}"
+		unset irc_mode
 	    fi
 
 	    if [[ "$line" =~ (JOIN :) ]] &&
 		   [ -n "${irc[msg]}" ]
 	    then
-		unset irc_mode irc[chan]
+		unset irc[chan]
 		
-		print_c 1 "$line"
+		print_c 1 "<< $line"
 
 		read -r to msg <<< "${irc[msg]}"
 		echo "$to $url_in" >>"$path_tmp"/irc_xdcc
 		xdcc_cancel
 		sleep 3
-		irc_ctcp "PRIVMSG $to" "$msg"
-		print_c 2 "CTCP>> PRIVMSG $to :$msg"
+		irc_send "PRIVMSG $to" "$msg"
+		print_c 2 ">> PRIVMSG $to :$msg"
 		
 		unset irc[msg]
 	    fi
@@ -377,11 +380,12 @@ function irc_client {
 	    if [[ "$line" =~ 'Join #'([^\ ]+)' for !search' ]]
 	    then
 		chan="${BASH_REMATCH[1]}"
-    		print_c 2 "/JOIN #${chan}"
+    		print_c 2 ">> JOIN #${chan}"
     		irc_send "JOIN #${chan}"
 	    fi
+
 	    ## per ricerche e debug:
-	    # print_c 3 "$line"
+	    #print_c 3 "$line"
 
 	    case "${line%% *}" in
 		PING)
