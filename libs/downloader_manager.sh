@@ -261,7 +261,7 @@ ${pid_prog}
 $file_in
 $url_in_file" >"$path_tmp/${file_in}_stdout.tmp"
 
-
+	    downwait=10
 	;;
 	Aria2)
 

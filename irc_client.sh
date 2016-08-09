@@ -123,6 +123,7 @@ function get_irc_code {
 }
 
 function check_notice {
+    local chan
     notice="$1"
     notice2=${notice%%:*}
     if [ "$errors" != "${errors//$notice2}" ]
@@ -130,6 +131,13 @@ function check_notice {
 	_log 27
 	irc_quit
     fi
+
+    # if [[ "$notice" =~ 'JOIN #'([^\ ]+) ]]
+    # then
+    # 	chan="${BASH_REMATCH[1]}"
+    # 	print_c 2 "/JOIN #${chan}"
+    # 	irc_send "JOIN #${chan}"
+    # fi
 }
 
 function check_ctcp {
@@ -366,8 +374,14 @@ function irc_client {
 		unset irc[msg]
 	    fi
 
+	    if [[ "$line" =~ 'Join #'([^\ ]+)' for !search' ]]
+	    then
+		chan="${BASH_REMATCH[1]}"
+    		print_c 2 "/JOIN #${chan}"
+    		irc_send "JOIN #${chan}"
+	    fi
 	    ## per ricerche e debug:
-	    #print_c 3 "$line"
+	    # print_c 3 "$line"
 
 	    case "${line%% *}" in
 		PING)
