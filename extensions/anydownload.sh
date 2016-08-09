@@ -30,8 +30,15 @@
 if [[ "$url_in" =~ xweaseldownload.php ]]
 then
     URL_IN=$(wget -qO- "$url_in" |grep xdcc | head -n1 |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-    replace_url_in "$(sanitize_url "$URL_IN")"
-    unset URL_IN
+
+    if url "$URL_IN"
+    then
+	replace_url_in "$(sanitize_url "$URL_IN")"
+	unset URL_IN
+
+    else
+	_log 2
+    fi
 fi
 									   
 

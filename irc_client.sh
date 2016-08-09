@@ -168,12 +168,12 @@ function check_ctcp {
     then
 	if [ "${ctcp_msg[1]}" == 'ACCEPT' ]
 	then
-	    print_c 1 "$CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
+	    print_c 1 "CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
 	    set_resume
 	
 	elif [ "${ctcp_msg[1]}" == 'SEND' ]
 	then
-	    print_c 1 "$CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
+	    print_c 1 "CTCP<< PRIVMSG $ctcp_src :${ctcp_msg[*]}"
 	    
 	    ctcp[file]="${ctcp_msg[2]}"
 	    ctcp[address]="${ctcp_msg[3]}"
@@ -218,7 +218,7 @@ function check_dcc_resume {
     then
 
 	irc_ctcp "PRIVMSG $ctcp_src" "DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" >&3
-	print_c 2 "$CTCP>> PRIVMSG $ctcp_src :DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" 
+	print_c 2 "CTCP>> PRIVMSG $ctcp_src :DCC RESUME ${ctcp[file]} ${ctcp[port]} ${ctcp[offset]}" 
 
 	for ((i=0; i<10; i++))
 	do		    
