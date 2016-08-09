@@ -136,21 +136,26 @@ function base64_decode {
 
 
 function simply_debrid {
-    html_url=$(wget --keep-session-cookies                                 \
-		    --save-cookies="$path_tmp/cookies.zdl"                 \
-		    --post-data="link=$1&submit=GENERATE TEXT LINKS"       \
-		    "https://simply-debrid.com/generate#show"              \
-		    -qO-                                              |
-		      grep -Po "inc/generate/name.php[^']+")
+    print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
     
-    json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"      \
-		     "https://simply-debrid.com/$html_url"       \
-		     -qO-                                     |
-		       sed -r 's|\\\/|/|g')
+    html_url='https://simply-debrid.com/'$(wget --keep-session-cookies                                \
+    						--save-cookies="$path_tmp/cookies.zdl"                 \
+    						--post-data="link=$1&submit=GENERATE TEXT LINKS"       \
+    						"https://simply-debrid.com/generate#show"              \
+    						-qO-                                              |
+    						  grep -Po "inc/generate/name.php[^']+")
 
+    url "$html_url" &&
+	print_c 4 "... $html_url ..."
+
+    json_data=$(wget --referer='https://simply-debrid.com/generate#show'    \
+		     --user-agent=Firefox                                   \
+		     --load-cookies="$path_tmp/cookies.zdl"                 \
+		     "$html_url"                                             \
+		     -qO- | sed -r 's|\\\/|/|g')
+    
     if [[ "$json_data" =~ '"error":0' ]]
     then
-	print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
 	file_in=$(sed -r 's|.+\"name\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sed -r 's|.+\"generated\":\"([^"]+)\".+|\1|' <<< "$json_data")
 	url_in_file=$(sanitize_url "$url_in_file")
@@ -164,6 +169,7 @@ function simply_debrid {
 
     elif [[ "$url_in" =~ (nowdownload) ]]
     then
+	print_c 3 "$PROG non è riuscito ad acquisire l'URL del file da simply-debrid: prova manualmente dalla pagina https://simply-debrid.com/generate#show\n"
 	_log 2
 	breakloop=true
     

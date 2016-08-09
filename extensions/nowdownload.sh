@@ -106,7 +106,7 @@ then
 	    
 	    print_c 0 $s"\r\c"
 
-	    if [ -n "$(grep "Click here to become Premium" "$path_tmp"/zdl2.tmp 2>/dev/null)" ]
+	    if grep 'You need Premium' "$path_tmp"/zdl2.tmp &>/dev/null
 	    then
 		simply_debrid "$url_in"
 		[ "$breakloop" == true ] && break
