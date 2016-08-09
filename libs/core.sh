@@ -511,7 +511,7 @@ function zero_dl {
     
     num_dl=$(cat "$path_tmp"/dl-mode)
 
-    if ((num_dl < 1))
+    if [ -n "$num_dl" ] && ((num_dl < 1))
     then
 	if [ -z "$hide_zero" ]
 	then

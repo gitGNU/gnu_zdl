@@ -256,7 +256,7 @@ function change_mode {
 	header_z
 	standard_box
     fi
-
+g
     [ "$binding" == 1 ] &&
 	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
 	
