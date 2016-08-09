@@ -130,7 +130,9 @@ function check_notice {
     notice="$1"
     notice2=${notice%%:*}
     notice2=${notice2%%','*}
+    notice2=${notice2%%[0-9]*}
     notice2=$(trim "$notice2")
+
     if [ "$errors" != "${errors//$notice2}" ]
     then
 	_log 27
@@ -494,7 +496,7 @@ this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
-errors=$(grep -P '(743|883|878|879|891|1124|1131|1381|1382)' $path_usr/irc/* -h |cut -d'"' -f2 |cut -d'%' -f1)
+errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
 
 declare -A ctcp
 declare -A irc
