@@ -56,8 +56,8 @@ function xdcc_cancel {
     # [ -z "$ctcp_src" ] &&
     # 	ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
     # 			  cut -d' ' -f1 | tail -n1)
-    #irc_ctcp "PRIVMSG $ctcp_src" "XDCC CANCEL"
-    #irc_ctcp "PRIVMSG $ctcp_src" "XDCC REMOVE"
+    # irc_send "PRIVMSG $ctcp_src" "XDCC CANCEL"
+    # irc_send "PRIVMSG $ctcp_src" "XDCC REMOVE"
     kill_url "$url_in" "xfer-pids"
 }
 
@@ -129,6 +129,8 @@ function check_notice {
     local chan
     notice="$1"
     notice2=${notice%%:*}
+    notice2=${notice2%%','*}
+    notice2=$(trim "$notice2")
     if [ "$errors" != "${errors//$notice2}" ]
     then
 	_log 27
@@ -401,8 +403,8 @@ function irc_client {
 		    irc_send "PONG $chunk"
 		    ;;
 		NOTICE)
-		     check_notice "${txt}" 
-		     print_c 4 "$line"
+		    check_notice "${txt}" 
+		    print_c 4 "$line"
 		     ;;
 		PRIVMSG)
 		    ## messaggi dal canale
@@ -492,7 +494,7 @@ this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
-errors=$(grep -P '(743|883|878|879|1124|1131|1381|1382)' $path_usr/irc/* -h |cut -d'"' -f2)
+errors=$(grep -P '(743|883|878|879|891|1124|1131|1381|1382)' $path_usr/irc/* -h |cut -d'"' -f2 |cut -d'%' -f1)
 
 declare -A ctcp
 declare -A irc
