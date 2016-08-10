@@ -9,7 +9,7 @@ _zdl()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--tcp-port= --udp-port= --torrent-file= --help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi= --list-extensions"
+    opts="--tcp-port= --udp-port= --torrent-file= --help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --xdcc --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi= --list-extensions"
 
     if [[ ${cur} == -* ]]
     then

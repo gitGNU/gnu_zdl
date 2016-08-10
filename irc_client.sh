@@ -104,26 +104,33 @@ function irc_ctcp {
     printf "%s :\001%s\001\015\012" "$pre" "$post" >&3
 }
 
-function get_irc_code {
-    local msg="$1"
-    local code
-    #code=$(grep -h "$msg" $path_usr/irc/* |
-		  # cut -d' ' -f1 |
-		  #     head -n1) 
-    code=$(awk "/$msg/{print $1}" $path_usr/irc/*)
-    ## metodo alternativo (rivedere codifica dei file dei messaggi in $path_usr/irc/)
-    # [[ "$(cat $path_usr/irc/*)" =~ ([0-9]+)' "'[^\"]*$msg ]] &&
-    # 	code=${BASH_REMATCH[1]}
+# function get_irc_code {
+#     local msg="$1"
+#     local code
+#     #code=$(grep -h "$msg" $path_usr/irc/* |
+# 		  # cut -d' ' -f1 |
+# 		  #     head -n1) 
+#     code=$(awk "/$msg/{print $1}" $path_usr/irc/*)
+#     ## metodo alternativo (rivedere codifica dei file dei messaggi in $path_usr/irc/)
+#     # [[ "$(cat $path_usr/irc/*)" =~ ([0-9]+)' "'[^\"]*$msg ]] &&
+#     # 	code=${BASH_REMATCH[1]}
 
-    if [[ "$code" =~ ^[0-9]+$ ]]
-    then
-	printf "%d" "$code"
-	return 0
+#     if [[ "$code" =~ ^[0-9]+$ ]]
+#     then
+# 	printf "%d" "$code"
+# 	return 0
 
-    else
-	return 1
-    fi
-}
+#     else
+# 	return 1
+#     fi
+# }
+
+# function get_irc_code {
+#     local msg="$1"
+#     local code
+#     echo "$msg"
+#     awk -v msg="$msg" '{match($0, /\"([^\"]+)\"/, pattern); if (match(msg, pattern[1])) {print pattern[1]}}' $path_usr/irc/*
+# }
 
 function check_notice {
     local chan
@@ -131,6 +138,7 @@ function check_notice {
     notice2=${notice%%:*}
     notice2=${notice2%%','*}
     notice2=${notice2%%[0-9]*}
+    notice2=${notice2%%SEND*}
     notice2=$(trim "$notice2")
 
     if [ "$errors" != "${errors//$notice2}" ]
@@ -155,8 +163,9 @@ function check_ctcp {
     ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
 		      cut -d' ' -f1 | tail -n1)
 
-    ########### codice del msg (strano: non funziona il match): 
-    # irc_code=$(check_irc_code "${ctcp_msg[*]}")
+    
+    ########### codice del msg: 
+    # irc_code=$(get_irc_code "${ctcp_msg[*]}")
     # case $irc_code in
     # 	743|883|878|879|1124|1131)
     # 	    irc_quit
@@ -496,7 +505,7 @@ this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
-errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
+errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382|1775|1776|1777|1778)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
 
 declare -A ctcp
 declare -A irc
