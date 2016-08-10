@@ -83,6 +83,7 @@
 * Readline::@*La riga di comando di ZDL@*
 * Editor::@*Editor integrato, per modificare la coda di download@*
 * Omonimie::@*Gestione dei file omonimi e recupero dei download interrotti@*
+* IRC/XDCC::@*Scaricamento file via chat attraverso comandi XDCC@*
 * Torrent::@*Scaricamento dei torrent con Aria2: URL magnet oppure file torrent@*
 * Filtri::@*Filtri per l'estrazione e la selezione di file e URL@*
 @end macro
@@ -286,7 +287,7 @@ L'ordine delle opzioni e degli altri argomenti non è importante:
 Nomi dei file da cui estrarre i @emph{link}. I file devono essere testuali oppure container DLC o file TORRENT, questi ultimi contrassegnati rispettivamente dalle estensioni @emph{.dlc} e @emph{.torrent} (ZDL processa comunque i @emph{link} in memoria nella @emph{directory} e quelli in input)
 
 @item link
-URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file}). Per scaricare via @emph{IRC/XDCC}, il link deve avere la seguente forma (porta non necessaria se è 6667): @emph{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}
+URL dei file oppure delle pagine web dei servizi di hosting, streaming o di reindirizzamento (se omessi, ZDL processa quelli in memoria nella @emph{directory} e nei @emph{file}). Per scaricare via @emph{IRC/XDCC}, il link deve avere la seguente forma (porta non necessaria se è 6667): @code{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}. ZDL accetta anche i link di @emph{xWeasel}, con protocollo @code{xdcc://}.
 
 
 @item directory
@@ -391,7 +392,7 @@ il canale a cui connettersi (@emph{CHAN})
 il messaggio privato (@emph{PRIVMSG}) che contiene il comando @command{XDCC SEND}
 @end enumerate
 
-Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni nel link, che deve avere la forma seguente (porta non necessaria se è 6667): @emph{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}
+Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni nel link, che deve avere la forma seguente (porta non necessaria se è 6667): @code{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}. ZDL accetta anche i link di @emph{xWeasel}, con protocollo @code{xdcc://}
 
 @end table
 
@@ -817,7 +818,7 @@ La scelta dell'editor può essere esplicita (da riga di comando) o implicita, co
 @*@*
 @htmlend
 
-@node Omonimie,Torrent,Editor,Top
+@node Omonimie,IRC/XDCC,Editor,Top
 @htmlstart
 
 @unnumbered Omonimie
@@ -835,12 +836,42 @@ l'uso di questa opzione comporta la sovrascrittura del file omonimo. In mancanza
 
 @htmlend
 
-@node Torrent,Filtri,Omonimie,Top
+@node IRC/XDCC,Torrent,Omonimie,Top
+@htmlstart
+@unnumbered IRC/XDCC
+Il download dei file richiesti via chat, tramite comandi XDCC, non richiede alcun downloader nè dipende da alcun programma: ZigzagDownLoader, in questo caso, oltre a gestire gli scaricamenti, li effettua direttamente.
+
+L'immissione dei dati necessari (host del server IRC, la porta non è necessaria se è 6667, canale, messaggio privato che contiene il comando xdcc) può avvenire in diversi modi:
+@table @option
+@item @option{-x|--xdcc}
+Avvia l'inserimento interattivo dei tre dati in successione:
+
+@enumerate
+@item
+l'host del server IRC (@emph{HOST[:PORT]}). Se all'host segue il canale (@code{irc://[HOST]/[CHAN]}), l'immisione successiva viene saltata
+
+@item
+il canale a cui connettersi (@emph{CHAN})
+
+@item
+il messaggio privato (@emph{PRIVMSG}) che contiene il comando @command{XDCC SEND}
+@end enumerate
+
+@item @code{irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]}
+Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni direttamente nel link, che deve avere la forma qui sopra
+
+@item @code{xdcc://...LINK DI XWEASEL...}
+ZigzagDownLoader converte automaticamente e utilizza i link di xWeasel, che comprendono tutte le informazioni necessarie. Gli utenti che fanno uso di Firefox/Iceweasel/Icecat, attraverso questi link, possono scaricare i file direttamente dalle pagine web con un click del mouse, grazie all'estensione Flashgot, adattata anche per ZDL. Altri browser possono scaricare i file con la stessa immediatezza utilizzando altre funzioni (in altre sezioni: Conkeror, Xombrero/XXXTerm, ...)
+
+@end table
+@htmlend
+
+@node Torrent,Filtri,IRC/XDCC,Top
 @htmlstart
 
 @unnumbered Torrent
 Aria2 permette lo scaricamento dei @emph{torrent}. Questo downloader non deve essere esplicitamente indicato a ZDL, ma è necessario che sia installato correttamente. Un @emph{torrent} può essere avviato tramite il semplice invio dell'@emph{URL magnet} (attraverso tutti i sistemi previsti per gli URL in generale, ZDL riconosce il @emph{magnet} automaticamente) oppure inviando il @emph{file torrent}, utilizzando l'opzione @code{--torrent-file=} o il file contrassegnato dell'estensione @emph{.torrent}.
-@**
+@*@*
 Le porte @emph{TCP} e @emph{UDP} possono essere fissate nella configurazione di ZDL (con il comando @command{zdl --configure} oppure nel file @file{$HOME/.zdl/zdl.conf}), indicate esplicitamente con le opzioni @code{--tcp-port=} e @code{--udp-port=} oppure indicate nella configurazione di @emph{Aria2}. È importante che le porte siano aperte dal router.
 @htmlend
 
@@ -874,7 +905,10 @@ then
                      <<< "$url_in")
    file_in="NOME_DEL_FILE"
    num_dl=1
-   axel_parts=3 
+   axel_parts=3
+   aria2_connections=3
+
+   end_extension
 fi
 @end example
 
@@ -888,7 +922,9 @@ Inoltre, indica come ricavare il nome del file da scaricare
 disattiva l'opzione @option{--multi=} se applicata al comando
 e stabilisce il numero di parti da scaricare con Axel (il
 grado di accelerazione, che per default è 32 ma che per diversi server
-può essere eccessivo o insufficiente, peggiorando le prestazioni).
+può essere eccessivo o insufficiente, peggiorando le prestazioni)
+e quello di Aria2 (massimo 16 connessioni). La funzione @code{end_extension}
+verifica se esiste un @code{file_in} e se @code{url_in_file} è valido.
 
 In questo modo, è possibile estendere ZDL ad altri servizi di file
 hosting (anche a scopo sperimentale), aggiungere opzioni mirate e

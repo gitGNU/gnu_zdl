@@ -157,6 +157,9 @@ Editor integrato, per modificare la coda di download
 * Omonimie::
 Gestione dei file omonimi e recupero dei download interrotti
 
+* IRC/XDCC::
+Scaricamento file via chat attraverso comandi XDCC
+
 * Torrent::
 Scaricamento dei torrent con Aria2: URL magnet oppure file torrent
 
@@ -221,7 +224,8 @@ _link_
      streaming o di reindirizzamento (se omessi, ZDL processa quelli in
      memoria nella _directory_ e nei _file_). Per scaricare via
      _IRC/XDCC_, il link deve avere la seguente forma (porta non
-     necessaria se è 6667): _irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]_
+     necessaria se è 6667): `irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]'.
+     ZDL accetta anche i link di _xWeasel_, con protocollo `xdcc://'.
 
 _directory_
      Directory di avvio di ZDL e di destinazione dei download (se
@@ -328,7 +332,8 @@ IRC/XDCC:
      Il download via IRC/XDCC può essere affettuato, alternativamente e
      senza usare opzioni, inserendo le informazioni nel link, che deve
      avere la forma seguente (porta non necessaria se è 6667):
-     _irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]_
+     `irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]'. ZDL accetta anche i
+     link di _xWeasel_, con protocollo `xdcc://'
 
 
 Torrent:
@@ -834,7 +839,7 @@ caso si usi Cygwin, l'installatore e le funzioni di aggiornamento di
 ZDL installano automaticamente l'editor _Nano_: è reso disponibile se
 non è presente altro editor predefinito.
 
-File: zdl.info,  Node: Omonimie,  Next: Torrent,  Prev: Editor,  Up: Top
+File: zdl.info,  Node: Omonimie,  Next: IRC/XDCC,  Prev: Editor,  Up: Top
 
 Omonimie
 ********
@@ -867,7 +872,49 @@ alternativi:
      comportamento predefinito (`zdl [-c|--configure]').
 
 
-File: zdl.info,  Node: Torrent,  Next: Filtri,  Prev: Omonimie,  Up: Top
+File: zdl.info,  Node: IRC/XDCC,  Next: Torrent,  Prev: Omonimie,  Up: Top
+
+IRC/XDCC
+********
+
+Il download dei file richiesti via chat, tramite comandi XDCC, non
+richiede alcun downloader nè dipende da alcun programma:
+ZigzagDownLoader, in questo caso, oltre a gestire gli scaricamenti, li
+effettua direttamente.
+
+   L'immissione dei dati necessari (host del server IRC, la porta non è
+necessaria se è 6667, canale, messaggio privato che contiene il comando
+xdcc) può avvenire in diversi modi:
+``-x|--xdcc''
+     Avvia l'inserimento interattivo dei tre dati in successione:
+
+       1. l'host del server IRC (_HOST[:PORT]_). Se all'host segue il
+          canale (`irc://[HOST]/[CHAN]'), l'immisione successiva viene
+          saltata
+
+       2. il canale a cui connettersi (_CHAN_)
+
+       3. il messaggio privato (_PRIVMSG_) che contiene il comando
+          `XDCC SEND'
+
+``irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]''
+     Il download via IRC/XDCC può essere affettuato, alternativamente e
+     senza usare opzioni, inserendo le informazioni direttamente nel
+     link, che deve avere la forma qui sopra
+
+``xdcc://...LINK DI XWEASEL...''
+     ZigzagDownLoader converte automaticamente e utilizza i link di
+     xWeasel, che comprendono tutte le informazioni necessarie. Gli
+     utenti che fanno uso di Firefox/Iceweasel/Icecat, attraverso
+     questi link, possono scaricare i file direttamente dalle pagine
+     web con un click del mouse, grazie all'estensione Flashgot,
+     adattata anche per ZDL. Altri browser possono scaricare i file con
+     la stessa immediatezza utilizzando altre funzioni (in altre
+     sezioni: Conkeror, Xombrero/XXXTerm, ...)
+
+
+
+File: zdl.info,  Node: Torrent,  Next: Filtri,  Prev: IRC/XDCC,  Up: Top
 
 Torrent
 *******
@@ -879,7 +926,7 @@ semplice invio dell'_URL magnet_ (attraverso tutti i sistemi previsti
 per gli URL in generale, ZDL riconosce il _magnet_ automaticamente)
 oppure inviando il _file torrent_, utilizzando l'opzione
 `--torrent-file=' o il file contrassegnato dell'estensione _.torrent_.
-* Le porte _TCP_ e _UDP_ possono essere fissate nella configurazione di
+Le porte _TCP_ e _UDP_ possono essere fissate nella configurazione di
 ZDL (con il comando `zdl --configure' oppure nel file
 `$HOME/.zdl/zdl.conf'), indicate esplicitamente con le opzioni
 `--tcp-port=' e `--udp-port=' oppure indicate nella configurazione di
@@ -917,6 +964,9 @@ estensione `.sh' nella directory `$HOME/.zdl/extensions/'
         file_in="NOME_DEL_FILE"
         num_dl=1
         axel_parts=3
+        aria2_connections=3
+
+        end_extension
      fi
 
    L'esempio può essere usato come modello per un link riconosciuto
@@ -928,7 +978,9 @@ aggiunge o modifica opzioni: disattiva l'opzione `--multi=' se
 applicata al comando e stabilisce il numero di parti da scaricare con
 Axel (il grado di accelerazione, che per default è 32 ma che per
 diversi server può essere eccessivo o insufficiente, peggiorando le
-prestazioni).
+prestazioni) e quello di Aria2 (massimo 16 connessioni). La funzione
+`end_extension' verifica se esiste un `file_in' e se `url_in_file' è
+valido.
 
    In questo modo, è possibile estendere ZDL ad altri servizi di file
 hosting (anche a scopo sperimentale), aggiungere opzioni mirate e
@@ -1185,7 +1237,7 @@ Indice analitico generale
                                                                (line 19)
 * generated:                             Servizi streaming/hosting.
                                                                (line 26)
-* opzioni:                               Il comando ZDL.       (line 41)
+* opzioni:                               Il comando ZDL.       (line 42)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
                                                                (line 30)
@@ -1277,26 +1329,27 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL6434
-Node: Servizi streaming/hosting13152
-Node: Avviare ZDL16840
-Node: Arrestare ZDL19278
-Node: Controllare i download20383
-Node: Manuali d'uso24672
-Node: Modi25088
-Node: Readline28354
-Node: Editor29874
-Node: Omonimie31099
-Node: Torrent32633
-Node: Filtri33519
-Node: Creare nuove estensioni33840
-Node: Software consigliati35410
-Node: Conkeror36811
-Node: zdl-xterm e XXXTerm/Xombrero37822
-Node: Installazione e aggiornamento39746
-Node: Tags42781
-Node: Copying45582
-Node: Contatti46632
+Node: Il comando ZDL6499
+Node: Servizi streaming/hosting13358
+Node: Avviare ZDL17046
+Node: Arrestare ZDL19484
+Node: Controllare i download20589
+Node: Manuali d'uso24878
+Node: Modi25294
+Node: Readline28560
+Node: Editor30080
+Node: Omonimie31305
+Node: IRC/XDCC32840
+Node: Torrent34507
+Node: Filtri35391
+Node: Creare nuove estensioni35712
+Node: Software consigliati37466
+Node: Conkeror38867
+Node: zdl-xterm e XXXTerm/Xombrero39878
+Node: Installazione e aggiornamento41802
+Node: Tags44837
+Node: Copying47638
+Node: Contatti48688
 
 End Tag Table
 

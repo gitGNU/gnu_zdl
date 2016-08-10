@@ -54,6 +54,9 @@ Uso (l'ordine degli argomenti non è importante):
                                deve avere la seguente forma (porta 
                                non necessaria se è 6667):
                                  irc://[HOST[:PORT]]/[CHAN]/msg [PRIVMSG]
+                               
+                               ZDL accetta anche i link di xWeasel 
+                               (con protocollo xdcc://)
 
          DIR                   Directory di avvio di $PROG 
                                e di destinazione dei download 
