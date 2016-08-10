@@ -861,7 +861,7 @@ il messaggio privato (@emph{PRIVMSG}) che contiene il comando @command{XDCC SEND
 Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare opzioni, inserendo le informazioni direttamente nel link, che deve avere la forma qui sopra
 
 @item @code{xdcc://...LINK DI XWEASEL...}
-ZigzagDownLoader converte automaticamente e utilizza i link di xWeasel, che comprendono tutte le informazioni necessarie. Gli utenti che fanno uso di Firefox/Iceweasel/Icecat, attraverso questi link, possono scaricare i file direttamente dalle pagine web con un click del mouse, grazie all'estensione Flashgot, adattata anche per ZDL. Altri browser possono scaricare i file con la stessa immediatezza utilizzando altre funzioni (in altre sezioni: @ref{Conkeror}, Xombrero/XXXTerm, ...)
+ZigzagDownLoader converte automaticamente e utilizza i link di xWeasel, che comprendono tutte le informazioni necessarie. Gli utenti che fanno uso di Firefox/Iceweasel/Icecat, attraverso questi link, possono scaricare i file direttamente dalle pagine web con un click del mouse, grazie all'estensione Flashgot, adattata anche per ZDL. Altri browser possono scaricare i file con la stessa immediatezza utilizzando altre funzioni (in altre sezioni: @ref{Conkeror}, @ref{zdl-xterm e XXXTerm/Xombrero})
 
 @end table
 @htmlend
