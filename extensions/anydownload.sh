@@ -29,7 +29,7 @@
 
 if [[ "$url_in" =~ xweaseldownload.php ]]
 then
-    URL_IN=$(wget -qO- "$url_in" |grep xdcc | head -n1 |sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+    URL_IN=$(anydownload "$url_in")
 
     if url "$URL_IN"
     then

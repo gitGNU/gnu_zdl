@@ -283,3 +283,26 @@ function end_extension {
 	return 0
     fi
 }
+
+function anydownload {
+    ## http://anydownload.altervista.org
+    local url_in="$1"
+    local URL_IN
+    
+    if [[ "$url_in" =~ xweaseldownload\.php ]]
+    then
+	URL_IN=$(wget -qO- "$url_in"               |
+			grep 'xdcc' 2>/dev/null    |
+			head -n1                   |
+			sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+	
+	if url "$URL_IN"
+	then
+	    echo "$URL_IN"
+	    return 0
+	fi
+    fi
+    
+    echo "$url_in"
+    return 1
+}

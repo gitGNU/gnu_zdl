@@ -347,7 +347,9 @@ function replace_url_in {
 }
 
 function sanitize_url {
-    data="${1%%'?'}"
+    data=$(anydownload "$1")
+    
+    data="${data%%'?'}"
     data="${data## }"
     data="${data%% }"
     data="${data%'#20%'}"

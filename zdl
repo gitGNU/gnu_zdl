@@ -969,6 +969,7 @@ do
     fi
 done
 
+
 if [ -n "${args[*]}" ]
 then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
@@ -997,7 +998,7 @@ then
 	elif [ -n "${args[i]}" ]
 	then
 	    args[i]=$(sanitize_url "${args[i]}")
-	    
+
 	    if url "${args[i]}"
 	    then
 		if [ "$scrapeURL" == "true" ]
