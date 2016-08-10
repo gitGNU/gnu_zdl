@@ -24,17 +24,38 @@
 # zoninoz@inventati.org
 #
 
+## conversione del link di xWeasel:
+##
 if [[ "$url_in" =~ ^xdcc://[^/]+/([^/]+)/([^/]+)/([^/]+)/([^/]+) ]]
 then
     irc_chan="${BASH_REMATCH[2]##\#}"
     irc_chan="${irc_chan##\%23}"
     replace_url_in "$(sanitize_url "irc://${BASH_REMATCH[1]}/$irc_chan/msg ${BASH_REMATCH[3]} xdcc send ${BASH_REMATCH[4]}")"
 fi
-									   
+
+## link di ZDL:
+##
 if [[ "$url_in" =~ ^irc:\/\/ ]]
 then
     file_in="temporaneo-$(date +%s)"
     url_in_file="$url_in"
     downloader_in=DCC_Xfer
+
+    if [ -f "$path_tmp"/xfer-pids ]
+    then
+	while read line
+	do
+	    __pid="${line%% *}"
+	    __src="${line#* }"
+	    
+	    if [ "${url_in%'#'*}" == "${__src%'#'*}" ] &&
+		   check_pid "$__pid"
+	    then
+		_log 28
+		break
+	    fi
+
+	done <"$path_tmp"/xfer-pids
+    fi
 fi
 

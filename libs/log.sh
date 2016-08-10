@@ -148,6 +148,9 @@ function _log {
 	27)
 	    msg="<< $notice [link: $url_in]"
 	    ;;
+	28)
+	    msg="$url_in --> Un altro file è in scaricamento dalla stessa fonte, riprovo più tardi"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
