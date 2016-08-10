@@ -639,8 +639,9 @@ function redirect_links {
 	header_box "Links da processare"
 	echo -e "${links}\n"
 	separator-
+    
+	print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
     fi
-    print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
     
     [ -n "$xterm_stop" ] && xterm_stop
     exit 1
