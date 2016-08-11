@@ -249,20 +249,26 @@ function download {
 	    do sleep 0.1
 	    done
 
+	    downwait=10
 	    file_in=$(head -n1 "$path_tmp/${irc[nick]}")
 	    url_in_file=$(tail -n1 "$path_tmp/${irc[nick]}")
 	    rm -f "$path_tmp/${irc[nick]}"
 	    
-##	    echo -e "$pid_in	    
-	    echo -e "____PID_IN____
+	    if [ "$url_in_file" != "${url_in_file#\/}" ]
+	    then
+		##	    echo -e "$pid_in	    
+		echo -e "____PID_IN____
 $url_in
 DCC_Xfer
 ${pid_prog}
 $file_in
 $url_in_file" >"$path_tmp/${file_in}_stdout.tmp"
 
-	    downwait=10
+	    else
+		downwait=0
+	    fi
 	;;
+
 	Aria2)
 
 	    if [[ "$url_in_file" =~ ^(magnet:) ]] ||

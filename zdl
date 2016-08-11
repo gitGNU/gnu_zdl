@@ -1295,7 +1295,7 @@ function main_loop {
 			print_c 4 "URL del file: $url_in_file"
 		    fi
 
-		    if download
+		    if download && [ -n "$file_in" ]
 		    then
 			print_c 1 "downloading --> $file_in ..."
 		    fi		    
@@ -1402,6 +1402,7 @@ wait $loops_pid
 trap_sigint
 noproxy
 
+echo
 separator-
 print_c 1 "Download completato"
 separator-
@@ -1428,12 +1429,12 @@ else
     kill_downloads
 fi
 
-echo -e "\n\n"
+echo
 
 if [ -f "$file_log" ]
 then
     print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
-    print_c 0 "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n\n"
+    print_c 0 "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n"
 fi
 
 

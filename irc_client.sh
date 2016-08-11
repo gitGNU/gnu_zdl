@@ -87,8 +87,8 @@ function irc_quit {
     do
 	kill -9 $pid
     done &
-    
-    exit
+
+    exit 1
 }
 
 function irc_send {
@@ -333,8 +333,99 @@ function dcc_xfer {
 	}
 }
 
+function join_xdcc_send {
+    local line="$1"
+    local to msg
+    
+    if [[ "$line" =~ (MODE ${irc[nick]}) ]] &&
+	   [ -n "${irc[chan]}" ]
+    then
+	print_c 1 "$line"
+	
+	irc_send "JOIN #${irc[chan]}"
+	print_c 2 ">> JOIN #${irc[chan]}"
+    fi
+
+    if [[ "$line" =~ (JOIN :) ]] &&
+	   [ -n "${irc[msg]}" ]
+    then
+	unset irc[chan]
+	
+	print_c 1 "<< $line"
+
+	read -r to msg <<< "${irc[msg]}"
+	echo "$to $url_in" >>"$path_tmp"/irc_xdcc
+	xdcc_cancel
+	sleep 3
+	irc_send "PRIVMSG $to" "$msg"
+	print_c 2 ">> PRIVMSG $to :$msg"
+	
+	unset irc[msg]
+    fi
+
+    if [[ "$line" =~ 'Join #'([^\ ]+)' for !search' ]]
+    then
+	chan="${BASH_REMATCH[1]}"
+    	print_c 2 ">> JOIN #${chan}"
+    	irc_send "JOIN #${chan}"
+    fi
+}
+
+function check_irc_command {
+    local cmd="$1"
+    local txt="$2"
+    
+    case "$cmd" in
+	PING)
+	    unset chunk
+	    if [ -n "$txt" ]
+	    then
+		chunk=":$txt"
+
+	    else
+		chunk="${irc[nick]}"
+	    fi
+	    ## print_c 2 "PONG $chunk"
+	    irc_send "PONG $chunk"
+	    ;;
+	NOTICE)
+	    print_c 4 "<< $txt"
+	    check_notice "$txt" 
+	    ;;
+	PRIVMSG)
+	    if check_ctcp "$txt"
+	    then
+		file_in="${ctcp[file]}"
+		sanitize_file_in
+		
+		url_in_file="/dev/tcp/${ctcp[address]}/${ctcp[port]}"
+		echo -e "$file_in\n$url_in_file" >"$path_tmp/${irc[nick]}"
+		
+		while [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]
+		do sleep 0.1
+		done
+		
+		dcc_xfer &
+		pid_xfer=$!			
+		add_pid_url "$pid_xfer" "$url_in" "xfer-pids"
+	    fi
+	    ;;
+    esac
+}
+
+function check_line_regex {
+    local line="$1"
+
+    if [[ "$line" =~ ([^\ ]+\ :No such nick\/channel) ]]
+    then
+	notice="${BASH_REMATCH[1]}"
+	_log 29
+	irc_quit
+    fi
+}
+
 function irc_client {
-    local line user from txt msg to
+    local line user from txt irc_cmd
     
     if exec 3<>/dev/tcp/${irc[host]}/${irc[port]}
     then
@@ -346,6 +437,7 @@ function irc_client {
 	while read line
 	do
 	    get_mode
+
 	    line=$(tr -d "\001\015\012" <<< "${line//\*}")
 
 	    if [ "${line:0:1}" == ":" ]
@@ -353,100 +445,21 @@ function irc_client {
 		from="${line%% *}"
 		line="${line#* }"
 	    fi
-	    from="${from:1}"
-	    user=${from%%\!*}
-	    txt="${line#*:}"
-	    txt=$(trim "${txt}")
 
-	    if [[ "$line" =~ (MODE ${irc[nick]}) ]] &&
-		   [ -n "${irc[chan]}" ]
-	    then
-		print_c 1 "$line"
-		
-		irc_mode=true
-	    fi
+	    # from="${from:1}"
+	    # user=${from%%\!*}
+	    txt=$(trim "${line#*:}")
+	    irc_cmd="${line%% *}"
 
-	    if [ -n "$irc_mode" ]
-	    then
-		irc_send "JOIN #${irc[chan]}"
-		print_c 2 ">> JOIN #${irc[chan]}"
-		unset irc_mode
-	    fi
-
-	    if [[ "$line" =~ (JOIN :) ]] &&
-		   [ -n "${irc[msg]}" ]
-	    then
-		unset irc[chan]
-		
-		print_c 1 "<< $line"
-
-		read -r to msg <<< "${irc[msg]}"
-		echo "$to $url_in" >>"$path_tmp"/irc_xdcc
-		xdcc_cancel
-		sleep 3
-		irc_send "PRIVMSG $to" "$msg"
-		print_c 2 ">> PRIVMSG $to :$msg"
-		
-		unset irc[msg]
-	    fi
-
-	    if [[ "$line" =~ 'Join #'([^\ ]+)' for !search' ]]
-	    then
-		chan="${BASH_REMATCH[1]}"
-    		print_c 2 ">> JOIN #${chan}"
-    		irc_send "JOIN #${chan}"
-	    fi
-
+	    join_xdcc_send "$line"
+	    
 	    ## per ricerche e debug:
 	    #print_c 3 "$line"
 
-	    case "${line%% *}" in
-		PING)
-		    unset chunk
-		    if [ -n "$txt" ]
-		    then
-			chunk=":$txt"
+	    check_line_regex "$line"
 
-		    else
-			chunk="${irc[nick]}"
-		    fi
-		    ## print_c 2 "PONG $chunk"
-		    irc_send "PONG $chunk"
-		    ;;
-		NOTICE)
-		    check_notice "${txt}" 
-		    print_c 4 "$line"
-		     ;;
-		PRIVMSG)
-		    ## messaggi dal canale
-		    #
-		    # ch="${line%% :*}"
-		    # ch="${ch#* }"
-		    #print_c 0 "<$user@$ch> $txt"
+	    check_irc_command "$irc_cmd" "$txt"
 
-		    if check_ctcp "$txt"
-		    then
-			file_in="${ctcp[file]}"
-			sanitize_file_in
-			
-			
-			url_in_file="/dev/tcp/${ctcp[address]}/${ctcp[port]}"
-			echo -e "$file_in\n$url_in_file" >"$path_tmp/${irc[nick]}"
-			
-			while [ ! -f "$path_tmp/${file_in}_stdout.tmp" ]
-			do sleep 0.1
-			done
-			
-			dcc_xfer &
-			pid_xfer=$!			
-			add_pid_url "$pid_xfer" "$url_in" "xfer-pids"
-		    fi
-		    ;;
-		# *)
-		#     ## info del canale
-		#     print_c 4 "$from >< $line"
-		#     ;;
-	    esac
 
 	done <&3
 	irc_pid=$!
