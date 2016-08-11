@@ -141,9 +141,15 @@ function check_notice {
     notice2=${notice2%%SEND*}
     notice2=$(trim "$notice2")
 
-    if [ "$errors" != "${errors//$notice2}" ]
+    if [ "$errors_again" != "${errors_again//$notice2}" ]
     then
 	_log 27
+	irc_quit
+    fi
+
+    if [ "$errors_stop" != "${errors_stop//$notice2}" ]
+    then
+	_log 29
 	irc_quit
     fi
 
@@ -518,7 +524,10 @@ this_tty="$7"
 path_tmp=".zdl_tmp"
 file_log
 
-errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382|1775|1776|1777|1778)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
+#errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382|1775|1776|1777|1778)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
+
+errors_again=$(grep -P '(743|883|890|891|1124|1131|1381|1382|1775|1776|1777|1778)' $path_usr/irc/* -h)
+errors_stop=$(grep -P '(878|879)' $path_usr/irc/* -h)
 
 declare -A ctcp
 declare -A irc
