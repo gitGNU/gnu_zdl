@@ -52,6 +52,7 @@ then
 	countdown- 10
 
 	file_in=$(get_title "$html" |sed -r 's|Watch\s||')
+	file_in="${file_in%.mp4}.mp4"
 	
 	html=$(wget "$url_in"                       \
 		    --post-data="$post_data"        \

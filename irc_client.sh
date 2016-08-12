@@ -41,6 +41,41 @@ then
     log=1
 fi
 
+function start_timeout {
+    local start=$(date +%s)
+    local now
+    local diff_now
+    local max_seconds=60
+    if [ -d /cygdrive ]
+    then
+	max_seconds=120
+    fi
+ 
+    
+    touch "$path_tmp/irc-timeout"
+    sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
+    
+    for i in {0..12}
+    do
+	now=$(date +%s)
+	diff_now=$(( now - start ))
+
+	if grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null
+	then
+	    exit
+
+	elif (( diff_now >= $max_seconds ))
+	then
+	    touch "$path_tmp/${irc[nick]}"
+	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
+	    kill_url "$url_in" 'xfer-pids'
+	    kill_url "$url_in" 'irc-pids'
+	    exit
+	fi
+		
+	sleep 10
+    done &
+}
 
 function set_mode {
     this_mode="$1"
@@ -479,41 +514,6 @@ function irc_client {
     fi
 }
 
-function start_timeout {
-    local start=$(date +%s)
-    local now
-    local diff_now
-    local max_seconds=60
-    if [ -d /cygdrive ]
-    then
-	max_seconds=120
-    fi
- 
-    
-    touch "$path_tmp/irc-timeout"
-    sed -r "/^${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
-    
-    for i in {0..12}
-    do
-	now=$(date +%s)
-	diff_now=$(( now - start ))
-
-	if grep -P "^$url_in$" "$path_tmp/irc-timeout" &>/dev/null
-	then
-	    exit
-
-	elif (( diff_now >= $max_seconds ))
-	then
-	    touch "$path_tmp/${irc[nick]}"
-	    sed -r "/^.+ ${url_in//\//\\/}$/d" -i "$path_tmp/irc-timeout" 
-	    kill_url "$url_in" 'xfer-pids'
-	    kill_url "$url_in" 'irc-pids'
-	    exit
-	fi
-		
-	sleep 10
-    done &
-}
 
 
 ################ main:
