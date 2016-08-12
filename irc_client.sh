@@ -56,8 +56,8 @@ function xdcc_cancel {
     # [ -z "$ctcp_src" ] &&
     # 	ctcp_src=$(grep "$url_in" "$path_tmp"/irc_xdcc 2>/dev/null |
     # 			  cut -d' ' -f1 | tail -n1)
-    # irc_send "PRIVMSG $ctcp_src" "XDCC CANCEL"
-    # irc_send "PRIVMSG $ctcp_src" "XDCC REMOVE"
+    irc_send "PRIVMSG $ctcp_src" "XDCC CANCEL"
+    irc_send "PRIVMSG $ctcp_src" "XDCC REMOVE"
     kill_url "$url_in" "xfer-pids"
 }
 
