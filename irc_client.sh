@@ -460,7 +460,7 @@ function check_line_regex {
     if [[ "$line" =~ ([^\ ]+\ :No such nick\/channel) ]]
     then
 	notice="${BASH_REMATCH[1]}"
-	_log 29
+	_log 27
 	irc_quit
     fi
 }
