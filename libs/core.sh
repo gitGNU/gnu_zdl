@@ -153,7 +153,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 		if [ -f "$file_target" ]
 		then
 		    sed -e "s,^${item//'*'/\*}$,,g" \
-			-e '/^$/d' -i "$file_target"
+			-e '/^$/d' -i "$file_target" 2>/dev/null
 
 		    if (( $(wc -l < "$file_target") == 0 ))
 		    then
@@ -740,6 +740,6 @@ function del_pid_url {
 
     if [ -f "$path_tmp/${type_pid}" ]
     then
-	sed -r "/^.+ ${url//\//\\/}$/d" -i "$path_tmp/${type_pid}"
+	sed -r "/^.+ ${url//\//\\/}$/d" -i "$path_tmp/${type_pid}" 2>/dev/null
     fi
 }

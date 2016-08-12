@@ -109,7 +109,7 @@ function split {
 	unset IFS
 
     else
-	sed -r "s|(.{1})|\1\n|g" <<< "$1"
+	sed -r "s|(.{1})|\1\n|g" <<< "$1" 2>/dev/null
     fi
 }
 
@@ -185,7 +185,7 @@ function parse_int {
 
 function make_index {
     string="$1"
-    sed -e s,[^a-zA-Z0-9],,g <<< "$string"
+    sed -e s,[^a-zA-Z0-9],,g <<< "$string" 2>/dev/null
 }
 
 
@@ -229,7 +229,7 @@ function scrape_url {
 		    "$url_page"                    |
 		      tr "\t\r\n'" '   "'                             | 
 		      grep -i -o '<a[^>]\+href[ ]*=[ \t]*"[^"]\+"'    | 
-		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g')
+		      sed -e 's/^.*"\([^"]\+\)".*$/\1/g' 2>/dev/null)
 
 	while read line
 	do
@@ -388,7 +388,7 @@ function sanitize_file_in {
     file_in="${file_in//'`'}"
     file_in="${file_in//[<>]}"
     file_in="${file_in::180}"
-    file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in")
+    file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in" 2>/dev/null)
 
     if ! dler_type "no-check-ext" "$url_in"
     then
