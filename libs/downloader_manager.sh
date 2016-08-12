@@ -230,7 +230,7 @@ function download {
 		    [nick]=$(obfuscate "$USER")
 		)
 	    fi
-
+#		    [nick]=$(obfuscate "$USER")
 	    [[ "${irc[host]}" =~ ^(.+)\:([0-9]+)$ ]] &&
 		{
 		    irc[host]="${BASH_REMATCH[1]}"

@@ -182,7 +182,7 @@ function bar_colors (content, I) {
 }
 
 function check_irc_pid () {
-    c = "grep '" url_out[i] "$' .zdl_tmp/irc-pids"
+    c = "grep '" url_out[i] "$' .zdl_tmp/irc-pids 2>/dev/null"
     while (c | getline line) {
 	split(line, irc_pid, " ")
 	if (check_pid(irc_pid[1])) return 1
