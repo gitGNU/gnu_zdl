@@ -376,7 +376,7 @@ function dcc_xfer {
 
 function join_xdcc_send {
     local line="$1"
-    local to msg
+    local msg
     
     if [[ "$line" =~ (MODE ${irc[nick]}) ]] &&
 	   [ -n "${irc[chan]}" ]
@@ -457,7 +457,7 @@ function check_irc_command {
 function check_line_regex {
     local line="$1"
 
-    if [[ "$line" =~ ([^\ ]+\ :No such nick\/channel) ]]
+    if [[ "$line" =~ (${to//\|/\\\|}\ *:No such nick\/channel) ]]
     then
 	notice="${BASH_REMATCH[1]}"
 	_log 27
@@ -497,7 +497,7 @@ function irc_client {
 	    ## per ricerche e debug:
 	    #print_c 3 "$line"
 
-	    #check_line_regex "$line"
+	    check_line_regex "$line"
 
 	    check_irc_command "$irc_cmd" "$txt"
 
