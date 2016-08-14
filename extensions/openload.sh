@@ -97,8 +97,8 @@ then
 	    chunk1=${url_in#*\/f\/}
 	    chunk1=${chunk1%%\/*}
 
-	    hiddenurl="$(grep hiddenurl <<< "$html" |
-			       sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')"
+	    hiddenurl=$(grep hiddenurl <<< "$html" |
+			       sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')
 
 	    hiddenurl=$(htmldecode "$hiddenurl")
 
