@@ -101,6 +101,7 @@ then
 			       sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')
 
 	    hiddenurl=$(htmldecode "$hiddenurl")
+	    #hiddenurl="${hiddenurl//\"/'\"'}"
 
 	    # chunk2=$(nodejs -e "var s = '$hiddenurl'; console.log(s.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);}));")
 	    
@@ -108,6 +109,7 @@ then
 	    chunk2=$(nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; console.log(s.join(''))")
 
 	    url_in_file="https://openload.co/stream/$chunk2"
+	    unset hiddenurl chunk1 chunk2
 	    #url_in_file="https://openload.co/stream/${chunk1}~${chunk2#*'~'}"
 	fi
 
