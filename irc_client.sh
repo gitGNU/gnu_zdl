@@ -35,7 +35,8 @@ source $path_usr/ui/widgets.sh
 init_colors
 
 file_log="zdl_log.txt"
-    
+name_prog=ZigzagDownLoader
+
 if [ -f "$file_log" ]
 then
     log=1
