@@ -27,13 +27,8 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: Openload
 
-echo "$url_in"
-
 if [[ "$url_in" =~ (openload\.) ]]
 then
-    
-    echo "a: $url_in"
-
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
 
     html=$(wget -t 1 -T $max_waiting                      \
