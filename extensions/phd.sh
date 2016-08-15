@@ -1,1 +1,0 @@
-/home/zoninoz/.zdl/extensions/phd.sh

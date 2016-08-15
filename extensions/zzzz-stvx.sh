@@ -1,1 +1,0 @@
-/home/zoninoz/.zdl/extensions/zzzz-stvx.sh
