@@ -27,7 +27,6 @@
 ## zdl-extension types: download
 ## zdl-extension name: Ozofiles
 
-
 if [ "$url_in" != "${url_in//'ozofiles.'}" ]
 then
     html=$(wget -t 1 -T $max_waiting                       \

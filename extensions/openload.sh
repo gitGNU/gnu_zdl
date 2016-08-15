@@ -27,8 +27,13 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: Openload
 
+echo "$url_in"
+
 if [[ "$url_in" =~ (openload\.) ]]
 then
+    
+    echo "a: $url_in"
+
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
 
     html=$(wget -t 1 -T $max_waiting                      \
@@ -47,85 +52,24 @@ then
 	
     elif [ -n "$html" ]
     then
+	chunk1=${url_in#*\/f\/}
+	chunk1=${chunk1%%\/*}
 
-## soluzione senza lo script php-aaencoder (NON SICURA):
-#
-# 	aaencoded="
-# $ = function (id) {
-#     return {
-#         attr: function (x, y) {
-#               console.log(y);
-#         }
-#     }
-# }
-# "
-#
-#       aaencoded+=$(grep -P '\^o' <<< "$html"      |
-#       		    head -n1                |
-#	 		    sed -r 's|[^>]+>(.+)</script.+|\1|g') # >>"$path_tmp/aaencoded.js"
-#	url_in_file=(nodejs -e "$aaencoded")
-#######################
-	
-	## soluzione alternativa usando lo script php-aaencoder (SICURA: nodejs_eval)
-	#
-	## grep -P '\^o' <- non funziona con cygwin
-	#
+	hiddenurl=$(grep hiddenurl <<< "$html" |
+			   sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')
 
-	awk '/\^o/{print}' <<< "$html"   |
-	    head -n1                |
-	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
-	cat "$path_tmp/aaencoded.js"
-	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
+	hiddenurl=$(htmldecode "$hiddenurl")
+	hiddenurl="${hiddenurl//\'/\\\'}"
 
-#	sed -r 's|.+\"href\",\((.+)\)\)\;|\1|g' -i "$path_tmp/aadecoded.js"
-#	sed -r 's|.+realdllink=\((.+)\)\;|\1|g' -i "$path_tmp/aadecoded.js"
+	chunk2=$(nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; console.log(s.join(''))")
 
-	if [ -n "$(cat "$path_tmp/aadecoded.js")" ]
-	then	    
-	    # url_in_file=$(nodejs_eval "$path_tmp/aadecoded.js")
-	    # url_in_file="https:${url_in_file#'https:'}"
-
-	    # if [[ "$url_in_file" =~ (https.+openload.+\/stream\/.+) ]]
-	    # then
-	    # 	url_in_file=$(wget -S --spider "$url_in_file" 2>&1 |
-	    # 			  grep Location                    |
-	    # 			  head -n1                         |
-	    # 			  sed -r 's|.*Location: ||') 
-	    # fi
-
-
-	    chunk1=${url_in#*\/f\/}
-	    chunk1=${chunk1%%\/*}
-
-	    hiddenurl="$(grep hiddenurl <<< "$html" |
-			       sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')"
-
-	    hiddenurl=$(htmldecode "$hiddenurl")
-	    hiddenurl="${hiddenurl//\'/\\'}"
-
-	    # chunk2=$(nodejs -e "var s = '$hiddenurl'; console.log(s.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);}));")
-
-
-
-	    # url_in_file="https://openload.co/stream/${chunk1}~${chunk2}"
-	    chunk2=$(nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; console.log(s.join(''))")
-
-	    if [ -n "$chunk2" ]
-	    then
-		url_in_file="https://openload.co/stream/$chunk2"
-		
-	    else
-		_log 2
-	    fi
-	    unset hiddenurl chunk1 chunk2
-	    #url_in_file="https://openload.co/stream/${chunk1}~${chunk2#*'~'}"
+	if [ -n "$chunk2" ]
+	then
+	    url_in_file="https://openload.co/stream/$chunk2"
+	    
+	else
+	    _log 2
 	fi
-	
-	
     fi
-    
     end_extension
 fi
-
-
-
