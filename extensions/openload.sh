@@ -56,6 +56,7 @@ then
 	hiddenurl=$(htmldecode "$hiddenurl")
 	hiddenurl="${hiddenurl//\'/\\\'}"
 	hiddenurl="${hiddenurl//\"/\\\"}"
+	hiddenurl="${hiddenurl//\`/\\\`}"
 
 	countdown- 6
 	
