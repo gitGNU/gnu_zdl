@@ -155,7 +155,13 @@ function _log {
 	    msg="<< $notice [link: $url_in]"
 	    links_loop - "$url_in"
 	    ;;
-		
+	30)
+	    msg="$url_in --> File$msg_file_in non disponibile, riprova in un altro momento: lo cancello dalla coda"
+	    links_loop - "$url_in"
+	    ;;
+	31)
+	    msg="Connessione internet non disponibile: uscita"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
@@ -163,7 +169,7 @@ function _log {
     then
 	init_log
 	print_c 3 "$msg"
-	echo "$msg" >> $file_log
+	echo -e "$msg" >> $file_log
 	# no_msg=true
 	# unset from_loop
 	[ "$1" != 18 ] && break_loop=true

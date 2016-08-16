@@ -743,3 +743,69 @@ function del_pid_url {
 	sed -r "/^.+ ${url//\//\\/}$/d" -i "$path_tmp/${type_pid}" 2>/dev/null
     fi
 }
+
+function get_try_counter {
+    if [ -f "$path_tmp"/try_counter ]
+    then
+	grep "^$url_in [0-9]$" "$path_tmp"/try_counter 2>/dev/null | cut -d' ' -f2
+    fi
+}
+
+function set_try_counter {
+    local url="$1"
+    local reset="$2"
+    local count
+    
+    if [ -f "$path_tmp"/try_counter ]
+    then
+	count=$(get_try_counter "$url")
+	if [[ "$count" =~ ^([0-9]+)$ ]]
+	then
+	    ((count++))
+
+	else
+	    count=0
+	fi
+
+	[ "$reset" == reset ] && count=0
+	
+	sed -r "s/^(${url//\//\\/}) [0-9]+$/\1 $count/g" -i "$path_tmp"/try_counter
+
+    else
+	echo "$url 0" >>"$path_tmp"/try_counter
+    fi
+}
+
+function set_exit {
+    echo "$pid_prog" >"$path_tmp"/zdl_exit
+}
+
+function get_exit {
+    if [ -f "$path_tmp"/zdl_exit ] &&
+	   check_pid $(cat "$path_tmp"/zdl_exit)
+    then
+	return 0
+
+    else
+	return 1
+    fi
+}
+
+function reset_exit {
+    rm -rf "$path_tmp"/zdl_exit
+}
+
+function check_connection {
+    ping -q -c 1 8.8.8.8 &>/dev/null 
+}
+
+function check_freespace {
+    ## per spazio minore di 50 megabyte (51200 Kb), return 1
+    
+    test_space=( $(df .) )
+    (( test_space[11] < 51200 )) &&
+	return 1
+
+    return 0
+}
+

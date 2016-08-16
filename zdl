@@ -1055,6 +1055,30 @@ then
     standard_box
 fi
 
+function input_links {
+    local link    
+    ## binding = {     0 -> while immissione URL
+    ##                 1 -> immissione URL terminata
+    ##             unset -> break immissione URL                    }
+    binding=true
+    
+    msg_end_input="Immissione URL terminata: avvio download"
+    ## bind -x "\"\C-l\":\"\"" 2>/dev/null
+    bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+    bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+
+    while :
+    do
+	read -e link
+	
+	if [ -n "${link// }" ]
+	then
+	    link=$(sanitize_url "$link")
+	    links_loop + "$link"
+	fi
+    done
+}
+
 
 if [ -z "$start_file" ]
 then
@@ -1066,30 +1090,12 @@ then
 
     if [ -z "$from_editor" ] && [ "$this_mode" != "daemon" ]
     then
-	binding=0
+	binding=true
 	standard_box
-	## binding = {     0 -> while immissione URL
-	##                 1 -> immissione URL terminata: premere invio
-	##             unset -> break immissione URL                    }
-
-	msg_end_input="Immissione URL terminata: premi invio per avviare i download"
-	bind -x "\"\C-l\":\"\"" 2>/dev/null
-	bind -x "\"\ex\":\"binding=1; print_c 2 '${msg_end_input}'\"" 2>/dev/null
-
-	while [ -n "$binding" ]
-	do
-	    read -e link
-	    [ "$binding" == 1 ] &&
-		break
-	    
-	    if [ -n "${link// }" ]
-	    then
-		link=$(sanitize_url "$link")
-		links_loop + "$link"
-	    fi
-	done
-	unset link binding
+	input_links
+	unset link 
 	bind -x "\"\ex\":\"\"" 2>/dev/null
+	bind -x "\"\C-x\":\"\"" 2>/dev/null
     fi
     
     if [ -f "$start_file" ]
@@ -1104,6 +1110,7 @@ then
     fi
 fi
 
+
 if ! check_instance_daemon &&
 	[ "$this_mode" != "daemon" ] ||
 	    ! check_instance_prog	    
@@ -1113,6 +1120,8 @@ then
 else
     echo "$pid_prog" > "$path_tmp/.pid.zdl"
 fi
+
+reset_exit
 
 [ -f "$path_tmp/downloader" ] ||    
     echo "$downloader_in" > "$path_tmp/downloader"
@@ -1130,7 +1139,7 @@ function main_loop {
 	start_file="$path_tmp/links_loop.txt"
 	sleep 5
 
-    elif [ -f "$start_file" ] && [ -z "$zdl_exit" ]
+    elif [ -f "$start_file" ] && ! get_exit
     then
 	clean_file "$start_file"
 	
@@ -1215,7 +1224,8 @@ function main_loop {
 		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
 		rm -f "$path_tmp/redirect"
 		###################
-
+		get_exit && return
+		
 		if [ "$break_loop" == "true" ]
 		then
 		    unset break_loop
@@ -1258,7 +1268,7 @@ function main_loop {
 		if ! check_freespace
 		then
 		    break_loop="true"
-		    zdl_exit="true" 
+		    set_exit
 		fi
 
 		if [ -z "$file_filtered" ]
@@ -1281,7 +1291,8 @@ function main_loop {
 		#### DOWNLOAD ####
 		if [ -z "$premium" ] &&                                                 
 		       check_in_file &&                                                         
-		       links_loop "in" "$url_in" 
+		       links_loop "in" "$url_in" &&
+		       check_freespace
 		then
 		    #
 		    ## check in nuova posizione da testare: prima era più in alto
@@ -1301,7 +1312,6 @@ function main_loop {
 		    fi		    
 		    rm -f "$path_tmp/cookies.zdl"
 		    unset no_newip
-		    check_freespace
 		fi
 
 		newip_add_provider
@@ -1418,7 +1428,8 @@ fi
 
 post_process || exit 1
 
-if [ "$zdl_exit" != "true" ]
+
+if ! get_exit
 then
     test_pid="$(cat "$path_tmp"/.pid.zdl 2>/dev/null)"
 

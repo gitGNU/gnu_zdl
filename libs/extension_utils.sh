@@ -273,13 +273,32 @@ function get_title {
 }
 
 function end_extension {
+    local count
+    
     if ! url "$url_in_file" ||
 	    [ -z "$file_in" ]
     then
-	_log 2
+	count=$(get_try_counter "$url_in")
+	if [ -n "$count" ] && ((count < 10))
+	then
+	    set_try_counter "$url_in"
+	    _log 2
+
+	elif check_connection
+	then
+	    _log 30
+
+	else
+	    _log 31
+	    set_exit
+	    break_loop=true
+	fi
+
+	
 	return 1
 
     else
+	set_try_counter "$url_in" reset
 	return 0
     fi
 }

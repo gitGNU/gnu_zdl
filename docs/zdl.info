@@ -546,8 +546,8 @@ _A) Per immettere link e avviare nuovi download:_
              - copia i link dei file da scaricare e incollali nel
                terminale (vai a capo dopo ogni link)
 
-             - digita `M-x' e poi `<Invio>' (`M' è il tasto _Meta_,
-               cioè `<Alt>')
+             - digita `M-x' (`M', il tasto _Meta_, è `<Alt>' oppure
+               `<Ctrl>')
 
 
        2. Utilizzando uno o più file preparati con un editor di testi
@@ -657,7 +657,7 @@ _Soluzione:_
           terminale)
 
         - quando ho finito di registrare i link, torno al terminale e,
-          senza     scrivere nulla, digito `M-x Invio'
+          senza     scrivere nulla, digito `M-x'
 
 Controllo manuale dei download.
 -------------------------------
@@ -799,7 +799,8 @@ _pipe_, un _file_ container _DLC_ o testuale, l'estensione di un
 browser...), avvia la _readline di ZDL_. È quasi identica alla readline
 della Bash: usa la stessa history e digitando il tasto `Invio' si
 esegue un comando. Ma la readline di ZDL accetta, come comandi, solo
-link che hanno la forma di un URL _http, https o ftp_.
+link che hanno la forma di un URL _http, https o ftp_, di un link
+_irc/xdcc_ e file torrent.
 In presenza di spazi nell'URL, questi sono automaticamente convertiti
 nel _codice percentuale_ standard per gli URL (eventuali spazi a
 sinistra e a destra dell'URL sono ignorati). L'immissione di ogni link
@@ -813,8 +814,8 @@ accettati sono registrati via via nel file gestito automaticamente da
 ZDL, come _coda di download_.
 In ogni momento, durante l'immissione di link attraverso la readline,
 si può modificare la _coda di download_ con l'editor predefinito (*note
-Editor::). I processi di download sono avviati dal comando `M-x Invio',
-che chiude la readline ed esegue la coda di download.
+Editor::). I processi di download sono avviati dal comando `M-x', che
+chiude la readline ed esegue la coda di download.
 
 File: zdl.info,  Node: Editor,  Next: Omonimie,  Prev: Readline,  Up: Top
 
@@ -1332,24 +1333,24 @@ Node: Top1185
 Node: Il comando ZDL6499
 Node: Servizi streaming/hosting13358
 Node: Avviare ZDL17046
-Node: Arrestare ZDL19484
-Node: Controllare i download20589
-Node: Manuali d'uso24878
-Node: Modi25294
-Node: Readline28560
-Node: Editor30080
-Node: Omonimie31305
-Node: IRC/XDCC32840
-Node: Torrent34530
-Node: Filtri35414
-Node: Creare nuove estensioni35735
-Node: Software consigliati37489
-Node: Conkeror38890
-Node: zdl-xterm e XXXTerm/Xombrero39901
-Node: Installazione e aggiornamento41825
-Node: Tags44860
-Node: Copying47661
-Node: Contatti48711
+Node: Arrestare ZDL19479
+Node: Controllare i download20584
+Node: Manuali d'uso24867
+Node: Modi25283
+Node: Readline28549
+Node: Editor30101
+Node: Omonimie31326
+Node: IRC/XDCC32861
+Node: Torrent34551
+Node: Filtri35435
+Node: Creare nuove estensioni35756
+Node: Software consigliati37510
+Node: Conkeror38911
+Node: zdl-xterm e XXXTerm/Xombrero39922
+Node: Installazione e aggiornamento41846
+Node: Tags44881
+Node: Copying47682
+Node: Contatti48732
 
 End Tag Table
 

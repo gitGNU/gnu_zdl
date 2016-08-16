@@ -609,7 +609,7 @@ avvia ZDL digitando il comando seguito da eventuali opzioni
 copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
 
 @item
-digita @kbd{M-x} e poi @kbd{<Invio>} (@kbd{M} è il tasto @emph{Meta}, cioè @kbd{<Alt>})
+digita @kbd{M-x} (@kbd{M}, il tasto @emph{Meta}, è @kbd{<Alt>} oppure @kbd{<Ctrl>})
 
 @end itemize
 
@@ -724,7 +724,7 @@ usando @emph{Firefox}, clicco con il tasto destro del mouse sui link dei
     nel terminale)
 @item
 quando ho finito di registrare i link, torno al terminale e, senza
-    scrivere nulla, digito @kbd{M-x Invio}
+    scrivere nulla, digito @kbd{M-x}
 @end itemize
 @end table
 
@@ -795,13 +795,13 @@ Gestisce silenziosamente tutti i processi riferiti a una directory e può essere
 @htmlstart
 
 @unnumbered Readline
-L'esecuzione delle @emph{modalità in standard output}, in mancanza di un input esterno (@emph{link} immessi attraverso la linea di comando, una @emph{pipe}, un @emph{file} container @emph{DLC} o testuale, l'estensione di un browser...), avvia la @emph{readline di ZDL}. È quasi identica alla readline della Bash: usa la stessa history e digitando il tasto @kbd{Invio} si esegue un comando. Ma la readline di ZDL accetta, come comandi, solo link che hanno la forma di un URL @emph{http, https o ftp}.
+L'esecuzione delle @emph{modalità in standard output}, in mancanza di un input esterno (@emph{link} immessi attraverso la linea di comando, una @emph{pipe}, un @emph{file} container @emph{DLC} o testuale, l'estensione di un browser...), avvia la @emph{readline di ZDL}. È quasi identica alla readline della Bash: usa la stessa history e digitando il tasto @kbd{Invio} si esegue un comando. Ma la readline di ZDL accetta, come comandi, solo link che hanno la forma di un URL @emph{http, https o ftp}, di un link @emph{irc/xdcc} e file torrent.
 @*@*
 In presenza di spazi nell'URL, questi sono automaticamente convertiti nel @emph{codice percentuale} standard per gli URL (eventuali spazi a sinistra e a destra dell'URL sono ignorati). L'immissione di ogni link deve avvenire singolarmente, alla pressione del tasto @emph{Invio}. @*
 Utilizzando il mouse, si può @emph{incollare} un elenco di link, ma questi devono essere disposti in righe diverse. @*
 Le righe vuote e i link già registrati sono ignorati, le stringhe non corrispondenti ad un URL sono rifiutate esplicitamente e registrate nel file di log prodotto all'interno della stessa directory, mentre gli URL accettati sono registrati via via nel file gestito automaticamente da ZDL, come @emph{coda di download}.@*@*
 
-In ogni momento, durante l'immissione di link attraverso la readline, si può modificare la @emph{coda di download} con l'editor predefinito (@ref{Editor}). I processi di download sono avviati dal comando @kbd{M-x Invio}, che chiude la readline ed esegue la coda di download.
+In ogni momento, durante l'immissione di link attraverso la readline, si può modificare la @emph{coda di download} con l'editor predefinito (@ref{Editor}). I processi di download sono avviati dal comando @kbd{M-x}, che chiude la readline ed esegue la coda di download.
 @*@*
 
 

@@ -58,7 +58,7 @@ then
     		       sed -r 's/_amp//ig')
 
 
-	if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
+	if command -v youtube-dl &>/dev/null
 	then
 	    data=$(youtube-dl --get-url --get-filename "${url_in}")
 	    file_in="$(tail -n1 <<< "$data")"
@@ -100,4 +100,5 @@ then
     	not_available=true
     fi
 
+    end_extension
 fi

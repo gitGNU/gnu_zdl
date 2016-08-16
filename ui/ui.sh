@@ -146,20 +146,21 @@ function services_box {
 }
 
 function commands_box {
-    header_dl "Comandi in modalità standard output (M è il tasto Meta, cioè <Alt>)"
+    header_dl "Comandi in modalità standard output (tasto M=Meta: <Alt> oppure <Ctrl>)"
 
-    echo -e "${BGreen} M-x INVIO ${BBlue}│${Color_Off}  esegue i download (qui sotto, elencare i link uno per riga) [e${BGreen}x${Color_Off}ec]
-${BGreen} M-e       ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor predefinito
-${BGreen} M-c       ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
-           ${BBlue}│${Color_Off} 
-${BYellow} M-i       ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
-${BYellow} M-C       ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
-           ${BBlue}│${Color_Off} 
-${BRed} M-q       ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-${BRed} M-k       ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
-           ${BBlue}│${Color_Off}
-${BBlue} M-t       │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
-${BBlue} M-l       │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
+    echo -e "${BGreen} INVIO ${BBlue}│${Color_Off}  immetti un link e digita ${BGreen}INVIO
+${BGreen} M-x   ${BBlue}│${Color_Off}  esegue i download [e${BGreen}x${Color_Off}ec]
+${BGreen} M-e   ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor predefinito
+${BGreen} M-c   ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
+       ${BBlue}│${Color_Off} 
+${BYellow} M-i   ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
+${BYellow} M-C   ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
+       ${BBlue}│${Color_Off} 
+${BRed} M-Q   ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
+${BRed} M-K   ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
+       ${BBlue}│${Color_Off}
+${BBlue} M-t   │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
+${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
 
 }
 
@@ -177,13 +178,13 @@ function standard_box {
     if [ -z "$1" ] &&
 	   [ -n "$binding" ]
     then
-	echo -e "${BBlue}           │${Color_Off}"
+	echo -e "${BBlue}       │${Color_Off}"
 	header_box "Readline: immetti URL e link dei servizi"
     
     elif [ "$this_mode" != "lite" ] &&
 	   [ -z "$binding" ]
     then
-	separator- 11
+	separator- 7
 	print_c 0 "\n"
     fi
 }
@@ -203,6 +204,7 @@ function bindings {
     trap_sigint
     check_instance_prog
 
+    ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
     bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
@@ -211,6 +213,16 @@ function bindings {
     bind -x "\"\eq\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ek\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
+
+    ## Ctrl:
+    bind -x "\"\C-i\":\"change_mode interactive\"" 2>/dev/null
+    bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
+    bind -x "\"\C-e\":\"change_mode editor\"" 2>/dev/null
+    bind -x "\"\C-l\":\"change_mode list\"" 2>/dev/null
+    bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
+    bind -x "\"\C-q\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\C-k\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
 }
 
 function change_mode {
