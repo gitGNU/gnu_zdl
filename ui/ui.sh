@@ -62,6 +62,8 @@ function show_downloads_lite {
 	       -v Background="$Background"       \
 	       -e "BEGIN {$awk_data display()}" 
 
+	clear_lite
+	
     elif [ -f "$start_file" ]
     then
 	header_lite
@@ -92,6 +94,11 @@ function header_lite {
     else
 	echo -en "\033[3;0H"
     fi
+}
+
+function clear_lite {
+    spaces=$(((LINES-i-3) * COLUMNS))
+    eval printf "%.0s\ " {1..$spaces} 
 }
 
 function show_downloads_extended {
