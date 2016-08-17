@@ -75,11 +75,11 @@ function check_wait_connecting {
     if [ -f "$path_tmp"/wait_connecting ]
     then
 	rm "$path_tmp"/wait_connecting 
-	return 0
+	return 1
 
     else
 	touch "$path_tmp"/wait_connecting
-	return 1
+	return 0
     fi
 }
 
