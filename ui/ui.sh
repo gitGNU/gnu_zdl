@@ -64,8 +64,22 @@ function show_downloads_lite {
 
     elif [ -f "$start_file" ]
     then
-	header_lite force
-	print_c 1 "\n Connessione in corso..."
+	header_lite
+	check_wait_connecting &&
+	    print_c 1 " Connessione in corso ...     " ||
+		print_c 1 " Connessione in corso . . . "
+    fi
+}
+
+function check_wait_connecting {
+    if [ -f "$path_tmp"/wait_connecting ]
+    then
+	rm "$path_tmp"/wait_connecting 
+	return 0
+
+    else
+	touch "$path_tmp"/wait_connecting
+	return 1
     fi
 }
 
