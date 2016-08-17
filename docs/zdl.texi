@@ -615,7 +615,6 @@ digita @kbd{M-x} (@kbd{M}, il tasto @emph{Meta}, è @kbd{<Alt>} oppure @kbd{<Ctr
 
 @item
 Utilizzando uno o più file preparati con un editor di testi (andare a capo dopo ogni link) e raggiungibili dalla directory di destinazione (indica un path valido):
-
 @itemize @minus
 @item
 apri un terminale ed entra nella directory che dovrà contenere i file scaricati (in alternativa, puoi indicare a @emph{ZDL} la directory di lavoro)
@@ -1272,7 +1271,7 @@ Nella directory di download, ZDL produce file temporanei in @file{.zdl_tmp/} e s
 @command{xterm}(1), @command{conkeror}(1), @command{aria2c}(1), @command{axel}(1), @command{wget}(1), @command{curl}(1), @command{rtmpdump}(1), @command{ffmpeg}(1), @command{avconv}(1)
 
 @unnumberedsec COPYING
-@itemize @w{}
+@itemize 
 @item
 Copyright @copyright{} 2011: Gianluca Zoni (zoninoz) <@email{zoninoz@@inventati.org}>
 @item
@@ -1281,7 +1280,7 @@ ZDL è rilasciato con licenza GPL (General Public Licence, v.3 e successive).
 
 @unnumberedsec AUTORI
 @unnumberedsubsec Per informazioni e per collaborare al progetto:
-@itemize @bullet
+@itemize 
 @item
 @url{http://nongnu.org/zdl}
 @item

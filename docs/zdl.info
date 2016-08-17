@@ -553,7 +553,6 @@ _A) Per immettere link e avviare nuovi download:_
        2. Utilizzando uno o più file preparati con un editor di testi
           (andare a capo dopo ogni link) e raggiungibili dalla
           directory di destinazione (indica un path valido):
-
              - apri un terminale ed entra nella directory che dovrà
                contenere i file scaricati (in alternativa, puoi
                indicare a _ZDL_ la directory di lavoro)
@@ -1333,24 +1332,24 @@ Node: Top1185
 Node: Il comando ZDL6499
 Node: Servizi streaming/hosting13358
 Node: Avviare ZDL17046
-Node: Arrestare ZDL19479
-Node: Controllare i download20584
-Node: Manuali d'uso24867
-Node: Modi25283
-Node: Readline28549
-Node: Editor30101
-Node: Omonimie31326
-Node: IRC/XDCC32861
-Node: Torrent34551
-Node: Filtri35435
-Node: Creare nuove estensioni35756
-Node: Software consigliati37510
-Node: Conkeror38911
-Node: zdl-xterm e XXXTerm/Xombrero39922
-Node: Installazione e aggiornamento41846
-Node: Tags44881
-Node: Copying47682
-Node: Contatti48732
+Node: Arrestare ZDL19478
+Node: Controllare i download20583
+Node: Manuali d'uso24866
+Node: Modi25282
+Node: Readline28548
+Node: Editor30100
+Node: Omonimie31325
+Node: IRC/XDCC32860
+Node: Torrent34550
+Node: Filtri35434
+Node: Creare nuove estensioni35755
+Node: Software consigliati37509
+Node: Conkeror38910
+Node: zdl-xterm e XXXTerm/Xombrero39921
+Node: Installazione e aggiornamento41845
+Node: Tags44880
+Node: Copying47681
+Node: Contatti48731
 
 End Tag Table
 

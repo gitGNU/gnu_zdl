@@ -145,24 +145,6 @@ function services_box {
     echo
 }
 
-function commands_box {
-    header_dl "Comandi in modalità standard output (tasto M=Meta: <Alt> oppure <Ctrl>)"
-
-    echo -e "${BGreen} INVIO ${BBlue}│${Color_Off}  immetti un link e digita ${BGreen}INVIO
-${BGreen} M-x   ${BBlue}│${Color_Off}  esegue i download [e${BGreen}x${Color_Off}ec]
-${BGreen} M-e   ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor predefinito
-${BGreen} M-c   ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
-       ${BBlue}│${Color_Off} 
-${BYellow} M-i   ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
-${BYellow} M-C   ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
-       ${BBlue}│${Color_Off} 
-${BRed} M-Q   ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
-${BRed} M-K   ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
-       ${BBlue}│${Color_Off}
-${BBlue} M-t   │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
-${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
-
-}
 
 function standard_box {
     [ "$this_mode" == "lite" ] && header_lite=" LITE"
@@ -189,17 +171,63 @@ function standard_box {
     fi
 }
 
+
+function commands_box {
+    header_dl "Comandi in modalità standard output (tasto M=Meta: <Alt> oppure <Ctrl>)"
+
+    echo -e "${BGreen} INVIO ${BBlue}│${Color_Off}  immetti un link e digita ${BGreen}INVIO
+${BGreen} M-x   ${BBlue}│${Color_Off}  esegue i download [e${BGreen}x${Color_Off}ec]
+${BGreen} M-e   ${BBlue}│${Color_Off}  avvia l'${BGreen}e${Color_Off}ditor predefinito
+${BGreen} M-c   ${BBlue}│${Color_Off}  ${BGreen}c${Color_Off}ancella le informazioni dei download completati
+       ${BBlue}│${Color_Off} 
+${BYellow} M-i   ${BBlue}│${Color_Off}  modalità ${BYellow}i${Color_Off}nterattiva
+${BYellow} M-C   ${BBlue}│${Color_Off}  ${BYellow}C${Color_Off}onfigura $PROG
+       ${BBlue}│${Color_Off} 
+${BRed} M-q   ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloader [${BRed}q${Color_Off}uit]
+${BRed} M-k   ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
+       ${BBlue}│${Color_Off}
+${BBlue} M-t   │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
+${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
+
+}
+
+function readline_links {
+    local link    
+    ## binding = {     0 -> while immissione URL
+    ##                 1 -> immissione URL terminata
+    ##             unset -> break immissione URL                    }
+    binding=true
+    trap_sigint
+    
+    msg_end_input="Immissione URL terminata: avvio download"
+    ## bind -x "\"\C-l\":\"\"" 2>/dev/null
+    bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+    bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+
+    while :
+    do
+	read -e link
+	
+	if [ -n "${link// }" ]
+	then
+	    link=$(sanitize_url "$link")
+	    links_loop + "$link"
+	fi
+    done
+}
+
+
 function trap_sigint {
     if (( "$#">0 ))
     then
 	kill_pids="kill -9 $@ $pid_prog"
 	trap "$kill_pids" SIGINT
     else
-	#	trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit 1" SIGINT
-	#trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
-	#trap "echo -ne" SIGINT &>/dev/null
+	## trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit 1" SIGINT
+	########
+	## disattivato per il bind aggiuntivo con ctrl:
+	## \C-c per cancellare i file temporanei dei download completati
 	trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
-
     fi
 }
 

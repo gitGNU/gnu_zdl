@@ -1055,30 +1055,6 @@ then
     standard_box
 fi
 
-function input_links {
-    local link    
-    ## binding = {     0 -> while immissione URL
-    ##                 1 -> immissione URL terminata
-    ##             unset -> break immissione URL                    }
-    binding=true
-    trap_sigint
-    
-    msg_end_input="Immissione URL terminata: avvio download"
-    ## bind -x "\"\C-l\":\"\"" 2>/dev/null
-    bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
-    bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
-
-    while :
-    do
-	read -e link
-	
-	if [ -n "${link// }" ]
-	then
-	    link=$(sanitize_url "$link")
-	    links_loop + "$link"
-	fi
-    done
-}
 
 
 if [ -z "$start_file" ]
@@ -1093,7 +1069,7 @@ then
     then
 	binding=true
 	standard_box
-	input_links
+	readline_links
 	unset link 
 	bind -x "\"\ex\":\"\"" 2>/dev/null
 	bind -x "\"\C-x\":\"\"" 2>/dev/null
