@@ -238,3 +238,19 @@ function zclock {
     echo -n -e "$(date +%R) │ ${week[$( date +%w )]} $(date +%d·%m·%Y)"
 }
 
+function header_lite {
+    if [ "$1" == force ]
+    then
+	fclear
+	header_dl "ZigzagDownLoader in $PWD"
+
+    else
+	echo -en "\033[3;0H"
+    fi
+}
+
+function clear_lite {
+    spaces=$(((LINES-i-2) * COLUMNS))
+    eval printf "%.0s\ " {1..$spaces} 
+}
+

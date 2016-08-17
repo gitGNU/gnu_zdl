@@ -85,22 +85,6 @@ function check_wait_connecting {
     fi
 }
 
-function header_lite {
-    if [ "$1" == force ]
-    then
-	fclear
-	header_dl "ZigzagDownLoader in $PWD"
-
-    else
-	echo -en "\033[3;0H"
-    fi
-}
-
-function clear_lite {
-    spaces=$(((LINES-i-3) * COLUMNS))
-    eval printf "%.0s\ " {1..$spaces} 
-}
-
 function show_downloads_extended {
     unset instance_pid daemon_pid
     
