@@ -143,7 +143,8 @@ function show_downloads_lite () {
 	
 	code = code diff_bar_color downloader " " progress_bar "\n"
     }
-    clear_lite()
+    
+    if (no_clear != "no-clear") clear_lite()
     return code "\n"
 }
 

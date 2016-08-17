@@ -1380,7 +1380,8 @@ else
 
     if [ "$this_mode" == "lite" ]
     then
-	show_downloads_lite
+	header_lite force
+	show_downloads_lite no-clear
     fi
 fi
 

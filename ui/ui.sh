@@ -44,6 +44,8 @@ function show_downloads {
 }
 
 function show_downloads_lite {
+    local no_clear="$1"
+    
     (( odd_run++ ))
     (( odd_run>1 )) && odd_run=0
     
@@ -57,6 +59,7 @@ function show_downloads_lite {
 	       -f $path_usr/ui/ui.awk            \
 	       -v col="$COLUMNS"                 \
 	       -v lines="$LINES"                 \
+	       -v no_clear="$no_clear"           \
 	       -v this_mode="lite"               \
 	       -v odd_run="$odd_run"             \
 	       -v Color_Off="$Color_Off"         \
