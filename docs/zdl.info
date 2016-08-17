@@ -546,8 +546,8 @@ _A) Per immettere link e avviare nuovi download:_
              - copia i link dei file da scaricare e incollali nel
                terminale (vai a capo dopo ogni link)
 
-             - digita `M-x' (`M', il tasto _Meta_, è `<Alt>' oppure
-               `<Ctrl>')
+             - digita `M-x' (`M', il tasto _Meta_, è `<Alt>', `<Ctrl>'
+               o `<Esc>')
 
 
        2. Utilizzando uno o più file preparati con un editor di testi
@@ -1332,24 +1332,24 @@ Node: Top1185
 Node: Il comando ZDL6499
 Node: Servizi streaming/hosting13358
 Node: Avviare ZDL17046
-Node: Arrestare ZDL19478
-Node: Controllare i download20583
-Node: Manuali d'uso24866
-Node: Modi25282
-Node: Readline28548
-Node: Editor30100
-Node: Omonimie31325
-Node: IRC/XDCC32860
-Node: Torrent34550
-Node: Filtri35434
-Node: Creare nuove estensioni35755
-Node: Software consigliati37509
-Node: Conkeror38910
-Node: zdl-xterm e XXXTerm/Xombrero39921
-Node: Installazione e aggiornamento41845
-Node: Tags44880
-Node: Copying47681
-Node: Contatti48731
+Node: Arrestare ZDL19482
+Node: Controllare i download20587
+Node: Manuali d'uso24870
+Node: Modi25286
+Node: Readline28552
+Node: Editor30104
+Node: Omonimie31329
+Node: IRC/XDCC32864
+Node: Torrent34554
+Node: Filtri35438
+Node: Creare nuove estensioni35759
+Node: Software consigliati37513
+Node: Conkeror38914
+Node: zdl-xterm e XXXTerm/Xombrero39925
+Node: Installazione e aggiornamento41849
+Node: Tags44884
+Node: Copying47685
+Node: Contatti48735
 
 End Tag Table
 
