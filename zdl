@@ -1061,6 +1061,7 @@ function input_links {
     ##                 1 -> immissione URL terminata
     ##             unset -> break immissione URL                    }
     binding=true
+    trap_sigint
     
     msg_end_input="Immissione URL terminata: avvio download"
     ## bind -x "\"\C-l\":\"\"" 2>/dev/null

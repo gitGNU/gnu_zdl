@@ -199,8 +199,7 @@ function trap_sigint {
 	#trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
 	#trap "echo -ne" SIGINT &>/dev/null
 	trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
-	trap "change_mode configure" INT	
-#	trap '' HUP
+
     fi
 }
 
@@ -227,13 +226,13 @@ function bindings {
 
     ## Ctrl:
     bind -x "\"\C-i\":\"change_mode interactive\"" 2>/dev/null
-    bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\C-e\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\C-l\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
     bind -x "\"\C-q\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-k\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
+    bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
 }
 
 function change_mode {
