@@ -1383,13 +1383,13 @@ then
 	show_downloads_lite
     fi
 fi
-echo 0
+
 wait $loops_pid
-echo 1
+
 trap_sigint
-echo 2
+
 noproxy
-echo 3
+
 echo
 separator-
 print_c 1 "Download completato"
