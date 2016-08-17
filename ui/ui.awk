@@ -289,7 +289,7 @@ function make_progress (size_bar, progress_bar, progress) {
 }
 
 function clear_lite () {
-    spaces=int((lines-i-3) * col)
+    spaces=int((lines-i-4) * col)
     for (c=1; c<spaces; c++)
 	code = code " "
 }
