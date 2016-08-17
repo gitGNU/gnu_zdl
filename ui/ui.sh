@@ -194,7 +194,7 @@ function standard_box {
 
 
 function commands_box {
-    header_dl "Comandi in modalità standard output (tasto M=Meta: <Alt> oppure <Ctrl>)"
+    header_dl "Comandi in modalità standard output (tasto M=Meta: <Alt>, <Ctrl> o <Esc>)"
 
     echo -e "${BGreen} INVIO ${BBlue}│${Color_Off}  immetti un link e digita ${BGreen}INVIO
 ${BGreen} M-x   ${BBlue}│${Color_Off}  esegue i download [e${BGreen}x${Color_Off}ec]
@@ -252,6 +252,10 @@ function trap_sigint {
     fi
 }
 
+function export_readline {
+    sleep 1
+    export READLINE_LINE=c
+}
 
 function bindings {
     trap_sigint
@@ -280,8 +284,8 @@ function bindings {
     bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
     bind -x "\"\C-q\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-k\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
-    bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
+    # bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
+    # bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
 }
 
 function change_mode {

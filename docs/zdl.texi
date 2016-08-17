@@ -609,7 +609,7 @@ avvia ZDL digitando il comando seguito da eventuali opzioni
 copia i link dei file da scaricare e incollali nel terminale (vai a capo dopo ogni link)
 
 @item
-digita @kbd{M-x} (@kbd{M}, il tasto @emph{Meta}, è @kbd{<Alt>} oppure @kbd{<Ctrl>})
+digita @kbd{M-x} (@kbd{M}, il tasto @emph{Meta}, è @kbd{<Alt>}, @kbd{<Ctrl>} o @kbd{<Esc>})
 
 @end itemize
 
