@@ -58,16 +58,13 @@ then
 	hiddenurl="${hiddenurl//\"/\\\"}"
 	hiddenurl="${hiddenurl//\`/\\\`}"
 
-	countdown- 6
+	countdown- 10
 	
 	chunk2=$($nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; console.log(s.join(''))")
 
 	if [ -n "$chunk2" ]
 	then
 	    url_in_file="https://openload.co/stream/$chunk2"
-	    
-	else
-	    _log 2
 	fi
     fi
     end_extension
