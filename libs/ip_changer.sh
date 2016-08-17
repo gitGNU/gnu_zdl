@@ -44,7 +44,7 @@ function check_ip {
 	noproxy
 	print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
 
-	if [ "$this_mode" != "lite" ]
+	if show_mode_in_tty "$this_mode" "$this_tty"
 	then
 	    $reconnecter 
 	else

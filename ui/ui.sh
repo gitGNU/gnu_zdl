@@ -49,6 +49,8 @@ function show_downloads_lite {
     
     if data_stdout "no_check"
     then
+	header_lite
+	
 	stdbuf -oL -eL                           \
 	       awk -f $path_usr/libs/common.awk  \
 	       -f $path_usr/ui/colors.awk.sh     \
@@ -62,9 +64,19 @@ function show_downloads_lite {
 
     elif [ -f "$start_file" ]
     then
+	header_lite force
+	print_c 1 "\n Connessione in corso..."
+    fi
+}
+
+function header_lite {
+    if [ "$1" == force ]
+    then
 	fclear
 	header_dl "ZigzagDownLoader in $PWD"
-	print_c 1 "\n Connessione in corso..."
+
+    else
+	echo -en "\033[3;0H"
     fi
 }
 
@@ -306,6 +318,10 @@ function change_mode {
     then
 	header_z
 	standard_box
+
+    elif [ "$this_mode" == "lite" ]
+    then
+	header_lite force
     fi
 
     [ "$binding" == 1 ] &&

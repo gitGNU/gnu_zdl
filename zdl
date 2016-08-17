@@ -1361,6 +1361,8 @@ else
 
     
     bindings
+
+    [ "$this_mode" == "lite" ] && header_lite force
     
     while check_pid $loops_pid
     do

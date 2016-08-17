@@ -296,8 +296,9 @@ function display () {
 	result = show_downloads_extended()
     }
     else if (this_mode == "lite") {
-	result = "\033c" White Background "\033[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
-	result = result "\n\n" show_downloads_lite()
+	# result = "\033c" White Background "\033[J" header("ZigzagDownLoader in "ENVIRON["PWD"], " ", White, On_Blue)
+	# result = result "\n\n" show_downloads_lite()
+	result = show_downloads_lite()
     }
     else {
 	result = "\n" header("Downloading in "ENVIRON["PWD"], " ", White, On_Blue)
