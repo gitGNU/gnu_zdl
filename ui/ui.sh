@@ -56,13 +56,14 @@ function show_downloads_lite {
 	       -f $path_usr/ui/colors.awk.sh     \
 	       -f $path_usr/ui/ui.awk            \
 	       -v col="$COLUMNS"                 \
+	       -v lines="$LINES"                 \
 	       -v this_mode="lite"               \
 	       -v odd_run="$odd_run"             \
 	       -v Color_Off="$Color_Off"         \
 	       -v Background="$Background"       \
 	       -e "BEGIN {$awk_data display()}" 
 
-	clear_lite
+	#clear_lite
 	
     elif [ -f "$start_file" ]
     then
@@ -261,21 +262,21 @@ function bindings {
 
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
-    bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
-    bind -x "\"\eq\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\ek\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\eq\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\ek\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
-
+    bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
+    
     ## Ctrl:
     bind -x "\"\C-i\":\"change_mode interactive\"" 2>/dev/null
     bind -x "\"\C-e\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\C-l\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
-    bind -x "\"\C-q\":\"clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\C-k\":\"clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\C-q\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\C-k\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
     bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
 }

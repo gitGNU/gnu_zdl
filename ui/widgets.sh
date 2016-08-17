@@ -254,3 +254,10 @@ function clear_lite {
     eval printf "%.0s\ " {1..$spaces} 
 }
 
+function quit_clear {
+    case "$this_mode" in
+	lite)
+	    fclear
+	    ;;
+    esac
+}
