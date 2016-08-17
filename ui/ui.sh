@@ -294,9 +294,9 @@ function change_mode {
 	    zdl --list-extensions
 	    ;;
     esac
-    
-    stty -echo    
+
     trap_sigint
+    stty -echo
     
     start_mode_in_tty "$this_mode" "$this_tty"
     export READLINE_LINE=" "

@@ -1070,7 +1070,8 @@ then
 	binding=true
 	standard_box
 	readline_links
-	unset link 
+ 	stty -echo
+
 	bind -x "\"\ex\":\"\"" 2>/dev/null
 	bind -x "\"\C-x\":\"\"" 2>/dev/null
     fi
@@ -1098,7 +1099,6 @@ else
     echo "$pid_prog" > "$path_tmp/.pid.zdl"
 fi
 
-reset_exit
 
 [ -f "$path_tmp/downloader" ] ||    
     echo "$downloader_in" > "$path_tmp/downloader"
@@ -1332,8 +1332,8 @@ function main_loop {
     fi
 }
 
+reset_exit
 
-trap_sigint
 if [ "$this_mode" == "daemon" ]
 then
     while true
@@ -1354,26 +1354,24 @@ else
     do
 	main_loop || break
     done 2>/dev/null &
-
+    loops_pid=$!
+    
     [ "$lite_mode" == true ] &&
 	this_mode=lite
-    
-    loops_pid=$!
-fi
 
-if [ "$this_mode" != "daemon" ]
-then
-    stty -echo
+    
     bindings
+    
     while check_pid $loops_pid
     do
 	if [ "$this_mode" == "lite" ]
 	then
 	    show_downloads_lite
-
+	    stty -echo
 	    read -e -n 1 -t 2 binding_in_loop
 
 	else
+	    stty -echo
 	    read -e -n 1 -t 1 binding_in_loop
 	fi
     done
@@ -1385,8 +1383,6 @@ then
 fi
 
 wait $loops_pid
-
-trap_sigint
 
 noproxy
 
