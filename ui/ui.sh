@@ -66,7 +66,7 @@ function show_downloads_lite {
     then
 	header_lite
 	check_wait_connecting &&
-	    print_c 1 " Connessione in corso ...     " ||
+	    print_c 2 " Connessione in corso ...     " ||
 		print_c 1 " Connessione in corso . . . "
     fi
 }
