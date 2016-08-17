@@ -745,9 +745,17 @@ function del_pid_url {
 }
 
 function get_try_counter {
+    local url="$1"
+    
     if [ -f "$path_tmp"/try_counter ]
     then
-	grep "^$url_in [0-9]$" "$path_tmp"/try_counter 2>/dev/null | cut -d' ' -f2
+	grep "^$url [0-9]$" "$path_tmp"/try_counter 2>/dev/null | cut -d' ' -f2 &&
+	    return 0
+
+    else
+	set_try_counter "$url" reset
+	echo 0
+	return 0
     fi
 }
 
