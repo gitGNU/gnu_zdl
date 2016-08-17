@@ -279,7 +279,7 @@ function end_extension {
 	    [ -z "$file_in" ]
     then
 	count=$(get_try_counter "$url_in")
-	echo "count: $count"
+
 	if [ -n "$count" ] && ((count < 10))
 	then
 	    set_try_counter "$url_in"
