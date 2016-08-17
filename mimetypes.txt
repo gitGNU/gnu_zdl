@@ -65,7 +65,6 @@
 .a	application/octet-stream
 .arc	application/octet-stream
 .arj	application/octet-stream
-.com	application/octet-stream
 .dump	application/octet-stream
 .lha	application/octet-stream
 .lhx	application/octet-stream
@@ -503,7 +502,6 @@
 .c	text/plain
 .c++	text/plain
 .cc	text/plain
-.com	text/plain
 .conf	text/plain
 .cxx	text/plain
 .def	text/plain

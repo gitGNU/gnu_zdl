@@ -195,7 +195,12 @@ function trap_sigint {
 	kill_pids="kill -9 $@ $pid_prog"
 	trap "$kill_pids" SIGINT
     else
-	trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit 1" SIGINT
+	#	trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit 1" SIGINT
+	#trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
+	#trap "echo -ne" SIGINT &>/dev/null
+	trap "no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c" SIGINT
+	trap "change_mode configure" INT	
+#	trap '' HUP
     fi
 }
 
@@ -203,6 +208,12 @@ function trap_sigint {
 function bindings {
     trap_sigint
     check_instance_prog
+
+    stty stop ''
+    stty start ''
+    stty -ixon
+    stty -ixoff
+    stty -echoctl
 
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
@@ -256,9 +267,10 @@ function change_mode {
 	    zdl --list-extensions
 	    ;;
     esac
-
-    stty -echo
-
+    
+    stty -echo    
+    trap_sigint
+    
     start_mode_in_tty "$this_mode" "$this_tty"
     export READLINE_LINE=" "
     
