@@ -755,10 +755,16 @@ function get_try_counter {
 
     if [ -z "$count" ]
     then
-	echo "$url 0 $pid_prog" >>"$path_tmp"/try_counter
+	add_try_counter "$url"
 	count=0
     fi
     echo $count
+}
+
+function add_try_counter {
+    local url="$1"
+    sed -r "/^(${url//\//\\/})\ .+/d" -i "$path_tmp"/try_counter
+    echo "$url 0 $pid_prog" >>"$path_tmp"/try_counter
 }
 
 function set_try_counter {
@@ -785,10 +791,10 @@ function set_try_counter {
 	    sed -r "s/^(${url//\//\\/})\ [0-9]+ ($pid_prog)$/\1 $count \2/g" -i "$path_tmp"/try_counter
 	    
 	else
-	    echo "$url 0 $pid_prog" >>"$path_tmp"/try_counter
+	    add_try_counter "$url"
 	fi
     else
-	echo "$url 0 $pid_prog" >>"$path_tmp"/try_counter
+	add_try_counter "$url"
     fi
 }
 
