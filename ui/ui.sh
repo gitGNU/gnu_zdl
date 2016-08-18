@@ -217,14 +217,15 @@ function readline_links {
     ## binding = {     0 -> while immissione URL
     ##                 1 -> immissione URL terminata
     ##             unset -> break immissione URL                    }
-    binding=true
-    trap_sigint
+    binding=true    
     
     msg_end_input="Immissione URL terminata: avvio download"
     ## bind -x "\"\C-l\":\"\"" 2>/dev/null
     bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
     bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
 
+    trap "no_complete=true; data_stdout; unset no_complete" SIGINT
+    
     while :
     do
 	read -e link
