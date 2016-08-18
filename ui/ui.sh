@@ -253,11 +253,6 @@ function trap_sigint {
     fi
 }
 
-function export_readline {
-    sleep 1
-    export READLINE_LINE=c
-}
-
 function bindings {
     trap_sigint
     check_instance_prog
@@ -266,7 +261,7 @@ function bindings {
     stty start ''
     stty -ixon
     stty -ixoff
-    #stty -echoctl
+    stty -echoctl
 
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
