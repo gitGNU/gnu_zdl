@@ -136,12 +136,13 @@ function base64_decode {
 
 
 function simply_debrid {
+    local url="$1"
     print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
     
-    html_url='https://simply-debrid.com/'$(wget --keep-session-cookies                                \
+    html_url='https://simply-debrid.com/'$(wget --keep-session-cookies                                 \
     						--save-cookies="$path_tmp/cookies.zdl"                 \
-    						--post-data="link=$1&submit=GENERATE TEXT LINKS"       \
-    						"https://simply-debrid.com/generate#show"              \
+    						--post-data="link=$url&submit=GENERATE TEXT LINKS"     \
+    						"https://simply-debrid.com/generate"                   \
     						-qO-                                              |
     						  grep -Po "inc/generate/name.php[^']+")
 
@@ -151,8 +152,8 @@ function simply_debrid {
     json_data=$(wget --referer='https://simply-debrid.com/generate#show'    \
 		     --user-agent=Firefox                                   \
 		     --load-cookies="$path_tmp/cookies.zdl"                 \
-		     "$html_url"                                             \
-		     -qO- | sed -r 's|\\\/|/|g')
+		     "$html_url" -qO- |
+		       sed -r 's|\\\/|/|g')
     
     if [[ "$json_data" =~ '"error":0' ]]
     then

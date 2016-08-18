@@ -28,16 +28,26 @@
 ## zdl-extension name: youtube-dl (comando per elenco delle estensioni: youtube-dl --list-extractors), Aria2 (anche torrent), Axel, Wget, RTMPDump, cURL
 
 
-if [ -n "$(command -v youtube-dl 2>/dev/null)" ] &&
+if command -v youtube-dl &>/dev/null &&
        [ -z "$url_in_file" ] &&
        [ -z "$break_loop" ] &&
        ! dler_type "no-resume" "$url_in" &&
        ! dler_type "wget" "$url_in" &&
        ! dler_type "rtmp" "$url_in"
 then
-    data=$(youtube-dl -R 1 --get-url --get-filename "$url_in" 2>&1 |
-		  grep -Pv '(WARNING|xml$|html$|xhtml$)')
+    youtube-dl -R 1 --get-url --get-filename "$url_in" &>"$path_tmp"/youtube-dl.data &
+    pid_yt_dl=$!
 
+    for i in {20..0}
+    do
+	echo -en "$i   \r"
+	sleep 1
+	! check_pid $pid_yt_dl && break
+    done
+
+    kill -9 $pid_yt_dl
+    data=$(grep -Pv '(WARNING|xml$|html$|xhtml$)' "$path_tmp"/youtube-dl.data)
+	
     items=( "$path_tmp"/filename_* )
 
     if (( ${#items[@]}>0 ))

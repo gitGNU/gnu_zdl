@@ -123,6 +123,7 @@ no_check_links=(
     ^magnet\:
     \.torrent$
     ^irc\:
+    \.dfiles\.
 )
 #no_check_links=( tusfiles\. nowdownload\. )
 
@@ -135,6 +136,7 @@ no_check_ext=(
     ^magnet\:
     \.torrent$
     ^irc\:
+    \.dfiles\.
 )
 
 ## massima durata tentativi di connessione (Wget)
