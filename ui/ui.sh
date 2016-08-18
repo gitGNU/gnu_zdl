@@ -248,7 +248,7 @@ function trap_sigint {
 	########
 	## disattivato per il bind aggiuntivo con ctrl:
 	## \C-c per cancellare i file temporanei dei download completati
-	trap "no_complete=true; data_stdout; unset no_complete" SIGINT
+	trap "no_complete=true; data_stdout; unset no_complete; return" SIGINT
     fi
 }
 
@@ -265,7 +265,7 @@ function bindings {
     stty start ''
     stty -ixon
     stty -ixoff
-    stty -echoctl
+    #stty -echoctl
 
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
