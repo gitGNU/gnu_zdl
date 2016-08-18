@@ -30,6 +30,7 @@
 if [[ "$url_in" =~ (openload\.) ]]
 then
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
+    URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
 
     html=$(wget -t 1 -T $max_waiting                      \
     		-qO-                                      \
@@ -68,6 +69,8 @@ then
 	    url_in_file=$(wget -S --spider "https://openload.co/stream/$chunk2" 2>&1 |
 			      grep Location | head -n1 |
 			      sed -r 's|.*Location: (.+)$|\1|g')
+	    
+	    [ -z "$file_in" ] && file_in="${url_in_file##*\/}"
 	fi
     fi
     end_extension
