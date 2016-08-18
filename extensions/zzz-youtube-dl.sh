@@ -40,7 +40,7 @@ then
 
     for i in {20..0}
     do
-	echo -en "$i   \r"
+	print_c 4 "$i  \r\c"
 	sleep 1
 	! check_pid $pid_yt_dl && break
     done
