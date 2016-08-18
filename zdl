@@ -1071,9 +1071,9 @@ then
 	standard_box
 	readline_links
  	stty -echo
-
+	
 	bind -x "\"\ex\":\"\"" 2>/dev/null
-	bind -x "\"\C-x\":\"\"" 2>/dev/null
+	bind -x "\"\C-x\":\"\"" 2>/dev/null	
     fi
     
     if [ -f "$start_file" ]

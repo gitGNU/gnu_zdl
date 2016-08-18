@@ -262,7 +262,7 @@ function bindings {
     stty -ixon
     stty -ixoff
     stty -echoctl
-
+    
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
