@@ -214,8 +214,7 @@ ${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
 
 function readline_links {
     local link    
-    ## binding = {     0 -> while immissione URL
-    ##                 1 -> immissione URL terminata
+    ## binding = {  true -> while immissione URL
     ##             unset -> break immissione URL                    }
     binding=true    
     
@@ -224,10 +223,9 @@ function readline_links {
     bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
     bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
 
-    trap "no_complete=true; data_stdout; unset no_complete" SIGINT
-    
     while :
     do
+	trap_sigint
 	read -e link
 	
 	if [ -n "${link// }" ]
@@ -240,7 +238,10 @@ function readline_links {
 
 
 function trap_sigint {
-    if (( "$#">0 ))
+    local next="$1"
+    [ -z "$next" ] && next='trap "echo -n \"\"" SIGINT'
+    
+    if [[ "$1" == ^[0-9]+$ ]]
     then
 	kill_pids="kill -9 $@ $pid_prog"
 	trap "$kill_pids" SIGINT
@@ -249,12 +250,22 @@ function trap_sigint {
 	########
 	## disattivato per il bind aggiuntivo con ctrl:
 	## \C-c per cancellare i file temporanei dei download completati
-	trap "no_complete=true; data_stdout; unset no_complete; return" SIGINT
+	trap "no_complete=true; data_stdout; unset no_complete; $next" SIGINT
     fi
 }
 
 function bindings {
-    trap_sigint
+    if [ "$this_mode" != "lite" ] ||
+	   [ -n "$binding" ]
+    then
+	trap_sigint
+
+    elif [ "$this_mode" == "lite" ]
+    then
+
+	trap_sigint return
+    fi
+    
     check_instance_prog
 
     stty stop ''
@@ -281,7 +292,7 @@ function bindings {
     bind -x "\"\C-q\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls irc-pids; kill_external; kill -1 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-k\":\"quit_clear; clean_countdown; stty echo; kill_pid_urls xfer-pids; kill_pid_urls irc-pids; kill_downloads; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=c\"" &>/dev/null
-    # bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
+    bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
 }
 
 function change_mode {
@@ -316,7 +327,6 @@ function change_mode {
 	    ;;
     esac
 
-    trap_sigint
     stty -echo
     
     start_mode_in_tty "$this_mode" "$this_tty"
@@ -327,20 +337,20 @@ function change_mode {
     then
 	header_z
 	standard_box
+	trap_sigint
 
     elif [ "$this_mode" == "lite" ]
     then
 	header_lite force
+	trap_sigint return
     fi
 
-    [ "$binding" == 1 ] &&
-	print_c 2 "${msg_end_input}" #'Immissione URL terminata: premi invio per avviare i download'
-	
     if [ "$this_mode" != "lite" ] &&
 	   [ -z "$binding" ]
     then
 	zero_dl show ||
-	    print_c 1 "\nAttendi..."
+	    show_downloads
+	    #print_c 1 "\nAttendi..."
     fi
 }
 
@@ -348,7 +358,7 @@ function interactive {
     this_mode=interactive
     start_mode_in_tty "$this_mode" "$this_tty"
     
-    trap "trap SIGINT; exit" SIGINT
+    trap "trap SIGINT; die" SIGINT
 
     while true
     do
@@ -395,6 +405,7 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 	echo -e "     │\n${BBlue}   q ${Color_Off}│ esci da $PROG --interactive (${BBlue}q${Color_Off}uit)"
 	echo -e "${BBlue}   * ${Color_Off}│ ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)
      │"
+
 	cursor off
 	read -s -n 1 -t 15 action
 	cursor on
@@ -568,8 +579,13 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
 	unset action input2
     done
-    echo -e "\e[0m\e[J"
+    
+    die
+}
 
+function die {
+    stty echo
+    fclear
     exit
 }
 
