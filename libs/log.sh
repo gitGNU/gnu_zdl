@@ -50,6 +50,9 @@ function _log {
 	    [ -n "$errMsg" ] &&
 		errMsg=":\n$errMsg"
 	    msg="$url_in --> File$msg_file_in non disponibile, riprovo più tardi${errMsg}"
+	    [ -z "$file_in" ] && msg+="\nManca il nome del file"
+	    [ -n "$url_in_file" ] && msg_url_in_file=": $url_in_file"
+	    url "$url_in_file" || msg+="\nNon è stato trovato un url valido$msg_url_in_file"
 	    ;;
 	3)
 	    msg="$url_in --> Indirizzo errato o file non disponibile" 
