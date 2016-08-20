@@ -250,8 +250,11 @@ function header_lite {
 }
 
 function clear_lite {
-    spaces=$(((LINES-i-2) * COLUMNS))
-    eval printf "%.0s\ " {1..$spaces} 
+    if show_mode_in_tty "$this_mode" "$this_tty"
+    then
+	spaces=$(((LINES-i-2) * COLUMNS))
+	eval printf "%.0s\ " {1..$spaces}
+    fi
 }
 
 function quit_clear {

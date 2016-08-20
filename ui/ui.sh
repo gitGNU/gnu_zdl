@@ -51,6 +51,7 @@ function show_downloads_lite {
     
     if data_stdout "no_check"
     then
+	rm -f "$path_tmp"/no-clear-lite
 	header_lite
 	
 	stdbuf -oL -eL                           \
@@ -66,14 +67,14 @@ function show_downloads_lite {
 	       -v Background="$Background"       \
 	       -e "BEGIN {$awk_data display()}" 
 
-	#clear_lite
-	
     elif [ -f "$start_file" ]
     then
 	header_lite
 	check_wait_connecting &&
-	    print_c 2 " Connessione in corso ...     " ||
-		print_c 1 " Connessione in corso . . . "
+	    header " Connessione in corso ..." "$BYellow" ||
+		header " Connessione in corso . . . " "$BGreen"
+	[ -f "$path_tmp"/no-clear-lite ] ||
+	    (clear_lite && touch "$path_tmp"/no-clear-lite)
     fi
 }
 
