@@ -1394,11 +1394,6 @@ wait $loops_pid
 
 noproxy
 
-echo
-separator-
-print_c 1 "Download completato"
-separator-
-
 stty echo
 
 if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
@@ -1416,8 +1411,13 @@ then
     test_pid="$(cat "$path_tmp"/.pid.zdl 2>/dev/null)"
 
     [ "$test_pid" == "$pid_prog" ] &&
-	rm -rf "$path_tmp"
-    
+	{
+	    rm -rf "$path_tmp"
+	    echo
+	    separator-
+	    print_c 1 "Download completato"
+	    separator-
+	}
 else
     kill_downloads
 fi
