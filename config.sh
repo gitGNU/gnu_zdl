@@ -47,6 +47,8 @@ key_conf[13]=zdl_mode;           val_conf[13]="";          string_conf[13]="Moda
 key_conf[14]=tcp_port;           val_conf[14]="";          string_conf[14]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[15]=udp_port;           val_conf[15]="";          string_conf[15]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 
+declare -A try_counter
+
 declare -A _downloader
 _downloader['Axel']=axel
 _downloader['Aria2']=aria2c
