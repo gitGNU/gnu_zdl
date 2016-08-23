@@ -1177,6 +1177,7 @@ function main_loop {
 		rm -f "$path_tmp/redirect"
 		###################
 
+		try_end=$try_end_default
 		## extensions
 		if [ -d "$path_usr/extensions/" ]
 		then

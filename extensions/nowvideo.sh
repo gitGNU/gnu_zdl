@@ -95,6 +95,7 @@ then
 	    fi
 	fi
     else
+	try_end=15
 	_log 2
     fi
 fi

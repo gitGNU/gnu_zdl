@@ -159,5 +159,6 @@ then
 	    _log 2
 	fi
     fi
+    try_end=15
     unset file_in2 file_in1 file_ext token preurl_in_file jump
 fi

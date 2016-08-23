@@ -94,6 +94,7 @@ then
 	fi
     fi
 
+    try_end=25
     [ -n "$premium" ] &&
 	print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
 	    end_extension
