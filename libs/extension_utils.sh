@@ -281,7 +281,7 @@ function end_extension {
     then
 	count=$(get_try_counter "$url_in")
 
-	if ((count < 10))
+	if ((count < try_end))
 	then
 	    set_try_counter "$url_in"
 	    _log 2
