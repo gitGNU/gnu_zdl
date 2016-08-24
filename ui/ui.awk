@@ -292,13 +292,15 @@ function make_progress (size_bar, progress_bar, progress) {
 function clear_lite () {
     spaces=int((lines-i-4) * col)
     for (c=1; c<spaces; c++)
-	code = code " "
+	code = code Background " "
 }
 
 
 function display () {
     info_space = 34
     init_colors()
+    if (Background) Foreground = White
+    Color_Off= Color_Off Foreground Background 
     blue_line = separator()
 
     if (zdl_mode == "extended") {

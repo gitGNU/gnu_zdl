@@ -33,7 +33,7 @@ else
     source "$path_usr/ui/colors.awk.sh"
 fi
 
-function print_case {
+function print_case {    
     case "$1" in
 	0)
 	    echo -ne ""

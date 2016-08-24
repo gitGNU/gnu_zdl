@@ -333,7 +333,8 @@ function get_conf {
     fi
     
     init_colors
-    Color_Off="\033[0m${White}${Background}" #\033[40m"
+    [ -n "$Background" ] && Foreground="$White"
+    Color_Off="\033[0m${Foreground}${Background}" #\033[40m"
 }
 
 
