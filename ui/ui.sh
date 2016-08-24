@@ -298,6 +298,7 @@ function bindings {
 
 function change_mode {
     local cmd=$1
+    local change_out
 
     start_mode_in_tty "$cmd" "$this_tty"
     
@@ -336,8 +337,11 @@ function change_mode {
     if [ "$this_mode" != "lite" ] ||
 	   [ -n "$binding" ]
     then
-	header_z
-	standard_box
+	change_out=$(
+	    header_z
+	    standard_box
+		 )
+	echo -en "$change_out"
 	trap_sigint
 
     elif [ "$this_mode" == "lite" ]
