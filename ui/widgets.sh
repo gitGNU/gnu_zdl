@@ -243,6 +243,7 @@ function header_lite {
     then
 	fclear
 	header_dl "ZigzagDownLoader in $PWD"
+	echo
 
     else
 	echo -en "\033[3;0H"

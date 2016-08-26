@@ -74,7 +74,7 @@ then
 
 	if ! url "$url_in_file"
 	then
-	    url_in_file=$(wget -qO- "http://zoninoz.altervista.org/api.php?uri=$url_in" |tail -n1)
+	    url_in_file=$(wget -t3 -T10 -qO- "http://zoninoz.altervista.org/api.php?uri=$url_in" |tail -n1)
 
 	    videoType=$(wget --spider -S "$url_in_file" 2>&1| grep 'Content-Type:')
 	    videoType="${videoType##*\/}"
