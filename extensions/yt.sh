@@ -60,11 +60,11 @@ then
 
 	if command -v youtube-dl &>/dev/null
 	then
-	    data=$(youtube-dl --get-filename --dump-json "${url_in}")
-	    file_in=$(tail -n2 <<< "$data" | head -n1)
+	    data=$(youtube-dl --get-url --format bestvideo --get-filename "${url_in}")
+	    file_in="$(tail -n1 <<< "$data")"
 	    file_in="${file_in% _ *}"
 
-	    url_in_file=$(sed -r 's|.+url\": \"([^"]+)\".+|\1|g' <<< "$data" | tail -n1)
+	    url_in_file="$(tail -n2 <<< "$data" | head -n1)"
 
 	    if ! url "$url_in_file"
 	    then
