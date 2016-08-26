@@ -60,6 +60,7 @@
 .word	application/msword
 .wri	application/mswrite
 .mcp	application/netmc
+.webm	application/octet-stream
 .exe	application/octet-stream
 .bin	application/octet-stream
 .a	application/octet-stream
