@@ -46,7 +46,7 @@ source $path_usr/libs/post_processor.sh
 
 function update_updater {
     header_z
-    
+        
     ## "...-mirror..." è quello principale (veloce)
     URL_ROOT="http://download-mirror.savannah.gnu.org/releases/zdl/"
     header_box "Aggiornamento automatico di $name_prog"
@@ -179,37 +179,6 @@ then
     done
 fi
 
-if [ "${args[*]}" == "${args[*]//--silent}" ] &&
-       [ "${args[*]}" == "${args[*]//--stream}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ -d "${args[i]}" ]
-	then
-	    BASE_DIR="$PWD/"
-	    cd "${args[i]}"
-	    unset args[i]
-	fi
-    done
-fi
-
-if [ "${args[*]}" != "${args[*]//--clean}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--clean' ]
-	then 
-	    unset args[i]
-	    rm -r ".zdl_tmp"/* 2>/dev/null && 
-		init_msg+="$(sprint_c 1 "File temporanei cancellati\n")" ||            
-		    init_msg+="$(sprint_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n")"
-	fi
-    done
-fi
-
-
-#### MAIN
-init
 
 if [ "${args[*]}" != "${args[*]//--update}" ] ||
        [ "${args[*]}" != "${args[*]//-u}" ]
@@ -260,6 +229,40 @@ then
 	fi
     done
 fi
+
+
+if [ "${args[*]}" == "${args[*]//--silent}" ] &&
+       [ "${args[*]}" == "${args[*]//--stream}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ -d "${args[i]}" ]
+	then
+	    BASE_DIR="$PWD/"
+	    cd "${args[i]}"
+	    unset args[i]
+	fi
+    done
+fi
+
+if [ "${args[*]}" != "${args[*]//--clean}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--clean' ]
+	then 
+	    unset args[i]
+	    rm -r ".zdl_tmp"/* 2>/dev/null && 
+		init_msg+="$(sprint_c 1 "File temporanei cancellati\n")" ||            
+		    init_msg+="$(sprint_c 3 "Pulizia file temporanei non effettuata (file inesistenti)\n")"
+	fi
+    done
+fi
+
+
+#### MAIN
+init
+
 
 if [[ "${args[*]}" =~ \-\-no\-url=[^\ ]+ ]]
 then
