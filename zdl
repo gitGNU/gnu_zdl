@@ -45,7 +45,14 @@ source $path_usr/libs/post_processor.sh
 
 
 function update_updater {
-    path_conf=$HOME/.zdl
+    prog=$(basename $0)
+    name_prog="ZigzagDownLoader"
+    PROG="ZDL"  #`echo $prog | tr a-z A-Z`
+    path_tmp=".${prog}_tmp"
+    mkdir -p "$path_tmp"
+    
+    path_conf="$HOME"/.zdl
+
     header_z
         
     ## "...-mirror..." è quello principale (veloce)
@@ -66,7 +73,7 @@ function update_updater {
     if (( $local_version<$remote_version ))
     then
 	#### aggiornamento versione da URL_ROOT
-	echo "$remote_version" >$path_conf/version
+	echo "$remote_version" >"$path_conf"/version
 
 	mkdir -p "$path_tmp"
 	cd "$path_tmp"
