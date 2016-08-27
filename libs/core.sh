@@ -209,6 +209,18 @@ function clean_file { ## URL, nello stesso ordine, senza righe vuote o ripetizio
     fi
 }
 
+function check_start_file {
+    if [ -f "${start_file}-rewriting" ] ||
+	   [ -f "${start_file}" ]
+    then
+	return 0
+
+    else
+	return 1
+    fi
+    
+}
+
 function pipe_files { 
     [ -z "$print_out" ] && [ -z "${pipe_out[*]}" ] && return
 

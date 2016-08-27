@@ -1119,10 +1119,9 @@ function main_loop {
 	start_file="$path_tmp/links_loop.txt"
 	sleep 5
 
-    elif [ -f "$start_file" ] && ! get_exit
-    then
-	clean_file "$start_file"
-	
+    elif check_start_file &&
+	    ! get_exit
+    then	
 	#### do ... done < $start_file
 	while read url_in
 	do
@@ -1335,7 +1334,6 @@ function main_loop {
 	done < "$start_file"
 
 	[ -z "$no_msg" ] && sleeping $sleeping_pause
-	clean_file "$path_tmp"/links_loop.txt
 	pipe_files
 
 	if [ -f "$path_tmp/links_loop.txt" ]
@@ -1346,7 +1344,8 @@ function main_loop {
 	[ -z "$no_msg" ] && show_downloads
 	unset no_msg
 	
-    elif [ ! -f "$start_file" ] || get_exit
+    elif ! check_start_file ||
+	    get_exit
     then
 	return 1
 
