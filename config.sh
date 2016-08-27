@@ -60,6 +60,9 @@ prog=$(basename $0)
 name_prog="ZigzagDownLoader"
 PROG="ZDL"  #`echo $prog | tr a-z A-Z`
 path_tmp=".${prog}_tmp"
+mkdir -p "$path_tmp"
+path_conf="$HOME"/.zdl
+
 
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
