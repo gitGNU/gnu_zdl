@@ -45,6 +45,8 @@ source $path_usr/libs/post_processor.sh
 
 
 function update_updater {
+    header_z
+    
     ## "...-mirror..." è quello principale (veloce)
     URL_ROOT="http://download-mirror.savannah.gnu.org/releases/zdl/"
     header_box "Aggiornamento automatico di $name_prog"
@@ -177,6 +179,43 @@ then
     done
 fi
 
+if [ "${args[*]}" != "${args[*]//--update}" ] ||
+       [ "${args[*]}" != "${args[*]//-u}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--force' ] ||
+	       [ "${args[i]}" == '-f' ]
+	then
+	    unset args[i]
+	    echo '-1' >"$path_conf/version"
+	fi
+    done
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--update' ] ||
+	       [ "${args[i]}" == '-u' ]
+	then
+	    unset args[i]
+	    update_updater
+	fi
+    done
+    
+elif [ "$autoupdate" == "enabled" ] &&
+	 [ "${args[*]}" == "${args[*]//--interactive}" ] &&
+	 [ "${args[*]}" == "${args[*]//-i}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--force' ] ||
+	       [ "${args[i]}" == '-f' ]
+	then
+	    unset args[i]
+	    echo '-1' >"$path_conf/version"
+	fi
+    done
+    update_updater
+fi
 
 
 if [ "${args[*]}" == "${args[*]//--silent}" ] &&
@@ -605,43 +644,6 @@ header_z
 ##########
 
 
-if [ "${args[*]}" != "${args[*]//--update}" ] ||
-       [ "${args[*]}" != "${args[*]//-u}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--force' ] ||
-	       [ "${args[i]}" == '-f' ]
-	then
-	    unset args[i]
-	    echo '-1' >"$path_conf/version"
-	fi
-    done
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--update' ] ||
-	       [ "${args[i]}" == '-u' ]
-	then
-	    unset args[i]
-	    update_updater
-	fi
-    done
-    
-elif [ "$autoupdate" == "enabled" ] &&
-	 [ "${args[*]}" == "${args[*]//--interactive}" ] &&
-	 [ "${args[*]}" == "${args[*]//-i}" ]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [ "${args[i]}" == '--force' ] ||
-	       [ "${args[i]}" == '-f' ]
-	then
-	    unset args[i]
-	    echo '-1' >"$path_conf/version"
-	fi
-    done
-    update_updater
-fi
 
 if [ "${args[*]}" != "${args[*]//--reconnect}" ]
 then
