@@ -45,6 +45,7 @@ source $path_usr/libs/post_processor.sh
 
 
 function update_updater {
+    path_conf=$HOME/.zdl
     header_z
         
     ## "...-mirror..." è quello principale (veloce)
