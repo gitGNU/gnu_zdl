@@ -97,6 +97,7 @@ then
 	fi
 	
     elif check_connection
+    then
     	_log 9
     	not_available=true
     fi
