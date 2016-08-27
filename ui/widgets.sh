@@ -133,6 +133,7 @@ function fclear {
 	unset already_clean
 	export already_clean
     fi
+    rm -f "$path_tmp"/no-clear-lite
 }
 
 function cursor {
@@ -256,6 +257,8 @@ function clear_lite {
 	spaces=$(((LINES-i-3) * COLUMNS))
 	#spaces=$(((LINES-i-2) * COLUMNS))
 	eval printf "%.0s\ " {1..$spaces}
+
+	touch "$path_tmp"/no-clear-lite
     fi
 }
 

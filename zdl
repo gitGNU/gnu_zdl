@@ -144,10 +144,8 @@ then
     pipe=$(cat /dev/fd/0)
     exec 0<$(echo /dev/$(ps ax| grep ^[\ ]*$$ | awk "{print $ps_ax_tty}"))
     
-    for pipezed in $pipe
-    do
-	args[${#args[*]}]="$pipezed"
-    done
+    args+=( $pipe )
+    
     unset pipe
 fi
 
