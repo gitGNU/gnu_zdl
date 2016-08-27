@@ -40,7 +40,8 @@ then
     		--user-agent="$user_agent"                   \
     		"$url_in" -qO- )
 
-    if [ -z "$html" ]
+    if check_connection &&
+	    [ -z "$html" ]
     then
     	_log 8 
 
@@ -95,7 +96,7 @@ then
 	    axel_parts=4
 	fi
 	
-    else
+    elif check_connection
     	_log 9
     	not_available=true
     fi

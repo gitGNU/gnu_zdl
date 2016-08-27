@@ -1215,7 +1215,7 @@ function main_loop {
 		    rm -f "$path_tmp/redirect"
 		fi
 		###################
-		get_exit && return 0
+		get_exit && return 1
 		
 		if [ "$break_loop" == "true" ]
 		then
@@ -1342,9 +1342,12 @@ function main_loop {
 	[ -z "$no_msg" ] && show_downloads
 	unset no_msg
 	
-    elif [ ! -f "$start_file" ]
+    elif [ ! -f "$start_file" ] || get_exit
     then
 	return 1
+
+    else
+	return 0
     fi
 }
 

@@ -782,7 +782,14 @@ function reset_exit {
 }
 
 function check_connection {
-    ping -q -c 1 8.8.8.8 &>/dev/null 
+    local i
+    
+    for i in {0..5}
+    do
+	ping -q -c 1 8.8.8.8 &>/dev/null && return 0
+	sleep 1
+    done
+    return 1
 }
 
 function check_freespace {
