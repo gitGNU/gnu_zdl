@@ -89,7 +89,7 @@ function check_stdout () {
 	    length_out[i] > 0 &&
 	    ! exists(file_out[i] ".st") &&
 	    ! exists(file_out[i] ".zdl") &&
-	    ! exists(file_out[i] ".aria2"))
+	    downloader_out[i] != "Aria2")
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 
 		
