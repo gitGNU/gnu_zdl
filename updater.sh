@@ -502,9 +502,10 @@ ESTENSIONI:
 
     if [ -z "$installer_zdl" ]
     then
+	echo 	$prog "${args[@]}"
 	pause
 	cd $dir_dest
-	$prog ${args[*]}
+	$prog "${args[@]}"
 	exit
     fi
 }
