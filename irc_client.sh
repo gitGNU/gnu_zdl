@@ -84,7 +84,7 @@ function set_mode {
 }
 
 function get_mode {
-    this_mode=$(grep "$url_in$" "$path_tmp/irc_this_mode" | tr -d' ' -f1)
+    this_mode=$(grep "$url_in$" "$path_tmp/irc_this_mode" | cut -d' ' -f1)
     [ -z "$this_mode" ] && this_mode=stdout
 }
 
@@ -519,11 +519,11 @@ function irc_client {
 
 ################ main:
 PID=$$
+path_tmp=".zdl_tmp"
 
 set_mode "stdout"
 this_tty="$7"
-path_tmp=".zdl_tmp"
-file_log
+
 
 #errors=$(grep -P '(743|883|878|879|890|891|1124|1131|1381|1382|1775|1776|1777|1778)' $path_usr/irc/* -h) # |cut -d'"' -f2 |cut -d'%' -f1)
 

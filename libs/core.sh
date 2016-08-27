@@ -768,7 +768,7 @@ function set_exit {
 
 function get_exit {
     if [ -f "$path_tmp"/zdl_exit ] &&
-	   check_pid $(cat "$path_tmp"/zdl_exit)
+	   [ "$pid_prog" == $(cat "$path_tmp"/zdl_exit) ]
     then
 	return 0
 

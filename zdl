@@ -1031,7 +1031,8 @@ then
 	init_msg+="$(sprint_c 1 "L'elenco completo dei link è in links.txt\n")"
 
 	if check_instance_prog &&
-		[ -z "$from_editor" ]
+		[ -z "$from_editor" ] &&
+		[ -z "$lite_mode" ]	
 	then
 	    standard_box
 	fi
@@ -1173,8 +1174,15 @@ function main_loop {
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
 		## se ancora presenti redirezioni fantasma:
-		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
-		rm -f "$path_tmp/redirect"
+		if [ -f "$path_tmp"/pid_redirects ]
+		then
+		    cat "$path_tmp"/pid_redirects |
+			while read pid_redirect
+			do
+			    kill -9 $pid_redirect &>/dev/null
+			done
+		    rm -f "$path_tmp/redirect"
+		fi
 		###################
 
 		try_end=$try_end_default
@@ -1199,10 +1207,17 @@ function main_loop {
 ####		check_dler_forcing
 		
 		## se ancora presenti redirezioni fantasma:
-		kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
-		rm -f "$path_tmp/redirect"
+		if [ -f "$path_tmp"/pid_redirects ]
+		then
+		    cat "$path_tmp"/pid_redirects |
+			while read pid_redirect
+			do
+			    kill -9 $pid_redirect &>/dev/null
+			done
+		    rm -f "$path_tmp/redirect"
+		fi
 		###################
-		get_exit && return
+		get_exit && return 0
 		
 		if [ "$break_loop" == "true" ]
 		then
@@ -1230,7 +1245,7 @@ function main_loop {
 		    done
 
 		## universal downloader
-		    if [ -z "$file_in" ] && [ -z "$url_in_file" ]
+		    if [ -z "$file_in" ] && ! url "$url_in_file"
 		    then
 			file_in="${url_in##*'/'}"
 			file_in="${file_in%'?'*}"
@@ -1328,7 +1343,9 @@ function main_loop {
 
 	[ -z "$no_msg" ] && show_downloads
 	unset no_msg
-    else 
+	
+    elif [ ! -f "$start_file" ]
+    then
 	return 1
     fi
 }
@@ -1364,7 +1381,6 @@ else
     
     [ "$lite_mode" == true ] &&
 	this_mode=lite
-
     
     bindings
 
