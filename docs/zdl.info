@@ -468,11 +468,11 @@ _Video in streaming saltando il player del browser:_
      Vimeo (HD), VK (HD), WStream, Youtube, Zinwa (RTMP) 
 
 _File hosting:_
-     Billionuploads, Cyberlocker, Dropbox, Easybytez, Glumbouploads,
-     Go4Up (multi-link), Jheberg (multi-link), Junkyvideo (HD),
-     Katfile, Likeupload, Mediafire, Mega, Nowdownload, Openload,
-     Ozofiles, Pastebin, Rockfile, Sockshare (HD), Thevideo, Tusfiles,
-     Uload, Uploadshub, Uppit, Uptobox 
+     Billionuploads, Clicknupload, Cyberlocker, Dropbox, Easybytez,
+     Glumbouploads, Go4Up (multi-link), Jheberg (multi-link),
+     Junkyvideo (HD), Katfile, Likeupload, Mediafire, Mega,
+     Nowdownload, Openload, Ozofiles, Pastebin, Rockfile, Sockshare
+     (HD), Thevideo, Tusfiles, Uload, Uploadshub, Uppit, Uptobox 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
@@ -1331,25 +1331,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6499
 Node: Servizi streaming/hosting13358
-Node: Avviare ZDL17046
-Node: Arrestare ZDL19482
-Node: Controllare i download20587
-Node: Manuali d'uso24870
-Node: Modi25286
-Node: Readline28552
-Node: Editor30104
-Node: Omonimie31329
-Node: IRC/XDCC32864
-Node: Torrent34554
-Node: Filtri35438
-Node: Creare nuove estensioni35759
-Node: Software consigliati37513
-Node: Conkeror38914
-Node: zdl-xterm e XXXTerm/Xombrero39925
-Node: Installazione e aggiornamento41849
-Node: Tags44884
-Node: Copying47685
-Node: Contatti48735
+Node: Avviare ZDL17060
+Node: Arrestare ZDL19496
+Node: Controllare i download20601
+Node: Manuali d'uso24884
+Node: Modi25300
+Node: Readline28566
+Node: Editor30118
+Node: Omonimie31343
+Node: IRC/XDCC32878
+Node: Torrent34568
+Node: Filtri35452
+Node: Creare nuove estensioni35773
+Node: Software consigliati37527
+Node: Conkeror38928
+Node: zdl-xterm e XXXTerm/Xombrero39939
+Node: Installazione e aggiornamento41863
+Node: Tags44898
+Node: Copying47699
+Node: Contatti48749
 
 End Tag Table
 
