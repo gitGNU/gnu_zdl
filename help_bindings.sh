@@ -25,16 +25,20 @@
 #
 
 path_usr="/usr/local/share/zdl"
+source $path_usr/config.sh
 source $path_usr/ui/widgets.sh
 source $path_usr/ui/ui.sh
 source $path_usr/libs/core.sh
 
-init_colors
-prog=zdl
-PROG="ZDL"
-path_tmp=.zdl_tmp
-name_prog="ZigzagDownLoader"
-downloader_in=$(cat "$path_tmp"/downloader)
+if [ "$background" == "black" ]
+then
+    Background="$On_Black"
+fi
+
+[ -n "$Background" ] && Foreground="$White"
+Color_Off="\033[0m${Foreground}${Background}" #\033[40m"
+
+downloader_in=$(cat .zdl_tmp/downloader)
 
 this_mode=help
 fclear

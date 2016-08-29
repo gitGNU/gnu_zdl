@@ -29,13 +29,13 @@ function show_downloads {
     then
 	if data_stdout
 	then
-	    stdbuf -oL -eL                            \
-		   awk -f $path_usr/libs/common.awk   \
-		   -f $path_usr/ui/colors.awk.sh      \
-		   -f $path_usr/ui/ui.awk             \
-		   -v col="$COLUMNS"                  \
-		   -v Color_Off="$Color_Off"          \
-		   -v Background="$Background"        \
+	    stdbuf -oL -eL                                          \
+		   awk -f $path_usr/libs/common.awk                 \
+		   -f $path_usr/ui/colors-${background}.awk.sh      \
+		   -f $path_usr/ui/ui.awk                           \
+		   -v col="$COLUMNS"                                \
+		   -v Color_Off="$Color_Off"                        \
+		   -v Background="$Background"                      \
 		   -e "BEGIN {$awk_data display()}" 
 	fi
     else
@@ -55,17 +55,17 @@ function show_downloads_lite {
 	rm -f "$path_tmp"/no-clear-lite
 	header_lite
 	
-	stdbuf -oL -eL                           \
-	       awk -f $path_usr/libs/common.awk  \
-	       -f $path_usr/ui/colors.awk.sh     \
-	       -f $path_usr/ui/ui.awk            \
-	       -v col="$COLUMNS"                 \
-	       -v lines="$LINES"                 \
-	       -v no_clear="$no_clear"           \
-	       -v this_mode="lite"               \
-	       -v odd_run="$odd_run"             \
-	       -v Color_Off="$Color_Off"         \
-	       -v Background="$Background"       \
+	stdbuf -oL -eL                                         \
+	       awk -f $path_usr/libs/common.awk                \
+	       -f $path_usr/ui/colors-${background}.awk.sh     \
+	       -f $path_usr/ui/ui.awk                          \
+	       -v col="$COLUMNS"                               \
+	       -v lines="$LINES"                               \
+	       -v no_clear="$no_clear"                         \
+	       -v this_mode="lite"                             \
+	       -v odd_run="$odd_run"                           \
+	       -v Color_Off="$Color_Off"                       \
+	       -v Background="$Background"                     \
 	       -e "BEGIN {$awk_data display()}" 
 
     elif [ -f "$start_file" ]
@@ -134,14 +134,14 @@ function show_downloads_extended {
 
     if data_stdout "no_check"
     then
-	stdbuf -oL -eL                               \
-	       awk -f $path_usr/libs/common.awk      \
-	       -f $path_usr/ui/colors.awk.sh         \
-	       -f $path_usr/ui/ui.awk                \
-	       -v col="$COLUMNS"                     \
-	       -v zdl_mode="extended"                \
-	       -v Color_Off="$Color_Off"             \
-	       -v Background="$Background"           \
+	stdbuf -oL -eL                                             \
+	       awk -f $path_usr/libs/common.awk                    \
+	       -f $path_usr/ui/colors-${background}.awk.sh         \
+	       -f $path_usr/ui/ui.awk                              \
+	       -v col="$COLUMNS"                                   \
+	       -v zdl_mode="extended"                              \
+	       -v Color_Off="$Color_Off"                           \
+	       -v Background="$Background"                         \
 	       -e "BEGIN {$awk_data display()}" 
     fi
 }
@@ -252,6 +252,7 @@ function readline_links {
 	then
 	    link=$(sanitize_url "$link")
 	    links_loop + "$link"
+	    unset break_loop
 	fi
     done
 }
@@ -322,8 +323,7 @@ function change_mode {
     local change_out
 
     start_mode_in_tty "$cmd" "$this_tty"
-    
-    stty echo
+    cursor off
 
     case $cmd in
 	configure)
@@ -353,11 +353,9 @@ function change_mode {
 	    $path_usr/help_bindings.sh
 	    ;;
     esac
-
-    stty -echo
     
     start_mode_in_tty "$this_mode" "$this_tty"
-    export READLINE_LINE=" "
+    ## export READLINE_LINE=""
     
     if [ "$this_mode" != "lite" ] ||
 	   [ -n "$binding" ]
@@ -366,14 +364,15 @@ function change_mode {
 	    fclear
 	    header_z
 	    standard_box
-		 )
+	    print_c 2 "Digita <enter> per immettere nuovi links"
+		  )
 	echo -en "$change_out"
 	trap_sigint
-	cursor on
+	setterm --cursor on
 
     elif [ "$this_mode" == "lite" ]
     then
-	header_lite force
+	header_lite
 	trap_sigint return
     fi
 
@@ -382,7 +381,6 @@ function change_mode {
     then
 	zero_dl show ||
 	    show_downloads
-	    #print_c 1 "\nAttendi..."
     fi
 }
 

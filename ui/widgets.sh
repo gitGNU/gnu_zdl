@@ -28,10 +28,12 @@
 
 if [ "$installer_zdl" == "true" ]
 then
-    source "ui/colors.awk.sh"
+    source "ui/colors-${background}.awk.sh"
 else
-    source "$path_usr/ui/colors.awk.sh"
+    source "$path_usr/ui/colors-${background}.awk.sh"
 fi
+
+init_colors
 
 function print_case {    
     case "$1" in
@@ -144,12 +146,12 @@ function cursor {
 	    off)
 		#echo -en "\033[?30;30;30c"
 		stty -echo
-		setterm -cursor off
+		setterm --cursor off
 		;;
 	    on)
 		#echo -en "\033[?0;0;0c"
 		stty echo
-		setterm -cursor on
+		setterm --cursor on
 		;;
 	esac
     fi

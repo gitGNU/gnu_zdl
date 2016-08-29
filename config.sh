@@ -56,13 +56,21 @@ _downloader['Axel']=axel
 _downloader['Aria2']=aria2c
 _downloader['Wget']=wget
 
-prog=$(basename $0)
+prog=zdl 
 name_prog="ZigzagDownLoader"
 PROG="ZDL"  #`echo $prog | tr a-z A-Z`
 path_tmp=".${prog}_tmp"
 mkdir -p "$path_tmp"
-path_conf="$HOME"/.zdl
 
+path_conf="$HOME/.${prog}"
+file_conf="$path_conf/$prog.conf"
+
+source "$file_conf"
+[ -z "$background" ] && background=${val_conf[6]}
+
+
+
+setterm --bold off
 
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
@@ -152,8 +160,6 @@ max_waiting=40
 ## durata attesa 
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
-
-init_colors
 
 if [ -d /cygdrive ] &&
        ! command -v node &>/dev/null &&
@@ -334,7 +340,7 @@ function get_conf {
     then
 	Background="$On_Black"
     fi
-    
+
     init_colors
     [ -n "$Background" ] && Foreground="$White"
     Color_Off="\033[0m${Foreground}${Background}" #\033[40m"
@@ -410,9 +416,6 @@ function init {
 
     file_log="${prog}_log.txt"
     
-    path_conf="$HOME/.${prog}"
-    file_conf="$path_conf/$prog.conf"
-        
     [ -z "$pid_prog" ] && pid_prog=$$ 
 
     get_conf

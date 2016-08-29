@@ -178,6 +178,7 @@ cd $prog
 chmod +rx -R .
 
 ## UPDATER ########
+background=black
 source libs/core.sh
 source ui/widgets.sh
 source ui/ui.sh
