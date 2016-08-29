@@ -170,6 +170,7 @@ function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	cursor off
+	stty -echo
 	
 	(( "$#" == 0 )) && {
 	    text_start="$name_prog ($prog)"
