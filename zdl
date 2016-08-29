@@ -116,7 +116,7 @@ function update_updater {
 	update
 
     else
-	init_msg+="$PROG è già alla versione più recente\n"
+	init_msg+="${BGreen}$PROG è già alla versione più recente\n"
     fi
 }
 
