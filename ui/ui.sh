@@ -73,6 +73,7 @@ function show_downloads_lite {
 	check_wait_connecting &&
 	    header " Connessione in corso ..." "$BYellow" ||
 		header " Connessione in corso . . . " "$BGreen"
+
 	[ -f "$path_tmp"/no-clear-lite ] ||
 	    clear_lite
     fi
@@ -170,7 +171,13 @@ function services_box {
 
 function standard_box {
     [ "$this_mode" == "lite" ] && header_lite=" LITE"
-    header_box "Modalità in standard output${header_lite}"
+    
+    
+    [ "$this_mode" == help ] &&
+	header_msg="Help dei comandi" ||
+	    header_msg="Modalità in standard output${header_lite}"
+    header_box "$header_msg"
+    
     echo -e -n "$init_msg"
     
     [ -f "$path_tmp/downloader" ] && 
@@ -184,7 +191,13 @@ function standard_box {
     then
 	echo -e "${BBlue}       │${Color_Off}"
 	header_box "Readline: immetti URL e link dei servizi"
-    
+
+    elif [ "$1" == help ] &&
+	   [ -z "$binding" ]
+    then
+	echo -en "${BBlue}       │${Color_Off}"
+	pause
+
     elif [ "$this_mode" != "lite" ] &&
 	   [ -z "$binding" ]
     then
@@ -209,7 +222,8 @@ ${BRed} M-q   ${BBlue}│${Color_Off}  chiudi ZDL senza interrompere i downloade
 ${BRed} M-k   ${BBlue}│${Color_Off}  uccidi tutti i processi [${BRed}k${Color_Off}ill]
        ${BBlue}│${Color_Off}
 ${BBlue} M-t   │${Color_Off}  sfoglia il ${BBlue}t${Color_Off}utorial
-${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati"
+${BBlue} M-l   │${Color_Off}  ${BBlue}l${Color_Off}ista dei servizi abilitati
+${BBlue} M-h   │${Color_Off}  visualizza questo riquadro [${BBlue}h${Color_Off}elp]"
 
 }
 
@@ -277,6 +291,7 @@ function bindings {
     
     ## Alt:
     bind -x "\"\ei\":\"change_mode interactive\"" 2>/dev/null
+    bind -x "\"\eh\":\"change_mode help\"" 2>/dev/null
     bind -x "\"\ee\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
@@ -287,6 +302,7 @@ function bindings {
     
     ## Ctrl:
     bind -x "\"\C-i\":\"change_mode interactive\"" 2>/dev/null
+    bind -x "\"\C-h\":\"change_mode help\"" 2>/dev/null
     bind -x "\"\C-e\":\"change_mode editor\"" 2>/dev/null
     bind -x "\"\C-l\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
@@ -326,6 +342,9 @@ function change_mode {
 	
 	list)
 	    zdl --list-extensions
+	    ;;
+	'help')
+	    $path_usr/help_bindings.sh
 	    ;;
     esac
 

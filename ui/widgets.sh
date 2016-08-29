@@ -168,9 +168,14 @@ function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	fclear
-	
-	text_start="$name_prog ($prog)"
-	text_end="$(zclock)"
+
+	(( "$#" == 0 )) && {
+	    text_start="$name_prog ($prog)"
+	    text_end="$(zclock)"
+	} || {
+	    text_start="$1"
+	    text_end="$2"
+	}
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
 	header "$text_start$text_space$text_end" "$On_Blue"
 	print_c 0 ""
@@ -242,8 +247,7 @@ function zclock {
 function header_lite {
     if [ "$1" == force ]
     then
-	fclear
-	header_dl "ZigzagDownLoader in $PWD"
+	header_z "ZigzagDownLoader in $PWD" "│ help: M-h"
 	echo
 
     else
@@ -255,7 +259,6 @@ function clear_lite {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	spaces=$(((LINES-i-3) * COLUMNS))
-	#spaces=$(((LINES-i-2) * COLUMNS))
 	eval printf "%.0s\ " {1..$spaces}
 
 	touch "$path_tmp"/no-clear-lite

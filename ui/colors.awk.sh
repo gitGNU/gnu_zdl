@@ -36,8 +36,8 @@ function init_colors () {
     On_Green="\033[42m"       # Verde
     On_Yellow="\033[43m"      # Giallo
     On_Blue="\033[44m"        # Blu
-    # On_Purple="\033[45m"      # Purple
-    # On_Cyan="\033[46m"        # Ciano
+    On_Purple="\033[45m"      # Purple
+    On_Cyan="\033[46m"        # Ciano
     On_White="\033[47m"       # Bianco
     On_Gray1="\033[5m"        # sfondo grigio per tty
     On_Gray2="\033[100m"       # sfondo grigio per pts

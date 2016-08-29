@@ -41,7 +41,7 @@ then
     url_json="${url_json#*href=\"}"
     url_json="http://go4up.com${url_json%%\"*}"
 
-    replace_url_in "$url_json" || _log 2
+    replace_url_in "$url_json" || end_extension
 fi
 
 if [[ "$url_in" =~ 'go4up.com/rd/' ]]
@@ -66,7 +66,7 @@ then
 	    fi
 	done
 
-	replace_url_in "$url_html" || _log 2
+	replace_url_in "$url_html" || end_extension
     fi
 fi
 	    
