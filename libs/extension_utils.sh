@@ -275,6 +275,8 @@ function get_title {
 
 function end_extension {
     local count
+
+    url_in_file=$(sanitize_url "$url_in_file")
     
     if ( ! url "$url_in_file" || [ -z "$file_in" ] ) &&
 	   ( [ -z "$streamer" ] || [ -z "$playpath" ] )
