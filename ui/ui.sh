@@ -364,7 +364,6 @@ function change_mode {
 	    fclear
 	    header_z
 	    standard_box
-	    print_c 2 "Digita <enter> per immettere nuovi links"
 		  )
 	echo -en "$change_out"
 	trap_sigint
