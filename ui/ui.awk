@@ -87,15 +87,15 @@ function show_downloads_extended () {
 
 	if (downloader_out[i] == "cURL") {
 	    if (check_pid(pid_out[i])) {
-		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n\n"
+		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n"
 	    } else if (exists(file_out[i])) {
-		code = code BGreen downloader_out[i] ": " progress_unspecified("complete") "\n\n"
+		code = code BGreen downloader_out[i] ": " progress_unspecified("complete") "\n"
 	    } else {
-		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n\n"
+		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n"
 	    }
 	} else {
 	    progress_bar = make_progress()
-	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
+	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n"
 	}
     }
     return code
