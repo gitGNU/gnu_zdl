@@ -341,7 +341,7 @@ function get_conf {
 	Background="$On_Black"
     fi
 
-    init_colors
+#   init_colors
     [ -n "$Background" ] && Foreground="$White"
     Color_Off="\033[0m${Foreground}${Background}" #\033[40m"
 }

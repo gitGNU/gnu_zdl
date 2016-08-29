@@ -26,6 +26,9 @@
 
 #### layout
 
+[[ "$(tty)" =~ tty ]] &&
+    background=tty
+
 if [ "$installer_zdl" == "true" ]
 then
     source "ui/colors-${background}.awk.sh"

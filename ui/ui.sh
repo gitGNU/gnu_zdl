@@ -329,6 +329,7 @@ function change_mode {
 	configure)
 	    zdl --configure
 	    init
+	    source $path_usr/ui/widgets.sh
 	    ;;
 
 	interactive)
@@ -355,7 +356,7 @@ function change_mode {
     esac
     
     start_mode_in_tty "$this_mode" "$this_tty"
-    ## export READLINE_LINE=""
+    export READLINE_LINE=" "
     
     if [ "$this_mode" != "lite" ] ||
 	   [ -n "$binding" ]
