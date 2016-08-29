@@ -1034,7 +1034,8 @@ then
 
 	if check_instance_prog &&
 		[ -z "$from_editor" ] &&
-		[ -z "$lite_mode" ]	
+		[ -z "$lite_mode" ] &&
+		[ "$this_mode" != lite ]
 	then
 	    standard_box
 	fi
