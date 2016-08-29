@@ -62,6 +62,8 @@ then
 	url_in_file=$(grep downloadbtn <<< "$html" |
 			     sed -r "s|.+open\('([^']+)'\).+|\1|g")
 
+	url_in_file=$(sanitize_url "$url_in_file")
+	
 	end_extension
     fi
 fi
