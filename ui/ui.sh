@@ -45,6 +45,7 @@ function show_downloads {
 
 function show_downloads_lite {
     local no_clear="$1"
+    cursor off
     
     (( odd_run++ ))
     (( odd_run>1 )) && odd_run=0
