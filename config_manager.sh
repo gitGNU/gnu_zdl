@@ -101,6 +101,7 @@ function configure {
     
     while true
     do
+	fclear
 	header_z
 	header_box "Preferenze"
 	echo -e "   ${BBlue} 1 ${Color_Off}│  Modifica la configurazione
@@ -117,6 +118,7 @@ function configure {
 	    1)
 		while true
 		do
+		    fclear
 		    header_z
 		    header_box "Configurazione di $name_prog"
 
@@ -322,6 +324,7 @@ function init_accounts {
     awk '($0)&&!($0 in a){a[$0]; print}' "$path_conf"/accounts/$host >$ftemp
     mv $ftemp "$path_conf"/accounts/$host
 
+    fclear
     header_z
     show_accounts $1
     echo

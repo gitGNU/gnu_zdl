@@ -45,6 +45,7 @@ source $path_usr/libs/post_processor.sh
 
 
 function update_updater {
+    fclear
     header_z
         
     ## "...-mirror..." è quello principale (veloce)
@@ -641,6 +642,7 @@ start_mode_in_tty "$this_mode" "$this_tty"
 
 
 ##########
+fclear
 header_z
 ##########
 
@@ -1389,7 +1391,7 @@ else
     
     bindings
 
-    [ "$this_mode" == "lite" ] && header_lite force
+    [ "$this_mode" == "lite" ] && fclear
     
     while check_pid $loops_pid
     do

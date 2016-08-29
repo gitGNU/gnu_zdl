@@ -37,6 +37,7 @@ name_prog="ZigzagDownLoader"
 downloader_in=$(cat "$path_tmp"/downloader)
 
 this_mode=help
+fclear
 header_z
 standard_box help
 

@@ -167,8 +167,6 @@ function header { # $1=label ; $2=color ; $3=header pattern
 function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
-	fclear
-
 	(( "$#" == 0 )) && {
 	    text_start="$name_prog ($prog)"
 	    text_end="$(zclock)"
@@ -245,14 +243,9 @@ function zclock {
 }
 
 function header_lite {
-    if [ "$1" == force ]
-    then
-	header_z "ZigzagDownLoader in $PWD" "│ help: M-h"
-	echo
-
-    else
-	echo -en "\033[3;0H"
-    fi
+    echo -en "\033[1;0H"
+    header_z "ZigzagDownLoader in $PWD" "│ help: M-h"
+    header
 }
 
 function clear_lite {

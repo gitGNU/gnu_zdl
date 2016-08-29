@@ -93,7 +93,8 @@ function check_wait_connecting {
 
 function show_downloads_extended {
     unset instance_pid daemon_pid
-    
+
+    fclear
     header_z
     header_box_interactive "Modalità interattiva"
 
@@ -146,6 +147,7 @@ function show_downloads_extended {
 
 
 function services_box {
+    fclear
     header_z
     header_box_interactive "Estensioni"
     print_C 4 "\nVideo in streaming saltando il player del browser:"
@@ -357,6 +359,7 @@ function change_mode {
 	   [ -n "$binding" ]
     then
 	change_out=$(
+	    fclear
 	    header_z
 	    standard_box
 		 )
@@ -436,6 +439,7 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 
 	case "$action" in
 	    s)
+		fclear
 		header_z
 		echo
 		show_downloads_extended
