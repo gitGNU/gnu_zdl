@@ -242,6 +242,7 @@ function readline_links {
     bind -x "\"\ex\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
 
     cursor on
+
     while :
     do
 	trap_sigint

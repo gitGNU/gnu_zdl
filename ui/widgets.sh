@@ -143,10 +143,12 @@ function cursor {
 	case $stato in
 	    off)
 		#echo -en "\033[?30;30;30c"
+		stty -echo
 		setterm -cursor off
 		;;
 	    on)
 		#echo -en "\033[?0;0;0c"
+		stty echo
 		setterm -cursor on
 		;;
 	esac
