@@ -369,6 +369,7 @@ function change_mode {
 		 )
 	echo -en "$change_out"
 	trap_sigint
+	cursor on
 
     elif [ "$this_mode" == "lite" ]
     then
