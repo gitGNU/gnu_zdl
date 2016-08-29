@@ -335,15 +335,12 @@ function get_conf {
     then
 	unset editor
     fi
+    
+    [ "$background" == "black" ] &&
+	Background="$On_Black" && Foreground="$White" ||
+	    unset Background Foreground
 
-    if [ "$background" == "black" ]
-    then
-	Background="$On_Black"
-    fi
-
-#   init_colors
-    [ -n "$Background" ] && Foreground="$White"
-    Color_Off="\033[0m${Foreground}${Background}" #\033[40m"
+    Color_Off="\033[0m${Foreground}${Background}" 
 }
 
 

@@ -46,7 +46,7 @@ source $path_usr/libs/post_processor.sh
 function update_updater {
     fclear
     header_z
-        
+
     ## "...-mirror..." è quello principale (veloce)
     URL_ROOT="http://download-mirror.savannah.gnu.org/releases/zdl/"
     header_box "Aggiornamento automatico di $name_prog"
