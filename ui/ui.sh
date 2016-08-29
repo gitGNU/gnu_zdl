@@ -451,7 +451,9 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 		#echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
 		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
 
+		cursor on
 		read -e input
+		cursor off
 
 		if [ -n "$input" ]
 		then
@@ -471,8 +473,10 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
 		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
 
+		    cursor on
 		    read -e input2
-
+		    cursor off
+		    
 		    for ((i=0; i<${#inputs[*]}; i++))
 		    do
 			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
