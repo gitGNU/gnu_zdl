@@ -1419,6 +1419,7 @@ wait $loops_pid
 noproxy
 
 stty echo
+cursor on
 
 if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
 then
