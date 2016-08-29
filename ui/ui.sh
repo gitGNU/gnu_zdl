@@ -238,9 +238,10 @@ function readline_links {
     
     msg_end_input="Immissione URL terminata: avvio download"
     ## bind -x "\"\C-l\":\"\"" 2>/dev/null
-    bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
-    bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+    bind -x "\"\C-x\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+    bind -x "\"\ex\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
 
+    cursor on
     while :
     do
 	trap_sigint

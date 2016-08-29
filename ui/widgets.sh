@@ -169,6 +169,8 @@ function header { # $1=label ; $2=color ; $3=header pattern
 function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
+	cursor off
+	
 	(( "$#" == 0 )) && {
 	    text_start="$name_prog ($prog)"
 	    text_end="$(zclock)"
