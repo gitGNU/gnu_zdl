@@ -61,7 +61,7 @@ then
 
 	if command -v youtube-dl &>/dev/null
 	then
-	    data=$(youtube-dl --get-url --get-filename "${url_in}")
+	    data=$(youtube-dl --get-url -f best --get-filename "${url_in}")
 	    file_in="$(tail -n1 <<< "$data")"
 	    file_in="${file_in% _ *}"
 
