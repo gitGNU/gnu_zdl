@@ -1379,7 +1379,8 @@ else
 	this_mode=daemon
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
-    
+
+    stty -echo
     while true
     do
 	main_loop || break
