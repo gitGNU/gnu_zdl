@@ -30,7 +30,6 @@
 
 if [ "$url_in" != "${url_in//'nowvideo.'}" ]
 then
-    myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
     html=$(wget -t 1 -T $max_waiting                 \
 		"$url_in"                            \
 		--user-agent="$user_agent"           \
@@ -69,6 +68,8 @@ then
 		flashvars_file=$(grep "flashvars.file=" <<< "$html")
 		flashvars_file="${flashvars_file#*'flashvars.file='\"}"
 		flashvars_file="${flashvars_file%\"*}"
+		
+		myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
 
 		flashvars_key=$(grep "$myip" <<< "$html")
 		flashvars_key="${flashvars_key#*\"}"
