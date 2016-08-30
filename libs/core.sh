@@ -663,6 +663,8 @@ function redirect_links {
     fi
     
     [ -n "$xterm_stop" ] && xterm_stop
+
+    cursor on
     exit 1
 }
 
