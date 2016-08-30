@@ -68,10 +68,6 @@ file_conf="$path_conf/$prog.conf"
 source "$file_conf"
 [ -z "$background" ] && background=${val_conf[6]}
 
-
-
-setterm --bold off
-
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
 proxy_server='ip_adress'
