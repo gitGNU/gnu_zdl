@@ -1076,6 +1076,8 @@ then
 	standard_box
 	readline_links
  	stty -echo
+
+	post_readline=true
 	
 	bind -x "\"\ex\":\"\"" 2>/dev/null
 	bind -x "\"\C-x\":\"\"" 2>/dev/null	
