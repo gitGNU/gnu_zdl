@@ -28,8 +28,7 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Nowvideo
 
-if [ "$url_in" != "${url_in//'nowvideo.'}" ] &&
-       [ "$url_in" != "${url_in//video}" ]
+if [ "$url_in" != "${url_in//'nowvideo.'}" ]
 then
     myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
     html=$(wget -t 1 -T $max_waiting                 \
@@ -56,46 +55,56 @@ then
 			    --post-data="${post_data}&submit=submit" \
 			    -qO-)
 	    fi
+
+	    file_in=$(get_title "$html")
+	    file_in="${file_in#Watch}"
+	    file_in="${file_in}"
 	    
-	    flashvars_file=$(grep "flashvars.file=" <<< "$html")
-	    flashvars_file="${flashvars_file#*'flashvars.file='\"}"
-	    flashvars_file="${flashvars_file%\"*}"
+	    url_in_file=$(grep "source" <<< "$html" |
+				 head -n1 |
+				 sed -r 's|.+\"([^"]+)\".+|\1|g')
 
-	    flashvars_key=$(grep "$myip" <<< "$html")
-	    flashvars_key="${flashvars_key#*\"}"
-	    flashvars_key="${flashvars_key%\"*}"
-	    flashvars_domain=$(grep "flashvars.domain=" <<< "$html")
-	    flashvars_domain="${flashvars_domain#*'flashvars.domain='\"}"
-	    flashvars_domain="${flashvars_domain%\"*}"
-
-	    rm -f "$path_tmp"/zdl2.tmp
-	    axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null
-
-	    if [ ! -f "$path_tmp"/zdl2.tmp ]
+	    if ! url "$url_in_file"
 	    then
-		_log 5
-		
-	    elif [ -n "$(grep 'The video is being transfered' "$path_tmp"/zdl2.tmp)" ]
-	    then
-		_log 17
-		
-	    elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
-	    then
-		not_available=true
-		break_loop=true
-	    else
-		url_in_file=$(cat "$path_tmp"/zdl2.tmp)
-		url_in_file="${url_in_file#*'url='}"
-		url_in_file="${url_in_file%%'&'*}"
+		flashvars_file=$(grep "flashvars.file=" <<< "$html")
+		flashvars_file="${flashvars_file#*'flashvars.file='\"}"
+		flashvars_file="${flashvars_file%\"*}"
 
-		ext="${url_in_file##*'.'}"
-		file_in=$(grep "share" <<< "$html" |grep "title=")
-		file_in="${file_in#*'title='}"
-		file_in="${file_in%%\"*}.$ext"
+		flashvars_key=$(grep "$myip" <<< "$html")
+		flashvars_key="${flashvars_key#*\"}"
+		flashvars_key="${flashvars_key%\"*}"
+		flashvars_domain=$(grep "flashvars.domain=" <<< "$html")
+		flashvars_domain="${flashvars_domain#*'flashvars.domain='\"}"
+		flashvars_domain="${flashvars_domain%\"*}"
+
+		rm -f "$path_tmp"/zdl2.tmp
+		axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null
+
+		if [ ! -f "$path_tmp"/zdl2.tmp ]
+		then
+	    	    _log 5
+		    
+		elif [ -n "$(grep 'The video is being transfered' "$path_tmp"/zdl2.tmp)" ]
+		then
+	    	    _log 17
+		    
+		elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
+		then
+	    	    not_available=true
+	    	    break_loop=true
+		else
+	    	    url_in_file=$(cat "$path_tmp"/zdl2.tmp)
+	    	    url_in_file="${url_in_file#*'url='}"
+	    	    url_in_file="${url_in_file%%'&'*}"
+
+	    	    ext="${url_in_file##*'.'}"
+	    	    file_in=$(grep "share" <<< "$html" |grep "title=")
+	    	    file_in="${file_in#*'title='}"
+	    	    file_in="${file_in%%\"*}.$ext"
+		fi
 	    fi
 	fi
-    else
-	try_end=15
-	_log 2
     fi
+    try_end=15
+    end_extension
 fi

@@ -31,16 +31,18 @@ if [ "$url_in" != "${url_in//idowatch.}" ]
 then
     html=$(wget "$url_in" -qO- --user-agent="$user_agent")
 
-    url_in_file=$(grep source <<< "$html" |
-			 sed -r 's|.+file:\"([^"]+)\".+|\1|g')
-    
-    file_in=$(grep '<title>' <<< "$html" |
-		     sed -r 's|[^>]+>([^<]+)<.+|\1|g')
-    file_in="${file_in#Watch }"
-
-    if ! url "$url_in_file" ||
-	    [ -z "$file_in" ]
+    if [[ "$html" =~ (File Not Found) ]]
     then
-	_log 2
+	_log 3
+
+    else
+	url_in_file=$(grep source <<< "$html" |
+			     sed -r 's|.+file:\"([^"]+)\".+|\1|g')
+	
+	file_in=$(grep '<title>' <<< "$html" |
+			 sed -r 's|[^>]+>([^<]+)<.+|\1|g')
+	file_in="${file_in#Watch }"
+	
+	end_extension
     fi
 fi
