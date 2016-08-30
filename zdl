@@ -1058,6 +1058,7 @@ then
     this_mode=stdout
     start_mode_in_tty "$this_mode" "$this_tty"
     standard_box
+    post_readline=true
 fi
 
 
