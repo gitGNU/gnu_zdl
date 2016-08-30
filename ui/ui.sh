@@ -338,6 +338,7 @@ function change_mode {
 	
 	editor)
 	    $editor "$path_tmp"/links_loop.txt
+	    clean_file "$start_file"
 	    ;;
     
 	info)
@@ -551,6 +552,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    
 	    e)
 		$editor "$path_tmp/links_loop.txt"
+		clean_file "$path_tmp/links_loop.txt"
 		;;
 	    
 	    c)

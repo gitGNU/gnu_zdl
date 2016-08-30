@@ -144,52 +144,60 @@ function post_process {
     ## --mp3/--flac: conversione formato
     if [ -n "$format" ]
     then
-	[ -n "$(command -v avconv 2>/dev/null)" ] && convert2format="avconv"
-	[ -n "$(command -v ffmpeg 2>/dev/null)" ] && convert2format="ffmpeg"
+	command -v avconv &>/dev/null && convert2format="avconv"
+	command -v ffmpeg &>/dev/null && convert2format="ffmpeg"
 	echo
 	header_box "Conversione in $format ($convert2format)"
-	echo
-	for line in $(cat $print_out)
-	do
-	    if [ -f "$line" ]
-	    then
-		mime="$(file -b --mime-type "$line")"
-		
-		if [[ "$mime" =~ (audio|video) ]]
+
+	if [ -f "$print_out" ]
+	then
+	    for line in $(cat "$print_out")
+	    do
+		if [ -f "$line" ]
 		then
-		    print_c 4 "Conversione del file: $line"
-		    [ "$this_mode" == "lite" ] && convert_params="-report -loglevel quiet"
-
-		    if [ -e /cygdrive ]
+		    mime="$(file -b --mime-type "$line")"
+		    
+		    if [[ "$mime" =~ (audio|video) ]]
 		    then
-			$convert2format $convert_params                   \
-					-i "$line"                        \
-					-aq 0                             \
-					-y                                \
-					"${line%.*}.$format"         &&
-			    rm "$line"                               &&
-			    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
-				print_c 3 "Conversione NON riuscita: $line"
-			
-		    else
-			( $convert2format                                   \
-					  -i "$line"                        \
-					  -report                           \
-					  -aq 0                             \
-					  -y                                \
-					  "${line%.*}.$format" &>/dev/null     &&
-				rm "$line"                                     &&
+			print_c 4 "Conversione del file: $line"
+			[ "$this_mode" == "lite" ] && convert_params="-report -loglevel quiet"
+
+			if [ -e /cygdrive ]
+			then
+			    $convert2format $convert_params                   \
+					    -i "$line"                        \
+					    -aq 0                             \
+					    -y                                \
+					    "${line%.*}.$format"         &&
+				rm "$line"                               &&
 				print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
-				    print_c 3 "Conversione NON riuscita: $line" ) &
-			pid_ffmpeg=$!
+				    print_c 3 "Conversione NON riuscita: $line"
+			    
+			else
+			    (
+				$convert2format                       \
+				    -i "$line"                        \
+				    -report                           \
+				    -aq 0                             \
+				    -y                                \
+				    "${line%.*}.$format" &>/dev/null     &&
+				    rm "$line"                           &&
+				    print_c 1 "Conversione riuscita: ${line%.*}.$format" ||
+					print_c 3 "Conversione NON riuscita: $line"
+			    ) &
+			    pid_ffmpeg=$!
 
-			ffmpeg_stdout $convert2format $pid_ffmpeg
+			    ffmpeg_stdout $convert2format $pid_ffmpeg
+			fi
+			echo
 		    fi
-		    echo
 		fi
-	    fi
-	done
+	    done
 
-	rm "$print_out"
+	    rm "$print_out"
+
+	else
+	    print_c 3 "Nessun file da covertire"
+	fi
     fi
 }
