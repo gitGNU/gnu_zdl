@@ -678,7 +678,9 @@ then
 
 		irc[chan]="${irc[chan]##'#'}"
 
-		irc[msg]="${irc[msg]#'/msg '}"
+		irc[msg]="${irc[msg]#'/msg'}"
+		irc[msg]="${irc[msg]#'/ctcp'}"
+		irc[msg]="${irc[msg]## }"
 		
 		args+=( "irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}" )
 		(( max_args++ ))

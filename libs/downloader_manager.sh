@@ -206,7 +206,7 @@ function download {
 	    unset irc ctcp
 	    declare -A ctcp
 	    declare -A irc
-	    if [[ "$url_in" =~ ^irc:\/\/([^/]+)\/([^/]+)\/([^/]+) ]]
+	    if [[ "$url_in" =~ ^irc:\/\/([^/]+)\/([^/]+)\/([^/]+$) ]]
 	    then
 		MSG=$(urldecode "${BASH_REMATCH[3]}")
 		MSG="${MSG#ctcp}"
@@ -221,7 +221,7 @@ function download {
 		    [nick]=$(obfuscate "$USER")
 		)
 	    fi
-#		    [nick]=$(obfuscate "$USER")
+
 	    [[ "${irc[host]}" =~ ^(.+)\:([0-9]+)$ ]] &&
 		{
 		    irc[host]="${BASH_REMATCH[1]}"
