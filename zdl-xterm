@@ -26,15 +26,38 @@
 
 default_directory=""
 
-if [ "$1" == "--seldir" ]; then
+if [ "$1" == "--seldir" ]
+then
     read -p "Seleziona la directory di destinazione [$PWD]:" directory
-    if [ ! -d "$directory" ]; then
+
+    if [ ! -d "$directory" ]
+    then
 	unset directory
     fi
-    cd "$directory"
+
+    echo "$directory"
+
 else
     args=( "$@" )
     args=( "${args[*]// /20%}" )
     args=( "${args[*]//&/\&}" )
-    xterm -tn "xterm-256color" -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12" +bdc -fg grey -bg black -title "ZigzagDownLoader in $PWD" -e "/bin/bash -i -c \"export pid_prog=\$$ ; if [ ! -d \\\"$default_directory\\\" ]; then source zdl-xterm --seldir ; else cd \\\"$default_directory\\\" 2>/dev/null ; fi ; zdl ${args[*]} --stop \"" &
+
+    xterm -tn "xterm-256color"                                       \
+	  -fa "XTerm*faceName: xft:Dejavu Sans Mono:pixelsize=12"    \
+	  +bdc                                                       \
+	  -fg grey                                                   \
+	  -bg black                                                  \
+	  -title "ZigzagDownLoader in $PWD"                          \
+	  -e "/bin/bash -i -c \"export pid_prog=\$$
+if [ ! -d \\\"$default_directory\\\" ]
+then 
+  cd  \\\"\\\$(zdl-xterm --seldir ${args[@]})\\\"
+
+else 
+  cd \\\"$default_directory\\\" 2>/dev/null
+
+fi
+
+zdl ${args[*]} --stop \"" &
+
 fi

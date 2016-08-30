@@ -556,7 +556,11 @@ function input_xdcc {
 	while [ -z "${irc[$index]}" ]
 	do
 	    print_c 2 "${out_msg[$index]}"
+
+	    cursor on
 	    read -e irc[$index]
+	    cursor off
+	    
 	    irc[$index]=$(head -n1 <<< "${irc[$index]}")
 	    echo 
 	    

@@ -123,14 +123,17 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
     do
 	print_c 3 "ATTENZIONE: $dep non è installato nel tuo sistema"
 
-echo -e "${alert_msg[dep]}
+	echo -e "${alert_msg[dep]}
 1) Installa automaticamente $dep da pacchetti
 2) Installa automaticamente $dep da sorgenti
 3) Salta l'installazione di $dep e continua con l'installazione di $PROG e delle altre sue dipendenze
 4) Esci da $PROG per installare $dep manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=$dep)"
 
 	print_c 2 "Scegli cosa fare (1-4):"
+
+	cursor on
 	read -e input
+	cursor off
 	
 	case $input in
 	    1) install_pk $dep ;;
