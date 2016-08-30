@@ -964,6 +964,18 @@ then
     done
 fi
 
+if [[ "${args[*]}" =~ \-\-socket ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^\-\-socket=([0-9]+)$ ]]
+	then
+	    socket_port="${BASH_REMATCH[1]}"
+	    unset args[i]
+	fi
+    done
+fi
+
 
 for ((i=0; i<=$max_args; i++))
 do

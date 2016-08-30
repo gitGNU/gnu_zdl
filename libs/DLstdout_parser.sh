@@ -71,6 +71,16 @@ function data_stdout {
 			  ${tmp_files[@]}                           \
 		)
 	unset tmp_files
+
+	if [[ "$socket_port" =~ ^[0-9]+$ ]]
+	then
+	    exec 3<>/dev/tcp/localhost/$socket_port &&
+		{
+		    echo -e "$awk_data" >&3
+		    exec 3>&-
+		}
+	fi
+
 	eval "$awk_data"
 	
 	## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
