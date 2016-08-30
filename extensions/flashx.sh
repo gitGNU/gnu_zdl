@@ -29,7 +29,7 @@
 
 if [ "$url_in" != "${url_in//flashx.}" ]
 then
-    if [[ ! "$url_in" =~ playit ]]
+    if [[ ! "$url_in" =~ playvid ]] ## if [[ ! "$url_in" =~ playit ]]
     then
     	html=$(wget -qO- --user-agent="$user_agent" "$url_in")
     	file_in=$(get_title "$html")
@@ -40,7 +40,7 @@ then
     	parser_path="${parser_path%%\/*}"
     	# url_packed="${parser_proto}${parser_domain}/embed-${parser_path%.html*}-1024x427.html"
 	# url_packed="${parser_proto}${parser_domain}/embed.php?c=${parser_path%.html*}"
-	url_packed="${parser_proto}${parser_domain}/playit-${parser_path}"
+	url_packed="${parser_proto}${parser_domain}/playvid-${parser_path}"
     else
     	url_packed="$url_in"
     fi
