@@ -41,7 +41,7 @@ source $path_usr/libs/extension_utils.sh
 source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
-*source $path_usr/libs/post_processor.sh
+source $path_usr/libs/post_processor.sh
 
 function update_updater {
     fclear
