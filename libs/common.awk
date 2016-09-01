@@ -100,9 +100,9 @@ function cat (file,      c, line) {
 }
 
 function rm_line (line, file) {
-    code = code "line_file - \"" line "\" \"" file "\"; "
+    print "line_file - \"" line "\" \"" file "\"; " >>".zdl_tmp/awk2bash_commands"
 }
 
 function add_line (line, file) {
-    code = code "line_file + \"" line "\" \"" file "\"; "
+    print "line_file + \"" line "\" \"" file "\"; " >>".zdl_tmp/awk2bash_commands"
 }

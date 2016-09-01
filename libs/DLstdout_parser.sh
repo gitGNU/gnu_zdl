@@ -58,6 +58,8 @@ function data_stdout {
 	    done
 	fi
 
+	rm -f "$path_tmp/awk2bash_commands"
+	
 	awk_data=$(stdbuf -oL -eL                                   \
 			  awk                                       \
 			  -v file_in="$file_in"                     \
@@ -82,6 +84,9 @@ function data_stdout {
 	fi
 
 	eval "$awk_data"
+
+	[ -f "$path_tmp/awk2bash_commands" ] &&
+	    source "$path_tmp/awk2bash_commands"
 	
 	## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
 	[ -n "$test" ] && echo -e "$test" 
