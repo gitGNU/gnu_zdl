@@ -41,7 +41,7 @@ source $path_usr/libs/extension_utils.sh
 source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
-source $path_usr/libs/post_processor.sh
+*source $path_usr/libs/post_processor.sh
 
 function update_updater {
     fclear
@@ -80,27 +80,16 @@ function update_updater {
 
 	#wget "$URL_ROOT" -r -l 1 -A gz -np -nd -q
 	rm -f zdl-2.0.tar.gz.sig zdl-2.0.tar.gz
-	while [ ! -f zdl-2.0.tar.gz ] ||
-		  [ ! -f zdl-2.0.tar.gz ]
+	while [ ! -f zdl-2.0.tar.gz ]
 	do
-	    [ ! -f zdl-2.0.tar.gz ] &&
-		{
-		    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz" -O zdl-2.0.tar.gz
-		    sleep 1
-		}
-	    [ ! -f zdl-2.0.tar.gz.sig ] &&
-		{
-		    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig" -O zdl-2.0.tar.gz.sig
-		    sleep 1
-		}
+	    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz" -O zdl-2.0.tar.gz
 
-	    if [ ! -f zdl-2.0.tar.gz ] ||
-		   [ ! -f zdl-2.0.tar.gz ]
+	    if [ ! -f zdl-2.0.tar.gz ]
 	    then
 		print_c 3 "Problemi di connessione: se non dovesse risolversi, chiudi il programma con <Control+c>"
+		sleep 1
 	    fi
 	done
-	
 
 	package="zdl-2.0.tar.gz"
 	print_c 1 "Aggiornamento di $PROG con $package"
