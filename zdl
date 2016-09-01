@@ -1442,6 +1442,7 @@ then
     test_pid="$(cat "$path_tmp"/.pid.zdl 2>/dev/null)"
 
     [ "$test_pid" == "$pid_prog" ] &&
+	! check_start_file &&
 	{
 	    rm -rf "$path_tmp"
 	    echo

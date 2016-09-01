@@ -235,8 +235,9 @@ function readline_links {
     ## binding = {  true -> while immissione URL
     ##             unset -> break immissione URL                    }
     binding=true    
-    
-    msg_end_input="Immissione URL terminata: avvio download"
+
+    [ "$this_mode" != lite ] &&
+	msg_end_input="Immissione URL terminata: avvio download"
     ## bind -x "\"\C-l\":\"\"" 2>/dev/null
     bind -x "\"\C-x\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
     bind -x "\"\ex\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
