@@ -40,6 +40,7 @@ function check_instance_daemon {
     ## ritardare il controllo
     while (( $(date +%s) < $(cat "$path_tmp"/.date_daemon 2>/dev/null)+2 ))
     do
+	echo -ne "$(sprint_c 2 "Avvio modalità demone...")\r"
 	sleep 0.1
     done
     

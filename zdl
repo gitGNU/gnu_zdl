@@ -538,7 +538,7 @@ then
 
 		nohup /bin/bash $prog ${args[*]} --silent "$PWD" &>/dev/null &
 		
-		print_c 4 "${name_prog}:"
+		print_c 4 "${name_prog}:       "
 		print_c 1 "Avviato in modalità demone in $PWD\n"
 		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
 		[ -n "$xterm_stop" ] && xterm_stop
@@ -547,7 +547,7 @@ then
 	    else
 		start_mode_in_tty stdout "$this_tty"
 		
-		print_c 4 "${name_prog}:"
+		print_c 4 "${name_prog}:       "
 		print_c 3 "Esiste già un'istanza attiva della modalità demone in $PWD\n"
 		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
 
