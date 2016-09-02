@@ -150,7 +150,13 @@ function check_axel {
 }
 
 function check_wget {
-    wget_checked="$(wget -S --spider "$url_in_file" 2>&1)"
+    local pid_countdown
+    countdown- 30 &
+    pid_countdown=$!
+    
+    wget_checked=$(wget -t3 -T10 -S --spider "$url_in_file" 2>&1)
+    kill -9 $pid_countdown
+    
     if [[ "$wget_checked" =~ (Remote file does not exist|failed: Connection refused) ]]
     then
 	return 1

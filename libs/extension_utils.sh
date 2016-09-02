@@ -149,9 +149,10 @@ function simply_debrid {
     url "$html_url" &&
 	print_c 4 "... $html_url ..."
 
-    json_data=$(wget --referer='https://simply-debrid.com/generate#show'    \
-		     --user-agent=Firefox                                   \
-		     --load-cookies="$path_tmp/cookies.zdl"                 \
+    wget -qO /dev/null 'https://simply-debrid.com/inc/generate/adb.php?nok=1' \
+	 --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl"
+    
+    json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"                 \
 		     "$html_url" -qO- |
 		       sed -r 's|\\\/|/|g')
     
