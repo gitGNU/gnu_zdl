@@ -479,8 +479,9 @@ _Link generati dal web (anche dopo captcha):_
      ed altri servizi 
 
 _Short links:_
-     Adf.ly, Adfoc.us, bit.ly, goo.gl, linkbucks.com, Shortlink,
-     swzz.xyz, vcrypt.pw
+     Adf.ly, Adf.ly, Adfoc.us, Adfoc.us, bit.ly, bit.ly, goo.gl,
+     goo.gl, linkbucks.com, linkbucks.com, Shortlink, swzz.xyz,
+     vcrypt.pw
 
 _Tutti i file scaricabili con le seguenti estensioni dei browser:_
      _Flashgot_ di _Firefox/Iceweasel/Icecat_, funzione `M-x zdl' di
@@ -1331,25 +1332,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6499
 Node: Servizi streaming/hosting13358
-Node: Avviare ZDL17060
-Node: Arrestare ZDL19496
-Node: Controllare i download20601
-Node: Manuali d'uso24884
-Node: Modi25300
-Node: Readline28566
-Node: Editor30118
-Node: Omonimie31343
-Node: IRC/XDCC32878
-Node: Torrent34568
-Node: Filtri35452
-Node: Creare nuove estensioni35773
-Node: Software consigliati37527
-Node: Conkeror38928
-Node: zdl-xterm e XXXTerm/Xombrero39939
-Node: Installazione e aggiornamento41863
-Node: Tags44898
-Node: Copying47699
-Node: Contatti48749
+Node: Avviare ZDL17114
+Node: Arrestare ZDL19550
+Node: Controllare i download20655
+Node: Manuali d'uso24938
+Node: Modi25354
+Node: Readline28620
+Node: Editor30172
+Node: Omonimie31397
+Node: IRC/XDCC32932
+Node: Torrent34622
+Node: Filtri35506
+Node: Creare nuove estensioni35827
+Node: Software consigliati37581
+Node: Conkeror38982
+Node: zdl-xterm e XXXTerm/Xombrero39993
+Node: Installazione e aggiornamento41917
+Node: Tags44952
+Node: Copying47753
+Node: Contatti48803
 
 End Tag Table
 
