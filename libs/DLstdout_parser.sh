@@ -76,7 +76,7 @@ function data_stdout {
 
 	if [[ "$socket_port" =~ ^[0-9]+$ ]]
 	then
-	    exec 3<>/dev/tcp/localhost/$socket_port &&
+	    exec 3>/dev/tcp/localhost/$socket_port &&
 		{
 		    echo -e "$awk_data" >&3
 		    exec 3>&-

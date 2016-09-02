@@ -684,7 +684,7 @@ function kill_external {
 	    do
 		[[ "$pid" =~ ^[0-9]+$ ]] &&
 		    kill -9 $pid 2>/dev/null
-	    done &
+	    done &>/dev/null &
 	rm -f "$path_tmp/external-dl_pids.txt"
     fi
 }
@@ -712,7 +712,7 @@ function kill_urls {
 	    do
 		url "$test_url" &&
 		    kill_url "$test_url"
-	    done &
+	    done &>/dev/null &
     fi
 }
 
@@ -729,10 +729,10 @@ function kill_url {
 	    do
 		if [[ "$pid" =~ ^[0-9]+$ ]]
 		then
-		    kill -9 $pid 2>/dev/null
+		    kill -9 $pid &>/dev/null
 		    del_pid_url "$url" "$type_pid"
 		fi
-	    done &
+	    done &>/dev/null &
     fi
 }
 
@@ -745,8 +745,8 @@ function kill_pid_urls {
 	cat "$path_tmp/${type_pid}" | cut -d' ' -f1 |
 	    while read pid
 	    do
-		kill -9 "$pid" 2>/dev/null
-	    done &
+		kill -9 "$pid" &>/dev/null
+	    done &>/dev/null &
     fi
 }
 

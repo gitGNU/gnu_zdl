@@ -1385,7 +1385,7 @@ else
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
 
-    stty -echo
+    cursor off
     while true
     do
 	main_loop || break
@@ -1404,11 +1404,11 @@ else
 	if [ "$this_mode" == "lite" ]
 	then
 	    show_downloads_lite
-	    stty -echo
+	    cursor off
 	    read_binding
 
 	else
-	    stty -echo
+	    cursor off
 	    read_binding
 	fi
     done
