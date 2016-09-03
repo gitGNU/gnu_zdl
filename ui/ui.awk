@@ -145,7 +145,7 @@ function show_downloads_lite () {
     }
     
     if (no_clear != "no-clear") clear_lite()
-    return code "\n"
+    return code
 }
 
 

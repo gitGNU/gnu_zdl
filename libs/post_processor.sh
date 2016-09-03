@@ -90,7 +90,7 @@ function post_process {
 		done
 	    done
 
-	    echo
+	    header
 	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
 
 	    if cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" 2>/dev/null
@@ -146,7 +146,7 @@ function post_process {
     then
 	command -v avconv &>/dev/null && convert2format="avconv"
 	command -v ffmpeg &>/dev/null && convert2format="ffmpeg"
-	echo
+	header
 	header_box "Conversione in $format ($convert2format)"
 
 	if [ -f "$print_out" ]
@@ -189,7 +189,7 @@ function post_process {
 
 			    ffmpeg_stdout $convert2format $pid_ffmpeg
 			fi
-			echo
+			header
 		    fi
 		fi
 	    done

@@ -1417,10 +1417,11 @@ else
     then
 	header_lite force
 	show_downloads_lite no-clear
+	header
     fi
 fi
 
-wait $loops_pid
+wait $loops_pid 
 
 noproxy
 
@@ -1439,13 +1440,13 @@ post_process || exit 1
 
 if ! get_exit
 then
-    test_pid="$(cat "$path_tmp"/.pid.zdl 2>/dev/null)"
+    test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
 
     [ "$test_pid" == "$pid_prog" ] &&
 	! check_start_file &&
 	{
 	    rm -rf "$path_tmp"
-	    echo
+	    header
 	    separator-
 	    print_c 1 "Download completato"
 	    separator-
@@ -1454,7 +1455,7 @@ else
     kill_downloads
 fi
 
-echo
+header
 
 if [ -f "$file_log" ]
 then
