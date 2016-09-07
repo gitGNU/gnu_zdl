@@ -258,6 +258,6 @@ Gianluca Zoni (zoninoz)
 http://inventati.org/zoninoz
 " | less
     echo
-    echo
+    cursor on
     exit 1
 }

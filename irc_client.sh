@@ -431,8 +431,8 @@ function check_irc_command {
 	    irc_send "PONG $chunk"
 	    ;;
 	NOTICE)
+	    check_notice "$txt"
 	    print_c 4 "<< $txt"
-	    check_notice "$txt" 
 	    ;;
 	PRIVMSG)
 	    if check_ctcp "$txt"
