@@ -174,7 +174,7 @@ function services_box {
 
 function standard_box {
     [ "$this_mode" == "lite" ] && header_lite=" LITE"
-    
+    stdbox=true
     
     [ "$this_mode" == help ] &&
 	header_msg="Help dei comandi" ||

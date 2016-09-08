@@ -663,7 +663,8 @@ function redirect_links {
     if [ -n "$links" ] ||
 	   [ -n "$post_readline" ]
     then
-	header_dl "Downloading in $PWD"
+	[ -z "$stdbox" ] &&
+	    header_dl "Downloading in $PWD"
 	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
     fi
     
