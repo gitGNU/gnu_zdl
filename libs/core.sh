@@ -658,13 +658,13 @@ function redirect_links {
     then
 	header_box "Links da processare"
 	echo -e "${links}\n"
-	separator-    
     fi
     
     if [ -n "$links" ] ||
 	   [ -n "$post_readline" ]
     then
-	print_c 1 "\nLa gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
+	header_dl "Downloading in $PWD"
+	print_c 1 "La gestione dei download è inoltrata a un'altra istanza attiva di $name_prog (pid: $that_pid), nel seguente terminale: $that_tty\n"
     fi
     
     [ -n "$xterm_stop" ] && xterm_stop
