@@ -656,7 +656,7 @@ END {
 
     if (json_flag == "true") {
 	json = json "}],"
-        print json >>"/tmp/zdl.d/data.json"
+        printf("%s", json) >>"/tmp/zdl.d/data.json"
     }
 
     print code 

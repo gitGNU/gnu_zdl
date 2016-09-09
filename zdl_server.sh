@@ -40,7 +40,7 @@ json_flag=true
 function create_json {
     if [ -s /tmp/zdl.d/paths.txt ]
     then
-	echo '{' >/tmp/zdl.d/data.json
+	echo -ne '{' >/tmp/zdl.d/data.json
 
 	while read path
 	do
@@ -48,7 +48,7 @@ function create_json {
 	    data_stdout
 	done </tmp/zdl.d/paths.txt
 
-	echo '}' >>/tmp/zdl.d/data.json
+	echo -en "}\n" >>/tmp/zdl.d/data.json
     fi
 }
 
