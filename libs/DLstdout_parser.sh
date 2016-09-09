@@ -59,14 +59,23 @@ function data_stdout {
 	fi
 
 	rm -f "$path_tmp/awk2bash_commands"
+
+	#### attivazione json solo da: zdl_server.sh <port>
+	# json_flag=true
+	# if [ -n "$json_flag" ]
+	# then
+	#     mkdir -p /tmp/zdl.d
+	# fi
 	
 	awk_data=$(stdbuf -oL -eL                                   \
 			  awk                                       \
+			  -v pwd="$PWD"                             \
 			  -v file_in="$file_in"                     \
 			  -v url_in="$url_in"                       \
 			  -v no_complete="$no_complete"             \
 			  -v num_check="$num_check"                 \
 			  -v no_check="$no_check"                   \
+			  -v json_flag="$json_flag"                 \
 			  -v wget_links_index="${#wget_links[*]}"   \
 			  -f $path_usr/libs/common.awk              \
 			  -f $path_usr/libs/DLstdout_parser.awk     \
@@ -74,23 +83,11 @@ function data_stdout {
 		)
 	unset tmp_files
 
-	if [[ "$socket_port" =~ ^[0-9]+$ ]]
-	then
-	    exec 3>/dev/tcp/localhost/$socket_port &&
-		{
-		    echo -e "$awk_data" >&3
-		    exec 3>&-
-		}
-	fi
-
 	eval "$awk_data"
-
+	
 	[ -f "$path_tmp/awk2bash_commands" ] &&
 	    source "$path_tmp/awk2bash_commands"
 	
-	## per test da awk (codice da inserire): code = code "test=\"" test_awk "\"; "
-	[ -n "$test" ] && echo -e "$test" 
-
 	return 0
     else
 	return 1

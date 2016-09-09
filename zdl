@@ -958,8 +958,16 @@ then
     for ((i=0; i<=$max_args; i++))
     do
 	if [[ "${args[i]}" =~ ^\-\-socket=([0-9]+)$ ]]
-	then
+	then	    
 	    socket_port="${BASH_REMATCH[1]}"
+
+	    mkdir -p /tmp/zdl.d
+	    if [ ! -s /tmp/zdl.d/server_pid ] ||
+		   ! check_pid $(cat /tmp/zdl.d/server_pid)
+	    then
+		line_file + "$PWD" /tmp/zdl.d/paths.txt
+		$path_usr/zdl_server.sh $socket_port &
+	    fi
 	    unset args[i]
 	fi
     done

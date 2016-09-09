@@ -23,8 +23,59 @@
 # zoninoz@inventati.org
 #
 
+function json_add_DLdata (type, value,        retype) {	
+    if (type == "url_out")
+	retype = "link"
+
+    else if (type == "file_out")
+	retype = "file"
+    
+    else if (type == "url_out_file")
+	retype = "url"
+
+    else if (type == "playpath_out")
+	retype = "playpath"
+
+    else if (type == "streamer_out")
+	retype = "streamer"
+
+    else if (type == "downloader_out")
+	retype = "downloader"
+
+    else if (type == "percent_out")
+	retype = "percent"
+
+    else if (type == "eta_out")
+	retype = "eta"
+
+    else if (type == "length_out")
+	retype = "length"
+    
+    else if (type == "length_saved")
+	retype = "saved"
+    
+    else if (type == "pid_out")
+	retype = "pid"
+
+    else if (type == "pid_prog_out")
+	retype = "pid_instance"
+
+    else if (type == "speed_out")
+	retype = "speed"
+
+    else if (type == "speed_out_type")
+	retype = "speed_measure"
+
+    if (retype) {
+	return retype ":\"" value "\","
+    }
+}
+
 function array_out (value, type) {
-    code = code bash_array(type, i, value) 
+    if (json_flag == "true") {	
+	json = json json_add_DLdata(type, value)
+    } 
+    code = code bash_array(type, i, value)
 }
 
 function downloaded_part () {
@@ -503,12 +554,26 @@ BEGIN {
     j = 0
     ## numero righe coda del chunk:
     n = 20
-    delete pid_alive
+    #delete pid_alive
+
+    if (json_flag == "true") {
+	json = "\"" pwd "\":["
+	start_json_DLdata = "true"
+    }
 }
 
 {
- #   		code = code "test+=\" RIGA " $0 "\"; "
     if (FNR == 1) {
+	if (json_flag == "true") {
+	    if (start_json_DLdata) {
+		json = json "{"
+		start_json_DLdata = ""
+	    }
+	    else {
+		json = json "},{"
+	    }
+	}
+	
 	if (j > 1) {
 	    ## progress_out
 	    progress()
@@ -589,5 +654,10 @@ END {
 	}
     }
 
-    print code
+    if (json_flag == "true") {
+	json = json "}],"
+        print json >>"/tmp/zdl.d/data.json"
+    }
+
+    print code 
 }

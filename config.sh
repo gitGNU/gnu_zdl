@@ -432,7 +432,7 @@ function init {
 
     rm -rf "$path_tmp/links_loop.txt-rewriting"
     [ -z "$editor" ] && check_editor
-
+    
     trap_sigint
 }
 
