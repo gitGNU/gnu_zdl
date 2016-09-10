@@ -1342,6 +1342,8 @@ function main_loop {
 			no_msg=true
 			break
 		    fi
+
+		    [ ! -s "$start_file" ] && sleeping_pause=0 
 		    sleeping "$sleeping_pause"
 		done
 
@@ -1349,6 +1351,7 @@ function main_loop {
 	    fi
 	done < "$start_file"
 
+	[ ! -s "$start_file" ] && sleeping_pause=0 
 	[ -z "$no_msg" ] && sleeping $sleeping_pause
 	pipe_files
 
