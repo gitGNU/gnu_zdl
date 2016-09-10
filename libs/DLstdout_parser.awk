@@ -67,14 +67,11 @@ function json_add_DLdata (type, value,        retype) {
 	retype = "speed_measure"
 
     if (retype) {
-	return retype ":\"" value "\","
+	json = json retype ":\"" value "\","
     }
 }
 
 function array_out (value, type) {
-    if (json_flag == "true") {	
-	json = json json_add_DLdata(type, value)
-    } 
     code = code bash_array(type, i, value)
 }
 
@@ -555,25 +552,10 @@ BEGIN {
     ## numero righe coda del chunk:
     n = 20
     #delete pid_alive
-
-    if (json_flag == "true") {
-	json = "\"" pwd "\":["
-	start_json_DLdata = "true"
-    }
 }
 
 {
     if (FNR == 1) {
-	if (json_flag == "true") {
-	    if (start_json_DLdata) {
-		json = json "{"
-		start_json_DLdata = ""
-	    }
-	    else {
-		json = json "},{"
-	    }
-	}
-	
 	if (j > 1) {
 	    ## progress_out
 	    progress()
@@ -642,8 +624,33 @@ BEGIN {
 
 END {
     progress()
+    if (json_flag == "true") {
+	json = "\"" pwd "\":["
+    }
 
     for (I=0; I<length(file_out); I++) {
+	if (json_flag == "true") {
+	    json = json "{"
+	    
+	    json = json "link:\"" url_out[I] "\","
+	    json = json "file:\"" file_out[I] "\","
+	    json = json "url:\"" url_out_file[I] "\","
+	    json = json "playpath:\"" playpath_out_[I] "\","
+	    json = json "streamer:\"" streamer_out[I] "\","
+	    json = json "downloader:\"" downloader_out[I] "\","
+	    json = json "percent:\"" percent_out[I] "\","
+	    json = json "eta:\"" eta_out[I] "\","
+	    json = json "length:\"" length_out[I] "\","
+	    json = json "saved:\"" length_saved[I] "\","
+	    json = json "pid:\"" pid_out[I] "\","
+	    json = json "pid_instance:\"" pid_prog_out[I] "\","
+	    json = json "speed:\"" speed_out[I] "\","
+	    json = json "speed_measure:\"" speed_out_type[I] "\","
+	    
+	    json = json "},"
+	}
+	
+
 	for (J=0; J<length(file_out); J++) {
 	    ## cancella download di file con nome diverso per uno stesso link/url
 	    if ((url_out[I] == url_out[J]) &&
@@ -655,7 +662,7 @@ END {
     }
 
     if (json_flag == "true") {
-	json = json "}],"
+	json = json "],"
         printf("%s", json) >>"/tmp/zdl.d/data.json"
     }
 

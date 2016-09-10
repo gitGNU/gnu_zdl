@@ -24,8 +24,6 @@
 # zoninoz@inventati.org
 #
 
-pid_server="$$"
-echo $pid_server >/tmp/zdl.d/server_pid
 path_usr="/usr/local/share/zdl"
 path_tmp=".zdl_tmp"
 
@@ -53,9 +51,13 @@ function create_json {
 }
 
 
+read -r line
 
-for i in {0..11}
-do
-    create_json
-    sleep 5
-done
+case $line in
+    GET_DATA)
+	create_json
+	cat /tmp/zdl.d/data.json
+	;;
+esac
+sleep 5
+

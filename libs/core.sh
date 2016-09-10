@@ -825,3 +825,7 @@ function check_freespace {
 
     return 0
 }
+
+function kill_server {
+    kill $(cat /tmp/zdl.d/pid_server) &>/dev/null
+}

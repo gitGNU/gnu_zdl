@@ -962,11 +962,13 @@ then
 	    socket_port="${BASH_REMATCH[1]}"
 
 	    mkdir -p /tmp/zdl.d
-	    if [ ! -s /tmp/zdl.d/server_pid ] ||
-		   ! check_pid $(cat /tmp/zdl.d/server_pid)
+	    if [ ! -s /tmp/zdl.d/pid_server ] ||
+		   ! check_pid $(cat /tmp/zdl.d/pid_server)
 	    then
 		line_file + "$PWD" /tmp/zdl.d/paths.txt
-		$path_usr/zdl_server.sh $socket_port &
+		socat TCP4-LISTEN:${socket_port},fork EXEC:"$path_usr/zdl_server.sh" &
+		pid_server=$!
+		echo $pid_server >/tmp/zdl.d/pid_server
 	    fi
 	    unset args[i]
 	fi
@@ -1466,6 +1468,7 @@ else
     kill_downloads
 fi
 
+kill_server
 header
 
 if [ -f "$file_log" ]
