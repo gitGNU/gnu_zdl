@@ -50,14 +50,16 @@ function create_json {
     fi
 }
 
-
-read -r line
-
-case $line in
-    GET_DATA)
-	create_json
-	cat /tmp/zdl.d/data.json
-	;;
-esac
-sleep 5
+while :
+do
+    read -r line
+    
+    case $line in
+	GET_DATA)
+	    create_json
+	    cat /tmp/zdl.d/data.json
+	    ;;
+    esac
+    sleep 5
+done
 
