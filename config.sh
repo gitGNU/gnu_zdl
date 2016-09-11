@@ -336,6 +336,9 @@ function get_conf {
 	Background="$On_Black" && Foreground="$White" ||
 	    unset Background Foreground
 
+    [[ "$(tty)" =~ tty ]] &&
+	background=tty
+    
     Color_Off="\033[0m${Foreground}${Background}" 
 }
 

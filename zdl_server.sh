@@ -52,9 +52,9 @@ function create_json {
 
 while :
 do
-    read -r line
+    read -ra line
     
-    case $line in
+    case ${line[0]} in
 	GET_DATA)
 	    create_json
 	    cat /tmp/zdl.d/data.json
