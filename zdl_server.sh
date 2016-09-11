@@ -35,6 +35,149 @@ source $path_usr/libs/log.sh
 
 json_flag=true
 
+#### HTTP:
+declare -i DEBUG=1
+declare -i VERBOSE=0
+declare -a REQUEST_HEADERS
+declare    REQUEST_URI=""
+declare -a HTTP_RESPONSE=(
+    [200]="OK"
+    [400]="Bad Request"
+    [403]="Forbidden"
+    [404]="Not Found"
+    [405]="Method Not Allowed"
+    [500]="Internal Server Error")
+declare DATE=$(date +"%a, %d %b %Y %H:%M:%S %Z")
+declare -a RESPONSE_HEADERS=(
+    "Date: $DATE"
+    "Expires: $DATE"
+    "Server: Slash Bin Slash Bash"
+    "Content-Type: text/html"
+)
+
+function recv {
+    ((${VERBOSE})) &&
+	echo "< $@" >&2
+}
+
+function send {
+    ((${VERBOSE})) &&
+	echo "> $@" >&2
+
+    echo "$*"
+}
+
+function add_response_header {
+    RESPONSE_HEADERS+=("$1: $2")
+}
+
+function send_response_binary {
+    local code="$1"
+    local file="${2}"
+    local transfer_stats=""
+    local tmp_stat_file="/tmp/_send_response_$$_"
+
+    send "HTTP/1.0 $1 ${HTTP_RESPONSE[$1]}"
+
+    for i in "${RESPONSE_HEADERS[@]}"
+    do
+	send "$i"
+    done
+    send
+
+    if ((${VERBOSE}))
+    then
+	## Use dd since it handles null bytes
+	dd 2>"${tmp_stat_file}" < "${file}"
+	transfer_stats=$(<"${tmp_stat_file}")
+	echo -en ">> Transferred: ${file}\n>> $(awk '/copied/{print}' <<< "${transfer_stats}")\n" >&2
+	rm "${tmp_stat_file}"
+	
+    else
+	## Use dd since it handles null bytes
+	dd 2>"${DUMP_DEV}" < "${file}"
+    fi
+}
+
+function send_response {
+    local code="$1"
+    send "HTTP/1.0 $1 ${HTTP_RESPONSE[$1]}"
+
+    for i in "${RESPONSE_HEADERS[@]}"
+    do
+        send "$i"
+    done
+    send
+
+    while IFS= read -r line
+    do
+	send "${line}"
+    done
+}
+
+function send_response_ok_exit {
+    send_response 200
+    exit 0
+}
+
+function send_response_ok_exit_binary {
+    send_response_binary 200  "${1}"
+    exit 0
+}
+
+function fail_with {
+    send_response "$1" <<< "$1 ${HTTP_RESPONSE[$1]}"
+    exit 1
+}
+
+function serve_file {
+    local file="$1"
+    local CONTENT_TYPE=""
+
+    case "${file}" in
+        *\.css)
+	    CONTENT_TYPE="text/css"
+	    ;;
+	*\.js)
+	    CONTENT_TYPE="text/javascript"
+	    ;;
+	*)
+	    CONTENT_TYPE=$(file -b --mime-type "${file}")
+	    ;;
+    esac
+
+    add_response_header "Content-Type"  "${CONTENT_TYPE}"
+    CONTENT_LENGTH=$(stat -c'%s' "${file}")
+    add_response_header "Content-Length" "${CONTENT_LENGTH}"
+
+    ## Use binary safe transfer method since text doesn't break.
+    send_response_ok_exit_binary "${file}"
+}
+
+function urldecode {
+    [ "${1%/}" == "" ] && echo "/" ||
+	    echo -e "$(sed 's/%\([[:xdigit:]]\{2\}\)/\\\x\1/g' <<< "${1%/}")"
+}
+
+function serve_static_string() {
+    add_response_header "Content-Type" "text/plain"
+    send_response_ok_exit <<< "$1"
+}
+
+function on_uri_match() {
+    local regex="$1"
+    shift
+    [[ "${REQUEST_URI}" =~ $regex ]] && 
+        "$@" "${BASH_REMATCH[@]}"
+}
+
+function unconditionally() {
+    "$@" "$REQUEST_URI"
+}
+
+###########
+
+
 function create_json {
     if [ -s /tmp/zdl.d/paths.txt ]
     then
@@ -50,16 +193,53 @@ function create_json {
     fi
 }
 
-while :
+
+while read -ra line
 do
-    read -ra line
-    
     case ${line[0]} in
-	GET_DATA)
+	GET)
+	    echo "${line[*]}" >>TEST
+	    create_json
+	    get_http=true
+	    echo "HTTP/1.0 200 ${HTTP_RESPONSE[200]}"
+	    
+	    for i in "${RESPONSE_HEADERS[@]}"
+	    do
+		echo "$i"
+	    done
+	    echo
+
+	    if [[ "${line[1]}" =~ ^\/tmp ]]
+	    then
+		web_template="${line[1]}"
+
+	    else
+		[ "${line[1]}" == '/' ] && line[1]=index.html
+		web_template="$path_usr/webui/${line[1]#\/}"
+	    fi
+	    ;;
+
+	get-data)
 	    create_json
 	    cat /tmp/zdl.d/data.json
+	    sleep 5
 	    ;;
     esac
-    sleep 5
+
+    #### HTTP:
+    if [ -n "$get_http" ]
+    then
+	VERBOSE=1
+	recv "${line[*]}"
+	
+	if [[ "${line[*]}" =~ keep-alive ]]
+	then
+	    JSON=$(cat /tmp/zdl.d/data.json 2>/dev/null)
+	    web_page=$(sed -r "s|__JSON__|$JSON|g" $web_template)
+	    echo "$web_page"
+	    echo "$web_page" >JSON-TEST
+	    break
+	fi
+    fi
 done
 
