@@ -966,7 +966,7 @@ then
 		   ! check_pid $(cat /tmp/zdl.d/pid_server)
 	    then
 		line_file + "$PWD" /tmp/zdl.d/paths.txt
-		socat TCP4-LISTEN:${socket_port},fork EXEC:"$path_usr/zdl_server.sh" &
+		socat TCP-LISTEN:${socket_port},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh" &
 		pid_server=$!
 		echo $pid_server >/tmp/zdl.d/pid_server
 	    fi
