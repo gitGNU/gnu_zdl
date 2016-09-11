@@ -194,7 +194,7 @@ function create_json {
 }
 
 
-while read -ra line
+while read -a line
 do
     case ${line[0]} in
 	GET)
@@ -208,7 +208,7 @@ do
 	    done
 	    echo
 
-	    if [[ "${line[1]}" =~ ^\/tmp ]]
+	    if [[ "${line[1]}" =~ ^\/tmp\/zdl.d\/ ]]
 	    then
 		web_template="${line[1]}"
 
@@ -221,14 +221,34 @@ do
 	get-data)
 	    create_json
 	    cat /tmp/zdl.d/data.json
-	    sleep 5
+	    ;;
+	## PATH sempre primo argomento (dal generale al particolare: per poter evitare il secondo quando opzionale perché compreso)
+	delete-link)
+	    ## [1]=PATH [2]=LINK
+	    ;;
+	add-link)
+	    ## [1]=PATH [2]=LINK
+	    ;;
+	stop-link)
+	    ## [1]=(PATH|ALL); [2]=(LINK|ALL); 
+	    ;;
+	set-downloader)
+	    ## [1]=(PATH|ALL); [2]=DOWNLOADER
+	    ;;
+	set-number)
+	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
+	    ;;
+	'clear')
+	    ## [1]=PATH oppure 'ALL'
+	    ;;
+	'kill')
+	    ## [1]=PATH oppure 'ALL'
 	    ;;
     esac
 
     #### HTTP:
     if [ -n "$get_http" ]
     then
-	VERBOSE=1
 	recv "${line[*]}"
 	
 	if [[ "${line[*]}" =~ keep-alive ]]
