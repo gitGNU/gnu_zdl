@@ -198,7 +198,6 @@ while read -ra line
 do
     case ${line[0]} in
 	GET)
-	    echo "${line[*]}" >>TEST
 	    create_json
 	    get_http=true
 	    echo "HTTP/1.0 200 ${HTTP_RESPONSE[200]}"
@@ -237,7 +236,7 @@ do
 	    JSON=$(cat /tmp/zdl.d/data.json 2>/dev/null)
 	    web_page=$(sed -r "s|__JSON__|$JSON|g" $web_template)
 	    echo "$web_page"
-	    echo "$web_page" >JSON-TEST
+
 	    break
 	fi
     fi
