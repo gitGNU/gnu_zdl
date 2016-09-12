@@ -77,7 +77,7 @@ function send_response_binary {
     local transfer_stats=""
     local tmp_stat_file="/tmp/_send_response_$$_"
 
-    send "HTTP/1.0 $1 ${HTTP_RESPONSE[$1]}"
+    send "HTTP/1.1 $1 ${HTTP_RESPONSE[$1]}"
 
     for i in "${RESPONSE_HEADERS[@]}"
     do
@@ -101,7 +101,7 @@ function send_response_binary {
 
 function send_response {
     local code="$1"
-    send "HTTP/1.0 $1 ${HTTP_RESPONSE[$1]}"
+    send "HTTP/1.1 $1 ${HTTP_RESPONSE[$1]}"
 
     for i in "${RESPONSE_HEADERS[@]}"
     do
@@ -187,9 +187,10 @@ function create_json {
 	do
 	    cd "$path"
 	    data_stdout
+	    echo -en "," >>/tmp/zdl.d/data.json
 	done </tmp/zdl.d/paths.txt
 
-	echo -en "}\n" >>/tmp/zdl.d/data.json
+	sed -r "s|,$|}\n|g" -i /tmp/zdl.d/data.json
     fi
 }
 
@@ -200,7 +201,7 @@ do
 	GET)
 	    create_json
 	    get_http=true
-	    echo "HTTP/1.0 200 ${HTTP_RESPONSE[200]}"
+	    echo "HTTP/1.1 200 ${HTTP_RESPONSE[200]}"
 	    
 	    for i in "${RESPONSE_HEADERS[@]}"
 	    do

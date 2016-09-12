@@ -23,53 +23,6 @@
 # zoninoz@inventati.org
 #
 
-function json_add_DLdata (type, value,        retype) {	
-    if (type == "url_out")
-	retype = "link"
-
-    else if (type == "file_out")
-	retype = "file"
-    
-    else if (type == "url_out_file")
-	retype = "url"
-
-    else if (type == "playpath_out")
-	retype = "playpath"
-
-    else if (type == "streamer_out")
-	retype = "streamer"
-
-    else if (type == "downloader_out")
-	retype = "downloader"
-
-    else if (type == "percent_out")
-	retype = "percent"
-
-    else if (type == "eta_out")
-	retype = "eta"
-
-    else if (type == "length_out")
-	retype = "length"
-    
-    else if (type == "length_saved")
-	retype = "saved"
-    
-    else if (type == "pid_out")
-	retype = "pid"
-
-    else if (type == "pid_prog_out")
-	retype = "pid_instance"
-
-    else if (type == "speed_out")
-	retype = "speed"
-
-    else if (type == "speed_out_type")
-	retype = "speed_measure"
-
-    if (retype) {
-	json = json retype ":\"" value "\","
-    }
-}
 
 function array_out (value, type) {
     code = code bash_array(type, i, value)
@@ -632,22 +585,25 @@ END {
 	if (json_flag == "true") {
 	    json = json "{"
 	    
-	    json = json "link:\"" url_out[I] "\","
-	    json = json "file:\"" file_out[I] "\","
-	    json = json "url:\"" url_out_file[I] "\","
-	    json = json "playpath:\"" playpath_out_[I] "\","
-	    json = json "streamer:\"" streamer_out[I] "\","
-	    json = json "downloader:\"" downloader_out[I] "\","
-	    json = json "percent:\"" percent_out[I] "\","
-	    json = json "eta:\"" eta_out[I] "\","
-	    json = json "length:\"" length_out[I] "\","
-	    json = json "saved:\"" length_saved[I] "\","
-	    json = json "pid:\"" pid_out[I] "\","
-	    json = json "pid_instance:\"" pid_prog_out[I] "\","
-	    json = json "speed:\"" speed_out[I] "\","
-	    json = json "speed_measure:\"" speed_out_type[I] "\","
-	    
-	    json = json "},"
+	    json = json "\"link\":\"" url_out[I] "\","
+	    json = json "\"file\":\"" file_out[I] "\","
+	    json = json "\"url\":\"" url_out_file[I] "\","
+	    json = json "\"playpath\":\"" playpath_out_[I] "\","
+	    json = json "\"streamer\":\"" streamer_out[I] "\","
+	    json = json "\"downloader\":\"" downloader_out[I] "\","
+	    json = json "\"percent\":\"" percent_out[I] "\","
+	    json = json "\"eta\":\"" eta_out[I] "\","
+	    json = json "\"length\":\"" length_out[I] "\","
+	    json = json "\"saved\":\"" length_saved[I] "\","
+	    json = json "\"pid\":\"" pid_out[I] "\","
+	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
+	    json = json "\"speed\":\"" speed_out[I] "\","
+	    json = json "\"speed_measure\":\"" speed_out_type[I] "\""
+
+	    if (I<length(file_out)-1)
+		json = json "},"
+	    else
+		json = json "}"
 	}
 	
 
@@ -662,7 +618,7 @@ END {
     }
 
     if (json_flag == "true") {
-	json = json "],"
+	json = json "]"
         printf("%s", json) >>"/tmp/zdl.d/data.json"
     }
 
