@@ -1164,7 +1164,7 @@ function main_loop {
 
 	    if ! check_link "$url_in"
 	    then
-		break
+		continue
 	    fi
 
 	    unset pid_in file_in url_in_file
