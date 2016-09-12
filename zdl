@@ -1162,6 +1162,8 @@ function main_loop {
 		_log 16 "$url_in"
 	    fi
 
+	    url_in=$(trim "$url_in")
+
 	    if ! check_link "$url_in"
 	    then
 		break

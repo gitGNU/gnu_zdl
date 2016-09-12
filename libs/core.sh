@@ -124,10 +124,11 @@ function zdl-ext-sorted {
 
 
 function set_line_in_file { 	#### usage: 
-    op="$1"                     ## operator (+|-|in)
-    item="$2"                   ## string
-    file_target="$3"            ## file target
-    rewriting="$3-rewriting"    #### <- to linearize parallel rewriting file target
+    local op="$1"                     ## operator (+|-|in)
+    local item="$2"                   ## string
+    local file_target="$3"            ## file target
+    local rewriting="$3-rewriting"    #### <- to linearize parallel rewriting file target
+
     if [ "$op" != "in" ]
     then
 	if [ -f "$rewriting" ]
@@ -166,10 +167,10 @@ function set_line_in_file { 	#### usage:
 		fi
 		rm -f "$rewriting"
 		;;
-	    in) 
-		if [ -f "$file_target" ]
+	    'in') 
+		if [ -s "$file_target" ]
 		then
-		    if grep -P "^($item)$" "$file_target" &>/dev/null
+		    if grep "^${item}$" "$file_target" &>/dev/null
 		    then 
 			return 0
 		    fi
@@ -181,8 +182,14 @@ function set_line_in_file { 	#### usage:
 }
 
 function check_link {
-    local url_test="${1}"
-    set_line_in_file 'in' "$url_test" "$path_tmp/links_loop.txt"
+    local url_test="$1"
+
+    if url "$url_test" ||
+	    grep "^${url_test}$" "$path_tmp/links_loop.txt" &>/dev/null
+    then
+	    return 0
+    fi
+    return 1
 }
 
 function set_link {
