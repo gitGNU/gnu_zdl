@@ -465,7 +465,7 @@ then
 		export pid_prog=$$
 		if ! check_instance_prog
 		then
-		    links_loop + "$url_in"
+		    set_link + "$url_in"
 		    xterm_stop=true
 		    links="$url_in"
 		    redirect_links
@@ -693,7 +693,7 @@ then
 		then
 		    [ "${ftorrent}" == "${ftorrent%.torrent}" ] &&
 			mv "${ftorrent}" "${ftorrent}.torrent"
-		    links_loop + "${ftorrent%.torrent}.torrent"
+		    set_link + "${ftorrent%.torrent}.torrent"
 		fi	
 		unset args[i+1]
 	    fi
@@ -707,7 +707,7 @@ then
 	    then
 		[ "${ftorrent}" == "${ftorrent%.torrent}" ] &&
 		    mv "${ftorrent}" "${ftorrent}.torrent"
-		links_loop + "${ftorrent%.torrent}.torrent"
+		set_link + "${ftorrent%.torrent}.torrent"
 	    fi	
 	    unset args[i]
 	fi
@@ -965,7 +965,7 @@ then
 	    if [ ! -s /tmp/zdl.d/pid_server ] ||
 		   ! check_pid $(cat /tmp/zdl.d/pid_server)
 	    then
-		line_file + "$PWD" /tmp/zdl.d/paths.txt
+		set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
 		socat TCP-LISTEN:${socket_port},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh" &
 		pid_server=$!
 		echo $pid_server >/tmp/zdl.d/pid_server
@@ -999,7 +999,7 @@ then
 
 	    elif [ "${args[i]}" != "${args[i]%.torrent}" ]
 	    then
-		links_loop + "${BASE_DIR}${args[i]}"
+		set_link + "${BASE_DIR}${args[i]}"
 		
 	    else
 		while read line
@@ -1029,7 +1029,7 @@ then
 			links="${links}\n${args[i]}"
 		    fi
 		    start_file="$path_tmp/links_loop.txt"
-		    links_loop + "${args[i]}"
+		    set_link + "${args[i]}"
 		fi
 	    else
 		_log 12 "${args[i]}"
@@ -1145,24 +1145,24 @@ function main_loop {
 	do
 	    if ! url "${url_in}"
 	    then
-		links_loop - "$url_in"
+		set_link - "$url_in"
 		_log 12 "$url_in"
 	    fi
 	    
 
 	    if [ -n "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
 	    then
-		links_loop - "$url_in"
+		set_link - "$url_in"
 		_log 15 "$url_in"
 	    fi
 
 	    if [ -n "$url_regex" ] && [[ ! "${url_in}" =~ $url_regex ]]
 	    then
-		links_loop - "$url_in"
+		set_link - "$url_in"
 		_log 16 "$url_in"
 	    fi
 
-	    if ! links_loop in "$url_in"
+	    if ! check_link "$url_in"
 	    then
 		break
 	    fi
@@ -1303,7 +1303,7 @@ function main_loop {
 		#### DOWNLOAD ####
 		if [ -z "$premium" ] &&                                                 
 		       check_in_file &&                                                         
-		       links_loop "in" "$url_in" &&
+		       check_link "$url_in" &&
 		       check_freespace
 		then
 		    #

@@ -36,9 +36,9 @@ for url_redir in $urls_redir; do
 	new_url_in="${new_url_in#*: }"
 	new_url_in="${new_url_in%% *}"
 	if [ "$new_url_in" == "${new_url_in//$url_redir}" ] && [ "$new_url_in" != "${new_url_in//'http://'}" ]; then
-	    links_loop - "$url_in"
+	    set_link - "$url_in"
 	    url_in="$new_url_in"
-	    links_loop + "$url_in"
+	    set_link + "$url_in"
 	else
 	    _log 2
 	    unset url_in

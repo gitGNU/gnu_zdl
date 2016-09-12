@@ -30,9 +30,9 @@ then
 
     if url "${new_url}"
     then
-	links_loop - "$url_in"
+	set_link - "$url_in"
 	url_in="$new_url"
-	links_loop + "$url_in"
+	set_link + "$url_in"
     else
 	_log 2
     fi

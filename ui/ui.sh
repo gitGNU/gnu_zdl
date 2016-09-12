@@ -252,7 +252,7 @@ function readline_links {
 	if [ -n "${link// }" ]
 	then
 	    link=$(sanitize_url "$link")
-	    links_loop + "$link"
+	    set_link + "$link"
 	    unset break_loop
 	fi
     done
@@ -510,7 +510,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 				
 				kill -9 ${pid_out[$i]} &>/dev/null
 				rm -f "${file_out[$i]}" "${file_out[$i]}.st" "${file_out[$i]}.zdl" "${file_out[$i]}.aria2" "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-				links_loop - "${url_out[$i]}"
+				set_link - "${url_out[$i]}"
 			    done
 			    ;;
 
@@ -519,7 +519,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 			    do
 				kill -9 ${pid_out[$i]} &>/dev/null
 				rm -f "$path_tmp"/"${file_out[$i]}_stdout.tmp"
-				links_loop - "${url_out[$i]}"
+				set_link - "${url_out[$i]}"
 			    done
 			    ;;
 

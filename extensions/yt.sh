@@ -29,9 +29,9 @@
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]
 then
-    links_loop - "$url_in"
+    set_link - "$url_in"
     url_in=$(urldecode "$url_in")
-    links_loop + "$url_in"
+    set_link + "$url_in"
     
     html=$(wget -Nc -e convert-links=off                     \
     		--keep-session-cookies                       \

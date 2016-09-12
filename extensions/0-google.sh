@@ -30,6 +30,6 @@ then
     url_in="${url_in_old#*'?q='}"
     url_in="${url_in%'&sa='*}"
     url_in=$(urldecode "$url_in")
-    links_loop - "$url_in_old"
-    links_loop + "$url_in"
+    set_link - "$url_in_old"
+    set_link + "$url_in"
 fi

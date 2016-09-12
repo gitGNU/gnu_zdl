@@ -246,7 +246,7 @@ function scrape_url {
 		    links="${links}\n$line"
 		fi
 		start_file="$path_tmp/links_loop.txt"
-		links_loop + "$line"
+		set_link + "$line"
 	    fi
 	done <<< "$html" 
 
@@ -336,9 +336,9 @@ function set_ext {
 function replace_url_in {
     if url "$1"
     then
-	links_loop - "$url_in"
+	set_link - "$url_in"
 	url_in="$1"
-	links_loop + "$url_in"
+	set_link + "$url_in"
 	return 0
 	
     else

@@ -81,9 +81,9 @@ then
 	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" | grep -v '^#' |head -n1)"
 	    unset url_in_file
 
-	    links_loop - "$url_in"
+	    set_link - "$url_in"
 	    url_in="$url_m3u8"
-	    links_loop + "$url_in"
+	    set_link + "$url_in"
 	    
 	else
 	    ext="${url_in_file##*.}"

@@ -43,14 +43,14 @@ then
     then
 	url_in_old="$url_in"
 	url_in="${url_in_old//'down.php?id='/dl/}"
-	links_loop - "$url_in_old"
-	links_loop + "$url_in"
+	set_link - "$url_in_old"
+	set_link + "$url_in"
     elif [ "$url_in" != "${url_in//'download.php?id='/dl/}" ]
     then
 	url_in_old="$url_in"
 	url_in="${url_in_old//'download.php?id='/dl/}"
-	links_loop - "$url_in_old"
-	links_loop + "$url_in"
+	set_link - "$url_in_old"
+	set_link + "$url_in"
     fi
 fi
 

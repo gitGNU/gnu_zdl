@@ -37,7 +37,7 @@ json_flag=true
 
 #### HTTP:
 declare -i DEBUG=1
-declare -i VERBOSE=0
+declare -i VERBOSE=1
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
 declare -a HTTP_RESPONSE=(

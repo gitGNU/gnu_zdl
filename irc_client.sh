@@ -368,7 +368,7 @@ function dcc_xfer {
 	    if [ "$(size_file "$file_in")" == "${ctcp[size]}" ]
 	    then
 		rm -f "${file_in}.zdl"
-		links_loop - "$url_in"
+		set_link - "$url_in"
 	    fi
 
 	    irc_quit

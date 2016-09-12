@@ -31,12 +31,12 @@ if [[ "$url_in" =~ \.m3u8\?*.* ]]
 then
     files=$(wget -qO- "$url_in" |grep -vP '^#')
     baseurl="${url_in%\/*}"
-    links_loop - "$url_in"
+    set_link - "$url_in"
     
     while read line
     do
 	echo "$baseurl"/"$line" > "${path_tmp}/filename_${file_in}__M3U8__${line}.txt"
-	links_loop + "$baseurl"/"$line"
+	set_link + "$baseurl"/"$line"
     done <<< "$files"
 
     file_in="${file_in}_${line}"

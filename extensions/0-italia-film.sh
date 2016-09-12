@@ -29,10 +29,10 @@ then
     redir=$( wget "$url_in" -O - -q |grep "Click here to play" )
     if [ -n "$redir" ]
     then
-	links_loop - "$url_in"
+	set_link - "$url_in"
 	url_in="${redir#*\"}"
 	url_in="${url_in%%\"*}"
-	links_loop + "$url_in"
+	set_link + "$url_in"
     else
 	_log 2
 	break_loop=true

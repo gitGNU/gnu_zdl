@@ -107,7 +107,7 @@ function check_dler_forcing {
 	    url_in_file="http://DOMA.IN/PATH"
 	else
 	    print_c 3 "$url_in --> il download richiede l'uso di RTMPDump, che non è installato" | tee -a $file_log
-	    links_loop - "$url_in"
+	    set_link - "$url_in"
 	    break_loop=true
 	fi
     fi
@@ -199,7 +199,7 @@ function download {
 
 	if dler_type "no-resume" "$url_in"
 	then
-	    links_loop - "$url_in"
+	    set_link - "$url_in"
 	    _log 18
 	fi
 
@@ -479,7 +479,7 @@ $(date +%s)" > "$path_tmp/${file_in}_stdout.tmp"
 
 	    (
 		eval $downloader_cmd -o "$file_in" 2>> "$path_tmp/${file_in}_stdout.tmp" 
-		links_loop - "$url_in"
+		set_link - "$url_in"
 	      
 	    ) 2>/dev/null &
 
@@ -711,7 +711,7 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			     ( [ "${downloader_out[$i]}" == "RTMPDump" ] &&
 				   [ -n "$test_completed" ] )
 		    then
-			links_loop - "$url_in"
+			set_link - "$url_in"
 
 		    fi
 		fi
@@ -739,21 +739,3 @@ function check_in_file { 	## return --> no_download=1 / download=0
     fi
     return 1
 }
-
-
-function links_loop {
-    local url_test="${2}"
-    if [ "$1" == "+" ] &&
-	   ! url "$url_test"
-    then
-	_log 12 "$url_test"
-	links_loop - "$url_test"
-
-    else
-	[ "$1" == "+" ] &&
-	    url_test="${url_test%'#20\x'}"
-
-	line_file "$1" "$url_test" "$path_tmp/links_loop.txt"
-    fi
-}
-

@@ -123,11 +123,11 @@ function zdl-ext-sorted {
 ####################
 
 
-function line_file { 	## usage with op=+|- : links_loop $op $link
-    op="$1"                    ## operator
-    item="$2"                  ## line
-    file_target="$3"           ## file target
-    rewriting="$3-rewriting"   ## to linearize parallel rewriting file target
+function set_line_in_file { 	#### usage: 
+    op="$1"                     ## operator (+|-|in)
+    item="$2"                   ## string
+    file_target="$3"            ## file target
+    rewriting="$3-rewriting"    #### <- to linearize parallel rewriting file target
     if [ "$op" != "in" ]
     then
 	if [ -f "$rewriting" ]
@@ -144,7 +144,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
     then
 	case $op in
 	    +)
-		if ! line_file "in" "$item" "$file_target"
+		if ! set_line_in_file "in" "$item" "$file_target"
 		then
 		    echo "$item" >> "$file_target"
 		fi
@@ -169,7 +169,7 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 	    in) 
 		if [ -f "$file_target" ]
 		then
-		    if [[ "$(cat "$file_target" 2>/dev/null)" =~ "$item" ]]
+		    if grep -P "^($item)$" "$file_target" &>/dev/null
 		    then 
 			return 0
 		    fi
@@ -177,6 +177,27 @@ function line_file { 	## usage with op=+|- : links_loop $op $link
 		return 1
 		;;
 	esac
+    fi
+}
+
+function check_link {
+    local url_test="${1}"
+    set_line_in_file 'in' "$url_test" "$path_tmp/links_loop.txt"
+}
+
+function set_link {
+    local url_test="${2}"
+    if [ "$1" == "+" ] &&
+	   ! url "$url_test"
+    then
+	_log 12 "$url_test"
+	set_link - "$url_test"
+
+    else
+	[ "$1" == "+" ] &&
+	    url_test="${url_test%'#20\x'}"
+
+	set_line_in_file "$1" "$url_test" "$path_tmp/links_loop.txt"
     fi
 }
 
