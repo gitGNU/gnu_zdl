@@ -257,8 +257,13 @@ do
 	post)
 	    if [ -n "$post_data" ]
 	    then
-		post_data2clean=( $(clean_data "${line[*]}") )
-		post_data="${post_data2clean[0]%'&submit'*}"
+		post_data_tmp=( $(clean_data "${line[*]}") )
+		unset post_data
+		declare -A post_data
+		
+		## post_data[NOME INPUT]=VALORE URLENCODED
+		eval post_data=( $(tr '&' ' ' <<< "${post_data_tmp[0]%'&submit'*}" |
+					  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
 		break
 	    fi
 	    
