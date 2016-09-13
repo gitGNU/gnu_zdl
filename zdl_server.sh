@@ -56,12 +56,12 @@ declare -a RESPONSE_HEADERS=(
 
 function recv {
     ((${DEBUG})) &&
-	echo "< $@" >TEST
+	echo "< $@" >>zdl_server_log.txt
 }
 
 function send {
     ((${DEBUG})) &&
-	echo "> $@" >TEST
+	echo "> $@" >>zdl_server_log.txt
 
     echo "$*"
 }
@@ -180,27 +180,45 @@ function create_json {
     fi
 }
 
+function clean_data {
+    echo -e "$1" | tr -d "\r"
+}
+
+
+function get_file_output {
+    local file="$1"
+    if [[ "$file" =~ ^\/tmp\/zdl.d\/ ]]
+    then
+	echo "$file"
+
+    else
+	[ "$file" == '/' ] && file=index.html
+	echo "$path_usr/webui/${file#\/}"
+    fi
+}
+
 
 while read -a line
 do
     case ${line[0]} in
+	######## HTTP:
 	GET)
-	    get_http=true
-	    if [[ "${line[1]}" =~ ^\/tmp\/zdl.d\/ ]]
-	    then
-		web_output="${line[1]}"
-
-	    else
-		[ "${line[1]}" == '/' ] && line[1]=index.html
-		web_output="$path_usr/webui/${line[1]#\/}"
-	    fi
+	    http_method=get
+	    file_output=$(get_file_output "${line[1]}")
 	    ;;
-
+	POST)
+	    http_method=post
+	    file_output=$(get_file_output "${line[1]}")
+	    ;;
+	
+	########
 	get-data)
 	    create_json
 	    cat /tmp/zdl.d/data.json
 	    ;;
-	## PATH sempre primo argomento (dal generale al particolare: per poter evitare il secondo quando opzionale perché compreso)
+	## PATH sempre primo argomento
+	## (dal generale al particolare:
+	## per poter evitare il secondo quando opzionale perché compreso)
 	delete-link)
 	    ## [1]=PATH [2]=LINK
 	    ;;
@@ -225,18 +243,35 @@ do
     esac
 
     #### HTTP:
-    if [ -n "$get_http" ]
-    then
-	recv "${line[*]}"
-
-	[ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
-	[[ "$mime_response" =~ (json) ]] && create_json
-
-	if [[ "${line[*]}" =~ keep-alive ]]
-	then
-	    serve_file "$web_output"
-	    break
-	fi
-    fi
+    case $http_method in
+	get)
+	    recv "${line[*]}"
+	    
+	    [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
+	    [[ "$mime_response" =~ (json) ]] && create_json
+	    
+	    [[ "${line[*]}" =~ keep-alive ]] &&
+		serve_file "$file_output"
+	    ;;
+	
+	post)
+	    if [ -n "$post_data" ]
+	    then
+		post_data2clean=( $(clean_data "${line[*]}") )
+		post_data="${post_data2clean[0]%'&submit'*}"
+		break
+	    fi
+	    
+	    [ "${line[0]}" == 'Content-Length:' ] &&
+		length=$(clean_data "${line[1]}")
+	    
+	    
+	    if [ -n "$length" ] && ((length>0))
+	    then
+		read -n $length post_data
+		serve_file "$file_output" &
+	    fi
+	    ;;
+    esac
 done
 

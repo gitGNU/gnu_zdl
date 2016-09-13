@@ -602,10 +602,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		    rm -f "$path_tmp"/.date_daemon
 		    unset instance_pid
 		}
-
-		# ! check_instance_prog &&
-		#     [ $that_pid != $PPID ] &&
-		#     kill -9 $that_pid &>/dev/null
+		wait "$instance_pid"
 		;;
 	    
 	    d)

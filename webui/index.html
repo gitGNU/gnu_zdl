@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <title>zdl</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
   </head>
   
   <body>
@@ -12,35 +12,33 @@
     <img src="/Hexadecimal-counting.jpg" />
     <button onclick="reloadJSON('/tmp/zdl.d/data.json');">aggiorna JSON</button>
     <div id="out" style="margin-bottom:20px"></div>
+    <form action="" method="post">
+      <input type="text" name="testo">
+      <input type="submit" name="submit" value="Invia">
+    </form>
     <script>
-    function reloadJSON (url) {
-    	$.getJSON(url, function(json) {
-    	    $( "#out" ).text(JSON.stringify(json, null, 2));
-    	})
-    }
-    
     // function reloadJSON (url) {
-    // 	var req = new XMLHttpRequest();
-    // 	req.open('GET', url, true);
-    // 	req.onload = function() {
-    // 	    if (req.status == 200) {
-    // 		console.log (req.status);
-    // 		/* data2.json */
-    // 		var data = JSON.parse(req.responseText);
-    // 		var firstkey = Object.keys(data)[0];
-    // 		document.getElementById('out').innerText = "Link: " + data[firstkey][0].link + "\nFile: " + data[firstkey][0].file;
-    // 		/* data3.json */
-    // 		//var data = JSON.parse(req.responseText);
-    // 		//document.getElementById('out').innerText = "Link: " + data.link + 
-    // 		//"\nFile: " + data.file;                                           
-		
-    // 	    } else {
-    // 		alert("Error " + req.status);
-    // 	    }
-    // 	};
-
-    // 	req.send();
+    // 	$.getJSON(url,
+    // 		  function(json) {
+    // 		      $( "#out" ).text(JSON.stringify(json, null, 2));
+    // 		  })
     // }
+    
+    function reloadJSON (url) {
+    	var req = new XMLHttpRequest();
+    	req.open('GET', url, true);
+    	req.onload = function() {
+    	    if (req.status == 200) {
+    		var data = JSON.parse(req.responseText);
+    		var firstkey = Object.keys(data)[0];
+    		document.getElementById('out').innerText = "Link: "     + data[firstkey][0].link +
+		                                           "\nFile: " + data[firstkey][0].file;
+    	    } else {
+    		alert("Error " + req.status);
+    	    }
+    	};
+    	req.send();
+    }
 
     </script>
 </body>
