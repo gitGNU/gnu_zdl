@@ -29,6 +29,12 @@
 
 if [[ "$url_in" =~ (openload\.) ]]
 then
+    _log 3
+    print_c 3 "Servizio momentamente sospeso"
+fi
+
+if ((0))
+then
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
     URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
 
@@ -48,6 +54,20 @@ then
 	
     elif [ -n "$html" ]
     then
+	######
+	# packed=$(grep 'p,a,c,k,e,d' <<< "$html" |tail -n1)
+	# unpacked=$(unpack "$packed")
+	# echo "$unpacked" >UNPACKED
+	
+	# awk '/\^o/{print}' <<< "$unpacked"   |
+	#     head -n1                |
+	#     sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+	
+	# cat "$path_tmp/aaencoded.js"
+
+	# php_aadecode "$path_tmp/aaencoded.js" >aadecoded.js
+	######
+	
 	chunk1=${url_in#*\/f\/}
 	chunk1=${chunk1%%\/*}
 
@@ -79,5 +99,6 @@ then
 	    [ -z "$file_in" ] && file_in="${url_in_file##*\/}"
 	fi
     fi
+
     end_extension
 fi
