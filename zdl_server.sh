@@ -36,7 +36,7 @@ source $path_usr/libs/log.sh
 json_flag=true
 
 #### HTTP:
-declare -i DEBUG=0
+declare -i DEBUG=1
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -73,6 +73,7 @@ function add_response_header {
 function send_response {
     local code="$1"
     local file="$2"
+    local mime=$(get_mime "$file")
     local transfer_stats=""
     local tmp_stat_file="/tmp/_send_response_$$_"
 
@@ -86,12 +87,25 @@ function send_response {
 
     if [ -f "$file" ]
     then
-	cat "${file}"
+	if [[ "$mime" =~ text ]]
+	then
+	    template=$(cat "$file")
+
+	else
+	    cat "$file"
+	    return
+	fi
 
     elif [ -n "$file" ]
     then
-	send "$file"
+	template="$file"
     fi
+
+    [ -n "$template" ] &&
+	[[ "$template" =~ __START_PATH__ ]] &&
+	sed -r "s|__START_PATH__|$PWD|g" <<< "$template"
+	
+    #echo
     # if ((${VERBOSE}))
     # then
     # 	## Use dd since it handles null bytes
@@ -104,7 +118,6 @@ function send_response {
     # 	## Use dd since it handles null bytes
     # 	dd 2>"${DUMP_DEV}" < "${file}"
     # fi
-
 }
 
 function send_response_ok_exit {
@@ -119,38 +132,43 @@ function fail_with {
 
 function serve_file {
     local file="$1"
-    local CONTENT_TYPE=""
+    local CONTENT_TYPE
 
-    case "${file}" in
-        *\.css)
-	    CONTENT_TYPE="text/css"
-	    ;;
-	*\.js)
-	    CONTENT_TYPE="text/javascript"
-	    ;;
-	*)
-	    CONTENT_TYPE=$(file -b --mime-type "${file}")
-	    ;;
-    esac
+    if [ -s "$file" ]
+    then
+	case "${file}" in
+            *\.css)
+		CONTENT_TYPE="text/css"
+		;;
+	    *\.js)
+		CONTENT_TYPE="text/javascript"
+		;;
+	    *)
+		CONTENT_TYPE=$(get_mime "${file}")
+		;;
+	esac
 
-    add_response_header "Content-Type"  "${CONTENT_TYPE}"
-    CONTENT_LENGTH=$(stat -c'%s' "${file}")
-    add_response_header "Content-Length" "${CONTENT_LENGTH}"
-    
-    send_response_ok_exit "${file}"
+	add_response_header "Content-Type" "${CONTENT_TYPE}"
+	add_response_header "Content-Length" "$(size_file "$file")"
+	
+	send_response_ok_exit "$file"
+
+    else
+	return 1
+    fi
 }
 
-function urldecode {
-    [ "${1%/}" == "" ] && echo "/" ||
-	    echo -e "$(sed 's/%\([[:xdigit:]]\{2\}\)/\\\x\1/g' <<< "${1%/}")"
-}
+# function urldecode {
+#     [ "${1%/}" == "" ] && echo "/" ||
+# 	    echo -e "$(sed 's/%\([[:xdigit:]]\{2\}\)/\\\x\1/g' <<< "${1%/}")"
+# }
 
 function serve_static_string() {
     add_response_header "Content-Type" "text/plain"
     send_response_ok_exit <<< "$1"
 }
 
-function on_uri_match() {
+function on_uri_match {
     local regex="$1"
     shift
     [[ "${REQUEST_URI}" =~ $regex ]] && 
@@ -161,7 +179,7 @@ function unconditionally() {
     "$@" "$REQUEST_URI"
 }
 
-###########
+
 
 
 function create_json {
@@ -197,22 +215,10 @@ function get_file_output {
     fi
 }
 
-
-while read -a line
-do
-    case ${line[0]} in
-	######## HTTP:
-	GET)
-	    http_method=get
-	    file_output=$(get_file_output "${line[1]}")
-	    ;;
-	POST)
-	    http_method=post
-	    file_output=$(get_file_output "${line[1]}")
-	    ;;
-	
-	########
-	get-data)
+function run_command {
+    local line=( "$@" )
+    case "${line[0]}" in
+    	get-data)
 	    create_json
 	    cat /tmp/zdl.d/data.json
 	    ;;
@@ -224,6 +230,9 @@ do
 	    ;;
 	add-link)
 	    ## [1]=PATH [2]=LINK
+	    cd "${line[1]}" 
+	    set_link +  "${line[2]}"
+	    cd - &>/dev/null
 	    ;;
 	stop-link)
 	    ## [1]=(PATH|ALL); [2]=(LINK|ALL); 
@@ -234,19 +243,18 @@ do
 	set-number)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
 	    ;;
-	'clear')
+	clean)
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
 	'kill')
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
     esac
+}
 
-    #### HTTP:
+function http_server {
     case $http_method in
-	get)
-	    recv "${line[*]}"
-	    
+	GET)
 	    [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
 	    [[ "$mime_response" =~ (json) ]] && create_json
 	    
@@ -254,29 +262,50 @@ do
 		serve_file "$file_output"
 	    ;;
 	
-	post)
-	    if [ -n "$post_data" ]
-	    then
-		post_data_tmp=( $(clean_data "${line[*]}") )
-		unset post_data
-		declare -A post_data
-		
-		## post_data[NOME INPUT]=VALORE URLENCODED
-		eval post_data=( $(tr '&' ' ' <<< "${post_data_tmp[0]%'&submit'*}" |
-					  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
-		break
-	    fi
-	    
+	POST)
 	    [ "${line[0]}" == 'Content-Length:' ] &&
 		length=$(clean_data "${line[1]}")
 	    
-	    
-	    if [ -n "$length" ] && ((length>0))
+	    if [[ "$length" =~ ^[0-9]+$ ]] && ((length>0)) &&
+		   [ -z "$postdata" ]
 	    then
-		read -n $length post_data
-		serve_file "$file_output" &
+		read -n 0
+		read -n $length POST_DATA
+		
+		## post_data[INPUT_NAME]=URLENCODED_VALUE
+		declare -A post_data
+		eval post_data=( $(tr '&' ' ' <<< "$POST_DATA" |
+					  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
+
+		run_command "${post_data[op]}" "$(urldecode ${post_data[path]})" "$(urldecode ${post_data[link]})"
+
+		echo "$file_output" >>FILEOUT
+		serve_file "$file_output"
 	    fi
 	    ;;
     esac
+}
+
+
+while read -a line 
+do
+    case ${line[0]} in
+	GET)
+	    recv "${line[*]}"
+	    http_method=GET
+	    file_output=$(get_file_output "${line[1]}")
+	    ;;
+	POST)
+	    recv "${line[*]}"
+	    http_method=POST
+	    file_output=$(get_file_output "${line[1]}")
+	    ;;
+	*)
+	    recv "${line[*]}"
+	    http_server
+	    run_command "${line[@]}"
+	    ;;
+    esac
+
 done
 

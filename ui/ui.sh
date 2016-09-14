@@ -600,9 +600,9 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		[ -n "$instance_pid" ] && {
 		    kill -9 "$instance_pid" &>/dev/null
 		    rm -f "$path_tmp"/.date_daemon
+		    wait "$instance_pid"
 		    unset instance_pid
-		}
-		wait "$instance_pid"
+		} 
 		;;
 	    
 	    d)

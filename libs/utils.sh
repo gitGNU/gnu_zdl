@@ -24,6 +24,10 @@
 # zoninoz@inventati.org
 #
 
+function get_mime {
+    file -b --mime-type "$1"
+}
+
 function size_file {
     stat -c '%s' "$1" 2>/dev/null
 }

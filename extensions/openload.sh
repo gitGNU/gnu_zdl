@@ -71,9 +71,9 @@ then
 	chunk1=${url_in#*\/f\/}
 	chunk1=${chunk1%%\/*}
 
-	hiddenurl=$(grep hiddenurl <<< "$html" |
-			   sed -r 's|.+hiddenurl\">(.+)<\/span>.*|\1|g')
-
+	hiddenurl=$(grep hiddenurl -A1 <<< "$html" | tail -n1 |
+			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')
+echo "$hiddenurl"
 	hiddenurl=$(htmldecode "$hiddenurl")
 	hiddenurl="${hiddenurl//\\/\\\\}"
 	hiddenurl="${hiddenurl//\'/\\\'}"
