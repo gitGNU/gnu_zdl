@@ -577,48 +577,93 @@ BEGIN {
 
 END {
     progress()
-    if (json_flag == "true") {
-	json = "\"" pwd "\":["
-    }
+    # if (json_flag == "true") {
+    # 	json = "\"" pwd "\":["
+    # }
 
-    for (I=0; I<length(file_out); I++) {
-	if (json_flag == "true") {
-	    json = json "{"
+    # for (I=0; I<length(file_out); I++) {
+    # 	if (json_flag == "true") {
+    # 	    json = json "{"
 	    
-	    json = json "\"link\":\"" url_out[I] "\","
-	    json = json "\"file\":\"" file_out[I] "\","
-	    json = json "\"url\":\"" url_out_file[I] "\","
-	    json = json "\"playpath\":\"" playpath_out_[I] "\","
-	    json = json "\"streamer\":\"" streamer_out[I] "\","
-	    json = json "\"downloader\":\"" downloader_out[I] "\","
-	    json = json "\"percent\":\"" percent_out[I] "\","
-	    json = json "\"eta\":\"" eta_out[I] "\","
-	    json = json "\"length\":\"" length_out[I] "\","
-	    json = json "\"saved\":\"" length_saved[I] "\","
-	    json = json "\"pid\":\"" pid_out[I] "\","
-	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
-	    json = json "\"speed\":\"" speed_out[I] "\","
-	    json = json "\"speed_measure\":\"" speed_out_type[I] "\""
+    # 	    json = json "\"link\":\"" url_out[I] "\","
+    # 	    json = json "\"file\":\"" file_out[I] "\","
+    # 	    json = json "\"url\":\"" url_out_file[I] "\","
+    # 	    json = json "\"playpath\":\"" playpath_out_[I] "\","
+    # 	    json = json "\"streamer\":\"" streamer_out[I] "\","
+    # 	    json = json "\"downloader\":\"" downloader_out[I] "\","
+    # 	    json = json "\"percent\":\"" percent_out[I] "\","
+    # 	    json = json "\"eta\":\"" eta_out[I] "\","
+    # 	    json = json "\"length\":\"" length_out[I] "\","
+    # 	    json = json "\"saved\":\"" length_saved[I] "\","
+    # 	    json = json "\"pid\":\"" pid_out[I] "\","
+    # 	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
+    # 	    json = json "\"speed\":\"" speed_out[I] "\","
+    # 	    json = json "\"speed_measure\":\"" speed_out_type[I] "\""
 
-	    if (I<length(file_out)-1)
-		json = json "},"
-	    else
-		json = json "}"
-	}
+    # 	    if (I<length(file_out)-1)
+    # 		json = json "},"
+    # 	    else
+    # 		json = json "}"
+    # 	}
 	
 
-	for (J=0; J<length(file_out); J++) {
-	    ## cancella download di file con nome diverso per uno stesso link/url
-	    if ((url_out[I] == url_out[J]) &&
-		(file_out[I] != file_out[J]) &&
-		(check_pid(pid_out[I]))) {
-		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st " file_out[J] ".aria2")
+    # 	for (J=0; J<length(file_out); J++) {
+    # 	    ## cancella download di file con nome diverso per uno stesso link/url
+    # 	    if ((url_out[I] == url_out[J]) &&
+    # 		(file_out[I] != file_out[J]) &&
+    # 		(check_pid(pid_out[I]))) {
+    # 		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st " file_out[J] ".aria2")
+    # 	    }
+    # 	}
+    # }
+
+    # if (json_flag == "true") {
+    # 	json = json "]"
+    #     printf("%s", json) >>"/tmp/zdl.d/data.json"
+    # }
+
+    for (I=0; I<length(file_out); I++) {
+    	if (json_flag == "true") {
+    	    json = json "{"
+	    json = json "\"path\":\"" pwd "\","
+    	    json = json "\"link\":\"" url_out[I] "\","
+    	    json = json "\"file\":\"" file_out[I] "\","
+
+	    if (downloader_out[I] ~ /cURL|RTMPDump/) {
+		json = json "\"playpath\":\"" playpath_out_[I] "\","
+		json = json "\"streamer\":\"" streamer_out[I] "\","
+	    } else {
+		json = json "\"url\":\"" url_out_file[I] "\","
 	    }
-	}
+    	    json = json "\"downloader\":\"" downloader_out[I] "\","
+    	    json = json "\"percent\":\"" percent_out[I] "\","
+    	    json = json "\"eta\":\"" eta_out[I] "\","
+    	    json = json "\"length\":\"" length_out[I] "\","
+    	    json = json "\"saved\":\"" length_saved[I] "\","
+    	    json = json "\"pid\":\"" pid_out[I] "\","
+    	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
+    	    json = json "\"speed\":\"" speed_out[I] "\","
+    	    json = json "\"speed_measure\":\"" speed_out_type[I] "\""
+
+    	    if (I<length(file_out)-1)
+    		json = json "},"
+    	    else
+    		json = json "}"
+    	}
+	
+
+    	for (J=0; J<length(file_out); J++) {
+    	    ## cancella download di file con nome diverso per uno stesso link/url
+    	    if ((url_out[I] == url_out[J]) &&
+    		(file_out[I] != file_out[J]) &&
+    		(check_pid(pid_out[I]))) {
+    		system("rm -f .zdl_tmp/"file_out[J]"_stdout.tmp " file_out[J] " " file_out[J] ".st " file_out[J] ".aria2")
+    	    }
+    	}
     }
 
     if (json_flag == "true") {
-	json = json "]"
+#    	json = json "]"
         printf("%s", json) >>"/tmp/zdl.d/data.json"
     }
 

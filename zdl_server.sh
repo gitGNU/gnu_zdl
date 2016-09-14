@@ -185,10 +185,26 @@ function unconditionally {
 
 
 
+# function create_json {
+#     if [ -s /tmp/zdl.d/paths.txt ]
+#     then
+# 	echo -ne '{' >/tmp/zdl.d/data.json
+
+# 	while read path
+# 	do
+# 	    cd "$path"
+# 	    data_stdout
+# 	    echo -en "," >>/tmp/zdl.d/data.json
+# 	done </tmp/zdl.d/paths.txt
+
+# 	sed -r "s|,$|}\n|g" -i /tmp/zdl.d/data.json
+#     fi
+# }
+
 function create_json {
     if [ -s /tmp/zdl.d/paths.txt ]
     then
-	echo -ne '{' >/tmp/zdl.d/data.json
+	echo -ne '[' >/tmp/zdl.d/data.json
 
 	while read path
 	do
@@ -197,7 +213,7 @@ function create_json {
 	    echo -en "," >>/tmp/zdl.d/data.json
 	done </tmp/zdl.d/paths.txt
 
-	sed -r "s|,$|}\n|g" -i /tmp/zdl.d/data.json
+	sed -r "s|,$|]\n|g" -i /tmp/zdl.d/data.json
     fi
 }
 

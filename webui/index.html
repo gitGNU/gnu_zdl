@@ -35,9 +35,13 @@
     	req.onload = function() {
     	    if (req.status == 200) {
     		var data = JSON.parse(req.responseText);
-    		var firstkey = Object.keys(data)[0];
-    		document.getElementById('out').innerText = "Link: "     + data[firstkey][0].link +
-		                                           "\nFile: " + data[firstkey][0].file;
+		var output = ""
+		for (var i=0; i<data.length; i++) {
+		    for (var j in data[i]) {
+    			output += j + ": " + data[i][j] + "<br>";
+		    }
+		}
+		document.getElementById('out').innerHTML = output;
     	    } else {
     		alert("Error " + req.status);
     	    }
