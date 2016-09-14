@@ -535,7 +535,10 @@ BEGIN {
 	downloader_out[i] = dler
 	array_out(dler, "downloader_out")
     }
-    if (FNR == 4) array_out($0, "pid_prog_out")
+    if (FNR == 4) {
+	pid_prog_out[i] = $0
+	array_out(pid_prog_out[i], "pid_prog_out")
+    }
     if (FNR == 5) {
 	file_out[i] = $0
 	array_out(file_out[i], "file_out")

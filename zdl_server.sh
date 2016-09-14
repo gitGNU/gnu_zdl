@@ -26,6 +26,8 @@
 
 path_usr="/usr/local/share/zdl"
 path_tmp=".zdl_tmp"
+file_data="/tmp/zdl.d/data.json"
+file_paths="/tmp/zdl.d/paths.txt"
 
 source $path_usr/libs/core.sh
 source $path_usr/libs/downloader_manager.sh
@@ -70,23 +72,31 @@ function add_response_header {
     RESPONSE_HEADERS+=("$1: $2")
 }
 
+function send_response_header {
+    send "HTTP/1.1 $1 ${HTTP_RESPONSE[$1]}"
+
+    for h in "${RESPONSE_HEADERS[@]}"
+    do
+	send "$h"
+    done
+    send
+}
+
 function send_response {
     local code="$1"
     local file="$2"
-    local mime="$3"
+    local mime=""
     local transfer_stats=""
     local tmp_stat_file="/tmp/_send_response_$$_"
 
-    send "HTTP/1.1 $1 ${HTTP_RESPONSE[$1]}"
+    send_response_header "$code"
 
-    for i in "${RESPONSE_HEADERS[@]}"
-    do
-	send "$i"
-    done
-    send
-
-    if [ -f "$file" ]
+    if [ -s "$file" ]
     then
+	mime=$(get_mime_server "$file")
+	add_response_header "Content-Type" "$mime"
+	add_response_header "Content-Length" "$(size_file "$file")"
+
 	if [[ "$mime" =~ text\/html ]]
 	then
 	    template=$(cat "$file")
@@ -121,7 +131,7 @@ function send_response {
 }
 
 function send_response_ok_exit {
-    send_response 200 "$1" "$2"
+    send_response "200" "$1"
     exit 0
 }
 
@@ -130,32 +140,47 @@ function fail_with {
     exit 1
 }
 
+function get_mime_server {
+    local mime
+    case "$1" in
+        *\.css)
+	    mime="text/css"
+	    ;;
+	*\.js)
+	    mime="text/javascript"
+	    ;;
+	*\.json)
+	    mime="application/json"
+	    ;;
+	*)
+	    mime=$(get_mime "${file}")
+	    ;;
+    esac
+
+    if [ -n "$mime" ]
+    then
+	echo "$mime"
+	return 0
+
+    else
+	return 1
+    fi
+}
+
 function serve_file {
     local file="$1"
-    local CONTENT_TYPE
 
     if [ -s "$file" ]
     then
-	case "${file}" in
-            *\.css)
-		CONTENT_TYPE="text/css"
-		;;
-	    *\.js)
-		CONTENT_TYPE="text/javascript"
-		;;
-	    *\.json)
-		CONTENT_TYPE="application/json"
-		;;
-	    *)
-		CONTENT_TYPE=$(get_mime "${file}")
-		;;
-	esac
+	if [[ "$http_method" =~ ^(GET|POST)$ ]]
+	then
+	    send_response_ok_exit "$file"
 
-	add_response_header "Content-Type" "$CONTENT_TYPE"
-	add_response_header "Content-Length" "$(size_file "$file")"
+	else
+	    cat "$file"
+	    exit
+	fi
 	
-	send_response_ok_exit "$file" "$CONTENT_TYPE"
-
     else
 	return 1
     fi
@@ -202,19 +227,22 @@ function unconditionally {
 # }
 
 function create_json {
-    if [ -s /tmp/zdl.d/paths.txt ]
+    if [ -s "$file_paths" ]
     then
-	echo -ne '[' >/tmp/zdl.d/data.json
+	echo -ne '[' >"$file_data"
 
 	while read path
 	do
 	    cd "$path"
 	    data_stdout
-	    echo -en "," >>/tmp/zdl.d/data.json
-	done </tmp/zdl.d/paths.txt
+	    echo -en "," >>"$file_data"
+	done <"$file_paths"
 
-	sed -r "s|,$|]\n|g" -i /tmp/zdl.d/data.json
+	sed -r "s|,$|]\n|g" -i "$file_data"
+	
+	return 0
     fi
+    return 1
 }
 
 function clean_data {
@@ -229,31 +257,54 @@ function get_file_output {
 	echo "$file"
 
     else
-	[ "$file" == '/' ] && file=index.html
+	if [ "$file" == '/' ] ||
+	       [ "$file" != "${file//'?'}" ]
+	then
+	    file=index.html
+	fi
 	echo "$path_usr/webui/${file#\/}"
     fi
 }
 
-function run_command {
+function run_cmd {
     local line=( "$@" )
+
     case "${line[0]}" in
     	get-data)
-	    create_json
-	    cat /tmp/zdl.d/data.json
+	    file_output="$file_data"
+	    if [ -z "$http_method" ]
+	    then
+		cat "$file_data"
+		return
+	    fi
 	    ;;
-	delete-link)
-	    ## [1]=PATH [2]=LINK
+	del-link)
+	    ## [1]=PATH [>1]=LINK
+	    cd "${line[1]}"
+	    for ((i=2; i<${#line[@]}; i++))
+	    do
+		set_link - "${line[2]}"
+	    done
 	    ;;
 	add-link)
-	    ## [1]=PATH [2]=LINK
-	    cd "${line[1]}" 
-	    set_link + "${line[2]}"
+	    ## [1]=PATH [>1]=LINK
+	    cd "${line[1]}"
+	    for ((i=2; i<${#line[@]}; i++))
+	    do
+		set_link + "${line[2]}"
+	    done
 	    ;;
 	stop-link)
-	    ## [1]=(PATH|ALL); [2]=(LINK|ALL); 
+	    ## [1]=(PATH|ALL); [>1]=(LINK|ALL); 
+	    ;;
+	get-downloader)
+	    ## [1]=PATH; [2]=DOWNLOADER
 	    ;;
 	set-downloader)
 	    ## [1]=(PATH|ALL); [2]=DOWNLOADER
+	    ;;
+	get-number)
+	    ## [1]=PATH; [2]=NUMBER:(0->...)
 	    ;;
 	set-number)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
@@ -261,22 +312,80 @@ function run_command {
 	clean)
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
-	'kill')
+	kill-zdl)
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
     esac
 }
 
+function run_data {
+    local data=( ${1//'&'/ } )
+    local name value last
+    local line_cmd
+
+    urldecode "${data[*]}" >>RUN_DATA
+
+    for ((i=0; i<${#data[*]}; i++))
+    do
+	name=$(urldecode "${data[i]%'='*}")
+	value=$(urldecode "${data[i]#*'='}")
+
+	case "$name" in
+	    cmd)
+		line_cmd=( "$value" )
+		last="$name"
+
+		echo "${line_cmd[0]}" >>VALUE_CMD
+		;;
+	    path)
+		if [ "$last" == cmd ]
+		then
+		    line_cmd+=( "$value" )
+		    last=$name
+		fi
+		;;
+	    link)
+	    	if [[ "$last" =~ ^(path|link)$ ]]
+		then
+		    line_cmd+=( "$value" )
+		    last=$name
+		fi
+		;;
+	    downloader|number)
+		if [ "$last" == path ]
+		then
+		    line_cmd+=( "$value" )
+		    last=$name
+		fi
+		;;
+	esac
+    done
+
+    [ -n "${line_cmd[*]}" ] && run_cmd "${line_cmd[@]}"
+}
+
 function http_server {
     case $http_method in
 	GET)
-	    # [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
-	    # [[ "$mime_response" =~ (json) ]] && create_json
-	    [ "$file_output" == /tmp/zdl.d/data.json ] &&
-		create_json
-	    
 	    [[ "${line[*]}" =~ keep-alive ]] &&
-		serve_file "$file_output"
+		{
+		    echo  "${line[*]}" >>KEEP
+		    if [ -n "$GET_DATA" ]
+		    then
+			run_data "$GET_DATA"
+		    fi
+
+		    if [ -n "$file_output" ]
+		    then
+			[ "$file_output" == "$file_data" ] &&
+			    create_json
+			
+			serve_file "$file_output"
+
+		    else
+			exit
+		    fi
+		}
 	    ;;
 	
 	POST)
@@ -290,20 +399,24 @@ function http_server {
 		read -n $length POST_DATA
 		
 		## post_data[INPUT_NAME]=URLENCODED_VALUE
-		declare -A post_data
-		eval post_data=( $(tr '&' ' ' <<< "$POST_DATA" |
-					  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
+		# declare -A post_data
+		# eval post_data=( $(tr '&' ' ' <<< "$POST_DATA" |
+		# 			  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
 
-		run_command "${post_data[cmd]}"                 \
-			    "$(urldecode ${post_data[path]})"   \
-			    "$(urldecode ${post_data[link]})"
+		# run_command "${post_data[cmd]}"                 \
+		# 	    "$(urldecode ${post_data[path]})"   \
+		# 	    "$(urldecode ${post_data[link]})"
 
+		run_data "$POST_DATA"
 		serve_file "$file_output"
 	    fi
 	    ;;
+	*)
+	    return 1
+	    ;;
     esac
+    return 0
 }
-
 
 while read -a line 
 do
@@ -311,20 +424,23 @@ do
     
     case ${line[0]} in
 	GET)
+	    unset GET_DATA file_output
 	    http_method=GET
 	    file_output=$(get_file_output "${line[1]}")
+	    
+	    if [[ "${line[1]}" =~ '?' ]]
+	    then
+	    	GET_DATA=$(clean_data "${line[1]#*\?}")
+	    fi
 	    ;;
 	POST)
-	    recv "${line[*]}"
 	    http_method=POST
 	    file_output=$(get_file_output "${line[1]}")
 	    ;;
 	*)
-	    recv "${line[*]}"
-	    http_server
-	    run_command "${line[@]}"
+	    http_server ||
+		run_cmd "${line[@]}"
 	    ;;
     esac
-
 done
 

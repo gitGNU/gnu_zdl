@@ -1067,13 +1067,24 @@ fi
 if [ -n "$from_editor" ]
 then
     start_mode_in_tty editor "$this_tty"
+
+    touch "$path_tmp/links_loop.txt"
     $editor "$path_tmp/links_loop.txt"
+
     this_mode=stdout
     start_mode_in_tty "$this_mode" "$this_tty"
-    standard_box
+
+    clean_file "$path_tmp/links_loop.txt"
+    if [ -s "$path_tmp/links_loop.txt" ]
+    then
+	start_file="$path_tmp/links_loop.txt"
+	standard_box
+    else
+	unset from_editor
+    fi
+    
     post_readline=true
 fi
-
 
 
 if [ -z "$start_file" ]

@@ -168,12 +168,10 @@ function set_line_in_file { 	#### usage:
 		rm -f "$rewriting"
 		;;
 	    'in') 
-		if [ -s "$file_target" ]
-		then
-		    if grep "^${item}$" "$file_target" &>/dev/null
-		    then 
-			return 0
-		    fi
+		if [ -s "$file_target" ] &&
+		       grep "^${item}$" "$file_target" &>/dev/null
+		then 
+		    return 0
 		fi
 		return 1
 		;;
@@ -187,7 +185,7 @@ function check_link {
     if url "$url_test" ||
 	    grep "^${url_test}$" "$path_tmp/links_loop.txt" &>/dev/null
     then
-	    return 0
+	return 0
     fi
     return 1
 }
