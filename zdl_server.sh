@@ -186,10 +186,6 @@ function serve_file {
     fi
 }
 
-# function urldecode {
-#     [ "${1%/}" == "" ] && echo "/" ||
-# 	    echo -e "$(sed 's/%\([[:xdigit:]]\{2\}\)/\\\x\1/g' <<< "${1%/}")"
-# }
 
 function serve_static_string {
     add_response_header "Content-Type" "text/plain"
@@ -203,28 +199,11 @@ function on_uri_match {
         "$@" "${BASH_REMATCH[@]}"
 }
 
+
 function unconditionally {
     "$@" "$REQUEST_URI"
 }
 
-
-
-
-# function create_json {
-#     if [ -s /tmp/zdl.d/paths.txt ]
-#     then
-# 	echo -ne '{' >/tmp/zdl.d/data.json
-
-# 	while read path
-# 	do
-# 	    cd "$path"
-# 	    data_stdout
-# 	    echo -en "," >>/tmp/zdl.d/data.json
-# 	done </tmp/zdl.d/paths.txt
-
-# 	sed -r "s|,$|}\n|g" -i /tmp/zdl.d/data.json
-#     fi
-# }
 
 function create_json {
     if [ -s "$file_paths" ]
@@ -323,8 +302,6 @@ function run_data {
     local name value last
     local line_cmd
 
-    urldecode "${data[*]}" >>RUN_DATA
-
     for ((i=0; i<${#data[*]}; i++))
     do
 	name=$(urldecode "${data[i]%'='*}")
@@ -334,8 +311,6 @@ function run_data {
 	    cmd)
 		line_cmd=( "$value" )
 		last="$name"
-
-		echo "${line_cmd[0]}" >>VALUE_CMD
 		;;
 	    path)
 		if [ "$last" == cmd ]
@@ -369,7 +344,6 @@ function http_server {
 	GET)
 	    [[ "${line[*]}" =~ keep-alive ]] &&
 		{
-		    echo  "${line[*]}" >>KEEP
 		    if [ -n "$GET_DATA" ]
 		    then
 			run_data "$GET_DATA"
@@ -398,15 +372,6 @@ function http_server {
 		read -n 0
 		read -n $length POST_DATA
 		
-		## post_data[INPUT_NAME]=URLENCODED_VALUE
-		# declare -A post_data
-		# eval post_data=( $(tr '&' ' ' <<< "$POST_DATA" |
-		# 			  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
-
-		# run_command "${post_data[cmd]}"                 \
-		# 	    "$(urldecode ${post_data[path]})"   \
-		# 	    "$(urldecode ${post_data[link]})"
-
 		run_data "$POST_DATA"
 		serve_file "$file_output"
 	    fi
