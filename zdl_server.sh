@@ -36,7 +36,7 @@ source $path_usr/libs/log.sh
 json_flag=true
 
 #### HTTP:
-declare -i DEBUG=1
+declare -i DEBUG=0
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -222,9 +222,6 @@ function run_command {
 	    create_json
 	    cat /tmp/zdl.d/data.json
 	    ;;
-	## PATH sempre primo argomento
-	## (dal generale al particolare:
-	## per poter evitare il secondo quando opzionale perché compreso)
 	delete-link)
 	    ## [1]=PATH [2]=LINK
 	    ;;
@@ -232,7 +229,6 @@ function run_command {
 	    ## [1]=PATH [2]=LINK
 	    cd "${line[1]}" 
 	    set_link +  "${line[2]}"
-	    cd - &>/dev/null
 	    ;;
 	stop-link)
 	    ## [1]=(PATH|ALL); [2]=(LINK|ALL); 
@@ -277,9 +273,10 @@ function http_server {
 		eval post_data=( $(tr '&' ' ' <<< "$POST_DATA" |
 					  sed -r 's|([^ ]+)=([^ ]+)|[\1]="\2"|g') )
 
-		run_command "${post_data[op]}" "$(urldecode ${post_data[path]})" "$(urldecode ${post_data[link]})"
+		run_command "${post_data[cmd]}"                 \
+			    "$(urldecode ${post_data[path]})"   \
+			    "$(urldecode ${post_data[link]})"
 
-		echo "$file_output" >>FILEOUT
 		serve_file "$file_output"
 	    fi
 	    ;;
