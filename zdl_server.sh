@@ -36,7 +36,7 @@ source $path_usr/libs/log.sh
 json_flag=true
 
 #### HTTP:
-declare -i DEBUG=0
+declare -i DEBUG=1
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -73,7 +73,7 @@ function add_response_header {
 function send_response {
     local code="$1"
     local file="$2"
-    local mime=$(get_mime "$file")
+    local mime="$3"
     local transfer_stats=""
     local tmp_stat_file="/tmp/_send_response_$$_"
 
@@ -87,7 +87,7 @@ function send_response {
 
     if [ -f "$file" ]
     then
-	if [[ "$mime" =~ text ]]
+	if [[ "$mime" =~ text\/html ]]
 	then
 	    template=$(cat "$file")
 
@@ -121,7 +121,7 @@ function send_response {
 }
 
 function send_response_ok_exit {
-    send_response 200 "$1"
+    send_response 200 "$1" "$2"
     exit 0
 }
 
@@ -143,15 +143,18 @@ function serve_file {
 	    *\.js)
 		CONTENT_TYPE="text/javascript"
 		;;
+	    *\.json)
+		CONTENT_TYPE="application/json"
+		;;
 	    *)
 		CONTENT_TYPE=$(get_mime "${file}")
 		;;
 	esac
 
-	add_response_header "Content-Type" "${CONTENT_TYPE}"
+	add_response_header "Content-Type" "$CONTENT_TYPE"
 	add_response_header "Content-Length" "$(size_file "$file")"
 	
-	send_response_ok_exit "$file"
+	send_response_ok_exit "$file" "$CONTENT_TYPE"
 
     else
 	return 1
@@ -163,7 +166,7 @@ function serve_file {
 # 	    echo -e "$(sed 's/%\([[:xdigit:]]\{2\}\)/\\\x\1/g' <<< "${1%/}")"
 # }
 
-function serve_static_string() {
+function serve_static_string {
     add_response_header "Content-Type" "text/plain"
     send_response_ok_exit <<< "$1"
 }
@@ -175,7 +178,7 @@ function on_uri_match {
         "$@" "${BASH_REMATCH[@]}"
 }
 
-function unconditionally() {
+function unconditionally {
     "$@" "$REQUEST_URI"
 }
 
@@ -251,8 +254,9 @@ function run_command {
 function http_server {
     case $http_method in
 	GET)
-	    [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
-	    [[ "$mime_response" =~ (json) ]] && create_json
+	    # [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
+	    # [[ "$mime_response" =~ (json) ]] && create_json
+	    create_json
 	    
 	    [[ "${line[*]}" =~ keep-alive ]] &&
 		serve_file "$file_output"
@@ -286,9 +290,10 @@ function http_server {
 
 while read -a line 
 do
+    recv "${line[*]}"
+    
     case ${line[0]} in
 	GET)
-	    recv "${line[*]}"
 	    http_method=GET
 	    file_output=$(get_file_output "${line[1]}")
 	    ;;

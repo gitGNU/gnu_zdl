@@ -8,11 +8,8 @@
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
   </head>
   
-  <body>
+  <body onload="loadJSON('/tmp/zdl.d/data.json');">
     <h2>ZDL</h2>
-    <img src="/Hexadecimal-counting.jpg">
-    <button onclick="loadJSON('/tmp/zdl.d/data.json');">aggiorna JSON</button>
-    <div id="out" style="margin-bottom:20px"></div>
     <form action="" method="post">
       Nuovo link:
       <input type="hidden" name="cmd" value="add-link">
@@ -20,6 +17,10 @@
       <input type="text" name="link">
       <input type="submit" name="submit" value="Invia">
     </form>
+
+    <img src="/Hexadecimal-counting.jpg">
+    <button onclick="loadJSON('/tmp/zdl.d/data.json');">aggiorna JSON</button>
+    <div id="out" style="margin-bottom:20px"></div>
     <script>
     // function reloadJSON (url) {
     // 	$.getJSON(url,
