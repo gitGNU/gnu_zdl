@@ -231,7 +231,7 @@ function run_command {
 	add-link)
 	    ## [1]=PATH [2]=LINK
 	    cd "${line[1]}" 
-	    set_link +  "${line[2]}"
+	    set_link + "${line[2]}"
 	    ;;
 	stop-link)
 	    ## [1]=(PATH|ALL); [2]=(LINK|ALL); 
@@ -256,7 +256,8 @@ function http_server {
 	GET)
 	    # [ "${line[0]}" == 'Accept:' ] && mime_response="${line[1]%,*}"
 	    # [[ "$mime_response" =~ (json) ]] && create_json
-	    create_json
+	    [ "$file_output" == /tmp/zdl.d/data.json ] &&
+		create_json
 	    
 	    [[ "${line[*]}" =~ keep-alive ]] &&
 		serve_file "$file_output"
