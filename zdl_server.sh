@@ -330,7 +330,38 @@ console.log(out);
 	    done
 	    ;;
 	stop-link)
-	    ## [1]=(PATH|ALL); [>1]=(LINK|ALL); 
+	    ## PATH -> LINK ~ PID
+	    create_json
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		test -d "${line[i]}" &&
+		    cd "${line[i]}"
+
+		if url "${line[i]}"
+		then
+		    link="${line[i]}"
+
+		    res=$($nodejs -e "
+var path = '$PWD'; 
+var link = '$link'; 
+var json = $(cat $server_data);
+var out; 
+for (var i = 0; i<json.length; i += 1) {
+  if (json[i]['path'] === path && json[i]['link'] === link) {
+    out = 'pid=' + json[i]['pid'] + '; ' + 'file=\"' + json[i]['file'] + '\";';
+    break;
+  }
+}
+console.log(out);
+                    ")
+
+		    eval $res
+		    kill -9 "$pid" &>/dev/null 
+		    unset link pid file
+		fi
+	    done
+	    
 	    ;;
 	get-downloader)
 	    ## [1]=PATH; [2]=DOWNLOADER
