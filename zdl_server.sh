@@ -222,8 +222,8 @@ function create_json {
 	while read path
 	do
 	    cd "$path"
-	    data_stdout
-	    echo -en "," >>"$server_data"
+	    data_stdout &&
+		echo -en "," >>"$server_data"
 	done <"$server_paths"
 
 	sed -r "s|,$|]\n|g" -i "$server_data"
