@@ -215,6 +215,8 @@ function unconditionally {
 
 
 function create_json {
+    local test_data
+    
     if [ -s "$server_paths" ]
     then
 	echo -ne '[' >"$server_data"
@@ -222,8 +224,12 @@ function create_json {
 	while read path
 	do
 	    cd "$path"
-	    data_stdout &&
+	    sed -r 's|\[\,|[|g' -i "$server_data"
+	    
+	    if data_stdout
+	    then
 		echo -en "," >>"$server_data"
+	    fi
 	done <"$server_paths"
 
 	sed -r "s|,$|]\n|g" -i "$server_data"
