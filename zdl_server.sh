@@ -41,6 +41,24 @@ source $path_usr/libs/log.sh
 
 json_flag=true
 
+## node.js:
+if [ -d /cygdrive ] &&
+       ! command -v node &>/dev/null &&
+       [ -f "/usr/local/share/zdl/node.exe" ]
+then
+    chmod 777 /usr/local/share/zdl/node.exe
+    nodejs="/usr/local/share/zdl/node.exe"
+
+elif command -v nodejs &>/dev/null
+then
+    nodejs=nodejs
+
+elif command -v node &>/dev/null
+then
+    nodejs=node
+fi
+
+
 #### HTTP:
 declare -i DEBUG=1
 declare -i VERBOSE=0
@@ -59,6 +77,9 @@ declare -a RESPONSE_HEADERS=(
     "Expires: $DATE"
     "Server: Slash Bin Slash Bash"
 )
+##########
+
+
 
 function recv {
     ((${DEBUG})) &&
@@ -246,9 +267,11 @@ function get_file_output {
 
 function run_cmd {
     local line=( "$@" )
+    local file link pid
 
     case "${line[0]}" in
     	get-data)
+	    create_json
 	    file_output="$server_data"
 	    if [ -z "$http_method" ]
 	    then
@@ -257,19 +280,51 @@ function run_cmd {
 	    fi
 	    ;;
 	del-link)
-	    ## [1]=PATH [>1]=LINK
-	    cd "${line[1]}"
-	    for ((i=2; i<${#line[@]}; i++))
+	    ## PATH -> LINK ~ PID
+	    create_json
+	    for ((i=1; i<${#line[@]}; i++))
 	    do
-		set_link - "${line[2]}"
+		## path
+		test -d "${line[i]}" &&
+		    cd "${line[i]}"
+
+		if url "${line[i]}"
+		then
+		    link="${line[i]}"
+
+		    res=$($nodejs -e "
+var path = '$PWD'; 
+var link = '$link'; 
+var json = $(cat $server_data);
+var out; 
+for (var i = 0; i<json.length; i += 1) {
+  if (json[i]['path'] === path && json[i]['link'] === link) {
+    out = 'pid=' + json[i]['pid'] + '; ' + 'file=\"' + json[i]['file'] + '\";';
+    break;
+  }
+}
+console.log(out);
+                    ")
+echo "$res" >>RES
+		    eval $res
+		    set_link - "$link"
+		    kill -9 "$pid" &>/dev/null 
+		    rm -f "$file" "$file".st "$file".aria2 "$file".zdl "$path_tmp"/"${file}_stdout.tmp"
+		    unset link pid file
+		fi
 	    done
 	    ;;
 	add-link)
-	    ## [1]=PATH [>1]=LINK
-	    cd "${line[1]}"
-	    for ((i=2; i<${#line[@]}; i++))
+	    ## PATH -> LINK
+	    for ((i=1; i<${#line[@]}; i++))
 	    do
-		set_link + "${line[2]}"
+		## path
+		test -d "${line[i]}" &&
+		    cd "${line[i]}"
+
+		## link
+		url "${line[i]}" &&		    
+		    set_link + "${line[i]}"
 	    done
 	    ;;
 	stop-link)
@@ -299,40 +354,41 @@ function run_cmd {
 function run_data {
     local data=( ${1//'&'/ } )
     local name value last
-    local line_cmd
+    local line_cmd=()
 
     for ((i=0; i<${#data[*]}; i++))
     do
 	name=$(urldecode "${data[i]%'='*}")
 	value=$(urldecode "${data[i]#*'='}")
+	line_cmd+=( "$value" )
 
-	case "$name" in
-	    cmd)
-		line_cmd=( "$value" )
-		last="$name"
-		;;
-	    path)
-		if [ "$last" == cmd ]
-		then
-		    line_cmd+=( "$value" )
-		    last=$name
-		fi
-		;;
-	    link)
-	    	if [[ "$last" =~ ^(path|link)$ ]]
-		then
-		    line_cmd+=( "$value" )
-		    last=$name
-		fi
-		;;
-	    downloader|number)
-		if [ "$last" == path ]
-		then
-		    line_cmd+=( "$value" )
-		    last=$name
-		fi
-		;;
-	esac
+	# case "$name" in
+	#     cmd)
+	# 	line_cmd=( "$value" )
+	# 	last="$name"
+	# 	;;
+	#     path)
+	# 	if [ "$last" == cmd ]
+	# 	then
+	# 	    line_cmd+=( "$value" )
+	# 	    last=$name
+	# 	fi
+	# 	;;
+	#     link)
+	#     	if [[ "$last" =~ ^(path|link)$ ]]
+	# 	then
+	# 	    line_cmd+=( "$value" )
+	# 	    last=$name
+	# 	fi
+	# 	;;
+	#     downloader|number)
+	# 	if [ "$last" == path ]
+	# 	then
+	# 	    line_cmd+=( "$value" )
+	# 	    last=$name
+	# 	fi
+	# 	;;
+	# esac
     done
 
     [ -n "${line_cmd[*]}" ] && run_cmd "${line_cmd[@]}"

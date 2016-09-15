@@ -8,7 +8,7 @@
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
   </head>
   
-  <body>
+  <body onload="loadJSON ('/?cmd=get-data');">
     <h2>ZDL</h2>
     <form action="" method="get">
       Nuovo link GET:
@@ -27,38 +27,38 @@
     </form>
 
     <img src="header.gif">
-
-    <button onclick="loadJSON('/?cmd=get-data');">aggiorna JSON</button>
+    <button onclick="loadJSON ('/?cmd=get-data');">aggiorna JSON per cancellare un link</button>
 
     <div id="out" style="margin-bottom:20px"></div>
     <script>
-    // function reloadJSON (url) {
-    // 	$.getJSON(url,
-    // 		  function(json) {
-    // 		      $( "#out" ).text(JSON.stringify(json, null, 2));
-    // 		  })
-    // }
-    
     function loadJSON (url) {
-    	var req = new XMLHttpRequest();
-    	req.open('GET', url, true);
-    	req.onload = function() {
+	var req = new XMLHttpRequest();
+	req.open('GET', url, true);
+	req.onload = function() {
     	    if (req.status == 200) {
     		var data = JSON.parse(req.responseText);
-		var output = ""
+		var output = "<form action=\"\" method=\"get\">";
+
 		for (var i=0; i<data.length; i++) {
+		    output += "<input type=\"hidden\" name=\"cmd\" value=\"del-link\">";
+		    output += "<input type=\"hidden\" name=\"path\" value=\"" + data[i]["path"] + "\">";
+		    output += "<br><hr><br><input type=\"checkbox\" name=\"link\" value=\"" + data[i]["link"] + "\">";
+
 		    for (var j in data[i]) {
-    			output += j + ": " + data[i][j] + "<br>";
+    			output += j + ": " + data[i][j] + "<br>----<br>";
 		    }
 		}
+		output += "<input type=\"submit\" name=\"submit\" value=\"Elimina\">";
+		output += "</form>";
+
 		document.getElementById('out').innerHTML = output;
+		
     	    } else {
     		alert("Error " + req.status);
     	    }
-    	};
-    	req.send();
+	};
+	req.send();
     }
-
     </script>
 </body>
 
