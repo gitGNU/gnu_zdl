@@ -25,9 +25,13 @@
 #
 
 path_usr="/usr/local/share/zdl"
+template_index="$path_usr/webui/index.html"
 path_tmp=".zdl_tmp"
-file_data="/tmp/zdl.d/data.json"
-file_paths="/tmp/zdl.d/paths.txt"
+
+path_server="/tmp/zdl.d"
+server_data="$path_server/data.json"
+server_paths="$path_server/paths.txt"
+server_index="$path_server/index.html"
 
 source $path_usr/libs/core.sh
 source $path_usr/libs/downloader_manager.sh
@@ -89,31 +93,15 @@ function send_response {
     local transfer_stats=""
     local tmp_stat_file="/tmp/_send_response_$$_"
 
-    send_response_header "$code"
-
-    if [ -s "$file" ]
+    if [ -f "$file" ]
     then
 	mime=$(get_mime_server "$file")
 	add_response_header "Content-Type" "$mime"
 	add_response_header "Content-Length" "$(size_file "$file")"
-
-	if [[ "$mime" =~ text\/html ]]
-	then
-	    template=$(cat "$file")
-
-	else
-	    cat "$file"
-	    return
-	fi
-
-    elif [ -n "$file" ]
-    then
-	template="$file"
+	send_response_header "$code"
+	
+	cat "$file"
     fi
-
-    [ -n "$template" ] &&
-	[[ "$template" =~ __START_PATH__ ]] &&
-	sed -r "s|__START_PATH__|$PWD|g" <<< "$template"
 	
     #echo
     # if ((${VERBOSE}))
@@ -170,7 +158,7 @@ function get_mime_server {
 function serve_file {
     local file="$1"
 
-    if [ -s "$file" ]
+    if [ -f "$file" ]
     then
 	if [[ "$http_method" =~ ^(GET|POST)$ ]]
 	then
@@ -206,18 +194,18 @@ function unconditionally {
 
 
 function create_json {
-    if [ -s "$file_paths" ]
+    if [ -s "$server_paths" ]
     then
-	echo -ne '[' >"$file_data"
+	echo -ne '[' >"$server_data"
 
 	while read path
 	do
 	    cd "$path"
 	    data_stdout
-	    echo -en "," >>"$file_data"
-	done <"$file_paths"
+	    echo -en "," >>"$server_data"
+	done <"$server_paths"
 
-	sed -r "s|,$|]\n|g" -i "$file_data"
+	sed -r "s|,$|]\n|g" -i "$server_data"
 	
 	return 0
     fi
@@ -239,9 +227,20 @@ function get_file_output {
 	if [ "$file" == '/' ] ||
 	       [ "$file" != "${file//'?'}" ]
 	then
-	    file=index.html
+	    template="$template_index"
+	    file="$server_index"
+
+	else
+	    file="$path_usr/webui/${file#\/}"
 	fi
-	echo "$path_usr/webui/${file#\/}"
+
+	if [ -f "$template" ] &&
+	       grep '__START_PATH__' "$template" &>/dev/null
+	then
+	    sed -r "s|__START_PATH__|$PWD|g" "$template" >"$file"		
+	fi
+	
+	echo "$file"
     fi
 }
 
@@ -250,10 +249,10 @@ function run_cmd {
 
     case "${line[0]}" in
     	get-data)
-	    file_output="$file_data"
+	    file_output="$server_data"
 	    if [ -z "$http_method" ]
 	    then
-		cat "$file_data"
+		cat "$server_data"
 		return
 	    fi
 	    ;;
@@ -349,9 +348,9 @@ function http_server {
 			run_data "$GET_DATA"
 		    fi
 
-		    if [ -n "$file_output" ]
+		    if [ -f "$file_output" ]
 		    then
-			[ "$file_output" == "$file_data" ] &&
+			[ "$file_output" == "$server_data" ] &&
 			    create_json
 			
 			serve_file "$file_output"
@@ -399,6 +398,7 @@ do
 	    fi
 	    ;;
 	POST)
+	    unset POST_DATA file_output
 	    http_method=POST
 	    file_output=$(get_file_output "${line[1]}")
 	    ;;
