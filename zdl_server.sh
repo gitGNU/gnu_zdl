@@ -224,9 +224,9 @@ function create_json {
 	while read path
 	do
 	    cd "$path"
-	    sed -r 's|\[\,|[|g' -i "$server_data"
 	    
-	    if data_stdout
+	    if data_stdout &&
+		    ! grep -P '\[$' "$server_data" &>/dev/null
 	    then
 		echo -en "," >>"$server_data"
 	    fi
