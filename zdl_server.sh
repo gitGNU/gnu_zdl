@@ -279,6 +279,7 @@ function run_cmd {
 		return
 	    fi
 	    ;;
+
 	del-link)
 	    ## PATH -> LINK ~ PID
 	    create_json
@@ -305,7 +306,7 @@ for (var i = 0; i<json.length; i += 1) {
 }
 console.log(out);
                     ")
-echo "$res" >>RES
+
 		    eval $res
 		    set_link - "$link"
 		    kill -9 "$pid" &>/dev/null 
@@ -314,6 +315,7 @@ echo "$res" >>RES
 		fi
 	    done
 	    ;;
+
 	add-link)
 	    ## PATH -> LINK
 	    for ((i=1; i<${#line[@]}; i++))
@@ -361,34 +363,6 @@ function run_data {
 	name=$(urldecode "${data[i]%'='*}")
 	value=$(urldecode "${data[i]#*'='}")
 	line_cmd+=( "$value" )
-
-	# case "$name" in
-	#     cmd)
-	# 	line_cmd=( "$value" )
-	# 	last="$name"
-	# 	;;
-	#     path)
-	# 	if [ "$last" == cmd ]
-	# 	then
-	# 	    line_cmd+=( "$value" )
-	# 	    last=$name
-	# 	fi
-	# 	;;
-	#     link)
-	#     	if [[ "$last" =~ ^(path|link)$ ]]
-	# 	then
-	# 	    line_cmd+=( "$value" )
-	# 	    last=$name
-	# 	fi
-	# 	;;
-	#     downloader|number)
-	# 	if [ "$last" == path ]
-	# 	then
-	# 	    line_cmd+=( "$value" )
-	# 	    last=$name
-	# 	fi
-	# 	;;
-	# esac
     done
 
     [ -n "${line_cmd[*]}" ] && run_cmd "${line_cmd[@]}"
