@@ -126,10 +126,3 @@ var singlePath = function (path) {
     return that;
 }
 
-var getPaths = function () {
-    var data = getData();
-    for (var i = 0; i<data.length; i += 1) {
-	paths[i] = data[i].path;
-    }
-    return paths;
-}
