@@ -1,11 +1,14 @@
 
-var load = function (method, url) {
+var ZDL = {};
+
+var load = function (method, url, async = true) {
+    var data;
     var req = new XMLHttpRequest();
-    req.open(method, url, true);
+    req.open(method, url, async);
     req.onload = function() {
     	if (req.status == 200) {
-    	    return req.responseText;
-		
+	    ZDL.data = req.responseText;
+
     	} else {
     	    alert("Error " + req.status);
     	}
@@ -13,18 +16,30 @@ var load = function (method, url) {
     req.send();
 }
 
+var isJsonString = function (str) {
+    try {
+	JSON.parse(str);
+    } catch (e) {
+	return false;
+    }
+    return true;
+}
+
 var getData = function () {
-    var json = load ('GET', '?cmd=get-data');
-    return JSON.parse(json);
+    load ('GET', '?cmd=get-data', false);
+    if (isJsonString(ZDL.data))
+	return JSON.parse(ZDL.data);
+    else
+	return ZDL.data;
 }
 
 var printDeleteLink = function (id) {
     var data = getData();
     
     var output = "<form action=\"\" method=\"get\">";
+    output += "<input type=\"hidden\" name=\"cmd\" value=\"del-link\">";
     
     for (var i=0; i<data.length; i++) {
-	output += "<input type=\"hidden\" name=\"cmd\" value=\"del-link\">";
 	output += "<input type=\"hidden\" name=\"path\" value=\"" + data[i]["path"] + "\">";
 	output += "<br><hr><br><input type=\"checkbox\" name=\"link\" value=\"" + data[i]["link"] + "\">";
 	
@@ -51,12 +66,12 @@ var addLink = function (spec) {
 var singleLink = function (spec) {
     // spec = {path: ..., link: ...}
     var data = getData();
-    var that;
+    var that = {};
     
     for (var i = 0; i<data.length; i += 1) {
 	if (data[i].path === spec.path && data[i].link === spec.link ) {
 	    that = data[i];
-	    break
+	    break;
 	}
     }
 
@@ -76,14 +91,15 @@ var singleLink = function (spec) {
 
 var singlePath = function (path) {
     var data = getData();
-    var that, pid, downloader, num_downloads;
+    var pid, downloader, num_downloads;
+    var that = {}
     
     for (var i = 0; i<data.length; i += 1) {
 	if (data[i].path === path) {
 	    pid = data[i].pid_instance;
 	    downloader = data[i].downloader;
 	    num_downloads = data[i].num_downloads;
-	    break
+	    break;
 	}
     }
 
@@ -112,5 +128,8 @@ var singlePath = function (path) {
 
 var getPaths = function () {
     var data = getData();
-    
+    for (var i = 0; i<data.length; i += 1) {
+	paths[i] = data[i].path;
+    }
+    return paths;
 }

@@ -33,7 +33,9 @@ function data_stdout {
     shopt -u dotglob
     unset pid_alive pid_out file_out url_out percent_out length_saved length_out no_check
     [ -z "$num_check" ] && num_check=0
-
+    
+    num_dl=$(cat "$path_tmp/dl-mode")
+    
     ## check_stdout, verifica inceppamento e ogni azione sui download: 
     ## disattivati se show_downloads_(lite|extended)
     if [ "$1" == "no_check" ]
@@ -74,6 +76,7 @@ function data_stdout {
 			  -v url_in="$url_in"                       \
 			  -v no_complete="$no_complete"             \
 			  -v num_check="$num_check"                 \
+			  -v num_dl="$num_dl"                       \
 			  -v no_check="$no_check"                   \
 			  -v json_flag="$json_flag"                 \
 			  -v wget_links_index="${#wget_links[*]}"   \

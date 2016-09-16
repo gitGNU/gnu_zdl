@@ -6,9 +6,10 @@
     <title>zdl</title>
     <script>var start_path="__START_PATH__"</script>
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
+    <script src="api.js"></script> 
   </head>
   
-  <body onload="loadJSON ('/?cmd=get-data');">
+  <body onload="getData();">
     <h2>ZDL</h2>
     <form action="" method="get">
       Nuovo link GET:
@@ -27,7 +28,7 @@
     </form>
 
     <img src="header.gif">
-    <button onclick="loadJSON ('/?cmd=get-data');">aggiorna JSON per cancellare un link</button>
+    <button onclick="printDeleteLink('out');">aggiorna JSON per cancellare un link</button>
 
     <div id="out" style="margin-bottom:20px"></div>
     <script>

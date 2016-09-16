@@ -160,6 +160,7 @@ function get_mime_server {
 	    ;;
 	*\.json)
 	    mime="application/json"
+	    #mime="text/html"
 	    ;;
 	*)
 	    mime=$(get_mime "${file}")
@@ -224,12 +225,11 @@ function create_json {
 	while read path
 	do
 	    cd "$path"
-	    num_dl="$(cat "$path_tmp/dl-mode")"
 	    
 	    if data_stdout &&
 		    ! grep -P '\[$' "$server_data" &>/dev/null
 	    then
-		echo -en "\"num_downloads\": \"$num_dl\"," >>"$server_data"
+		echo -en "," >>"$server_data"
 	    fi
 	done <"$server_paths"
 

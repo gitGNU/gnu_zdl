@@ -590,7 +590,8 @@ END {
     	    json = json "\"pid\":\"" pid_out[I] "\","
     	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
     	    json = json "\"speed\":\"" speed_out[I] "\","
-    	    json = json "\"speed_measure\":\"" speed_out_type[I] "\""
+    	    json = json "\"speed_measure\":\"" speed_out_type[I] "\","
+	    json = json "\"num_downloads\":\"" num_dl "\""
 
     	    if (I<length(file_out)-1)
     		json = json "},"
