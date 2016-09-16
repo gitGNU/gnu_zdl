@@ -6,8 +6,9 @@ var load = function (method, url, async = true) {
     var req = new XMLHttpRequest();
     req.open(method, url, async);
     req.onload = function() {
-    	if (req.status == 200) {
-	    ZDL.data = req.responseText;
+    	if (req.status === 200) {
+	    if (async === false)
+		ZDL.data = req.responseText;
 
     	} else {
     	    alert("Error " + req.status);
