@@ -1,4 +1,29 @@
 #!/bin/bash
+#
+# ZigzagDownLoader (ZDL)
+# 
+# This program is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published 
+# by the Free Software Foundation; either version 3 of the License, 
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License 
+# along with this program. If not, see http://www.gnu.org/licenses/. 
+# 
+# Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
+# 
+# For information or to collaborate on the project:
+# https://savannah.nongnu.org/projects/zdl
+# 
+# Gianluca Zoni (author)
+# http://inventati.org/zoninoz
+# zoninoz@inventati.org
+#
+
 
 ## manuale: http://yasb.altervista.org/blog/2012_07_24/compgen-un-comando-sui-comandi/?doing_wp_cron=1468161646.9426960945129394531250
  
@@ -9,7 +34,7 @@ _zdl()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--tcp-port= --udp-port= --torrent-file= --help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --xdcc --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --multi= --list-extensions"
+    opts="--tcp-port= --udp-port= --torrent-file= --help --scrape-url --scrape-url= --url= --no-url= --file= --no-file= --configure --interactive --no-rev --no-sub --lite --wget --axel --aria2 --login --clean --xdcc --daemon --out= --proxy --proxy= --resume --no-complete --reconnect --ip --mp3 --flac --editor --emacs --emacs-nw --jed --jupp --mcedit --mg --nano --vi --vim --zile --force --update --max-downloads= --list-extensions --socket"
 
     if [[ ${cur} == -* ]]
     then

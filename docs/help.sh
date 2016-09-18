@@ -76,9 +76,12 @@ OPZIONI
        --wget                  Scarica con Wget
        --axel                  Scarica con Axel
 
-  -m [N], --multi=[NUM]        Download parallelo. È possibile indicare
-                               il numero massimo di download da effettuare
-                               contemporaneamente
+  -m [N], --max-downloads=[NUMERO] 
+                               Numero massimo di download da effettuare
+                               contemporaneamente: 
+                                 0 = pausa
+                                 >0 = limite download paralleli
+                                 nessun numero = nessun limite
        
        --login	               Utilizza eventuali account registrati per i
                                servizi abilitati (configurare ${PROG})

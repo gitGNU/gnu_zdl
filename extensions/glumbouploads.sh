@@ -32,7 +32,7 @@ if [ "$url_in" != "${url_in//glumbouploads.}" ]
 then
     proxy_types=( "Anonymous" "Elite" )
     
-    [ "$num_dl" == "1" ] &&
+    [ "$max_dl" == "1" ] &&
 	[ -f "$file_data" ] &&
 	check_ip glumbouploads
 

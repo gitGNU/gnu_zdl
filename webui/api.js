@@ -1,3 +1,26 @@
+//  ZigzagDownLoader (ZDL)
+//  
+//  This program is free software: you can redistribute it and/or modify it 
+//  under the terms of the GNU General Public License as published 
+//  by the Free Software Foundation; either version 3 of the License, 
+//  or (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+//  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License 
+//  along with this program. If not, see http://www.gnu.org/licenses/. 
+//  
+//  Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
+//  
+//  For information or to collaborate on the project:
+//  https://savannah.nongnu.org/projects/zdl
+//  
+//  Gianluca Zoni (author)
+//  http://inventati.org/zoninoz
+//  zoninoz@inventati.org
+// 
 
 var ZDL = {};
 
@@ -92,14 +115,14 @@ var singleLink = function (spec) {
 
 var singlePath = function (path) {
     var data = getData();
-    var pid, downloader, num_downloads;
+    var pid, downloader, max_downloads;
     var that = {}
     
     for (var i = 0; i<data.length; i += 1) {
 	if (data[i].path === path) {
 	    pid = data[i].pid_instance;
 	    downloader = data[i].downloader;
-	    num_downloads = data[i].num_downloads;
+	    max_downloads = data[i].max_downloads;
 	    break;
 	}
     }
@@ -116,12 +139,12 @@ var singlePath = function (path) {
 	return load ('GET', '?cmd=set-downloader&dowloader=' + dler);
     }
 
-    that.getNumDownloads = function () {
-	return num_downloads;
+    that.getMaxDownloads = function () {
+	return max_downloads;
     }
 
-    that.setNumDownloads = function (num) {
-	return load ('GET', '?cmd=set-num-downloads&number=' + num);
+    that.setMaxDownloads = function (num) {
+	return load ('GET', '?cmd=set-max-downloads&number=' + num);
     }
 
     return that;

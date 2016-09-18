@@ -102,13 +102,13 @@ function show_downloads_extended {
     [ -f "$path_tmp/downloader" ] && downloader_in=$(cat "$path_tmp/downloader")
     echo -e "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
 
-    if ! check_instance_daemon
+    if check_instance_daemon
     then
 	print_c 1 "$PROG è attivo in modalità demone (pid: $daemon_pid)\n"
 	instance_pid="$daemon_pid"
 	
     else
-	if ! check_instance_prog
+	if check_instance_prog
 	then
 	    if [ "$this_tty" == "$that_tty" ]
 	    then
@@ -397,14 +397,14 @@ function interactive {
 	unset instance_pid daemon_pid that_pid that_tty list file_stdout file_out url_out downloader_out pid_out length_out
 
 	show_downloads_extended
-	num_dl=$(cat "$path_tmp/dl-mode" 2>/dev/null)
+	max_dl=$(cat "$path_tmp/max-dl" 2>/dev/null)
 	
-	[ ! -f "$path_tmp/dl-mode" ] && num_dl=1
-	if [ -z "$num_dl" ]
+	[ ! -f "$path_tmp/max-dl" ] && max_dl=1
+	if [ -z "$max_dl" ]
 	then
 	    num_downloads=illimitati
 	else
-	    num_downloads=$num_dl
+	    num_downloads=$max_dl
 	fi
 	
 	header_box_interactive "Opzioni [numero download alla volta: $num_downloads]"
@@ -544,11 +544,11 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	    
 	    [0-9])
-		echo "$action" > "$path_tmp/dl-mode"
+		echo "$action" > "$path_tmp/max-dl"
 		;;
 	
 	    m)
-		echo > "$path_tmp/dl-mode"
+		echo > "$path_tmp/max-dl"
 		;;
 	    
 	    e)

@@ -52,11 +52,11 @@ function check_instance_daemon {
     
     if [[ "$daemon_pid" =~ ^([0-9]+)$ ]]
     then
-	return 1
+	return 0
 
     else
 	unset daemon_pid
-	return 0
+	return 1
     fi
 }
 
@@ -70,10 +70,10 @@ function check_instance_prog {
 	then
 	    that_pid=$test_pid
 	    that_tty=$(tty_pid "$test_pid")
-	    return 1
+	    return 0
 	fi
     fi
-    return 0
+    return 1
 }
 
 
@@ -448,7 +448,7 @@ function start_mode_in_tty {
     if [ "$this_mode" != daemon ]
     then
 	if [ -f "$path_tmp/.stop_stdout" ] &&
-	       ! check_instance_prog
+	       check_instance_prog
 	then
 	    that_tty=$(cut -d' ' -f1 "$path_tmp/.stop_stdout")
 
@@ -551,9 +551,9 @@ function zero_dl {
     [ "$1" == show ] &&
 	unset hide_zero
     
-    num_dl=$(cat "$path_tmp"/dl-mode)
+    max_dl=$(cat "$path_tmp"/max-dl)
 
-    if [ -n "$num_dl" ] && ((num_dl < 1))
+    if [ -n "$max_dl" ] && ((max_dl < 1))
     then
 	if [ -z "$hide_zero" ]
 	then

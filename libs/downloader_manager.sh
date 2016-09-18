@@ -572,8 +572,8 @@ $url_in_file" > "$path_tmp/${file_in}_stdout.ytdl"
 function check_in_loop { 
     if data_stdout
     then
-	num_dl=$(cat "$path_tmp/dl-mode")
-	if [ -z "$num_dl" ] || (( "${#pid_alive[*]}" < "$num_dl" ))
+	max_dl=$(cat "$path_tmp/max-dl")
+	if [ -z "$max_dl" ] || (( "${#pid_alive[*]}" < "$max_dl" ))
 	then
 	    return 1 ## rompe il loop (esce dall'attesa) => procede con un altro download
 	else

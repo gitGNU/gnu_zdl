@@ -253,7 +253,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `--wget'
      Scarica con _Wget_
 
-`-m [_numero_], --multi=[_numero_]'
+`-m [_numero_], --max-downloads=[_numero_]'
      Download parallelo. È possibile indicare il numero massimo di
      download da effettuare contemporaneamente
 
@@ -493,11 +493,12 @@ _Tutti i file scaricabili con i seguenti programmi:_
 Altre informazioni utili.
 =========================
 
-Per i servizi di hosting seguenti è consigliato l'uso della funzione
-_multi_ (aggiungere l'opzione `-m' alle istruzioni sopra elencate,
-eventualmente indicando il massimo numero di download da effettuare in
-contemporanea) per procedere con il download in parallelo,
-eventualmente attraverso l'uso di proxy: Easybytez e Mediafire
+Per i servizi di hosting seguenti è consigliato estendere il limite
+massimo di download (aggiungere l'opzione `-m' alle istruzioni sopra
+elencate, eventualmente indicando il massimo numero di download da
+effettuare in contemporanea) per procedere con il download in
+parallelo, eventualmente attraverso l'uso di proxy: Easybytez e
+Mediafire
 
    Molti server non permettono il recupero di download interrotti e il
 download parallelo.  Per questi (fra cui Easybytez, Dailymotion,
@@ -520,7 +521,7 @@ servizio di hosting. In particolare, la registrazione di molti account
 per Easybytez non solo permette il download di file di grandezza fino a
 600 MB, ma consente anche lo scaricamento in parallelo di più file
 senza l'uso di proxy (in questo caso è necessario specificare anche
-`-m' oppure `--multi='). Per configurare l'uso di account: `zdl
+`-m' oppure `--max-downloads='). Per configurare l'uso di account: `zdl
 [-c|--configure]'
 
    Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire
@@ -638,10 +639,10 @@ Un esempio, partendo da un problema pratico: aggiungere opzioni a download avvia
 
 _Problema:_
      voglio scaricare dei file da Easybytez usando _Flashgot_, ma voglio
-     anche usare le opzioni `--login', `--multi=' e `--clean', che non
-     sono impostate di default. Come posso utilizzare queste funzioni
-     aggiuntive usando il browser (con _Flashgot_), se queste possono
-     essere attivate solo dal terminale?
+     anche usare le opzioni `--login', `--max-downloads=' e `--clean',
+     che non sono impostate di default. Come posso utilizzare queste
+     funzioni aggiuntive usando il browser (con _Flashgot_), se queste
+     possono essere attivate solo dal terminale?
 
 _Soluzione:_
         - avvio zdl in un terminale, dalla directory di destinazione,
@@ -962,7 +963,7 @@ estensione `.sh' nella directory `$HOME/.zdl/extensions/'
         url_in_file=$(sed -r 's|http://(.+)|http://USER:PASSWORD@\1|g' \
                           <<< "$url_in")
         file_in="NOME_DEL_FILE"
-        num_dl=1
+        max_dl=1
         axel_parts=3
         aria2_connections=3
 
@@ -974,7 +975,7 @@ attraverso una regex nel PATTERN.  Lo script modifica il link del
 download in `$url_in' per ottenere l'URL del file in `$url_in_file',
 aggiungendo USER e PASSWORD per accedere al server.  Inoltre, indica
 come ricavare il nome del file da scaricare (variabile `$file_in') e
-aggiunge o modifica opzioni: disattiva l'opzione `--multi=' se
+aggiunge o modifica opzioni: disattiva l'opzione `--max-downloads=' se
 applicata al comando e stabilisce il numero di parti da scaricare con
 Axel (il grado di accelerazione, che per default è 32 ma che per
 diversi server può essere eccessivo o insufficiente, peggiorando le
@@ -1330,26 +1331,26 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL6499
-Node: Servizi streaming/hosting13358
-Node: Avviare ZDL17071
-Node: Arrestare ZDL19507
-Node: Controllare i download20612
-Node: Manuali d'uso24895
-Node: Modi25311
-Node: Readline28577
-Node: Editor30129
-Node: Omonimie31354
-Node: IRC/XDCC32889
-Node: Torrent34579
-Node: Filtri35463
-Node: Creare nuove estensioni35784
-Node: Software consigliati37538
-Node: Conkeror38939
-Node: zdl-xterm e XXXTerm/Xombrero39950
-Node: Installazione e aggiornamento41874
-Node: Tags44909
-Node: Copying47710
-Node: Contatti48760
+Node: Servizi streaming/hosting13366
+Node: Avviare ZDL17098
+Node: Arrestare ZDL19534
+Node: Controllare i download20639
+Node: Manuali d'uso24930
+Node: Modi25346
+Node: Readline28612
+Node: Editor30164
+Node: Omonimie31389
+Node: IRC/XDCC32924
+Node: Torrent34614
+Node: Filtri35498
+Node: Creare nuove estensioni35819
+Node: Software consigliati37581
+Node: Conkeror38982
+Node: zdl-xterm e XXXTerm/Xombrero39993
+Node: Installazione e aggiornamento41917
+Node: Tags44952
+Node: Copying47753
+Node: Contatti48803
 
 End Tag Table
 

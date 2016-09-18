@@ -463,7 +463,7 @@ then
 		   [ -e "/cygdrive" ]
 	    then
 		export pid_prog=$$
-		if ! check_instance_prog
+		if check_instance_prog
 		then
 		    set_link + "$url_in"
 		    xterm_stop=true
@@ -527,7 +527,7 @@ then
 	then
 	    unset args[i]
 	    already_clean=true
-	    if check_instance_daemon
+	    if ! check_instance_daemon
 	    then
 		mkdir -p "$path_tmp"
 		export this_tty
@@ -730,32 +730,38 @@ then
 fi
 
 
-if [[ "${args[*]}" =~ \-(m|\-multi=) ]]
+if [[ "${args[*]}" =~ \-(m|\-max\-downloads=|\-multi=) ]]
 then
     for ((i=0; i<=$max_args; i++))
     do
-	unset num_dl
+	unset max_dl
 	
 	if [ "${args[i]}" == "-m" ]
 	then
 	    if [[ "${args[i+1]}" =~ ^([0-9]+)$ ]]
 	    then
-		num_dl="${BASH_REMATCH[1]}"
+		max_dl="${BASH_REMATCH[1]}"
 		unset args[i+1]
 	    fi
-	    echo $num_dl >"$path_tmp/dl-mode"
+	    echo $max_dl >"$path_tmp/max-dl"
 	    unset args[i]
 	fi
 	
-	if [[ "${args[i]}" =~ ^\-\-multi=([0-9]+)$ ]]
+	if [[ "${args[i]}" =~ ^\-\-max\-downloads=([0-9]+)$ ]] ||
+	       [[ "${args[i]}" =~ ^\-\-multi=([0-9]+)$ ]]
 	then
-	    num_dl="${BASH_REMATCH[1]}"
-	    echo $num_dl >"$path_tmp/dl-mode"
+	    max_dl="${BASH_REMATCH[1]}"
+	    
+	    [[ "${args[i]}" =~ ^\-\-multi ]] &&
+		init_msg="${BRed}Opzione deprecata: '--multi=[NUMERO]' è sostituita con '--max-downloads=[NUMERO]'. Resta invariata l'opzione breve '-m [NUMERO]'\n"
+
+	    echo $max_dl >"$path_tmp/max-dl"
 	    unset args[i]
 	fi
 
     done
 fi
+
 
 if [ "${args[*]}" != "${args[*]//--ip}" ]
 then
@@ -768,6 +774,7 @@ then
 	fi
     done
 fi
+
 
 if [ "${args[*]}" != "${args[*]//--login}" ]
 then
@@ -1046,7 +1053,7 @@ then
 	cat "$start_file" >> links.txt 2>/dev/null
 	init_msg+="$(sprint_c 1 "L'elenco completo dei link è in links.txt\n")"
 
-	if check_instance_prog &&
+	if ! check_instance_prog &&
 		[ -z "$from_editor" ] &&
 		[ -z "$lite_mode" ] &&
 		[ "$this_mode" != lite ]
@@ -1090,7 +1097,7 @@ fi
 if [ -z "$start_file" ]
 then
     start_file="$path_tmp/links_loop.txt"
-    if check_instance_prog
+    if ! check_instance_prog
     then
 	echo "$pid_prog" > "$path_tmp/.pid.zdl"
     fi
@@ -1121,9 +1128,9 @@ then
 fi
 
 
-if ! check_instance_daemon &&
+if check_instance_daemon &&
 	[ "$this_mode" != "daemon" ] ||
-	    ! check_instance_prog	    
+	    check_instance_prog	    
 then
     redirect_links 
 

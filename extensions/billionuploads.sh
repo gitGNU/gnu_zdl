@@ -32,7 +32,7 @@ if [ "$url_in" != "${url_in//billionuploads}" ]
 then
     cookies="$path_tmp/cookies.zdl"
 
-    if [ -z "$num_dl" ]
+    if [ -z "$max_dl" ]
     then
 	check_ip billionuploads
     fi

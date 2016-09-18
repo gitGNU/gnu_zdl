@@ -332,8 +332,19 @@ console.log(out);
 		    cd "${line[i]}"
 
 		## link
-		url "${line[i]}" &&		    
-		    set_link + "${line[i]}"
+		url "${line[i]}" &&
+		    {
+			if check_instance_prog
+			then
+			    set_link + "${line[i]}"
+
+			else
+			    set_line_in_file + "$PWD" "$server_paths"
+			    mkdir -p "$path_tmp"
+			    date +%s >"$path_tmp"/.date_daemon
+			    nohup /bin/bash zdl "${line[i]}" --silent "$PWD" &>/dev/null &
+			fi
+		    }
 	    done
 	    ;;
 	stop-link)
@@ -376,10 +387,10 @@ console.log(out);
 	set-downloader)
 	    ## [1]=(PATH|ALL); [2]=DOWNLOADER
 	    ;;
-	get-number)
+	get-max-downloads)
 	    ## [1]=PATH; [2]=NUMBER:(0->...)
 	    ;;
-	set-number)
+	set-max-downloads)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
 	    ;;
 	clean)

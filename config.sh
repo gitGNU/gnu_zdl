@@ -35,7 +35,7 @@ key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numer
 key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2"
 key_conf[3]=mode;                val_conf[3]=single;       string_conf[3]="Modalità di download predefinita (single|multi)"
 key_conf[4]=stream_mode;         val_conf[4]=single;       string_conf[4]="Modalità di download predefinita per lo stream dal browser (single|multi)"
-key_conf[5]=num_dl;              val_conf[5]="";           string_conf[5]="Numero massimo di download simultanei"
+key_conf[5]=max_dl;              val_conf[5]="";           string_conf[5]="Numero massimo di download simultanei"
 key_conf[6]=background;          val_conf[6]=black;        string_conf[6]="Colore sfondo (black|transparent)"
 key_conf[7]=language;            val_conf[7]=$LANG;        string_conf[7]="Lingua"
 key_conf[8]=reconnecter;         val_conf[8]="";           string_conf[8]="Script/comando/programma per riconnettere il modem/router"
@@ -306,19 +306,19 @@ function get_conf {
     ## single/multi
     if [ "$mode" == "single" ]
     then
-	num_dl=1
+	max_dl=1
 
     elif [ "$mode" == "multi" ]
     then
-	unset num_dl
+	unset max_dl
     fi
 
-    if [ -f "$path_tmp/dl-mode" ]
+    if [ -f "$path_tmp/max-dl" ]
     then
-	num_dl="$(cat "$path_tmp/dl-mode")"
+	max_dl="$(cat "$path_tmp/max-dl")"
 
     else
-	echo "$num_dl" > "$path_tmp/dl-mode"
+	echo "$max_dl" > "$path_tmp/max-dl"
     fi
 	
     if [ "$stream_mode" == "multi" ]
@@ -417,7 +417,7 @@ function init {
     get_conf
     this_tty=$(tty)
 
-    if check_instance_prog
+    if ! check_instance_prog
     then
 	rm -f "$path_tmp"/*rewriting 
     fi
