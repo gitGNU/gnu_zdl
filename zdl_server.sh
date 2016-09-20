@@ -407,8 +407,6 @@ console.log(out);
 	    [ -d "${line[1]}" ] &&
 		cd "${line[1]}"
 
-#	    text_output+="<button onclick=\"selectDir('$PWD');\">Scarica in:</button> $PWD <hr>"
-	    
 	    text_output+="<a href=\"javascript:browse('$PWD/..');\"><img src=\"folder-blue.png\" /> ..</a><br>"
 	    while read dir
 	    do

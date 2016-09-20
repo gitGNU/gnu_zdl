@@ -40,7 +40,7 @@ var getUriParam = function (name, url) {
     return results == null ? null : results[1];
 }
 
-var load = function (method, url, async = true, callback = displayLinks) {
+var load = function (method, url, async, callback) {
     var data;
     var req = new XMLHttpRequest();
     req.open(method, encodeURI(url), async);
@@ -140,7 +140,7 @@ var displayLinks = function (str) {
 }
 
 var display = function () {
-    load ('GET', '?cmd=get-data');
+    load ('GET', '?cmd=get-data', true, displayLinks);
 }
 
 var addLink = function (id) {
@@ -167,7 +167,7 @@ var singleLink = function (spec) {
     }
 
     var cmd_to_link = function (cmd) {
-	return load ('GET', "?cmd=" + cmd + "&path=" + data.path + "&link=" + data.link);
+	return load ('GET', "?cmd=" + cmd + "&path=" + data.path + "&link=" + data.link, true);
     }
     
     that.delLink = function () {
@@ -203,7 +203,7 @@ var singlePath = function (path) {
     }
 
     that.setDownloader = function (dler) {
-	return load ('GET', '?cmd=set-downloader&dowloader=' + dler);
+	return load ('GET', '?cmd=set-downloader&dowloader=' + dler, true);
     }
 
     that.getMaxDownloads = function () {
@@ -211,7 +211,7 @@ var singlePath = function (path) {
     }
 
     that.setMaxDownloads = function (num) {
-	return load ('GET', '?cmd=set-max-downloads&number=' + num);
+	return load ('GET', '?cmd=set-max-downloads&number=' + num, true);
     }
 
     return that;
