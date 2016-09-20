@@ -22,16 +22,43 @@
 //  zoninoz@inventati.org
 // 
 
-var ZDL = {};
+var ZDL = {
+    'path': '',
+    'visible': []
+};
 
-var load = function (method, url, async = true) {
+var setPath = function (path) {
+    ZDL.path = path;
+}
+
+var getUriParam = function (name, url) {
+    if (!url) url = location.href;
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( url );
+    return results == null ? null : results[1];
+}
+
+var load = function (method, url, async = true, callback = displayLinks) {
     var data;
     var req = new XMLHttpRequest();
-    req.open(method, url, async);
-    req.onload = function() {
+    req.open(method, encodeURI(url), async);
+    req.onload = function () {
     	if (req.status === 200) {
-	    if (async === false)
+	    if (typeof callback === 'function') {
+		callback(req.responseText);
+		return true;
+	    }
+	    
+	    switch (getUriParam('cmd', url)) {
+	    case 'get-data':
 		ZDL.data = req.responseText;
+		break;
+	    case 'get-dirs':
+		ZDL.browse = req.responseText;
+		break;
+	    }
 
     	} else {
     	    alert("Error " + req.status);
@@ -39,6 +66,7 @@ var load = function (method, url, async = true) {
     };
     req.send();
 }
+
 
 var isJsonString = function (str) {
     try {
@@ -54,37 +82,76 @@ var getData = function () {
     if (isJsonString(ZDL.data))
 	return JSON.parse(ZDL.data);
     else
-	return ZDL.data;
+	return false;
 }
 
-var printDeleteLink = function (id) {
-    var data = getData();
+
+var showInfoLink = function (id, path, link) {
+    document.getElementById(id).setAttribute('class', 'visible');
+    ZDL.visible[path + ' ' + link] = true;
+}
+
+var hideInfoLink = function (id, path, link) {
+    document.getElementById(id).setAttribute('class', 'hidden');
+    ZDL.visible[path + ' ' + link] = false;
+}
+
+var selectSingleLink = function (path, link) {
+    var link = singleLink({'path': path, 'link': link});
     
-    var output = "<form action=\"\" method=\"get\">";
-    output += "<input type=\"hidden\" name=\"cmd\" value=\"del-link\">";
-    
-    for (var i=0; i<data.length; i++) {
-	output += "<input type=\"hidden\" name=\"path\" value=\"" + data[i]["path"] + "\">";
-	output += "<br><hr><br><input type=\"checkbox\" name=\"link\" value=\"" + data[i]["link"] + "\">";
-	
-	for (var j in data[i]) {
-    	    output += j + ": " + data[i][j] + "<br>----<br>";
+}
+
+var displayLinks = function (str) {
+    //var data = getData();
+    if (isJsonString(str)) {
+	var data = JSON.parse(str);
+	var output = '';
+	var visibility = 'hidden';
+
+	if (typeof data === 'object') {
+	    for (var i=0; i<data.length; i++) {
+		if (ZDL.visible[data[i].path + ' ' + data[i].link])
+		    visibility = 'visible';
+		else
+		    visibility = 'hidden';
+		
+		output += '<div' +
+		    " onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
+		    " onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
+		    data[i].file + ': ' + data[i].percent + '% ' + data[i].speed + data[i].speed_measure + ' ' + data[i].eta +
+		    "</div>";
+
+		output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
+		    " onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+
+		for (var j in data[i]) {
+     		    output += j + ": " + data[i][j] + "<br>";
+ 		}
+		output += '</div>';
+	    }
+	    
+	    document.getElementById('out').innerHTML = output;
 	}
+	return true;
     }
-    output += "<input type=\"submit\" name=\"submit\" value=\"Elimina\">";
-    output += "</form>";
     
-    document.getElementById(id).innerHTML = output;
+    document.getElementById('out').innerHTML = '';
+    return false;
 }
 
-var printAddLink = function (id) {
-    var output;
-    document.getElementById(id).innerHTML = output;
+var display = function () {
+    load ('GET', '?cmd=get-data');
 }
 
-var addLink = function (spec) {
-    // spec = {path: ..., link: ...}
-    return load ('?cmd=add-link&path=' + spec.path + '&link=' + spec.link);
+var addLink = function (id) {
+    var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
+    document.getElementById(id).value = '';
+    return load ('GET', query, true);
+}
+
+var delLink = function (id) {
+    var query = "?cmd=del-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
+    return load ('GET', query, true);
 }
 
 var singleLink = function (spec) {
@@ -148,5 +215,21 @@ var singlePath = function (path) {
     }
 
     return that;
+}
+
+var browse = function (path) {
+    document.getElementById('browse').innerHTML = 'Attendi...';
+    load ('GET', '?cmd=get-dirs&path=' + path, false);
+    path = path.replace(/[^/]+\/\.\.$/,'');
+    document.getElementById('path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
+    document.getElementById('browse').innerHTML = ZDL.browse;
+}
+
+var selectDir = function (path) {
+    // var script = '<script>start_path = "' + path + '";</script>';
+    //document.getElementById('input-path').value = path;
+    ZDL.path = path;
+    document.getElementById('path').innerHTML = 'Scarica in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+    document.getElementById('browse').innerHTML = '';
 }
 

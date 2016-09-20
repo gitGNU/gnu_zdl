@@ -25,7 +25,8 @@
 #
 
 path_usr="/usr/local/share/zdl"
-template_index="$path_usr/webui/index.html"
+path_webui="$path_usr/webui"
+template_index="$path_webui/index.html"
 path_tmp=".zdl_tmp"
 
 path_server="/tmp/zdl.d"
@@ -217,6 +218,7 @@ function unconditionally {
 
 function create_json {
     local test_data
+    rm -f "$server_data"
     
     if [ -s "$server_paths" ]
     then
@@ -234,6 +236,9 @@ function create_json {
 	done <"$server_paths"
 
 	sed -r "s|,$|]\n|g" -i "$server_data"
+	
+	grep -P '^\[$' "$server_data" &>/dev/null &&
+	        echo > "$server_data"
 	
 	return 0
     fi
@@ -392,6 +397,24 @@ console.log(out);
 	    ;;
 	set-max-downloads)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
+	    ;;
+	get-dirs)
+	    unset file_output dirs text_output
+	    
+	    [ -d "${line[1]}" ] &&
+		cd "${line[1]}"
+
+#	    text_output+="<button onclick=\"selectDir('$PWD');\">Scarica in:</button> $PWD <hr>"
+	    
+	    text_output+="<a href=\"javascript:browse('$PWD/..');\"><img src=\"folder-blue.png\" /> ..</a><br>"
+	    while read dir
+	    do
+		real_dir=$(realpath "$dir")
+		text_output+="<a href=\"javascript:browse('${real_dir}');\"><img src=\"folder-blue.png\" /> ${dir}</a><br>"
+	    done < <(ls -d1 */)
+
+	    
+	    send "$text_output"
 	    ;;
 	clean)
 	    ## [1]=PATH oppure 'ALL'

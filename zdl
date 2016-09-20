@@ -1194,7 +1194,11 @@ function main_loop {
 
 	    if ! check_in_loop
 	    then
-		[ -z "$url_in" ] && continue
+		if [ -z "$url_in" ] ||
+		       ! check_link "$url_in"
+		then
+		    continue
+		fi
 
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"

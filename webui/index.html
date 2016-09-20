@@ -4,62 +4,32 @@
   <head>
     <meta charset="utf-8">
     <title>zdl</title>
-    <script>var start_path="__START_PATH__"</script>
-    <script src="api.js"></script> 
+    <script src="api.js"></script>
+    <style type="text/css">
+      .hidden {
+      display: none;
+      {
+      .visible {
+      display: block;
+      }
+    </style>
   </head>
   
-  <body onload="printDeleteLink('out');">
+  <body onload="setPath('__START_PATH__'); setInterval(display, 1000);">
     <h2>ZDL</h2>
-    <form action="" method="get">
-      Nuovo link GET:
-      <input type="hidden" name="cmd" value="add-link">
-      <input type="hidden" name="path" value="__START_PATH__">
-      <input type="text" name="link">
-      <input type="submit" name="submit" value="Invia">
-    </form>
-    
-    <form action="" method="post">
-      Nuovo link POST:
-      <input type="hidden" name="cmd" value="add-link">
-      <input type="hidden" name="path" value="__START_PATH__">
-      <input type="text" name="link">
-      <input type="submit" name="submit" value="Invia">
-    </form>
 
-    <img src="header.gif">
-    <button onclick="printDeleteLink('out');">aggiorna JSON per cancellare un link</button>
+    <div id="path">
+    Scarica in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
+    </div>
+
+    <div id="browse"></div>
+    
+    Nuovo link:
+    <input id="input-link" type="text">
+    <button onclick="addLink('input-link');">Invia</button>
 
     <div id="out" style="margin-bottom:20px"></div>
-    <!-- <script>
-    function loadJSON (url) {
-	var req = new XMLHttpRequest();
-	req.open('GET', url, true);
-	req.onload = function() {
-    	    if (req.status == 200) {
-    		var data = JSON.parse(req.responseText);
-		var output = "<form action=\"\" method=\"get\">";
-
-		for (var i=0; i<data.length; i++) {
-		    output += "<input type=\"hidden\" name=\"cmd\" value=\"del-link\">";
-		    output += "<input type=\"hidden\" name=\"path\" value=\"" + data[i]["path"] + "\">";
-		    output += "<br><hr><br><input type=\"checkbox\" name=\"link\" value=\"" + data[i]["link"] + "\">";
-
-		    for (var j in data[i]) {
-    			output += j + ": " + data[i][j] + "<br>----<br>";
-		    }
-		}
-		output += "<input type=\"submit\" name=\"submit\" value=\"Elimina\">";
-		output += "</form>";
-
-		document.getElementById('out').innerHTML = output;
-		
-    	    } else {
-    		alert("Error " + req.status);
-    	    }
-	};
-	req.send();
-    }
-    </script> -->
+    <img src="header.gif">
 </body>
 
 </html>
