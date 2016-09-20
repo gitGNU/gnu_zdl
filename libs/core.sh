@@ -135,7 +135,7 @@ function set_line_in_file { 	#### usage:
 	then
 	    while [ -f "$rewriting" ]
 	    do
-		sleeping 0.1
+		sleep 0.1
 	    done
 	fi
 	touch "$rewriting"

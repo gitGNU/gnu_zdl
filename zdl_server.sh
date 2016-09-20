@@ -227,12 +227,15 @@ function create_json {
 	while read path
 	do
 	    cd "$path"
-	    
-	    if data_stdout &&
-		    ! grep -P '\[$' "$server_data" &>/dev/null
+	    if [ -d "$path_tmp" ]
 	    then
-		echo -en "," >>"$server_data"
+		if data_stdout &&
+			! grep -P '\[$' "$server_data" &>/dev/null
+		then
+		    echo -en "," >>"$server_data"
+		fi
 	    fi
+
 	done <"$server_paths"
 
 	sed -r "s|,$|]\n|g" -i "$server_data"
