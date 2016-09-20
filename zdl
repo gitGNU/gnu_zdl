@@ -969,13 +969,11 @@ then
 	    socket_port="${BASH_REMATCH[1]}"
 
 	    mkdir -p /tmp/zdl.d
-	    if [ ! -s /tmp/zdl.d/pid_server ] ||
-		   ! check_pid $(cat /tmp/zdl.d/pid_server)
+
+	    if ! check_instance_server $socket_port
 	    then
 		set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
-		socat TCP-LISTEN:${socket_port},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh" &
-		pid_server=$!
-		echo $pid_server >/tmp/zdl.d/pid_server
+		nohup "$path_usr/run_zdl_server.sh" ${socket_port} &>/dev/null &
 	    fi
 	    unset args[i]
 	fi

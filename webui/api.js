@@ -114,15 +114,26 @@ var display = function () {
 		    output += '<div' +
 			" onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
 			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
-			data[i].file + ': ' + data[i].percent + '% ' + data[i].speed + data[i].speed_measure + ' ' + data[i].eta +
+			data[i].downloader + ": " +
+			data[i].file + ' ' +
+			data[i].percent + '% ' +
+			data[i].speed + data[i].speed_measure + ' ' +
+			data[i].eta +
 			"</div>";
 
 		    output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    for (var j in data[i]) {
-     			output += j + ": " + data[i][j] + "<br>";
- 		    }
+		    output += "Path: " + data[i].path + "<br>";
+		    output += "Link: " + data[i].link + "<br>";
+
+		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
+			output += "Streamer: " + data[i].streamer + "<br>";
+			output += "Playpath: " + data[i].playpath + "<br>";
+		    } else {
+			output += "Url: " + data[i].url + "<br>";
+		    }
+		    
 		    output += '</div>';
 		}
 		
@@ -236,3 +247,6 @@ var selectDir = function (path) {
     document.getElementById('browse').innerHTML = '';
 }
 
+var killServer = function () {
+    load ('GET', '?cmd=kill-server', true);
+}

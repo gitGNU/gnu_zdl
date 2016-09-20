@@ -17,6 +17,7 @@
   
   <body onload="setPath('__START_PATH__'); setInterval(display().links, 1000);">
     <h2>ZDL</h2>
+    <button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
 
     <div id="path">
     Agisci in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
@@ -32,8 +33,10 @@
       <input id="input-link" type="text">
       <button onclick="addLink('input-link');">Invia</button>
     </div>
-    
+
+    <hr>
     <div id="out" style="margin-bottom:20px"></div>
+    <hr>
     <img src="header.gif">
 </body>
 

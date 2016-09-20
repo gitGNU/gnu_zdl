@@ -24,6 +24,8 @@
 # zoninoz@inventati.org
 #
 
+socket_port="$1"
+
 path_usr="/usr/local/share/zdl"
 path_webui="$path_usr/webui"
 template_index="$path_webui/index.html"
@@ -486,6 +488,11 @@ console.log(out);
 			fi
 		    }
 	    done
+	    ;;
+	kill-server)
+	    pid=$(check_instance_server $socket_port)
+	    echo $pid >PID
+	    kill -9 $pid
 	    ;;
     esac
 }

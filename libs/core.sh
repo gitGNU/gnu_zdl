@@ -60,6 +60,23 @@ function check_instance_daemon {
     fi
 }
 
+function check_instance_server {
+    local socket_port="$1"
+    
+    ps ax | while read -a line
+	    do
+		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "socat.+LISTEN:${socket_port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
+		then
+		    echo ${line[0]}
+		    return 0
+		fi
+	    done
+    return 1
+}
+
+
+
 function check_instance_prog {
     local test_pid
     
