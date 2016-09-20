@@ -15,19 +15,24 @@
     </style>
   </head>
   
-  <body onload="setPath('__START_PATH__'); setInterval(display, 1000);">
+  <body onload="setPath('__START_PATH__'); setInterval(display().links, 1000);">
     <h2>ZDL</h2>
 
     <div id="path">
-    Scarica in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
+    Agisci in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
     </div>
 
     <div id="browse"></div>
-    
-    Nuovo link:
-    <input id="input-link" type="text">
-    <button onclick="addLink('input-link');">Invia</button>
 
+    <div id="run-downloads" class="visible">
+      <button onclick="singlePath(ZDL.path).run();">Avvia demone</button>
+      <button onclick="singlePath(ZDL.path).quit();">Ferma demone</button>
+      <button onclick="singlePath(ZDL.path).kill();">Ferma demone e downloads</button>
+      Aggiungi link:
+      <input id="input-link" type="text">
+      <button onclick="addLink('input-link');">Invia</button>
+    </div>
+    
     <div id="out" style="margin-bottom:20px"></div>
     <img src="header.gif">
 </body>

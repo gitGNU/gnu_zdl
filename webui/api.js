@@ -40,23 +40,20 @@ var getUriParam = function (name, url) {
     return results == null ? null : results[1];
 }
 
-var load = function (method, url, async, callback) {
+var load = function (method, url, async, callback, params) {
     var data;
     var req = new XMLHttpRequest();
     req.open(method, encodeURI(url), async);
     req.onload = function () {
     	if (req.status === 200) {
 	    if (typeof callback === 'function') {
-		callback(req.responseText);
+		callback(req.responseText, params);
 		return true;
 	    }
 	    
 	    switch (getUriParam('cmd', url)) {
 	    case 'get-data':
 		ZDL.data = req.responseText;
-		break;
-	    case 'get-dirs':
-		ZDL.browse = req.responseText;
 		break;
 	    }
 
@@ -96,51 +93,57 @@ var hideInfoLink = function (id, path, link) {
     ZDL.visible[path + ' ' + link] = false;
 }
 
-var selectSingleLink = function (path, link) {
-    var link = singleLink({'path': path, 'link': link});
-    
-}
-
-var displayLinks = function (str) {
-    //var data = getData();
-    if (isJsonString(str)) {
-	var data = JSON.parse(str);
-	var output = '';
-	var visibility = 'hidden';
-
-	if (typeof data === 'object') {
-	    for (var i=0; i<data.length; i++) {
-		if (ZDL.visible[data[i].path + ' ' + data[i].link])
-		    visibility = 'visible';
-		else
-		    visibility = 'hidden';
-		
-		output += '<div' +
-		    " onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
-		    " onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
-		    data[i].file + ': ' + data[i].percent + '% ' + data[i].speed + data[i].speed_measure + ' ' + data[i].eta +
-		    "</div>";
-
-		output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
-		    " onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
-
-		for (var j in data[i]) {
-     		    output += j + ": " + data[i][j] + "<br>";
- 		}
-		output += '</div>';
-	    }
-	    
-	    document.getElementById('out').innerHTML = output;
-	}
-	return true;
-    }
-    
-    document.getElementById('out').innerHTML = '';
-    return false;
-}
 
 var display = function () {
-    load ('GET', '?cmd=get-data', true, displayLinks);
+    var that = {};
+    
+    var links = function (str) {
+	//var data = getData();
+	if (isJsonString(str)) {
+	    var data = JSON.parse(str);
+	    var output = '';
+	    var visibility = 'hidden';
+
+	    if (typeof data === 'object') {
+		for (var i=0; i<data.length; i++) {
+		    if (ZDL.visible[data[i].path + ' ' + data[i].link])
+			visibility = 'visible';
+		    else
+			visibility = 'hidden';
+		    
+		    output += '<div' +
+			" onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
+			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
+			data[i].file + ': ' + data[i].percent + '% ' + data[i].speed + data[i].speed_measure + ' ' + data[i].eta +
+			"</div>";
+
+		    output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
+			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+
+		    for (var j in data[i]) {
+     			output += j + ": " + data[i][j] + "<br>";
+ 		    }
+		    output += '</div>';
+		}
+		
+		document.getElementById('out').innerHTML = output;
+	    }
+	    return true;
+	}
+	
+	document.getElementById('out').innerHTML = '';
+	return false;
+    }
+
+    that.links = function () {
+	return load ('GET', '?cmd=get-data', true, links);
+    }
+
+    return that;
+}
+
+var displayLinks = function () {
+    setInterval (display().links, 1000);
 }
 
 var addLink = function (id) {
@@ -156,24 +159,16 @@ var delLink = function (id) {
 
 var singleLink = function (spec) {
     // spec = {path: ..., link: ...}
-    var data = getData();
     var that = {};
     
-    for (var i = 0; i<data.length; i += 1) {
-	if (data[i].path === spec.path && data[i].link === spec.link ) {
-	    that = data[i];
-	    break;
-	}
-    }
-
     var cmd_to_link = function (cmd) {
-	return load ('GET', "?cmd=" + cmd + "&path=" + data.path + "&link=" + data.link, true);
+	return load ('GET', "?cmd=" + cmd + "&path=" + spec.path + "&link=" + spec.link, true);
     }
     
-    that.delLink = function () {
+    that.del = function () {
 	return cmd_to_link('del-link');
     }
-    that.stopLink = function () {
+    that.stop = function () {
 	return cmd_to_link ('stop-link');
     }
 
@@ -181,25 +176,30 @@ var singleLink = function (spec) {
 }
 
 var singlePath = function (path) {
-    var data = getData();
-    var pid, downloader, max_downloads;
     var that = {}
-    
-    for (var i = 0; i<data.length; i += 1) {
-	if (data[i].path === path) {
-	    pid = data[i].pid_instance;
-	    downloader = data[i].downloader;
-	    max_downloads = data[i].max_downloads;
-	    break;
+
+    var get = function (attr) {
+	for (var i = 0; i<data.length; i += 1) {
+	    if (data[i].path === path) {
+		return data[i][attr];
+	    }
 	}
     }
 
-    that.getPid = function () {
-	return pid;
+    that.kill = function () {
+	return load ('GET', '?cmd=kill-zdl&path=' + path, true);
+    }
+
+    that.quit = function () {
+	return load ('GET', '?cmd=quit-zdl&path=' + path, true);
+    }
+
+    that.run = function () {
+	return load ('GET', '?cmd=run-zdl&path=' + path, true);
     }
 
     that.getDownloader = function () {
-	return downloader;
+	return load ('GET', '?cmd=get-downloader', false, get, 'downloader');
     }
 
     that.setDownloader = function (dler) {
@@ -207,7 +207,7 @@ var singlePath = function (path) {
     }
 
     that.getMaxDownloads = function () {
-	return max_downloads;
+	return load ('GET', '?cmd=max-downloads', false, get, 'max_downloads');
     }
 
     that.setMaxDownloads = function (num) {
@@ -218,16 +218,19 @@ var singlePath = function (path) {
 }
 
 var browse = function (path) {
-    document.getElementById('browse').innerHTML = 'Attendi...';
-    load ('GET', '?cmd=get-dirs&path=' + path, false);
+    document.getElementById('run-downloads').setAttribute('class', 'hidden');
     path = path.replace(/[^/]+\/\.\.$/,'');
-    document.getElementById('path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
-    document.getElementById('browse').innerHTML = ZDL.browse;
+
+    var callback = function (dirs) {
+	document.getElementById('path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
+	document.getElementById('browse').innerHTML = dirs;
+    }
+
+    return load ('GET', '?cmd=get-dirs&path=' + path, true, callback);
 }
 
 var selectDir = function (path) {
-    // var script = '<script>start_path = "' + path + '";</script>';
-    //document.getElementById('input-path').value = path;
+    document.getElementById('run-downloads').setAttribute('class', 'visible');
     ZDL.path = path;
     document.getElementById('path').innerHTML = 'Scarica in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';

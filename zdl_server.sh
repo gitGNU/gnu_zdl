@@ -420,8 +420,72 @@ console.log(out);
 	clean)
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
+	run-zdl)
+	    ## PATHS ...
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		test -d "${line[i]}" &&
+		    {
+			cd "${line[i]}"
+			
+			if ! check_instance_prog
+			then
+			    set_line_in_file + "$PWD" "$server_paths"
+			    mkdir -p "$path_tmp"
+			    date +%s >"$path_tmp"/.date_daemon
+			    nohup /bin/bash zdl --silent "$PWD" &>/dev/null &
+			fi
+			
+		    }
+	    done
+	    ;;
+	quit-zdl)
+	    ## PATHS ... 
+
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		test -d "${line[i]}" &&
+		    {
+			cd "${line[i]}"
+
+			if [ -d "$path_tmp" ]
+			then
+			    pid=$(cat "$path_tmp/.pid.zdl")
+
+			    check_pid $pid &&
+				kill -9 $pid &>/dev/null
+			    
+			    rm -f "$path_tmp"/.date_daemon
+			    unset pid
+			fi
+		    }
+	    done
+	    ;;
 	kill-zdl)
-	    ## [1]=PATH oppure 'ALL'
+	    ## PATHS ... 
+
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		test -d "${line[i]}" &&
+		    {
+			cd "${line[i]}"
+
+			if [ -d "$path_tmp" ]
+			then
+			    pid=$(cat "$path_tmp/.pid.zdl")
+
+			    check_pid $pid &&
+				kill -9 $pid &>/dev/null
+			    kill_downloads
+
+			    rm -f "$path_tmp"/.date_daemon
+			    unset pid
+			fi
+		    }
+	    done
 	    ;;
     esac
 }
