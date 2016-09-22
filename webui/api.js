@@ -243,7 +243,7 @@ var browse = function (path) {
 var selectDir = function (path) {
     document.getElementById('run-downloads').setAttribute('class', 'visible');
     ZDL.path = path;
-    document.getElementById('path').innerHTML = 'Scarica in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+    document.getElementById('path').innerHTML = 'Agisci in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
 }
 

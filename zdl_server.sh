@@ -491,7 +491,6 @@ console.log(out);
 	    ;;
 	kill-server)
 	    pid=$(check_instance_server $socket_port)
-	    echo $pid >PID
 	    kill -9 $pid
 	    ;;
     esac

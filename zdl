@@ -970,7 +970,7 @@ then
 
 	    mkdir -p /tmp/zdl.d
 
-	    if ! check_instance_server $socket_port
+	    if ! check_instance_server $socket_port &>/dev/null
 	    then
 		set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
 		nohup "$path_usr/run_zdl_server.sh" ${socket_port} &>/dev/null &

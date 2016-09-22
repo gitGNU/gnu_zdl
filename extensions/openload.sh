@@ -51,7 +51,7 @@ then
 	
     elif [ -n "$html" ]
     then
-	hiddenurl=$(grep hiddenurl -A1 <<< "$html" | tail -n1 |
+	hiddenurl=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
 			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 
 	hiddenurl=$(htmldecode "$hiddenurl")
