@@ -114,16 +114,21 @@ var display = function () {
 		    output += '<div' +
 			" onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
 			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
-			data[i].downloader + ": " +
-			data[i].file + ' ' +
+			"<div id=\"progress-bar\">" +
+			"<div id=\"progress-label\">" + data[i].file.replace(/_/gm, ' ') + "</div>" +
+			"<div id=\"progress-status\" style=\"width:" + data[i].percent + "%\"></div>" +
+			"</div>" +
+			"<div id=\"progress-label2\">" +
 			data[i].percent + '% ' +
 			data[i].speed + data[i].speed_measure + ' ' +
 			data[i].eta +
+			"</div>" +
 			"</div>";
 
 		    output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
+		    output += "Downloader: " + data[i].downloader + "<br>";
 		    output += "Path: " + data[i].path + "<br>";
 		    output += "Link: " + data[i].link + "<br>";
 
@@ -144,11 +149,11 @@ var display = function () {
 	
 	document.getElementById('out').innerHTML = '';
 	return false;
-    }
+    };
 
     that.links = function () {
 	return load ('GET', '?cmd=get-data', true, links);
-    }
+    };
 
     return that;
 }
@@ -174,17 +179,18 @@ var singleLink = function (spec) {
     
     var cmd_to_link = function (cmd) {
 	return load ('GET', "?cmd=" + cmd + "&path=" + spec.path + "&link=" + spec.link, true);
-    }
+    };
     
     that.del = function () {
 	return cmd_to_link('del-link');
-    }
+    };
+    
     that.stop = function () {
 	return cmd_to_link ('stop-link');
-    }
+    };
 
     return that;
-}
+};
 
 var singlePath = function (path) {
     var that = {}
@@ -195,38 +201,38 @@ var singlePath = function (path) {
 		return data[i][attr];
 	    }
 	}
-    }
+    };
 
     that.kill = function () {
 	return load ('GET', '?cmd=kill-zdl&path=' + path, true);
-    }
+    };
 
     that.quit = function () {
 	return load ('GET', '?cmd=quit-zdl&path=' + path, true);
-    }
+    };
 
     that.run = function () {
 	return load ('GET', '?cmd=run-zdl&path=' + path, true);
-    }
+    };
 
     that.getDownloader = function () {
 	return load ('GET', '?cmd=get-downloader', false, get, 'downloader');
-    }
+    };
 
     that.setDownloader = function (dler) {
 	return load ('GET', '?cmd=set-downloader&dowloader=' + dler, true);
-    }
+    };
 
     that.getMaxDownloads = function () {
 	return load ('GET', '?cmd=max-downloads', false, get, 'max_downloads');
-    }
+    };
 
     that.setMaxDownloads = function (num) {
 	return load ('GET', '?cmd=set-max-downloads&number=' + num, true);
-    }
+    };
 
     return that;
-}
+};
 
 var browse = function (path) {
     document.getElementById('run-downloads').setAttribute('class', 'hidden');
@@ -235,18 +241,36 @@ var browse = function (path) {
     var callback = function (dirs) {
 	document.getElementById('path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
 	document.getElementById('browse').innerHTML = dirs;
-    }
+    };
 
     return load ('GET', '?cmd=get-dirs&path=' + path, true, callback);
-}
+};
 
 var selectDir = function (path) {
     document.getElementById('run-downloads').setAttribute('class', 'visible');
     ZDL.path = path;
     document.getElementById('path').innerHTML = 'Agisci in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
-}
+};
 
 var killServer = function () {
     load ('GET', '?cmd=kill-server', true);
-}
+};
+
+/**
+ * Convert a string to HTML entities
+ */
+String.prototype.toHtmlEntities = function() {
+    return this.replace(/./gm, function(s) {
+	return "&#" + s.charCodeAt(0) + ";";
+    });
+};
+
+/**
+ * Create string from HTML entities
+ */
+String.fromHtmlEntities = function(string) {
+    return (string+"").replace(/&#\d+;/gm,function(s) {
+	return String.fromCharCode(s.match(/\d+/gm)[0]);
+    });
+};
