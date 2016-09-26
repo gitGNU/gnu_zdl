@@ -199,7 +199,7 @@ function set_line_in_file { 	#### usage:
 function check_link {
     local url_test="$1"
 
-    if url "$url_test" ||
+    if url "$url_test" &&
 	    grep "^${url_test}$" "$path_tmp/links_loop.txt" &>/dev/null
     then
 	return 0

@@ -24,6 +24,7 @@
 #
 
 
+
 function array_out (value, type) {
     code = code bash_array(type, i, value)
 }
@@ -35,6 +36,27 @@ function downloaded_part () {
     } else {
 	return length_saved[i]
     }
+}
+
+function get_color_out () {
+    if (! check_pid(pid_out[i])) {
+	if (percent_out[i] == 100) {
+	    color_out[i] = "green"
+	}
+	else if (check_irc_pid()) {
+	    color_out[i] = "yellow"
+	}    
+	else {
+	    color_out[i] = "red"
+	}
+    } else {
+	if (speed_out[i] > 0) {
+	    color_out[i] = "green"
+	} else {
+	    color_out[i] = "yellow"
+	}		    
+    }
+    array_out(color_out[i], "color_out")   
 }
 
 function check_stdout () {
@@ -469,6 +491,8 @@ function progress_out (chunk,           progress_line) {
 
     if (! no_check)
 	check_stdout()
+    
+    get_color_out()
 }
 
 function progress () {
@@ -591,7 +615,8 @@ END {
     	    json = json "\"pid_instance\":\"" pid_prog_out[I] "\","
     	    json = json "\"speed\":\"" speed_out[I] "\","
     	    json = json "\"speed_measure\":\"" speed_out_type[I] "\","
-	    json = json "\"max_downloads\":\"" max_dl "\""
+	    json = json "\"max_downloads\":\"" max_dl "\","
+	    json = json "\"color\":\"" color_out[I] "\""
 
     	    if (I<length(file_out)-1)
     		json = json "},"

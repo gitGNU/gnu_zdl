@@ -103,6 +103,7 @@ var display = function () {
 	    var data = JSON.parse(str);
 	    var output = '';
 	    var visibility = 'hidden';
+	    var color;
 
 	    if (typeof data === 'object') {
 		for (var i=0; i<data.length; i++) {
@@ -110,15 +111,15 @@ var display = function () {
 			visibility = 'visible';
 		    else
 			visibility = 'hidden';
-		    
+
 		    output += '<div' +
 			" onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
 			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
 			"<div id=\"progress-bar\">" +
-			"<div id=\"progress-label\">" + data[i].file.replace(/_/gm, ' ') + "</div>" +
-			"<div id=\"progress-status\" style=\"width:" + data[i].percent + "%\"></div>" +
+			"<div id=\"progress-label-file\">" + data[i].file + "</div>" +
+			"<div id=\"progress-status\" style=\"width:" + data[i].percent + "%; background-color:" + data[i].color + "\"></div>" +
 			"</div>" +
-			"<div id=\"progress-label2\">" +
+			"<div id=\"progress-label-status\">" +
 			data[i].percent + '% ' +
 			data[i].speed + data[i].speed_measure + ' ' +
 			data[i].eta +
@@ -128,15 +129,17 @@ var display = function () {
 		    output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += "Downloader: " + data[i].downloader + "<br>";
-		    output += "Path: " + data[i].path + "<br>";
-		    output += "Link: " + data[i].link + "<br>";
+		    output += "<div class=\"separator\"></div>";
+		    output += "<div class=\"info-label\"> Downloader: </div><div class=\"info-data\"> " + data[i].downloader + "</div>";
+		    output += "<div class=\"info-label\"> Link: </div><div class=\"info-data\"> " + data[i].link + "</div>";
+		    output += "<div class=\"info-label\"> Path: </div><div class=\"info-data\"> " + data[i].path + "</div>";
+		    output += "<div class=\"info-label\"> File: </div><div class=\"info-data\"> " + data[i].file + "</div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += "Streamer: " + data[i].streamer + "<br>";
-			output += "Playpath: " + data[i].playpath + "<br>";
+			output += "<div class=\"info-label\"> Streamer: </div><div class=\"info-data\"> " + data[i].streamer + "</div>";
+			output += "<div class=\"info-label\"> Playpath: </div><div class=\"info-data\"> " + data[i].playpath + "</div>";
 		    } else {
-			output += "Url: " + data[i].url + "<br>";
+			output += "<div class=\"info-label\"> Url: </div><div class=\"info-data\"> " + data[i].url.toHtmlEntities() + "</div>";
 		    }
 		    
 		    output += '</div>';

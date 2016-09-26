@@ -53,6 +53,16 @@ function check_pid (pid,   test) {
     return 0
 }
 
+function check_irc_pid () {
+    c = "grep '" url_out[i] "$' .zdl_tmp/irc-pids 2>/dev/null"
+    while (c | getline line) {
+	split(line, irc_pid, " ")
+	if (check_pid(irc_pid[1])) return 1
+    }
+    close(c)
+    return 0
+}
+
 function exists(file,   line) {
     if (file) {
 	if ((getline line < file) > 0 ) {

@@ -237,9 +237,9 @@ div.node {
 #progress-bar {
     /* position: relative; */
     float: left;
-    width: calc(100% - 160px);
+    width: calc(100% - 190px - 1em);
     height: 30px;
-    background-color: grey;
+    background-color: black;
     z-index: 10;
 }
 
@@ -251,29 +251,63 @@ div.node {
     z-index: 20;
 }
 
-#progress-label {
+#progress-label-file {
     position: absolute;
-    text-align: left; /* If you want to center it */
-    line-height: 30px; /* Set the line-height to the same as the height of the progress bar container, to center it vertically */
+    text-align: left; 
+    line-height: 30px; 
     color: white;
     z-index: 30;
     /* hyphens: none; */
     /* word-wrap: break-all; */
     height: 30px;
-    width: calc(100% - 160px);
+    width: calc(100% - 190px - 1em);
     overflow: hidden;
     /* white-space: nowrap; */
     text-overflow: ellipsis;
 }
 
-#progress-label2 {
+#progress-label-status {
     float: left;
-    text-align: left; /* If you want to center it */
-    line-height: 30px; /* Set the line-height to the same as the height of the progress bar container, to center it vertically */
+    text-align: left; 
+    line-height: 30px; 
     color: white;
     z-index: 30;
     /* word-wrap: break-word; */
-    width: 160px;
-    background-color: black;
+    width: 190px;
+    background-color: #343434;
     overflow: hidden;
+    padding-left: 1em;
+}
+
+/* #info-label { */
+/*     line-height: 25px;  */
+/*     color: white; */
+/*     background: #343434; /\* #959595; *\/ */
+/*     font-weight: bold;    */
+/* } */
+
+.info-label {
+    float: left;
+    color: #fff;
+    background: #777;
+    font-size: .9em;
+    padding: .5em .7em;
+    margin-right: .5em
+}
+
+.info-data {
+    /* float: left; */
+    background: #eee;
+    font-size: .9em;
+    padding: .5em .7em;
+    border-bottom: 1px solid #fff;
+    box-sizing: border-box;
+    word-wrap: break-all;
+    /* justify-content: space-around; */
+}
+
+.separator {
+    /* float: left; */
+    width: 100%;
+    height: 30px;
 }
