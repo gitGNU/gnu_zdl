@@ -169,6 +169,20 @@ then
 fi
 
 
+if [ "${args[*]}" != "${args[*]//--web-ui}" ]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [ "${args[i]}" == '--web-ui' ]
+	then
+	    unset args[i]
+	    run_web_client "$@" 
+	    exit
+	fi
+    done
+fi
+    
+
 if [ "${args[*]}" != "${args[*]//--update}" ] ||
        [ "${args[*]}" != "${args[*]//-u}" ]
 then

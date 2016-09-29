@@ -391,17 +391,65 @@ console.log(out);
 	    done
 	    
 	    ;;
+	get-links)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    file_output="$path_tmp/links_loop.txt"
+	    if [ -z "$http_method" ]
+	    then
+		cat "$file_output"
+		return
+	    fi
+	    ;;
+	set-links)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    while read lnk
+	    do
+		set_link + "$lnk"
+	    done <<< "$(echo -e "${line[2]}")"
+	    ;;
 	get-downloader)
-	    ## [1]=PATH; [2]=DOWNLOADER
+	    ## [1]=PATH
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    file_output="$path_tmp/downloader"
+	    if [ -z "$http_method" ]
+	    then
+		cat "$file_output"
+		return
+	    fi	    
+	    
 	    ;;
 	set-downloader)
-	    ## [1]=(PATH|ALL); [2]=DOWNLOADER
+	    ## [1]=PATH; [2]=DOWNLOADER
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    echo "${line[2]}" >"$path_tmp/downloader"
 	    ;;
 	get-max-downloads)
-	    ## [1]=PATH; [2]=NUMBER:(0->...)
+	    ## [1]=PATH;
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    file_output="$path_tmp/max-dl"
+	    if [ -z "$http_method" ]
+	    then
+		cat "$file_output"
+		return
+	    fi	    
 	    ;;
 	set-max-downloads)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    ( [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] ) &&
+		echo "${line[2]}" >"$path_tmp/max-dl"
 	    ;;
 	get-dirs)
 	    unset file_output dirs text_output
@@ -503,7 +551,7 @@ function run_data {
 
     for ((i=0; i<${#data[*]}; i++))
     do
-	name=$(urldecode "${data[i]%'='*}")
+	## name=$(urldecode "${data[i]%'='*}")
 	value=$(urldecode "${data[i]#*'='}")
 	line_cmd+=( "$value" )
     done

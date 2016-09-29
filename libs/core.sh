@@ -75,8 +75,6 @@ function check_instance_server {
     return 1
 }
 
-
-
 function check_instance_prog {
     local test_pid
     
@@ -93,6 +91,45 @@ function check_instance_prog {
     return 1
 }
 
+function check_port {
+    local port=$1
+    if command -v nmap &>/dev/null
+    then
+	nmap -p $port localhost |grep closed -q &&
+	    return 0
+    fi
+    return 1
+}
+
+function run_web_client {
+    local port=8080
+
+    while ! check_port $port
+    do
+	((port++))
+	sleep 0.1
+    done
+
+    zdl --socket=$port -d
+
+    while check_port $port
+    do
+	sleep 0.1
+    done
+    x_www_browser localhost:$port &
+}
+
+function x_www_browser {
+    if command -v x-www-browser &>/dev/null
+    then
+	x-www-browser "$@" &>/dev/null &&
+	    return 0
+
+    else
+	print_c 3 "Non è stato impostato alcun browser predefinito.\nAvvia un browser all'indirizzo: $@"
+	return 1	
+    fi
+}
 
 ###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):
 ##

@@ -32,67 +32,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="api.js"></script>
     <link rel="stylesheet" type="text/css" href="zdl_style.css">
-    
-    <style type="text/css">
-      <!-- .container { -->
-      <!-- display: flex; -->
-      <!-- flex-flow: column; -->
-      <!-- /* row wrap; */ -->
-      <!-- justify-content: flex-end; -->
-      <!-- } -->
-      <!-- @media screen and (max-width: 800px) { -->
-      <!-- .container { -->
-      <!-- justify-content: space-around; -->
-      <!-- } -->
-      <!-- } -->
-
-      <!-- @media screen and (max-width: 500px) { -->
-      <!-- body { -->
-      <!-- width: 400px; -->
-      <!-- } -->
-      <!-- .container { -->
-      <!-- flex-direction: column; -->
-      <!-- } -->
-      <!-- } -->
-
-      .hidden {
-      display: none;
-      }
-      .visible {
-      display: block;
-      }
-    </style>
   </head>
   
-  <body onload="setPath('__START_PATH__'); setInterval(display().links, 1000);">
+  <body onload="init('__START_PATH__');">
     <a href="/">
       <div class="header"></div>
     </a>
     <div class="container">
       <h2>ZigzagDownLoader :: ZDL</h2>
       <div class="content">
-	<button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
-	
+
 	<div id="path">
-	  Agisci in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
+	  <div id="sel-path">
+	    Agisci in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
+	  </div>
+	  
+	  <div id="browse"></div>
+	  
+	  <div id="run-path" class="visible">
+	    <button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>
+	    <button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>
+	    <button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>
+	    Aggiungi link:
+	       <input id="input-link" type="text">
+	       <button onclick="addLink('input-link');">Invia</button>
+
+	       <div id="editor-links"></div>
+	       <div id="downloader"></div>
+	       <div id="max-downloads"><input id="input-max-downloads" type="text"></div>
+	  </div>
 	</div>
 
-	<div id="browse"></div>
-	
-	<div id="run-downloads" class="visible">
-	  <button onclick="singlePath(ZDL.path).run();">Avvia demone</button>
-	  <button onclick="singlePath(ZDL.path).quit();">Ferma demone</button>
-	  <button onclick="singlePath(ZDL.path).kill();">Ferma demone e downloads</button>
-	  Aggiungi link:
-	  <input id="input-link" type="text">
-	  <button onclick="addLink('input-link');">Invia</button>
+	<div id="links">
+	  <div id="output-links" style="margin-bottom:20px"></div>
 	</div>
 
+	<div id="server">
+    	  <button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
+	</div>
 	
-	<div id="out" style="margin-bottom:20px"></div>
-    
       </div>
-      </div>
-</body>
+    </div>
+  </body>
 
 </html>

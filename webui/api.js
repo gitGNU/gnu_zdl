@@ -24,12 +24,10 @@
 
 var ZDL = {
     'path': '',
-    'visible': []
+    'visible': [],
+    'downloader': '',
+    'max_downloads': ''
 };
-
-var setPath = function (path) {
-    ZDL.path = path;
-}
 
 var getUriParam = function (name, url) {
     if (!url) url = location.href;
@@ -94,26 +92,22 @@ var hideInfoLink = function (id, path, link) {
 }
 
 
-var display = function () {
-    var that = {};
-    
-    var links = function (str) {
-	//var data = getData();
+var displayLinks = function () {
+    return load ('GET', '?cmd=get-data', true, function (str) {
 	if (isJsonString(str)) {
 	    var data = JSON.parse(str);
 	    var output = '';
 	    var visibility = 'hidden';
 	    var color;
-
+	    
 	    if (typeof data === 'object') {
 		for (var i=0; i<data.length; i++) {
 		    if (ZDL.visible[data[i].path + ' ' + data[i].link])
 			visibility = 'visible';
 		    else
 			visibility = 'hidden';
-
+		    
 		    output += '<div' +
-			" onblclick=\"selectSingleLink('" + data[i].path + "','" + data[i].link + "');\"" +
 			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
 			"<div id=\"progress-bar\">" +
 			"<div id=\"progress-label-file\">" + data[i].file + "</div>" +
@@ -126,10 +120,9 @@ var display = function () {
 			"</div>" +
 			"</div>";
 
-		    output += "<div class=\"" + visibility + "\" id=\"info-" + i + "\"" +
+		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += "<div class=\"separator\"></div>";
 		    output += "<div class=\"info-label\"> Downloader: </div><div class=\"info-data\"> " + data[i].downloader + "</div>";
 		    output += "<div class=\"info-label\"> Link: </div><div class=\"info-data\"> " + data[i].link + "</div>";
 		    output += "<div class=\"info-label\"> Path: </div><div class=\"info-data\"> " + data[i].path + "</div>";
@@ -141,40 +134,35 @@ var display = function () {
 		    } else {
 			output += "<div class=\"info-label\"> Url: </div><div class=\"info-data\"> " + data[i].url.toHtmlEntities() + "</div>";
 		    }
-		    
+
+		    output += addButtonsLink();
 		    output += '</div>';
 		}
 		
-		document.getElementById('out').innerHTML = output;
+		document.getElementById('output-links').innerHTML = output;
 	    }
 	    return true;
 	}
 	
-	document.getElementById('out').innerHTML = '';
+	document.getElementById('output-links').innerHTML = '';
 	return false;
-    };
-
-    that.links = function () {
-	return load ('GET', '?cmd=get-data', true, links);
-    };
-
-    return that;
+    });
 }
 
-var displayLinks = function () {
-    setInterval (display().links, 1000);
-}
+var addButtonsLink = function () {
+    return "<button>Varie funzioni da implementare</button>";
+};
 
 var addLink = function (id) {
     var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
     document.getElementById(id).value = '';
     return load ('GET', query, true);
-}
+};
 
 var delLink = function (id) {
     var query = "?cmd=del-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
     return load ('GET', query, true);
-}
+};
 
 var singleLink = function (spec) {
     // spec = {path: ..., link: ...}
@@ -195,10 +183,12 @@ var singleLink = function (spec) {
     return that;
 };
 
-var singlePath = function (path) {
-    var that = {}
 
-    var get = function (attr) {
+var singlePath = function (path) {
+    var that = {};
+    var data = {};
+
+    var getByAttr = function (attr) {
 	for (var i = 0; i<data.length; i += 1) {
 	    if (data[i].path === path) {
 		return data[i][attr];
@@ -219,30 +209,113 @@ var singlePath = function (path) {
     };
 
     that.getDownloader = function () {
-	return load ('GET', '?cmd=get-downloader', false, get, 'downloader');
+	return load ('GET',
+		     '?cmd=get-downloader&path=' + path,
+		     true,
+		     function (dler){
+			 dler = dler.replace(/(\r\n|\n|\r)/gm, "");
+			 ZDL.downloader = dler;
+			 var selector = '<select id="sel-downloader" onchange="singlePath(ZDL.path).setDownloader();">';
+
+			 ["Aria2", "Axel", "Wget"].forEach(function (item) {
+			     if (String(dler) === String(item)) {
+				 selector += "<option selected>";
+
+			     } else {
+				 selector += "<option>"
+			     }
+			     selector += item + "</option>";
+			 });
+			 
+			 selector += "</select>";
+			 document.getElementById('downloader').innerHTML = selector;
+		     });
     };
 
-    that.setDownloader = function (dler) {
-	return load ('GET', '?cmd=set-downloader&dowloader=' + dler, true);
+    that.setDownloader = function () {
+	return load ('GET',
+		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
+		     true,
+		     that.getDownloader());
     };
 
+    that.setMaxDownloads = function (spec) {
+	var max_dl = document.getElementById('input-max-downloads').value;
+	if (spec === 'no-limits')
+	    max_dl = '';
+
+	if (spec === 'no-limits' || !isNaN(parseInt(max_dl))) {
+	    load ('GET',
+		  '?cmd=set-max-downloads&path=' + path + '&number=' + max_dl,
+		  true,
+		  function (){
+		      that.getMaxDownloads();
+		  });
+	} else {
+	    alert("Immissione dati non valida: il limite massimo di downloads deve essere un numero");
+	    that.getMaxDownloads();
+	}
+    };
+
+    that.inputMaxDownloads = function (max_dl) {
+	if (isNaN(max_dl))
+	    max_dl = "illimitati";
+	    
+	var output = "<input id=\"input-max-downloads\" type=\"text\" value=\"" + max_dl + "\">" +
+		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads();\">Invia</button>" +
+		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads('no-limits');\">Nessun limite</button>";
+	return document.getElementById('max-downloads').innerHTML = output;
+    };
+	
     that.getMaxDownloads = function () {
-	return load ('GET', '?cmd=max-downloads', false, get, 'max_downloads');
+	return load ('GET',
+		     '?cmd=get-max-downloads&path=' + path,
+		     true,
+		     function (max_dl_str){
+			 var output;
+			 var max_dl = parseInt(max_dl_str);
+
+			 if (isNaN(max_dl)) {
+			     max_dl_str = "illimitati";
+			     max_dl = '';
+			 }
+			 ZDL.max_downloads = max_dl; 			 
+
+			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia MAX</button>";
+			 document.getElementById('max-downloads').innerHTML =  max_dl_str + output;
+		     });
     };
 
-    that.setMaxDownloads = function (num) {
-	return load ('GET', '?cmd=set-max-downloads&number=' + num, true);
+    that.getLinks = function () {
+	return load ('GET',
+		     '?cmd=get-links&path=' + path,
+		     true,
+		     function (str){
+			 document.getElementById('editor-links').innerHTML = "<textarea id=\"list-links\">" + str + "</textarea>" +
+			     "<button onclick=\"singlePath(ZDL.path).setLinks();\">Salva</button>";
+		     });
+    };
+    
+    that.setLinks = function () {
+	return load ('GET',
+		     '?cmd=set-links&path=' + path + '&links=' + document.getElementById('list-links').value,
+		     true,
+		     displayEditButton());
     };
 
     return that;
 };
 
+var displayEditButton = function () {
+    document.getElementById('editor-links').innerHTML = "<button onclick=\"singlePath(ZDL.path).getLinks();\">Editor dei link</button>";
+};
+
 var browse = function (path) {
-    document.getElementById('run-downloads').setAttribute('class', 'hidden');
+    document.getElementById('run-path').setAttribute('class', 'hidden');
     path = path.replace(/[^/]+\/\.\.$/,'');
 
     var callback = function (dirs) {
-	document.getElementById('path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
+	document.getElementById('sel-path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
 	document.getElementById('browse').innerHTML = dirs;
     };
 
@@ -250,14 +323,14 @@ var browse = function (path) {
 };
 
 var selectDir = function (path) {
-    document.getElementById('run-downloads').setAttribute('class', 'visible');
+    document.getElementById('run-path').setAttribute('class', 'visible');
     ZDL.path = path;
-    document.getElementById('path').innerHTML = 'Agisci in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+    document.getElementById('sel-path').innerHTML = 'Agisci in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
 };
 
 var killServer = function () {
-    load ('GET', '?cmd=kill-server', true);
+    return load ('GET', '?cmd=kill-server', true);
 };
 
 /**
@@ -277,3 +350,34 @@ String.fromHtmlEntities = function(string) {
 	return String.fromCharCode(s.match(/\d+/gm)[0]);
     });
 };
+
+var checkData = function () {
+    load ('GET', '?cmd=get-downloader&path=' + ZDL.path, true, function (dler) {
+	dler = dler.replace(/(\r\n|\n|\r)/gm, "");
+	if (dler !== ZDL.downloader)
+	    singlePath(ZDL.path).getDownloader();
+    });
+
+    load ('GET', '?cmd=get-max-downloads&path=' + ZDL.path, true, function (str) {
+	var max_dl = parseInt(str);
+	if (isNaN(max_dl))	
+	    max_dl = '';
+	
+	if (max_dl !== ZDL.max_downloads)
+	    singlePath(ZDL.path).getMaxDownloads();
+    });
+};
+
+var display = function () {
+    displayLinks();
+    checkData();
+};
+
+var init = function (path) {
+    ZDL.path = path;
+    displayEditButton();
+    singlePath(path).getDownloader();
+    singlePath(path).getMaxDownloads();
+    window.setInterval (display, 1000);
+};
+
