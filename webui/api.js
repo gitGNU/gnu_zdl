@@ -377,9 +377,7 @@ var checkData = function () {
 };
 
 var display = function () {
-    //    displayLinks();
     displayEditButton();
-    //checkData();
     displayLinks();
     singlePath(ZDL.path).getMaxDownloads(singlePath(ZDL.path).getMaxDownloads);
     singlePath(ZDL.path).getDownloader(singlePath(ZDL.path).getDownloader);
@@ -389,10 +387,5 @@ var init = function (path) {
     ZDL.path = path;
     load ('GET', '?cmd=init-client', true);
     display();
-    // singlePath(path).getDownloader();
-    // singlePath(path).getMaxDownloads();
-//    window.setInterval (display, 1000);
-
-
 };
 
