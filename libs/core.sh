@@ -92,12 +92,18 @@ function check_instance_prog {
 }
 
 function check_port {
+    ## return 0 se la porta è libera (ancora chiusa)
     local port=$1
     local result
     
     if command -v nmap &>/dev/null
     then
 	nmap -p $port localhost |grep closed -q &&
+	    return 0
+
+    elif command -v nc &>/dev/null
+    then
+	nc -z localhost $port ||
 	    return 0
 
     elif command -v netstat &>/dev/null
