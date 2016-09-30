@@ -93,10 +93,19 @@ function check_instance_prog {
 
 function check_port {
     local port=$1
+    local result
+    
     if command -v nmap &>/dev/null
     then
 	nmap -p $port localhost |grep closed -q &&
 	    return 0
+
+    elif command -v netstat &>/dev/null
+    then
+	result=$(netstat -nlp 2>&1 |
+		     awk "/tcp/{if (\$4 ~ /:$port\$/) print \$4}")
+
+	[ -z "$result" ] && return 0
     fi
     return 1
 }

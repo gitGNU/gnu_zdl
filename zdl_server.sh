@@ -395,7 +395,15 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    file_output="$path_tmp/links_loop.txt"
+	    if [ -f "$path_tmp/links_loop.txt" ]
+	    then
+		file_output="$path_tmp/links_loop.txt"
+
+	    else
+		touch "$path_server/empty"
+		file_output="$path_server/empty"
+	    fi
+	    
 	    if [ -z "$http_method" ]
 	    then
 		cat "$file_output"
