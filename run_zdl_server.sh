@@ -27,4 +27,3 @@
 path_usr="/usr/local/share/zdl"
 
 socat TCP-LISTEN:${1},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh ${1}" 
-

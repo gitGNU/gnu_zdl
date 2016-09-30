@@ -60,21 +60,6 @@ function check_instance_daemon {
     fi
 }
 
-function check_instance_server {
-    local socket_port="$1"
-    
-    ps ax | while read -a line
-	    do
-		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "socat.+LISTEN:${socket_port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
-		then
-		    echo ${line[0]}
-		    return 0
-		fi
-	    done
-    return 1
-}
-
 function check_instance_prog {
     local test_pid
     
@@ -94,25 +79,29 @@ function check_instance_prog {
 function check_port {
     ## return 0 se la porta è libera (ancora chiusa)
     local port=$1
-    local result
     
     if command -v nmap &>/dev/null
     then
-	nmap -p $port localhost |grep closed -q &&
-	    return 0
+    	nmap -p $port localhost |grep closed -q &&
+    	    return 0
 
     elif command -v nc &>/dev/null
     then
-	nc -z localhost $port ||
-	    return 0
+    	nc -z localhost $port ||
+    	    return 0
 
     elif command -v netstat &>/dev/null
     then
-	result=$(netstat -nlp 2>&1 |
-		     awk "/tcp/{if (\$4 ~ /:$port\$/) print \$4}")
+    	result=$(netstat -nlp 2>&1 |
+    		     awk "/tcp/{if (\$4 ~ /:$port\$/) print \$4}")
 
-	[ -z "$result" ] && return 0
+    	[ -z "$result" ] && return 0
+
+    else
+	$nodejs "$path_usr/libs/nmap.js" $port &&
+	    return 0
     fi
+    
     return 1
 }
 
@@ -922,6 +911,69 @@ function check_freespace {
 }
 
 function kill_server {
-    [ -s /tmp/zdl.d/pid_server ] &&
-	kill $(cat /tmp/zdl.d/pid_server) &>/dev/null
+    local port="$1"
+    local pid
+
+    get_server_pids $port | while read pid
+			    do
+				del_server_pid $pid
+				kill -9 $pid &>/dev/null
+			    done
+
+    ps ax | while read -a line
+	do
+	    if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
+		   grep -P "\/zdl_server\.sh.*${port}" /proc/${line[0]}/cmdline &>/dev/null
+	    then
+		kill -9 "${line[0]}" &>/dev/null
+	    fi
+	done
 }
+
+function get_server_pids {
+    local port=$1
+
+    if [ -s /tmp/zdl.d/pid_server ]
+    then
+	grep " $port$" /tmp/zdl.d/pid_server |
+	    cut -d' ' -f1 &&
+	    return 0
+    fi
+    return 1
+}
+
+function del_server_pid {
+    local pid="$1"
+
+    [ -f /tmp/zdl.d/pid_server ] &&
+	sed -r "/^$pid .+/d" -i /tmp/zdl.d/pid_server
+}
+
+function add_server_pid {
+    local port="$1"
+    [ -z "$port" ] && port="$socket_port"
+	
+    ps ax | while read -a line
+	    do
+		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
+		then
+		    set_line_in_file + "${line[0]} $port" /tmp/zdl.d/pid_server 
+		fi
+	    done
+}    
+
+function check_instance_server {
+    local port="$1"
+    ps ax | while read -a line
+	    do
+		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
+		then
+		    return 0
+		fi
+	    done
+    
+    return 1
+}
+

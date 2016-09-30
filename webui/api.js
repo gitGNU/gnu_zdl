@@ -141,11 +141,11 @@ var displayLinks = function () {
 		
 		document.getElementById('output-links').innerHTML = output;
 	    }
-	    return true;
+	    return displayLinks();
 	}
 	
 	document.getElementById('output-links').innerHTML = '';
-	return false;
+	return displayLinks();
     });
 }
 
@@ -208,7 +208,7 @@ var singlePath = function (path) {
 	return load ('GET', '?cmd=run-zdl&path=' + path, true);
     };
 
-    that.getDownloader = function () {
+    that.getDownloader = function (recursive) {
 	return load ('GET',
 		     '?cmd=get-downloader&path=' + path,
 		     true,
@@ -229,6 +229,9 @@ var singlePath = function (path) {
 			 
 			 selector += "</select>";
 			 document.getElementById('downloader').innerHTML = selector;
+
+			 if (typeof recursive === 'function')
+			     return recursive(recursive);
 		     });
     };
 
@@ -236,7 +239,9 @@ var singlePath = function (path) {
 	return load ('GET',
 		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
 		     true,
-		     that.getDownloader());
+		     function (){
+			 that.getDownloader();
+		     });
     };
 
     that.setMaxDownloads = function (spec) {
@@ -267,7 +272,7 @@ var singlePath = function (path) {
 	return document.getElementById('max-downloads').innerHTML = output;
     };
 	
-    that.getMaxDownloads = function () {
+    that.getMaxDownloads = function (recursive) {
 	return load ('GET',
 		     '?cmd=get-max-downloads&path=' + path,
 		     true,
@@ -283,6 +288,9 @@ var singlePath = function (path) {
 
 			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia MAX</button>";
 			 document.getElementById('max-downloads').innerHTML =  max_dl_str + output;
+
+			 if (typeof recursive === 'function')
+			     return recursive(recursive);
 		     });
     };
 
@@ -369,15 +377,22 @@ var checkData = function () {
 };
 
 var display = function () {
+    //    displayLinks();
+    displayEditButton();
+    //checkData();
     displayLinks();
-    checkData();
+    singlePath(ZDL.path).getMaxDownloads(singlePath(ZDL.path).getMaxDownloads);
+    singlePath(ZDL.path).getDownloader(singlePath(ZDL.path).getDownloader);
 };
 
 var init = function (path) {
     ZDL.path = path;
-    displayEditButton();
-    singlePath(path).getDownloader();
-    singlePath(path).getMaxDownloads();
-    window.setInterval (display, 1000);
+    load ('GET', '?cmd=init-client', true);
+    display();
+    // singlePath(path).getDownloader();
+    // singlePath(path).getMaxDownloads();
+//    window.setInterval (display, 1000);
+
+
 };
 

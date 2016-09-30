@@ -42,6 +42,7 @@ source $path_usr/libs/DLstdout_parser.sh
 source $path_usr/libs/utils.sh
 source $path_usr/libs/log.sh
 
+add_server_pid "$socket_port"
 json_flag=true
 
 ## node.js:
@@ -282,19 +283,47 @@ function get_file_output {
     fi
 }
 
+
+function send_json {
+    touch "$server_data" "$server_data".diff
+
+    ## 
+    while cmp_file "$server_data" "$server_data".diff 
+    do
+	create_json
+	sleep 1
+    done
+    sleep 1
+    cp "$server_data" "$server_data".diff
+    
+    file_output="$server_data"
+
+    if [ -z "$http_method" ]
+    then
+	cat "$server_data"
+	return 1
+    fi
+    return 0
+}
+
 function run_cmd {
     local line=( "$@" )
-    local file link pid
+    local file link pid path
 
     case "${line[0]}" in
+	init-client)
+	    ## path
+	    while read path
+	    do
+		test -d "$path" &&
+		    cd "$path"
+		
+		rm "$path_tmp"/*.diff
+
+	    done <"$server_paths"
+	    ;;
     	get-data)
-	    create_json
-	    file_output="$server_data"
-	    if [ -z "$http_method" ]
-	    then
-		cat "$server_data"
-		return
-	    fi
+	    send_json || return
 	    ;;
 
 	del-link)
@@ -424,6 +453,14 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
+	    touch "$path_tmp/downloader".diff
+
+	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".diff
+	    do		
+		sleep 1
+	    done
+	    cp "$path_tmp/downloader" "$path_tmp/downloader".diff
+
 	    file_output="$path_tmp/downloader"
 	    if [ -z "$http_method" ]
 	    then
@@ -443,6 +480,14 @@ console.log(out);
 	    ## [1]=PATH;
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
+
+	    touch "$path_tmp/max-dl".diff
+
+	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".diff
+	    do		
+		sleep 1
+	    done
+	    cp "$path_tmp/max-dl" "$path_tmp/max-dl".diff
 
 	    file_output="$path_tmp/max-dl"
 	    if [ -z "$http_method" ]
@@ -546,8 +591,8 @@ console.log(out);
 	    done
 	    ;;
 	kill-server)
-	    pid=$(check_instance_server $socket_port)
-	    kill -9 $pid
+	    kill_server "$socket_port"
+	    wait $$
 	    ;;
     esac
 }

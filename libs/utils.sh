@@ -529,3 +529,25 @@ function dotless2ip {
 	dotless2ip $((dotless - ip[-1] * k )) $i
     fi
 }
+
+function equal_file_size {
+    ls -l $1 $2 |
+	  awk 'NR==1{a=$5} NR==2{b=$5} 
+       END{val=(a==b)?0 :1; exit( val) }'
+
+    [ $? -eq 0 ] &&
+	return 0 || return 1
+}
+
+function cmp_file {
+    if command -v cmp &>/dev/null
+    then
+	cmp --silent "$1" "$2" &&
+	    return 0
+
+    else
+	[ "$(cat "$1")" == "$(cat "$2")" ] &&
+	    return 0
+    fi
+    return 1
+}
