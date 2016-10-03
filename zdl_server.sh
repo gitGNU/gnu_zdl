@@ -285,17 +285,16 @@ function get_file_output {
 
 
 function send_json {
-    touch "$server_data" "$server_data".diff
+    touch "$server_data" "$server_data".$socket_port
 
-    ## 
-    while cmp_file "$server_data" "$server_data".diff &&
+    while cmp_file "$server_data" "$server_data".$socket_port &&
 	    ! check_port $socket_port
     do
 	create_json
 	sleep 1
     done
     sleep 1
-    cp "$server_data" "$server_data".diff
+    cp "$server_data" "$server_data".$socket_port
     
     file_output="$server_data"
 
@@ -318,8 +317,12 @@ function run_cmd {
 	    do
 		test -d "$path" &&
 		    cd "$path"
-		
-		rm "$path_tmp"/*.diff
+
+		for file in "$path_tmp"/*.$socket_port
+		do
+		    echo RELOAD > $file
+		done
+		echo RELOAD > "$server_data".$socket_port
 
 	    done <"$server_paths"
 	    ;;
@@ -454,14 +457,14 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_tmp/downloader".diff
+	    touch "$path_tmp/downloader".$socket_port
 
-	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".diff &&
+	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".$socket_port &&
 		    ! check_port $socket_port
 	    do		
 		sleep 1
 	    done
-	    cp "$path_tmp/downloader" "$path_tmp/downloader".diff
+	    cp "$path_tmp/downloader" "$path_tmp/downloader".$socket_port
 
 	    file_output="$path_tmp/downloader"
 	    if [ -z "$http_method" ]
@@ -476,7 +479,7 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    rm -f "$path_tmp/downloader".diff
+	    echo RELOAD > "$path_tmp/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
 	    ;;
 	get-max-downloads)
@@ -484,14 +487,14 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_tmp/max-dl".diff
+	    touch "$path_tmp/max-dl".$socket_port
 
-	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".diff &&
+	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".$socket_port &&
 		    ! check_port $socket_port
 	    do		
 		sleep 1
 	    done
-	    cp "$path_tmp/max-dl" "$path_tmp/max-dl".diff
+	    cp "$path_tmp/max-dl" "$path_tmp/max-dl".$socket_port
 
 	    file_output="$path_tmp/max-dl"
 	    if [ -z "$http_method" ]
@@ -507,7 +510,7 @@ console.log(out);
 
 	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
 	    then
-		rm -f "$path_tmp/max-dl".diff 
+		echo RELOAD > "$path_tmp/max-dl".$socket_port 
 		echo "${line[2]}" >"$path_tmp/max-dl"
 	    fi
 	    ;;
