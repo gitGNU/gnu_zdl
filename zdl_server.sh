@@ -288,7 +288,8 @@ function send_json {
     touch "$server_data" "$server_data".diff
 
     ## 
-    while cmp_file "$server_data" "$server_data".diff 
+    while cmp_file "$server_data" "$server_data".diff &&
+	    ! check_port $socket_port
     do
 	create_json
 	sleep 1
@@ -455,7 +456,8 @@ console.log(out);
 
 	    touch "$path_tmp/downloader".diff
 
-	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".diff
+	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".diff &&
+		    ! check_port $socket_port
 	    do		
 		sleep 1
 	    done
@@ -474,6 +476,7 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
+	    rm -f "$path_tmp/downloader".diff
 	    echo "${line[2]}" >"$path_tmp/downloader"
 	    ;;
 	get-max-downloads)
@@ -483,7 +486,8 @@ console.log(out);
 
 	    touch "$path_tmp/max-dl".diff
 
-	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".diff
+	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".diff &&
+		    ! check_port $socket_port
 	    do		
 		sleep 1
 	    done
@@ -501,8 +505,11 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    ( [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] ) &&
+	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
+	    then
+		rm -f "$path_tmp/max-dl".diff 
 		echo "${line[2]}" >"$path_tmp/max-dl"
+	    fi
 	    ;;
 	get-dirs)
 	    unset file_output dirs text_output
@@ -539,7 +546,6 @@ console.log(out);
 			    date +%s >"$path_tmp"/.date_daemon
 			    nohup /bin/bash zdl --silent "$PWD" &>/dev/null &
 			fi
-			
 		    }
 	    done
 	    ;;

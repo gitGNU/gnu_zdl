@@ -114,7 +114,7 @@ function run_web_client {
 	sleep 0.1
     done
 
-    zdl --socket=$port -d
+    zdl "$@" --socket=$port -d
 
     while check_port $port
     do

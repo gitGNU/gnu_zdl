@@ -176,7 +176,7 @@ then
 	if [ "${args[i]}" == '--web-ui' ]
 	then
 	    unset args[i]
-	    run_web_client "$@" 
+	    run_web_client "${args[@]}" 
 	    exit
 	fi
     done
@@ -974,6 +974,9 @@ then
     done
 fi
 
+mkdir -p /tmp/zdl.d
+set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
+
 if [[ "${args[*]}" =~ \-\-socket ]]
 then
     for ((i=0; i<=$max_args; i++))
@@ -982,11 +985,8 @@ then
 	then	    
 	    socket_port="${BASH_REMATCH[1]}"
 
-	    mkdir -p /tmp/zdl.d
-
 	    if ! check_instance_server $socket_port &>/dev/null
 	    then
-		set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
 		nohup "$path_usr/run_zdl_server.sh" ${socket_port} &>/dev/null &
 	    fi
 	    unset args[i]

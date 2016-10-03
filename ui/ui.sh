@@ -596,7 +596,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    
 	    K)
 		kill_downloads
-		kill_server
+		#kill_server
 		[ -n "$instance_pid" ] && {
 		    kill -9 "$instance_pid" &>/dev/null
 		    rm -f "$path_tmp"/.date_daemon

@@ -34,43 +34,75 @@
     <link rel="stylesheet" type="text/css" href="zdl_style.css">
   </head>
   
-  <body onload="init('__START_PATH__');">
+  <body onload="init('__START_PATH__');" style="margin: 0; padding: 0;">
     <a href="/">
       <div class="header"></div>
     </a>
-    <div class="container">
-      <h2>ZigzagDownLoader :: ZDL</h2>
-      <div class="content">
+    <h2>ZigzagDownLoader :: ZDL</h2>
 
-	<div id="path">
+    <ul class="sidenav">
+       <!-- class="active" -->
+      <li><a id="links-menu" onclick="changeSection('links');">Links</a></li> 
+      <li><a id="path-menu" onclick="changeSection('path');">Path</a></li>
+      <li><a id="config-menu" onclick="changeSection('config');">Config</a></li>
+      <li><a id="info-menu" onclick="changeSection('info');">Info</a></li>
+      <li><a id="server-menu" onclick="changeSection('server');">Server</a></li>
+    </ul>
+    
+    <!-- ['links', 'path', 'config', 'info', 'server'].forEach(function(item) { -->
+
+
+    <!-- sezione LINKS -->
+    <div id="links">
+      <div class="section">
+	<div class="label-section">Links</div>
+	<div id="output-links"></div>
+      </div>
+    </div>
+
+    <!-- sezione PATH -->
+
+    <div id="path">
+      <div class="section">
+	<div class="label-section">Path</div>	  
+	<div class="path-commands">
 	  <div id="sel-path">
-	    Agisci in: __START_PATH__ <button onclick="browse(ZDL.path);">Cambia</button>
 	  </div>
-	  
 	  <div id="browse"></div>
-	  
-	  <div id="run-path" class="visible">
+	</div>
+	
+	<div id="run-path" class="visible">
+	  <div class="path-commands">
 	    <button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>
 	    <button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>
 	    <button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>
-	    Aggiungi link:
-	       <input id="input-link" type="text">
-	       <button onclick="addLink('input-link');">Invia</button>
-
-	       <div id="editor-links"></div>
-	       <div id="downloader"></div>
-	       <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
+	  </div>
+	  
+	  <div class="path-commands">
+	    <div class="label-element">Aggiungi link:</div>
+	    <input id="input-link" type="text">
+	    <button onclick="addLink('input-link');">Invia</button>
+	    <div id="editor-links"></div>
+	  </div>
+	  
+	  <div class="path-commands">
+	    <div id="downloader" style="float:left;"></div>
+	    <div id="max-downloads" style="float:left;"><input class="hidden" id="input-max-downloads" type="text"></div>
 	  </div>
 	</div>
+      </div>
+    </div>
 
-	<div id="links">
-	  <div id="output-links" style="margin-bottom:20px"></div>
-	</div>
-
-	<div id="server">
-    	  <button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
-	</div>
-	
+    <!-- sezione CONFIGURE -->
+    <div id="config"></div>
+    <!-- sezione INFO & SEARCH -->
+    <div id="info"></div>
+      
+    <!-- sezione SERVER -->
+    <div id="server">
+      <div class="section">
+	<div class="label-section">Server</div>
+	<button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
       </div>
     </div>
   </body>

@@ -36,7 +36,7 @@ var getUriParam = function (name, url) {
     var regex = new RegExp( regexS );
     var results = regex.exec( url );
     return results == null ? null : results[1];
-}
+};
 
 var load = function (method, url, async, callback, params) {
     var data;
@@ -60,7 +60,7 @@ var load = function (method, url, async, callback, params) {
     	}
     };
     req.send();
-}
+};
 
 
 var isJsonString = function (str) {
@@ -70,7 +70,7 @@ var isJsonString = function (str) {
 	return false;
     }
     return true;
-}
+};
 
 var getData = function () {
     load ('GET', '?cmd=get-data', false);
@@ -78,18 +78,17 @@ var getData = function () {
 	return JSON.parse(ZDL.data);
     else
 	return false;
-}
-
+};
 
 var showInfoLink = function (id, path, link) {
     document.getElementById(id).setAttribute('class', 'visible');
     ZDL.visible[path + ' ' + link] = true;
-}
+};
 
 var hideInfoLink = function (id, path, link) {
     document.getElementById(id).setAttribute('class', 'hidden');
     ZDL.visible[path + ' ' + link] = false;
-}
+};
 
 
 var displayLinks = function () {
@@ -147,7 +146,7 @@ var displayLinks = function () {
 	document.getElementById('output-links').innerHTML = '';
 	return displayLinks();
     });
-}
+};
 
 var addButtonsLink = function () {
     return "<button>Varie funzioni da implementare</button>";
@@ -264,7 +263,7 @@ var singlePath = function (path) {
 
     that.inputMaxDownloads = function (max_dl) {
 	if (isNaN(max_dl))
-	    max_dl = "illimitati";
+	    max_dl = '';
 	    
 	var output = "<input id=\"input-max-downloads\" type=\"text\" value=\"" + max_dl + "\">" +
 		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads();\">Invia</button>" +
@@ -300,7 +299,8 @@ var singlePath = function (path) {
 		     true,
 		     function (str){
 			 document.getElementById('editor-links').innerHTML = "<textarea id=\"list-links\">" + str + "</textarea>" +
-			     "<button onclick=\"singlePath(ZDL.path).setLinks();\">Salva</button>";
+			     "<button onclick=\"singlePath(ZDL.path).setLinks();\">Salva</button>" +
+			     "<button onclick=\"displayEditButton();\">Annulla</button>";
 		     });
     };
     
@@ -330,10 +330,23 @@ var browse = function (path) {
     return load ('GET', '?cmd=get-dirs&path=' + path, true, callback);
 };
 
+var changeSection = function (section) {
+    ['links', 'path', 'config', 'info', 'server'].forEach(function(item) {
+	if (item === section) {
+	    document.getElementById(item).style.display = 'block';
+	    document.getElementById(item + '-menu').setAttribute('class', 'active');
+	} else {
+	    document.getElementById(item).style.display = 'none';
+	    document.getElementById(item + '-menu').setAttribute('class', 'not-active');
+	}
+    });
+};
+
 var selectDir = function (path) {
     document.getElementById('run-path').setAttribute('class', 'visible');
     ZDL.path = path;
-    document.getElementById('sel-path').innerHTML = 'Agisci in: ' + path + " <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div> ' + path +
+	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
 };
 
@@ -377,6 +390,8 @@ var checkData = function () {
 };
 
 var display = function () {
+    selectDir(ZDL.path);
+    changeSection('links');
     displayEditButton();
     displayLinks();
     singlePath(ZDL.path).getMaxDownloads(singlePath(ZDL.path).getMaxDownloads);
