@@ -215,6 +215,7 @@ var singlePath = function (path) {
 			 dler = dler.replace(/(\r\n|\n|\r)/gm, "");
 			 ZDL.downloader = dler;
 			 var selector = '<select id="sel-downloader" onchange="singlePath(ZDL.path).setDownloader();">';
+			 var label = '<div class="label-element">Downloader: </div>';
 
 			 ["Aria2", "Axel", "Wget"].forEach(function (item) {
 			     if (String(dler) === String(item)) {
@@ -227,7 +228,7 @@ var singlePath = function (path) {
 			 });
 			 
 			 selector += "</select>";
-			 document.getElementById('downloader').innerHTML = selector;
+			 document.getElementById('downloader').innerHTML = label + selector;
 
 			 if (typeof recursive === 'function')
 			     return recursive(recursive);
@@ -285,8 +286,8 @@ var singlePath = function (path) {
 			 }
 			 ZDL.max_downloads = max_dl; 			 
 
-			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia MAX</button>";
-			 document.getElementById('max-downloads').innerHTML =  max_dl_str + output;
+			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia</button>";
+			 document.getElementById('max-downloads').innerHTML = max_dl_str + output;
 
 			 if (typeof recursive === 'function')
 			     return recursive(recursive);

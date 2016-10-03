@@ -72,23 +72,30 @@
 	</div>
 	
 	<div id="run-path" class="visible">
+	  <div class="path-commands" style="text-align: left">
+	    <div id="input-link-label" class="label-element">Aggiungi link:</div>
+	    <input id="input-link" type="text">
+	    <button onclick="addLink('input-link');">Invia</button>
+
+	    <div id="editor-links"></div>
+	  </div>
+	  
+	  <div class="path-commands">
+	    <div class="label-element">Massimo download paralleli:</div>
+	    <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
+	  </div>
+
+	  <div class="path-commands">
+	    <div id="downloader"></div>
+	  </div>
+
 	  <div class="path-commands">
 	    <button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>
 	    <button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>
 	    <button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>
 	  </div>
 	  
-	  <div class="path-commands">
-	    <div id="input-link-label" class="label-element">Aggiungi link:</div>
-	    <input id="input-link" type="text">
-	    <button onclick="addLink('input-link');" style="align-self: left;">Invia</button>
-	    <div id="editor-links"></div>
-	  </div>
-	  
-	  <div class="path-commands">
-	    <div id="downloader" style="float:left;"></div>
-	    <div id="max-downloads" style="float:left;"><input class="hidden" id="input-max-downloads" type="text"></div>
-	  </div>
+
 	</div>
       </div>
     </div>
