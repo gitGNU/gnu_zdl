@@ -375,7 +375,7 @@ input[type=text] {
 }
 
 #input-link {
-    width: calc(100% - 250px);
+    width: calc(100% - 200px);
 }
 
 #input-max-downloads {
@@ -383,9 +383,10 @@ input[type=text] {
 }
 
 textarea {
-    width: 100%;
+    position: relative;
+    width: calc(100% - 2em);
     height: 300px;
-    margin: 0 0;
+    margin: 1em 1em 0 1em; /* top right bottom left */
     box-sizing: border-box;
     border: none;
     color: white;
@@ -410,21 +411,25 @@ textarea {
     float: left;
     color: #fff;
     background: #777;
-    line-height: 30px; 
+    line-height: 30px;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 .path-commands {
     position: relative;
     background: #eee;
-    padding-top: 1em;
-    padding-bottom: 1em;
+    padding: 0;
     margin-bottom: 1px;
     display: inline-block;
     width: 100%;
+    text-align: center;
 }
 
 #editor-links {
-    padding: 1em;
+    position: relative;
+    width: 100%;
+    text-align: center;
 }
 
 #path {
@@ -494,12 +499,19 @@ ul.sidenav li a:hover:not(.active) {
     div.content {margin-left:0;}
 /* } */
 
-/* @media screen and (max-width: 400px){ */
-/*     ul.sidenav li a { */
-/*         text-align: center; */
-/*         float: none; */
-/*     } */
-/* } */
+@media screen and (max-width: 400px){
+    /* ul.sidenav li a { */
+    /*     text-align: center; */
+    /*     float: none; */
+    /* } */
+    #progress-bar, #progress-label-file {
+	width: 100%;
+    }
+
+    #progress-label-status {
+	float: right;
+    }
+}
 
 #links, #path, #config, #info, #server {
     display: none;

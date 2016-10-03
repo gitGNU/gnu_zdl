@@ -315,7 +315,7 @@ var singlePath = function (path) {
 };
 
 var displayEditButton = function () {
-    document.getElementById('editor-links').innerHTML = "<button onclick=\"singlePath(ZDL.path).getLinks();\">Editor dei link</button>";
+    document.getElementById('editor-links').innerHTML = '<button onclick="singlePath(ZDL.path).getLinks();">Editor dei link</button>';
 };
 
 var browse = function (path) {
