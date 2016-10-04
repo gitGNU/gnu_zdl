@@ -40,6 +40,7 @@ server_data="$path_server/data.json"
 server_paths="$path_server/paths.txt"
 server_index="$path_server/index.html"
 
+source $path_usr/config.sh
 source $path_usr/libs/core.sh
 source $path_usr/libs/downloader_manager.sh
 source $path_usr/libs/DLstdout_parser.sh
@@ -498,8 +499,7 @@ console.log(out);
 
 	    else
 		mkdir -p "$path_tmp"
-		grep downloader "$file_conf" |
-		    sed -r 's|[^"]+\"([^"]+)\".*|\1|g' >"$path_tmp/downloader"
+		get_item_conf 'downloader' >"$path_tmp/downloader"
 	    fi
 	    cp "$path_tmp/downloader" "$path_server/downloader".$socket_port
 
@@ -525,12 +525,19 @@ console.log(out);
 		cd "${line[1]}"
 
 	    touch "$path_server/max-dl".$socket_port
-
-	    while cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port &&
-		    ! check_port $socket_port
-	    do		
-		sleep 1
-	    done
+	    if test -f "$path_tmp/max-dl"
+	    then
+		while cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port &&
+			! check_port $socket_port
+		do		
+		    sleep 1
+		done
+		
+	    else
+		mkdir -p "$path_tmp"
+		get_item_conf 'max_dl' >"$path_tmp/max-dl"
+	    fi
+	    
 	    cp "$path_tmp/max-dl" "$path_server/max-dl".$socket_port
 
 	    file_output="$path_tmp/max-dl"

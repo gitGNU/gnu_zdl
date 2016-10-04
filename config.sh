@@ -301,7 +301,7 @@ function get_conf {
 	    aria2_connections=16
     fi
 
-    
+    #### pulizia vecchi parametri
     ## single/multi
     if [ "$mode" == "single" ]
     then
@@ -315,7 +315,9 @@ function get_conf {
 	sed -r "/(^mode=|num_dl|stream_mode)/d" -i "$file_conf"
 	set_item_conf max_dl ''
     fi
-
+    ##
+    ##############################
+    
     if [ -f "$path_tmp/max-dl" ]
     then
 	max_dl="$(cat "$path_tmp/max-dl")"
@@ -328,6 +330,12 @@ function get_conf {
     if command -v $editor &>/dev/null
     then
 	unset editor
+    fi
+
+    ## socket
+    if [ -z "$socket_port" ]
+    then
+	socket_port=${val_conf[14]}
     fi
     
     [ "$background" == "black" ] &&
