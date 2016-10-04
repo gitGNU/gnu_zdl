@@ -420,6 +420,7 @@ console.log(out);
 		    }
 	    done
 	    ;;
+
 	stop-link)
 	    ## PATH -> LINK ~ PID
 	    create_json
@@ -454,6 +455,7 @@ console.log(out);
 	    done
 	    
 	    ;;
+
 	get-links)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -473,6 +475,7 @@ console.log(out);
 		return
 	    fi
 	    ;;
+
 	set-links)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -482,6 +485,7 @@ console.log(out);
 		set_link + "$lnk"
 	    done <<< "$(echo -e "${line[2]}")"
 	    ;;
+	
 	get-downloader)
 	    ## [1]=PATH
 	    test -d "${line[1]}" &&
@@ -509,8 +513,8 @@ console.log(out);
 		cat "$file_output"
 		return
 	    fi	    
-	    
 	    ;;
+
 	set-downloader)
 	    ## [1]=PATH; [2]=DOWNLOADER
 	    test -d "${line[1]}" &&
@@ -519,6 +523,7 @@ console.log(out);
 	    echo RELOAD > "$path_server/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
 	    ;;
+
 	get-max-downloads)
 	    ## [1]=PATH;
 	    test -d "${line[1]}" &&
@@ -547,6 +552,7 @@ console.log(out);
 		return
 	    fi	    
 	    ;;
+
 	set-max-downloads)
 	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
 	    test -d "${line[1]}" &&
@@ -558,6 +564,7 @@ console.log(out);
 		echo "${line[2]}" >"$path_tmp/max-dl"
 	    fi
 	    ;;
+
 	get-status)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -590,6 +597,7 @@ console.log(out);
 		return
 	    fi
 	    ;;
+
 	get-dirs)
 	    unset file_output dirs text_output
 	    
@@ -606,12 +614,15 @@ console.log(out);
 	    echo "$text_output" > "$path_server"/browsing.$socket_port
 	    file_output="$path_server"/browsing.$socket_port	    
 	    ;;
+
 	reset-path)
 	    reset_section_path "${line[1]}"
 	    ;;
+
 	clean)
 	    ## [1]=PATH oppure 'ALL'
 	    ;;
+
 	run-zdl)
 	    ## PATHS ...
 	    for ((i=1; i<${#line[@]}; i++))
@@ -631,6 +642,7 @@ console.log(out);
 		    }
 	    done
 	    ;;
+
 	quit-zdl)
 	    ## PATHS ... 
 
@@ -654,6 +666,7 @@ console.log(out);
 		    }
 	    done
 	    ;;
+
 	kill-zdl)
 	    ## PATHS ... 
 
@@ -678,6 +691,7 @@ console.log(out);
 		    }
 	    done
 	    ;;
+
 	kill-server)
 	    kill_server "$socket_port"
 	    wait $$

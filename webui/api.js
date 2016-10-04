@@ -122,7 +122,7 @@ var displayLinks = function () {
 			"</div>" +
 			"</div>";
 
-		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" +
+		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + '</div><div ' +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
 		    output += "<div class=\"info-label\"> Downloader: </div><div class=\"info-data\"> " + data[i].downloader + "</div>";
@@ -136,8 +136,8 @@ var displayLinks = function () {
 		    } else {
 			output += "<div class=\"info-label\"> Url: </div><div class=\"info-data\"> " + data[i].url.toHtmlEntities() + "</div>";
 		    }
-
-		    output += addButtonsLink();
+		    output += '</div>';
+		    output += addButtonsLink(data[i]);
 		    output += '</div>';
 		}
 		
@@ -151,8 +151,10 @@ var displayLinks = function () {
     });
 };
 
-var addButtonsLink = function () {
-    return "<button>Varie funzioni da implementare</button>";
+var addButtonsLink = function (spec) {
+    var output = "<button onclick=\"singleLink({path: '" + spec.path + "', link: '" + spec.link + "'}).stop();\">Ferma il download</button>" +
+	    "<button onclick=\"singleLink({path: '" + spec.path + "', link: '" + spec.link + "'}).del();\">Cancella il download</button>";
+    return output;
 };
 
 var addLink = function (id) {
@@ -161,25 +163,19 @@ var addLink = function (id) {
     return load ('GET', query, true);
 };
 
-var delLink = function (id) {
-    var query = "?cmd=del-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
-    return load ('GET', query, true);
-};
-
 var singleLink = function (spec) {
-    // spec = {path: ..., link: ...}
-    var that = {};
+    var that = spec;
     
     var cmd_to_link = function (cmd) {
-	return load ('GET', "?cmd=" + cmd + "&path=" + spec.path + "&link=" + spec.link, true);
-    };
-    
-    that.del = function () {
-	return cmd_to_link('del-link');
+	return load ('GET', "?cmd=" + cmd + "&path=" + that.path + "&link=" + that.link, true);
     };
     
     that.stop = function () {
-	return cmd_to_link ('stop-link');
+	return cmd_to_link('stop-link');
+    };
+    
+    that.del = function () {
+	return cmd_to_link ('del-link');
     };
 
     return that;
