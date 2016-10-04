@@ -362,7 +362,6 @@ function run_cmd {
 
 	del-link)
 	    ## PATH -> LINK ~ PID
-	    create_json
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
@@ -373,25 +372,21 @@ function run_cmd {
 		then
 		    link="${line[i]}"
 
-		    res=$($nodejs -e "
-var path = '$PWD'; 
-var link = '$link'; 
-var json = $(cat $server_data);
-var out; 
-for (var i = 0; i<json.length; i += 1) {
-  if (json[i]['path'] === path && json[i]['link'] === link) {
-    out = 'pid=' + json[i]['pid'] + '; ' + 'file=\"' + json[i]['file'] + '\";';
-    break;
-  }
-}
-console.log(out);
-                    ")
+		    unset json_flag
+		    data_stdout
+		    json_flag=true
 
-		    eval $res
-		    set_link - "$link"
-		    kill -9 "$pid" &>/dev/null 
-		    rm -f "$file" "$file".st "$file".aria2 "$file".zdl "$path_tmp"/"${file}_stdout.tmp"
-		    unset link pid file
+		    for ((i=0; i<${#pid_out[@]}; i++))
+		    do
+			if [ "${url_out[i]}" == "$link" ]
+			then
+			    set_link - "$link"
+			    kill -9 "${pid_out[i]}" &>/dev/null 
+			    rm -f "${file_out[i]}" "${file_out[i]}".st "${file_out[i]}".aria2 "${file_out[i]}".zdl "$path_tmp"/"${file_out[i]}_stdout.tmp"
+			    unset link pid file
+			    break
+			fi
+		    done
 		fi
 	    done
 	    ;;
@@ -423,7 +418,6 @@ console.log(out);
 
 	stop-link)
 	    ## PATH -> LINK ~ PID
-	    create_json
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
@@ -434,23 +428,19 @@ console.log(out);
 		then
 		    link="${line[i]}"
 
-		    res=$($nodejs -e "
-var path = '$PWD'; 
-var link = '$link'; 
-var json = $(cat $server_data);
-var out; 
-for (var i = 0; i<json.length; i += 1) {
-  if (json[i]['path'] === path && json[i]['link'] === link) {
-    out = 'pid=' + json[i]['pid'] + '; ' + 'file=\"' + json[i]['file'] + '\";';
-    break;
-  }
-}
-console.log(out);
-                    ")
+		    unset json_flag
+		    data_stdout
+		    json_flag=true
 
-		    eval $res
-		    kill -9 "$pid" &>/dev/null 
-		    unset link pid file
+		    for ((i=0; i<${#pid_out[@]}; i++))
+		    do
+			if [ "${url_out[i]}" == "$link" ]
+			then
+			    kill -9 "${pid_out[i]}" &>/dev/null 
+			    unset link pid file
+			    break
+			fi
+		    done
 		fi
 	    done
 	    
@@ -477,13 +467,13 @@ console.log(out);
 	    ;;
 
 	set-links)
+
+	    ## path:
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    while read lnk
-	    do
-		set_link + "$lnk"
-	    done <<< "$(echo -e "${line[2]}")"
+	    ## links:
+	    echo "${line[2]}" > "$path_tmp/links_loop.txt"
 	    ;;
 	
 	get-downloader)
@@ -707,7 +697,7 @@ function run_data {
     for ((i=0; i<${#data[*]}; i++))
     do
 	## name=$(urldecode "${data[i]%'='*}")
-	value=$(urldecode "${data[i]#*'='}")
+	value="$(urldecode "${data[i]#*'='}")"
 	line_cmd+=( "$value" )
     done
 
@@ -761,22 +751,22 @@ function http_server {
 while read -a line 
 do
     recv "${line[*]}"
-    
-    case ${line[0]} in
+	
+    case "${line[0]}" in
 	GET)
 	    unset GET_DATA file_output
 	    http_method=GET
-	    file_output=$(get_file_output "${line[1]}")
+	    file_output="$(get_file_output "${line[1]}")"
 	    
 	    if [[ "${line[1]}" =~ '?' ]]
 	    then
-	    	GET_DATA=$(clean_data "${line[1]#*\?}")
+	    	GET_DATA="$(clean_data "${line[1]#*\?}")"
 	    fi
 	    ;;
 	POST)
 	    unset POST_DATA file_output
 	    http_method=POST
-	    file_output=$(get_file_output "${line[1]}")
+	    file_output="$(get_file_output "${line[1]}")"
 	    ;;
 	*)
 	    http_server ||

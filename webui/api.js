@@ -41,7 +41,7 @@ var getUriParam = function (name, url) {
 var load = function (method, url, async, callback, params) {
     var data;
     var req = new XMLHttpRequest();
-    req.open(method, encodeURI(url), async);
+    req.open(method, encodeURI(url).replace("#", "%23"), async);
     req.onload = function () {
     	if (req.status === 200) {
 	    if (typeof callback === 'function') {
@@ -152,8 +152,8 @@ var displayLinks = function () {
 };
 
 var addButtonsLink = function (spec) {
-    var output = "<button onclick=\"singleLink({path: '" + spec.path + "', link: '" + spec.link + "'}).stop();\">Ferma il download</button>" +
-	    "<button onclick=\"singleLink({path: '" + spec.path + "', link: '" + spec.link + "'}).del();\">Cancella il download</button>";
+    var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma il download</button>" +
+	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Cancella il download</button>";
     return output;
 };
 
@@ -165,7 +165,7 @@ var addLink = function (id) {
 
 var singleLink = function (spec) {
     var that = spec;
-    
+
     var cmd_to_link = function (cmd) {
 	return load ('GET', "?cmd=" + cmd + "&path=" + that.path + "&link=" + that.link, true);
     };
