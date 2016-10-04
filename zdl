@@ -1010,6 +1010,9 @@ then
     COOKIE="$path_tmp/flashgot_cfile.zdl"
     for ((i=0; i<=$max_args; i++))
     do
+	[[ "${args[i]}" =~ xweaseldownload.php ]] &&
+	    print_c 2 "Connessione ed estrazione da:\n${args[i]}\n"
+
 	if [ -f "${BASE_DIR}${args[i]}" ]
 	then
 	    if [ "${args[i]}" != "${args[i]%.dlc}" ]

@@ -29,23 +29,22 @@ TAG1='## NEW: ...ARIA2!'
 TAG2='## ARIA2: già chiesto'
 
 
-# chiavi di configurazione --    valori predefiniti  --    descrizione per il config-manager
+# chiavi di configurazione  --   valori predefiniti  --    descrizione per il config-manager
 key_conf[0]=downloader;          val_conf[0]=Aria2;        string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)"
 key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numero di parti in download parallelo per Axel"
 key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2"
-key_conf[3]=mode;                val_conf[3]=single;       string_conf[3]="Modalità di download predefinita (single|multi)"
-key_conf[4]=stream_mode;         val_conf[4]=single;       string_conf[4]="Modalità di download predefinita per lo stream dal browser (single|multi)"
-key_conf[5]=max_dl;              val_conf[5]="";           string_conf[5]="Numero massimo di download simultanei"
-key_conf[6]=background;          val_conf[6]=black;        string_conf[6]="Colore sfondo (black|transparent)"
-key_conf[7]=language;            val_conf[7]=$LANG;        string_conf[7]="Lingua"
-key_conf[8]=reconnecter;         val_conf[8]="";           string_conf[8]="Script/comando/programma per riconnettere il modem/router"
-key_conf[9]=autoupdate;          val_conf[9]=enabled;      string_conf[9]="Aggiornamenti automatici di ZDL (enabled|*)"
-key_conf[10]=player;             val_conf[10]="";          string_conf[10]="Script/comando/programma per riprodurre un file audio/video"
-key_conf[11]=editor;             val_conf[11]="nano";      string_conf[11]="Editor predefinito per modificare la lista dei link in coda"
-key_conf[12]=resume;             val_conf[12]="";          string_conf[12]="Recupero file omonimi come con opzione --resume (enabled|*)"
-key_conf[13]=zdl_mode;           val_conf[13]="";          string_conf[13]="Modalità predefinita di avvio (lite|daemon|stdout)"
-key_conf[14]=tcp_port;           val_conf[14]="";          string_conf[14]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
-key_conf[15]=udp_port;           val_conf[15]="";          string_conf[15]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+key_conf[3]=max_dl;              val_conf[3]="1";          string_conf[3]="Numero massimo di download simultanei"
+key_conf[4]=background;          val_conf[4]=black;        string_conf[4]="Colore sfondo (black|transparent)"
+key_conf[5]=language;            val_conf[5]=$LANG;        string_conf[5]="Lingua"
+key_conf[6]=reconnecter;         val_conf[6]="";           string_conf[6]="Script/comando/programma per riconnettere il modem/router"
+key_conf[7]=autoupdate;          val_conf[7]=enabled;      string_conf[7]="Aggiornamenti automatici di ZDL (enabled|*)"
+key_conf[8]=player;              val_conf[8]="";           string_conf[8]="Script/comando/programma per riprodurre un file audio/video"
+key_conf[9]=editor;              val_conf[9]="nano";       string_conf[9]="Editor predefinito per modificare la lista dei link in coda"
+key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recupero file omonimi come con opzione --resume (enabled|*)"
+key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)"
+key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
+key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket (--socket|--web-ui)"
 
 declare -A try_counter
 try_end_default=5
@@ -307,10 +306,14 @@ function get_conf {
     if [ "$mode" == "single" ]
     then
 	max_dl=1
+	sed -r "/(^mode=|num_dl|stream_mode)/d" -i "$file_conf"
+	set_item_conf max_dl 1
 
     elif [ "$mode" == "multi" ]
     then
 	unset max_dl
+	sed -r "/(^mode=|num_dl|stream_mode)/d" -i "$file_conf"
+	set_item_conf max_dl ''
     fi
 
     if [ -f "$path_tmp/max-dl" ]
@@ -321,13 +324,8 @@ function get_conf {
 	echo "$max_dl" > "$path_tmp/max-dl"
     fi
 	
-    if [ "$stream_mode" == "multi" ]
-    then
-	stream_params="-m"
-    fi
-
     ## editor
-    if [[ ! $(command -v $editor 2>/dev/null) ]]
+    if command -v $editor &>/dev/null
     then
 	unset editor
     fi

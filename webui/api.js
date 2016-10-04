@@ -90,6 +90,9 @@ var hideInfoLink = function (id, path, link) {
     ZDL.visible[path + ' ' + link] = false;
 };
 
+var displayEditButton = function () {
+    document.getElementById('editor-links').innerHTML = '<button onclick="singlePath(ZDL.path).getLinks();">Editor dei link</button>';
+};
 
 var displayLinks = function () {
     return load ('GET', '?cmd=get-data', true, function (str) {
@@ -207,7 +210,7 @@ var singlePath = function (path) {
 	return load ('GET', '?cmd=run-zdl&path=' + path, true);
     };
 
-    that.getDownloader = function (recursive) {
+    that.getDownloader = function (repeat) {
 	return load ('GET',
 		     '?cmd=get-downloader&path=' + path,
 		     true,
@@ -230,8 +233,8 @@ var singlePath = function (path) {
 			 selector += "</select>";
 			 document.getElementById('downloader').innerHTML = label + selector;
 
-			 if (typeof recursive === 'function')
-			     return recursive(recursive);
+			 if (repeat)
+			     return singlePath(ZDL.path).getDownloader(true);
 		     });
     };
 
@@ -272,7 +275,7 @@ var singlePath = function (path) {
 	return document.getElementById('max-downloads').innerHTML = output;
     };
 	
-    that.getMaxDownloads = function (recursive) {
+    that.getMaxDownloads = function (repeat) {
 	return load ('GET',
 		     '?cmd=get-max-downloads&path=' + path,
 		     true,
@@ -289,8 +292,8 @@ var singlePath = function (path) {
 			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia</button>";
 			 document.getElementById('max-downloads').innerHTML = max_dl_str + output;
 
-			 if (typeof recursive === 'function')
-			     return recursive(recursive);
+			 if (repeat)
+			     return singlePath(ZDL.path).getMaxDownloads(true);
 		     });
     };
 
@@ -312,12 +315,27 @@ var singlePath = function (path) {
 		     displayEditButton());
     };
 
+    that.getStatus = function (repeat) {
+	return load ('GET',
+		     '?cmd=get-status&path=' + path,
+		     true,
+		     function (str) {
+			 if (cleanInput(str) === 'running') {
+			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>' +
+				 '<button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>';
+			     
+			 } else {
+			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';
+			 }
+			 
+			 if (repeat)
+			     return singlePath(ZDL.path).getStatus(true);
+		     });
+    };
+    
     return that;
 };
 
-var displayEditButton = function () {
-    document.getElementById('editor-links').innerHTML = '<button onclick="singlePath(ZDL.path).getLinks();">Editor dei link</button>';
-};
 
 var browse = function (path) {
     document.getElementById('run-path').setAttribute('class', 'hidden');
@@ -349,6 +367,7 @@ var selectDir = function (path) {
     document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div> ' + path +
 	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
+    return load ('GET', '?cmd=reset-path&path=' + path, true);
 };
 
 var killServer = function () {
@@ -373,9 +392,13 @@ String.fromHtmlEntities = function(string) {
     });
 };
 
+var cleanInput = function (str) {
+    return str.replace(/(\r\n|\n|\r)/gm, "");
+};
+
 var checkData = function () {
     load ('GET', '?cmd=get-downloader&path=' + ZDL.path, true, function (dler) {
-	dler = dler.replace(/(\r\n|\n|\r)/gm, "");
+	dler = cleanInput(dler);
 	if (dler !== ZDL.downloader)
 	    singlePath(ZDL.path).getDownloader();
     });
@@ -395,8 +418,9 @@ var display = function () {
     changeSection('links');
     displayEditButton();
     displayLinks();
-    singlePath(ZDL.path).getMaxDownloads(singlePath(ZDL.path).getMaxDownloads);
-    singlePath(ZDL.path).getDownloader(singlePath(ZDL.path).getDownloader);
+    singlePath(ZDL.path).getMaxDownloads(true);
+    singlePath(ZDL.path).getDownloader(true);
+    singlePath(ZDL.path).getStatus(true);
 };
 
 var init = function (path) {

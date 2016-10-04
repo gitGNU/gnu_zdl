@@ -435,6 +435,7 @@ ESTENSIONI:
 	deps['pinfo']=pinfo
 	deps['openssl']=openssl
 	deps['php']=php
+	deps['socat']=socat
 
 	for cmd in "${!deps[@]}"
 	do
@@ -484,6 +485,8 @@ ESTENSIONI:
 	deps['axel']=axel
 	deps['nodejs']=nodejs
 	deps['php']=php5-cli
+	deps['cmp']=diffutils
+	deps['socat']=socat
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&

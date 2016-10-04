@@ -31,6 +31,10 @@ path_webui="$path_usr/webui"
 template_index="$path_webui/index.html"
 path_tmp=".zdl_tmp"
 
+path_conf="$HOME/.zdl"
+file_conf="$path_conf/zdl.conf"
+
+
 path_server="/tmp/zdl.d"
 server_data="$path_server/data.json"
 server_paths="$path_server/paths.txt"
@@ -287,11 +291,17 @@ function get_file_output {
 function send_json {
     touch "$server_data" "$server_data".$socket_port
 
-    while cmp_file "$server_data" "$server_data".$socket_port &&
-	    ! check_port $socket_port
+    while :
     do
 	create_json
-	sleep 1
+
+	if ! cmp_file "$server_data" "$server_data".$socket_port ||
+		check_port $socket_port
+	then
+	    break
+	fi
+	
+	sleep 2
     done
     sleep 1
     cp "$server_data" "$server_data".$socket_port
@@ -306,25 +316,44 @@ function send_json {
     return 0
 }
 
+function get_status {
+    local path="$1"
+    [ -z "$path" ] && path="$PWD"
+    
+    if test -d "$path"
+    then
+	cd "$path"
+	
+	if check_instance_prog ||
+		check_instance_daemon
+	then
+	    status="running" 
+	else
+	    status="not-running"
+	fi
+	
+	echo "$status" > "$path_server"/status.$socket_port
+    fi
+}
+
+function reset_section_path {
+    local path="$1"
+    [ -z "$path" ] && path="$PWD"
+    
+    for file in "$path_server"/*.$socket_port
+    do
+	echo RELOAD > $file
+    done
+}
+
 function run_cmd {
     local line=( "$@" )
     local file link pid path
 
     case "${line[0]}" in
 	init-client)
-	    ## path
-	    while read path
-	    do
-		test -d "$path" &&
-		    cd "$path"
-
-		for file in "$path_tmp"/*.$socket_port
-		do
-		    echo RELOAD > $file
-		done
-		echo RELOAD > "$server_data".$socket_port
-
-	    done <"$server_paths"
+	    reset_section_path "${line[1]}"
+	    echo RELOAD > "$server_data".$socket_port
 	    ;;
     	get-data)
 	    send_json || return
@@ -433,7 +462,7 @@ console.log(out);
 		file_output="$path_tmp/links_loop.txt"
 
 	    else
-		touch "$path_server/empty"
+		echo > "$path_server/empty"
 		file_output="$path_server/empty"
 	    fi
 	    
@@ -457,14 +486,22 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_tmp/downloader".$socket_port
+	    touch "$path_server/downloader".$socket_port
 
-	    while cmp_file "$path_tmp/downloader" "$path_tmp/downloader".$socket_port &&
-		    ! check_port $socket_port
-	    do		
-		sleep 1
-	    done
-	    cp "$path_tmp/downloader" "$path_tmp/downloader".$socket_port
+	    if test -f "$path_tmp/downloader"
+	    then
+		while cmp_file "$path_tmp/downloader" "$path_server/downloader".$socket_port &&
+			! check_port $socket_port
+		do		
+		    sleep 1
+		done
+
+	    else
+		mkdir -p "$path_tmp"
+		grep downloader "$file_conf" |
+		    sed -r 's|[^"]+\"([^"]+)\".*|\1|g' >"$path_tmp/downloader"
+	    fi
+	    cp "$path_tmp/downloader" "$path_server/downloader".$socket_port
 
 	    file_output="$path_tmp/downloader"
 	    if [ -z "$http_method" ]
@@ -479,7 +516,7 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    echo RELOAD > "$path_tmp/downloader".$socket_port
+	    echo RELOAD > "$path_server/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
 	    ;;
 	get-max-downloads)
@@ -487,14 +524,14 @@ console.log(out);
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_tmp/max-dl".$socket_port
+	    touch "$path_server/max-dl".$socket_port
 
-	    while cmp_file "$path_tmp/max-dl" "$path_tmp/max-dl".$socket_port &&
+	    while cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port &&
 		    ! check_port $socket_port
 	    do		
 		sleep 1
 	    done
-	    cp "$path_tmp/max-dl" "$path_tmp/max-dl".$socket_port
+	    cp "$path_tmp/max-dl" "$path_server/max-dl".$socket_port
 
 	    file_output="$path_tmp/max-dl"
 	    if [ -z "$http_method" ]
@@ -510,14 +547,46 @@ console.log(out);
 
 	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
 	    then
-		echo RELOAD > "$path_tmp/max-dl".$socket_port 
+		echo RELOAD > "$path_server/max-dl".$socket_port 
 		echo "${line[2]}" >"$path_tmp/max-dl"
+	    fi
+	    ;;
+	get-status)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    touch "$path_server"/status.$socket_port
+	    
+	    while :
+	    do
+		if check_instance_prog ||
+			check_instance_daemon
+		then
+		    status="running" 
+		else
+		    status="not-running"
+		fi
+		
+		if [ "$status" != "$(cat "$path_server"/status.$socket_port)" ]
+		then
+		    echo "$status" > "$path_server"/status.$socket_port
+		    break
+		fi
+
+		sleep 2
+	    done
+	    
+	    file_output="$path_server"/status.$socket_port
+	    if [ -z "$http_method" ]
+	    then
+		cat "$file_output"
+		return
 	    fi
 	    ;;
 	get-dirs)
 	    unset file_output dirs text_output
 	    
-	    [ -d "${line[1]}" ] &&
+	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
 	    text_output+="<a href=\"javascript:browse('$PWD/..');\"><img src=\"folder-blue.png\" /> ..</a><br>"
@@ -527,8 +596,11 @@ console.log(out);
 		text_output+="<a href=\"javascript:browse('${real_dir}');\"><img src=\"folder-blue.png\" /> ${dir}</a><br>"
 	    done < <(ls -d1 */)
 
-	    
-	    send "$text_output"
+	    echo "$text_output" > "$path_server"/browsing.$socket_port
+	    file_output="$path_server"/browsing.$socket_port	    
+	    ;;
+	reset-path)
+	    reset_section_path "${line[1]}"
 	    ;;
 	clean)
 	    ## [1]=PATH oppure 'ALL'

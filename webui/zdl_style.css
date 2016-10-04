@@ -558,3 +558,6 @@ select {
     appearance: none;
 }
 
+#browse a {
+    font-weght: normal;
+}
