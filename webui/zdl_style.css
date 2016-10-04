@@ -249,6 +249,7 @@ div {
     overflow: hidden;
     /* white-space: nowrap; */
     text-overflow: ellipsis;
+    cursor: pointer;
 }
 
 #progress-label-status {
@@ -402,7 +403,6 @@ textarea {
     background-color: #3066db; /* #343434; */
     padding-left: 1em;
     padding-right: 1em;
-    cursor: pointer;
     font-weight: bold;
     margin-top: 1em;
 }
@@ -416,7 +416,7 @@ textarea {
     padding-right: 1em;
 }
 
-.path-commands {
+.background-element {
     position: relative;
     background: #eee;
     padding: 0;
@@ -424,6 +424,7 @@ textarea {
     display: inline-block;
     width: 100%;
     text-align: center;
+    cursor: default;
 }
 
 #editor-links {
