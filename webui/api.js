@@ -402,7 +402,7 @@ String.prototype.toHtmlEntities = function() {
 /**
  * Create string from HTML entities
  */
-String.fromHtmlEntities = function(string) {
+String.prototype.fromHtmlEntities = function(string) {
     return (string+"").replace(/&#\d+;/gm,function(s) {
 	return String.fromCharCode(s.match(/\d+/gm)[0]);
     });
