@@ -169,6 +169,16 @@ var addLink = function (id) {
 		 });
 };
 
+var cleanComplete = function () {
+    var query = "?cmd=clean-complete";
+    return load ('GET',
+		 query,
+		 true,
+		 function () {
+		     load ('GET', '?cmd=init-client', true);
+		 });
+};
+
 var singleLink = function (spec) {
     var that = spec;
 
@@ -374,6 +384,10 @@ var selectDir = function (path) {
 
 var killServer = function () {
     return load ('GET', '?cmd=kill-server', true);
+};
+
+var killAll = function () {
+    return load ('GET', '?cmd=kill-all', true);
 };
 
 /**

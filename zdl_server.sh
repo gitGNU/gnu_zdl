@@ -628,8 +628,17 @@ function run_cmd {
 	    reset_section_path
 	    ;;
 
-	clean)
-	    ## [1]=PATH oppure 'ALL'
+	clean-complete)
+	    while read path
+	    do
+		test -d "$path" &&
+		    cd "$path"
+		
+		no_complete=true
+		data_stdout
+		unset no_complete
+		
+	    done < "$server_paths"
 	    ;;
 
 	run-zdl)
@@ -702,6 +711,24 @@ function run_cmd {
 	    ;;
 
 	kill-server)
+	    kill_server "$socket_port"
+	    wait $$
+	    ;;
+	
+	kill-all)
+	    while read path
+	    do
+	    	kill_downloads
+
+		instance_pid=$(cat "$path_tmp"/.pid.zdl)
+		[ -n "$instance_pid" ] && {
+		    kill -9 "$instance_pid" &>/dev/null
+		    rm -f "$path_tmp"/.date_daemon
+		    wait "$instance_pid"
+		    unset instance_pid
+		} 
+	    done < "$server_paths"
+
 	    kill_server "$socket_port"
 	    wait $$
 	    ;;

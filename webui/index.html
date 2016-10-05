@@ -55,7 +55,7 @@
     <!-- sezione LINKS -->
     <div id="links">
       <div class="section">
-	<div class="label-section">Links</div>
+	<div class="label-section">Links <button onclick="cleanComplete();" style="float:right;">Pulisci completati</button></div>
 	<div id="output-links"></div>
       </div>
     </div>
@@ -98,18 +98,27 @@
       </div>
     </div>
 
+    <!-- sezione SERVER -->
+    <div id="server">
+      <div class="section">
+	<div class="label-section">Server</div>
+
+	<div class="background-element">
+	  <button onclick="killServer(); setTimeout('document.location.reload(true)', 1500);">Termina il server attuale</button>
+	  <button onclick="killAll(); setTimeout('document.location.reload(true)', 1500);">Termina tutto</button>
+	</div>
+	
+	<div class="background-element">
+	</div>
+
+      </div>
+    </div>
+
     <!-- sezione CONFIGURE -->
     <div id="config"></div>
     <!-- sezione INFO & SEARCH -->
     <div id="info"></div>
       
-    <!-- sezione SERVER -->
-    <div id="server">
-      <div class="section">
-	<div class="label-section">Server</div>
-	<button onclick="killServer(); setTimeout('document.location.reload(true)',2000);">Ferma il server</button>
-      </div>
-    </div>
   </body>
 
 </html>
