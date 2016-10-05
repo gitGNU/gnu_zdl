@@ -296,8 +296,10 @@ function send_json {
     do
 	create_json
 
+	current_timeout=$(date +%s)
 	if ! cmp_file "$server_data" "$server_data".$socket_port ||
-		check_port $socket_port
+		check_port $socket_port ||
+		(( (current_timeout - start_timeout) > 240 ))
 	then
 	    break
 	fi
@@ -338,8 +340,7 @@ function get_status {
 }
 
 function reset_section_path {
-    local path="$1"
-    [ -z "$path" ] && path="$PWD"
+    local file
     
     for file in "$path_server"/*.$socket_port
     do
@@ -353,7 +354,7 @@ function run_cmd {
 
     case "${line[0]}" in
 	init-client)
-	    reset_section_path "${line[1]}"
+	    reset_section_path
 	    echo RELOAD > "$server_data".$socket_port
 	    ;;
     	get-data)
@@ -485,9 +486,16 @@ function run_cmd {
 
 	    if test -f "$path_tmp/downloader"
 	    then
-		while cmp_file "$path_tmp/downloader" "$path_server/downloader".$socket_port &&
-			! check_port $socket_port
-		do		
+		while :
+		do
+		    current_timeout=$(date +%s)
+		    if ! cmp_file "$path_tmp/downloader" "$path_server/downloader".$socket_port ||
+			    check_port $socket_port ||
+			    (( (current_timeout - start_timeout) > 240 ))
+		    then
+			break
+		    fi
+
 		    sleep 1
 		done
 
@@ -522,9 +530,16 @@ function run_cmd {
 	    touch "$path_server/max-dl".$socket_port
 	    if test -f "$path_tmp/max-dl"
 	    then
-		while cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port &&
-			! check_port $socket_port
-		do		
+		while :
+		do
+		    current_timeout=$(date +%s)
+		    if ! cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port ||
+			    check_port $socket_port ||
+			    (( (current_timeout - start_timeout) > 240 ))
+		    then
+			break
+		    fi
+
 		    sleep 1
 		done
 		
@@ -571,13 +586,17 @@ function run_cmd {
 		    status="not-running"
 		fi
 		
-		if [ "$status" != "$(cat "$path_server"/status.$socket_port)" ]
+		current_timeout=$(date +%s)
+
+		if [ "$status" != "$(cat "$path_server"/status.$socket_port)" ] ||
+		       check_port $socket_port ||
+			   (( (current_timeout - start_timeout) > 240 ))
 		then
 		    echo "$status" > "$path_server"/status.$socket_port
 		    break
 		fi
 
-		sleep 2
+		sleep 1
 	    done
 	    
 	    file_output="$path_server"/status.$socket_port
@@ -606,7 +625,7 @@ function run_cmd {
 	    ;;
 
 	reset-path)
-	    reset_section_path "${line[1]}"
+	    reset_section_path
 	    ;;
 
 	clean)
@@ -756,6 +775,8 @@ do
 	GET)
 	    unset GET_DATA file_output
 	    http_method=GET
+	    start_timeout=$(date +%s)
+	    
 	    file_output="$(get_file_output "${line[1]}")"
 	    
 	    if [[ "${line[1]}" =~ '?' ]]

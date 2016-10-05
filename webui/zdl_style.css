@@ -346,7 +346,8 @@ button {
     font-weight:bold;
     padding:4px 12px;
     text-decoration:none;
-    height: 30px
+    height: 30px;
+    margin: 0;
 }
 
 button:hover {

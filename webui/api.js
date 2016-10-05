@@ -127,7 +127,8 @@ var displayLinks = function () {
 
 		    output += "<div class=\"info-label\"> Downloader: </div><div class=\"info-data\"> " + data[i].downloader + "</div>";
 		    output += "<div class=\"info-label\"> Link: </div><div class=\"info-data\"> " + data[i].link + "</div>";
-		    output += "<div class=\"info-label\"> Path: </div><div class=\"info-data\"> " + data[i].path + "</div>";
+		    output += "<div class=\"info-label\"> Path: </div><div class=\"info-data\"> " + data[i].path;
+		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
 		    output += "<div class=\"info-label\"> File: </div><div class=\"info-data\"> " + data[i].file + "</div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
@@ -160,7 +161,12 @@ var addButtonsLink = function (spec) {
 var addLink = function (id) {
     var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
     document.getElementById(id).value = '';
-    return load ('GET', query, true);
+    return load ('GET',
+		 query,
+		 true,
+		 function () {
+		     load ('GET', '?cmd=init-client', true);
+		 });
 };
 
 var singleLink = function (spec) {
