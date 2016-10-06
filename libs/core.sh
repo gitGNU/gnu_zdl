@@ -957,7 +957,11 @@ function del_server_pid {
 function add_server_pid {
     local port="$1"
     [ -z "$port" ] && port="$socket_port"
-	
+    
+
+    touch  PORTA-"$port"
+
+    
     ps ax | while read -a line
 	    do
 		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&

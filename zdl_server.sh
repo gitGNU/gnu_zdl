@@ -644,8 +644,18 @@ function run_cmd {
 	    done < "$server_paths"
 	    ;;
 
+	run-socket)
+	    if check_port "${line[1]}"
+	    then
+		nohup "$path_usr/run_zdl_server.sh" "${line[1]}" &>/dev/null &
+		
+	    else
+		echo "already-in-use" >"$path_server"/run-socket.$socket_port
+		file_output="$path_server"/run-socket.$socket_port
+	    fi
+	    ;;
+	
 	run-zdl)
-	    ## PATHS ...
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
@@ -653,7 +663,8 @@ function run_cmd {
 		    {
 			cd "${line[i]}"
 			
-			if ! check_instance_prog
+			if ! check_instance_prog &&
+				! check_instance_daemon
 			then
 			    set_line_in_file + "$PWD" "$server_paths"
 			    mkdir -p "$path_tmp"
@@ -665,8 +676,6 @@ function run_cmd {
 	    ;;
 
 	quit-zdl)
-	    ## PATHS ... 
-
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
@@ -689,8 +698,6 @@ function run_cmd {
 	    ;;
 
 	kill-zdl)
-	    ## PATHS ... 
-
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path

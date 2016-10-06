@@ -382,6 +382,23 @@ var selectDir = function (path) {
     return load ('GET', '?cmd=reset-path&path=' + path, true);
 };
 
+var runServer = function (port) {
+    port = parseInt(port);
+
+    if (isNaN(port) || port < 1024 || port > 65535 )
+	alert('Porta non valida: deve essere un numero compreso tra 1024 e 65535');
+
+    return load ('GET',
+		 '?cmd=run-socket&port=' + port,
+		 true,
+		 function (res) {
+		     if (res.match(/already-in-use/g))
+			 alert("Porta non valida: " + port + " è utilizzata da un'altra applicazione");
+		     else
+			 alert("Nuovo socket disponibile alla porta: " + port);
+		 });
+};
+
 var killServer = function () {
     return load ('GET', '?cmd=kill-server', true);
 };
