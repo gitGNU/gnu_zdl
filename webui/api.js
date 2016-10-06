@@ -331,13 +331,13 @@ var singlePath = function (path) {
 	return load ('GET',
 		     '?cmd=get-status&path=' + path,
 		     true,
-		     function (str) {
-			 if (cleanInput(str) === 'running') {
+		     function (response) {
+			 if (cleanInput(response).match(/not-running/g)) {
+			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';			     
+			 } else if (cleanInput(response).match(/running/g)) {
 			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>' +
 				 '<button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>';
-			     
-			 } else {
-			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';
+
 			 }
 			 
 			 if (repeat)

@@ -99,7 +99,7 @@ function send {
     ((${DEBUG})) &&
 	echo "> $@" >>zdl_server_log.txt
 
-    echo "$*"
+    printf "%s\r\n" "$*"
 }
 
 function add_response_header {
@@ -356,9 +356,6 @@ function run_cmd {
 	init-client)
 	    reset_section_path
 	    echo RELOAD > "$server_data".$socket_port
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 	
     	get-data)
@@ -394,9 +391,6 @@ function run_cmd {
 		    done
 		fi
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	add-link)
@@ -422,9 +416,6 @@ function run_cmd {
 			fi
 		    }
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	stop-link)
@@ -454,9 +445,6 @@ function run_cmd {
 		    done
 		fi
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	get-links)
@@ -487,9 +475,6 @@ function run_cmd {
 
 	    ## links:
 	    echo "${line[2]}" > "$path_tmp/links_loop.txt"
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 	
 	get-downloader)
@@ -535,15 +520,15 @@ function run_cmd {
 
 	    echo RELOAD > "$path_server/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	get-max-downloads)
 	    ## [1]=PATH;
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
+
+	    # [ -e "$path_server"/fifo-max-downloads.$socket_port ] ||
+	    # 	mkfifo "$path_server"/fifo-max-downloads.$socket_port
 
 	    touch "$path_server/max-dl".$socket_port
 	    if test -f "$path_tmp/max-dl"
@@ -586,9 +571,6 @@ function run_cmd {
 		echo RELOAD > "$path_server/max-dl".$socket_port 
 		echo "${line[2]}" >"$path_tmp/max-dl"
 	    fi
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	get-status)
@@ -597,7 +579,7 @@ function run_cmd {
 
 	    touch "$path_server"/status.$socket_port
 	    
-	    while :
+	    while : 
 	    do
 		if check_instance_prog ||
 			check_instance_daemon
@@ -616,7 +598,7 @@ function run_cmd {
 		    echo "$status" > "$path_server"/status.$socket_port
 		    break
 		fi
-
+		
 		sleep 1
 	    done
 	    
@@ -647,8 +629,6 @@ function run_cmd {
 
 	reset-path)
 	    reset_section_path
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	clean-complete)
@@ -662,9 +642,6 @@ function run_cmd {
 		unset no_complete
 		
 	    done < "$server_paths"
-	    
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	run-zdl)
@@ -685,9 +662,6 @@ function run_cmd {
 			fi
 		    }
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	quit-zdl)
@@ -712,9 +686,6 @@ function run_cmd {
 			fi
 		    }
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	kill-zdl)
@@ -740,9 +711,6 @@ function run_cmd {
 			fi
 		    }
 	    done
-
-	    echo > "$path_server/empty"
-	    file_output="$path_server/empty"
 	    ;;
 
 	kill-server)
@@ -768,6 +736,13 @@ function run_cmd {
 	    wait $$
 	    ;;
     esac
+
+    if [ -z "$file_output" ] &&
+	   [ -n "$http_method" ]
+    then
+       echo > "$path_server/empty"
+       file_output="$path_server/empty"
+    fi
 }
 
 function run_data {
