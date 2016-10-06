@@ -356,7 +356,11 @@ function run_cmd {
 	init-client)
 	    reset_section_path
 	    echo RELOAD > "$server_data".$socket_port
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
+	
     	get-data)
 	    send_json || return
 	    ;;
@@ -390,6 +394,9 @@ function run_cmd {
 		    done
 		fi
 	    done
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	add-link)
@@ -415,6 +422,9 @@ function run_cmd {
 			fi
 		    }
 	    done
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	stop-link)
@@ -444,7 +454,9 @@ function run_cmd {
 		    done
 		fi
 	    done
-	    
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	get-links)
@@ -475,6 +487,9 @@ function run_cmd {
 
 	    ## links:
 	    echo "${line[2]}" > "$path_tmp/links_loop.txt"
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 	
 	get-downloader)
@@ -520,6 +535,9 @@ function run_cmd {
 
 	    echo RELOAD > "$path_server/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	get-max-downloads)
@@ -568,6 +586,9 @@ function run_cmd {
 		echo RELOAD > "$path_server/max-dl".$socket_port 
 		echo "${line[2]}" >"$path_tmp/max-dl"
 	    fi
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	get-status)
@@ -626,6 +647,8 @@ function run_cmd {
 
 	reset-path)
 	    reset_section_path
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	clean-complete)
@@ -639,6 +662,9 @@ function run_cmd {
 		unset no_complete
 		
 	    done < "$server_paths"
+	    
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	run-zdl)
@@ -659,6 +685,9 @@ function run_cmd {
 			fi
 		    }
 	    done
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	quit-zdl)
@@ -683,6 +712,9 @@ function run_cmd {
 			fi
 		    }
 	    done
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	kill-zdl)
@@ -708,6 +740,9 @@ function run_cmd {
 			fi
 		    }
 	    done
+
+	    echo > "$path_server/empty"
+	    file_output="$path_server/empty"
 	    ;;
 
 	kill-server)
