@@ -1001,7 +1001,7 @@ then
 		! check_instance_server $socket_port &>/dev/null
 	then
 	    unset start_socket
-	    nohup "$path_usr/run_zdl_server.sh" ${socket_port} &>/dev/null &
+	    run_zdl_server $socket_port
 	fi
     done
 fi

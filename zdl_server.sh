@@ -24,8 +24,6 @@
 # zoninoz@inventati.org
 #
 
-socket_port="$1"
-
 path_usr="/usr/local/share/zdl"
 path_webui="$path_usr/webui"
 template_index="$path_webui/index.html"
@@ -47,7 +45,10 @@ source $path_usr/libs/DLstdout_parser.sh
 source $path_usr/libs/utils.sh
 source $path_usr/libs/log.sh
 
+
+socket_port="$1"
 add_server_pid "$socket_port"
+
 json_flag=true
 
 ## node.js:
@@ -341,11 +342,14 @@ function get_status {
 
 function reset_section_path {
     local file
-    
-    for file in "$path_server"/*.$socket_port
-    do
-	echo RELOAD > $file
-    done
+
+    [ -n "$(ls "$path_server"/*.$socket_port 2>/dev/null)" ] &&
+	{
+	    for file in "$path_server"/*.$socket_port
+	    do
+		echo RELOAD > $file
+	    done
+	}
 }
 
 function run_cmd {
@@ -468,7 +472,6 @@ function run_cmd {
 	    ;;
 
 	set-links)
-
 	    ## path:
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -645,9 +648,10 @@ function run_cmd {
 	    ;;
 
 	run-socket)
-	    if check_port "${line[1]}"
+	    if [[ "${line[1]}" =~ ^[0-9]+$ ]] &&
+		   check_port "${line[1]}"
 	    then
-		nohup "$path_usr/run_zdl_server.sh" "${line[1]}" &>/dev/null &
+		run_zdl_server "${line[1]}"
 		
 	    else
 		echo "already-in-use" >"$path_server"/run-socket.$socket_port

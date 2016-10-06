@@ -947,6 +947,10 @@ function get_server_pids {
     return 1
 }
 
+function run_zdl_server {
+    socat TCP-LISTEN:${1},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh ${1}" &
+}
+
 function del_server_pid {
     local pid="$1"
 
@@ -957,10 +961,6 @@ function del_server_pid {
 function add_server_pid {
     local port="$1"
     [ -z "$port" ] && port="$socket_port"
-    
-
-    touch  PORTA-"$port"
-
     
     ps ax | while read -a line
 	    do
