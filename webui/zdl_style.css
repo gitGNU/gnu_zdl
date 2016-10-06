@@ -386,19 +386,19 @@ input[type=number] {
     color: white;
 }
 
-#input-port:hover:after {
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    appearance: textfield;
-    color:white;
-}
+/* #input-port:hover:after { */
+/*     -webkit-appearance: none; */
+/*     -moz-appearance: textfield; */
+/*     appearance: textfield; */
+/*     color:white; */
+/* } */
 
-#input-port:hover:before {
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    appearance: textfield;
-    color:white;
-}
+/* #input-port:hover:before { */
+/*     -webkit-appearance: none; */
+/*     -moz-appearance: textfield; */
+/*     appearance: textfield; */
+/*     color:white; */
+/* } */
 
 #input-link {
     width: calc(100% - 200px);
