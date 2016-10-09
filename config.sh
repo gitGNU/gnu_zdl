@@ -44,7 +44,7 @@ key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recu
 key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)"
 key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
-key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket, --web-ui, ..."
+key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui"
 
 declare -A try_counter
 try_end_default=5
@@ -60,12 +60,14 @@ name_prog="ZigzagDownLoader"
 PROG="ZDL"  #`echo $prog | tr a-z A-Z`
 path_tmp=".${prog}_tmp"
 mkdir -p "$path_tmp"
+path_server=/tmp/zdl.d
+mkdir -p "$path_server"
 
 path_conf="$HOME/.${prog}"
 file_conf="$path_conf/$prog.conf"
 
 source "$file_conf"
-[ -z "$background" ] && background=${val_conf[6]}
+[ -z "$background" ] && background=${val_conf[4]}
 
 declare -A list_proxy_url
 ## elenco chiavi proxy_server: proxy_list, ip_adress
@@ -194,6 +196,8 @@ function set_default_conf {
 }
 
 function get_item_conf {
+    local item line
+    
     if [ -f "$file_conf" ]
     then
 	item="$1"
@@ -210,6 +214,8 @@ function get_item_conf {
 }
 
 function set_item_conf {
+    local item value line
+    
     if [ -f "$file_conf" ]
     then
 	item="$1"
@@ -235,7 +241,7 @@ function set_item_conf {
 	    fi
 	    
 	else
-	    echo  "${item}=$value" >> "${file_conf}"
+	    echo "${item}=$value" >> "${file_conf}"
 	fi
     fi
 }
@@ -327,7 +333,7 @@ function get_conf {
     fi
 	
     ## editor
-    if command -v $editor &>/dev/null
+    if ! command -v "$(trim "${editor%% *}")" &>/dev/null
     then
 	unset editor
     fi

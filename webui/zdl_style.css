@@ -1,4 +1,4 @@
-x/*  ZigzagDownLoader (ZDL) 
+/*  ZigzagDownLoader (ZDL) 
  *
  * This program is free software: you can redistribute it and/or modify it  
  * under the terms of the GNU General Public License as published  
@@ -525,7 +525,7 @@ ul.sidenav li a:hover:not(.active) {
     div.content {margin-left:0;}
 /* } */
 
-@media screen and (max-width: 400px){
+@media screen and (max-width: 600px){
     /* ul.sidenav li a { */
     /*     text-align: center; */
     /*     float: none; */
@@ -536,6 +536,13 @@ ul.sidenav li a:hover:not(.active) {
 
     #progress-label-status {
 	float: right;
+    }
+}
+
+@media screen and (max-width: 350px){
+    ul.sidenav li a {
+        text-align: center;
+        float: none;
     }
 }
 

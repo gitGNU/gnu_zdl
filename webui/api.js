@@ -389,7 +389,7 @@ var runServer = function (port) {
 	alert('Porta non valida: deve essere un numero compreso tra 1024 e 65535');
 
     return load ('GET',
-		 '?cmd=run-socket&port=' + port,
+		 '?cmd=run-server&port=' + port,
 		 true,
 		 function (res) {
 		     if (res.match(/already-in-use/g))
@@ -399,8 +399,49 @@ var runServer = function (port) {
 		 });
 };
 
-var killServer = function () {
-    return load ('GET', '?cmd=kill-server', true);
+var getSockets = function (repeat, op) {
+    var query = '?cmd=get-sockets';
+
+    if (op === 'start')
+	query += '&op=start';
+    
+    return load ('GET',
+		 query,
+		 true,
+		 function (res){
+		     if (res !== '') {
+			 var sockets = JSON.parse(res);
+			 var output = '';
+			 
+			 sockets.forEach(function (port) {
+			     port = parseInt(port);
+			     
+			     if(!isNaN(port)) {
+				 output += '<button onclick="killServer(' + port + ');';
+				 if(parseInt(port) === parseInt(document.location.port))
+				     output += "setTimeout('document.location.reload(true)', 1500);"
+				 output += '">' + port + '</button>';
+			     }
+			 });
+			 document.getElementById('list-sockets').innerHTML = output;
+			 
+			 if (repeat)
+			     getSockets(true);
+		     } else {
+			 document.getElementById('list-sockets').innerHTML = '';
+		     }
+		 });
+};
+
+var killServer = function (port) {
+    port = parseInt(port);
+    if (isNaN(port))
+	port = document.location.port;
+
+    port = parseInt(port);
+    return load ('GET',
+		 '?cmd=kill-server&port=' + port,
+		 true);
 };
 
 var killAll = function () {
@@ -454,6 +495,7 @@ var display = function () {
     singlePath(ZDL.path).getMaxDownloads(true);
     singlePath(ZDL.path).getDownloader(true);
     singlePath(ZDL.path).getStatus(true);
+    getSockets(true, 'start');
 };
 
 var init = function (path) {

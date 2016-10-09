@@ -124,7 +124,7 @@ Per ulteriori informazioni su Axel: http://alioth.debian.org/projects/axel/
 	print_c 3 "ATTENZIONE: $dep non è installato nel tuo sistema"
 
 	echo -e "${alert_msg[dep]}
-1) Installa automaticamente $dep da pacchetti
+1) Installa automaticamente $dep da pacchetti (CONSIGLIATO)
 2) Installa automaticamente $dep da sorgenti
 3) Salta l'installazione di $dep e continua con l'installazione di $PROG e delle altre sue dipendenze
 4) Esci da $PROG per installare $dep manualmente (puoi trovarlo qui: http://pkgs.org/search/?keyword=$dep)"
@@ -436,6 +436,7 @@ ESTENSIONI:
 	deps['openssl']=openssl
 	deps['php']=php
 	deps['socat']=socat
+	deps['gawk']=gawk
 
 	for cmd in "${!deps[@]}"
 	do
@@ -487,6 +488,7 @@ ESTENSIONI:
 	deps['php']=php5-cli
 	deps['cmp']=diffutils
 	deps['socat']=socat
+	deps['gawk']=gawk
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&

@@ -915,10 +915,24 @@ function check_freespace {
     return 0
 }
 
+
+function unlock_fifo {
+    local item="$1"
+    
+    [ ! -e /tmp/zdl.d/"$item".fifo ] &&
+	mkfifo /tmp/zdl.d/"$item".fifo
+
+    echo >/tmp/zdl.d/"$item".fifo &
+}
+
 function kill_server {
     local port="$1"
+    [ -z "$port" ] && port="$socket_port"
     local pid
 
+    set_line_in_file - $port /tmp/zdl.d/socket-ports
+    unlock_fifo socket-ports
+    
     get_server_pids $port | while read pid
 			    do
 				del_server_pid $pid
@@ -948,7 +962,19 @@ function get_server_pids {
 }
 
 function run_zdl_server {
-    socat TCP-LISTEN:${1},fork,reuseaddr EXEC:"$path_usr/zdl_server.sh ${1}" &
+    local port="$1"
+
+    if [[ "$port" =~ ^[0-9]+$ ]] &&
+	   ((port > 1024 )) && (( port < 65535 ))
+    then
+	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
+	set_line_in_file + $port /tmp/zdl.d/socket-ports
+	unlock_fifo 'socket-ports'
+	return 0
+
+    else
+	return 1
+    fi
 }
 
 function del_server_pid {
@@ -969,7 +995,7 @@ function add_server_pid {
 		then
 		    set_line_in_file + "${line[0]} $port" /tmp/zdl.d/pid_server 
 		fi
-	    done
+	    done &>/dev/null
 }    
 
 function check_instance_server {
@@ -979,9 +1005,10 @@ function check_instance_server {
 		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
 		then
+		    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
 		    return 0
 		fi
-	    done
+	    done &>/dev/null
     
     return 1
 }

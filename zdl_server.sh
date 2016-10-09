@@ -51,6 +51,13 @@ add_server_pid "$socket_port"
 
 json_flag=true
 
+for item in socket-ports downloader max-downloads status
+do
+    [ ! -e "$path_server"/"$item".fifo ] &&
+	mkfifo "$path_server"/"$item".fifo
+done	
+unset item
+
 ## node.js:
 if [ -d /cygdrive ] &&
        ! command -v node &>/dev/null &&
@@ -100,7 +107,8 @@ function send {
     ((${DEBUG})) &&
 	echo "> $@" >>zdl_server_log.txt
 
-    printf "%s\r\n" "$*"
+    ! check_port $socket_port &&
+	echo -ne "$*\r\n"
 }
 
 function add_response_header {
@@ -130,8 +138,9 @@ function send_response {
 	add_response_header "Content-Type" "$mime"
 	add_response_header "Content-Length" "$(size_file "$file")"
 	send_response_header "$code"
-	
-	cat "$file"
+
+	! check_port $socket_port &&
+	    cat "$file"
     fi
 	
     #echo
@@ -205,7 +214,6 @@ function serve_file {
 	return 1
     fi
 }
-
 
 function serve_static_string {
     add_response_header "Content-Type" "text/plain"
@@ -387,8 +395,15 @@ function run_cmd {
 			if [ "${url_out[i]}" == "$link" ]
 			then
 			    set_link - "$link"
+
 			    kill -9 "${pid_out[i]}" &>/dev/null 
-			    rm -f "${file_out[i]}" "${file_out[i]}".st "${file_out[i]}".aria2 "${file_out[i]}".zdl "$path_tmp"/"${file_out[i]}_stdout.tmp"
+
+			    rm -f "${file_out[i]}"         \
+			       "${file_out[i]}".st         \
+			       "${file_out[i]}".aria2      \
+			       "${file_out[i]}".zdl        \
+			       "$path_tmp"/"${file_out[i]}_stdout.tmp"
+
 			    unset link pid file
 			    break
 			fi
@@ -647,16 +662,73 @@ function run_cmd {
 	    done < "$server_paths"
 	    ;;
 
-	run-socket)
+	run-server)
 	    if [[ "${line[1]}" =~ ^[0-9]+$ ]] &&
 		   check_port "${line[1]}"
 	    then
 		run_zdl_server "${line[1]}"
 		
 	    else
-		echo "already-in-use" >"$path_server"/run-socket.$socket_port
-		file_output="$path_server"/run-socket.$socket_port
+		echo "already-in-use" >"$path_server"/run-server.$socket_port
+		file_output="$path_server"/run-server.$socket_port
 	    fi
+	    ;;
+
+	get-sockets)
+	    touch "$path_server"/socket-ports "$path_server"/ports.json "$path_server"/ports.json.$socket_port
+
+	    # while :		      
+	    # do
+		if [ "${line[1]}" != 'start' ]
+		then
+		    read < "$path_server"/socket-ports.fifo
+
+		else
+		    unset line[1] 	    
+		fi
+
+		if [ -s "$path_server"/socket-ports ]
+		then
+		    echo -n '[' > "$path_server"/ports.json
+		    while read port
+		    do
+			if [[ "$port" =~ ^[0-9]+$ ]]
+			then
+			    if check_port $port 
+			    then
+				set_line_in_file - "$port" "$path_server"/socket-ports 
+				
+			    else
+				echo -n "$port," >> "$path_server"/ports.json				
+			    fi
+			fi
+		    done < "$path_server"/socket-ports
+		    
+		    if grep '\[$' "$path_server"/ports.json
+		    then
+			echo > "$path_server"/ports.json
+
+		    else
+			sed -r 's|,$|]|' -i "$path_server"/ports.json
+		    fi
+
+		    file_output="$path_server"/ports.json
+				    
+		    # current_timeout=$(date +%s)
+		    # if ! cmp_file "$path_server"/ports.json "$path_server"/ports.json.$socket_port ||
+		    # 	    check_port $socket_port ||
+		    # 	    (( (current_timeout - start_timeout) > 240 ))
+		    # then
+		    # 	cp "$path_server"/ports.json "$path_server"/ports.json.$socket_port
+		    # 	break
+		fi
+		    
+		
+		#sleep 1
+#	    done
+
+	    file_output="$path_server"/ports.json
+
 	    ;;
 	
 	run-zdl)
@@ -725,8 +797,7 @@ function run_cmd {
 	    ;;
 
 	kill-server)
-	    kill_server "$socket_port"
-	    wait $$
+	    kill_server "${line[1]}"
 	    ;;
 	
 	kill-all)
@@ -738,13 +809,17 @@ function run_cmd {
 		[ -n "$instance_pid" ] && {
 		    kill -9 "$instance_pid" &>/dev/null
 		    rm -f "$path_tmp"/.date_daemon
-		    wait "$instance_pid"
 		    unset instance_pid
 		} 
 	    done < "$server_paths"
 
+	    while read port
+	    do
+		[ "$port" == "$socket_port" ] ||
+		    kill_server "$port"
+	    done < "$path_server"/socket-ports
+
 	    kill_server "$socket_port"
-	    wait $$
 	    ;;
     esac
 

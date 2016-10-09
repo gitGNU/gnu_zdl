@@ -133,7 +133,10 @@ function configure {
 - di fianco, in rosso, è indicato il $(sprint_c 3 "nome") a cui verrà assegnato il valore
 - $(sprint_c 4 "*") significa un valore qualsiasi diverso dagli altri, anche nullo
 - gli attuali $(sprint_c 1 "valori registrati") sono in verde\n\n"
-		    get_conf
+
+		    ## get_conf
+		    source "$file_conf"
+
 		    show_conf
 		    
 		    print_c 2 "\nSeleziona l'elemento predefinito da modificare ($(sprint_c 4 "1-${#key_conf[*]}" 2) | $(sprint_c 4 "q" 2) per tornare indietro):"
