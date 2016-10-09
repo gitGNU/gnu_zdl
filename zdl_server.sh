@@ -92,7 +92,7 @@ declare DATE=$(date +"%a, %d %b %Y %H:%M:%S %Z")
 declare -a RESPONSE_HEADERS=(
     "Date: $DATE"
     "Expires: $DATE"
-    "Server: Slash Bin Slash Bash"
+    "Server: ZigzagDownLoader"
 )
 ##########
 
@@ -139,8 +139,16 @@ function send_response {
 	add_response_header "Content-Length" "$(size_file "$file")"
 	send_response_header "$code"
 
-	! check_port $socket_port &&
+	if ! check_port $socket_port
+	then
+	    if [ "$file" == "$path_server"/status.$socket_port ] &&
+		   grep RELOAD "$file" &>/dev/null
+	    then
+		get_status
+	    fi
+	    
 	    cat "$file"
+	fi
     fi
 	
     #echo
@@ -500,28 +508,21 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_server/downloader".$socket_port
-
 	    if test -f "$path_tmp/downloader"
 	    then
-		while :
-		do
-		    current_timeout=$(date +%s)
-		    if ! cmp_file "$path_tmp/downloader" "$path_server/downloader".$socket_port ||
-			    check_port $socket_port ||
-			    (( (current_timeout - start_timeout) > 240 ))
-		    then
-			break
-		    fi
+		if [ "${line[2]}" != 'force' ]
+		then
+		    read < "$path_server"/downloader.fifo
+		    
+		else
+		    unset line[2] 	    
+		fi
 
-		    sleep 1
-		done
-
+		
 	    else
 		mkdir -p "$path_tmp"
 		get_item_conf 'downloader' >"$path_tmp/downloader"
 	    fi
-	    cp "$path_tmp/downloader" "$path_server/downloader".$socket_port
 
 	    file_output="$path_tmp/downloader"
 	    if [ -z "$http_method" ]
@@ -536,17 +537,14 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    echo RELOAD > "$path_server/downloader".$socket_port
 	    echo "${line[2]}" >"$path_tmp/downloader"
+	    unlock_fifo downloader
 	    ;;
 
 	get-max-downloads)
 	    ## [1]=PATH;
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
-
-	    # [ -e "$path_server"/fifo-max-downloads.$socket_port ] ||
-	    # 	mkfifo "$path_server"/fifo-max-downloads.$socket_port
 
 	    touch "$path_server/max-dl".$socket_port
 	    if test -f "$path_tmp/max-dl"
@@ -599,8 +597,8 @@ function run_cmd {
 	    
 	    while : 
 	    do
-		if check_instance_prog ||
-			check_instance_daemon
+		if check_instance_prog &>/dev/null ||
+			check_instance_daemon &>/dev/null
 		then
 		    status="running" 
 		else
@@ -610,8 +608,9 @@ function run_cmd {
 		current_timeout=$(date +%s)
 
 		if [ "$status" != "$(cat "$path_server"/status.$socket_port)" ] ||
-		       check_port $socket_port ||
-			   (( (current_timeout - start_timeout) > 240 ))
+		       check_port $socket_port &>/dev/null ||
+		       (( (current_timeout - start_timeout) > 240 )) ||
+		       [ "${line[2]}" == 'force' ]
 		then
 		    echo "$status" > "$path_server"/status.$socket_port
 		    break
@@ -666,7 +665,7 @@ function run_cmd {
 	    if [[ "${line[1]}" =~ ^[0-9]+$ ]] &&
 		   check_port "${line[1]}"
 	    then
-		run_zdl_server "${line[1]}"
+		run_zdl_server "${line[1]}" &>/dev/null
 		
 	    else
 		echo "already-in-use" >"$path_server"/run-server.$socket_port
@@ -675,60 +674,46 @@ function run_cmd {
 	    ;;
 
 	get-sockets)
-	    touch "$path_server"/socket-ports "$path_server"/ports.json "$path_server"/ports.json.$socket_port
+	    touch "$path_server"/socket-ports \
+		  "$path_server"/ports.json
 
-	    # while :		      
-	    # do
-		if [ "${line[1]}" != 'start' ]
+	    if [ "${line[1]}" != 'force' ]
+	    then
+		read < "$path_server"/socket-ports.fifo
+
+	    else
+		unset line[1] 	    
+	    fi
+
+	    if [ -s "$path_server"/socket-ports ]
+	    then
+		echo -n '[' > "$path_server"/ports.json
+		while read port
+		do
+		    if [[ "$port" =~ ^[0-9]+$ ]]
+		    then
+			if check_port $port 
+			then
+			    set_line_in_file - "$port" "$path_server"/socket-ports 
+			    
+			else
+			    echo -n "$port," >> "$path_server"/ports.json				
+			fi
+		    fi
+		done < "$path_server"/socket-ports
+		
+		if grep '\[$' "$path_server"/ports.json
 		then
-		    read < "$path_server"/socket-ports.fifo
+		    echo > "$path_server"/ports.json
 
 		else
-		    unset line[1] 	    
+		    sed -r 's|,$|]|' -i "$path_server"/ports.json
 		fi
 
-		if [ -s "$path_server"/socket-ports ]
-		then
-		    echo -n '[' > "$path_server"/ports.json
-		    while read port
-		    do
-			if [[ "$port" =~ ^[0-9]+$ ]]
-			then
-			    if check_port $port 
-			    then
-				set_line_in_file - "$port" "$path_server"/socket-ports 
-				
-			    else
-				echo -n "$port," >> "$path_server"/ports.json				
-			    fi
-			fi
-		    done < "$path_server"/socket-ports
-		    
-		    if grep '\[$' "$path_server"/ports.json
-		    then
-			echo > "$path_server"/ports.json
-
-		    else
-			sed -r 's|,$|]|' -i "$path_server"/ports.json
-		    fi
-
-		    file_output="$path_server"/ports.json
-				    
-		    # current_timeout=$(date +%s)
-		    # if ! cmp_file "$path_server"/ports.json "$path_server"/ports.json.$socket_port ||
-		    # 	    check_port $socket_port ||
-		    # 	    (( (current_timeout - start_timeout) > 240 ))
-		    # then
-		    # 	cp "$path_server"/ports.json "$path_server"/ports.json.$socket_port
-		    # 	break
-		fi
-		    
-		
-		#sleep 1
-#	    done
+		file_output="$path_server"/ports.json
+	    fi
 
 	    file_output="$path_server"/ports.json
-
 	    ;;
 	
 	run-zdl)
@@ -739,8 +724,8 @@ function run_cmd {
 		    {
 			cd "${line[i]}"
 			
-			if ! check_instance_prog &&
-				! check_instance_daemon
+			if ! check_instance_prog &>/dev/null &&
+				! check_instance_daemon &>/dev/null
 			then
 			    set_line_in_file + "$PWD" "$server_paths"
 			    mkdir -p "$path_tmp"
@@ -770,7 +755,7 @@ function run_cmd {
 			    unset pid
 			fi
 		    }
-	    done
+	    done &>/dev/null
 	    ;;
 
 	kill-zdl)

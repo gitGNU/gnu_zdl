@@ -428,6 +428,7 @@ function set_downloader {
     then
 	downloader_in=$1
 	echo $downloader_in > "$path_tmp/downloader"
+	unlock_fifo downloader
 
     else
 	return 1

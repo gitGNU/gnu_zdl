@@ -222,9 +222,14 @@ var singlePath = function (path) {
 	return load ('GET', '?cmd=run-zdl&path=' + path, true);
     };
 
-    that.getDownloader = function (repeat) {
+    that.getDownloader = function (repeat, op) {
+	var query =  '?cmd=get-downloader&path=' + path;
+
+	if (op === 'force')
+	    query += '&op=' + op;
+	
 	return load ('GET',
-		     '?cmd=get-downloader&path=' + path,
+		     query,
 		     true,
 		     function (dler){
 			 dler = dler.replace(/(\r\n|\n|\r)/gm, "");
@@ -327,14 +332,26 @@ var singlePath = function (path) {
 		     displayEditButton());
     };
 
-    that.getStatus = function (repeat) {
+    that.getStatus = function (repeat, op) {
+	var query = '?cmd=get-status&path=' + path;
+
+	if (op === 'force')
+	    query += '&op=' + op;
+	
 	return load ('GET',
-		     '?cmd=get-status&path=' + path,
+		     query,
 		     true,
 		     function (response) {
-			 if (cleanInput(response).match(/not-running/g)) {
-			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';			     
-			 } else if (cleanInput(response).match(/running/g)) {
+			 response = cleanInput(response);
+
+			 if (response.match(/RELOAD/g)) {
+			     return singlePath(ZDL.path).getStatus(true, 'force');
+			 }
+
+			 if (response.match(/not-running/g)) {
+			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';
+			     
+			 } else if (response.match(/running/g)) {
 			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>' +
 				 '<button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>';
 
@@ -402,8 +419,8 @@ var runServer = function (port) {
 var getSockets = function (repeat, op) {
     var query = '?cmd=get-sockets';
 
-    if (op === 'start')
-	query += '&op=start';
+    if (op === 'force')
+	query += '&op=' + op;
     
     return load ('GET',
 		 query,
@@ -492,10 +509,10 @@ var display = function () {
     changeSection('links');
     displayEditButton();
     displayLinks();
-    singlePath(ZDL.path).getMaxDownloads(true);
-    singlePath(ZDL.path).getDownloader(true);
-    singlePath(ZDL.path).getStatus(true);
-    getSockets(true, 'start');
+    singlePath(ZDL.path).getMaxDownloads(true, 'force');
+    singlePath(ZDL.path).getDownloader(true, 'force');
+    singlePath(ZDL.path).getStatus(true, 'force');
+    getSockets(true, 'force');
 };
 
 var init = function (path) {
