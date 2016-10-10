@@ -176,7 +176,7 @@ var cleanComplete = function () {
 		 query,
 		 true,
 		 function () {
-		     load ('GET', '?cmd=init-client', true);
+		     load ('GET', '?cmd=init-client&path=' + ZDL.path, true);
 		 });
 };
 
@@ -427,24 +427,33 @@ var getSockets = function (repeat, op) {
 		 function (res){
 		     if (res !== '') {
 			 var sockets = JSON.parse(res);
-			 var output = '';
+			 var output_kill = '';
+			 var output_open = '';
 			 
 			 sockets.forEach(function (port) {
 			     port = parseInt(port);
 			     
 			     if(!isNaN(port)) {
-				 output += '<button onclick="killServer(' + port + ');';
+				 output_open += "<button onclick=\"window.open('" +
+				     document.location.protocol + '//' + 
+				     document.location.hostname +
+				     ':' + port +
+				     "');";
+				 output_kill += '<button onclick="killServer(' + port + ');';
 				 if(parseInt(port) === parseInt(document.location.port))
-				     output += "setTimeout('document.location.reload(true)', 1500);"
-				 output += '">' + port + '</button>';
+				     output_kill += "setTimeout('document.location.reload(true)', 1500);"
+				 output_open += '">' + port + '</button>';
+				 output_kill += '">' + port + '</button>';
 			     }
 			 });
-			 document.getElementById('list-sockets').innerHTML = output;
+			 document.getElementById('list-sockets-open').innerHTML = output_open;
+			 document.getElementById('list-sockets-kill').innerHTML = output_kill;
 			 
 			 if (repeat)
 			     getSockets(true);
 		     } else {
-			 document.getElementById('list-sockets').innerHTML = '';
+			 document.getElementById('list-sockets-open').innerHTML = '';
+			 document.getElementById('list-sockets-kill').innerHTML = '';
 		     }
 		 });
 };
@@ -499,7 +508,7 @@ var display = function () {
 
 var init = function (path) {
     ZDL.path = path;
-    load ('GET', '?cmd=init-client', true);
+    load ('GET', '?cmd=init-client&path=' + path, true);
     display();
 };
 

@@ -428,7 +428,7 @@ function set_downloader {
     then
 	downloader_in=$1
 	echo $downloader_in > "$path_tmp/downloader"
-	unlock_fifo downloader
+	unlock_fifo downloader "$PWD" &
 
     else
 	return 1
@@ -918,12 +918,27 @@ function check_freespace {
 
 
 function unlock_fifo {
-    local item="$1"
+    local item_name="$1"
+    local item_value="$2"
+    local fifo_path="$3"
+    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
     
-    [ ! -e /tmp/zdl.d/"$item".fifo ] &&
-	mkfifo /tmp/zdl.d/"$item".fifo
+    [ ! -e "$fifo_path"/"$item_name".fifo ] &&
+	mkfifo "$fifo_path"/"$item_name".fifo
 
-    echo >/tmp/zdl.d/"$item".fifo &
+    echo "$item_value" > "$fifo_path"/"$item_name".fifo 
+}
+
+function lock_fifo {
+    local item_name="$1"
+    local item_value="$2"
+    local fifo_path="$3"
+    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
+    
+    [ ! -e "$fifo_path"/"$item_name".fifo ] &&
+	mkfifo "$fifo_path"/"$item_name".fifo
+
+    eval read $item_value < "$fifo_path"/"$item_name".fifo
 }
 
 function kill_server {
@@ -932,7 +947,7 @@ function kill_server {
     local pid
 
     set_line_in_file - $port /tmp/zdl.d/socket-ports
-    unlock_fifo socket-ports
+    unlock_fifo socket-ports &
     
     get_server_pids $port | while read pid
 			    do
@@ -977,7 +992,7 @@ function run_zdl_server {
     then
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
 	set_line_in_file + $port /tmp/zdl.d/socket-ports
-	unlock_fifo 'socket-ports'
+	unlock_fifo socket-ports &
 	return 0
 
     else

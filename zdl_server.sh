@@ -361,7 +361,7 @@ function init_client {
 
     for item in downloader max-downloads socket-ports
     do
-	unlock_fifo $item
+	unlock_fifo $item "$PWD" &
     done
     
     [ -n "$(ls "$path_server"/*.$socket_port 2>/dev/null)" ] &&
@@ -379,7 +379,10 @@ function run_cmd {
 
     case "${line[0]}" in
 	init-client)
-	    init_client
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    init_client 
 	    ;;
 	
     	get-data)
@@ -415,7 +418,7 @@ function run_cmd {
 			       "${file_out[i]}".aria2      \
 			       "${file_out[i]}".zdl        \
 			       "$path_tmp"/"${file_out[i]}_stdout.tmp"
-
+			    
 			    unset link pid file
 			    break
 			fi
@@ -516,7 +519,9 @@ function run_cmd {
 	    then
 		if [ "${line[2]}" != 'force' ]
 		then
-		    read < "$path_server"/downloader.fifo
+		    lock_fifo downloader path
+		    [ -d "$path" ] &&
+			cd "$path"
 		    
 		else
 		    unset line[2] 	    
@@ -541,7 +546,7 @@ function run_cmd {
 		cd "${line[1]}"
 
 	    echo "${line[2]}" >"$path_tmp/downloader"
-	    unlock_fifo downloader
+	    unlock_fifo downloader "$PWD" &
 	    ;;
 
 	get-max-downloads)
@@ -553,7 +558,9 @@ function run_cmd {
 	    then
 		if [ "${line[2]}" != 'force' ]
 		then
-		    read < "$path_server"/max-downloads.fifo
+		    lock_fifo max-downloads path
+		    [ -d "$path" ] &&
+			cd "$path"
 		    
 		else
 		    unset line[2] 	    
@@ -579,7 +586,7 @@ function run_cmd {
 	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
 	    then
 		echo "${line[2]}" >"$path_tmp/max-dl"
-		unlock_fifo max-downloads
+		unlock_fifo max-downloads "$PWD" &
 	    fi
 	    ;;
 
