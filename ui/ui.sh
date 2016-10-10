@@ -545,6 +545,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    
 	    [0-9])
 		echo "$action" > "$path_tmp/max-dl"
+		unlock_fifo max-downloads
 		;;
 	
 	    m)

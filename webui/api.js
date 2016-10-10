@@ -163,10 +163,11 @@ var addLink = function (id) {
     document.getElementById(id).value = '';
     return load ('GET',
 		 query,
-		 true,
-		 function () {
-		     load ('GET', '?cmd=init-client', true);
-		 });
+		 true);
+    // ,
+    // 		 function () {
+    // 		     load ('GET', '?cmd=init-client', true);
+    // 		 });
 };
 
 var cleanComplete = function () {
@@ -223,7 +224,7 @@ var singlePath = function (path) {
     };
 
     that.getDownloader = function (repeat, op) {
-	var query =  '?cmd=get-downloader&path=' + path;
+	var query = '?cmd=get-downloader&path=' + path;
 
 	if (op === 'force')
 	    query += '&op=' + op;
@@ -258,10 +259,7 @@ var singlePath = function (path) {
     that.setDownloader = function () {
 	return load ('GET',
 		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
-		     true,
-		     function (){
-			 that.getDownloader();
-		     });
+		     true);
     };
 
     that.setMaxDownloads = function (spec) {
@@ -272,13 +270,9 @@ var singlePath = function (path) {
 	if (spec === 'no-limits' || !isNaN(parseInt(max_dl))) {
 	    load ('GET',
 		  '?cmd=set-max-downloads&path=' + path + '&number=' + max_dl,
-		  true,
-		  function (){
-		      that.getMaxDownloads();
-		  });
+		  true);
 	} else {
 	    alert("Immissione dati non valida: il limite massimo di downloads deve essere un numero");
-	    that.getMaxDownloads();
 	}
     };
 
@@ -292,9 +286,14 @@ var singlePath = function (path) {
 	return document.getElementById('max-downloads').innerHTML = output;
     };
 	
-    that.getMaxDownloads = function (repeat) {
+    that.getMaxDownloads = function (repeat, op) {
+	var query = '?cmd=get-max-downloads&path=' + path;
+
+	if (op === 'force')
+	    query += '&op=' + op;
+	
 	return load ('GET',
-		     '?cmd=get-max-downloads&path=' + path,
+		     query,
 		     true,
 		     function (max_dl_str){
 			 var output;
@@ -396,7 +395,7 @@ var selectDir = function (path) {
     document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div> ' + path +
 	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
-    return load ('GET', '?cmd=reset-path&path=' + path, true);
+    return load ('GET', '?cmd=init-client&path=' + path, true);
 };
 
 var runServer = function (port) {
@@ -485,23 +484,6 @@ String.prototype.fromHtmlEntities = function(string) {
 
 var cleanInput = function (str) {
     return str.replace(/(\r\n|\n|\r)/gm, "");
-};
-
-var checkData = function () {
-    load ('GET', '?cmd=get-downloader&path=' + ZDL.path, true, function (dler) {
-	dler = cleanInput(dler);
-	if (dler !== ZDL.downloader)
-	    singlePath(ZDL.path).getDownloader();
-    });
-
-    load ('GET', '?cmd=get-max-downloads&path=' + ZDL.path, true, function (str) {
-	var max_dl = parseInt(str);
-	if (isNaN(max_dl))	
-	    max_dl = '';
-	
-	if (max_dl !== ZDL.max_downloads)
-	    singlePath(ZDL.path).getMaxDownloads();
-    });
 };
 
 var display = function () {

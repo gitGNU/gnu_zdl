@@ -45,7 +45,7 @@ source $path_usr/libs/DLstdout_parser.sh
 source $path_usr/libs/utils.sh
 source $path_usr/libs/log.sh
 
-
+pid_prog=$$
 socket_port="$1"
 add_server_pid "$socket_port"
 
@@ -356,9 +356,14 @@ function get_status {
     fi
 }
 
-function reset_section_path {
-    local file
+function init_client {
+    local file item
 
+    for item in downloader max-downloads socket-ports
+    do
+	unlock_fifo $item
+    done
+    
     [ -n "$(ls "$path_server"/*.$socket_port 2>/dev/null)" ] &&
 	{
 	    for file in "$path_server"/*.$socket_port
@@ -374,8 +379,7 @@ function run_cmd {
 
     case "${line[0]}" in
 	init-client)
-	    reset_section_path
-	    echo RELOAD > "$server_data".$socket_port
+	    init_client
 	    ;;
 	
     	get-data)
@@ -517,7 +521,6 @@ function run_cmd {
 		else
 		    unset line[2] 	    
 		fi
-
 		
 	    else
 		mkdir -p "$path_tmp"
@@ -546,28 +549,19 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    touch "$path_server/max-dl".$socket_port
 	    if test -f "$path_tmp/max-dl"
 	    then
-		while :
-		do
-		    current_timeout=$(date +%s)
-		    if ! cmp_file "$path_tmp/max-dl" "$path_server/max-dl".$socket_port ||
-			    check_port $socket_port ||
-			    (( (current_timeout - start_timeout) > 240 ))
-		    then
-			break
-		    fi
-
-		    sleep 1
-		done
-		
+		if [ "${line[2]}" != 'force' ]
+		then
+		    read < "$path_server"/max-downloads.fifo
+		    
+		else
+		    unset line[2] 	    
+		fi
 	    else
 		mkdir -p "$path_tmp"
 		get_item_conf 'max_dl' >"$path_tmp/max-dl"
 	    fi
-	    
-	    cp "$path_tmp/max-dl" "$path_server/max-dl".$socket_port
 
 	    file_output="$path_tmp/max-dl"
 	    if [ -z "$http_method" ]
@@ -578,14 +572,14 @@ function run_cmd {
 	    ;;
 
 	set-max-downloads)
-	    ## [1]=PATH oppure 'ALL' [2]=NUMBER:(0->...)
+	    ## [1]=PATH, [2]=NUMBER:(0->...)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
 	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
 	    then
-		echo RELOAD > "$path_server/max-dl".$socket_port 
 		echo "${line[2]}" >"$path_tmp/max-dl"
+		unlock_fifo max-downloads
 	    fi
 	    ;;
 
@@ -642,10 +636,6 @@ function run_cmd {
 
 	    echo "$text_output" > "$path_server"/browsing.$socket_port
 	    file_output="$path_server"/browsing.$socket_port	    
-	    ;;
-
-	reset-path)
-	    reset_section_path
 	    ;;
 
 	clean-complete)
@@ -802,6 +792,7 @@ function run_cmd {
 	    do
 		[ "$port" == "$socket_port" ] ||
 		    kill_server "$port"
+		
 	    done < "$path_server"/socket-ports
 
 	    kill_server "$socket_port"

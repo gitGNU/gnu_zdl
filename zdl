@@ -758,6 +758,7 @@ then
 		unset args[i+1]
 	    fi
 	    echo $max_dl >"$path_tmp/max-dl"
+	    unlock_fifo max-downloads
 	    unset args[i]
 	fi
 	
@@ -770,6 +771,7 @@ then
 		init_msg="${BRed}Opzione deprecata: '--multi=[NUMERO]' è sostituita con '--max-downloads=[NUMERO]'. Resta invariata l'opzione breve '-m [NUMERO]'\n"
 
 	    echo $max_dl >"$path_tmp/max-dl"
+	    unlock_fifo max-downloads
 	    unset args[i]
 	fi
 

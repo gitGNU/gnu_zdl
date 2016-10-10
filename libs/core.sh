@@ -936,18 +936,25 @@ function kill_server {
     
     get_server_pids $port | while read pid
 			    do
+				[ "$pid" == "$pid_prog" ] &&
+				    continue
+
 				del_server_pid $pid
-				kill -9 $pid &>/dev/null
+				kill $pid &>/dev/null
 			    done
 
     ps ax | while read -a line
-	do
-	    if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
-		   grep -P "\/zdl_server\.sh.*${port}" /proc/${line[0]}/cmdline &>/dev/null
-	    then
-		kill -9 "${line[0]}" &>/dev/null
-	    fi
-	done
+	    do
+		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "\/zdl_server\.sh.*${port}" /proc/${line[0]}/cmdline &>/dev/null
+		then
+		    [ "${line[0]}" == "$pid_prog" ] &&
+			continue
+		    
+		    kill "${line[0]}" &>/dev/null
+		fi
+	    done
+    kill "$pid_prog"
 }
 
 function get_server_pids {
