@@ -25,8 +25,6 @@
 var ZDL = {
     'path': '',
     'visible': [],
-    'downloader': '',
-    'max_downloads': ''
 };
 
 var getUriParam = function (name, url) {
@@ -164,10 +162,6 @@ var addLink = function (id) {
     return load ('GET',
 		 query,
 		 true);
-    // ,
-    // 		 function () {
-    // 		     load ('GET', '?cmd=init-client', true);
-    // 		 });
 };
 
 var cleanComplete = function () {
@@ -184,7 +178,9 @@ var singleLink = function (spec) {
     var that = spec;
 
     var cmd_to_link = function (cmd) {
-	return load ('GET', "?cmd=" + cmd + "&path=" + that.path + "&link=" + that.link, true);
+	return load ('GET',
+		     "?cmd=" + cmd + "&path=" + that.path + "&link=" + that.link,
+		     true);
     };
     
     that.stop = function () {
@@ -234,7 +230,6 @@ var singlePath = function (path) {
 		     true,
 		     function (dler){
 			 dler = dler.replace(/(\r\n|\n|\r)/gm, "");
-			 ZDL.downloader = dler;
 			 var selector = '<select id="sel-downloader" onchange="singlePath(ZDL.path).setDownloader();">';
 			 var label = '<div class="label-element">Downloader: </div>';
 
@@ -303,8 +298,6 @@ var singlePath = function (path) {
 			     max_dl_str = "illimitati";
 			     max_dl = '';
 			 }
-			 ZDL.max_downloads = max_dl; 			 
-
 			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia</button>";
 			 document.getElementById('max-downloads').innerHTML = max_dl_str + output;
 
@@ -389,13 +382,17 @@ var changeSection = function (section) {
     });
 };
 
+var initClient = function (path) {
+    load ('GET', '?cmd=init-client&path=' + path, true);
+}
+
 var selectDir = function (path) {
-    document.getElementById('run-path').setAttribute('class', 'visible');
     ZDL.path = path;
+    document.getElementById('run-path').setAttribute('class', 'visible');
     document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div> ' + path +
 	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
-    return load ('GET', '?cmd=init-client&path=' + path, true);
+    return initClient(path);
 };
 
 var runServer = function (port) {
@@ -495,8 +492,8 @@ var cleanInput = function (str) {
     return str.replace(/(\r\n|\n|\r)/gm, "");
 };
 
-var display = function () {
-    selectDir(ZDL.path);
+var init = function (path) {
+    selectDir(path);
     changeSection('links');
     displayEditButton();
     displayLinks();
@@ -505,10 +502,3 @@ var display = function () {
     singlePath(ZDL.path).getStatus(true, 'force');
     getSockets(true, 'force');
 };
-
-var init = function (path) {
-    ZDL.path = path;
-    load ('GET', '?cmd=init-client&path=' + path, true);
-    display();
-};
-

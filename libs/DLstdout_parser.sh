@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-function data_stdout {
+function data_stdout {    
     shopt -s nullglob
     shopt -s dotglob
     rm -f "$path_tmp"/._stdout.tmp
@@ -48,6 +48,14 @@ function data_stdout {
     
     if (( ${#tmp_files[*]}>0 ))
     then
+	############## concurrency ###############################
+	# while [ -f "$path_tmp"/data.lock ]
+	# do
+	#     sleep 0.1
+	# done
+	# touch "$path_tmp"/data.lock
+	##########################################################
+	
 	if [[ "$(head -n3 ${tmp_files[@]})" =~ (cURL|RTMPdump) ]]
 	then
 	    for ((i=0; i<${#tmp_files[*]}; i++))
@@ -90,6 +98,10 @@ function data_stdout {
 	
 	[ -f "$path_tmp/awk2bash_commands" ] &&
 	    source "$path_tmp/awk2bash_commands"
+
+	######## concurrency ##################
+	# rm "$path_tmp"/data.lock
+	#######################################
 	
 	return 0
     else

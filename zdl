@@ -1178,6 +1178,7 @@ function main_loop {
     then
     	start_file="$path_tmp/links_loop.txt"
    	sleep 10
+	post_process
 
     elif zero_dl
     then

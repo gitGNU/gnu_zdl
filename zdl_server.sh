@@ -240,39 +240,6 @@ function unconditionally {
     "$@" "$REQUEST_URI"
 }
 
-
-function create_json {
-    local test_data
-    rm -f "$server_data"
-    
-    if [ -s "$server_paths" ]
-    then
-	echo -ne '[' >"$server_data"
-
-	while read path
-	do
-	    cd "$path"
-	    if [ -d "$path_tmp" ]
-	    then
-		if data_stdout &&
-			! grep -P '\[$' "$server_data" &>/dev/null
-		then
-		    echo -en "," >>"$server_data"
-		fi
-	    fi
-
-	done <"$server_paths"
-
-	sed -r "s|,$|]\n|g" -i "$server_data"
-	
-	grep -P '^\[$' "$server_data" &>/dev/null &&
-	        echo > "$server_data"
-	
-	return 0
-    fi
-    return 1
-}
-
 function clean_data {
     echo -e "$1" | tr -d "\r"
 }
@@ -305,14 +272,43 @@ function get_file_output {
     fi
 }
 
+function create_json {
+    local test_data path
+    rm -f "$server_data"
+
+    if [ -s "$server_paths" ]
+    then
+	echo -ne '[' >"$server_data"
+
+	while read path
+	do
+	    cd "$path"
+	    if [ -d "$path_tmp" ]
+	    then
+		if data_stdout &&
+			! grep -P '\[$' "$server_data" &>/dev/null
+		then
+		    echo -en "," >>"$server_data"
+		fi
+	    fi
+
+	done <"$server_paths"
+
+	sed -r "s|,$|]\n|g" -i "$server_data"
+	
+	grep -P '^\[$' "$server_data" &>/dev/null &&
+	    echo > "$server_data"
+	
+	return 0
+    fi
+    return 1
+}
 
 function send_json {
-    touch "$server_data" "$server_data".$socket_port
-
     while :
     do
 	create_json
-
+	touch "$server_data" "$server_data".$socket_port
 	current_timeout=$(date +%s)
 	if ! cmp_file "$server_data" "$server_data".$socket_port ||
 		check_port $socket_port ||
@@ -321,9 +317,9 @@ function send_json {
 	    break
 	fi
 	
-	sleep 2
+	sleep 1
     done
-    sleep 1
+    ##sleep 1
     cp "$server_data" "$server_data".$socket_port
     
     file_output="$server_data"
@@ -376,7 +372,8 @@ function init_client {
 function run_cmd {
     local line=( "$@" )
     local file link pid path
-
+    unset file_output
+    
     case "${line[0]}" in
 	init-client)
 	    test -d "${line[1]}" &&
@@ -420,7 +417,6 @@ function run_cmd {
 			       "$path_tmp"/"${file_out[i]}_stdout.tmp"
 			    
 			    unset link pid file
-			    break
 			fi
 		    done
 		fi
@@ -474,7 +470,6 @@ function run_cmd {
 			then
 			    kill -9 "${pid_out[i]}" &>/dev/null 
 			    unset link pid file
-			    break
 			fi
 		    done
 		fi
@@ -593,11 +588,11 @@ function run_cmd {
 	get-status)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
-
-	    touch "$path_server"/status.$socket_port
 	    
 	    while : 
 	    do
+		touch "$path_server"/status.$socket_port
+		
 		if check_instance_prog &>/dev/null ||
 			check_instance_daemon &>/dev/null
 		then
