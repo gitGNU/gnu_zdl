@@ -386,43 +386,6 @@ function run_cmd {
 	    send_json || return
 	    ;;
 
-	del-link)
-	    ## PATH -> LINK ~ PID
-	    for ((i=1; i<${#line[@]}; i++))
-	    do
-		## path
-		test -d "${line[i]}" &&
-		    cd "${line[i]}"
-
-		if url "${line[i]}"
-		then
-		    link="${line[i]}"
-
-		    unset json_flag
-		    data_stdout
-		    json_flag=true
-
-		    for ((i=0; i<${#pid_out[@]}; i++))
-		    do
-			if [ "${url_out[i]}" == "$link" ]
-			then
-			    set_link - "$link"
-
-			    kill -9 "${pid_out[i]}" &>/dev/null 
-
-			    rm -f "${file_out[i]}"         \
-			       "${file_out[i]}".st         \
-			       "${file_out[i]}".aria2      \
-			       "${file_out[i]}".zdl        \
-			       "$path_tmp"/"${file_out[i]}_stdout.tmp"
-			    
-			    unset link pid file
-			fi
-		    done
-		fi
-	    done
-	    ;;
-
 	add-link)
 	    ## PATH -> LINK
 	    for ((i=1; i<${#line[@]}; i++))
@@ -448,6 +411,39 @@ function run_cmd {
 	    done
 	    ;;
 
+	del-link)
+	    ## PATH -> LINK ~ PID
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		test -d "${line[i]}" &&
+		    cd "${line[i]}"
+
+		if url "${line[i]}"
+		then
+		    unset json_flag
+		    data_stdout
+		    json_flag=true
+
+		    for ((j=0; j<${#pid_out[@]}; j++))
+		    do
+			if [ "${url_out[j]}" == "${line[i]}" ]
+			then
+			    set_link - "${url_out[j]}"
+
+			    kill -9 "${pid_out[j]}" &>/dev/null 
+
+			    rm -f "${file_out[j]}"         \
+			       "${file_out[j]}".st         \
+			       "${file_out[j]}".aria2      \
+			       "${file_out[j]}".zdl        \
+			       "$path_tmp"/"${file_out[j]}_stdout.tmp"
+			fi
+		    done
+		fi
+	    done
+	    ;;
+
 	stop-link)
 	    ## PATH -> LINK ~ PID
 	    for ((i=1; i<${#line[@]}; i++))
@@ -458,22 +454,19 @@ function run_cmd {
 
 		if url "${line[i]}"
 		then
-		    link="${line[i]}"
-
 		    unset json_flag
 		    data_stdout
 		    json_flag=true
 
-		    for ((i=0; i<${#pid_out[@]}; i++))
+		    for ((j=0; j<${#pid_out[@]}; j++))
 		    do
-			if [ "${url_out[i]}" == "$link" ]
+			if [ "${url_out[j]}" == "${line[i]}" ]
 			then
-			    kill -9 "${pid_out[i]}" &>/dev/null 
-			    unset link pid file
+			    kill -9 "${pid_out[j]}" &>/dev/null 
 			fi
 		    done
 		fi
-	    done
+	    done 
 	    ;;
 
 	get-links)

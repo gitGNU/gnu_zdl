@@ -944,9 +944,9 @@ function lock_fifo {
 function kill_server {
     local port="$1"
     [ -z "$port" ] && port="$socket_port"
-    local pid
+    local pid psline
 
-    set_line_in_file - $port /tmp/zdl.d/socket-ports
+    set_line_in_file - "$port" /tmp/zdl.d/socket-ports
     unlock_fifo socket-ports &
     
     get_server_pids $port | while read pid
@@ -958,15 +958,15 @@ function kill_server {
 				kill $pid &>/dev/null
 			    done
 
-    ps ax | while read -a line
+    ps ax | while read -a psline
 	    do
-		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "\/zdl_server\.sh.*${port}" /proc/${line[0]}/cmdline &>/dev/null
+		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "\/zdl_server\.sh.*${port}" /proc/${psline[0]}/cmdline &>/dev/null
 		then
-		    [ "${line[0]}" == "$pid_prog" ] &&
+		    [ "${psline[0]}" == "$pid_prog" ] &&
 			continue
 		    
-		    kill "${line[0]}" &>/dev/null
+		    kill "${psline[0]}" &>/dev/null
 		fi
 	    done
     kill "$pid_prog"
@@ -1010,23 +1010,26 @@ function del_server_pid {
 function add_server_pid {
     local port="$1"
     [ -z "$port" ] && port="$socket_port"
+    local psline
     
-    ps ax | while read -a line
+    ps ax | while read -a psline
 	    do
-		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
+		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
 		then
-		    set_line_in_file + "${line[0]} $port" /tmp/zdl.d/pid_server 
+		    set_line_in_file + "${psline[0]} $port" /tmp/zdl.d/pid_server 
 		fi
 	    done &>/dev/null
 }    
 
 function check_instance_server {
     local port="$1"
-    ps ax | while read -a line
+    local psline
+    
+    ps ax | while read -a psline
 	    do
-		if [[ "${line[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${line[0]}/cmdline &>/dev/null
+		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
+		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
 		then
 		    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
 		    return 0
