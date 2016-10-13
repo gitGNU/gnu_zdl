@@ -125,7 +125,7 @@ function run_browser {
     do
 	sleep 0.1
     done
-    x_www_browser localhost:$port &
+    x_www_browser "http://localhost:$port" &
 }
 
 function x_www_browser {
