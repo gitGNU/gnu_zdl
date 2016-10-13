@@ -1,0 +1,1 @@
+/home/zoninoz/.zdl/extensions/pative.sh

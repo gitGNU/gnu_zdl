@@ -77,7 +77,7 @@ fi
 
 
 #### HTTP:
-declare -i DEBUG=1
+declare -i DEBUG=0
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -87,7 +87,8 @@ declare -a HTTP_RESPONSE=(
     [403]="Forbidden"
     [404]="Not Found"
     [405]="Method Not Allowed"
-    [500]="Internal Server Error")
+    [500]="Internal Server Error"
+)
 declare DATE=$(date +"%a, %d %b %Y %H:%M:%S %Z")
 declare -a RESPONSE_HEADERS=(
     "Date: $DATE"
@@ -99,16 +100,15 @@ declare -a RESPONSE_HEADERS=(
 
 
 function recv {
-    ((${DEBUG})) &&
-	echo "< $@" >>zdl_server_log.txt
+    ((DEBUG)) &&
+	echo "< $@" >>zdl_server.log
 }
 
 function send {
-    ((${DEBUG})) &&
-	echo "> $@" >>zdl_server_log.txt
+    ((DEBUG)) &&
+	echo "> $@" >>zdl_server.log
 
-    ! check_port $socket_port &&
-	echo -ne "$*\r\n"
+    echo -ne "$*\r\n"
 }
 
 function add_response_header {
@@ -116,11 +116,13 @@ function add_response_header {
 }
 
 function send_response_header {
+    local header
+    
     send "HTTP/1.1 $1 ${HTTP_RESPONSE[$1]}"
 
-    for h in "${RESPONSE_HEADERS[@]}"
+    for header in "${RESPONSE_HEADERS[@]}"
     do
-	send "$h"
+	send "$header"
     done
     send
 }

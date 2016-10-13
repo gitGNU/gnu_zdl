@@ -1136,7 +1136,7 @@ then
 	binding=true
 	standard_box
 	readline_links
- 	stty -echo
+ 	#stty -echo
 
 	post_readline=true
 	
@@ -1449,8 +1449,7 @@ else
 	this_mode=daemon
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
-
-    cursor off
+    
     while true
     do
 	main_loop || break
@@ -1459,7 +1458,8 @@ else
     
     [ "$lite_mode" == true ] &&
 	this_mode=lite
-    
+
+    #cursor off
     bindings
 
     [ "$this_mode" == "lite" ] && fclear
@@ -1469,11 +1469,11 @@ else
 	if [ "$this_mode" == "lite" ]
 	then
 	    show_downloads_lite
-	    cursor off
+	    #cursor off
 	    read_binding
 
 	else
-	    cursor off
+	    #cursor off
 	    read_binding
 	fi
     done 2>/dev/null 
@@ -1490,7 +1490,7 @@ wait $loops_pid
 
 noproxy
 
-stty echo
+stty sane
 cursor on
 
 if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
