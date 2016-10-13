@@ -1,1 +1,0 @@
-/home/zoninoz/.zdl/extensions/000-add_pass.sh
