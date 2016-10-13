@@ -45,6 +45,7 @@ key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Moda
 key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui"
+key_conf[15]=browser;            val_conf[15]="firefox";   string_conf[15]="Browser per l'interfaccia web di --socket e --web-ui"
 
 declare -A try_counter
 try_end_default=5

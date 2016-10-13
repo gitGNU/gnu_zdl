@@ -129,15 +129,21 @@ function run_browser {
 }
 
 function x_www_browser {
-    if command -v x-www-browser &>/dev/null
+    if [ -z "$browser" ] ||
+	   ! command -v "$browser" &>/dev/null
     then
-	x-www-browser "$@" &>/dev/null &&
-	    return 0
+	if command -v x-www-browser &>/dev/null
+	then
+	    browser=x-www-browser
 
-    else
-	print_c 3 "Non è stato impostato alcun browser predefinito.\nAvvia un browser all'indirizzo: $@"
-	return 1	
+	else
+	    print_c 3 "Non è stato impostato alcun browser predefinito.\nAvvia un browser all'indirizzo: $@"
+	    return 1	
+	fi
     fi
+    $browser "$@" &>/dev/null &&
+	return 0 ||
+	    return 1
 }
 
 ###### funzioni usate solo dagli script esterni per rigenerare la documentazione (zdl non le usa):
