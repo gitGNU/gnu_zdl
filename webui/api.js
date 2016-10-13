@@ -39,7 +39,7 @@ var getUriParam = function (name, url) {
 var load = function (method, url, async, callback, params) {
     var data;
     var req = new XMLHttpRequest();
-    req.open(method, encodeURI(url).replace("#", "%23"), async);
+    req.open(method, encodeURI(url), async);     // .replace("#", "%23")
     req.onload = function () {
     	if (req.status === 200) {
 	    if (typeof callback === 'function') {
@@ -157,7 +157,7 @@ var addButtonsLink = function (spec) {
 };
 
 var addLink = function (id) {
-    var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + document.getElementById(id).value;
+    var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + encodeURIComponent(document.getElementById(id).value);
     document.getElementById(id).value = '';
     return load ('GET',
 		 query,
@@ -219,6 +219,13 @@ var singlePath = function (path) {
 	return load ('GET', '?cmd=run-zdl&path=' + path, true);
     };
 
+    that.setDownloader = function () {
+	return load ('GET',
+		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
+		     true);
+    };
+
+
     that.getDownloader = function (repeat, op) {
 	var query = '?cmd=get-downloader&path=' + path;
 
@@ -249,12 +256,6 @@ var singlePath = function (path) {
 			 if (repeat)
 			     return singlePath(ZDL.path).getDownloader(true);
 		     });
-    };
-
-    that.setDownloader = function () {
-	return load ('GET',
-		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
-		     true);
     };
 
     that.setMaxDownloads = function (spec) {
@@ -319,7 +320,7 @@ var singlePath = function (path) {
     
     that.setLinks = function () {
 	return load ('GET',
-		     '?cmd=set-links&path=' + path + '&links=' + document.getElementById('list-links').value,
+		     '?cmd=set-links&path=' + path + '&links=' + encodeURIComponent(document.getElementById('list-links').value),
 		     true,
 		     displayEditButton());
     };

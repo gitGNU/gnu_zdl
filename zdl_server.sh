@@ -398,19 +398,21 @@ function run_cmd {
 		## path
 		test -d "${line[i]}" &&
 		    cd "${line[i]}"
-
+		
 		## link
-		url "${line[i]}" &&
+		link=$(urldecode "${line[i]}") 
+		
+		url "$link" &&
 		    {
 			if check_instance_prog
 			then
-			    set_link + "${line[i]}"
+			    set_link + "$link"
 
 			else
 			    set_line_in_file + "$PWD" "$server_paths"
 			    mkdir -p "$path_tmp"
 			    date +%s >"$path_tmp"/.date_daemon
-			    nohup /bin/bash zdl "${line[i]}" --silent "$PWD" &>/dev/null &
+			    nohup /bin/bash zdl "$link" --silent "$PWD" &>/dev/null &
 			fi
 		    }
 	    done
@@ -500,7 +502,7 @@ function run_cmd {
 		cd "${line[1]}"
 
 	    ## links:
-	    echo "${line[2]}" > "$path_tmp/links_loop.txt"
+	    urldecode "${line[2]}" > "$path_tmp/links_loop.txt"
 	    ;;
 	
 	get-downloader)

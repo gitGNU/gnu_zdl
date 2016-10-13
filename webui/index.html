@@ -54,7 +54,7 @@
     <!-- sezione LINKS -->
     <div id="links">
       <div class="section">
-	<div class="label-section">Links <button onclick="cleanComplete();" style="float:right;">Pulisci completati</button></div>
+	<div class="label-section">Download in corso<button onclick="cleanComplete();" style="float:right;">Pulisci completati</button></div>
 	<div id="output-links"></div>
       </div>
     </div>
@@ -63,7 +63,7 @@
 
     <div id="path">
       <div class="section">
-	<div class="label-section">Path</div>	  
+	<div class="label-section">Percorsi di ZDL</div>	  
 	<div class="background-element">
 	  <div id="sel-path">
 	  </div>
@@ -80,8 +80,8 @@
 	  </div>
 	  
 	  <div class="background-element">
-	    <div class="label-element">Massimo download paralleli:</div>
-	    <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
+	    <div class="label-element">Max download paralleli:</div>
+	    <div id="max-downloads" class="value"><input class="hidden" id="input-max-downloads" type="text"></div>
 	  </div>
 
 	  <div class="background-element">
@@ -100,7 +100,7 @@
     <!-- sezione SERVER -->
     <div id="server">
       <div class="section">
-	<div class="label-section">Server</div>
+	<div class="label-section">Server: gestisci i socket</div>
 
 	<div class="background-element">
 	  <div class="label-element">Nuovo socket (porta):</div>
@@ -128,10 +128,45 @@
     </div>
 
     <!-- sezione CONFIGURE -->
-    <div id="config"></div>
+    <div id="config">
+      <div class="section">
+	<div class="label-section">Configurazione</div>
+	
+	<div class="background-element" style="text-align: left;">
+	  <p style="position: relative; margin: 1em;">
+	    config in costruzione
+	  </p>
+	</div>
+      </div>
+    </div>
     <!-- sezione INFO & SEARCH -->
-    <div id="info"></div>
-      
+    <div id="info">
+      <div class="section">
+	<div class="label-section">Info</div>
+	
+	<div class="background-element" style="text-align: left;">
+	  <p style="position: relative; margin: 1em;">
+	    Il manuale d'uso è disponibile in diverse forme,
+	    accessibili dal terminale o da un browser web.<br>
+	    Qui puoi consultare:
+	  </p>
+	  <ul>
+	    <li><a href="http://nongnu.org/zdl" target="_blanck">Sito ufficiale di ZigzagDownLoader</a></li>
+	    <li><a href="https://joindiaspora.com/tags/zdl" target="_blanck">Aggiornamenti in Diaspora*</a>
+	    <li><a href="https://savannah.nongnu.org/projects/zdl" target="_blanck">Progetto di sviluppo in Savannah/GNU</a>
+	    <li><a href="http://download-mirror.savannah.gnu.org/releases/zdl/" target="_blanck">Pacchetti rilasciati di ZDL</a>
+	    <li><a href="http://git.savannah.gnu.org/cgit/zdl.git" target="_blanck">Repository Git (controllo versione sorgenti)</a>
+	  </ul>
+	</div>
+	
+	<div class="background-element" style="text-align: left;">
+	  <div class="label-element">Contatti</div>
+	  <button onclick="window.open('https://savannah.nongnu.org/bugs/?func=additem&group=zdl')">Invia un messaggio</button>
+	</div>      
+	
+      </div>
+    </div>
+    
   </body>
-
+  
 </html>
