@@ -155,12 +155,16 @@ function cursor {
 	    off)
 		#echo -en "\033[?30;30;30c"
 		stty -echo
-		setterm -cursor off
+
+		command -v setterm &>/dev/null &&
+		    setterm -cursor off
 		;;
 	    on)
 		#echo -en "\033[?0;0;0c"
 		stty echo
-		setterm -cursor on
+
+		command -v setterm &>/dev/null &&
+		    setterm -cursor on
 		;;
 	esac
     fi
@@ -183,7 +187,6 @@ function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
 	cursor off
-	stty -echo
 	
 	(( "$#" == 0 )) && {
 	    text_start="$name_prog ($prog)"

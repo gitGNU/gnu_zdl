@@ -175,10 +175,11 @@ function install_test {
 }
 
 function install_pk {
-    local dep
-    dep=$1
+    local dep="$1"
     
     print_c 1 "Installazione di: $dep"
+
+    ## apt-get yum pacman zypper port
 
     if command -v apt-get &>/dev/null
     then
@@ -189,14 +190,26 @@ function install_pk {
 
     elif command -v yum &>/dev/null
     then
-	try yum install axel
+	try yum install $dep
 	install_test pk yum $dep &&
 	    return 0
 
     elif command -v pacman &>/dev/null
     then
-	try pacman -S axel 2>/dev/null
+	try pacman -S $dep 2>/dev/null
 	install_test pk pacman $dep &&
+	    return 0
+
+    elif command -v zypper &>/dev/null
+    then
+	try zypper install $dep
+	install_test pk zypper $dep &&
+	    return 0
+
+    elif command -v port &>/dev/null
+    then
+	try port install $dep
+	install_test pk port $dep &&
 	    return 0
 
     else
@@ -437,6 +450,8 @@ ESTENSIONI:
 	deps['php']=php
 	deps['socat']=socat
 	deps['gawk']=gawk
+	deps['rlwrap']=rlwrap
+	deps['setterm']=util-linux
 
 	for cmd in "${!deps[@]}"
 	do
@@ -489,6 +504,8 @@ ESTENSIONI:
 	deps['cmp']=diffutils
 	deps['socat']=socat
 	deps['gawk']=gawk
+	deps['rlwrap']=rlwrap
+	deps['setterm']=util-linux
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&

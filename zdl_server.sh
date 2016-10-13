@@ -136,7 +136,7 @@ function send_response {
 
     if [ -f "$file" ]
     then
-	mime=$(get_mime_server "$file")
+	get_mime_server mime "$file"
 	add_response_header "Content-Type" "$mime"
 	add_response_header "Content-Length" "$(size_file "$file")"
 	send_response_header "$code"
@@ -179,8 +179,10 @@ function fail_with {
 }
 
 function get_mime_server {
-    local mime
-    case "$1" in
+    declare -n mime="$1"
+    mime=''
+    
+    case "$2" in
         *\.css)
 	    mime="text/css"
 	    ;;
@@ -198,7 +200,6 @@ function get_mime_server {
 
     if [ -n "$mime" ]
     then
-	echo "$mime"
 	return 0
 
     else
@@ -248,10 +249,12 @@ function clean_data {
 
 
 function get_file_output {
-    local file="$1"
+    declare -n result="$1"
+    local file="$2"
+    
     if [[ "$file" =~ ^\/tmp\/zdl.d\/ ]]
     then
-	echo "$file"
+	result="$file"
 
     else
 	if [ "$file" == '/' ] ||
@@ -270,7 +273,7 @@ function get_file_output {
 	    sed -r "s|__START_PATH__|$PWD|g" "$template" >"$file"		
 	fi
 	
-	echo "$file"
+	result="$file"
     fi
 }
 
@@ -873,7 +876,7 @@ do
 	    http_method=GET
 	    start_timeout=$(date +%s)
 	    
-	    file_output="$(get_file_output "${line[1]}")"
+	    get_file_output file_output "${line[1]}"
 	    
 	    if [[ "${line[1]}" =~ '?' ]]
 	    then
@@ -883,7 +886,7 @@ do
 	POST)
 	    unset POST_DATA file_output
 	    http_method=POST
-	    file_output="$(get_file_output "${line[1]}")"
+	    get_file_output file_output "${line[1]}"
 	    ;;
 	*)
 	    http_server ||

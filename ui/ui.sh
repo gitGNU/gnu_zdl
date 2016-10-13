@@ -239,11 +239,11 @@ function readline_links {
     [ "$this_mode" != lite ] &&
 	msg_end_input="Immissione URL terminata: avvio download"
     ## bind -x "\"\C-l\":\"\"" 2>/dev/null
-    bind -x "\"\C-x\":\"unset binding; cursor off; stty -echo; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
+    bind -x "\"\C-x\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
     bind -x "\"\ex\":\"unset binding; print_c 1 '${msg_end_input}'; return\"" 2>/dev/null
 
     cursor on
-
+    
     while :
     do
 	trap_sigint
@@ -324,7 +324,7 @@ function change_mode {
     local change_out
 
     start_mode_in_tty "$cmd" "$this_tty"
-    cursor off
+    #cursor off
 
     case $cmd in
 	configure)
@@ -370,7 +370,10 @@ function change_mode {
 		  )
 	echo -en "$change_out"
 	trap_sigint
-	setterm -cursor on
+	
+	[ -n "$binding" ] &&
+	    command -v setterm &>/dev/null &&
+	    setterm -cursor on
 
     elif [ "$this_mode" == "lite" ]
     then
@@ -438,9 +441,7 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 	echo -e "${BBlue}   * ${Color_Off}│ ${BBlue}aggiorna lo stato${Color_Off} (automatico ogni 15 secondi)
      │"
 
-	cursor off
 	read -s -n 1 -t 15 action
-	cursor on
 
 	case "$action" in
 	    s)
@@ -453,13 +454,12 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
 
 		cursor on
-		read -e input
-		cursor off
-
-		if [ -n "$input" ]
+		sttyset=$(stty -a|tail -n4)
+		stty sane
+		inputs=( $(rlwrap -o cat) )
+		
+		if [ -n "${inputs[*]}" ]
 		then
-		    unset inputs
-		    inputs=( $input )
 		    echo
 		    header_box_interactive "Riavvia o Elimina"
 		    echo -e -n "${BYellow}Cosa vuoi fare con i download selezionati?${Color_Off}\n\n"
@@ -474,16 +474,16 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
 		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
 
-		    cursor on
-		    read -e input2
+		    input=$(rlwrap -o cat)
+		    stty $sttyset
 		    cursor off
 		    
 		    for ((i=0; i<${#inputs[*]}; i++))
 		    do
-			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[$i]
+			[[ ! "${inputs[$i]}" =~ ^[0-9]+$ ]] && unset inputs[i]
 		    done
 
-		    case "$input2" in
+		    case "$input" in
 			r)
 			    
 			    for i in ${inputs[*]}
@@ -614,7 +614,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 		;;
 	esac
 
-	unset action input2
+	unset action input
     done
     
     die

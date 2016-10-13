@@ -1459,7 +1459,7 @@ else
     [ "$lite_mode" == true ] &&
 	this_mode=lite
 
-    #cursor off
+    cursor off
     bindings
 
     [ "$this_mode" == "lite" ] && fclear
@@ -1469,11 +1469,9 @@ else
 	if [ "$this_mode" == "lite" ]
 	then
 	    show_downloads_lite
-	    #cursor off
 	    read_binding
 
 	else
-	    #cursor off
 	    read_binding
 	fi
     done 2>/dev/null 
