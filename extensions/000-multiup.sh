@@ -29,6 +29,7 @@
 
 if [[ "$url_in" =~ multiup\.org ]]
 then
+    url_in="${url_in//en\/}"
     html=$(wget -qO- "${url_in//\/download\//'/en/mirror/'}")
 
     for service in 'mega.nz\/\#' 'uptobox.com\/'
