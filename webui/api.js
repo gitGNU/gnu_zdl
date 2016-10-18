@@ -165,13 +165,13 @@ var addLink = function (id) {
 };
 
 var cleanComplete = function () {
-    var query = "?cmd=clean-complete";
+    var query = "?cmd=clean-complete&path=" + ZDL.path;
     return load ('GET',
 		 query,
-		 true,
-		 function () {
-		     load ('GET', '?cmd=init-client&path=' + ZDL.path, true);
-		 });
+		 true);
+		 // function () {
+		 //     load ('GET', '?cmd=init-client&path=' + ZDL.path, true);
+		 // });
 };
 
 var singleLink = function (spec) {
@@ -300,7 +300,7 @@ var singlePath = function (path) {
 			     max_dl = '';
 			 }
 			 output = " <button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia</button>";
-			 document.getElementById('max-downloads').innerHTML = max_dl_str + output;
+			 document.getElementById('max-downloads').innerHTML = '<div class="value">' + max_dl_str + '</div>' + output;
 
 			 if (repeat)
 			     return singlePath(ZDL.path).getMaxDownloads(true);
@@ -345,8 +345,8 @@ var singlePath = function (path) {
 			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).run();">Avvia ZDL</button>';
 			     
 			 } else if (response.match(/running/g)) {
-			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).quit();">Ferma ZDL</button>' +
-				 '<button onclick="singlePath(ZDL.path).kill();">Ferma ZDL e downloader</button>';
+			     document.getElementById('path-status').innerHTML = '<button onclick="singlePath(ZDL.path).quit();">Termina ZDL</button>' +
+				 '<button onclick="singlePath(ZDL.path).kill();">Termina ZDL e download</button>';
 
 			 }
 			 
@@ -364,7 +364,7 @@ var browse = function (path) {
     path = path.replace(/[^/]+\/\.\.$/,'');
 
     var callback = function (dirs) {
-	document.getElementById('sel-path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button> " + path;
+	document.getElementById('sel-path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button><div class=\"value\">" + path + "</div>";
 	document.getElementById('browse').innerHTML = dirs;
     };
 
@@ -390,8 +390,8 @@ var initClient = function (path) {
 var selectDir = function (path) {
     ZDL.path = path;
     document.getElementById('run-path').setAttribute('class', 'visible');
-    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div> ' + path +
-	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div class="value">' + path + '</div>' +
+ 	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
     return initClient(path);
 };
@@ -422,13 +422,12 @@ var getSockets = function (repeat, op) {
     return load ('GET',
 		 query,
 		 true,
-		 function (res){
-		     if (res !== '') {
-			 var sockets = JSON.parse(res);
+		 function (sockets){
+		     if (sockets !== '') {
 			 var output_kill = '';
 			 var output_open = '';
 			 
-			 sockets.forEach(function (port) {
+			 sockets.split('\n').forEach(function (port) {
 			     port = parseInt(port);
 			     
 			     if(!isNaN(port)) {
@@ -439,7 +438,7 @@ var getSockets = function (repeat, op) {
 				     "');";
 				 output_kill += '<button onclick="killServer(' + port + ');';
 				 if(parseInt(port) === parseInt(document.location.port))
-				     output_kill += "setTimeout('document.location.reload(true)', 1500);"
+				     output_kill += "setTimeout('document.location.reload(true)', 2000);"
 				 output_open += '">' + port + '</button>';
 				 output_kill += '">' + port + '</button>';
 			     }
@@ -492,6 +491,14 @@ String.prototype.fromHtmlEntities = function(string) {
 var cleanInput = function (str) {
     return str.replace(/(\r\n|\n|\r)/gm, "");
 };
+
+window.onbeforeunload = function () {
+    load ('GET', '?cmd=reset-requests&path=' + ZDL.path, true);
+};
+
+// window.onfocus = function () {
+//     initClient (ZDL.path);
+// };
 
 var init = function (path) {
     selectDir(path);

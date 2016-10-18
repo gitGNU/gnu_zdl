@@ -77,7 +77,7 @@ fi
 
 
 #### HTTP:
-declare -i DEBUG=0
+declare -i DEBUG=1
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -279,11 +279,12 @@ function get_file_output {
 
 function create_json {
     local test_data path
-    rm -f "$server_data"
+    rm -f "$server_data".$socket_port
 
     if [ -s "$server_paths" ]
     then
-	echo -ne '[' >"$server_data"
+	
+	echo -ne '[' >"$server_data".$socket_port
 
 	while read path
 	do
@@ -291,18 +292,18 @@ function create_json {
 	    if [ -d "$path_tmp" ]
 	    then
 		if data_stdout &&
-			! grep -P '\[$' "$server_data" &>/dev/null
+			! grep -P '\[$' "$server_data".$socket_port &>/dev/null
 		then
-		    echo -en "," >>"$server_data"
+		    echo -en "," >>"$server_data".$socket_port
 		fi
 	    fi
 
 	done <"$server_paths"
 
-	sed -r "s|,$|]\n|g" -i "$server_data"
+	sed -r "s|,$|]\n|g" -i "$server_data".$socket_port
 	
-	grep -P '^\[$' "$server_data" &>/dev/null &&
-	    echo > "$server_data"
+	grep -P '^\[$' "$server_data".$socket_port &>/dev/null &&
+	    echo > "$server_data".$socket_port
 	
 	return 0
     fi
@@ -313,9 +314,9 @@ function send_json {
     while :
     do
 	create_json
-	touch "$server_data" "$server_data".$socket_port
+	touch "$server_data".$socket_port "$server_data".$socket_port.diff
 	current_timeout=$(date +%s)
-	if ! cmp_file "$server_data" "$server_data".$socket_port ||
+	if ! cmp_file "$server_data".$socket_port "$server_data".$socket_port.diff ||
 		check_port $socket_port ||
 		(( (current_timeout - start_timeout) > 240 ))
 	then
@@ -325,14 +326,14 @@ function send_json {
 	sleep 1
     done
     ##sleep 1
-    cp "$server_data" "$server_data".$socket_port
+    cp "$server_data".$socket_port "$server_data".$socket_port.diff
     
-    file_output="$server_data"
+    file_output="$server_data".$socket_port
 
     if [ -z "$http_method" ]
     then
-	cat "$server_data"
-	return 1
+	cat "$server_data".$socket_port
+	exit
     fi
     return 0
 }
@@ -365,9 +366,9 @@ function init_client {
 	unlock_fifo $item "$PWD" &
     done
     
-    [ -n "$(ls "$path_server"/*.$socket_port 2>/dev/null)" ] &&
+    [ -n "$(ls "$path_server"/status.$socket_port "$path_server"/*.diff 2>/dev/null)" ] &&
 	{
-	    for file in "$path_server"/*.$socket_port
+	    for file in "$path_server"/status.$socket_port "$path_server"/*.diff
 	    do
 		echo RELOAD > $file
 	    done
@@ -385,6 +386,15 @@ function run_cmd {
 		cd "${line[1]}"
 
 	    init_client 
+	    ;;
+
+	reset-requests)
+	    sleep 3
+
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    init_client
 	    ;;
 	
     	get-data)
@@ -651,6 +661,11 @@ function run_cmd {
 		unset no_complete
 		
 	    done < "$server_paths"
+
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+	    
+	    init_client
 	    ;;
 
 	run-server)
@@ -658,6 +673,7 @@ function run_cmd {
 		   check_port "${line[1]}"
 	    then
 		run_zdl_server "${line[1]}" &>/dev/null
+		init_client
 		
 	    else
 		echo "already-in-use" >"$path_server"/run-server.$socket_port
@@ -666,8 +682,7 @@ function run_cmd {
 	    ;;
 
 	get-sockets)
-	    touch "$path_server"/socket-ports \
-		  "$path_server"/ports.json
+	    touch "$path_server"/socket-ports
 
 	    if [ "${line[1]}" != 'force' ]
 	    then
@@ -679,33 +694,17 @@ function run_cmd {
 
 	    if [ -s "$path_server"/socket-ports ]
 	    then
-		echo -n '[' > "$path_server"/ports.json
 		while read port
 		do
-		    if [[ "$port" =~ ^[0-9]+$ ]]
+		    if check_port $port 
 		    then
-			if check_port $port 
-			then
-			    set_line_in_file - "$port" "$path_server"/socket-ports 
-			    
-			else
-			    echo -n "$port," >> "$path_server"/ports.json				
-			fi
-		    fi
-		done < "$path_server"/socket-ports
+			set_line_in_file - "$port" "$path_server"/socket-ports 
+		    fi    
 		
-		if grep '\[$' "$path_server"/ports.json
-		then
-		    echo > "$path_server"/ports.json
-
-		else
-		    sed -r 's|,$|]|' -i "$path_server"/ports.json
-		fi
-
-		file_output="$path_server"/ports.json
+		done < "$path_server"/socket-ports
 	    fi
 
-	    file_output="$path_server"/ports.json
+	    file_output="$path_server"/socket-ports
 	    ;;
 	
 	run-zdl)
@@ -778,26 +777,24 @@ function run_cmd {
 	    ;;
 	
 	kill-all)
+	    ## tutte le istanze di ZDL (in tutti i path) e i downloader
 	    while read path
 	    do
+		test -d "$path" &&
+		    cd "$path"
+		
 	    	kill_downloads
 
 		instance_pid=$(cat "$path_tmp"/.pid.zdl)
-		[ -n "$instance_pid" ] && {
-		    kill -9 "$instance_pid" &>/dev/null
-		    rm -f "$path_tmp"/.date_daemon
-		    unset instance_pid
-		} 
+		[ -n "$instance_pid" ] &&
+		    {
+			kill -9 "$instance_pid" &>/dev/null
+			rm -f "$path_tmp"/.date_daemon
+			unset instance_pid
+		    } 
 	    done < "$server_paths"
 
-	    while read port
-	    do
-		[ "$port" == "$socket_port" ] ||
-		    kill_server "$port"
-		
-	    done < "$path_server"/socket-ports
-
-	    kill_server "$socket_port"
+	    init_client
 	    ;;
     esac
 
@@ -836,7 +833,7 @@ function http_server {
 
 		    if [ -f "$file_output" ]
 		    then
-			[ "$file_output" == "$server_data" ] &&
+			[[ "$file_output" =~ "$server_data" ]] &&
 			    create_json
 			
 			serve_file "$file_output"

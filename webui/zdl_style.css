@@ -91,16 +91,16 @@ h2 {
 
 }
 
-button {
-    background-color: blue;
-    color: white;
-    border: none;
-    padding: 5px 5px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-weight: bold;
-}
+/* button { */
+/*     background-color: blue; */
+/*     color: white; */
+/*     border: none; */
+/*     padding: 5px 5px; */
+/*     text-align: center; */
+/*     text-decoration: none; */
+/*     display: inline-block; */
+/*     font-weight: bold; */
+/* } */
 
 /* .nav h2 { */
 /*     color: #000; */
@@ -407,10 +407,6 @@ input[type=number] {
     width: 80px;
 }
 
-.value {
-    margin-left: 1em;
-}
-
 textarea {
     position: relative;
     width: calc(100% - 2em);
@@ -440,6 +436,7 @@ textarea {
     color: #fff;
     background: #777;
     line-height: 30px;
+    margin: 0;
     padding-left: 1em;
     padding-right: 1em;
 }
@@ -448,7 +445,7 @@ textarea {
     position: relative;
     background: #eee;
     padding: 0;
-    margin-bottom: 1px;
+    margin: 0 0 1px 0;
     display: inline-block;
     width: 100%;
     text-align: center;
@@ -596,3 +593,10 @@ select {
 #browse a {
     font-weght: normal;
 }
+
+div.value {
+    float: left;
+    padding: 0 1em 0 1em;
+    line-height: 30px;
+}
+

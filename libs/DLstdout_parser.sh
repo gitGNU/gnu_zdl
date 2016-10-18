@@ -68,7 +68,7 @@ function data_stdout {
 	# then
 	#     mkdir -p /tmp/zdl.d
 	# fi
-	
+
 	awk_data=$(stdbuf -oL -eL                                   \
 			  awk                                       \
 			  -v pwd="$PWD"                             \
@@ -79,6 +79,7 @@ function data_stdout {
 			  -v max_dl="$max_dl"                       \
 			  -v no_check="$no_check"                   \
 			  -v json_flag="$json_flag"                 \
+			  -v socket_port="$socket_port"             \
 			  -v wget_links_index="${#wget_links[*]}"   \
 			  -f $path_usr/libs/common.awk              \
 			  -f $path_usr/libs/DLstdout_parser.awk     \

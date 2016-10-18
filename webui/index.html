@@ -81,7 +81,7 @@
 	  
 	  <div class="background-element">
 	    <div class="label-element">Max download paralleli:</div>
-	    <div id="max-downloads" class="value"><input class="hidden" id="input-max-downloads" type="text"></div>
+	    <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
 	  </div>
 
 	  <div class="background-element">
@@ -120,8 +120,8 @@
 	</div>
 	
 	<div class="background-element">
-	  <button onclick="killServer(); setTimeout('document.location.reload(true)', 1500);">Termina il server attuale</button>
-	  <button onclick="killAll(); setTimeout('document.location.reload(true)', 1500);">Termina tutto</button>
+	  <button onclick="killServer(); setTimeout('document.location.reload(true)', 2000);">Termina il socket attuale</button>
+	  <button onclick="killAll();">Termina ZDL e download in tutti i path</button>
 	</div>
 	
       </div>
@@ -131,12 +131,71 @@
     <div id="config">
       <div class="section">
 	<div class="label-section">Configurazione</div>
-	
-	<div class="background-element" style="text-align: left;">
-	  <p style="position: relative; margin: 1em;">
-	    config in costruzione
-	  </p>
-	</div>
+<!-- key_conf[0]=downloader;          val_conf[0]=Aria2;        string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)" -->
+<!-- key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numero di parti in download parallelo per Axel" -->
+<!-- key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2" -->
+<!-- key_conf[3]=max_dl;              val_conf[3]="1";          string_conf[3]="Numero massimo di download simultanei (numero intero|<vuota=senza limiti>)" -->
+<!-- key_conf[4]=background;          val_conf[4]=black;        string_conf[4]="Colore sfondo (black|transparent)" -->
+<!-- key_conf[5]=language;            val_conf[5]=$LANG;        string_conf[5]="Lingua" -->
+<!-- key_conf[6]=reconnecter;         val_conf[6]="";           string_conf[6]="Script/comando/programma per riconnettere il modem/router" -->
+<!-- key_conf[7]=autoupdate;          val_conf[7]=enabled;      string_conf[7]="Aggiornamenti automatici di ZDL (enabled|*)" -->
+<!-- key_conf[8]=player;              val_conf[8]="";           string_conf[8]="Script/comando/programma per riprodurre un file audio/video" -->
+<!-- key_conf[9]=editor;              val_conf[9]="nano";       string_conf[9]="Editor predefinito per modificare la lista dei link in coda" -->
+<!-- key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recupero file omonimi come con opzione --resume (enabled|*)" -->
+<!-- key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)" -->
+<!-- key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
+<!-- key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
+<!-- key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui" -->
+<!-- key_conf[15]=browser;            val_conf[15]="firefox";   string_conf[15]="Browser per l'interfaccia web: opzione --web-ui" -->
+
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Downloader predefinito</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Numero di parti in download parallelo per Axel</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Numero di connessioni in parallelo per Aria2</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Numero massimo di download simultanei</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Colore di sfondo nei terminali virtuali</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Lingua</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Comando per riconnettere il modem/router</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Aggiornameni automatici</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Player per anteprima audio/video</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Editor per la lista dei link</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Recupero/sovrascrittura file omonimi (--resume)</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Modalità di avvio</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Porta TCP (torrent)</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Porta UDP (torrent)</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Porta TCP (--socket, --web-ui)</div>
+	  </div>
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Browser web (--web-ui)</div>
+	  </div>
       </div>
     </div>
     <!-- sezione INFO & SEARCH -->
