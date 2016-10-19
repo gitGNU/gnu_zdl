@@ -30,6 +30,19 @@
 
 if [ "$url_in" != "${url_in//'nowvideo.'}" ]
 then
+    if [[ "$url_in" =~ 'http://nowvideo' ]]
+    then
+	replace_url_in "${url_in//nowvideo/www.nowvideo}"
+    fi
+
+    if [[ "$url_in" =~ nowvideo\.([^/]+)\/ ]]
+    then
+	ext=${BASH_REMATCH[1]}
+	urlin=$(sed -r "s|nowvideo\.[^/]+|nowvideo.${ext:0:2}|g" <<< "$url_in")
+	replace_url_in "$urlin"
+	unset ext urlin
+    fi
+
     html=$(wget -t 1 -T $max_waiting                 \
 		"$url_in"                            \
 		--user-agent="$user_agent"           \
@@ -47,7 +60,7 @@ then
 	    if [[ "$html" =~ (Continue to the video) ]]
 	    then
 		input_hidden "$html"
-
+		
 		html=$(wget -t 1 -T $max_waiting                     \
 			    "$url_in"                                \
 			    --user-agent="$user_agent"               \
