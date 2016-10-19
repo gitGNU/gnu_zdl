@@ -273,25 +273,6 @@ div {
 /* } */
 
 
-.info-label {
-    float: left;
-    color: #fff;
-    background: #777;
-    font-size: .9em;
-    padding: .5em .7em;
-    margin-right: .5em
-}
-
-.info-data {
-    /* float: left; */
-    background: #eee;
-    font-size: .9em;
-    padding: .5em .7em;
-    border-bottom: 1px solid #fff;
-    box-sizing: border-box;
-    word-wrap: break-all;
-    /* justify-content: space-around; */
-}
 
 /* .container { */
 /*     display: flex; */
@@ -321,6 +302,8 @@ div {
 .visible {
     display: block;
     cursor: pointer;
+    background-color: white;
+    margin-bottom: 4px;
 }
 
 
@@ -443,13 +426,47 @@ textarea {
 
 .background-element {
     position: relative;
+    float: left;
     background: #eee;
-    padding: 0;
+    padding: 0 0 0 0;
     margin: 0 0 1px 0;
     display: inline-block;
     width: 100%;
     text-align: center;
     cursor: default;
+    word-wrap: break-all;
+}
+
+.background-data {
+    position: relative;
+    float: left;
+    background: #eee;
+    padding: 0 0 0 0;
+    margin: 0 0 1px 0;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    word-wrap: break-all;
+}
+
+.info-label {
+    float: left;
+    color: #fff;
+    background: #777;
+    font-size: .9em;
+    padding: .5em .7em;
+    margin-right: .5em
+}
+
+.info-data {
+    /* float: left; */
+    background: #eee;
+    font-size: .9em;
+    padding: 0 .5em 0 .7em;
+    border-bottom: 1px solid #fff;
+    box-sizing: border-box;
+    word-wrap: break-all;
+    /* justify-content: space-around; */
 }
 
 #editor-links {
@@ -595,8 +612,9 @@ select {
 }
 
 div.value {
+    position: relative;
     float: left;
-    padding: 0 1em 0 1em;
-    line-height: 30px;
+    padding: .5em .7em;
+    word-wrap: break-all;
 }
 

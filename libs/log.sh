@@ -165,6 +165,10 @@ function _log {
 	31)
 	    msg="Connessione internet non disponibile: uscita"
 	    ;;
+	32)
+	    msg="$url_in --> Servizio momentaneamente non supportato: richiedi un intervento degli sviluppatori"
+	    set_link - "$url_in"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]

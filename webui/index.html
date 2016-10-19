@@ -63,35 +63,37 @@
 
     <div id="path">
       <div class="section">
-	<div class="label-section">Percorsi di ZDL</div>	  
-	<div class="background-element">
-	  <div id="sel-path">
-	  </div>
-	  <div id="browse"></div>
-	</div>
-	
-	<div id="run-path" class="visible">
-	  <div class="background-element" style="text-align: left">
-	    <div id="input-link-label" class="label-element">Aggiungi link:</div>
-	    <input id="input-link" type="text">
-	    <button onclick="addLink('input-link');">Invia</button>
+	<div class="label-section">Percorsi di ZDL</div>
+	<div class="content">
 
-	    <div id="editor-links"></div>
+	  <div class="background-element">
+	    <div id="sel-path">
+	    </div>
+	    <div id="browse"></div>
 	  </div>
 	  
-	  <div class="background-element">
-	    <div class="label-element">Max download paralleli:</div>
-	    <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
-	  </div>
+	  <div id="run-path" class="visible">
+	    <div class="background-element" style="text-align: left">
+	      <div id="input-link-label" class="label-element">Aggiungi link:</div>
+	      <input id="input-link" type="text">
+	      <button onclick="addLink('input-link');">Invia</button>
 
-	  <div class="background-element">
-	    <div id="downloader"></div>
-	  </div>
+	      <div id="editor-links"></div>
+	    </div>
+	    
+	    <div class="background-element">
+	      <div class="label-element">Max download paralleli:</div>
+	      <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
+	    </div>
 
-	  <div class="background-element">
-	    <div id="path-status" style="text-align: center"></div>
+	    <div class="background-element">
+	      <div id="downloader"></div>
+	    </div>
+
+	    <div class="background-element">
+	      <div id="path-status" style="text-align: center"></div>
+	    </div>
 	  </div>
-	  
 
 	</div>
       </div>
@@ -101,29 +103,29 @@
     <div id="server">
       <div class="section">
 	<div class="label-section">Server: gestisci i socket</div>
+	<div class="content">
+	  <div class="background-element">
+	    <div class="label-element">Nuovo socket (porta):</div>
+	    <input id="input-port" type="number" min="1024" max="65535">
+	    <script>document.getElementById("input-port").value = parseInt(window.location.port) + 1 ;</script>
+	    <button style="float:left;" onclick="runServer(document.getElementById('input-port').value);">Avvia socket</button>
+	  </div>
 
-	<div class="background-element">
-	  <div class="label-element">Nuovo socket (porta):</div>
-	  <input id="input-port" type="number" min="1024" max="65535">
-	  <script>document.getElementById("input-port").value = parseInt(window.location.port) + 1 ;</script>
-	  <button style="float:left;" onclick="runServer(document.getElementById('input-port').value);">Avvia socket</button>
-	</div>
+	  <div class="background-element">
+	    <div class="label-element">Vai al socket (porta):</div>
+	    <div id="list-sockets-open" style="margin: 0;"></div>
+	  </div>
 
-	<div class="background-element">
-	  <div class="label-element">Vai al socket (porta):</div>
-	  <div id="list-sockets-open" style="margin: 0;"></div>
+	  <div class="background-element">
+	    <div class="label-element">Termina un socket (porta):</div>
+	    <div id="list-sockets-kill" style="margin: 0;"></div>
+	  </div>
+	  
+	  <div class="background-element">
+	    <button onclick="killServer(); setTimeout('document.location.reload(true)', 2000);">Termina il socket attuale</button>
+	    <button onclick="killAll();">Termina i downloader in tutti i path</button>
+	  </div>
 	</div>
-
-	<div class="background-element">
-	  <div class="label-element">Termina un socket (porta):</div>
-	  <div id="list-sockets-kill" style="margin: 0;"></div>
-	</div>
-	
-	<div class="background-element">
-	  <button onclick="killServer(); setTimeout('document.location.reload(true)', 2000);">Termina il socket attuale</button>
-	  <button onclick="killAll();">Termina ZDL e download in tutti i path</button>
-	</div>
-	
       </div>
     </div>
 
@@ -131,98 +133,100 @@
     <div id="config">
       <div class="section">
 	<div class="label-section">Configurazione</div>
-<!-- key_conf[0]=downloader;          val_conf[0]=Aria2;        string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)" -->
-<!-- key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numero di parti in download parallelo per Axel" -->
-<!-- key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2" -->
-<!-- key_conf[3]=max_dl;              val_conf[3]="1";          string_conf[3]="Numero massimo di download simultanei (numero intero|<vuota=senza limiti>)" -->
-<!-- key_conf[4]=background;          val_conf[4]=black;        string_conf[4]="Colore sfondo (black|transparent)" -->
-<!-- key_conf[5]=language;            val_conf[5]=$LANG;        string_conf[5]="Lingua" -->
-<!-- key_conf[6]=reconnecter;         val_conf[6]="";           string_conf[6]="Script/comando/programma per riconnettere il modem/router" -->
-<!-- key_conf[7]=autoupdate;          val_conf[7]=enabled;      string_conf[7]="Aggiornamenti automatici di ZDL (enabled|*)" -->
-<!-- key_conf[8]=player;              val_conf[8]="";           string_conf[8]="Script/comando/programma per riprodurre un file audio/video" -->
-<!-- key_conf[9]=editor;              val_conf[9]="nano";       string_conf[9]="Editor predefinito per modificare la lista dei link in coda" -->
-<!-- key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recupero file omonimi come con opzione --resume (enabled|*)" -->
-<!-- key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)" -->
-<!-- key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
-<!-- key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
-<!-- key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui" -->
-<!-- key_conf[15]=browser;            val_conf[15]="firefox";   string_conf[15]="Browser per l'interfaccia web: opzione --web-ui" -->
-
+	<div class="content">
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Downloader predefinito</div>
+	    <div id="conf-downloader"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Numero di parti in download parallelo per Axel</div>
+	    <div id="conf-axel_parts"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Numero di connessioni in parallelo per Aria2</div>
+	    <div id="conf-aria2_connections"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Numero massimo di download simultanei</div>
+	    <div id="conf-max_dl"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Colore di sfondo nei terminali virtuali</div>
+	    <div id="conf-background"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Lingua</div>
+	    <div id="conf-language"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Comando per riconnettere il modem/router</div>
+	    <div id="conf-reconnecter"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Aggiornameni automatici</div>
+	    <div id="conf-autoupdate"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Player per anteprima audio/video</div>
+	    <div id="conf-player"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Editor per la lista dei link</div>
+	    <div id="conf-editor"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Recupero/sovrascrittura file omonimi (--resume)</div>
+	    <div id="conf-resume"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Modalità di avvio</div>
+	    <div id="conf-zdl_mode"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Porta TCP (torrent)</div>
+	    <div id="conf-tcp_port"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Porta UDP (torrent)</div>
+	    <div id="conf-udp_port"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Porta TCP (--socket, --web-ui)</div>
+	    <div id="conf-socket_port"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Browser web (--web-ui)</div>
+	    <div id="conf-browser"></div>
 	  </div>
+	</div>
       </div>
     </div>
+
     <!-- sezione INFO & SEARCH -->
     <div id="info">
       <div class="section">
 	<div class="label-section">Info</div>
-	
-	<div class="background-element" style="text-align: left;">
-	  <p style="position: relative; margin: 1em;">
-	    Il manuale d'uso è disponibile in diverse forme,
-	    accessibili dal terminale o da un browser web.<br>
-	    Qui puoi consultare:
-	  </p>
-	  <ul>
-	    <li><a href="http://nongnu.org/zdl" target="_blanck">Sito ufficiale di ZigzagDownLoader</a></li>
-	    <li><a href="https://joindiaspora.com/tags/zdl" target="_blanck">Aggiornamenti in Diaspora*</a>
-	    <li><a href="https://savannah.nongnu.org/projects/zdl" target="_blanck">Progetto di sviluppo in Savannah/GNU</a>
-	    <li><a href="http://download-mirror.savannah.gnu.org/releases/zdl/" target="_blanck">Pacchetti rilasciati di ZDL</a>
-	    <li><a href="http://git.savannah.gnu.org/cgit/zdl.git" target="_blanck">Repository Git (controllo versione sorgenti)</a>
-	  </ul>
+	<div class="content">
+	  <div class="background-element" style="text-align: left;">
+	    <p style="position: relative; margin: 1em;">
+	      Il manuale d'uso è disponibile in diverse forme,
+	      accessibili dal terminale o da un browser web.<br>
+	      Qui puoi consultare:
+	    </p>
+	    <ul>
+	      <li style="padding: .4em"><a href="http://nongnu.org/zdl" target="_blanck">Sito ufficiale di ZigzagDownLoader</a></li>
+	      <li style="padding: .4em"><a href="https://joindiaspora.com/tags/zdl" target="_blanck">Aggiornamenti in Diaspora*</a>
+	      <li style="padding: .4em"><a href="https://savannah.nongnu.org/projects/zdl" target="_blanck">Progetto di sviluppo in Savannah/GNU</a>
+	      <li style="padding: .4em"><a href="http://download-mirror.savannah.gnu.org/releases/zdl/" target="_blanck">Pacchetti rilasciati di ZDL</a>
+	      <li style="padding: .4em"><a href="http://git.savannah.gnu.org/cgit/zdl.git" target="_blanck">Repository Git (controllo versione sorgenti)</a>
+	    </ul>
+	  </div>
+	  
+	  <div class="background-element" style="text-align: left;">
+	    <div class="label-element">Contatti</div>
+	    <button onclick="window.open('https://savannah.nongnu.org/bugs/?func=additem&group=zdl')">Invia un messaggio</button>
+	  </div>      
 	</div>
-	
-	<div class="background-element" style="text-align: left;">
-	  <div class="label-element">Contatti</div>
-	  <button onclick="window.open('https://savannah.nongnu.org/bugs/?func=additem&group=zdl')">Invia un messaggio</button>
-	</div>      
-	
       </div>
     </div>
     

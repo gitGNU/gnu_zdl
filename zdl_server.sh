@@ -282,8 +282,7 @@ function create_json {
     rm -f "$server_data".$socket_port
 
     if [ -s "$server_paths" ]
-    then
-	
+    then	
 	echo -ne '[' >"$server_data".$socket_port
 
 	while read path
@@ -498,12 +497,6 @@ function run_cmd {
 		echo > "$path_server/empty"
 		file_output="$path_server/empty"
 	    fi
-	    
-	    if [ -z "$http_method" ]
-	    then
-		cat "$file_output"
-		return
-	    fi
 	    ;;
 
 	set-links)
@@ -538,11 +531,6 @@ function run_cmd {
 	    fi
 
 	    file_output="$path_tmp/downloader"
-	    if [ -z "$http_method" ]
-	    then
-		cat "$file_output"
-		return
-	    fi	    
 	    ;;
 
 	set-downloader)
@@ -576,11 +564,6 @@ function run_cmd {
 	    fi
 
 	    file_output="$path_tmp/max-dl"
-	    if [ -z "$http_method" ]
-	    then
-		cat "$file_output"
-		return
-	    fi	    
 	    ;;
 
 	set-max-downloads)
@@ -626,11 +609,6 @@ function run_cmd {
 	    done
 	    
 	    file_output="$path_server"/status.$socket_port
-	    if [ -z "$http_method" ]
-	    then
-		cat "$file_output"
-		return
-	    fi
 	    ;;
 
 	get-dirs)
@@ -796,10 +774,32 @@ function run_cmd {
 
 	    init_client
 	    ;;
+	
+	get-conf)
+	    if [ "${line[2]}" != 'force' ]
+	    then
+		lock_fifo "${line[1]}" item
+
+	    else
+		unset line[2] 	    
+	    fi
+
+	    get_item_conf "${line[1]}" > "$path_server"/conf_out
+	    file_output="$path_server"/conf_out
+	    ;;
+
+	set-conf)
+	    set_item_conf "${line[1]}" "${line[2]}"
+	    unlock_fifo "${line[1]}" &
+	    ;;
     esac
 
-    if [ -z "$file_output" ] &&
-	   [ -n "$http_method" ]
+    if [ -z "$http_method" ]
+    then
+	cat "$file_output"
+	exit
+
+    elif [ -z "$file_output" ]
     then
        echo > "$path_server/empty"
        file_output="$path_server/empty"

@@ -988,7 +988,7 @@ function kill_server {
     # 	    done
 
 
-    init_client
+    init_client 2>/dev/null
 
     set_line_in_file - "$port" /tmp/zdl.d/socket-ports
     unlock_fifo socket-ports &

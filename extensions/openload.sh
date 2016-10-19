@@ -27,6 +27,37 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: Openload
 
+function OL_decode {
+    local INDEX="$1"
+    
+    chunk=$($nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; var tmp=s.join(''); var str = tmp.substring(0, tmp.length - 1) + String.fromCharCode(tmp.slice(-1).charCodeAt(0) + $INDEX); console.log(str)")
+
+    if [ -n "$chunk" ]
+    then
+	url_in_file=$(wget -S --spider \
+			   --referer="$URL_in" \
+			   --keep-session-cookies                    \
+    			   --load-cookies="$path_tmp"/cookies.zdl    \
+    			   --user-agent="$user_agent"                \
+			   "https://openload.co/stream/$chunk" 2>&1 |
+			  grep Location | head -n1 |
+			  sed -r 's|.*Location: (.+)$|\1|g')
+
+	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
+
+	if [[ "$url_in_file" =~ \/x\.mp4$ ]] &&
+	       ((INDEX < 5))
+	then
+	    OL_decode $((INDEX+1))
+
+	elif ((INDEX >= 5))
+	then
+	    _log 32
+	fi
+    fi
+}
+
+
 if [[ "$url_in" =~ (openload\.) ]]
 then
     # _log 3
@@ -63,21 +94,7 @@ then
 	
 	countdown- 6
 	
-	chunk=$($nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; var tmp=s.join(''); var str = tmp.substring(0, tmp.length - 1) + String.fromCharCode(tmp.slice(-1).charCodeAt(0) + 2); console.log(str)")
-
-	if [ -n "$chunk" ]
-	then
-	    url_in_file=$(wget -S --spider \
-			       --referer="$URL_in" \
-			       --keep-session-cookies                    \
-    			       --load-cookies="$path_tmp"/cookies.zdl    \
-    			       --user-agent="$user_agent"                \
-			       "https://openload.co/stream/$chunk" 2>&1 |
-			      grep Location | head -n1 |
-			      sed -r 's|.*Location: (.+)$|\1|g')
-
-	    [ -z "$file_in" ] && file_in="${url_in_file##*\/}"
-	fi
+	OL_decode 1
     fi
 
     end_extension

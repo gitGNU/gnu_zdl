@@ -123,17 +123,17 @@ var displayLinks = function () {
 		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + '</div><div ' +
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += "<div class=\"info-label\"> Downloader: </div><div class=\"info-data\"> " + data[i].downloader + "</div>";
-		    output += "<div class=\"info-label\"> Link: </div><div class=\"info-data\"> " + data[i].link + "</div>";
-		    output += "<div class=\"info-label\"> Path: </div><div class=\"info-data\"> " + data[i].path;
-		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
-		    output += "<div class=\"info-label\"> File: </div><div class=\"info-data\"> " + data[i].file + "</div>";
+		    output += '<div class="background-data"><div class="label-element">Downloader:</div><div class="value">' + data[i].downloader + "</div></div>";
+		    output += '<div class="background-data"><div class="label-element">Link:</div><div class="value">' + data[i].link + "</div></div>";
+		    output += '<div class="background-data"><div class="label-element">Path:</div><div class="value">' + data[i].path + "</div>";
+		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\" style=\"float: left;\">Gestisci</button></div>";
+		    output += '<div class="background-data"><div class="label-element">File: </div><div class="value">' + data[i].file + "</div></div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += "<div class=\"info-label\"> Streamer: </div><div class=\"info-data\"> " + data[i].streamer + "</div>";
-			output += "<div class=\"info-label\"> Playpath: </div><div class=\"info-data\"> " + data[i].playpath + "</div>";
+			output += '<div class="background-data"><div class="label-element">Streamer:</div><div class="value">' + data[i].streamer + "</div></div>";
+			output += '<div class="background-data"><div class="label-element">Playpath:</div><div class="value">' + data[i].playpath + "</div></div>";
 		    } else {
-			output += "<div class=\"info-label\"> Url: </div><div class=\"info-data\"> " + data[i].url.toHtmlEntities() + "</div>";
+			output += '<div class="background-data"><div class="label-element">Url:</div><div class="value">' + data[i].url.toHtmlEntities() + "</div></div>";
 		    }
 		    output += '</div>';
 		    output += addButtonsLink(data[i]);
@@ -509,4 +509,165 @@ var init = function (path) {
     singlePath(ZDL.path).getDownloader(true, 'force');
     singlePath(ZDL.path).getStatus(true, 'force');
     getSockets(true, 'force');
+
+    var conf_items = [
+	'downloader',
+	'axel_parts',
+	'aria2_connections',
+	'max_dl',
+	'background',
+	'language',
+	'reconnecter',
+	'autoupdate',
+	'player',
+	'editor',
+	'resume',
+	'zdl_mode',
+	'tcp_port',
+	'udp_port',
+	'socket_port',
+	'browser'
+    ];
+    conf_items.forEach(function(conf_item){
+	conf(conf_item).get(true, 'force');
+    });
 };
+
+
+var displayInputSelect = function (spec) {
+    // spec = {id: options: value:}
+    var output = '<select id="input-' + spec.id + "\" onchange=\"conf('" + spec.id + "').set();\">";
+
+    spec.options.forEach(function(item){
+	if (String(spec.value) === String(item))
+	    output += "<option selected>";
+	else
+	    output += "<option>";
+	output += item + "</option>";
+    });
+
+    document.getElementById('conf-' + spec.id).innerHTML = output;
+};
+
+var displayInputText = function (spec) {
+    // spec = {id: value:}
+    var output;
+    document.getElementById('conf-' + spec.id).innerHTML = output;
+};
+
+var displayInputNumber = function (spec) {
+    // spec = {id: value: min: max:}
+    var output;
+    document.getElementById('conf-' + spec.id).innerHTML = output;
+};
+
+var displayInputFile = function (spec) {
+    // spec = {id: value:}
+    var output;
+    document.getElementById('conf-' + spec.id).innerHTML = output;
+};
+
+
+var conf = function (item) {
+    var that = {};
+
+    that.get = function (repeat, op) {
+	var query = '?cmd=get-conf&item=' + item;
+
+	if (op === 'force')
+	    query += '&op=' + op;
+	
+	return load ('GET',
+		     query,
+		     true,
+		     function (res) {
+			 var spec = {
+			     "id": item
+			 };	 
+
+			 switch(item) {
+			 case 'downloader':
+			     if (!spec.options)
+				 spec.options = ['Aria2','Axel','Wget'];
+			 case 'background':
+			     if (!spec.options)
+				 spec.options = ['transparent','black'];
+			 case 'language':
+			     if (!spec.options)
+				 spec.options = ['it_IT.UTF-8'];
+			 case 'resume':
+			 case 'autoupdate':
+			     if (!spec.options)
+				 spec.options = ['enabled','disabled'];
+			 case 'zdl_mode':
+			     if (!spec.options)
+				 spec.options = ['stdout','lite','daemon'];
+			     
+			     spec.value = res;
+			     displayInputSelect (spec);
+			     break;
+			     
+			 case 'axel_parts':
+			     if (isNaN(spec.min) || isNaN(spec.max)) {
+				 spec.min = 1;
+				 spec.max = 32;
+			     }
+			 case 'aria2_connections':
+			     if (isNaN(spec.min) || isNaN(spec.max)) {
+				 spec.min = 1;
+				 spec.max = 16;
+			     }
+			 case 'max_dl':
+			     if (isNaN(spec.min) || isNaN(spec.max)) {
+				 spec.min = 0;
+				 spec.max = 100;
+			     }
+			 case 'tcp_port':
+			 case 'udp_port':
+			 case 'socket_port':
+			     if (isNaN(spec.min) || isNaN(spec.max)) {
+				 spec.min = 1024;
+				 spec.max = 65535;
+			     }
+
+			     spec.value = parseInt(res);
+			     displayInputNumber (spec);
+			     break;
+
+			 case 'reconnecter':
+			 case 'player':
+			 case 'editor':
+			 case 'browser':
+			     displayInputFile (spec);
+			     break;
+			 };
+
+			 if (repeat)
+			     return conf(item).get(true);
+		     });
+    };
+
+    that.set = function () {
+    };
+    
+    return that;
+};
+
+	  // <!-- key_conf[0]=downloader;          val_conf[0]=Aria2;        string_conf[0]="Downloader predefinito (Axel|Aria2|Wget)" -->
+	  // <!-- key_conf[1]=axel_parts;          val_conf[1]="32";         string_conf[1]="Numero di parti in download parallelo per Axel" -->
+	  // <!-- key_conf[2]=aria2_connections;   val_conf[2]="16";         string_conf[2]="Numero di connessioni in parallelo per Aria2" -->
+	  // <!-- key_conf[3]=max_dl;              val_conf[3]="1";          string_conf[3]="Numero massimo di download simultanei (numero intero|<vuota=senza limiti>)" -->
+	  // <!-- key_conf[4]=background;          val_conf[4]=black;        string_conf[4]="Colore sfondo (black|transparent)" -->
+	  // <!-- key_conf[5]=language;            val_conf[5]=$LANG;        string_conf[5]="Lingua" -->
+	  // <!-- key_conf[6]=reconnecter;         val_conf[6]="";           string_conf[6]="Script/comando/programma per riconnettere il modem/router" -->
+	  // <!-- key_conf[7]=autoupdate;          val_conf[7]=enabled;      string_conf[7]="Aggiornamenti automatici di ZDL (enabled|*)" -->
+	  // <!-- key_conf[8]=player;              val_conf[8]="";           string_conf[8]="Script/comando/programma per riprodurre un file audio/video" -->
+	  // <!-- key_conf[9]=editor;              val_conf[9]="nano";       string_conf[9]="Editor predefinito per modificare la lista dei link in coda" -->
+	  // <!-- key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recupero file omonimi come con opzione --resume (enabled|*)" -->
+	  // <!-- key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)" -->
+	  // <!-- key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
+	  // <!-- key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)" -->
+	  // <!-- key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui" -->
+	  // <!-- key_conf[15]=browser;            val_conf[15]="firefox";   string_conf[15]="Browser per l'interfaccia web: opzione --web-ui" -->
+
+
