@@ -453,10 +453,7 @@ ${BRed}   K ${Color_Off}│ interrompi tutti i download e ogni istanza di ZDL ne
 		#echo -e -n "${BYellow}Seleziona i numeri dei download, separati da spazi (puoi non scegliere):${Color_Off}\n"
 		print_c 2 "Seleziona i numeri dei download, separati da spazi (puoi non scegliere):"
 
-		cursor on
-		sttyset=$(stty -a|tail -n4)
-		stty sane
-		inputs=( $(rlwrap -o cat) )
+		input_text inputs array
 		
 		if [ -n "${inputs[*]}" ]
 		then
@@ -474,9 +471,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 
 		    echo -e -n "${BYellow}Scegli cosa fare: ( r | E | T | p | * ):${Color_Off}\n"
 
-		    input=$(rlwrap -o cat)
-		    stty $sttyset
-		    cursor off
+		    input_text input
 		    
 		    for ((i=0; i<${#inputs[*]}; i++))
 		    do
@@ -545,7 +540,8 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 	    
 	    [0-9])
 		echo "$action" > "$path_tmp/max-dl"
-		unlock_fifo max-downloads "$PWD" &
+		#unlock_fifo max-downloads "$PWD" &
+		init_client
 		;;
 	
 	    m)
@@ -637,3 +633,22 @@ function sleeping {
     # fi
 }
 
+function input_text {
+    declare -n ref="$1"
+    local sttyset
+    
+    cursor on
+    sttyset=$(stty -a|tail -n4)
+    stty sane
+
+    if [ "$2" == array ]
+    then	
+	ref=( $(rlwrap -o cat) )
+
+    else
+	ref=$(rlwrap -o cat)
+    fi
+    
+    stty $sttyset
+    cursor off
+}

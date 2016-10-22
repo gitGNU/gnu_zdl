@@ -196,22 +196,33 @@ function set_default_conf {
     done
 }
 
-function get_item_conf {
-    local item line
-    
-    if [ -f "$file_conf" ]
-    then
-	item="$1"
-	while read line
-	do
-	    if [[ "$line" =~ ^[\ ]*${item}=\"*([^\"]+)[\"\ ]*$ ]]
-	    then
-		echo "${BASH_REMATCH[1]}"
-		return 0
-	    fi
-	done < "$file_conf" 
-    fi
-    return 1
+# function get_item_conf {
+#     declare -n ref="$2"
+#     local item line value
+#     
+#     if [ -f "$file_conf" ]
+#     then
+# 	item="$1"
+# 	while read line
+# 	do
+# 	    unset value
+# 	    
+# 	    if [[ "$line" =~ ^[\ ]*${item}=\"*([^\"]+)[\"\ ]*$ ]]
+# 	    then
+# 		value="${BASH_REMATCH[1]}" 
+# 
+# 		[ -n "$2" ] &&
+# 		    ref="$value" ||
+# 			echo "$value"
+# 		return 0
+# 	    fi
+# 	done < "$file_conf" 
+#     fi
+#     return 1
+# }
+
+function get_item_conf {	
+	awk "{match(\$1,/$1=\"*([^\"]+)\"$/,pattern); if (pattern[1]) print pattern[1]}" "$file_conf"
 }
 
 function set_item_conf {

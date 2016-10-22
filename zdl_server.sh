@@ -139,18 +139,15 @@ function send_response {
 	get_mime_server mime "$file"
 	add_response_header "Content-Type" "$mime"
 	add_response_header "Content-Length" "$(size_file "$file")"
-	send_response_header "$code"
 
-	if ! check_port $socket_port
+	if [ "$file" == "$path_server"/status.$socket_port ] &&
+	       grep RELOAD "$file" &>/dev/null
 	then
-	    if [ "$file" == "$path_server"/status.$socket_port ] &&
-		   grep RELOAD "$file" &>/dev/null
-	    then
-		get_status
-	    fi
-	    
-	    cat "$file"
+	    get_status
 	fi
+	
+	send_response_header "$code"	    
+	cat "$file"
     fi
 	
     #echo
@@ -357,22 +354,102 @@ function get_status {
     fi
 }
 
-function init_client {
-    local file item
+function get_status_run {
+    if [ -n "$1" ]
+    then
+	declare -n ref="$1"
 
-    for item in downloader max-downloads socket-ports
-    do
-	unlock_fifo $item "$PWD" &
-    done
-    
-    [ -n "$(ls "$path_server"/status.$socket_port "$path_server"/*.diff 2>/dev/null)" ] &&
-	{
-	    for file in "$path_server"/status.$socket_port "$path_server"/*.diff
-	    do
-		echo RELOAD > $file
-	    done
-	}
+	if check_instance_prog &>/dev/null ||
+		check_instance_daemon &>/dev/null
+	then
+	    ref="running" 
+	else
+	    ref="not-running"
+	fi
+    fi
 }
+
+function get_status_sockets {
+    declare -n ref="$1"
+    
+    ref='['    
+    check_socket_ports "$1"
+    ref="${ref%,}]"
+}
+
+function check_socket_ports {
+    [ -n "$1" ] &&
+	declare -n ref="$1"
+       
+    if [ -s "$path_server"/socket-ports ]
+    then
+	while read port
+	do
+	    if check_port $port 
+	    then
+		set_line_in_file - "$port" "$path_server"/socket-ports
+
+	    elif [ -n "$1" ]
+	    then
+		ref+="\"$port\","
+	    fi    
+	    
+	done < "$path_server"/socket-ports
+    fi
+}
+
+function get_status_conf {
+    declare -n ref="$1"
+
+    ref='{'
+    for key in ${key_conf[@]}
+    do
+	ref+="\"$key\":\"$(get_item_conf $key)\","
+    done
+    ref="${ref%,}}"
+}
+
+function create_status_json {
+    [ -n "$1" ] &&
+	declare -n string_output="$1" ||
+	    string_output=string_output
+    
+    string_output="{"
+
+    ## current path
+    string_output+="\"path\":\"$PWD\","
+    
+    ## run status    
+    get_status_run status
+    string_output+="\"status\":\"$status\","
+
+    ## downloader
+    if [ ! -f "$path_tmp/downloader" ]
+    then
+	mkdir -p "$path_tmp"
+	get_item_conf 'downloader' >"$path_tmp/downloader"
+    fi
+    string_output+="\"downloader\":\"$(cat "$path_tmp/downloader")\","
+
+    ## max downloads
+    if [ ! -f "$path_tmp/max-dl" ]
+    then
+	mkdir -p "$path_tmp"
+	get_item_conf 'max_dl' >"$path_tmp/max-dl"
+    fi
+    string_output+="\"maxDownloads\":\"$(cat "$path_tmp/max-dl")\","
+
+    ## run sockets
+    get_status_sockets status
+    string_output+="\"sockets\":$status,"
+
+    ## conf
+    get_status_conf status
+    string_output+="\"conf\":$status"
+
+    string_output+="}"
+}
+
 
 function run_cmd {
     local line=( "$@" )
@@ -384,7 +461,7 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    init_client 
+	    init_client "${line[1]}" $socket_port
 	    ;;
 
 	reset-requests)
@@ -393,11 +470,54 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    init_client
+	    init_client "${line[1]}" $socket_port
 	    ;;
 	
     	get-data)
 	    send_json || return
+	    ;;
+
+	get-status)	    
+	    ## status.json
+	    file_output="$path_server"/status.$socket_port.json
+
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    if [ "${line[2]}" == 'force' ]
+	    then
+		echo "$PWD" > /tmp/zdl.d/path.$socket_port
+		
+		unset line[2]
+		while ! check_port $socket_port
+		do
+		    [ -s /tmp/zdl.d/path.$socket_port ] &&
+			cd $(cat /tmp/zdl.d/path.$socket_port)
+		    
+		    create_status_json string_output
+		    current_timeout=$(date +%s)
+			
+		    if [ ! -s "$file_output" ] ||
+			   [ "$string_output" != "$(cat "$file_output")" ] ||
+			    (( (current_timeout - start_timeout) > 240 ))
+		    then
+			init_client "$PWD" "$socket_port"
+			start_timeout=$(date +%s)
+		    fi
+		    sleep 1
+		done &
+		
+	    else		
+		lock_fifo status.$socket_port path
+		if test -d "$path"
+		then
+		    echo "$path" > /tmp/zdl.d/path.$socket_port
+		    cd "$path"
+		fi
+	    fi
+	    
+	    create_status_json string_output
+	    echo -n "$string_output" >$file_output
 	    ;;
 
 	add-link)
@@ -539,7 +659,9 @@ function run_cmd {
 		cd "${line[1]}"
 
 	    echo "${line[2]}" >"$path_tmp/downloader"
-	    unlock_fifo downloader "$PWD" &
+	    #unlock_fifo downloader "$PWD" &
+	    #unlock_fifo status.$socket_port &
+	    init_client
 	    ;;
 
 	get-max-downloads)
@@ -574,40 +696,19 @@ function run_cmd {
 	    if [ -z "${line[2]}" ] || [[ "${line[2]}" =~ ^[0-9]+$ ]] 
 	    then
 		echo "${line[2]}" >"$path_tmp/max-dl"
-		unlock_fifo max-downloads "$PWD" &
+		#unlock_fifo max-downloads "$PWD" &
+		#unlock_fifo status.$socket_port &
+		init_client
 	    fi
 	    ;;
 
-	get-status)
+	get-status-run)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 	    
-	    while : 
-	    do
-		touch "$path_server"/status.$socket_port
-		
-		if check_instance_prog &>/dev/null ||
-			check_instance_daemon &>/dev/null
-		then
-		    status="running" 
-		else
-		    status="not-running"
-		fi
-		
-		current_timeout=$(date +%s)
-
-		if [ "$status" != "$(cat "$path_server"/status.$socket_port)" ] ||
-		       check_port $socket_port &>/dev/null ||
-		       (( (current_timeout - start_timeout) > 240 )) ||
-		       [ "${line[2]}" == 'force' ]
-		then
-		    echo "$status" > "$path_server"/status.$socket_port
-		    break
-		fi
-		
-		sleep 1
-	    done
+	    get_status_run status ${line[2]}
 	    
+	    echo "$status" > "$path_server"/status.$socket_port	    
 	    file_output="$path_server"/status.$socket_port
 	    ;;
 
@@ -670,18 +771,8 @@ function run_cmd {
 		unset line[1] 	    
 	    fi
 
-	    if [ -s "$path_server"/socket-ports ]
-	    then
-		while read port
-		do
-		    if check_port $port 
-		    then
-			set_line_in_file - "$port" "$path_server"/socket-ports 
-		    fi    
-		
-		done < "$path_server"/socket-ports
-	    fi
-
+	    check_socket_ports
+	    
 	    file_output="$path_server"/socket-ports
 	    ;;
 	
@@ -748,6 +839,8 @@ function run_cmd {
 			fi
 		    }
 	    done
+	    
+	    init_client
 	    ;;
 
 	kill-server)
@@ -776,27 +869,55 @@ function run_cmd {
 	    ;;
 	
 	get-conf)
-	    if [ "${line[2]}" != 'force' ]
+	    if [ "${line[1]}" != 'force' ]
 	    then
-		lock_fifo "${line[1]}" item
+		lock_fifo conf
 
 	    else
-		unset line[2] 	    
+		unset line[1]
 	    fi
 
-	    get_item_conf "${line[1]}" > "$path_server"/conf_out
-	    file_output="$path_server"/conf_out
-	    ;;
+	    conf_items=(
+		'downloader'
+		'axel_parts'
+		'aria2_connections'
+		'max_dl'
+		'background'
+		'language'
+		'reconnecter'
+		'autoupdate'
+		'player'
+		'editor'
+		'resume'
+		'zdl_mode'
+		'tcp_port'
+		'udp_port'
+		'socket_port'
+		'browser'
+	    )
 
+	    echo -n '{' > "$path_server"/conf.$socket_port.json
+	    for item in ${conf_items[@]}
+	    do
+		echo -n "\"$item\":\"$(get_item_conf "$item")\"," >> "$path_server"/conf.$socket_port.json
+	    done
+	    sed -r 's|,$|}|g' -i "$path_server"/conf.$socket_port.json
+	    
+	    file_output="$path_server"/conf.$socket_port.json
+	    ;;
+	
 	set-conf)
 	    set_item_conf "${line[1]}" "${line[2]}"
-	    unlock_fifo "${line[1]}" &
+	    #unlock_fifo conf &
+	    init_client
 	    ;;
     esac
 
     if [ -z "$http_method" ]
     then
-	cat "$file_output"
+	test -f "$file_output" &&
+	    cat "$file_output" ||
+		send
 	exit
 
     elif [ -z "$file_output" ]

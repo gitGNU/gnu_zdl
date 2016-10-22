@@ -434,8 +434,9 @@ function set_downloader {
     then
 	downloader_in=$1
 	echo $downloader_in > "$path_tmp/downloader"
-	unlock_fifo downloader "$PWD" &
-
+	#unlock_fifo downloader "$PWD" &
+	init_client
+	
     else
 	return 1
     fi
@@ -923,30 +924,6 @@ function check_freespace {
 }
 
 
-function unlock_fifo {
-    local item_name="$1"
-    local item_value="$2"
-    local fifo_path="$3"
-    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
-    
-    [ ! -e "$fifo_path"/"$item_name".fifo ] &&
-	mkfifo "$fifo_path"/"$item_name".fifo
-
-    echo "$item_value" > "$fifo_path"/"$item_name".fifo 
-}
-
-function lock_fifo {
-    local item_name="$1"
-    local item_value="$2"
-    local fifo_path="$3"
-    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
-    
-    [ ! -e "$fifo_path"/"$item_name".fifo ] &&
-	mkfifo "$fifo_path"/"$item_name".fifo
-
-    eval read $item_value < "$fifo_path"/"$item_name".fifo
-}
-
 function kill_server {
     local port="$1"
     [ -z "$port" ] && port="$socket_port"
@@ -991,7 +968,7 @@ function kill_server {
     init_client 2>/dev/null
 
     set_line_in_file - "$port" /tmp/zdl.d/socket-ports
-    unlock_fifo socket-ports &
+    #unlock_fifo socket-ports &
     
     kill "$pid_prog"
 }
@@ -1016,7 +993,8 @@ function run_zdl_server {
     then
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
 	set_line_in_file + $port /tmp/zdl.d/socket-ports
-	unlock_fifo socket-ports &
+	#unlock_fifo socket-ports &
+	init_client
 	return 0
 
     else
@@ -1063,3 +1041,59 @@ function check_instance_server {
     return 1
 }
 
+function init_client {
+    local file item port
+    local path="$1"
+    local socket_port="$2"
+    #[ -z "$path" ] && path="$PWD"
+
+    # for item in downloader max-downloads socket-ports
+    # do
+    # 	unlock_fifo $item "$PWD" &
+    # done
+    
+    # [ -n "$(ls "$path_server"/status.$socket_port "$path_server"/*.diff 2>/dev/null)" ] &&
+    # 	{
+    # 	    for file in "$path_server"/status.$socket_port "$path_server"/*.diff
+    # 	    do
+    # 		echo RELOAD > $file
+    # 	    done
+    # 	}
+    # unlock_fifo status &
+
+    while read port
+    do
+	if [ "$socket_port" == "$port" ]
+	then
+	    unlock_fifo status.$port "$path" &
+
+	else
+	    unlock_fifo status.$port &
+	fi
+	
+    done < /tmp/zdl.d/socket-ports
+}
+
+function unlock_fifo {
+    local fifo_name="$1"
+    local item_value="$2"
+    local fifo_path="$3"
+    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
+    
+    [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
+	mkfifo "$fifo_path"/"$fifo_name".fifo
+
+    echo "$item_value" > "$fifo_path"/"$fifo_name".fifo 
+}
+
+function lock_fifo {
+    local fifo_name="$1"
+    local item_name="$2"
+    local fifo_path="$3"
+    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
+    
+    [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
+	mkfifo "$fifo_path"/"$fifo_name".fifo
+
+    eval read $item_name < "$fifo_path"/"$fifo_name".fifo
+}

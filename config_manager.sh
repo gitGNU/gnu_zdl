@@ -42,9 +42,7 @@ function check_read {
     if [ -z "$1" ]
     then
 	print_c 2 "Nessun valore inserito: vuoi cancellare il valore precedente? (sì|*)"
-	cursor on
-	read -e input
-	cursor off
+	input_text input
 	
 	if [ "$input" == "sì" ]
 	then
@@ -72,9 +70,8 @@ function configure_key {
 	fi
 	
 	print_c 2 "$(colorize_values "${string_conf[$opt]}" 2) (nome: $(sprint_c 3 "${key_conf[$opt]}" 2))$extra_string:"
-	cursor on
-	read -e new_value
-	cursor off
+
+	input_text new_value
 	
 	check_read "$new_value" &&
 	    if [[ "${key_conf[$opt]}" =~ (reconnecter|player|editor) ]] &&
@@ -85,6 +82,7 @@ function configure_key {
 
 	    else
 		set_item_conf ${key_conf[$opt]} "$new_value"
+		#unlock_fifo conf &
 	    fi
 	
 	touch "$path_conf/updated"
@@ -140,10 +138,9 @@ function configure {
 		    show_conf
 		    
 		    print_c 2 "\nSeleziona l'elemento predefinito da modificare ($(sprint_c 4 "1-${#key_conf[*]}" 2) | $(sprint_c 4 "q" 2) per tornare indietro):"
-		    cursor on
-		    read -e opt
-		    cursor off
 
+		    input_text opt
+		    
 		    [ "$opt" == "q" ] && break 
 		    configure_key $opt
 		done
@@ -215,9 +212,7 @@ function configure_accounts {
 		    header_box "Registra un account per il login automatico ($host)"
 
 		    print_c 2 "\rNome utente:"
-		    cursor on
-		    read -e user
-		    cursor off
+		    input_text user
 		    
 		    if [ -n "$user" ]
 		    then
@@ -257,9 +252,7 @@ function configure_accounts {
 		;;
 	    2)	##remove
 		print_c 2 "Nome utente dell'account da cancellare:"
-		cursor on
-		read -e user
-		cursor off
+		input_text user
 		
 		if grep -P "^$user\s.+$" "$path_conf"/accounts/$host &>/dev/null
 		then
