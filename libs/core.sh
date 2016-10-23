@@ -942,11 +942,14 @@ function kill_server {
     # check_instance_server "$port" &&
     # 	kill_server "$port" 
 
-    fuser -k -n tcp $port &
+    if ! check_port $port
+    then
+	fuser -k -n tcp $port &
 		    
-    init_client 
+	init_client 
 
-    set_line_in_file - "$port" /tmp/zdl.d/socket-ports
+	set_line_in_file - "$port" /tmp/zdl.d/socket-ports
+    fi
 }
 
 function get_server_pids {

@@ -178,11 +178,11 @@ done
 
 package="zdl-2.0.tar.gz"
 
-cp *.sig "$path_conf/"
+#cp *.sig "$path_conf/"
 
 date +%s >"$path_conf/version"
 
-package=$(ls *.tar.gz)
+#package=$(ls *.tar.gz)
 tar -xzf "$package"
 
 rm -fr "$prog"
