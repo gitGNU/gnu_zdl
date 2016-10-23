@@ -419,6 +419,11 @@ var getConf = function (repeat, op) {
 		 });
 };
 
+var setConf = function (id) {
+    var query = "?cmd=set-conf&key=" + id + '&value=' + document.getElementById('input-' + id).value;
+    
+    return load ('GET', query, true);
+};
 
 var getStatus = function (repeat, op) {
     var query = '?cmd=get-status&path=' + ZDL.path;
@@ -466,7 +471,7 @@ var displayStatus = function (status) {
 
 var displayInputSelect = function (spec) {
     // spec = {id: options: value:}
-    var output = '<select id="input-' + spec.id + "\" onchange=\"conf('" + spec.id + "').set();\">";
+    var output = '<select id="input-' + spec.id + "\" onchange=\"setConf('" + spec.id + "');\">";
 
     spec.options.forEach(function(item){
 	if (String(spec.value) === String(item))
@@ -536,6 +541,8 @@ var displayConf = function (conf) {
 	case 'autoupdate':
 	    if (!spec.options)
 		spec.options = ['enabled','disabled'];
+	    if (spec.value !== 'enabled')
+		spec.value = 'disabled';
 	case 'zdl_mode':
 	    if (!spec.options)
 		spec.options = ['stdout','lite','daemon'];

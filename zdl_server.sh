@@ -885,8 +885,8 @@ function run_cmd {
 	
 	set-conf)
 	    set_item_conf "${line[1]}" "${line[2]}"
-	    #unlock_fifo conf &
 	    init_client
+	    
 	    ;;
     esac
 
