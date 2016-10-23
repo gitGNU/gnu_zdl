@@ -419,10 +419,18 @@ var getConf = function (repeat, op) {
 		 });
 };
 
-var setConf = function (id) {
-    var query = "?cmd=set-conf&key=" + id + '&value=' + document.getElementById('input-' + id).value;
+var setConf = function (spec) {
+    var value = document.getElementById('input-' + spec.id).value;
+    alert (spec.id + ': ' + value);
     
-    return load ('GET', query, true);
+    if (spec.id.match(/^(axel_parts|aria2_connections|max_dl|tcp_port|udp_port|socket_port)$/)) {
+	value = parseInt(value);
+	if (isNaN(value) || value < spec.min || value > spec.max) {
+	    return alert ('È richiesto un valore numerico compreso fra ' + spec.min + ' e ' + spec.max);
+	}
+    }
+
+    load ('GET', "?cmd=set-conf&key=" + spec.id + '&value=' + value, true);	
 };
 
 var getStatus = function (repeat, op) {
@@ -471,7 +479,7 @@ var displayStatus = function (status) {
 
 var displayInputSelect = function (spec) {
     // spec = {id: options: value:}
-    var output = '<select id="input-' + spec.id + "\" onchange=\"setConf('" + spec.id + "');\">";
+    var output = '<select id="input-' + spec.id + "\" onchange=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">";
 
     spec.options.forEach(function(item){
 	if (String(spec.value) === String(item))
@@ -486,7 +494,10 @@ var displayInputSelect = function (spec) {
 
 var displayInputNumber = function (spec) {
     // spec = {id: value: min: max:}
-    var output = spec.id + spec.value;
+    var output = '<input id="input-' + spec.id + '" type="text" value="' + spec.value + "\">" +
+		"<button onclick=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Invia</button>" +
+		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
+
     document.getElementById('conf-' + spec.id).innerHTML = output;
 };
 
@@ -539,10 +550,11 @@ var displayConf = function (conf) {
 		spec.options = ['it_IT.UTF-8'];
 	case 'resume':
 	case 'autoupdate':
-	    if (!spec.options)
+	    if (!spec.options) {
 		spec.options = ['enabled','disabled'];
-	    if (spec.value !== 'enabled')
-		spec.value = 'disabled';
+		if (spec.value !== 'enabled')
+		    spec.value = 'disabled';
+	    }
 	case 'zdl_mode':
 	    if (!spec.options)
 		spec.options = ['stdout','lite','daemon'];
@@ -572,8 +584,9 @@ var displayConf = function (conf) {
 		spec.min = 1024;
 		spec.max = 65535;
 	    }
-	    
-	    displayInputNumber (spec);
+
+ 	    var output = "<button onclick=\"displayInputNumber(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Cambia</button>";
+	    document.getElementById('conf-' + spec.id).innerHTML = '<div class="value">' + spec.value + '</div>' + output;
 	    break;
 
 	case 'reconnecter':
