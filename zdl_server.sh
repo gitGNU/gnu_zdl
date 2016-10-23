@@ -837,7 +837,7 @@ function run_cmd {
 	    ;;
 
 	kill-server)
-	    kill_server "${line[1]}"
+	    kill_server "${line[1]}" 
 	    ;;
 	
 	kill-all)

@@ -161,8 +161,22 @@ Installazione di Wget
 fi
 
 #wget "$URL_ROOT" -r -l 1 -A sig,txt -np -nd -q
-wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
-wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+#wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz"
+#wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz.sig"
+
+rm -f zdl-2.0.tar.gz.sig zdl-2.0.tar.gz
+while [ ! -f zdl-2.0.tar.gz ]
+do
+    wget -q "http://download-mirror.savannah.gnu.org/releases/zdl/zdl-2.0.tar.gz" -O zdl-2.0.tar.gz 
+    
+    if [ ! -f zdl-2.0.tar.gz ]
+    then
+	echo "Problemi di connessione: se non dovesse risolversi, chiudi il programma con <Control+c>"
+	sleep 1
+    fi
+done
+
+package="zdl-2.0.tar.gz"
 
 cp *.sig "$path_conf/"
 

@@ -929,60 +929,24 @@ function kill_server {
 
     [ -z "$port" ] && port="$socket_port"    
     
-    for path2pid in /proc/*/cmdline
-    do
-	parse_int pid "$path2pid"
-	if [ -n "$pid" ] &&
-	       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/$pid/cmdline &>/dev/null
-	then	    
-	    kill "$pid"
-	    matched=true
-	fi
-    done
-    [ -n "$matched" ] && kill_server "$port"
-    
-    # rm -f /tmp/zdl.d/matched
-    # ps ax | while read -a psline
-    # 	    do
-    # 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
-    # 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null &&
-    # 		       [ "${psline[0]}" != "$pid_prog" ]
-    # 		then
-    # 		    kill "${psline[0]}"
-    # 		    touch /tmp/zdl.d/matched
-    # 		fi
-    # 	    done
-    #    [ -f /tmp/zdl.d/matched ] && kill_server "$port"
+    # for path2pid in /proc/*/cmdline
+    # do
+    # 	parse_int pid "$path2pid"
+    # 	if [ -n "$pid" ] &&
+    # 	       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/$pid/cmdline &>/dev/null #|.+zdl_server\.sh.*${port}
+    # 	then
+    # 	    kill "$pid"
+    # 	fi
+    # done
 
-    # get_server_pids $port | while read pid
-    # 			    do
-    # 				if [ "$pid" != "$pid_prog" ]
-    # 				then
-    # 				    del_server_pid $pid
-    # 				    kill $pid &>/dev/null
-    # 				fi
-    # 			    done
+    # check_instance_server "$port" &&
+    # 	kill_server "$port" 
 
-    # ps ax | while read -a psline
-    # 	    do		
-    # 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
-    # 		       grep -P "\/zdl_server\.sh.*${port}" /proc/${psline[0]}/cmdline &>/dev/null
-    # 		then
-    # 		    if [ "${psline[0]}" != "$pid_prog" ]
-    # 		    then
-    # 			kill "${psline[0]}" &>/dev/null &&
-    # 			    del_server_pid "${psline[0]}"
-    # 		    fi
-    # 		fi
-    # 	    done
-
-
+    fuser -k -n tcp $port &
+		    
     init_client 
 
     set_line_in_file - "$port" /tmp/zdl.d/socket-ports
-    #unlock_fifo socket-ports &
-    
-    kill "$pid_prog"
 }
 
 function get_server_pids {
@@ -1040,29 +1004,13 @@ function check_instance_server {
     local port="$1"
     local pid path2pid
 
-    for path2pid in /proc/*/cmdline
-    do
-	parse_int pid "$path2pid"
-	if [ -n "$pid" ] &&
-	       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/$pid/cmdline &>/dev/null
-	then
+    grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/*/cmdline &>/dev/null &&
+	{
 	    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
 	    return 0
-	fi
-    done
+	}
+    
     return 1
-    
-    # ps ax | while read -a psline
-    # 	    do
-    # 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
-    # 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
-    # 		then
-    # 		    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
-    # 		    return 0
-    # 		fi
-    # 	    done &>/dev/null
-    
-    # return 1
 }
 
 function init_client {

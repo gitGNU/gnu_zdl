@@ -452,6 +452,7 @@ ESTENSIONI:
 	deps['gawk']=gawk
 	deps['rlwrap']=rlwrap
 	deps['setterm']=util-linux
+	deps['fuser']=psmisc
 
 	for cmd in "${!deps[@]}"
 	do
@@ -506,6 +507,7 @@ ESTENSIONI:
 	deps['gawk']=gawk
 	deps['rlwrap']=rlwrap
 	deps['setterm']=util-linux
+	deps['fuser']=psmisc
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&
