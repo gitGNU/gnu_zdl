@@ -551,3 +551,19 @@ function cmp_file {
     fi
     return 1
 }
+
+function parse_int {
+    declare -n ref="$1"
+    local val="$2"
+    if [[ "$val" =~ [^0-9]*([0-9]+)[^0-9]* ]]
+    then
+	ref="${BASH_REMATCH[1]}"
+	return 0
+	
+    else
+	ref=""
+	return 1
+    fi
+}
+
+

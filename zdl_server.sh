@@ -51,13 +51,6 @@ add_server_pid "$socket_port"
 
 json_flag=true
 
-for item in socket-ports downloader max-downloads status
-do
-    [ ! -e "$path_server"/"$item".fifo ] &&
-	mkfifo "$path_server"/"$item".fifo
-done	
-unset item
-
 ## node.js:
 if [ -d /cygdrive ] &&
        ! command -v node &>/dev/null &&
@@ -869,6 +862,8 @@ function run_cmd {
 	    ;;
 	
 	get-conf)
+	    file_output="$path_server"/conf.$socket_port.json
+	    
 	    if [ "${line[1]}" != 'force' ]
 	    then
 		lock_fifo conf
@@ -877,33 +872,15 @@ function run_cmd {
 		unset line[1]
 	    fi
 
-	    conf_items=(
-		'downloader'
-		'axel_parts'
-		'aria2_connections'
-		'max_dl'
-		'background'
-		'language'
-		'reconnecter'
-		'autoupdate'
-		'player'
-		'editor'
-		'resume'
-		'zdl_mode'
-		'tcp_port'
-		'udp_port'
-		'socket_port'
-		'browser'
-	    )
-
-	    echo -n '{' > "$path_server"/conf.$socket_port.json
-	    for item in ${conf_items[@]}
-	    do
-		echo -n "\"$item\":\"$(get_item_conf "$item")\"," >> "$path_server"/conf.$socket_port.json
-	    done
-	    sed -r 's|,$|}|g' -i "$path_server"/conf.$socket_port.json
+	    string_output='{'
 	    
-	    file_output="$path_server"/conf.$socket_port.json
+	    for item in ${key_conf[@]}
+	    do
+		string_output+="\"$item\":\"$(get_item_conf "$item")\","
+	    done
+	    string_output="${string_output%,}}"
+	    
+	    echo -n "$string_output" > "$file_output"
 	    ;;
 	
 	set-conf)

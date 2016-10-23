@@ -717,11 +717,10 @@ function redirect {
 	then
 	    url_redirect="$(grep 'Location:' "$path_tmp/redirect" 2>/dev/null |head -n1)"
 	    url_redirect="${url_redirect#*'Location: '}"
-	    #url_redirect="$(sanitize_url "$url_redirect")"
 	fi
 
 	if url "$url_redirect" &&
-		[ "$url_redirect" != "https://tusfiles.net" ] # || ! check_pid "$wpid"
+		[ "$url_redirect" != "https://tusfiles.net" ]
     	then 
     	    kill -9 $(cat "$path_tmp"/pid_redirects) &>/dev/null
     	    break
@@ -736,7 +735,7 @@ function redirect {
 		print_c 2 "Redirezione (attendi massimo 90 secondi):"
 
 	    sleeping 1
-    	    s=`date +"%s"`
+    	    s=$(date +"%s")
     	    s=$(( $s-$k ))
     	    print_c 0 "$s\r\c"
     	fi
@@ -926,7 +925,34 @@ function check_freespace {
 
 function kill_server {
     local port="$1"
-    [ -z "$port" ] && port="$socket_port"
+    local matched
+
+    [ -z "$port" ] && port="$socket_port"    
+    
+    for path2pid in /proc/*/cmdline
+    do
+	parse_int pid "$path2pid"
+	if [ -n "$pid" ] &&
+	       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/$pid/cmdline &>/dev/null
+	then	    
+	    kill "$pid"
+	    matched=true
+	fi
+    done
+    [ -n "$matched" ] && kill_server "$port"
+    
+    # rm -f /tmp/zdl.d/matched
+    # ps ax | while read -a psline
+    # 	    do
+    # 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
+    # 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null &&
+    # 		       [ "${psline[0]}" != "$pid_prog" ]
+    # 		then
+    # 		    kill "${psline[0]}"
+    # 		    touch /tmp/zdl.d/matched
+    # 		fi
+    # 	    done
+    #    [ -f /tmp/zdl.d/matched ] && kill_server "$port"
 
     # get_server_pids $port | while read pid
     # 			    do
@@ -936,20 +962,6 @@ function kill_server {
     # 				    kill $pid &>/dev/null
     # 				fi
     # 			    done
-
-    rm -f /tmp/zdl.d/matched
-    ps ax | while read -a psline
-	    do
-		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null &&
-		       [ "${psline[0]}" != "$pid_prog" ]
-		then
-		    kill "${psline[0]}"
-		    touch /tmp/zdl.d/matched
-		fi
-	    done
-    
-    [ -f /tmp/zdl.d/matched ] && kill_server "$port"
 
     # ps ax | while read -a psline
     # 	    do		
@@ -965,7 +977,7 @@ function kill_server {
     # 	    done
 
 
-    init_client 2>/dev/null
+    init_client 
 
     set_line_in_file - "$port" /tmp/zdl.d/socket-ports
     #unlock_fifo socket-ports &
@@ -1026,40 +1038,37 @@ function add_server_pid {
 
 function check_instance_server {
     local port="$1"
-    local psline
-    
-    ps ax | while read -a psline
-	    do
-		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
-		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
-		then
-		    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
-		    return 0
-		fi
-	    done &>/dev/null
-    
+    local pid path2pid
+
+    for path2pid in /proc/*/cmdline
+    do
+	parse_int pid "$path2pid"
+	if [ -n "$pid" ] &&
+	       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/$pid/cmdline &>/dev/null
+	then
+	    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
+	    return 0
+	fi
+    done
     return 1
+    
+    # ps ax | while read -a psline
+    # 	    do
+    # 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
+    # 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
+    # 		then
+    # 		    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
+    # 		    return 0
+    # 		fi
+    # 	    done &>/dev/null
+    
+    # return 1
 }
 
 function init_client {
-    local file item port
+    local port
     local path="$1"
     local socket_port="$2"
-    #[ -z "$path" ] && path="$PWD"
-
-    # for item in downloader max-downloads socket-ports
-    # do
-    # 	unlock_fifo $item "$PWD" &
-    # done
-    
-    # [ -n "$(ls "$path_server"/status.$socket_port "$path_server"/*.diff 2>/dev/null)" ] &&
-    # 	{
-    # 	    for file in "$path_server"/status.$socket_port "$path_server"/*.diff
-    # 	    do
-    # 		echo RELOAD > $file
-    # 	    done
-    # 	}
-    # unlock_fifo status &
 
     while read port
     do
@@ -1080,10 +1089,11 @@ function unlock_fifo {
     local fifo_path="$3"
     [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
     
-    [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
-	mkfifo "$fifo_path"/"$fifo_name".fifo
+    # [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
+    # 	mkfifo "$fifo_path"/"$fifo_name".fifo
 
-    echo "$item_value" > "$fifo_path"/"$fifo_name".fifo 
+    [ -e "$fifo_path"/"$fifo_name".fifo ] &&
+	echo "$item_value" > "$fifo_path"/"$fifo_name".fifo 
 }
 
 function lock_fifo {

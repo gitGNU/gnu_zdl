@@ -248,6 +248,7 @@ function readline_links {
     do
 	trap_sigint
 	read -e link
+	#input_text link
 	
 	if [ -n "${link// }" ]
 	then
