@@ -1497,9 +1497,7 @@ then
     pipe_files
 fi
 
-
 post_process || exit 1
-
 
 if ! get_exit
 then
@@ -1518,7 +1516,7 @@ else
     kill_downloads
 fi
 
-kill_server
+#kill_server
 header
 echo -en "\n"
 

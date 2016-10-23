@@ -1021,17 +1021,20 @@ function init_client {
     local path="$1"
     local socket_port="$2"
 
-    while read port
-    do
-	if [ "$socket_port" == "$port" ]
-	then
-	    unlock_fifo status.$port "$path" &
-
-	else
-	    unlock_fifo status.$port &
-	fi
-	
-    done < /tmp/zdl.d/socket-ports
+    [ -s /tmp/zdl.d/socket-ports ] &&
+	{
+	    while read port
+	    do
+		if [ "$socket_port" == "$port" ]
+		then
+		    unlock_fifo status.$port "$path" &
+		    
+		else
+		    unlock_fifo status.$port &
+		fi
+		
+	    done < /tmp/zdl.d/socket-ports
+	}
 }
 
 function unlock_fifo {
