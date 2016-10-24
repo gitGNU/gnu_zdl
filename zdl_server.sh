@@ -706,20 +706,43 @@ function run_cmd {
 	    ;;
 
 	get-dirs)
-	    unset file_output dirs text_output
+	    file_output="$path_server"/browsing.$socket_port
 	    
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    text_output+="<a href=\"javascript:browse('$PWD/..');\"><img src=\"folder-blue.png\" /> ..</a><br>"
+	    string_output="<a href=\"javascript:browseDir('$PWD/..');\"><img src=\"folder-blue.png\">..</a><br>"
 	    while read dir
 	    do
 		real_dir=$(realpath "$dir")
-		text_output+="<a href=\"javascript:browse('${real_dir}');\"><img src=\"folder-blue.png\" /> ${dir}</a><br>"
+		string_output+="<a href=\"javascript:browseDir('${real_dir}');\"><img src=\"folder-blue.png\">${dir}</a><br>"
 	    done < <(ls -d1 */)
 
-	    echo "$text_output" > "$path_server"/browsing.$socket_port
-	    file_output="$path_server"/browsing.$socket_port	    
+	    echo "$string_output" > "$file_output"	    
+	    ;;
+
+	get-file)
+	    file_output="$path_server"/browsing.$socket_port
+	    
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    string_output="<a href=\"javascript:browseFile('${line[2]}','$PWD/..');\"><img src=\"folder-blue.png\">..</a><br>"
+	    while read file
+	    do
+		real_path=$(realpath "$file")
+		if [ -d "$real_path" ]
+		then
+		    string_output+="<a href=\"javascript:browseFile('${line[2]}','$real_path');\"><img src=\"folder-blue.png\">${file}</a><br>"
+
+		elif [ -x "$real_path" ]
+		then
+		    string_output+="<a href=\"javascript:selectFile('${line[2]}','$real_path');\"><img src=\"application-x-desktop.png\">${file}</a><br>"
+		fi
+		
+	    done < <(ls -1 --group-directories-first)
+
+	    echo "$string_output" > "$file_output"	    
 	    ;;
 
 	clean-complete)
@@ -886,7 +909,6 @@ function run_cmd {
 	set-conf)
 	    set_item_conf "${line[1]}" "${line[2]}"
 	    init_client
-	    
 	    ;;
     esac
 

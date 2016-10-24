@@ -222,7 +222,7 @@ function set_default_conf {
 # }
 
 function get_item_conf {	
-	awk "{match(\$1,/$1=\"*([^\"]+)\"$/,pattern); if (pattern[1]) print pattern[1]}" "$file_conf"
+	awk "{match(\$0,/^\ *$1=\"([^\"]+)\"$/,pattern); if (pattern[1]) print pattern[1]}" "$file_conf"
 }
 
 function set_item_conf {

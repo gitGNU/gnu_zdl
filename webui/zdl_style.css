@@ -618,3 +618,6 @@ div.value {
     word-wrap: break-all;
 }
 
+div.float {
+    float: left;
+}

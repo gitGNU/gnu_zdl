@@ -227,7 +227,7 @@ var singlePath = function (path) {
 	if (isNaN(max_dl))
 	    max_dl = '';
 	    
-	var output = "<input id=\"input-max-downloads\" type=\"text\" value=\"" + max_dl + "\">" +
+	var output = '<input id="input-max-downloads" type="number" value="' + max_dl + '" min="0" max="100">' +
 		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads();\">Invia</button>" +
 		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads('no-limits');\">Nessun limite</button>";
 	return document.getElementById('max-downloads').innerHTML = output;
@@ -299,7 +299,7 @@ var singlePath = function (path) {
 };
 
 
-var browse = function (path) {
+var browseDir = function (path) {
     document.getElementById('run-path').setAttribute('class', 'hidden');
     path = path.replace(/[^/]+\/\.\.$/,'');
 
@@ -331,7 +331,7 @@ var selectDir = function (path) {
     ZDL.path = path;
     document.getElementById('run-path').setAttribute('class', 'visible');
     document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div class="value">' + path + '</div>' +
- 	" <button onClick=\"browse('" + path + "');\">Cambia</button><br>";
+ 	" <button onClick=\"browseDir('" + path + "');\">Cambia</button><br>";
     document.getElementById('browse').innerHTML = '';
     return initClient(path);
 };
@@ -419,9 +419,9 @@ var getConf = function (repeat, op) {
 		 });
 };
 
-var setConf = function (spec) {
-    var value = document.getElementById('input-' + spec.id).value;
-    alert (spec.id + ': ' + value);
+var setConf = function (spec, value) {
+    if (!value)
+	value = document.getElementById('input-' + spec.id).value;
     
     if (spec.id.match(/^(axel_parts|aria2_connections|max_dl|tcp_port|udp_port|socket_port)$/)) {
 	value = parseInt(value);
@@ -477,7 +477,7 @@ var displayStatus = function (status) {
     }
 };
 
-var displayInputSelect = function (spec) {
+var displayInputSelect = function (spec, id) {
     // spec = {id: options: value:}
     var output = '<select id="input-' + spec.id + "\" onchange=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">";
 
@@ -489,46 +489,46 @@ var displayInputSelect = function (spec) {
 	output += item + "</option>";
     });
 
-    document.getElementById('conf-' + spec.id).innerHTML = output;
+    document.getElementById(id).innerHTML = output;
 };
 
-var displayInputNumber = function (spec) {
+var displayInputNumber = function (spec, id) {
     // spec = {id: value: min: max:}
-    var output = '<input id="input-' + spec.id + '" type="text" value="' + spec.value + "\">" +
+    var output = '<input id="input-' + spec.id + '" type="number" value="' + spec.value + '" min="' + spec.min + '" max="' + spec.max + '">' +
 		"<button onclick=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Invia</button>" +
 		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
-    document.getElementById('conf-' + spec.id).innerHTML = output;
+    document.getElementById(id).innerHTML = output;
 };
 
-var displayInputFile = function (spec) {
+var displayInputText = function (spec, id) {
+    // spec = {id: value: min: max:}
+    var output = '<input id="input-' + spec.id + '" type="text" value="' + spec.value + '">' +
+		"<button onclick=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Invia</button>" +
+		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
+
+    document.getElementById(id).innerHTML = output;
+};
+
+var selectFile = function (id, path) {
+    setConf({id: id}, path);
+};
+
+var browseFile = function (id, path) {
     // spec = {id: value:}
-    var output = spec.id + spec.value;
-    document.getElementById('conf-' + spec.id).innerHTML = output;
-};
+    
+    return load ('GET',
+		 '?cmd=get-file&path=' + path + '&id=' + id,
+		 true,
+		 function (res) {
+		     var output = "<div class=\"value\"><b>Sfoglia da:</b> " + path + "</div>" +
+			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button><br>" +
+			     res +
+			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
-var displaySockets = function (sockets) {
-    var output_kill = '';
-    var output_open = '';
-
-    sockets.forEach(function (port) {
-	port = parseInt(port);
-	
-	if(!isNaN(port)) {
-	    output_open += "<button onclick=\"window.open('" +
-		document.location.protocol + '//' + 
-		document.location.hostname +
-		':' + port +
-		"');";
-	    output_kill += '<button onclick="killServer(' + port + ');';
-	    if(parseInt(port) === parseInt(document.location.port))
-		output_kill += "setTimeout('document.location.reload(true)', 2000);"
-	    output_open += '">' + port + '</button>';
-	    output_kill += '">' + port + '</button>';
-	}
-    });
-    document.getElementById('list-sockets-open').innerHTML = output_open;
-    document.getElementById('list-sockets-kill').innerHTML = output_kill;
+		     document.getElementById('conf-' + id + '-file').style.width = '100%';
+		     document.getElementById('conf-' + id + '-file').innerHTML = output;
+		 });
 };
 
 var displayConf = function (conf) {
@@ -559,7 +559,7 @@ var displayConf = function (conf) {
 	    if (!spec.options)
 		spec.options = ['stdout','lite','daemon'];
 	    
-	    displayInputSelect (spec);
+	    displayInputSelect (spec, 'conf-' + spec.id);
 	    break;
 	    
 	case 'axel_parts':
@@ -585,7 +585,7 @@ var displayConf = function (conf) {
 		spec.max = 65535;
 	    }
 
- 	    var output = "<button onclick=\"displayInputNumber(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Cambia</button>";
+ 	    var output = "<button onclick=\"displayInputNumber(" + JSON.stringify(spec).replace(/\"/g, "'") + ",'conf-" + spec.id + "');\">Cambia</button>";
 	    document.getElementById('conf-' + spec.id).innerHTML = '<div class="value">' + spec.value + '</div>' + output;
 	    break;
 
@@ -593,10 +593,46 @@ var displayConf = function (conf) {
 	case 'player':
 	case 'editor':
 	case 'browser':
-	    displayInputFile (spec);
+	    document.getElementById('conf-' + spec.id + '-file').innerHTML = '<div class="value">' + spec.value + '</div>' +
+		"<button onclick=\"document.getElementById('conf-" + spec.id + "-text').style.display = 'none'; browseFile('" + spec.id +"', '" + ZDL.path + "');\">Sfoglia</button>";
+
+	    document.getElementById('conf-' + spec.id + '-text').innerHTML = "<button onclick=\"" +
+		"document.getElementById('conf-" + spec.id + "-file').style.display = 'none';" +		
+		"displayInputText (" +
+		JSON.stringify(spec).replace(/\"/g, "'") +
+		", 'conf-" + spec.id + "-text');" +
+		"\">Scrivi</button>";
+
+	    document.getElementById('conf-' + spec.id + '-file').style.width = 'initial';
+	    document.getElementById('conf-' + spec.id + '-file').style.display = 'initial';
+	    document.getElementById('conf-' + spec.id + '-text').style.display = 'initial';
 	};
     });    
 }
+
+var displaySockets = function (sockets) {
+    var output_kill = '';
+    var output_open = '';
+
+    sockets.forEach(function (port) {
+	port = parseInt(port);
+	
+	if(!isNaN(port)) {
+	    output_open += "<button onclick=\"window.open('" +
+		document.location.protocol + '//' + 
+		document.location.hostname +
+		':' + port +
+		"');";
+	    output_kill += '<button onclick="killServer(' + port + ');';
+	    if(parseInt(port) === parseInt(document.location.port))
+		output_kill += "setTimeout('document.location.reload(true)', 2000);"
+	    output_open += '">' + port + '</button>';
+	    output_kill += '">' + port + '</button>';
+	}
+    });
+    document.getElementById('list-sockets-open').innerHTML = output_open;
+    document.getElementById('list-sockets-kill').innerHTML = output_kill;
+};
 
 var displayDownloader = function (dler) {
     dler = dler.replace(/(\r\n|\n|\r)/gm, "");
