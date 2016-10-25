@@ -809,16 +809,15 @@ var displayTorrentButton = function (id) {
 var displayFileButton = function (spec) {
     // spec: {id:,file:}
     var output = "<button onclick=\"displayFileText(" + objectToSource(spec) + ");\">" +
-	    "Leggi " + spec.file.replace(/.+\//g,'') + "</button>";
+	    "Leggi " + spec.file + "</button>";
 
     document.getElementById(spec.id).innerHTML = output;
     document.getElementById(spec.id).style.display = 'inline-block';
-  //  document.getElementById(spec.id).style.margin = '0';
     document.getElementById(spec.id).style.padding = '0';
 };
 
 var displayFileText = function (spec) {
-    var query = '?cmd=get-file&path=' + path + '&file=' + spec.file;
+    var query = '?cmd=get-file&path=' + path + '&file=' + ZDL.path + '/' + spec.file;
     
     load ('GET',
 	  query,
@@ -831,7 +830,6 @@ var displayFileText = function (spec) {
 		  
 		  document.getElementById(spec.id).innerHTML = "<b>" + spec.file + ':</b><br>' + output;
 		  document.getElementById(spec.id).style.display = 'block';
-//		  document.getElementById(spec.id).style.margin = '1em 0 1em 0';
 		  document.getElementById(spec.id).style.padding = '1em 1em 1em 1em';
 		  
 	      } else {
@@ -846,8 +844,8 @@ var init = function (path) {
     changeSection('links');
     displayEditButton();
     displayTorrentButton('path-torrent');
-    displayFileButton({id:'path-file-log',file:ZDL.path + '/zdl_log.txt'});
-    displayFileButton({id:'path-file-links',file:ZDL.path + '/links.txt'});
+    displayFileButton({id:'path-file-log',file:'zdl_log.txt'});
+    displayFileButton({id:'path-file-links',file:'links.txt'});
     displayLinks();
     getStatus(true, 'force');
 };
