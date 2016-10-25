@@ -353,19 +353,19 @@ input[type=text] {
     height: 30px;
     margin: 0 0;
     box-sizing: border-box;
-    border: none;
+    border: 1px solid #343434;
     background-color: black;
-    color: white;
+    color: #EEE;
 }
 
 input[type=number] {
     float: left;
     height: 30px;
     margin: 0 0;
+    border: 1px solid #343434;
     box-sizing: border-box;
-    border: none;
+    color: #EEE;
     background-color: black;
-    color: white;
 }
 
 /* #input-port:hover:after { */
@@ -396,9 +396,9 @@ textarea {
     height: 300px;
     margin: 1em 1em 0 1em; /* top right bottom left */
     box-sizing: border-box;
-    border: none;
-    color: white;
-    background-color: black; 
+    border: 1px solid #343434;
+    color: #EEE;
+    background-color: black;
 }
 
 
@@ -623,12 +623,14 @@ div.float {
 }
 
 div.file-text {
+    display: block;
     position: relative;
     width: calc(100% - 2em);
     height: 300px;
     overflow: auto;
     padding: 4px;
-    border: 1px solid #FFF;
+    border: 1px 1px 1px 0 solid #343434;
+    box-sizing: border-box;
     color: #EEE;
     background-color: black;
 }

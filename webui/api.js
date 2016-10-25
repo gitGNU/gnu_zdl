@@ -808,7 +808,13 @@ var displayTorrentButton = function (id) {
 
 var displayFileButton = function (spec) {
     // spec: {id:,file:}
-    document.getElementById(spec.id).innerHTML = "<button onclick=\"displayFileText(" + objectToSource(spec) + ");\">Leggi</button>";
+    var output = "<button onclick=\"displayFileText(" + objectToSource(spec) + ");\">" +
+	    "Leggi " + spec.file.replace(/.+\//g,'') + "</button>";
+
+    document.getElementById(spec.id).innerHTML = output;
+    document.getElementById(spec.id).style.display = 'inline-block';
+  //  document.getElementById(spec.id).style.margin = '0';
+    document.getElementById(spec.id).style.padding = '0';
 };
 
 var displayFileText = function (spec) {
@@ -821,10 +827,13 @@ var displayFileText = function (spec) {
 	      if (cleanInput(res)) {
 		  var output = '<div class="file-text">' + res + '</div>';
 		  output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
-		  output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ")\">Chiudi</button>";
+		  output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ");\">Chiudi</button>";
 		  
-		  document.getElementById(spec.id).innerHTML = output;
-
+		  document.getElementById(spec.id).innerHTML = "<b>" + spec.file + ':</b><br>' + output;
+		  document.getElementById(spec.id).style.display = 'block';
+//		  document.getElementById(spec.id).style.margin = '1em 0 1em 0';
+		  document.getElementById(spec.id).style.padding = '1em 1em 1em 1em';
+		  
 	      } else {
 		  alert('File ' + spec.file + ' non disponibile');
 	      }
