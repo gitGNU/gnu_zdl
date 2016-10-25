@@ -57,12 +57,16 @@ String.prototype.fromHtmlEntities = function(string) {
     });
 };
 
+var objectToSource = function (obj) {
+    return JSON.stringify(obj).replace(/\"/g, "'");
+};
+
 var cleanInput = function (str) {
     return str.replace(/(\r\n|\n|\r)/gm, "");
 };
 
 var getUriParam = function (name, url) {
-    if (!url) url = location.href;
+    if (!url) url = document.location.href;
     name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
     var regexS = "[\\?&]"+name+"=([^&#]*)";
     var regex = new RegExp( regexS );
@@ -122,39 +126,39 @@ var hideInfoLink = function (id, path, link) {
 };
 
 
-var addLink = function (id) {
-    var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + encodeURIComponent(document.getElementById(id).value);
-    document.getElementById(id).value = '';
-    return load ('GET',
-		 query,
-		 true);
-};
-
 var cleanComplete = function () {
     var query = "?cmd=clean-complete&path=" + ZDL.path;
     return load ('GET',
 		 query,
 		 true);
-		 // function () {
-		 //     load ('GET', '?cmd=init-client&path=' + ZDL.path, true);
-		 // });
 };
 
 var singleLink = function (spec) {
     var that = spec;
-
-    var cmd_to_link = function (cmd) {
-	return load ('GET',
-		     "?cmd=" + cmd + "&path=" + that.path + "&link=" + that.link,
-		     true);
-    };
     
     that.stop = function () {
-	return cmd_to_link('stop-link');
+	var query = "?cmd=stop-link&path=" + that.path + "&link=" + that.link;
+	return load ('GET', query, true); 
     };
     
     that.del = function () {
-	return cmd_to_link ('del-link');
+	var query = "?cmd=del-link&path=" + that.path + "&link=" + that.link;
+	return load ('GET', query, true); 	
+    };
+
+    that.play = function () {
+	if (document.location.hostname === 'localhost') {
+	    var query = "?cmd=play-link&path=" + that.path + "&file=" + that.file;
+	    return load ('GET',
+			 query,
+			 true,
+			 function (res) {
+			     if (cleanInput(res))
+				 alert(res);
+			 });
+	} else {
+	    return alert("L'anteprima è disponibile solo se connessi a localhost");
+	}
     };
 
     return that;
@@ -190,7 +194,6 @@ var singlePath = function (path) {
 		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
 		     true);
     };
-
 
     that.getDownloader = function (repeat, op) {
 	var query = '?cmd=get-downloader&path=' + path;
@@ -265,7 +268,12 @@ var singlePath = function (path) {
 	return load ('GET',
 		     '?cmd=set-links&path=' + path + '&links=' + encodeURIComponent(document.getElementById('list-links').value),
 		     true,
-		     displayEditButton());
+		     function (res) {
+			 if (cleanInput(res)) {
+			     alert("I seguenti link non sono stati accettati perché non validi o già presenti:\n" + res);
+			 }
+			 displayEditButton();
+		     });
     };
 
     that.getRunStatus = function (repeat, op) {
@@ -294,22 +302,62 @@ var singlePath = function (path) {
 			     singlePath(ZDL.path).getRunStatus(true);
 		     });
     };
+
+    that.addLink = function (id, link) {
+	if (link) {
+	    displayTorrentButton(id);
+	} else {
+	    link = encodeURIComponent(document.getElementById(id).value);
+	    document.getElementById(id).value = '';
+	}
+	
+	var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + link;
+	
+	return load ('GET',
+		     query,
+		     true,
+		     function (res) {
+			 if (cleanInput(res)) {
+			     alert("Il seguente link non è stato accettato perché non valido o già presente:\n" + res);
+			 }
+		     });
+    };
     
+    that.addXDCC = function (id) {
+	// id: {host:,chan:,ctcp:}
+	var host = document.getElementById(id.host).value;
+	var chan = document.getElementById(id.chan).value;
+	var ctcp = document.getElementById(id.ctcp).value;
+	var errMsg = '';
+		
+	if (!host)
+	    errMsg += "\nIRC host";
+	if (!chan)
+	    errMsg += "\nIRC channel";
+	if (!ctcp)
+	    errMsg += "\nIRC msg/ctcp";
+
+	if (errMsg) {
+	    return alert("Mancano le seguenti informazioni:\n" + errMsg);
+	} else {
+	    return load ('GET',
+			 '?cmd=add-xdcc&link=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
+			 true,
+			 function (res) {
+			     if (cleanInput(res)) {
+				 alert("Il link xdcc non è stato aggiunto perché non valido o già presente, controlla i dati inviati:\n" + res);
+			     } else {
+				 document.getElementById(id.host).value = '';
+				 document.getElementById(id.chan).value = '';
+				 document.getElementById(id.ctcp).value = '';
+			     }
+			 });
+	}
+    };
+
     return that;
 };
 
-
-var browseDir = function (path) {
-    document.getElementById('run-path').setAttribute('class', 'hidden');
-    path = path.replace(/[^/]+\/\.\.$/,'');
-
-    var callback = function (dirs) {
-	document.getElementById('sel-path').innerHTML = "<button onclick=\"selectDir('" + path + "');\">Seleziona:</button><div class=\"value\">" + path + "</div>";
-	document.getElementById('browse').innerHTML = dirs;
-    };
-
-    return load ('GET', '?cmd=get-dirs&path=' + path, true, callback);
-};
 
 var changeSection = function (section) {
     ['links', 'path', 'config', 'info', 'server'].forEach(function(item) {
@@ -324,6 +372,7 @@ var changeSection = function (section) {
 };
 
 var initClient = function (path) {
+    displayTorrentButton('path-torrent');
     load ('GET', '?cmd=init-client&path=' + path, true);
 }
 
@@ -331,8 +380,8 @@ var selectDir = function (path) {
     ZDL.path = path;
     document.getElementById('run-path').setAttribute('class', 'visible');
     document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div class="value">' + path + '</div>' +
- 	" <button onClick=\"browseDir('" + path + "');\">Cambia</button><br>";
-    document.getElementById('browse').innerHTML = '';
+ 	" <button onClick=\"browseDir('" + path + "');\">Sfoglia</button><br>";
+    document.getElementById('path-browse-dir').innerHTML = '';
     return initClient(path);
 };
 
@@ -421,16 +470,16 @@ var getConf = function (repeat, op) {
 
 var setConf = function (spec, value) {
     if (!value)
-	value = document.getElementById('input-' + spec.id).value;
+	value = document.getElementById('input-' + spec.key).value;
     
-    if (spec.id.match(/^(axel_parts|aria2_connections|max_dl|tcp_port|udp_port|socket_port)$/)) {
+    if (spec.key.match(/^(axel_parts|aria2_connections|max_dl|tcp_port|udp_port|socket_port)$/)) {
 	value = parseInt(value);
 	if (isNaN(value) || value < spec.min || value > spec.max) {
 	    return alert ('È richiesto un valore numerico compreso fra ' + spec.min + ' e ' + spec.max);
 	}
     }
 
-    load ('GET', "?cmd=set-conf&key=" + spec.id + '&value=' + value, true);	
+    load ('GET', "?cmd=set-conf&key=" + spec.key + '&value=' + value, true);	
 };
 
 var getStatus = function (repeat, op) {
@@ -478,8 +527,8 @@ var displayStatus = function (status) {
 };
 
 var displayInputSelect = function (spec, id) {
-    // spec = {id: options: value:}
-    var output = '<select id="input-' + spec.id + "\" onchange=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">";
+    // spec = {key: options: value:}
+    var output = '<select id="input-' + spec.key + "\" onchange=\"setConf(" + objectToSource(spec) + ");\">";
 
     spec.options.forEach(function(item){
 	if (String(spec.value) === String(item))
@@ -493,9 +542,9 @@ var displayInputSelect = function (spec, id) {
 };
 
 var displayInputNumber = function (spec, id) {
-    // spec = {id: value: min: max:}
-    var output = '<input id="input-' + spec.id + '" type="number" value="' + spec.value + '" min="' + spec.min + '" max="' + spec.max + '">' +
-		"<button onclick=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Invia</button>" +
+    // spec = {key: value: min: max:}
+    var output = '<input id="input-' + spec.key + '" type="number" value="' + spec.value + '" min="' + spec.min + '" max="' + spec.max + '">' +
+		"<button onclick=\"setConf(" + objectToSource(spec) + ");\">Invia</button>" +
 		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
     document.getElementById(id).innerHTML = output;
@@ -503,38 +552,54 @@ var displayInputNumber = function (spec, id) {
 
 var displayInputText = function (spec, id) {
     // spec = {id: value: min: max:}
-    var output = '<input id="input-' + spec.id + '" type="text" value="' + spec.value + '">' +
-		"<button onclick=\"setConf(" + JSON.stringify(spec).replace(/\"/g, "'") + ");\">Invia</button>" +
+    var output = '<input id="input-' + spec.key + '" type="text" value="' + spec.value + '">' +
+		"<button onclick=\"setConf(" + objectToSource(spec) + ");\">Invia</button>" +
 		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
     document.getElementById(id).innerHTML = output;
 };
 
-var selectFile = function (id, path) {
-    setConf({id: id}, path);
-};
-
-var browseFile = function (id, path) {
-    // spec = {id: value:}
+var browseFile = function (id, path, type, key) {
+    path = path.replace(/\/[^/]+\/\.\.$/,'');
+    
+    var query = '?cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
+    if (key)
+	query += '&key=' + key;    
     
     return load ('GET',
-		 '?cmd=get-file&path=' + path + '&id=' + id,
+		 query,
 		 true,
 		 function (res) {
-		     var output = "<div class=\"value\"><b>Sfoglia da:</b> " + path + "</div>" +
+		     var output = "<div class=\"value\"><b>Sfoglia:</b> " + path + "/</div>" +
 			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button><br>" +
 			     res +
 			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
-		     document.getElementById('conf-' + id + '-file').style.width = '100%';
-		     document.getElementById('conf-' + id + '-file').innerHTML = output;
+		     document.getElementById(id).style.width = '100%';
+		     document.getElementById(id).innerHTML = output;
 		 });
+};
+
+var browseDir = function (path) {
+    document.getElementById('run-path').setAttribute('class', 'hidden');
+    path = path.replace(/\/[^/]+\/\.\.$/,'');
+
+    return load ('GET',
+		 '?cmd=browse-dirs&path=' + path,
+		 true,
+		 function (dirs) {
+		     document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "/</div>" +
+			 "<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
+			 "<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
+
+		     document.getElementById('path-browse-dir').innerHTML = dirs;
+    });
 };
 
 var displayConf = function (conf) {
     Object.keys(conf).forEach(function(item){
 	var spec = {
-	    "id": item,
+	    "key": item,
 	    "value": cleanInput(conf[item])
 	};	 
 
@@ -559,7 +624,7 @@ var displayConf = function (conf) {
 	    if (!spec.options)
 		spec.options = ['stdout','lite','daemon'];
 	    
-	    displayInputSelect (spec, 'conf-' + spec.id);
+	    displayInputSelect (spec, 'conf-' + spec.key);
 	    break;
 	    
 	case 'axel_parts':
@@ -585,27 +650,30 @@ var displayConf = function (conf) {
 		spec.max = 65535;
 	    }
 
- 	    var output = "<button onclick=\"displayInputNumber(" + JSON.stringify(spec).replace(/\"/g, "'") + ",'conf-" + spec.id + "');\">Cambia</button>";
-	    document.getElementById('conf-' + spec.id).innerHTML = '<div class="value">' + spec.value + '</div>' + output;
+ 	    var output = "<button onclick=\"displayInputNumber(" + objectToSource(spec) + ",'conf-" + spec.key + "');\">Cambia</button>";
+	    document.getElementById('conf-' + spec.key).innerHTML = '<div class="value">' + spec.value + '</div>' + output;
 	    break;
 
 	case 'reconnecter':
 	case 'player':
 	case 'editor':
 	case 'browser':
-	    document.getElementById('conf-' + spec.id + '-file').innerHTML = '<div class="value">' + spec.value + '</div>' +
-		"<button onclick=\"document.getElementById('conf-" + spec.id + "-text').style.display = 'none'; browseFile('" + spec.id +"', '" + ZDL.path + "');\">Sfoglia</button>";
+	    var id_inputFile = 'input-file-' + spec.key;
+	    var id_inputText = 'conf-' + spec.key + '-text';
+	    
+	    document.getElementById(id_inputFile).innerHTML = '<div class="value">' + spec.value + '</div>' +
+		"<button onclick=\"document.getElementById('" + id_inputText + "').style.display = 'none';" +
+		"browseFile('" + id_inputFile + "', ZDL.path, 'executable', '" + spec.key + "');" +
+		"\">Sfoglia</button>";
 
-	    document.getElementById('conf-' + spec.id + '-text').innerHTML = "<button onclick=\"" +
-		"document.getElementById('conf-" + spec.id + "-file').style.display = 'none';" +		
-		"displayInputText (" +
-		JSON.stringify(spec).replace(/\"/g, "'") +
-		", 'conf-" + spec.id + "-text');" +
+	    document.getElementById(id_inputText).innerHTML = "<button onclick=\"" +
+		"document.getElementById('" + id_inputFile + "').style.display = 'none';" +		
+		"displayInputText (" + objectToSource(spec) + ", '" + id_inputText + "');" +
 		"\">Scrivi</button>";
 
-	    document.getElementById('conf-' + spec.id + '-file').style.width = 'initial';
-	    document.getElementById('conf-' + spec.id + '-file').style.display = 'initial';
-	    document.getElementById('conf-' + spec.id + '-text').style.display = 'initial';
+	    document.getElementById(id_inputFile).style.width = 'initial';
+	    document.getElementById(id_inputFile).style.display = 'initial';
+	    document.getElementById(id_inputText).style.display = 'initial';
 	};
     });    
 }
@@ -637,7 +705,6 @@ var displaySockets = function (sockets) {
 var displayDownloader = function (dler) {
     dler = dler.replace(/(\r\n|\n|\r)/gm, "");
     var selector = '<select id="sel-downloader" onchange="singlePath(ZDL.path).setDownloader();">';
-    var label = '<div class="label-element">Downloader: </div>';
     
     ["Aria2", "Axel", "Wget"].forEach(function (item) {
 	if (String(dler) === String(item)) {
@@ -646,11 +713,11 @@ var displayDownloader = function (dler) {
 	} else {
 	    selector += "<option>"
 	}
-			     selector += item + "</option>";
+	selector += item + "</option>";
     });
     
     selector += "</select>";
-    document.getElementById('downloader').innerHTML = label + selector;    
+    document.getElementById('downloader').innerHTML = selector;    
 };
 
 var displayMaxDownloads = function (max_dl_str) {
@@ -705,6 +772,7 @@ var displayLinks = function () {
 		    output += '<div class="background-data"><div class="label-element">Path:</div><div class="value">' + data[i].path + "</div>";
 		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\" style=\"float: left;\">Gestisci</button></div>";
 		    output += '<div class="background-data"><div class="label-element">File: </div><div class="value">' + data[i].file + "</div></div>";
+		    output += '<div class="background-data"><div class="label-element">Length: </div><div class="value">' + data[i].length + "</div></div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
 			output += '<div class="background-data"><div class="label-element">Streamer:</div><div class="value">' + data[i].streamer + "</div></div>";
@@ -713,7 +781,7 @@ var displayLinks = function () {
 			output += '<div class="background-data"><div class="label-element">Url:</div><div class="value">' + data[i].url.toHtmlEntities() + "</div></div>";
 		    }
 		    output += '</div>';
-		    output += displayButtonsLink(data[i]);
+		    output += displayLinkButtons(data[i]);
 		    output += '</div>';
 		}
 		
@@ -727,10 +795,40 @@ var displayLinks = function () {
     });
 };
 
-var displayButtonsLink = function (spec) {
+var displayLinkButtons = function (spec) {
     var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma il download</button>" +
-	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Cancella il download</button>";
+	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Cancella il download</button>" +
+    	    "<button onclick=\"singleLink(" + objectToSource(spec) + ").play();\">Anteprima</button>";
     return output;
+};
+
+var displayTorrentButton = function (id) {
+    document.getElementById(id).innerHTML = "<button onclick=\"browseFile('" + id + "', ZDL.path, 'torrent');\">Sfoglia</button>";
+};
+
+var displayFileButton = function (spec) {
+    // spec: {id:,file:}
+    document.getElementById(spec.id).innerHTML = "<button onclick=\"displayFileText(" + objectToSource(spec) + ");\">Leggi</button>";
+};
+
+var displayFileText = function (spec) {
+    var query = '?cmd=get-file&path=' + path + '&file=' + spec.file;
+    
+    load ('GET',
+	  query,
+	  true,
+	  function (res) {
+	      if (cleanInput(res)) {
+		  var output = '<div class="file-text">' + res + '</div>';
+		  output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
+		  output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ")\">Chiudi</button>";
+		  
+		  document.getElementById(spec.id).innerHTML = output;
+
+	      } else {
+		  alert('File ' + spec.file + ' non disponibile');
+	      }
+	  });
 };
 
 
@@ -738,13 +836,10 @@ var init = function (path) {
     selectDir(path);
     changeSection('links');
     displayEditButton();
+    displayTorrentButton('path-torrent');
+    displayFileButton({id:'path-file-log',file:ZDL.path + '/zdl_log.txt'});
+    displayFileButton({id:'path-file-links',file:ZDL.path + '/links.txt'});
     displayLinks();
-    // singlePath(ZDL.path).getMaxDownloads(true, 'force');
-    // singlePath(ZDL.path).getDownloader(true, 'force');
-    // singlePath(ZDL.path).getStatus(true, 'force');
-    // getSockets(true, 'force');
-
-    // getConf(true, 'force');
     getStatus(true, 'force');
 };
 

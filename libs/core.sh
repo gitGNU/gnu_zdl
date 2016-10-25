@@ -150,8 +150,7 @@ function x_www_browser {
 ##
 
 function rm_deadlinks {
-    local dir
-    dir="$1"
+    local dir="$1"
     if [ -n "$dir" ]
     then
 	sudo find -L "$dir" -type l -exec rm -v {} + 2>/dev/null
@@ -197,6 +196,7 @@ function set_line_in_file { 	#### usage:
     local item="$2"                   ## string
     local file_target="$3"            ## file target
     local rewriting="$3-rewriting"    #### <- to linearize parallel rewriting file target
+    local result
 
     if [ "$op" != "in" ]
     then
@@ -217,6 +217,10 @@ function set_line_in_file { 	#### usage:
 		if ! set_line_in_file "in" "$item" "$file_target"
 		then
 		    echo "$item" >> "$file_target"
+		    result=0
+
+		else
+		    result=1
 		fi
 		rm -f "$rewriting"
 		;;
@@ -233,6 +237,10 @@ function set_line_in_file { 	#### usage:
 		    then
 			rm "$file_target"
 		    fi
+		    result=0
+
+		else
+		    result=1
 		fi
 		rm -f "$rewriting"
 		;;
@@ -240,12 +248,16 @@ function set_line_in_file { 	#### usage:
 		if [ -s "$file_target" ] &&
 		       grep "^${item}$" "$file_target" &>/dev/null
 		then 
-		    return 0
+		    result=0
+		else
+		    result=1
 		fi
-		return 1
 		;;
 	esac
+    else
+	result=1
     fi
+    return $result
 }
 
 function check_link {
@@ -266,12 +278,15 @@ function set_link {
     then
 	_log 12 "$url_test"
 	set_link - "$url_test"
+	return 1
 
     else
 	[ "$1" == "+" ] &&
 	    url_test="${url_test%'#20\x'}"
 
-	set_line_in_file "$1" "$url_test" "$path_tmp/links_loop.txt"
+	set_line_in_file "$1" "$url_test" "$path_tmp/links_loop.txt" &&
+	    return 0 ||
+		return 1
     fi
 }
 

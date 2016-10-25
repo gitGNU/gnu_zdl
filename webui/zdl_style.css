@@ -621,3 +621,14 @@ div.value {
 div.float {
     float: left;
 }
+
+div.file-text {
+    position: relative;
+    width: calc(100% - 2em);
+    height: 300px;
+    overflow: auto;
+    padding: 4px;
+    border: 1px solid #FFF;
+    color: #EEE;
+    background-color: black;
+}

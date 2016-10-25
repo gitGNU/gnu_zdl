@@ -1378,7 +1378,7 @@ function main_loop {
 		    unset no_newip
 		fi
 
-		newip_add_provider
+		newip_add_host
 		from_loop=true
 
 		[ "$ch_dler" == "1" ] &&

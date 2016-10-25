@@ -312,9 +312,9 @@ function send_json {
 	    break
 	fi
 	
-	sleep 1
+	sleep 2
     done
-    ##sleep 1
+    ##sleep 0.1
     cp "$server_data".$socket_port "$server_data".$socket_port.diff
     
     file_output="$server_data".$socket_port
@@ -497,7 +497,7 @@ function run_cmd {
 			init_client "$PWD" "$socket_port"
 			start_timeout=$(date +%s)
 		    fi
-		    sleep 1
+		    sleep 2
 		done &
 		
 	    else		
@@ -513,31 +513,82 @@ function run_cmd {
 	    echo -n "$string_output" >$file_output
 	    ;;
 
-	add-link)
-	    ## PATH -> LINK
+	add-xdcc)
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
-		test -d "${line[i]}" &&
+		if test -d "${line[i]}"
+		then
 		    cd "${line[i]}"
+		    continue
+		fi
+		
+		declare -A irc
+		case $i in
+		    2)
+			irc[host]="${line[i]#'irc://'}"
+			irc[host]="${irc[host]%%'/'*}"
+			err_msg="\nIRC host: ${line[i]}"
+			;;
+		    
+		    3)
+			irc[chan]="${line[i]##'#'}"
+			err_msg+="\nIRC channel: ${line[i]}"
+			;;
+		    
+		    4)
+			irc[msg]="${line[i]#'/msg'}"
+			irc[msg]="${irc[msg]#'/ctcp'}"
+			irc[msg]="${irc[msg]## }"
+			err_msg+="\nIRC msg: ${line[i]}"
+			;;
+		esac
+	    done
+	    set_link + "irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}" ||
+		{
+	    	    file_output="$path_server"/msg-file
+	    	    echo -e "$err_msg" > "$file_output"
+		}
+	    ;;
+
+	add-link)
+	    ## PATH -> LINK
+	    unset list_err
+	    
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		## path
+		if test -d "${line[i]}"
+		then
+		    cd "${line[i]}"
+		    continue
+		fi
 		
 		## link
 		link=$(urldecode "${line[i]}") 
 		
-		url "$link" &&
-		    {
-			if check_instance_prog
-			then
-			    set_link + "$link"
-
-			else
-			    set_line_in_file + "$PWD" "$server_paths"
-			    mkdir -p "$path_tmp"
-			    date +%s >"$path_tmp"/.date_daemon
-			    nohup /bin/bash zdl "$link" --silent "$PWD" &>/dev/null &
-			fi
-		    }
+		if url "$link" &&
+			! check_instance_prog &&
+			! check_instance_daemon
+		then
+		    mkdir -p "$path_tmp" &>/dev/null
+		    date +%s >"$path_tmp"/.date_daemon
+		    nohup /bin/bash zdl --silent "$PWD" &>/dev/null &
+		    
+		    while ! check_instance_daemon
+		    do
+			sleep 0.1
+		    done
+		fi
+		set_link + "$link" ||
+		    list_err+="\n$link"
 	    done
+
+	    if [ -n "$list_err" ]
+	    then
+	    	file_output="$path_server"/msg-file
+	    	echo -e "$list_err" > "$file_output"
+	    fi
 	    ;;
 
 	del-link)
@@ -598,6 +649,33 @@ function run_cmd {
 	    done 
 	    ;;
 
+	play-link)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    if [ -z "$player" ] #&>/dev/null
+	    then
+		file_output="$path_server"/msg-file
+		echo -e "Non è stato configurato alcun player per audio/video" > "$file_output"
+
+	    elif [[ ! "$(file -b --mime-type "${line[2]}")" =~ (audio|video) ]]
+	    then
+		file_output="$path_server"/msg-file
+		echo -e "Non è un file audio/video" > "$file_output"
+
+	    else
+		nohup $player "${line[2]}" &>/dev/null &
+	    fi
+	    ;;
+
+	get-file)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    file_output="$path_server"/file-text
+	    sed -r 's|$|<br>|g' "${line[2]}" > "$file_output"
+	    ;;
+	
 	get-links)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -614,11 +692,27 @@ function run_cmd {
 
 	set-links)
 	    ## path:
+	    unset list_err
+	    
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
 	    ## links:
-	    urldecode "${line[2]}" > "$path_tmp/links_loop.txt"
+	    echo -n > "$path_tmp"/links_loop.txt
+	    while read link
+	    do
+		set_link + "$link" ||
+		    list_err+="\n$link"
+	    
+	    done <<< "$(urldecode "${line[2]}")"
+
+	    [ ! -s "$path_tmp"/links_loop.txt ] && rm -f "$path_tmp"/links_loop.txt*
+	    
+	    if [ -n "$list_err" ]
+	    then
+	    	file_output="$path_server"/msg-file
+	    	echo -e "$list_err" > "$file_output"
+	    fi
 	    ;;
 	
 	get-downloader)
@@ -705,7 +799,7 @@ function run_cmd {
 	    file_output="$path_server"/status.$socket_port
 	    ;;
 
-	get-dirs)
+	browse-dirs)
 	    file_output="$path_server"/browsing.$socket_port
 	    
 	    test -d "${line[1]}" &&
@@ -721,25 +815,39 @@ function run_cmd {
 	    echo "$string_output" > "$file_output"	    
 	    ;;
 
-	get-file)
+	browse)
 	    file_output="$path_server"/browsing.$socket_port
-	    
-	    test -d "${line[1]}" &&
-		cd "${line[1]}"
+	    path="${line[1]}"
+	    id="${line[2]}"
+	    type="${line[3]}"
+	    key="${line[4]}"
 
-	    string_output="<a href=\"javascript:browseFile('${line[2]}','$PWD/..');\"><img src=\"folder-blue.png\">..</a><br>"
+	    test -d "$path" &&
+		cd "$path"
+
+	    string_output="<a href=\"javascript:browseFile('$id','$PWD/..');\"><img src=\"folder-blue.png\">../</a><br>"
 	    while read file
 	    do
 		real_path=$(realpath "$file")
+		
 		if [ -d "$real_path" ]
 		then
-		    string_output+="<a href=\"javascript:browseFile('${line[2]}','$real_path');\"><img src=\"folder-blue.png\">${file}</a><br>"
+		    img="folder-blue.png"
+		    string_output+="<a href=\"javascript:browseFile('$id','$real_path','$type','$key');\"><img src=\"folder-blue.png\">$file</a><br>"
 
-		elif [ -x "$real_path" ]
-		then
-		    string_output+="<a href=\"javascript:selectFile('${line[2]}','$real_path');\"><img src=\"application-x-desktop.png\">${file}</a><br>"
-		fi
-		
+		elif [ "$type" == torrent ] &&
+			 [[ "$(file -b --mime-type "$real_path")" =~ ^application\/(octet-stream|x-bittorrent)$ ]]
+		then		    
+		    img='application-x-bittorrent.png'
+		    string_output+="<a href=\"javascript:singlePath(ZDL.path).addLink('$id','$real_path');\"><img src=\"$img\">$file</a><br>"
+		    
+		elif [ "$type" == executable ] &&
+			 [ -x "$real_path" ]
+		then		    
+		    img='application-x-desktop.png'
+		    string_output+="<a href=\"javascript:setConf({key:'$key'},'$real_path');\"><img src=\"$img\">$file</a><br>"
+		fi   
+
 	    done < <(ls -1 --group-directories-first)
 
 	    echo "$string_output" > "$file_output"	    

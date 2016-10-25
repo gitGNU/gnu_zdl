@@ -26,20 +26,24 @@
 
 #### change IP address
 
-function newip_add_provider {
+function newip_add_host {
+    local host
+    
     if [ -z $no_newip ]
     then
-	for provider in ${newip_providers[*]}
+	for host in ${newip_hosts[*]}
 	do	
-	    [ "$url_in" != "${url_in//$provider.}" ] &&
-		newip[${#newip[*]}]=$provider
+	    [ "$url_in" != "${url_in//$host.}" ] &&
+		newip[${#newip[*]}]=$host
 	done
     fi
 }
 
 function check_ip {
+    local ip="$1"
+    
     if [ "$reconnect_sh" == true ] &&
-	   command -v $reconnecter &>/dev/null
+	   command -v "${reconnecter%% *}" &>/dev/null
     then
 	noproxy
 	print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"
@@ -56,10 +60,10 @@ function check_ip {
 	unset newip 
 	new_ip_proxy
 	
-    elif [ "${newip[*]}" != "${newip[*]//$1}" ]
+    elif [ "${newip[*]}" != "${newip[*]//$ip}" ]
     then
 	if [ "$reconnect_sh" == true ] &&
-	       command -v $reconnecter &>/dev/null
+	       command -v "${reconnecter%% *}" &>/dev/null
 	then
 	    noproxy
 	    print_c 4 "\nAvvio programma di riconnessione del modem/router: $reconnecter\n"

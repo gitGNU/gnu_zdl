@@ -69,26 +69,69 @@
 	  <div class="background-element">
 	    <div id="sel-path">
 	    </div>
-	    <div id="browse"></div>
+	    <div id="path-browse-dir"></div>
 	  </div>
 	  
 	  <div id="run-path" class="visible">
 	    <div class="background-element" style="text-align: left">
 	      <div id="input-link-label" class="label-element">Aggiungi link:</div>
 	      <input id="input-link" type="text">
-	      <button onclick="addLink('input-link');">Invia</button>
+	      <button onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
 
 	      <div id="editor-links"></div>
 	    </div>
+
+	    <div class="background-element">
+	      <div class="label-element">Aggiungi XDCC:</div>
+	    </div>
+	    <div class="background-element">
+	      <div class="value" style="width:6em">IRC host:</div><input id="input-irc" type="text" style="width: calc(100% - 10em)">
+	    </div>
+	    <div class="background-element">
+	      <div class="value" style="width:6em">Canale:</div><input id="input-chan" type="text" style="width: calc(100% - 10em)">
+	    </div>
+	    <div class="background-element">
+	      <div class="value" style="width:6em">MSG/CTCP:</div><input id="input-ctcp" type="text" style="width: calc(100% - 10em)">
+	    </div>
+	    <div class="background-element">
+	      <button onclick="singlePath(ZDL.path).addXDCC({host:'input-irc',chan:'input-chan',ctcp:'input-ctcp'});">Invia XDCC</button>
+	    </div>
+
+	    <div class="background-element">
+	      <div class="label-element">File torrent:</div>
+	      <div id="path-torrent"></div>
+	    </div>
 	    
+	    <div class="background-element">
+	      <div class="label-element">File zdl_log.txt:</div>
+	      <div id="path-file-log"></div>
+	    </div>
+	    
+	    <div class="background-element">
+	      <div class="label-element">File links.txt:</div>
+	      <div id="path-file-links"></div>
+	    </div>
+
 	    <div class="background-element">
 	      <div class="label-element">Max download paralleli:</div>
 	      <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
 	    </div>
 
 	    <div class="background-element">
+	      <div class="label-element">Downloader:</div>
 	      <div id="downloader"></div>
 	    </div>
+
+	    <div class="background-element">
+	      <div class="label-element">Attiva proxy:</div>
+	      <div id="path-proxy"></div>
+	    </div>
+
+	    <div class="background-element">
+	      <div class="label-element">Riconnetti modem/router:</div>
+	      <div id="path-reconnecter"></div>
+	    </div>
+
 
 	    <div class="background-element">
 	      <div id="path-status" style="text-align: center"></div>
@@ -160,7 +203,7 @@
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Comando per riconnettere il modem/router</div>
-	    <div id="conf-reconnecter-file" class="float"></div>
+	    <div id="input-file-reconnecter" class="float"></div>
 	    <div id="conf-reconnecter-text" class="float"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
@@ -169,12 +212,12 @@
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Player per anteprima audio/video</div>
-	    <div id="conf-player-file" class="float"></div>
+	    <div id="input-file-player" class="float"></div>
 	    <div id="conf-player-text" class="float"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Editor per la lista dei link</div>
-	    <div id="conf-editor-file" class="float"></div>
+	    <div id="input-file-editor" class="float"></div>
 	    <div id="conf-editor-text" class="float"></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
@@ -199,7 +242,7 @@
 	  </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Browser web (--web-ui)</div>
-	    <div id="conf-browser-file" class="float"></div>
+	    <div id="input-file-browser" class="float"></div>
 	    <div id="conf-browser-text" class="float"></div>
 	  </div>
 	</div>

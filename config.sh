@@ -81,7 +81,7 @@ user_lang="$LANG"
 user_language="$LANGUAGE"
 prog_lang='en_US.UTF-8:en'
 
-newip_providers=(
+newip_hosts=(
     rockfile
     uptobox
     mediafire
