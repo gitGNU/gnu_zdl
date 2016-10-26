@@ -826,37 +826,57 @@ var displayLinks = function () {
 		    else
 			visibility = 'hidden';
 		    
-		    output += '<div' +
-			" onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">" +
-			"<div id=\"progress-bar\">" +
+		    output += "<div onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+
+		    output += "<div id=\"progress-bar\">" +
 			"<div id=\"progress-label-file\">" + data[i].file + "</div>" +
 			"<div id=\"progress-status\" style=\"width:" + data[i].percent + "%; background-color:" + data[i].color + "\"></div>" +
-			"</div>" +
-			"<div id=\"progress-label-status\">" +
+			"</div>";
+
+		    output += "<div id=\"progress-label-status\">" +
 			data[i].percent + '% ' +
 			data[i].speed + data[i].speed_measure + ' ' +
 			data[i].eta +
 			"</div>" +
 			"</div>";
 
-		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + '</div><div ' +
+		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += '<div class="background-data"><div class="label-element">Downloader:</div><div class="value">' + data[i].downloader + "</div></div>";
-		    output += '<div class="background-data"><div class="label-element">Link:</div><div class="value">' + data[i].link + "</div></div>";
-		    output += '<div class="background-data"><div class="label-element">Path:</div><div class="value">' + data[i].path + "</div>";
+		    output += '<div class="background-data">' +
+			'<div class="label-element">Downloader:</div>' +
+			'<div class="value-data">' + data[i].downloader + "</div></div>";
+
+		    output += '<div class="background-data">' +
+			'<div class="label-element">Link:</div>' +
+			'<div class="value-data">' + data[i].link + "</div></div>";
+
+		    output += '<div class="background-data">' +
+			'<div class="label-element">Path:</div>' +
+			'<div class="value-data">' + data[i].path + "</div>";
+
 		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\" style=\"float: left;\">Gestisci</button></div>";
-		    output += '<div class="background-data"><div class="label-element">File: </div><div class="value">' + data[i].file + "</div></div>";
-		    output += '<div class="background-data"><div class="label-element">Length: </div><div class="value">' +
-			(data[i].length/1024/1024).toFixed(2) + "Mb</div></div>";
+
+		    output += '<div class="background-data">' +
+			'<div class="label-element">File: </div>' +
+			'<div class="value-data">' + data[i].file + "</div></div>";
+
+		    output += '<div class="background-data">' +
+			'<div class="label-element">Length: </div>' +
+			'<div class="value-data">' + (data[i].length/1024/1024).toFixed(2) + "M</div></div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += '<div class="background-data"><div class="label-element">Streamer:</div><div class="value">' + data[i].streamer + "</div></div>";
-			output += '<div class="background-data"><div class="label-element">Playpath:</div><div class="value">' + data[i].playpath + "</div></div>";
+			output += '<div class="background-data"><div class="label-element">Streamer:</div>';
+			output += '<div class="value-data">' + data[i].streamer + "</div></div>";
+
+			output += '<div class="background-data"><div class="label-element">Playpath:</div>';
+			output += '<div class="value-data">' + data[i].playpath + "</div></div>";
+			
 		    } else {
-			output += '<div class="background-data"><div class="label-element">Url:</div><div class="value">' + data[i].url.toHtmlEntities() + "</div></div>";
+			output += '<div class="background-data"><div class="label-element">Url:</div>';
+			output += '<div class="value-data">' + data[i].url.toHtmlEntities() + "</div></div>";
 		    }
-		    output += '</div>';
+
 		    output += displayLinkButtons(data[i]);
 		    output += '</div>';
 		}
