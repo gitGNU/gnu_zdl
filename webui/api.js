@@ -547,7 +547,7 @@ var getStatus = function (repeat, op) {
 			 displayMaxDownloads(data.maxDownloads);
 
 			 //data.reconnecter;
-			 displayReconnecter(data.reconnecter, 'path-reconnecter');
+			 displayReconnecter(data.reconnect, 'path-reconnecter');
 
 			 //data.conf:
 			 displayConf(data.conf);

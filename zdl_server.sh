@@ -544,10 +544,18 @@ function run_cmd {
 
 	    elif test -z "${line[2]}"
 	    then
-		$reconnecter &>/dev/null
-		get_ip myip
-		file_output="$path_server"/myip
-		echo "$myip" > "$file_output"
+		if [ -n "$reconnecter" ]
+		then
+		    $reconnecter &>/dev/null
+		    get_ip myip
+		    file_output="$path_server"/myip
+		    echo "$myip" > "$file_output"
+
+		else
+		    rm -f "$path_tmp"/reconnect
+		    file_output="$path_server"/reconn
+		    echo "Non hai ancora configurato ZDL per la riconnessione automatica" > "$file_output"
+		fi
 	    fi	    
 	    ;;
 
