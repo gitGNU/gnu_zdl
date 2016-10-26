@@ -29,8 +29,14 @@
 
 if [[ "$url_in" =~ multiup\.org ]]
 then
-    url_in="${url_in//en\/}"
-    html=$(wget -qO- "${url_in//\/download\//'/en/mirror/'}")
+    url_1="${url_in//en\/}"
+    url_1="${url_1//download\/}"
+    html=$(wget -qO- "${url_1}")
+
+    url_2='https://multiup.org/en/mirror/'$(grep mirror <<< "$html" |tail -n1 |
+						   sed -r 's|.+mirror\/([^"]+)\"[^"]+|\1|g')
+    
+    html=$(wget -qO- "${url_2}")
 
     for service in 'mega.nz\/\#' 'uptobox.com\/'
     do
@@ -40,6 +46,9 @@ then
 	url "$url_in_tmp" && break	
     done
     
-    replace_url_in "$url_in_tmp"  
+    replace_url_in "$url_in_tmp"
+
+    [[ "$url_in" =~ multiup\.org ]] &&
+	_log 2
 fi
 	    
