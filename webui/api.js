@@ -177,6 +177,17 @@ var singlePath = function (path) {
 	}
     };
 
+    that.getFreeSpace = function () {
+	var query = '?cmd=get-free-space&path=' + path;
+	load ('GET',
+	      query,
+	      true,
+	      function (res){
+		  if (cleanInput(res))
+		      document.getElementById('path-free-space').innerHTML = res;
+	      });
+    };
+    
     that.reconnect = function (str) {
 	var query = '?cmd=reconnect&path=' + path;
 	if (str)
@@ -555,6 +566,8 @@ var getStatus = function (repeat, op) {
 			 //data.sockets:
 			 displaySockets(data.sockets);
 		     }
+
+		     singlePath(ZDL.path).getFreeSpace();
 
 		     if (repeat)
 			 getStatus(true);

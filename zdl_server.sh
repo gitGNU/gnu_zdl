@@ -71,7 +71,7 @@ fi
 
 
 #### HTTP:
-declare -i DEBUG=1
+declare -i DEBUG=0
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -564,7 +564,19 @@ function run_cmd {
 	    get_ip myip
 	    echo "$myip" > "$file_output"	    
 	    ;;
+
+	get-free-space)
+	    file_output="$path_server"/free-space
 	    
+	    if test -d "${line[1]}"
+	    then
+		cd "${line[1]}"
+	    fi
+	    
+	    df -h . |
+		awk '{if(match($4, /^[0-9]+/)) print $4}' > "$file_output"
+	    ;;
+	
 	add-xdcc)
 	    for ((i=1; i<${#line[@]}; i++))
 	    do

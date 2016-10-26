@@ -74,6 +74,12 @@
 	  
 	  <div id="run-path" class="visible">
 	    <div class="background-element" style="text-align: left">
+	      <div class="label-element">Spazio libero:</div>
+	      <div class="value" id="path-free-space"></div>
+	      <button onclick="singlePath(ZDL.path).getFreeSpace();">Aggiorna</button>
+	    </div>
+	  
+	    <div class="background-element" style="text-align: left">
 	      <div id="input-link-label" class="label-element">Aggiungi link:</div>
 	      <input id="input-link" type="text">
 	      <button onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
