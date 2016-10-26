@@ -634,6 +634,7 @@ var displayInputText = function (spec, id) {
 
 var browseFile = function (id, path, type, key) {
     path = path.replace(/\/[^/]+\/\.\.$/,'');
+    path = '/' + path.replace(/^\/+/,'');
     
     var query = '?cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
     if (key)
@@ -656,12 +657,13 @@ var browseFile = function (id, path, type, key) {
 var browseDir = function (path) {
     document.getElementById('run-path').setAttribute('class', 'hidden');
     path = path.replace(/\/[^/]+\/\.\.$/,'');
+    path = '/' + path.replace(/^\/+/,'');
 
     return load ('GET',
 		 '?cmd=browse-dirs&path=' + path,
 		 true,
 		 function (dirs) {
-		     document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "/</div>" +
+		     document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "</div>" +
 			 "<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
 			 "<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
 
