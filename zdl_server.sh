@@ -522,25 +522,27 @@ function run_cmd {
 		    cd "${line[i]}"
 		    continue
 		fi
+
+		link="$(urldecode "${line[i]}")"
 		
 		declare -A irc
 		case $i in
 		    2)
-			irc[host]="${line[i]#'irc://'}"
+			irc[host]="${link#'irc://'}"
 			irc[host]="${irc[host]%%'/'*}"
-			err_msg="\nIRC host: ${line[i]}"
+			err_msg="\nIRC host: ${link}"
 			;;
 		    
 		    3)
-			irc[chan]="${line[i]##'#'}"
-			err_msg+="\nIRC channel: ${line[i]}"
+			irc[chan]="${link##'#'}"
+			err_msg+="\nIRC channel: ${link}"
 			;;
 		    
 		    4)
-			irc[msg]="${line[i]#'/msg'}"
+			irc[msg]="${link#'/msg'}"
 			irc[msg]="${irc[msg]#'/ctcp'}"
 			irc[msg]="${irc[msg]## }"
-			err_msg+="\nIRC msg: ${line[i]}"
+			err_msg+="\nIRC msg: ${link}"
 			;;
 		esac
 	    done
@@ -582,7 +584,7 @@ function run_cmd {
 		fi
 		set_link + "$link" ||
 		    list_err+="\n$link"
-	    done
+	    done &>/dev/null
 
 	    if [ -n "$list_err" ]
 	    then
@@ -596,10 +598,15 @@ function run_cmd {
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
-		test -d "${line[i]}" &&
+		if test -d "${line[i]}"
+		then
 		    cd "${line[i]}"
+		    continue
+		fi
 
-		if url "${line[i]}"
+		link="$(urldecode "${line[i]}")"
+		
+		if url "$link"
 		then
 		    unset json_flag
 		    data_stdout
@@ -607,7 +614,7 @@ function run_cmd {
 
 		    for ((j=0; j<${#pid_out[@]}; j++))
 		    do
-			if [ "${url_out[j]}" == "${line[i]}" ]
+			if [ "${url_out[j]}" == "$link" ]
 			then
 			    set_link - "${url_out[j]}"
 
@@ -629,10 +636,15 @@ function run_cmd {
 	    for ((i=1; i<${#line[@]}; i++))
 	    do
 		## path
-		test -d "${line[i]}" &&
+		if test -d "${line[i]}"
+		then
 		    cd "${line[i]}"
+		    continue
+		fi
 
-		if url "${line[i]}"
+		link="$(urldecode "${line[i]}")"
+		
+		if url "$link"
 		then
 		    unset json_flag
 		    data_stdout
@@ -640,7 +652,7 @@ function run_cmd {
 
 		    for ((j=0; j<${#pid_out[@]}; j++))
 		    do
-			if [ "${url_out[j]}" == "${line[i]}" ]
+			if [ "${url_out[j]}" == "$link" ]
 			then
 			    kill -9 "${pid_out[j]}" &>/dev/null 
 			fi

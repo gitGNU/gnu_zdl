@@ -137,13 +137,13 @@ var singleLink = function (spec) {
     var that = spec;
     
     that.stop = function () {
-	var query = "?cmd=stop-link&path=" + that.path + "&link=" + that.link;
+	var query = "?cmd=stop-link&path=" + that.path + "&link=" + encodeURIComponent(that.link);
 	return load ('GET', query, true); 
     };
     
     that.del = function () {
-	var query = "?cmd=del-link&path=" + that.path + "&link=" + that.link;
-	return load ('GET', query, true); 	
+	var query = "?cmd=del-link&path=" + that.path + "&link=" + encodeURIComponent(that.link);
+	return load ('GET', query, true, function (res){alert(res);}); 	
     };
 
     that.play = function () {
@@ -341,7 +341,7 @@ var singlePath = function (path) {
 	    return alert("Mancano le seguenti informazioni:\n" + errMsg);
 	} else {
 	    return load ('GET',
-			 '?cmd=add-xdcc&link=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
+			 '?cmd=add-xdcc&link=' + encodeURIComponent(path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp),
 			 true,
 			 function (res) {
 			     if (cleanInput(res)) {
