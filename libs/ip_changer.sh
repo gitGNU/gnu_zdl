@@ -42,7 +42,7 @@ function newip_add_host {
 function check_ip {
     local ip="$1"
     
-    if [ "$reconnect_sh" == true ] &&
+    if [ -f "$path_tmp/reconnect" ] &&
 	   command -v "${reconnecter%% *}" &>/dev/null
     then
 	noproxy
@@ -62,7 +62,7 @@ function check_ip {
 	
     elif [ "${newip[*]}" != "${newip[*]//$ip}" ]
     then
-	if [ "$reconnect_sh" == true ] &&
+	if [ -f "$path_tmp/reconnect" ] &&
 	       command -v "${reconnecter%% *}" &>/dev/null
 	then
 	    noproxy
@@ -85,21 +85,10 @@ function check_ip {
     fi
 }
 
-function my_ip {
+function get_ip {
+    declare -n myip="$1"
     #myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
     myip=$(wget -q -O - -t 1 -T 20 http://indirizzo-ip.com/ip.php)
-    print_c 0 "\n"
-    separator-
-    if [ -n "$myip" ]
-    then
-	print_c 1 "Indirizzo IP: $myip"
-
-    else
-	print_c 3 "Indirizzo IP non rilevato"
-    fi
-
-    separator-
-    print_c 0 "\n"
 }
 
 

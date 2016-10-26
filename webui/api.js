@@ -143,7 +143,7 @@ var singleLink = function (spec) {
     
     that.del = function () {
 	var query = "?cmd=del-link&path=" + that.path + "&link=" + encodeURIComponent(that.link);
-	return load ('GET', query, true, function (res){alert(res);}); 	
+	return load ('GET', query, true); 	
     };
 
     that.play = function () {
@@ -177,6 +177,49 @@ var singlePath = function (path) {
 	}
     };
 
+    that.reconnect = function (str) {
+	var query = '?cmd=reconnect&path=' + path;
+	if (str)
+	    query += '&loop=' + str;
+	
+	return load ('GET',
+		     query,
+		     true,
+		     function(ip){
+			 alert("Indirizzo IP attuale: " + ip);
+		     });
+    };
+
+    that.setReconnecter = function (spec) {
+	var value = document.getElementById('input-' + spec.key).value;
+
+	if (value === 'Mai')
+	    value = "false";
+	else
+	    value = "true";
+	    
+	var query =  '?cmd=reconnect&path=' + path + '&set=' + value; 
+	return load ('GET',
+		     query,
+		     true,
+		     function(res){
+			 if (cleanInput(res)) {
+			     alert(res);
+			     document.getElementById('input-reconnect').value = "Mai"; 
+			 }
+		     });
+    };
+
+    that.getIP = function () {
+	var query = '?cmd=get-ip';	
+	return load ('GET',
+		     query,
+		     true,
+		     function(ip){
+			 alert("Indirizzo IP attuale: " + ip);
+		     });
+    };
+
     that.kill = function () {
 	return load ('GET', '?cmd=kill-zdl&path=' + path, true);
     };
@@ -190,9 +233,8 @@ var singlePath = function (path) {
     };
 
     that.setDownloader = function () {
-	return load ('GET',
-		     '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value,
-		     true);
+	var query = '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value;
+	return load ('GET', query, true);
     };
 
     that.getDownloader = function (repeat, op) {
@@ -325,9 +367,9 @@ var singlePath = function (path) {
     
     that.addXDCC = function (id) {
 	// id: {host:,chan:,ctcp:}
-	var host = document.getElementById(id.host).value;
-	var chan = document.getElementById(id.chan).value;
-	var ctcp = document.getElementById(id.ctcp).value;
+	var host = encodeURIComponent(document.getElementById(id.host).value.trim());
+	var chan = encodeURIComponent(document.getElementById(id.chan).value.trim());
+	var ctcp = encodeURIComponent(document.getElementById(id.ctcp).value.trim());
 	var errMsg = '';
 		
 	if (!host)
@@ -341,7 +383,7 @@ var singlePath = function (path) {
 	    return alert("Mancano le seguenti informazioni:\n" + errMsg);
 	} else {
 	    return load ('GET',
-			 '?cmd=add-xdcc&link=' + encodeURIComponent(path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp),
+			 '?cmd=add-xdcc&path=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
 			 true,
 			 function (res) {
 			     if (cleanInput(res)) {
@@ -503,7 +545,10 @@ var getStatus = function (repeat, op) {
 		
 			 //data.maxDownloads;
 			 displayMaxDownloads(data.maxDownloads);
-			 
+
+			 //data.reconnecter;
+			 displayReconnecter(data.reconnecter, 'path-reconnecter');
+
 			 //data.conf:
 			 displayConf(data.conf);
 			 
@@ -526,9 +571,24 @@ var displayStatus = function (status) {
     }
 };
 
-var displayInputSelect = function (spec, id) {
+var displayReconnecter = function (value, id) {
+    if (value === 'enabled')
+	value = "Ogni nuovo link";
+    else
+	value = "Mai";
+    
+    var spec = {
+	"key": "reconnect",
+	"value": value,
+	"options": ["Ogni nuovo link","Mai"]
+    };	 
+
+    displayInputSelect(spec, id, 'singlePath(ZDL.path).setReconnecter');
+};
+
+var displayInputSelect = function (spec, id, callback) {
     // spec = {key: options: value:}
-    var output = '<select id="input-' + spec.key + "\" onchange=\"setConf(" + objectToSource(spec) + ");\">";
+    var output = '<select id="input-' + spec.key + "\" onchange=\"" + callback + "(" + objectToSource(spec) + ");\">";
 
     spec.options.forEach(function(item){
 	if (String(spec.value) === String(item))
@@ -624,7 +684,7 @@ var displayConf = function (conf) {
 	    if (!spec.options)
 		spec.options = ['stdout','lite','daemon'];
 	    
-	    displayInputSelect (spec, 'conf-' + spec.key);
+	    displayInputSelect (spec, 'conf-' + spec.key, 'setConf');
 	    break;
 	    
 	case 'axel_parts':
@@ -772,7 +832,8 @@ var displayLinks = function () {
 		    output += '<div class="background-data"><div class="label-element">Path:</div><div class="value">' + data[i].path + "</div>";
 		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\" style=\"float: left;\">Gestisci</button></div>";
 		    output += '<div class="background-data"><div class="label-element">File: </div><div class="value">' + data[i].file + "</div></div>";
-		    output += '<div class="background-data"><div class="label-element">Length: </div><div class="value">' + data[i].length + "</div></div>";
+		    output += '<div class="background-data"><div class="label-element">Length: </div><div class="value">' +
+			(data[i].length/1024/1024).toFixed(2) + "Mb</div></div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
 			output += '<div class="background-data"><div class="label-element">Streamer:</div><div class="value">' + data[i].streamer + "</div></div>";
@@ -837,7 +898,6 @@ var displayFileText = function (spec) {
 	      }
 	  });
 };
-
 
 var init = function (path) {
     selectDir(path);

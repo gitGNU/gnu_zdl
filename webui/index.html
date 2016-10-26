@@ -134,8 +134,11 @@
 	    </div>
 
 	    <div class="background-element">
-	      <div class="label-element">Riconnetti modem/router:</div>
-	      <div id="path-reconnecter"></div>
+	      <div class="label-element">Riconnessione modem/router:</div>
+	      <div id="path-reconnecter" style="float:left;"></div>
+	      <button onclick="singlePath(ZDL.path).reconnect();">Riconnetti adesso</button>
+	      <button onclick="singlePath(ZDL.path).getIP();">Indirizzo IP</button>
+
 	    </div>
 
 

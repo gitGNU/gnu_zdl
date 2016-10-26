@@ -43,6 +43,7 @@ source $path_usr/libs/core.sh
 source $path_usr/libs/downloader_manager.sh
 source $path_usr/libs/DLstdout_parser.sh
 source $path_usr/libs/utils.sh
+source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
 
 pid_prog=$$
@@ -403,6 +404,8 @@ function get_status_conf {
 }
 
 function create_status_json {
+    local reconn
+    
     [ -n "$1" ] &&
 	declare -n string_output="$1" ||
 	    string_output=string_output
@@ -432,6 +435,10 @@ function create_status_json {
     fi
     string_output+="\"maxDownloads\":\"$(cat "$path_tmp/max-dl")\","
 
+    ## reconnect
+    [ -f "$path_tmp"/reconnect ] && reconn=enabled || reconn=disabled
+    string_output+="\"reconnect\":\"$reconn\","
+    
     ## run sockets
     get_status_sockets status
     string_output+="\"sockets\":$status,"
@@ -513,6 +520,43 @@ function run_cmd {
 	    echo -n "$string_output" >$file_output
 	    ;;
 
+	reconnect)
+	    if test -d "${line[1]}"
+	    then
+		cd "${line[1]}"
+	    fi
+
+	    if test "${line[2]}" == 'true'
+	    then
+		if [ -n "$reconnecter" ]
+		then
+		    touch "$path_tmp"/reconnect
+
+		else
+		    rm -f "$path_tmp"/reconnect
+		    file_output="$path_server"/reconn
+		    echo "Non hai ancora configurato ZDL per la riconnessione automatica" > "$file_output"
+		fi
+		
+	    elif test "${line[2]}" == 'false'
+	    then
+		rm -f "$path_tmp"/reconnect
+
+	    elif test -z "${line[2]}"
+	    then
+		$reconnecter &>/dev/null
+		get_ip myip
+		file_output="$path_server"/myip
+		echo "$myip" > "$file_output"
+	    fi	    
+	    ;;
+
+	get-ip)
+	    file_output="$path_server"/myip
+	    get_ip myip
+	    echo "$myip" > "$file_output"	    
+	    ;;
+	    
 	add-xdcc)
 	    for ((i=1; i<${#line[@]}; i++))
 	    do

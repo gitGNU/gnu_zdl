@@ -657,7 +657,7 @@ then
 	if [ "${args[i]}" == "--reconnect" ]
 	then
 	    unset args[i]
-	    reconnect_sh=true
+	    touch "$path_tmp"/reconnect
 	fi
     done
 fi
@@ -786,7 +786,19 @@ then
 	if [ "${args[i]}" == '--ip' ]
 	then 
 	    unset args[i]
-	    my_ip
+	    get_ip myip
+	    print_c 0 "\n"
+	    separator-
+	    if [ -n "$myip" ]
+	    then
+		print_c 1 "Indirizzo IP: $myip"
+
+	    else
+		print_c 3 "Indirizzo IP non rilevato"
+	    fi
+
+	    separator-
+	    print_c 0 "\n"
 	fi
     done
 fi
