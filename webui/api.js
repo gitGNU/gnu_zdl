@@ -811,8 +811,13 @@ var displayEditButton = function () {
     document.getElementById('editor-links').innerHTML = '<button onclick="singlePath(ZDL.path).getLinks();">Editor dei link</button>';
 };
 
-var displayLinks = function () {
-    return load ('GET', '?cmd=get-data', true, function (str) {
+var displayLinks = function (op) {
+    var query = '?cmd=get-data';
+
+    if (op === 'force')
+	query += '&op=force';
+    
+    return load ('GET', query, true, function (str) {
 	if (isJsonString(str)) {
 	    var data = JSON.parse(str);
 	    var output = '';
@@ -924,7 +929,7 @@ var init = function (path) {
     displayTorrentButton('path-torrent');
     displayFileButton({id:'path-file-log',file:'zdl_log.txt'});
     displayFileButton({id:'path-file-links',file:'links.txt'});
-    displayLinks();
+    displayLinks('force');
     getStatus(true, 'force');
 };
 

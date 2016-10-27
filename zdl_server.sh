@@ -269,7 +269,7 @@ function get_file_output {
 }
 
 function create_json {
-    local test_data path
+    local path
     rm -f "$server_data".$socket_port
 
     if [ -s "$server_paths" ]
@@ -301,6 +301,9 @@ function create_json {
 }
 
 function send_json {
+    [ "$1" == force ] &&
+	rm -f "$server_data".$socket_port.diff
+    
     while :
     do
 	create_json
@@ -474,7 +477,7 @@ function run_cmd {
 	    ;;
 	
     	get-data)
-	    send_json || return
+	    send_json ${line[1]} || return
 	    ;;
 
 	get-status)	    
