@@ -669,7 +669,7 @@ var browseDir = function (path) {
 			 "<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
 			 "<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
 
-		     document.getElementById('path-browse-dir').innerHTML = dirs;
+		     document.getElementById('path-browse-dir').innerHTML = '<div class="value">' + dirs + '</div>';
     });
 };
 

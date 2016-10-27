@@ -892,11 +892,11 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    string_output="<a href=\"javascript:browseDir('$PWD/..');\"><img src=\"folder-blue.png\">..</a><br>"
+	    string_output="<a href=\"javascript:browseDir('$PWD/..');\"><img src=\"folder-blue.png\"> ..</a><br>"
 	    while read dir
 	    do
 		real_dir=$(realpath "$dir")
-		string_output+="<a href=\"javascript:browseDir('${real_dir}');\"><img src=\"folder-blue.png\">${dir}</a><br>"
+		string_output+="<a href=\"javascript:browseDir('${real_dir}');\"><img src=\"folder-blue.png\"> $dir</a><br>"
 	    done < <(ls -d1 */)
 
 	    echo "$string_output" > "$file_output"	    
