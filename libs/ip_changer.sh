@@ -55,7 +55,8 @@ function check_ip {
 	    $reconnecter &>/dev/null
 	fi
 	
-    elif [ "$update_proxy" == true ]
+    elif [ -f "$path_tmp"/proxy ] &&
+	     [[ ! "$(cat "$path_tmp"/proxy)" =~ [0-9.]+ ]]
     then
 	unset newip 
 	new_ip_proxy
@@ -79,16 +80,27 @@ function check_ip {
 	    new_ip_proxy
 	fi
 
-    elif [ "$update_defined_proxy" == "true" ]
+	
+    elif [ -s "$path_tmp"/proxy ] &&
+	     [[ "$(cat "$path_tmp"/proxy)" =~ [0-9.]+ ]]
+	 #[ "$update_defined_proxy" == "true" ]
     then
-	export http_proxy=$defined_proxy
+	export http_proxy=$(cat "$path_tmp"/proxy)
     fi
 }
 
 function get_ip {
-    declare -n myip="$1"
-    #myip=`wget -q -O - -t 1 -T 20 checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'`
-    myip=$(wget -q -O - -t 1 -T 20 http://indirizzo-ip.com/ip.php)
+    declare -n real_ip="$1"
+    declare -n proxy_ip="$2"
+
+    if [ -n "$2" ] && [ -s "$path_tmp"/proxy-active ]
+    then
+	export http_proxy=$(cat "$path_tmp"/proxy-active)
+	proxy_ip=$(wget -qO- -t1 -T20 http://indirizzo-ip.com/ip.php)
+	unset http_proxy
+    fi
+    
+    real_ip=$(wget -qO- -t1 -T20 http://indirizzo-ip.com/ip.php)
 }
 
 
@@ -184,6 +196,7 @@ function check_speed {
 	elif (( "${num_speed[i]}" >= 25 ))
 	then
 	    print_c 1 "Velocità di download sufficiente usando il proxy $http_proxy: ${num_speed[i]} KB/s"
+	    echo "$http_proxy" > "$path_tmp"/proxy-active
 	    return 0
 	fi
     done 2>/dev/null
@@ -196,6 +209,7 @@ function check_speed {
     if (( $maxspeed<$minspeed ))
     then
     	print_c 3 "La massima velocità di download raggiunta usando il proxy è inferiore a quella minima richiesta ($minspeed KB/s)"
+	rm -f "$path_tmp"/proxy-active
 	return 1
 
     else
@@ -213,6 +227,11 @@ function new_ip_proxy {
     unset speed type_speed search_proxy num_speed
     rm -f "$path_tmp/proxy.tmp"
 
+    if [ -s "$path_tmp"/proxy ]
+    then
+	proxy_types=( $(cat "$path_tmp"/proxy) )
+    fi
+    
     ##########################################
     ## tipi di proxy: Anonymous Transparent Elite
     ## da impostare nelle estensioni in cui si fa uso di check_ip:
@@ -236,7 +255,6 @@ function new_ip_proxy {
 	do		
 	    if [ ! -f "$path_tmp/proxy.tmp" ]
 	    then
-		#wget -q -t 1 -T 20 --post-data="cmd=pr0xylist" --user-agent="Anonimo" ${list_proxy_url[$proxy_server]} -O "$path_tmp/proxy.tmp" &>/dev/null
 		wget -q -t 1 -T 20                              \
 		     --user-agent="$user_agent"                 \
 		     ${list_proxy_url[$proxy_server]}           \

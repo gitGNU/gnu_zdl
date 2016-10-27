@@ -196,8 +196,8 @@ var singlePath = function (path) {
 	return load ('GET',
 		     query,
 		     true,
-		     function(ip){
-			 alert("Indirizzo IP attuale: " + ip);
+		     function(res){
+			 alert(res);
 		     });
     };
 
@@ -226,8 +226,8 @@ var singlePath = function (path) {
 	return load ('GET',
 		     query,
 		     true,
-		     function(ip){
-			 alert("Indirizzo IP attuale: " + ip);
+		     function(res){
+			 alert(res);
 		     });
     };
 
@@ -644,12 +644,11 @@ var browseFile = function (id, path, type, key) {
 		 query,
 		 true,
 		 function (res) {
-		     var output = "<div class=\"value\"><b>Sfoglia:</b> " + path + "/</div>" +
-			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button><br>" +
-			     res +
-			     "<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
+		     var output = "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "/</div>" +
+			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
+			     "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
+			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>";
 
-		     document.getElementById(id).style.width = '100%';
 		     document.getElementById(id).innerHTML = output;
 		 });
 };
@@ -848,24 +847,25 @@ var displayLinks = function (op) {
 		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += '<div class="subtitle">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
-		    output += '<div class="subtitle">Link:</div><div class="element">' + data[i].link + "</div>";
+		    output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
+		    output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' + data[i].link + "</div>";
 
-		    output += '<div class="subtitle">Path:</div><div class="element">' + data[i].path +
+		    output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
 			"<button class=\"data\" onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
 
-		    output += '<div class="subtitle">File: </div><div class="element">' + data[i].file + "</div>";
-		    output += '<div class="subtitle">Length: </div><div class="element">' + (data[i].length/1024/1024).toFixed(2) + "M</div>";
+		    output += '<div class="label-element" style="margin-right: .7em;">File: </div><div class="element">' + data[i].file + "</div>";
+		    output += '<div class="label-element" style="margin-right: .7em;">Length: </div><div class="element">' +
+			(data[i].length/1024/1024).toFixed(2) + "M</div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += '<div class="subtitle">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
-			output += '<div class="subtitle">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
 			
 		    } else {
-			output += '<div class="subtitle">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
 		    }
 
-		    output += '<div class="background-data">' + displayLinkButtons(data[i]);
+		    output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(data[i]);
 		    output += '</div></div>';
 		}
 		

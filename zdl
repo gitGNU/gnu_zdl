@@ -872,24 +872,29 @@ then
 	then
 	    if [ "${args[i]}" == '--proxy' ]
 	    then
-		update_proxy=true
-		unset args[i]
-		break
+		# update_proxy=true
+		# unset args[i]
+		# break
 
+		echo > "$path_tmp"/proxy
+		
 	    elif [ "${args[i]}" == '--proxy=t' ]
 	    then
-		proxy_types[${#proxy_types[*]}]="Transparent"
-		update_proxy=true
+		# proxy_types[${#proxy_types[*]}]="Transparent"
+		# update_proxy=true
+		echo "Transparent" >> "$path_tmp"/proxy
 
 	    elif [ "${args[i]}" == '--proxy=a' ]
 	    then
-		proxy_types[${#proxy_types[*]}]="Anonymous"
-		update_proxy=true
+		# proxy_types[${#proxy_types[*]}]="Anonymous"
+		# update_proxy=true
+		echo "Anonymous" >> "$path_tmp"/proxy
 
 	    elif [ "${args[i]}" == '--proxy=e' ]
 	    then
-		proxy_types[${#proxy_types[*]}]="Elite"
-		update_proxy=true
+		# proxy_types[${#proxy_types[*]}]="Elite"
+		# update_proxy=true
+		echo "Elite" >> "$path_tmp"/proxy
 
 	    elif [ "${args[i]}" != "${args[i]%'='*}" ]
 	    then
@@ -897,11 +902,12 @@ then
 
 		if [ -z "${proxy//[0-9.:]}" ]
 		then
+		    echo "$proxy" > "$path_tmp"/proxy
 		    export http_proxy=$proxy
-		    defined_proxy=$proxy
+		    # defined_proxy=$proxy
 		    print_c 1 "Proxy attivo: $http_proxy\n"
-		    update_defined_proxy=true
-		    unset update_proxy
+		    # update_defined_proxy=true
+		    # unset update_proxy
 		else
 		    print_c 3 "${args[i]}: argomento non valido\n\n"
 		    usage

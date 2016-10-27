@@ -67,63 +67,56 @@
 	<div class="content">
 
 	  <div class="background-element">
-	    <div id="sel-path">
-	    </div>
+	  <!-- <div class="element"> -->
+	    <div id="sel-path"></div>
+
 	    <div id="path-browse-dir"></div>
 	  </div>
 	  
 	  <div id="run-path" class="visible">
 	    <div class="background-element" style="text-align: left">
-	      <div class="label-element">Spazio libero:</div>
+	    <div class="label-element">Spazio libero:</div>
 	      <div class="value" id="path-free-space"></div>
 	      <button onclick="singlePath(ZDL.path).getFreeSpace();">Aggiorna</button>
 	    </div>
 	  
 	    <div class="background-element" style="text-align: left">
-	      <div id="input-link-label" class="label-element">Aggiungi link:</div>
-	      <input id="input-link" type="text">
+	    <div id="input-link-label" class="label-element">Aggiungi link:</div>
+
+	    <input id="input-link" type="text" style="margin: 0;">
 	      <button onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
-
-	      <div id="editor-links"></div>
+	      <div id="editor-links" style="margin-top: 1em;"></div>
 	    </div>
 
-	    <div class="background-element">
-	      <div class="label-element">Aggiungi XDCC:</div>
-	    </div>
-	    <div class="background-element">
-	      <div class="value" style="width:6em">IRC host:</div><input id="input-irc" type="text" style="width: calc(100% - 10em)">
-	    </div>
-	    <div class="background-element">
-	      <div class="value" style="width:6em">Canale:</div><input id="input-chan" type="text" style="width: calc(100% - 10em)">
-	    </div>
-	    <div class="background-element">
-	      <div class="value" style="width:6em">MSG/CTCP:</div><input id="input-ctcp" type="text" style="width: calc(100% - 10em)">
-	    </div>
-	    <div class="background-element">
-	      <button onclick="singlePath(ZDL.path).addXDCC({host:'input-irc',chan:'input-chan',ctcp:'input-ctcp'});">Invia XDCC</button>
-	    </div>
+	    <div class="background-element" style="text-align: center;">
+	      <div class="label-element" style="clear: right;">Aggiungi XDCC:</div>
 
+	      <div class="sublabel-element">IRC host:</div>
+	      <input id="input-irc" type="text" style="width: calc(100% - 1.4em); margin-left: .7em;">
+
+	      <div class="sublabel-element">Canale:</div>
+	      <input id="input-chan" type="text" style="width: calc(100% - 1.4em); margin-left: .7em;">
+
+	      <div class="sublabel-element">MSG/CTCP:</div>
+	      <input id="input-ctcp" type="text" style="width: calc(100% - 1.4em); margin-left: .7em;">
+
+	      <button style="float:left; clear:both; margin: 1em 0 2em .7em;" class="data"
+		      onclick="singlePath(ZDL.path).addXDCC({host:'input-irc',chan:'input-chan',ctcp:'input-ctcp'});">
+		Invia XDCC</button>
+	    </div>
+	    
 	    <div class="background-element">
 	      <div class="label-element">File torrent:</div>
-	      <div id="path-torrent"></div>
+	      <!-- <div class="element"> -->
+		<div id="path-torrent"></div>
 	    </div>
 	    
 	    <div class="background-element" style="text-align:center;">
+	    <!-- <div class="element"> -->
 	      <div id="path-file-log" style="display:inline-block;"></div>
 	      <div id="path-file-links" style="display:inline-block;"></div>
 	    </div>
 
-	    <!-- <div class="background-element"> -->
-	    <!--   <div class="label-element">File zdl_log.txt:</div> -->
-	    <!--   <div id="path-file-log"></div> -->
-	    <!-- </div> -->
-	    
-	    <!-- <div class="background-element"> -->
-	    <!--   <div class="label-element">File links.txt:</div> -->
-	    <!--   <div id="path-file-links"></div> -->
-	    <!-- </div> -->
-
-	    
 	    <div class="background-element">
 	      <div class="label-element">Max download paralleli:</div>
 	      <div id="max-downloads"><input class="hidden" id="input-max-downloads" type="text"></div>
@@ -142,14 +135,12 @@
 	    <div class="background-element">
 	      <div class="label-element">Riconnessione modem/router:</div>
 	      <div id="path-reconnecter" style="float:left;"></div>
-	      <button onclick="singlePath(ZDL.path).reconnect();">Riconnetti adesso</button>
-	      <button onclick="singlePath(ZDL.path).getIP();">Indirizzo IP</button>
-
+	      <button onclick="singlePath(ZDL.path).reconnect();" style="float: left; margin-left: .7em">Riconnetti adesso</button>
+	      <button onclick="singlePath(ZDL.path).getIP();" style="float: left;">Indirizzo IP</button>
 	    </div>
 
-
 	    <div class="background-element">
-	      <div id="path-status" style="text-align: center"></div>
+	      <div id="path-status" style="text-align: center; margin-top: 1em;"></div>
 	    </div>
 	  </div>
 

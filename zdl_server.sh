@@ -453,6 +453,18 @@ function create_status_json {
     string_output+="}"
 }
 
+function send_ip {
+    file_output="$path_server"/myip
+    get_ip real_ip proxy_ip
+    
+    echo -e "Indirizzo IP attuale:\n$real_ip" > "$file_output"
+    
+    if [ -n "$proxy_ip" ]
+    then
+	echo -e "\n\nIndirizzo IP con proxy:\n$proxy_ip" >> "$file_output"
+    fi
+}
+
 
 function run_cmd {
     local line=( "$@" )
@@ -550,9 +562,7 @@ function run_cmd {
 		if [ -n "$reconnecter" ]
 		then
 		    $reconnecter &>/dev/null
-		    get_ip myip
-		    file_output="$path_server"/myip
-		    echo "$myip" > "$file_output"
+		    send_ip
 
 		else
 		    rm -f "$path_tmp"/reconnect
@@ -563,9 +573,7 @@ function run_cmd {
 	    ;;
 
 	get-ip)
-	    file_output="$path_server"/myip
-	    get_ip myip
-	    echo "$myip" > "$file_output"	    
+	    send_ip
 	    ;;
 
 	get-free-space)
