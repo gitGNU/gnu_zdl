@@ -285,7 +285,8 @@ var singlePath = function (path) {
 	    
 	var output = '<input id="input-max-downloads" type="number" value="' + max_dl + '" min="0" max="100">' +
 		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads();\">Invia</button>" +
-		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads('no-limits');\">Nessun limite</button>";
+		"<button onclick=\"singlePath(ZDL.path).setMaxDownloads('no-limits');\">Nessun limite</button>" +
+		"<button onclick=\"initClient(ZDL.path);\">Annulla</button>";
 	return document.getElementById('max-downloads').innerHTML = output;
     };
 	
@@ -644,10 +645,12 @@ var browseFile = function (id, path, type, key) {
 		 query,
 		 true,
 		 function (res) {
-		     var output = "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "/</div>" +
+		     var output = "<div style=\"float: none; clear: both; width: 100%;\">" +
+			     "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "/</div>" +
 			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
 			     "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
-			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>";
+			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
+			     "</div>";
 
 		     document.getElementById(id).innerHTML = output;
 		 });
@@ -880,8 +883,8 @@ var displayLinks = function (op) {
 };
 
 var displayLinkButtons = function (spec) {
-    var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma il download</button>" +
-	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Cancella il download</button>" +
+    var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma</button>" +
+	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Elimina</button>" +
     	    "<button onclick=\"singleLink(" + objectToSource(spec) + ").play();\">Anteprima</button>";
     return output;
 };
@@ -901,20 +904,28 @@ var displayFileButton = function (spec) {
 };
 
 var displayFileText = function (spec) {
-    var query = '?cmd=get-file&path=' + path + '&file=' + ZDL.path + '/' + spec.file;
+    var query = '?cmd=get-file&path=' + ZDL.path + '&file=' + ZDL.path + '/' + spec.file;
     
     load ('GET',
 	  query,
 	  true,
 	  function (res) {
 	      if (cleanInput(res)) {
-		  var output = '<div class="file-text">' + res + '</div>';
+		  var id = 'file-text-' + spec.file.replace(/\./g,'');
+		  
+		  var output = '<div class="file-text" id="' + id + '">' + res + '</div>';
 		  output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
 		  output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ");\">Chiudi</button>";
+
+		  var elemOuter = document.getElementById(spec.id);
+		  elemOuter.innerHTML = "<br><b>" + spec.file + ':</b><br>' + output;
+		  elemOuter.style.width = window.innerWidth - 40;
+		  elemOuter.style.display = 'block';
+		  elemOuter.style.margin = '0 0 0 1em';
 		  
-		  document.getElementById(spec.id).innerHTML = "<b>" + spec.file + ':</b><br>' + output;
-		  document.getElementById(spec.id).style.display = 'block';
-		  document.getElementById(spec.id).style.padding = '1em 1em 1em 1em';
+		  var elemInner = document.getElementById(id);
+		  elemInner.scrollTop = elemInner.scrollHeight;
+		  elemInner.scrollInToView(true);
 		  
 	      } else {
 		  alert('File ' + spec.file + ' non disponibile');

@@ -111,10 +111,9 @@
 		<div id="path-torrent"></div>
 	    </div>
 	    
-	    <div class="background-element" style="text-align:center;">
-	    <!-- <div class="element"> -->
-	      <div id="path-file-log" style="display:inline-block;"></div>
-	      <div id="path-file-links" style="display:inline-block;"></div>
+	    <div class="background-element" style="text-align:center; padding: 1em 0 1em 0;">
+	      <div id="path-file-log" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div>
+	      <div id="path-file-links" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div>
 	    </div>
 
 	    <div class="background-element">
@@ -127,10 +126,10 @@
 	      <div id="downloader"></div>
 	    </div>
 
-	    <div class="background-element">
-	      <div class="label-element">Attiva proxy:</div>
-	      <div id="path-proxy"></div>
-	    </div>
+	    <!-- <div class="background-element"> -->
+	    <!--   <div class="label-element">Attiva proxy:</div> -->
+	    <!--   <div id="path-proxy"></div> -->
+	    <!-- </div> -->
 
 	    <div class="background-element">
 	      <div class="label-element">Riconnessione modem/router:</div>
@@ -170,7 +169,7 @@
 	    <div id="list-sockets-kill" style="margin: 0;"></div>
 	  </div>
 	  
-	  <div class="background-element">
+	  <div class="background-element" style="text-align: center; padding-top: 1em;">
 	    <button onclick="killServer(); setTimeout('document.location.reload(true)', 2000);">Termina il socket attuale</button>
 	    <button onclick="killAll();">Termina i downloader in tutti i path</button>
 	  </div>
@@ -184,72 +183,72 @@
 	<div class="label-section">Configurazione</div>
 	<div class="content">
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Downloader predefinito</div>
-	    <div id="conf-downloader" class="float"></div>
+	    <div class="label-element">Downloader predefinito:</div>
+	    <div id="conf-downloader" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Numero di parti di download per Axel</div>
-	    <div id="conf-axel_parts" class="float"></div>
+	    <div class="label-element">Numero di parti di download per Axel:</div>
+	    <div id="conf-axel_parts" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Numero di parti di download per Aria2</div>
-	    <div id="conf-aria2_connections" class="float"></div>
+	    <div class="label-element">Numero di parti di download per Aria2:</div>
+	    <div id="conf-aria2_connections" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Max download simultanei</div>
-	    <div id="conf-max_dl" class="float"></div>
+	    <div class="label-element">Max download simultanei:</div>
+	    <div id="conf-max_dl" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Colore di sfondo nei terminali virtuali</div>
-	    <div id="conf-background" class="float"></div>
+	    <div class="label-element">Colore di sfondo nei terminali virtuali:</div>
+	    <div id="conf-background" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Lingua</div>
-	    <div id="conf-language" class="float"></div>
+	    <div class="label-element">Lingua:</div>
+	    <div id="conf-language" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Comando per riconnettere il modem/router</div>
-	    <div id="input-file-reconnecter" class="float"></div>
-	    <div id="conf-reconnecter-text" class="float"></div>
+	    <div class="label-element">Comando per riconnettere il modem/router:</div>
+	    <div id="input-file-reconnecter" ></div>
+	    <div id="conf-reconnecter-text" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Aggiornameni automatici</div>
-	    <div id="conf-autoupdate" class="float"></div>
+	    <div class="label-element">Aggiornameni automatici:</div>
+	    <div id="conf-autoupdate" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Player per anteprima audio/video</div>
-	    <div id="input-file-player" class="float"></div>
-	    <div id="conf-player-text" class="float"></div>
+	    <div class="label-element">Player per anteprima audio/video:</div>
+	    <div id="input-file-player" ></div>
+	    <div id="conf-player-text" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Editor per la lista dei link</div>
-	    <div id="input-file-editor" class="float"></div>
-	    <div id="conf-editor-text" class="float"></div>
+	    <div class="label-element">Editor per la lista dei link:</div>
+	    <div id="input-file-editor" ></div>
+	    <div id="conf-editor-text" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Sovrascrittura file omonimi (--resume)</div>
-	    <div id="conf-resume" class="float"></div>
+	    <div class="label-element">Sovrascrittura file omonimi (--resume):</div>
+	    <div id="conf-resume" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Modalità di avvio</div>
-	    <div id="conf-zdl_mode" class="float"></div>
+	    <div class="label-element">Modalità di avvio:</div>
+	    <div id="conf-zdl_mode" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Porta TCP (torrent)</div>
-	    <div id="conf-tcp_port" class="float"></div>
+	    <div class="label-element">Porta TCP (torrent):</div>
+	    <div id="conf-tcp_port" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Porta UDP (torrent)</div>
-	    <div id="conf-udp_port" class="float"></div>
+	    <div class="label-element">Porta UDP (torrent):</div>
+	    <div id="conf-udp_port" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Porta TCP (--socket, --web-ui)</div>
-	    <div id="conf-socket_port" class="float"></div>
+	    <div class="label-element">Porta TCP (--socket, --web-ui):</div>
+	    <div id="conf-socket_port" ></div>
 	  </div>
 	  <div class="background-element" style="text-align: left;">
-	    <div class="label-element">Browser web (--web-ui)</div>
-	    <div id="input-file-browser" class="float"></div>
-	    <div id="conf-browser-text" class="float"></div>
+	    <div class="label-element">Browser web (--web-ui):</div>
+	    <div id="input-file-browser" ></div>
+	    <div id="conf-browser-text" ></div>
 	  </div>
 	</div>
       </div>

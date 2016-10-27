@@ -27,7 +27,7 @@ body, html {
     background: black;
     color: black;
     margin: 0;
-    font: 13px "Verdana", sans-serif;
+    /* font: 13px "Verdana", sans-serif; */
     padding: 0 0 0 0;
 }
 
@@ -335,7 +335,7 @@ button {
     /* box-sizing: border-box; */
 
     padding: 0 .7em 0 .7em;
-    height: calc(17px + 1em);
+    height: calc(16px + 1em);
     box-sizing: border-box;
 
 }
@@ -366,7 +366,7 @@ input[type=text] {
     color: #EEE;
 
     padding: .5em 7.em .5em 7.em;
-    height: calc(13px + 1em);
+    height: calc(12px + 1em);
 }
 
 input[type=number] {
@@ -379,7 +379,7 @@ input[type=number] {
     background-color: black;
 
     padding: .5em 7.em .5em 7.em;
-    height: calc(13px + 1em);
+    height: calc(12px + 1em);
 }
 
 /* #input-port:hover:after { */
@@ -578,8 +578,9 @@ select {
     /* font-family:Arial; */
     /* font-size:13px; */
     font-weight:bold;
-    padding: .5em 7.em .5em 7.em;
-    height: calc(17px + 1em);
+    padding-right: .7em;
+    padding-left: .7em;
+    height: calc(16px + 1em);
     text-decoration:none;
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -680,7 +681,7 @@ span {
     float:left;
     margin: -0.5em .7em 0 -0.7em;
     padding: 0 .7em 0 .7em;
-    height: calc(17px + 1em);
+    height: calc(16px + 1em);
     box-sizing: border-box;
 }
 
@@ -697,14 +698,10 @@ div.value-data {
     word-wrap: break-word;
 }
 
-div.float {
-    float: left;
-}
-
 div.file-text {
     display: block;
     position: relative;
-    width: calc(100% - 2em);
+    width: calc(100% - 1em);
     height: 300px;
     overflow: auto;
     padding: 4px;
@@ -712,4 +709,55 @@ div.file-text {
     box-sizing: border-box;
     color: #EEE;
     background-color: black;
+}
+
+
+
+/* font-family: "Dejavu Sans"; */
+h1 {
+    font-family: "Arial";    
+    font-size: 24px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 26.4px;
+}
+h3 {
+    font-family: "Arial";
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 15.4px;
+}
+
+body, html, p, select, button, input {
+    font-family: "Arial";
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    /* line-height: 20px; */
+}
+
+button, select {
+    font-weight: bold;
+}
+
+blockquote {
+    font-family: "Arial";
+    font-size: 21px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 30px;
+}
+
+pre {
+    font-family: "Arial";
+    font-size: 13px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 18.5714px;
 }
