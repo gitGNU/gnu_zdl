@@ -843,42 +843,25 @@ var displayLinks = function () {
 		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
 			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
 
-		    output += '<div class="background-data">' +
-			'<div class="label-element">Downloader:</div>' +
-			'<div class="value-data">' + data[i].downloader + "</div></div>";
+		    output += '<div class="subtitle">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
+		    output += '<div class="subtitle">Link:</div><div class="element">' + data[i].link + "</div>";
 
-		    output += '<div class="background-data">' +
-			'<div class="label-element">Link:</div>' +
-			'<div class="value-data">' + data[i].link + "</div></div>";
+		    output += '<div class="subtitle">Path:</div><div class="element">' + data[i].path +
+			"<button class=\"data\" onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
 
-		    output += '<div class="background-data">' +
-			'<div class="label-element">Path:</div>' +
-			'<div class="value-data">' + data[i].path + "</div>";
-
-		    output += "<button onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\" style=\"float: left;\">Gestisci</button></div>";
-
-		    output += '<div class="background-data">' +
-			'<div class="label-element">File: </div>' +
-			'<div class="value-data">' + data[i].file + "</div></div>";
-
-		    output += '<div class="background-data">' +
-			'<div class="label-element">Length: </div>' +
-			'<div class="value-data">' + (data[i].length/1024/1024).toFixed(2) + "M</div></div>";
+		    output += '<div class="subtitle">File: </div><div class="element">' + data[i].file + "</div>";
+		    output += '<div class="subtitle">Length: </div><div class="element">' + (data[i].length/1024/1024).toFixed(2) + "M</div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += '<div class="background-data"><div class="label-element">Streamer:</div>';
-			output += '<div class="value-data">' + data[i].streamer + "</div></div>";
-
-			output += '<div class="background-data"><div class="label-element">Playpath:</div>';
-			output += '<div class="value-data">' + data[i].playpath + "</div></div>";
+			output += '<div class="subtitle">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
+			output += '<div class="subtitle">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
 			
 		    } else {
-			output += '<div class="background-data"><div class="label-element">Url:</div>';
-			output += '<div class="value-data">' + data[i].url.toHtmlEntities() + "</div></div>";
+			output += '<div class="subtitle">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
 		    }
 
-		    output += displayLinkButtons(data[i]);
-		    output += '</div>';
+		    output += '<div class="background-data">' + displayLinkButtons(data[i]);
+		    output += '</div></div>';
 		}
 		
 		document.getElementById('output-links').innerHTML = output;

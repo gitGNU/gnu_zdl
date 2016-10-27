@@ -28,7 +28,7 @@ body, html {
     color: black;
     margin: 0;
     font: 13px "Verdana", sans-serif;
-    padding: 0;
+    padding: 0 0 0 0;
 }
 
 
@@ -326,10 +326,12 @@ button {
     /* font-family:Arial; */
     /* font-size:13px; */
     font-weight:bold;
-    padding:4px 12px;
+    /* padding:4px 12px; */
     text-decoration:none;
-    height: 30px;
-    margin: 0;
+    /* height: 30px; */
+    padding: .5em .7em;
+    margin: 0 0 0 0;
+    box-sizing: border-box; 
 }
 
 button:hover {
@@ -351,7 +353,7 @@ button:active {
 input[type=text] {
     float: left;
     height: 30px;
-    margin: 0 0;
+    margin: 0 0 0 0;
     box-sizing: border-box;
     border: 1px solid #343434;
     background-color: black;
@@ -414,16 +416,6 @@ textarea {
     margin-top: 1em;
 }
 
-.label-element {
-    float: left;
-    color: #fff;
-    background: #777;
-    line-height: 30px;
-    margin: 0;
-    padding-left: 1em;
-    padding-right: 1em;
-}
-
 .background-element {
     position: relative;
     float: left;
@@ -434,18 +426,6 @@ textarea {
     width: 100%;
     text-align: center;
     cursor: default;
-    word-wrap: break-word;
-}
-
-.background-data {
-    position: relative;
-    float: left;
-    background: #eee;
-    padding: 0 0 0 0;
-    margin: 0 0 1px 0;
-    display: block;
-    width: 100%;
-    text-align: center;
     word-wrap: break-word;
 }
 
@@ -599,30 +579,88 @@ select {
     /* font-family:Arial; */
     /* font-size:13px; */
     font-weight:bold;
-    padding:4px 12px;
+    padding: .5em 7.em .5em 7.em;
+    height: calc(13px + 1em);
     text-decoration:none;
-    height: 30px;
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
+    box-sizing: border-box; 
 }
 
 #browse a {
     font-weght: normal;
 }
 
-.value {
+div.value {
     position: relative;
     float: left;
     padding: .5em .7em;
     word-wrap: break-word;
 }
 
-.value-data {
+.background-data {
+    position: relative;
+    float: left;
+    background: #eee;
+    padding: .5em .7em 0em .7em;
+    margin: 0 0 1px 0;
+    display: block;
+    text-align: left;
+    word-wrap: break-word;
+    width: calc(100% - 1.4em);
+}
+
+span {
+    margin: 0 0 .5em 0;    
+}
+
+.subtitle {
+    float: left;
+    color: #fff;
+    background: #777;
+    font-size: .9em;
+    padding: .5em .7em;
+    margin-right: .5em;
+}
+
+.element {
+    background: #eee;
+    font-size: .9em;
+    padding: .5em .7em;
+    border-bottom: 1px solid #fff;
+    word-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.label-data {
+    float: left;
+    color: #fff;
+    background: #777;
+    margin: -0.5em .7em 0 -0.7em;
+    padding: .5em .7em;
+}
+
+button.data {
+    float:right;
+    margin: -0.5em 7em 0 .7em;
+}
+
+.label-element {
+    float: left;
+    color: #fff;
+    background: #777;
+    margin: 0 0 0 0;
+    padding: .5em .7em;
+}
+
+div.value-data {
     position: relative;
     float: left;
     padding: .5em .7em;
     width: calc(100% - 1.4em);
+    word-wrap: break-word;
 }
 
 div.float {
