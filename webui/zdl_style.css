@@ -396,9 +396,7 @@ input[type=number] {
 /*     color:white; */
 /* } */
 
-#input-link {
-    width: calc(100% - 200px);
-}
+
 
 #input-max-downloads {
     width: 80px;

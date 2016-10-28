@@ -206,7 +206,7 @@
 @c @man{3}
 
 @c @ifman @unnumberedsec DESCRIZIONE
-@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Aria2}, @emph{Axel}, @emph{Wget}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming, scaricare TORRENT e richiedere e ricevere file via IRC/XDCC, senza alcuna interazione via CHAT. È compatibile con @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
+@emph{ZigzagDownLoader} gestisce gli scaricamenti di alcuni downloader come @emph{Aria2}, @emph{Axel}, @emph{Wget}, @emph{RTMPDump} o @emph{cURL}. Inoltre, può estrarre l'URL dei file da scaricare da servizi di file hosting e video streaming, scaricare TORRENT e richiedere e ricevere file via IRC/XDCC, senza alcuna interazione via CHAT. Estende @emph{Conkeror}, @emph{XXXTerm/Xombrero}, @emph{Firefox} (attraverso l'estensione @emph{Flashgot}) e @emph{Microsoft Windows} (tramite @emph{Cygwin}).
 @c @end man
 
 @unnumbered Perché questo programma
@@ -987,7 +987,7 @@ migliore di @emph{info} ed esteticamente più simile a ZDL
 Almeno un editor qualsiasi (qui solo alcuni suggerimenti) per poter modificare in qualsiasi momento la lista dei link da cui effettuare i download
 @end table
 
-@unnumberedsubsec ZDL è compatibile con: 
+@unnumberedsubsec ZDL estende: 
 @table @emph
 @pindex firefox
 @pindex iceweasel
@@ -1013,7 +1013,7 @@ Motore Javascript per l'acquisizione di informazioni dal web
 
 @end table
 
-@unnumberedsubsec Dipendenze per Windows: 
+@unnumberedsubsec Dipendenze aggiuntive per Windows: 
 @table @emph
 @item Cygwin (x86 32-bit)
 Distribuzione per il porting di software di sistemi POSIX su Microsoft Windows

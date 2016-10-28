@@ -454,7 +454,7 @@ function create_status_json {
 }
 
 function send_ip {
-    file_output="$path_server"/myip
+    file_output="$path_server"/myip.$socket_port
     get_ip real_ip proxy_ip
     
     echo -e "Indirizzo IP attuale:\n$real_ip" > "$file_output"
@@ -549,7 +549,7 @@ function run_cmd {
 
 		else
 		    rm -f "$path_tmp"/reconnect
-		    file_output="$path_server"/reconn
+		    file_output="$path_server"/reconn.$socket_port
 		    echo "Non hai ancora configurato ZDL per la riconnessione automatica" > "$file_output"
 		fi
 		
@@ -566,7 +566,7 @@ function run_cmd {
 
 		else
 		    rm -f "$path_tmp"/reconnect
-		    file_output="$path_server"/reconn
+		    file_output="$path_server"/reconn.$socket_port
 		    echo "Non hai ancora configurato ZDL per la riconnessione automatica" > "$file_output"
 		fi
 	    fi	    
@@ -577,7 +577,7 @@ function run_cmd {
 	    ;;
 
 	get-free-space)
-	    file_output="$path_server"/free-space
+	    file_output="$path_server"/free-space.$socket_port
 	    
 	    if test -d "${line[1]}"
 	    then
@@ -623,7 +623,7 @@ function run_cmd {
 	    done
 	    set_link + "irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}" ||
 		{
-	    	    file_output="$path_server"/msg-file
+	    	    file_output="$path_server"/msg-file.$socket_port
 	    	    echo -e "$err_msg" > "$file_output"
 		}
 	    ;;
@@ -663,7 +663,7 @@ function run_cmd {
 
 	    if [ -n "$list_err" ]
 	    then
-	    	file_output="$path_server"/msg-file
+	    	file_output="$path_server"/msg-file.$socket_port
 	    	echo -e "$list_err" > "$file_output"
 	    fi
 	    ;;
@@ -742,12 +742,12 @@ function run_cmd {
 
 	    if [ -z "$player" ] #&>/dev/null
 	    then
-		file_output="$path_server"/msg-file
+		file_output="$path_server"/msg-file.$socket_port
 		echo -e "Non è stato configurato alcun player per audio/video" > "$file_output"
 
 	    elif [[ ! "$(file -b --mime-type "${line[2]}")" =~ (audio|video) ]]
 	    then
-		file_output="$path_server"/msg-file
+		file_output="$path_server"/msg-file.$socket_port
 		echo -e "Non è un file audio/video" > "$file_output"
 
 	    else
@@ -759,7 +759,7 @@ function run_cmd {
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    file_output="$path_server"/file-text
+	    file_output="$path_server"/file-text.$socket_port
 	    sed -r 's|$|<br>|g' "${line[2]}" > "$file_output"
 	    ;;
 	
@@ -797,7 +797,7 @@ function run_cmd {
 	    
 	    if [ -n "$list_err" ]
 	    then
-	    	file_output="$path_server"/msg-file
+	    	file_output="$path_server"/msg-file.$socket_port
 	    	echo -e "$list_err" > "$file_output"
 	    fi
 	    ;;
@@ -885,7 +885,18 @@ function run_cmd {
 	    echo "$status" > "$path_server"/status.$socket_port	    
 	    file_output="$path_server"/status.$socket_port
 	    ;;
+	
+	check-dir)
+	    file_output="$path_server"/check-dir.$socket_port
+	    if test -d "${line[1]}"
+	    then
+		echo true > "$file_output"
 
+	    else
+		echo > "$file_output"
+	    fi
+	    ;;
+	
 	browse-dirs)
 	    file_output="$path_server"/browsing.$socket_port
 	    
@@ -912,7 +923,7 @@ function run_cmd {
 	    test -d "$path" &&
 		cd "$path"
 
-	    string_output="<a href=\"javascript:browseFile('$id','$PWD/..');\"><img src=\"folder-blue.png\">../</a><br>"
+	    string_output="<a href=\"javascript:browseFile('$id','$PWD/..','$type','$key');\"><img src=\"folder-blue.png\">../</a><br>"
 	    while read file
 	    do
 		real_path=$(realpath "$file")

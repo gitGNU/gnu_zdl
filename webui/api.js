@@ -428,15 +428,6 @@ var changeSection = function (section) {
 var initClient = function (path) {
     displayTorrentButton('path-torrent');
     load ('GET', '?cmd=init-client&path=' + path, true);
-}
-
-var selectDir = function (path) {
-    ZDL.path = path;
-    document.getElementById('run-path').setAttribute('class', 'visible');
-    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div class="value">' + path + '</div>' +
- 	" <button onClick=\"browseDir('" + path + "');\">Sfoglia</button><br>";
-    document.getElementById('path-browse-dir').innerHTML = '';
-    return initClient(path);
 };
 
 var runServer = function (port) {
@@ -634,9 +625,8 @@ var displayInputText = function (spec, id) {
 };
 
 var browseFile = function (id, path, type, key) {
-    path = path.replace(/\/[^/]+\/\.\.$/,'');
-    path = '/' + path.replace(/^\/+/,'');
-    
+    path = cleanPath(path);
+	
     var query = '?cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
     if (key)
 	query += '&key=' + key;    
@@ -646,7 +636,7 @@ var browseFile = function (id, path, type, key) {
 		 true,
 		 function (res) {
 		     var output = "<div style=\"float: none; clear: both; width: 100%;\">" +
-			     "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "/</div>" +
+			     "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "</div>" +
 			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
 			     "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
 			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
@@ -658,8 +648,7 @@ var browseFile = function (id, path, type, key) {
 
 var browseDir = function (path) {
     document.getElementById('run-path').setAttribute('class', 'hidden');
-    path = path.replace(/\/[^/]+\/\.\.$/,'');
-    path = '/' + path.replace(/^\/+/,'');
+    path = cleanPath(path);
 
     return load ('GET',
 		 '?cmd=browse-dirs&path=' + path,
@@ -671,6 +660,49 @@ var browseDir = function (path) {
 
 		     document.getElementById('path-browse-dir').innerHTML = '<div class="value">' + dirs + '</div>';
     });
+};
+
+var selectDir = function (path) {
+    ZDL.path = path;
+    document.getElementById('run-path').setAttribute('class', 'visible');
+    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div id="path-value" class="value">' + path + '</div>' +
+ 	" <button onClick=\"browseDir('" + path + "');\">Sfoglia</button>" +
+	"<button onclick=\"inputDir();\">Scrivi</button><br>";
+    document.getElementById('path-browse-dir').innerHTML = '';
+    return initClient(path);
+};
+
+var inputDir = function () {
+    var output = '<div class="label-element">Path:</div>' +
+	    '<input id="path-value" type="text" value="' + ZDL.path + '">';
+
+    output += "<button onclick=\"checkDir(document.getElementById('path-value').value)\">Invia</button>";
+    output += "<button onclick=\"selectDir(ZDL.path);\">Annulla</button>";
+    
+    document.getElementById('sel-path').innerHTML = output;
+};
+
+var checkDir = function (dir) {
+    if (dir) {
+	return load ('GET',
+		     '?cmd=check-dir&path=' + dir,
+		     true,
+		     function (res) {
+			 if (cleanInput(res)) {
+			     selectDir(dir);
+			 } else {
+			     alert("Directory inesistente:\n" + dir);
+			 }			 
+		     });
+    } else {
+	alert('Non è stata inserita alcuna directory');	
+    }	
+};
+
+var cleanPath = function (path) {
+    path = path.replace(/\/[^/]+\/\.\.$/,'');
+    path = '/' + path.replace(/^\/+/,'');
+    return path.replace(/^([/]{2}|\/[.]{2})/g,'/');    
 };
 
 var displayConf = function (conf) {
