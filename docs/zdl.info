@@ -39,7 +39,7 @@ _ZigzagDownLoader_ gestisce gli scaricamenti di alcuni downloader come
 _Aria2_, _Axel_, _Wget_, _RTMPDump_ o _cURL_. Inoltre, può estrarre
 l'URL dei file da scaricare da servizi di file hosting e video
 streaming, scaricare TORRENT e richiedere e ricevere file via IRC/XDCC,
-senza alcuna interazione via CHAT. È compatibile con _Conkeror_,
+senza alcuna interazione via CHAT. Estende _Conkeror_,
 _XXXTerm/Xombrero_, _Firefox_ (attraverso l'estensione _Flashgot_) e
 _Microsoft Windows_ (tramite _Cygwin_).
 
@@ -1033,8 +1033,8 @@ _Zile_
      poter modificare in qualsiasi momento la lista dei link da cui
      effettuare i download
 
-ZDL è compatibile con:
------------------------
+ZDL estende:
+------------
 
 _Firefox/Iceweasel/Icecat_
      Attraverso l'estensione _Flashgot_
@@ -1053,8 +1053,8 @@ _Nodejs_
      Motore Javascript per l'acquisizione di informazioni dal web
 
 
-Dipendenze per Windows:
------------------------
+Dipendenze aggiuntive per Windows:
+----------------------------------
 
 _Cygwin (x86 32-bit)_
      Distribuzione per il porting di software di sistemi POSIX su
@@ -1331,27 +1331,27 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL6499
-Node: Servizi streaming/hosting13366
-Node: Avviare ZDL17125
-Node: Arrestare ZDL19561
-Node: Controllare i download20666
-Node: Manuali d'uso24957
-Node: Modi25373
-Node: Readline28639
-Node: Editor30191
-Node: Omonimie31416
-Node: IRC/XDCC32951
-Node: Torrent34641
-Node: Filtri35525
-Node: Creare nuove estensioni35846
-Node: Software consigliati37608
-Node: Conkeror39009
-Node: zdl-xterm e XXXTerm/Xombrero40020
-Node: Installazione e aggiornamento41944
-Node: Tags44979
-Node: Copying47780
-Node: Contatti48830
+Node: Il comando ZDL6488
+Node: Servizi streaming/hosting13355
+Node: Avviare ZDL17114
+Node: Arrestare ZDL19550
+Node: Controllare i download20655
+Node: Manuali d'uso24946
+Node: Modi25362
+Node: Readline28628
+Node: Editor30180
+Node: Omonimie31405
+Node: IRC/XDCC32940
+Node: Torrent34630
+Node: Filtri35514
+Node: Creare nuove estensioni35835
+Node: Software consigliati37597
+Node: Conkeror38998
+Node: zdl-xterm e XXXTerm/Xombrero40009
+Node: Installazione e aggiornamento41933
+Node: Tags44968
+Node: Copying47769
+Node: Contatti48819
 
 End Tag Table
 

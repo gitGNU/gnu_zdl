@@ -58,11 +58,49 @@ function OL_decode {
 }
 
 
+function OL_decode2 {
+    local INDEX="$1"
+    
+    chunk=$($nodejs -e "var x = '$2';
+	var y = '$1';
+	var magic = y.slice(-1).charCodeAt(0);
+	y = y.split(String.fromCharCode(magic-1)).join('	');
+	y = y.split(y.slice(-1)).join(String.fromCharCode(magic-1));
+	y = y.split('	').join(String.fromCharCode(magic));
+	var s=[];for(var i=0;i<y.length;i++){var j=y.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}
+	var tmp=s.join('');
+	var str = tmp.substring(0, tmp.length - 1) + String.fromCharCode(tmp.slice(-1).charCodeAt(0) + 3);
+	console.log(str);
+	")
+
+    if [ -n "$chunk" ]
+    then
+	url_in_file=$(wget -S --spider \
+			   --referer="$URL_in" \
+			   --keep-session-cookies                    \
+    			   --load-cookies="$path_tmp"/cookies.zdl    \
+    			   --user-agent="$user_agent"                \
+			   "https://openload.co/stream/$chunk" 2>&1 |
+			  grep Location | head -n1 |
+			  sed -r 's|.*Location: (.+)$|\1|g')
+
+	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
+
+	if [[ "$url_in_file" =~ \/x\.mp4$ ]] &&
+	       ((INDEX < 5))
+	then
+	    OL_decode $((INDEX+1))
+
+	elif ((INDEX >= 5))
+	then
+	    _log 32
+	fi
+    fi
+
+}
+
 if [[ "$url_in" =~ (openload\.) ]]
 then
-    # _log 3
-    # print_c 3 "Servizio momentamente sospeso"
-
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
     URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
 
@@ -81,21 +119,34 @@ then
 	_log 3
 	
     elif [ -n "$html" ]
-    then
-	hiddenurl=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
+    then	
+	hiddenurl1=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
 			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 
-	hiddenurl=$(htmldecode "$hiddenurl")
-	hiddenurl="${hiddenurl//\\/\\\\}"
-	hiddenurl="${hiddenurl//\'/\\\'}"
-	hiddenurl="${hiddenurl//\"/\\\"}"
-	hiddenurl="${hiddenurl//\`/\\\`}"
-	hiddenurl="${hiddenurl//\$/\\\$}"
+	hiddenurl1=$(htmldecode "$hiddenurl1")
+	hiddenurl1="${hiddenurl1//\\/\\\\}"
+	hiddenurl1="${hiddenurl1//\'/\\\'}"
+	hiddenurl1="${hiddenurl1//\"/\\\"}"
+	hiddenurl1="${hiddenurl1//\`/\\\`}"
+	hiddenurl1="${hiddenurl1//\$/\\\$}"
+
+	hiddenurl2=$(grep '"streamurl' -B1 <<< "$html" | head -n1 |
+			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 	
+	hiddenurl2=$(htmldecode "$hiddenurl2")
+	hiddenurl2="${hiddenurl2//\\/\\\\}"
+	hiddenurl2="${hiddenurl2//\'/\\\'}"
+	hiddenurl2="${hiddenurl2//\"/\\\"}"
+	hiddenurl2="${hiddenurl2//\`/\\\`}"
+	hiddenurl2="${hiddenurl2//\$/\\\$}"
+
 	countdown- 6
 	
-	OL_decode 1
+	## OL_decode 1
+	OL_decode2 "$hiddenurl1" "$hiddenurl2"
     fi
 
     end_extension
 fi
+
+

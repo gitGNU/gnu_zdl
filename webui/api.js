@@ -100,8 +100,8 @@ var load = function (method, url, async, callback, params) {
 		break;
 	    }
 
-    	} else {
-    	    alert("Error " + req.status);
+    	} else if (req.status === 307) {
+    	    window.location.replace('login.html');
     	}
     };
     req.send();
@@ -485,9 +485,9 @@ var killAll = function () {
 };
 
 
-window.onbeforeunload = function () {
-    load ('GET', '?cmd=reset-requests&path=' + ZDL.path, true);
-};
+// window.onbeforeunload = function () {
+//     load ('GET', '?cmd=reset-requests&path=' + ZDL.path, true);
+// };
 
 // window.onfocus = function () {
 //     initClient (ZDL.path);

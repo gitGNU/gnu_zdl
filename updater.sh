@@ -453,6 +453,7 @@ ESTENSIONI:
 	deps['rlwrap']=rlwrap
 	deps['setterm']=util-linux
 	deps['fuser']=psmisc
+	deps['openssl']=openssl
 
 	for cmd in "${!deps[@]}"
 	do
@@ -508,6 +509,7 @@ ESTENSIONI:
 	deps['rlwrap']=rlwrap
 	deps['setterm']=util-linux
 	deps['fuser']=psmisc
+	deps['openssl']=openssl
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&

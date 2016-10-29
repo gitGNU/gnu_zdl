@@ -71,7 +71,7 @@ fi
 
 
 #### HTTP:
-declare -i DEBUG=0
+declare -i DEBUG=1
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
@@ -133,6 +133,8 @@ function send_response {
 	get_mime_server mime "$file"
 	add_response_header "Content-Type" "$mime"
 	add_response_header "Content-Length" "$(size_file "$file")"
+	[ -n "$HTTP_SESSION" ] &&
+	    add_response_header "Set-Cookie" "$HTTP_SESSION" 
 
 	if [ "$file" == "$path_server"/status.$socket_port ] &&
 	       grep RELOAD "$file" &>/dev/null
@@ -238,7 +240,6 @@ function clean_data {
     echo -e "$1" | tr -d "\r"
 }
 
-
 function get_file_output {
     declare -n result="$1"
     local file="$2"
@@ -249,6 +250,8 @@ function get_file_output {
 
     else
 	if [ "$file" == '/' ] ||
+	       [ -z "$file" ] ||
+	       [[ "$file" =~ index\.html ]] ||
 	       [ "$file" != "${file//'?'}" ]
 	then
 	    template="$template_index"
@@ -465,13 +468,50 @@ function send_ip {
     fi
 }
 
+function create_http_session {
+    printf "id=%s" $(create_hash "${*}$(date +%s)") #$((60*60*24))
+}
+
+function create_hash {
+    openssl dgst -md5 -hex <<< "${*}" | cut -d' ' -f2
+}
 
 function run_cmd {
     local line=( "$@" )
     local file link pid path
     unset file_output
-    
+
+    create_hash 'zoninoz1234' > "$path_conf"/socket-account
+       
     case "${line[0]}" in
+	login)
+	    file_output="$path_server"/msg-login.$socket_port
+	    data=$(clean_data "${line[1]}${line[2]}")
+
+	    if [ -s "$path_conf"/socket-account ]
+	    then
+		if grep -P "^$(create_hash "$data")$" "$path_conf"/socket-account &>/dev/null
+		then
+		    HTTP_SESSION=$(create_http_session "$data")
+
+		    # add_response_header "Set-Cookie" "$HTTP_SESSION" 
+
+		    echo "$HTTP_SESSION" >> "$path_server"/http-sessions
+
+		    get_file_output file_output 'index.html'
+		else
+		    echo -e "Login errato" > "$file_output"
+		fi
+
+	    else
+		echo -e "Non hai ancora creato un account per il socket.
+Apri un terminale e digita:
+zdl --configure
+
+Seleziona l'opzione 2: Crea un account per i socket di ZDL." > "$file_output"
+	    fi
+	    ;;
+
 	init-client)
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
@@ -1147,27 +1187,84 @@ function run_data {
     [ -n "${line_cmd[*]}" ] && run_cmd "${line_cmd[@]}"
 }
 
+function send_login {
+    
+    #HTTP_RESPONSE_CODE=307
+    #HTTP_RESPONSE_LOCATION='login.html'
+
+    if [ "$file_output" != "$path_usr/webui"/login.html ]
+    then
+	# file_output="$path_server"/empty
+	# echo > "$file_output"
+	file_output="$path_usr/webui"/login.html
+
+	#init_client
+	
+	[ -z "$GET_DATA" ] &&
+	    add_response_header "Location" "login.html"	
+	send_response 307 "$file_output"
+	exit 0
+    fi
+
+}
+
 function http_server {
     case $http_method in
 	GET)
-	    [[ "${line[*]}" =~ keep-alive ]] &&
-		{
-		    if [ -n "$GET_DATA" ]
-		    then
-			run_data "$GET_DATA"
-		    fi
+	    if [[ "${line[*]}" =~ 'Cookie' ]]		   
+	    then
+		[ -n "${line[1]}" ] &&
+		    grep "$(clean_data "${line[1]}")" "$path_server"/http-sessions &>/dev/null &&
+		    logged_on=true
 
-		    if [ -f "$file_output" ]
-		    then
-			[[ "$file_output" =~ "$server_data" ]] &&
-			    create_json
-			
-			serve_file "$file_output"
+	    elif [[ "$(clean_data "${line[*]}")" =~ 'Accept-Language' ]]
+	    then
+		user_accept_language=true
 
-		    else
-			exit
-		    fi
-		}
+	    elif [[ "$(clean_data "${line[*]}")" =~ 'Connection' ]]
+	    then
+		connection_test=true
+
+	    elif [[ "$(clean_data "${line[*]}")" =~ 'Chrome' ]]
+	    then
+		user_agent=chromium
+	    fi
+
+	    if [ -n "$connection_test" ] &&
+		   [ -n "$user_accept_language" ]
+	    then
+		if [ "$user_agent" == chromium ]
+		then
+		    read new_line
+		    cooked_line=$(clean_data "$new_line" |cut -d' ' -f2)
+		    
+		    [ -n "$cooked_line" ] &&
+			grep "$cooked_line" "$path_server"/http-sessions &>/dev/null &&
+			logged_on=true
+		fi
+		
+		if [ -z "$logged_on" ] &&
+		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico)$ ]]
+		then
+		    send_login
+		fi
+
+		if [ -n "$GET_DATA" ]
+		then
+		    run_data "$GET_DATA"
+		fi
+		
+		if [ -f "$file_output" ]
+		then
+		    [[ "$file_output" =~ "$server_data" ]] &&
+			create_json
+		    
+		    serve_file "$file_output"
+		    
+		else
+		    exit
+		fi
+	    fi
 	    ;;
 	
 	POST)
@@ -1177,9 +1274,14 @@ function http_server {
 	    if [[ "$length" =~ ^[0-9]+$ ]] && ((length>0)) &&
 		   [ -z "$postdata" ]
 	    then
-		read -n 0
+		## read -n 0
+		while read test_line
+		do
+		    [ -z "$(clean_data "$test_line")" ] &&
+			break
+		done
 		read -n $length POST_DATA
-		
+
 		run_data "$POST_DATA"
 		serve_file "$file_output"
 	    fi
@@ -1214,8 +1316,8 @@ do
 	    get_file_output file_output "${line[1]}"
 	    ;;
 	*)
-	    http_server ||
-		run_cmd "${line[@]}"
+	    http_server || exit 1 ## client non-web sono disabilitati, per ora. In seguito:
+	                          ## run_cmd "${line[@]}"
 	    ;;
     esac
 done
