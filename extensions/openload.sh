@@ -59,10 +59,14 @@ function OL_decode {
 
 
 function OL_decode2 {
-    local INDEX="$1"
+    local hidden1="$1"
+    local hidden2="$2"
+    local INDEX="$3"
+    [ -z "$INDEX" ] &&
+	INDEX=1
     
-    chunk=$($nodejs -e "var x = '$2';
-	var y = '$1';
+    chunk=$($nodejs -e "var x = '$hidden2';
+	var y = '$hidden1';
 	var magic = y.slice(-1).charCodeAt(0);
 	y = y.split(String.fromCharCode(magic-1)).join('	');
 	y = y.split(y.slice(-1)).join(String.fromCharCode(magic-1));
@@ -86,15 +90,19 @@ function OL_decode2 {
 
 	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
 
-	if [[ "$url_in_file" =~ \/x\.mp4$ ]] &&
-	       ((INDEX < 5))
-	then
-	    OL_decode $((INDEX+1))
+	# if ! url "$url_in_file"
+	# then
+	#     _log 2
 
-	elif ((INDEX >= 5))
-	then
-	    _log 32
-	fi
+	# elif [[ "$url_in_file" =~ \/x\.mp4$ ]] &&
+	#        ((INDEX < 5))
+	# then
+	#     OL_decode2 "$hidden1" "$hidden2" $((INDEX+1))
+
+	# elif ((INDEX >= 5))
+	# then
+	#     _log 32
+	# fi
     fi
 
 }
@@ -143,7 +151,7 @@ then
 	countdown- 6
 	
 	## OL_decode 1
-	OL_decode2 "$hiddenurl1" "$hiddenurl2"
+	OL_decode2 "$hiddenurl1" "$hiddenurl2" 
     fi
 
     end_extension
