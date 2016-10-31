@@ -541,6 +541,9 @@ Seleziona l'opzione 2: Crea un account per i socket di ZDL." > "$file_output"
 
 	    if [ "${line[2]}" == 'force' ]
 	    then
+		[ -s "$path_server"/pid_loop_status.$socket_port ] &&
+		    kill -9 $(cat "$path_server"/pid_loop_status.$socket_port)
+		
 		echo "$PWD" > /tmp/zdl.d/path.$socket_port
 		
 		unset line[2]
@@ -560,7 +563,9 @@ Seleziona l'opzione 2: Crea un account per i socket di ZDL." > "$file_output"
 			start_timeout=$(date +%s)
 		    fi
 		    sleep 2
-		done &
+		done &>/dev/null & 
+		pid_loop_status=$!
+		echo "$pid_loop_status" > "$path_server"/pid_loop_status.$socket_port
 		
 	    else		
 		lock_fifo status.$socket_port path
