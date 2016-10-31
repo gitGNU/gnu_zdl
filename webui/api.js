@@ -86,6 +86,12 @@ var isJsonString = function (str) {
 var load = function (method, url, async, callback, params) {
     var data;
     var req = new XMLHttpRequest();
+
+    if (method !== 'GET') {
+	var post_params = method.params;
+	var method = method.type;
+    }
+    
     req.open(method, encodeURI(url), async);     // .replace("#", "%23")
     req.onload = function () {
     	if (req.status === 200) {
@@ -104,7 +110,7 @@ var load = function (method, url, async, callback, params) {
     	    window.location.replace('login.html');
     	}
     };
-    req.send();
+    req.send(post_params);
 };
 
 var getData = function () {
@@ -530,7 +536,7 @@ var setConf = function (spec, value) {
 var getStatus = function (repeat, op) {
     var query = '?cmd=get-status&path=' + ZDL.path;
 
-    if (op === 'force')
+    if (op === 'loop')
 	query += '&op=' + op;
     
     return load ('GET',
@@ -965,6 +971,57 @@ var displayFileText = function (spec) {
 	  });
 };
 
+var checkAccount = function () {
+    return load ('GET',
+		 '?cmd=check-account',
+		 true,
+		 function(res){
+		     if (cleanInput(res) === 'exists') {
+			 var output = '<form action="/" method="POST">' +
+				 '<input type="hidden" name="cmd" value="login">' +
+				 '<table class="login">' +
+				 '<tr><td>Utente:</td>' +
+				 '<td><input type="text" name="user" class="login"></td></tr>' +
+				 '<tr><td>Password:</td>' +
+				 '<td><input type="password" name="pass" class="login"></td></tr>' +
+				 '<tr><td></td><td><input type="submit" value="Login"></td></tr></table>' +
+				 '</form>';
+		     } else {
+			 var output = '<table class="login">' +
+				 '<tr><td>Utente:</td>' +
+				 '<td><input id="user" type="text" name="user" class="login"></td></tr>' +
+				 '<tr><td>Password:</td>' +
+				 '<td><input id="pass1" type="password" name="pass1" class="login"></td></tr>' +
+				 '<tr><td>Ripeti password:</td>' +
+				 '<td><input id="pass2" type="password" name="pass2" class="login"></td></tr>' +
+				 "<tr><td></td><td><button onclick=\"createAccount();\">Crea un nuovo account</button></td></tr></table>";
+		     }
+
+		     document.getElementById('login').innerHTML = output;
+		 });
+};
+
+var createAccount = function () {
+    var user = document.getElementById('user').value;
+    var pass1 = document.getElementById('pass1').value;
+    var pass2 = document.getElementById('pass2').value;
+
+    if (!(user && pass1 && pass2)) {
+	alert("Devi completare tutti i campi del form per eseguire l'operazione");
+	return 0;
+    } else if (pass1 !== pass2) {
+	alert("L'immissione della password deve essere ripetuta identica");
+	return 0;
+    }
+
+    return load ({type: 'POST', params: 'cmd=create-account&user=' + user + '&pass=' + pass1},
+		 'login.html',
+		 true,
+		 function (res) {
+		     checkAccount();
+		 });
+};
+
 var init = function (path) {
     selectDir(path);
     changeSection('links');
@@ -973,6 +1030,6 @@ var init = function (path) {
     displayFileButton({id:'path-file-log',file:'zdl_log.txt'});
     displayFileButton({id:'path-file-links',file:'links.txt'});
     displayLinks('force');
-    getStatus(true, 'force');
+    getStatus(true, 'loop');
 };
 

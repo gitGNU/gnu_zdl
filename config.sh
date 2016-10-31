@@ -67,6 +67,8 @@ mkdir -p "$path_server"
 path_conf="$HOME/.${prog}"
 file_conf="$path_conf/$prog.conf"
 
+file_socket_account="$path_conf"/.socket-account
+
 source "$file_conf"
 [ -z "$background" ] && background=${val_conf[4]}
 
@@ -179,6 +181,13 @@ evaljs=$path_usr/libs/eval.js
 
 ## functions
 
+function create_socket_account {
+    local user="$1"
+    local pass="$2"
+    
+    create_hash "${user}${pass}" > "$file_socket_account"
+}
+
 function set_default_conf {
     mkdir -p "$path_conf"
     touch "$file_conf"
@@ -195,6 +204,7 @@ function set_default_conf {
 	    echo "${key_conf[$i]}=${val_conf[$i]}" >> "$file_conf"
     done
 }
+
 
 # function get_item_conf {
 #     declare -n ref="$2"

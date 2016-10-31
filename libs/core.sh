@@ -1076,3 +1076,8 @@ function lock_fifo {
 
     eval read $item_name < "$fifo_path"/"$fifo_name".fifo
 }
+
+function create_hash {
+    openssl dgst -whirlpool -hex <<< "${*}" | cut -d' ' -f2
+}
+

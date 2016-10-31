@@ -244,7 +244,8 @@ function get_file_output {
     declare -n result="$1"
     local file="$2"
     
-    if [[ "$file" =~ ^\/tmp\/zdl.d\/ ]]
+    if [[ "$file" =~ ^\/tmp\/zdl.d\/ ]] ||
+	   [[ "$file" =~ login\.html\?cmd ]]
     then
 	result="$file"
 
@@ -472,30 +473,23 @@ function create_http_session {
     printf "id=%s" $(create_hash "${*}$(date +%s)") #$((60*60*24))
 }
 
-function create_hash {
-    openssl dgst -md5 -hex <<< "${*}" | cut -d' ' -f2
-}
-
 function run_cmd {
     local line=( "$@" )
     local file link pid path
     unset file_output
-
-    create_hash 'zoninoz1234' > "$path_conf"/socket-account
        
     case "${line[0]}" in
 	login)
 	    file_output="$path_server"/msg-login.$socket_port
 	    data=$(clean_data "${line[1]}${line[2]}")
 
-	    if [ -s "$path_conf"/socket-account ]
+	    if [ -s "$file_socket_account" ]
 	    then
-		if grep -P "^$(create_hash "$data")$" "$path_conf"/socket-account &>/dev/null
+		if grep -P "^$(create_hash "$data")$" "$file_socket_account" &>/dev/null
 		then
 		    HTTP_SESSION=$(create_http_session "$data")
-
-		    # add_response_header "Set-Cookie" "$HTTP_SESSION" 
-
+		    
+		    ## add_response_header "Set-Cookie" "$HTTP_SESSION"		    
 		    echo "$HTTP_SESSION" >> "$path_server"/http-sessions
 
 		    get_file_output file_output 'index.html'
@@ -511,6 +505,24 @@ zdl --configure
 Seleziona l'opzione 2: Crea un account per i socket di ZDL." > "$file_output"
 	    fi
 	    ;;
+
+	check-account)
+	    file_output="$path_server"/msg-account.$socket_port
+	    
+	    if [ -s "$file_socket_account" ]
+	    then
+		echo "exists" > "$file_output"
+
+	    else
+		echo -e "Non esiste ancora un account per l'uso dei socket:
+per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
+	    fi
+	    ;;
+
+	create-account)
+	    create_socket_account $(clean_data "${line[1]}") $(clean_data "${line[2]}")
+	    ;;
+
 
 	init-client)
 	    test -d "${line[1]}" &&
@@ -539,7 +551,7 @@ Seleziona l'opzione 2: Crea un account per i socket di ZDL." > "$file_output"
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    if [ "${line[2]}" == 'force' ]
+	    if [ "${line[2]}" == 'loop' ]
 	    then
 		[ -s "$path_server"/pid_loop_status.$socket_port ] &&
 		    kill -9 $(cat "$path_server"/pid_loop_status.$socket_port)
@@ -1197,7 +1209,7 @@ function send_login {
     #HTTP_RESPONSE_CODE=307
     #HTTP_RESPONSE_LOCATION='login.html'
 
-    if [ "$file_output" != "$path_usr/webui"/login.html ]
+    if [[ ! "$file_output" =~ login\.html ]]
     then
 	# file_output="$path_server"/empty
 	# echo > "$file_output"
@@ -1247,9 +1259,10 @@ function http_server {
 			grep "$cooked_line" "$path_server"/http-sessions &>/dev/null &&
 			logged_on=true
 		fi
-		
+
 		if [ -z "$logged_on" ] &&
-		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico)$ ]]
+		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico|$socket_port)$ ]] &&
+		       [[ ! "$file_output" =~ login\.html\? ]]
 		then
 		    send_login
 		fi
@@ -1319,6 +1332,8 @@ do
 	    unset POST_DATA file_output
 	    http_method=POST
 	    get_file_output file_output "${line[1]}"
+
+	    echo "${line[*]} -> $file_output" >> TEST-POST
 	    ;;
 	*)
 	    http_server || exit 1 ## client non-web sono disabilitati, per ora. In seguito:

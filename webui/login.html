@@ -31,22 +31,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico" />
+    <script src="api.js"></script>
     <link rel="stylesheet" type="text/css" href="zdl_style.css">
   </head>
   
-  <body style="margin: 0; padding: 0;">
+  <body onload="checkAccount();">
     <a href="index.html">
       <div class="header"></div>
     </a>
     <h2>ZigzagDownLoader :: ZDL</h2>
-
-
-    <form action="/" method="POST">
-      <input type="hidden" name="cmd" value="login">
-      <input type="text" name="user"><br>
-      <input type="password" name="pass"><br>
-      <input type="submit" value="Login">
-    </form>
+   
+    <div id="login" class="login-box" ></div>
   </body>
 
 </html>

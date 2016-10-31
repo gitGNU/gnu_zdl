@@ -307,7 +307,7 @@ div {
 }
 
 
-button {
+button, input[type=submit] {
     -moz-box-shadow:inset 0px 1px 0px 0px #7a8eb9;
     -webkit-box-shadow:inset 0px 1px 0px 0px #7a8eb9;
     box-shadow:inset 0px 1px 0px 0px #7a8eb9;
@@ -357,6 +357,19 @@ button:active {
 }
 
 input[type=text] {
+    float: left;
+    /* height: 30px; */
+    /* margin: 0 0 0 0; */
+    /* box-sizing: border-box; */
+    border: 1px solid #343434;
+    background-color: black;
+    color: #EEE;
+
+    padding: .5em 7.em .5em 7.em;
+    height: calc(12px + 1em);
+}
+
+input[type=password] {
     float: left;
     /* height: 30px; */
     /* margin: 0 0 0 0; */
@@ -738,7 +751,7 @@ body, html, p, select, button, input {
     /* line-height: 20px; */
 }
 
-button, select {
+button, select, input[type=submit] {
     font-weight: bold;
 }
 
@@ -758,4 +771,23 @@ pre {
     font-variant: normal;
     font-weight: 400;
     line-height: 18.5714px;
+}
+
+.login {
+    color: white;
+    background-color: black;
+    text-align: left;
+    margin: 0px auto;
+}
+
+.login-box {
+    width: 100%;
+    text-align: center;
+    color: white;
+    background-color: black;
+}
+
+td {
+    text-align: right;
+    font-weight: bold;
 }
