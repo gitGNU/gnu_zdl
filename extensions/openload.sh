@@ -30,7 +30,7 @@
 function OL_decode {
     local INDEX="$1"
     
-    chunk=$($nodejs -e "var x = '$hiddenurl'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; var tmp=s.join(''); var str = tmp.substring(0, tmp.length - 1) + String.fromCharCode(tmp.slice(-1).charCodeAt(0) + $INDEX); console.log(str)")
+    chunk=$($nodejs -e "var x = '$hiddenurl2'; var s=[];for(var i=0;i<x.length;i++){var j=x.charCodeAt(i);if((j>=33)&&(j<=126)){s[i]=String.fromCharCode(33+((j+14)%94));}else{s[i]=String.fromCharCode(j);}}; var tmp=s.join(''); var str = tmp.substring(0, tmp.length - 1) + String.fromCharCode(tmp.slice(-1).charCodeAt(0) + $INDEX); console.log(str)")
 
     if [ -n "$chunk" ]
     then
@@ -89,23 +89,37 @@ function OL_decode2 {
 			  sed -r 's|.*Location: (.+)$|\1|g')
 
 	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
-
-	# if ! url "$url_in_file"
-	# then
-	#     _log 2
-
-	# elif [[ "$url_in_file" =~ \/x\.mp4$ ]] &&
-	#        ((INDEX < 5))
-	# then
-	#     OL_decode2 "$hidden1" "$hidden2" $((INDEX+1))
-
-	# elif ((INDEX >= 5))
-	# then
-	#     _log 32
-	# fi
     fi
-
 }
+ 
+function OL_decode3 {
+    local hidden1="$1"
+    local hidden2="$2"
+
+    echo "var y = '$hidden1';" > "$path_tmp/decoded.js"
+    echo "var x = '$hidden2';" >> "$path_tmp/decoded.js"
+    grep var "$path_tmp/aadecoded.js" |grep -vP '(x|y) =' >>"$path_tmp/decoded.js"
+    grep 'function ' "$path_tmp/aadecoded.js" -A2 >> "$path_tmp/decoded.js"
+    echo "console.log(str);" >> "$path_tmp/decoded.js"
+    
+    chunk=$($nodejs "$path_tmp/decoded.js")
+
+    if [ -n "$chunk" ]
+    then
+	url_in_file=$(wget -S --spider \
+			   --referer="$URL_in" \
+			   --keep-session-cookies                    \
+    			   --load-cookies="$path_tmp"/cookies.zdl    \
+    			   --user-agent="$user_agent"                \
+			   "https://openload.co/stream/$chunk" 2>&1 |
+			  grep Location | head -n1 |
+			  sed -r 's|.*Location: (.+)$|\1|g')
+
+	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
+    fi
+}
+
+
 
 if [[ "$url_in" =~ (openload\.) ]]
 then
@@ -127,7 +141,13 @@ then
 	_log 3
 	
     elif [ -n "$html" ]
-    then	
+    then
+	awk '/\^o/{print}' <<< "$html"   |
+	    head -n1                |
+	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+
+	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
+	
 	hiddenurl1=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
 			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 
@@ -150,8 +170,9 @@ then
 
 	countdown- 6
 	
-	## OL_decode 1
-	OL_decode2 "$hiddenurl1" "$hiddenurl2" 
+	# OL_decode 1
+	# OL_decode2 "$hiddenurl1" "$hiddenurl2"
+	OL_decode3 "$hiddenurl1" "$hiddenurl2"
     fi
 
     end_extension
