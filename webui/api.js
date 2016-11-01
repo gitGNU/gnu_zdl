@@ -813,7 +813,7 @@ var displaySockets = function (sockets) {
 	    output_kill += '<button onclick="killServer(' + port + ');';
 	    if(parseInt(port) === parseInt(document.location.port))
 		output_kill += "setTimeout(reloadPage, 2000);"
-//	    		output_kill += "setTimeout('document.location.reload(true)', 2000);"
+
 	    output_open += '">' + port + '</button>';
 	    output_kill += '">' + port + '</button>';
 	}
@@ -968,7 +968,6 @@ var displayFileText = function (spec) {
 		  
 		  var elemInner = document.getElementById(id);
 		  elemInner.scrollTop = elemInner.scrollHeight;
-		  elemInner.scrollInToView(true);
 		  
 	      } else {
 		  alert('File ' + spec.file + ' non disponibile');
