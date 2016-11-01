@@ -71,7 +71,7 @@ fi
 
 
 #### HTTP:
-declare -i DEBUG=1
+declare -i DEBUG=0
 declare -i VERBOSE=0
 declare -a REQUEST_HEADERS
 declare    REQUEST_URI=""
