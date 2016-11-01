@@ -363,11 +363,11 @@ var singlePath = function (path) {
 		     });
     };
 
-    that.addLink = function (id, link) {
+    that.addLink = function (id, link) {	
 	if (link) {
 	    displayTorrentButton(id);
 	} else {
-	    link = encodeURIComponent(document.getElementById(id).value);
+	    link = encodeURIComponent(document.getElementById(id).value.trim());
 	    document.getElementById(id).value = '';
 	}
 	
