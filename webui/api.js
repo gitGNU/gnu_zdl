@@ -791,7 +791,11 @@ var displayConf = function (conf) {
 	    document.getElementById(id_inputText).style.display = 'initial';
 	};
     });    
-}
+};
+
+var reloadPage = function () {
+    window.location.href = window.location.pathname;
+};
 
 var displaySockets = function (sockets) {
     var output_kill = '';
@@ -808,7 +812,8 @@ var displaySockets = function (sockets) {
 		"');";
 	    output_kill += '<button onclick="killServer(' + port + ');';
 	    if(parseInt(port) === parseInt(document.location.port))
-		output_kill += "setTimeout('document.location.reload(true)', 2000);"
+		output_kill += "setTimeout(reloadPage, 2000);"
+//	    		output_kill += "setTimeout('document.location.reload(true)', 2000);"
 	    output_open += '">' + port + '</button>';
 	    output_kill += '">' + port + '</button>';
 	}
@@ -998,6 +1003,8 @@ var checkAccount = function () {
 		     }
 
 		     document.getElementById('login').innerHTML = output;
+		     if (getUriParam('op') === 'retry')
+			 alert("Login errato: riprova");
 		 });
 };
 

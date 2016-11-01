@@ -494,7 +494,8 @@ function run_cmd {
 
 		    get_file_output file_output 'index.html'
 		else
-		    echo -e "Login errato" > "$file_output"
+		    echo -e "<html>\n<head><meta http-equiv=\"refresh\" content=\"0; url=login.html?op=retry\" /></head><body></body></html>" > "$file_output"
+
 		fi
 
 	    else
