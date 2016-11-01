@@ -524,9 +524,9 @@ ESTENSIONI:
 	    fi
 	done
 
-	sudo mkdir -p "$HOME"/.local/share/applications/
-	sudo cp /usr/local/share/zdl/webui/zdl-web-ui.desktop "$HOME"/.local/share/applications/
-	sudo desktop-file-install "$HOME"/.local/share/applications/zdl-web-ui.desktop
+	try mkdir -p "$HOME"/.local/share/applications/
+	try cp /usr/local/share/zdl/webui/zdl-web-ui.desktop "$HOME"/.local/share/applications/
+	try desktop-file-install "$HOME"/.local/share/applications/zdl-web-ui.desktop
     fi
     
     check_default_downloader
