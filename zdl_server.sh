@@ -524,6 +524,9 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 	    create_socket_account $(clean_data "${line[1]}") $(clean_data "${line[2]}")
 	    ;;
 
+	reset-account)
+	    rm -f "$file_socket_account"
+	    ;;
 
 	init-client)
 	    test -d "${line[1]}" &&
@@ -1333,8 +1336,6 @@ do
 	    unset POST_DATA file_output
 	    http_method=POST
 	    get_file_output file_output "${line[1]}"
-
-	    echo "${line[*]} -> $file_output" >> TEST-POST
 	    ;;
 	*)
 	    http_server || exit 1 ## client non-web sono disabilitati, per ora. In seguito:

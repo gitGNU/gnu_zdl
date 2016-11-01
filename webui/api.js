@@ -793,8 +793,10 @@ var displayConf = function (conf) {
     });    
 };
 
-var reloadPage = function () {
-    window.location.href = window.location.pathname;
+var reloadPage = function (page) {
+    if (!page)
+	page = window.location.pathname;
+    window.location.href = page;
 };
 
 var displaySockets = function (sockets) {
@@ -1028,6 +1030,15 @@ var createAccount = function () {
 		 });
 };
 
+var resetAccount = function () {    
+    load ('GET',
+	  '?cmd=reset-account',
+	  true,
+	  function () {
+	      reloadPage('login.html');
+	  });
+};
+
 var init = function (path) {
     selectDir(path);
     changeSection('links');
@@ -1037,5 +1048,7 @@ var init = function (path) {
     displayFileButton({id:'path-file-links',file:'links.txt'});
     displayLinks('force');
     getStatus(true, 'loop');
+
+    document.getElementById('conf-account-socket').innerHTML = "<button onclick=\"resetAccount();\">Reset account</button>";    
 };
 
