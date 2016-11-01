@@ -523,8 +523,12 @@ ESTENSIONI:
 		install_dep ${deps[$cmd]}
 	    fi
 	done
-    fi
 
+	sudo mkdir -p "$HOME"/.local/share/applications/
+	sudo cp /usr/local/share/zdl/webui/zdl-web-ui.desktop "$HOME"/.local/share/applications/
+	sudo desktop-file-install "$HOME"/.local/share/applications/zdl-web-ui.desktop
+    fi
+    
     check_default_downloader
     
     print_c 1 "$op automatic${suffix} completat${suffix}"

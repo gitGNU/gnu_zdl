@@ -11,6 +11,7 @@ Name=ZDL
 NoDisplay=false
 StartupNotify=true
 Terminal=false
+Categories=Network;WebBrowser;
 TerminalOptions=
 Type=Application
 X-DBUS-ServiceName=
