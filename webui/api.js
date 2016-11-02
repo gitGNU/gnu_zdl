@@ -172,18 +172,15 @@ var singleLink = function (spec) {
     };
 
     that.play = function () {
-	if (document.location.hostname === 'localhost') {
-	    ajax({
-		query: "cmd=play-link&path=" + that.path + "&file=" + that.file,
-		callback: function (res) {
-	    	    if (cleanInput(res))
-	    		alert(res);
-	    	}
-	    });
-	    
-	} else {
-	    return alert("L'anteprima è disponibile solo se connessi a localhost");
-	}
+	ajax({
+	    query: "cmd=play-link&path=" + that.path + "&file=" + that.file,
+	    callback: function (res) {
+	    	if (cleanInput(res) !== 'running')
+	    	    alert(res);
+		else if (cleanInput(res) === 'running' && document.location.hostname !== 'localhost')
+		    alert("Player avviato in " + document.location.hostname);
+	    }
+	});
     };
 
     return that;
@@ -958,9 +955,14 @@ var displayLinks = function (op) {
 };
 
 var displayLinkButtons = function (spec) {
+    if (document.location.hostname !== 'localhost') 
+	var host = ' in ' + document.location.hostname;
+    else
+	var host = '';
+    
     var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma</button>" +
 	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Elimina</button>" +
-    	    "<button onclick=\"singleLink(" + objectToSource(spec) + ").play();\">Anteprima</button>";
+    	    "<button onclick=\"singleLink(" + objectToSource(spec) + ").play();\">Play" + host + "</button>";
     return output;
 };
 

@@ -192,34 +192,6 @@ function make_index {
     sed -e s,[^a-zA-Z0-9],,g <<< "$string" 2>/dev/null
 }
 
-
-
-
-function nodejs_eval {
-    if [ -f "$1" ]
-    then
-	jscode="$(cat "$1")"
-
-    else
-	jscode="$1"
-    fi
-
-    result=$($nodejs $evaljs "($jscode)")
-
-    if [ -z "$result" ]
-    then
-	result=$($nodejs $evaljs "$jscode")
-    fi
-       
-    if [ -d /cygdrive ] &&
-	   [ -z "$result" ]
-    then
-	result=$($nodejs -e "console.log($jscode)")
-    fi
-
-    echo "$result"
-}
-
 function scrape_url {
     url_page="$1"
     if url "$url_page"

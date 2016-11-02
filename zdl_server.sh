@@ -798,21 +798,22 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 	    ;;
 
 	play-link)
+	    file_output="$path_server"/msg-file.$socket_port
+	    
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
 	    if [ -z "$player" ] #&>/dev/null
-	    then
-		file_output="$path_server"/msg-file.$socket_port
+	    then	
 		echo -e "Non è stato configurato alcun player per audio/video" > "$file_output"
 
 	    elif [[ ! "$(file -b --mime-type "${line[2]}")" =~ (audio|video) ]]
-	    then
-		file_output="$path_server"/msg-file.$socket_port
+	    then	
 		echo -e "Non è un file audio/video" > "$file_output"
 
 	    else
 		nohup $player "${line[2]}" &>/dev/null &
+		echo -e "running" > "$file_output"
 	    fi
 	    ;;
 
@@ -846,6 +847,10 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		cd "${line[1]}"
 
 	    ## links:
+	    echo >> links.txt
+	    date >> links.txt
+	    urldecode "${line[2]}" >> links.txt
+	    
 	    echo -n > "$path_tmp"/links_loop.txt
 	    while read link
 	    do

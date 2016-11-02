@@ -96,13 +96,14 @@ function OL_decode3 {
     local hidden1="$1"
     local hidden2="$2"
 
-    echo "var y = '$hidden1';" > "$path_tmp/decoded.js"
+    echo "function(){" > "$path_tmp/decoded.js"
+    echo "var y = '$hidden1';" >> "$path_tmp/decoded.js"
     echo "var x = '$hidden2';" >> "$path_tmp/decoded.js"
     grep var "$path_tmp/aadecoded.js" |grep -vP '(x|y) =' >>"$path_tmp/decoded.js"
     grep 'function ' "$path_tmp/aadecoded.js" -A2 >> "$path_tmp/decoded.js"
-    echo "console.log(str);" >> "$path_tmp/decoded.js"
-    
-    chunk=$($nodejs "$path_tmp/decoded.js")
+    echo "return str;}()" >> "$path_tmp/decoded.js"
+
+    chunk=$(nodejs_eval "$path_tmp/decoded.js")
 
     if [ -n "$chunk" ]
     then

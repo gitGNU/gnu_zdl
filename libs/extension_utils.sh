@@ -133,8 +133,6 @@ function base64_decode {
     sed -r 's| ||g' <<< "${var_12[*]}"
 }
 
-
-
 function simply_debrid {
     local url="$1"
     print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
@@ -206,6 +204,30 @@ function aaextract {
     fi
 }
 
+function nodejs_eval {
+    if [ -f "$1" ]
+    then
+	jscode="$(cat "$1")"
+
+    else
+	jscode="$1"
+    fi
+
+    result=$($nodejs $evaljs "($jscode)")
+
+    if [ -z "$result" ]
+    then
+	result=$($nodejs $evaljs "$jscode")
+    fi
+       
+    if [ -d /cygdrive ] &&
+    	   [ -z "$result" ]
+    then
+	result=$($nodejs -e "console.log($jscode)") 
+    fi
+
+    echo "$result"
+}
 
 function unpack {
     jscode=$(grep -P 'eval.+p,a,c,k,e,d' <<< "$1" | 
