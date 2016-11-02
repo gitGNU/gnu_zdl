@@ -821,7 +821,7 @@ ul.sidenav li a:hover:not(.active) {
 	float: right;
     }
 
-    .value, input[type=text] {
+    .value, input[type=text], input[type=password] {
 	/* clear: left; */
 	clear:both;
 	margin: 0 0 0 1em;	
