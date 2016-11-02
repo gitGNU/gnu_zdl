@@ -419,7 +419,7 @@ var singlePath = function (path) {
 	    return alert("Mancano le seguenti informazioni:\n" + errMsg);
 	} else {
 	    ajax ({
-		method: 'cmd=add-xdcc&path=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
+		query: 'cmd=add-xdcc&path=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
 		callback: function (res) {
 		    if (cleanInput(res)) {
 			alert("Il link xdcc non è stato aggiunto perché non valido o già presente, controlla i dati inviati:\n" + res);
