@@ -83,24 +83,38 @@ var isJsonString = function (str) {
     return true;
 };
 
-var load = function (method, url, async, callback, params) {
-    var data;
-    var req = new XMLHttpRequest();
-
-    if (method !== 'GET') {
-	var post_params = method.params;
-	var method = method.type;
-    }
+var ajax = function (spec) {
+    // spec: {method,url,query,async,callback,params}
     
-    req.open(method, encodeURI(url), async);     // .replace("#", "%23")
+    if (!spec.method)
+	spec.method = "GET";
+
+    if (!spec.url)
+	spec.url = "index.html";
+    
+    if (!spec.async)
+	spec.async = true;
+
+    if (spec.method === 'GET' && spec.query) {
+	spec.url += '?' + spec.query;
+	spec.query = '';
+    }
+
+    var req = new XMLHttpRequest();    
+
+    req.open(spec.method,
+	     encodeURI(spec.url),
+	     spec.async);
+    
     req.onload = function () {
     	if (req.status === 200) {
-	    if (typeof callback === 'function') {
-		callback(req.responseText, params);
+	    if (typeof spec.callback === 'function') {
+		spec.callback(req.responseText,
+			      spec.params);
 		return true;
 	    }
 	    
-	    switch (getUriParam('cmd', url)) {
+	    switch (getUriParam('cmd', spec.url)) {
 	    case 'get-data':
 		ZDL.data = req.responseText;
 		break;
@@ -110,11 +124,15 @@ var load = function (method, url, async, callback, params) {
     	    window.location.replace('login.html');
     	}
     };
-    req.send(post_params);
+    req.send(spec.query);
 };
 
 var getData = function () {
-    load ('GET', '?cmd=get-data', false);
+    ajax({
+	query: 'cmd=get-data',
+	async: false
+    });
+
     if (isJsonString(ZDL.data))
 	return JSON.parse(ZDL.data);
     else
@@ -133,35 +151,36 @@ var hideInfoLink = function (id, path, link) {
 
 
 var cleanComplete = function () {
-    var query = "?cmd=clean-complete&path=" + ZDL.path;
-    return load ('GET',
-		 query,
-		 true);
+    ajax({
+	query: 'cmd=clean-complete&path=' + ZDL.path
+    });
 };
 
 var singleLink = function (spec) {
     var that = spec;
     
     that.stop = function () {
-	var query = "?cmd=stop-link&path=" + that.path + "&link=" + encodeURIComponent(that.link);
-	return load ('GET', query, true); 
+	ajax({
+	    query: "cmd=stop-link&path=" + that.path + "&link=" + encodeURIComponent(that.link)
+	});
     };
     
     that.del = function () {
-	var query = "?cmd=del-link&path=" + that.path + "&link=" + encodeURIComponent(that.link);
-	return load ('GET', query, true); 	
+ 	ajax({
+	    query: "cmd=del-link&path=" + that.path + "&link=" + encodeURIComponent(that.link)
+	});
     };
 
     that.play = function () {
 	if (document.location.hostname === 'localhost') {
-	    var query = "?cmd=play-link&path=" + that.path + "&file=" + that.file;
-	    return load ('GET',
-			 query,
-			 true,
-			 function (res) {
-			     if (cleanInput(res))
-				 alert(res);
-			 });
+	    ajax({
+		query: "cmd=play-link&path=" + that.path + "&file=" + that.file,
+		callback: function (res) {
+	    	    if (cleanInput(res))
+	    		alert(res);
+	    	}
+	    });
+	    
 	} else {
 	    return alert("L'anteprima è disponibile solo se connessi a localhost");
 	}
@@ -184,27 +203,26 @@ var singlePath = function (path) {
     };
 
     that.getFreeSpace = function () {
-	var query = '?cmd=get-free-space&path=' + path;
-	load ('GET',
-	      query,
-	      true,
-	      function (res){
-		  if (cleanInput(res))
-		      document.getElementById('path-free-space').innerHTML = res;
-	      });
+	ajax({
+	    query: 'cmd=get-free-space&path=' + path,
+	    callback: function (res){
+		if (cleanInput(res))
+		    document.getElementById('path-free-space').innerHTML = res;
+	    }
+	});
     };
     
     that.reconnect = function (str) {
-	var query = '?cmd=reconnect&path=' + path;
+	var query = 'cmd=reconnect&path=' + path;
 	if (str)
 	    query += '&loop=' + str;
 	
-	return load ('GET',
-		     query,
-		     true,
-		     function(res){
-			 alert(res);
-		     });
+	ajax({
+	    query: query,
+	    callback: function(res){
+		alert(res);
+	    }
+	});
     };
 
     that.setReconnecter = function (spec) {
@@ -215,60 +233,65 @@ var singlePath = function (path) {
 	else
 	    value = "true";
 	    
-	var query =  '?cmd=reconnect&path=' + path + '&set=' + value; 
-	return load ('GET',
-		     query,
-		     true,
-		     function(res){
-			 if (cleanInput(res)) {
-			     alert(res);
-			     document.getElementById('input-reconnect').value = "Mai"; 
-			 }
-		     });
+	ajax({
+	    query: 'cmd=reconnect&path=' + path + '&set=' + value,
+	    callback: function(res){
+		if (cleanInput(res)) {
+		    alert(res);
+		    document.getElementById('input-reconnect').value = "Mai"; 
+		}
+	    }
+	});
     };
 
     that.getIP = function () {
-	var query = '?cmd=get-ip';	
-	return load ('GET',
-		     query,
-		     true,
-		     function(res){
-			 alert(res);
-		     });
+	ajax({
+	    query: "cmd=get-ip",
+	    callback: function(res){
+		alert(res);
+	    }
+	});
     };
 
     that.kill = function () {
-	return load ('GET', '?cmd=kill-zdl&path=' + path, true);
+	ajax({
+	    query: 'cmd=kill-zdl&path=' + path
+	});
     };
 
     that.quit = function () {
-	return load ('GET', '?cmd=quit-zdl&path=' + path, true);
+	ajax({
+	    query: 'cmd=quit-zdl&path=' + path
+	});
     };
 
     that.run = function () {
-	return load ('GET', '?cmd=run-zdl&path=' + path, true);
+	ajax({
+	    query: 'cmd=run-zdl&path=' + path
+	});
     };
 
     that.setDownloader = function () {
-	var query = '?cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value;
-	return load ('GET', query, true);
+	ajax({
+	    query: 'cmd=set-downloader&path=' + path + '&dowloader=' + document.getElementById('sel-downloader').value
+	});
     };
 
     that.getDownloader = function (repeat, op) {
-	var query = '?cmd=get-downloader&path=' + path;
+	var query = 'cmd=get-downloader&path=' + path;
 
 	if (op === 'force')
 	    query += '&op=' + op;
 	
-	return load ('GET',
-		     query,
-		     true,
-		     function (dler){
-			 displayDownloader(dler);
-			 
-			 if (repeat)
-			     singlePath(ZDL.path).getDownloader(true);
-		     });
+	ajax({
+	    query: query,
+	    callback: function (dler){
+		displayDownloader(dler);
+		
+		if (repeat)
+		    singlePath(ZDL.path).getDownloader(true);
+	    }
+	});
     };
 
     that.setMaxDownloads = function (spec) {
@@ -277,9 +300,9 @@ var singlePath = function (path) {
 	    max_dl = '';
 
 	if (spec === 'no-limits' || !isNaN(parseInt(max_dl))) {
-	    load ('GET',
-		  '?cmd=set-max-downloads&path=' + path + '&number=' + max_dl,
-		  true);
+	    ajax ({
+		query: 'cmd=set-max-downloads&path=' + path + '&number=' + max_dl
+	    });
 	} else {
 	    alert("Immissione dati non valida: il limite massimo di downloads deve essere un numero");
 	}
@@ -297,70 +320,70 @@ var singlePath = function (path) {
     };
 	
     that.getMaxDownloads = function (repeat, op) {
-	var query = '?cmd=get-max-downloads&path=' + path;
+	var query = 'cmd=get-max-downloads&path=' + path;
 
 	if (op === 'force')
 	    query += '&op=' + op;
 	
-	return load ('GET',
-		     query,
-		     true,
-		     function (max_dl_str){
-			 displayMaxDownloads (max_dl_str);
-			 
-			 if (repeat)
-			     singlePath(ZDL.path).getMaxDownloads(true);
-		     });
+	ajax({
+	    query: query,
+	    callback: function (max_dl_str){
+		displayMaxDownloads (max_dl_str);
+		
+		if (repeat)
+		    singlePath(ZDL.path).getMaxDownloads(true);
+	    }
+	});
     };
 
     that.getLinks = function () {
-	return load ('GET',
-		     '?cmd=get-links&path=' + path,
-		     true,
-		     function (str){
-			 document.getElementById('editor-links').innerHTML = "<textarea id=\"list-links\">" + str + "</textarea>" +
-			     "<button onclick=\"singlePath(ZDL.path).setLinks();\">Salva</button>" +
-			     "<button onclick=\"displayEditButton();\">Annulla</button>";
-		     });
+	ajax({
+	    query: 'cmd=get-links&path=' + path,
+	    callback: function (str){
+		document.getElementById('editor-links').innerHTML = "<textarea id=\"list-links\">" + str + "</textarea>" +
+		    "<button onclick=\"singlePath(ZDL.path).setLinks();\">Salva</button>" +
+		    "<button onclick=\"displayEditButton();\">Annulla</button>";
+	    }
+	});
     };
     
     that.setLinks = function () {
-	return load ('GET',
-		     '?cmd=set-links&path=' + path + '&links=' + encodeURIComponent(document.getElementById('list-links').value),
-		     true,
-		     function (res) {
-			 if (cleanInput(res)) {
-			     alert("I seguenti link non sono stati accettati perché non validi o già presenti:\n" + res);
-			 }
-			 displayEditButton();
-		     });
+	ajax({
+	    query: 'cmd=set-links&path=' + path + '&links=' + encodeURIComponent(document.getElementById('list-links').value),
+	    callback: function (res) {
+		if (cleanInput(res)) {
+		    alert("I seguenti link non sono stati accettati perché non validi o già presenti:\n" + res);
+		}
+		displayEditButton();
+	    }
+	});
     };
 
     that.getRunStatus = function (repeat, op) {
-	var query = '?cmd=get-status-run&path=' + path;
+	var query = 'cmd=get-status-run&path=' + path;
 
 	if (op === 'force')
 	    query += '&op=' + op;
 	
-	return load ('GET',
-		     query,
-		     true,
-		     function (response) {
-			 response = cleanInput(response);
-
-			 if (response.match(/RELOAD/g)) {
-			     singlePath(ZDL.path).getRunStatus(true, 'force');
-			 }
-
-			 if (response.match(/not-running/g)) {
-			     displayStatus('not-running');
-			 } else if (response.match(/running/g)) {
-			     displayStatus('running');
-			 }
-			 
-			 if (repeat)
-			     singlePath(ZDL.path).getRunStatus(true);
-		     });
+	ajax({
+	    query: query,
+	    callback: function (response) {
+		response = cleanInput(response);
+		
+		if (response.match(/RELOAD/g)) {
+		    singlePath(ZDL.path).getRunStatus(true, 'force');
+		}
+		
+		if (response.match(/not-running/g)) {
+		    displayStatus('not-running');
+		} else if (response.match(/running/g)) {
+		    displayStatus('running');
+		}
+		
+		if (repeat)
+		    singlePath(ZDL.path).getRunStatus(true);
+	    }
+	});
     };
 
     that.addLink = function (id, link) {	
@@ -371,16 +394,14 @@ var singlePath = function (path) {
 	    document.getElementById(id).value = '';
 	}
 	
-	var query = "?cmd=add-link&path=" + ZDL.path + "&link=" + link;
-	
-	return load ('GET',
-		     query,
-		     true,
-		     function (res) {
-			 if (cleanInput(res)) {
-			     alert("Il seguente link non è stato accettato perché non valido o già presente:\n" + res);
-			 }
-		     });
+	ajax ({
+	    query: "cmd=add-link&path=" + ZDL.path + "&link=" + link,
+	    callback: function (res) {
+		if (cleanInput(res)) {
+		    alert("Il seguente link non è stato accettato perché non valido o già presente:\n" + res);
+		}
+	    }
+	});
     };
     
     that.addXDCC = function (id) {
@@ -400,18 +421,18 @@ var singlePath = function (path) {
 	if (errMsg) {
 	    return alert("Mancano le seguenti informazioni:\n" + errMsg);
 	} else {
-	    return load ('GET',
-			 '?cmd=add-xdcc&path=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
-			 true,
-			 function (res) {
-			     if (cleanInput(res)) {
-				 alert("Il link xdcc non è stato aggiunto perché non valido o già presente, controlla i dati inviati:\n" + res);
-			     } else {
-				 document.getElementById(id.host).value = '';
-				 document.getElementById(id.chan).value = '';
-				 document.getElementById(id.ctcp).value = '';
-			     }
-			 });
+	    ajax ({
+		method: 'cmd=add-xdcc&path=' + path + '&host=' + host + '&chan=' + chan + '&ctcp=' + ctcp,
+		callback: function (res) {
+		    if (cleanInput(res)) {
+			alert("Il link xdcc non è stato aggiunto perché non valido o già presente, controlla i dati inviati:\n" + res);
+		    } else {
+			document.getElementById(id.host).value = '';
+			document.getElementById(id.chan).value = '';
+			document.getElementById(id.ctcp).value = '';
+		    }
+		}
+	    });
 	}
     };
 
@@ -433,7 +454,9 @@ var changeSection = function (section) {
 
 var initClient = function (path) {
     displayTorrentButton('path-torrent');
-    load ('GET', '?cmd=init-client&path=' + path, true);
+    ajax ({
+	query: 'cmd=init-client&path=' + path
+    });
 };
 
 var runServer = function (port) {
@@ -442,37 +465,37 @@ var runServer = function (port) {
     if (isNaN(port) || port < 1024 || port > 65535 )
 	alert('Porta non valida: deve essere un numero compreso tra 1024 e 65535');
 
-    return load ('GET',
-		 '?cmd=run-server&port=' + port,
-		 true,
-		 function (res) {
-		     if (res.match(/already-in-use/g))
-			 alert("Porta non valida: " + port + " è utilizzata da un'altra applicazione");
-		     else
-			 alert("Nuovo socket disponibile alla porta: " + port);
-		 });
+    ajax ({
+	query: 'cmd=run-server&port=' + port,
+	callback: function (res) {
+	    if (res.match(/already-in-use/g))
+		alert("Porta non valida: " + port + " è utilizzata da un'altra applicazione");
+	    else
+		alert("Nuovo socket disponibile alla porta: " + port);
+	}
+    });
 };
 
 var getSockets = function (repeat, op) {
-    var query = '?cmd=get-sockets';
+    var query = 'cmd=get-sockets';
 
     if (op === 'force')
 	query += '&op=' + op;
     
-    return load ('GET',
-		 query,
-		 true,
-		 function (sockets){
-		     if (sockets !== '') {			 
-			 displaySockets(sockets.split('\n'));
-			 	
-			 if (repeat)
-			     getSockets(true);
-		     } else {
-			 document.getElementById('list-sockets-open').innerHTML = '';
-			 document.getElementById('list-sockets-kill').innerHTML = '';
-		     }
-		 });
+    ajax ({
+	query: query,
+	callback: function (sockets){
+	    if (sockets !== '') {			 
+		displaySockets(sockets.split('\n'));
+		
+		if (repeat)
+		    getSockets(true);
+	    } else {
+		document.getElementById('list-sockets-open').innerHTML = '';
+		document.getElementById('list-sockets-kill').innerHTML = '';
+	    }
+	}
+    });
 };
 
 var killServer = function (port) {
@@ -481,18 +504,20 @@ var killServer = function (port) {
 	port = document.location.port;
 
     port = parseInt(port);
-    return load ('GET',
-		 '?cmd=kill-server&port=' + port,
-		 true);
+    ajax ({
+	query: 'cmd=kill-server&port=' + port
+    });
 };
 
 var killAll = function () {
-    return load ('GET', '?cmd=kill-all', true);
+    ajax ({
+	query: 'cmd=kill-all'
+    });
 };
 
 
 // window.onbeforeunload = function () {
-//     load ('GET', '?cmd=reset-requests&path=' + ZDL.path, true);
+//     ajax ({query:'cmd=reset-requests&path=' + ZDL.path});
 // };
 
 // window.onfocus = function () {
@@ -501,22 +526,22 @@ var killAll = function () {
 
 
 var getConf = function (repeat, op) {
-    var query = '?cmd=get-conf';
+    var query = 'cmd=get-conf';
 
     if (op === 'force')
 	query += '&op=' + op;
     
-    return load ('GET',
-		 query,
-		 true,
-		 function (res) {
-		     if (isJsonString(res)) {
-			 displayConf(JSON.parse(res));
-			 
-			 if (repeat)
-			     getConf(true);
-		     }
-		 });
+    ajax ({
+	query: query,
+	callback: function (res) {
+	    if (isJsonString(res)) {
+		displayConf(JSON.parse(res));
+		
+		if (repeat)
+		    getConf(true);
+	    }
+	}
+    });
 };
 
 var setConf = function (spec, value) {
@@ -530,46 +555,48 @@ var setConf = function (spec, value) {
 	}
     }
 
-    load ('GET', "?cmd=set-conf&key=" + spec.key + '&value=' + value, true);	
+    ajax ({
+	query: "cmd=set-conf&key=" + spec.key + '&value=' + value
+    });	
 };
 
 var getStatus = function (repeat, op) {
-    var query = '?cmd=get-status&path=' + ZDL.path;
+    var query = 'cmd=get-status&path=' + ZDL.path;
 
     if (op === 'loop')
 	query += '&op=' + op;
     
-    return load ('GET',
-		 query,
-		 true,
-		 function (res) {
-		     if (isJsonString(res)) {
-			 var data = JSON.parse(res);
+    ajax ({
+	query: query,
+	callback: function (res) {
+	    if (isJsonString(res)) {
+		var data = JSON.parse(res);
 
-			 // data.status:
-			 displayStatus(data.status);
-			 
-			 // data.downloader:
-			 displayDownloader(data.downloader);
+		// data.status:
+		displayStatus(data.status);
 		
-			 //data.maxDownloads;
-			 displayMaxDownloads(data.maxDownloads);
+		// data.downloader:
+		displayDownloader(data.downloader);
+		
+		//data.maxDownloads;
+		displayMaxDownloads(data.maxDownloads);
 
-			 //data.reconnecter;
-			 displayReconnecter(data.reconnect, 'path-reconnecter');
+		//data.reconnecter;
+		displayReconnecter(data.reconnect, 'path-reconnecter');
 
-			 //data.conf:
-			 displayConf(data.conf);
-			 
-			 //data.sockets:
-			 displaySockets(data.sockets);
-		     }
+		//data.conf:
+		displayConf(data.conf);
+		
+		//data.sockets:
+		displaySockets(data.sockets);
+	    }
 
-		     singlePath(ZDL.path).getFreeSpace();
+	    singlePath(ZDL.path).getFreeSpace();
 
-		     if (repeat)
-			 getStatus(true);
-		 });
+	    if (repeat)
+		getStatus(true);
+	}
+    });
 };
 
 var displayStatus = function (status) {
@@ -633,38 +660,38 @@ var displayInputText = function (spec, id) {
 var browseFile = function (id, path, type, key) {
     path = cleanPath(path);
 	
-    var query = '?cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
+    var query = 'cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
     if (key)
 	query += '&key=' + key;    
     
-    return load ('GET',
-		 query,
-		 true,
-		 function (res) {
-		     var output = "<div style=\"float: none; clear: both; width: 100%;\">" +
-			     "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "</div>" +
-			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
-			     "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
-			     "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
-			     "</div>";
-
-		     document.getElementById(id).innerHTML = output;
-		 });
+    ajax ({
+	query: query,
+	callback: function (res) {
+	    var output = "<div style=\"float: none; clear: both; width: 100%;\">" +
+		    "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "</div>" +
+		    "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
+		    "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
+		    "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
+		    "</div>";
+	    
+	    document.getElementById(id).innerHTML = output;
+	}
+    });
 };
 
 var browseDir = function (path) {
     document.getElementById('run-path').setAttribute('class', 'hidden');
     path = cleanPath(path);
 
-    return load ('GET',
-		 '?cmd=browse-dirs&path=' + path,
-		 true,
-		 function (dirs) {
-		     document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "</div>" +
-			 "<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
-			 "<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
+    ajax ({
+	query: 'cmd=browse-dirs&path=' + path,
+	callback: function (dirs) {
+	    document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "</div>" +
+		"<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
+		"<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
 
-		     document.getElementById('path-browse-dir').innerHTML = '<div class="value">' + dirs + '</div>';
+	    document.getElementById('path-browse-dir').innerHTML = '<div class="value">' + dirs + '</div>';
+	}
     });
 };
 
@@ -690,16 +717,16 @@ var inputDir = function () {
 
 var checkDir = function (dir) {
     if (dir) {
-	return load ('GET',
-		     '?cmd=check-dir&path=' + dir,
-		     true,
-		     function (res) {
-			 if (cleanInput(res)) {
-			     selectDir(dir);
-			 } else {
-			     alert("Directory inesistente:\n" + dir);
-			 }			 
-		     });
+	ajax ({
+	    query: 'cmd=check-dir&path=' + dir,
+	    callback: function (res) {
+		if (cleanInput(res)) {
+		    selectDir(dir);
+		} else {
+		    alert("Directory inesistente:\n" + dir);
+		}			 
+	    }
+	});
     } else {
 	alert('Non è stata inserita alcuna directory');	
     }	
@@ -859,71 +886,74 @@ var displayEditButton = function () {
 };
 
 var displayLinks = function (op) {
-    var query = '?cmd=get-data';
+    var query = 'cmd=get-data';
 
     if (op === 'force')
 	query += '&op=force';
     
-    return load ('GET', query, true, function (str) {
-	if (isJsonString(str)) {
-	    var data = JSON.parse(str);
-	    var output = '';
-	    var visibility = 'hidden';
-	    var color;
-	    
-	    if (typeof data === 'object') {
-		for (var i=0; i<data.length; i++) {
-		    if (ZDL.visible[data[i].path + ' ' + data[i].link])
-			visibility = 'visible';
-		    else
-			visibility = 'hidden';
-		    
-		    output += "<div onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
-
-		    output += "<div id=\"progress-bar\">" +
-			"<div id=\"progress-label-file\">" + data[i].file + "</div>" +
-			"<div id=\"progress-status\" style=\"width:" + data[i].percent + "%; background-color:" + data[i].color + "\"></div>" +
-			"</div>";
-
-		    output += "<div id=\"progress-label-status\">" +
-			data[i].percent + '% ' +
-			data[i].speed + data[i].speed_measure + ' ' +
-			data[i].eta +
-			"</div>" +
-			"</div>";
-
-		    output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
-			" onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
-
-		    output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
-		    output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' + data[i].link + "</div>";
-
-		    output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
-			"<button class=\"data\" onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
-
-		    output += '<div class="label-element" style="margin-right: .7em;">File: </div><div class="element">' + data[i].file + "</div>";
-		    output += '<div class="label-element" style="margin-right: .7em;">Length: </div><div class="element">' +
-			(data[i].length/1024/1024).toFixed(2) + "M</div>";
-
-		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
-			output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
-			
-		    } else {
-			output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
-		    }
-
-		    output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(data[i]);
-		    output += '</div></div>';
-		}
+    ajax ({
+	query: query,
+	callback: function (str) {
+	    if (isJsonString(str)) {
+		var data = JSON.parse(str);
+		var output = '';
+		var visibility = 'hidden';
+		var color;
 		
-		document.getElementById('output-links').innerHTML = output;
+		if (typeof data === 'object') {
+		    for (var i=0; i<data.length; i++) {
+			if (ZDL.visible[data[i].path + ' ' + data[i].link])
+			    visibility = 'visible';
+			else
+			    visibility = 'hidden';
+			
+			output += "<div onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+
+			output += "<div id=\"progress-bar\">" +
+			    "<div id=\"progress-label-file\">" + data[i].file + "</div>" +
+			    "<div id=\"progress-status\" style=\"width:" + data[i].percent + "%; background-color:" + data[i].color + "\"></div>" +
+			    "</div>";
+
+			output += "<div id=\"progress-label-status\">" +
+			    data[i].percent + '% ' +
+			    data[i].speed + data[i].speed_measure + ' ' +
+			    data[i].eta +
+			    "</div>" +
+			    "</div>";
+
+			output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
+			    " onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+
+			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' + data[i].link + "</div>";
+
+			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
+			    "<button class=\"data\" onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
+
+			output += '<div class="label-element" style="margin-right: .7em;">File: </div><div class="element">' + data[i].file + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Length: </div><div class="element">' +
+			    (data[i].length/1024/1024).toFixed(2) + "M</div>";
+
+			if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
+			    output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
+			    output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
+			    
+			} else {
+			    output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
+			}
+
+			output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(data[i]);
+			output += '</div></div>';
+		    }
+		    
+		    document.getElementById('output-links').innerHTML = output;
+		}
+		return displayLinks();
 	    }
+	    
+	    document.getElementById('output-links').innerHTML = '';
 	    return displayLinks();
 	}
-	
-	document.getElementById('output-links').innerHTML = '';
-	return displayLinks();
     });
 };
 
@@ -949,64 +979,63 @@ var displayFileButton = function (spec) {
 };
 
 var displayFileText = function (spec) {
-    var query = '?cmd=get-file&path=' + ZDL.path + '&file=' + ZDL.path + '/' + spec.file;
-    
-    load ('GET',
-	  query,
-	  true,
-	  function (res) {
-	      if (cleanInput(res)) {
-		  var id = 'file-text-' + spec.file.replace(/\./g,'');
-		  
-		  var output = '<div class="file-text" id="' + id + '">' + res + '</div>';
-		  output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
-		  output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ");\">Chiudi</button>";
+    ajax ({
+	query: 'cmd=get-file&path=' + ZDL.path + '&file=' + ZDL.path + '/' + spec.file,
+	callback: function (res) {
+	    if (cleanInput(res)) {
+		var id = 'file-text-' + spec.file.replace(/\./g,'');
+		
+		var output = '<div class="file-text" id="' + id + '">' + res + '</div>';
+		output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
+		output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ");\">Chiudi</button>";
 
-		  var elemOuter = document.getElementById(spec.id);
+		var elemOuter = document.getElementById(spec.id);
 		  elemOuter.innerHTML = "<br><b>" + spec.file + ':</b><br>' + output;
-		  elemOuter.style.width = window.innerWidth - 40;
-		  elemOuter.style.display = 'block';
-		  elemOuter.style.margin = '0 0 0 1em';
-		  
-		  var elemInner = document.getElementById(id);
-		  elemInner.scrollTop = elemInner.scrollHeight;
-		  
-	      } else {
-		  alert('File ' + spec.file + ' non disponibile');
-	      }
-	  });
+		elemOuter.style.width = window.innerWidth - 40;
+		elemOuter.style.display = 'block';
+		elemOuter.style.margin = '0 0 0 1em';
+		
+		var elemInner = document.getElementById(id);
+		elemInner.scrollTop = elemInner.scrollHeight;
+		
+	    } else {
+		alert('File ' + spec.file + ' non disponibile');
+	    }
+	}
+    });
 };
 
 var checkAccount = function () {
-    return load ('GET',
-		 '?cmd=check-account',
-		 true,
-		 function(res){
-		     if (cleanInput(res) === 'exists') {
-			 var output = '<form action="/" method="POST">' +
-				 '<input type="hidden" name="cmd" value="login">' +
-				 '<table class="login">' +
-				 '<tr><td>Utente:</td>' +
-				 '<td><input type="text" name="user" class="login"></td></tr>' +
-				 '<tr><td>Password:</td>' +
-				 '<td><input type="password" name="pass" class="login"></td></tr>' +
-				 '<tr><td></td><td><input type="submit" value="Login"></td></tr></table>' +
-				 '</form>';
-		     } else {
-			 var output = '<table class="login">' +
-				 '<tr><td>Utente:</td>' +
-				 '<td><input id="user" type="text" name="user" class="login"></td></tr>' +
-				 '<tr><td>Password:</td>' +
-				 '<td><input id="pass1" type="password" name="pass1" class="login"></td></tr>' +
-				 '<tr><td>Ripeti password:</td>' +
-				 '<td><input id="pass2" type="password" name="pass2" class="login"></td></tr>' +
-				 "<tr><td></td><td><button onclick=\"createAccount();\">Crea un nuovo account</button></td></tr></table>";
-		     }
+    ajax ({
+	url: "login.html",
+	query: 'cmd=check-account',
+	callback: function (res){
+	    if (cleanInput(res) === 'exists') {
+		var output = '<form action="/" method="POST">' +
+			'<input type="hidden" name="cmd" value="login">' +
+			'<table class="login">' +
+			'<tr><td>Utente:</td>' +
+			'<td><input type="text" name="user" class="login"></td></tr>' +
+			'<tr><td>Password:</td>' +
+			'<td><input type="password" name="pass" class="login"></td></tr>' +
+			'<tr><td></td><td><input type="submit" value="Login"></td></tr></table>' +
+			'</form>';
+	    } else {
+		var output = '<table class="login">' +
+			'<tr><td>Utente:</td>' +
+			'<td><input id="user" type="text" name="user" class="login"></td></tr>' +
+			'<tr><td>Password:</td>' +
+			'<td><input id="pass1" type="password" name="pass1" class="login"></td></tr>' +
+			'<tr><td>Ripeti password:</td>' +
+			'<td><input id="pass2" type="password" name="pass2" class="login"></td></tr>' +
+			"<tr><td></td><td><button onclick=\"createAccount();\">Crea un nuovo account</button></td></tr></table>";
+	    }
 
-		     document.getElementById('login').innerHTML = output;
-		     if (getUriParam('op') === 'retry')
-			 alert("Login errato: riprova");
-		 });
+	    document.getElementById('login').innerHTML = output;
+	    if (getUriParam('op') === 'retry')
+		alert ("Login errato: riprova");
+	}
+    });
 };
 
 var createAccount = function () {
@@ -1017,26 +1046,29 @@ var createAccount = function () {
     if (!(user && pass1 && pass2)) {
 	alert("Devi completare tutti i campi del form per eseguire l'operazione");
 	return 0;
-    } else if (pass1 !== pass2) {
+    }
+    else if (pass1 !== pass2) {
 	alert("L'immissione della password deve essere ripetuta identica");
 	return 0;
     }
 
-    return load ({type: 'POST', params: 'cmd=create-account&user=' + user + '&pass=' + pass1},
-		 'login.html',
-		 true,
-		 function (res) {
-		     checkAccount();
-		 });
+    ajax ({
+	method: 'POST',
+	url: 'login.html',
+	query: 'cmd=create-account&user=' + user + '&pass=' + pass1,
+	callback: function (res) {
+	    checkAccount();
+	}
+    });
 };
 
 var resetAccount = function () {    
-    load ('GET',
-	  '?cmd=reset-account',
-	  true,
-	  function () {
-	      reloadPage('login.html');
-	  });
+    ajax ({
+	query: 'cmd=reset-account',
+	callback: function () {
+	    reloadPage('login.html');
+	}
+    });
 };
 
 var init = function (path) {
@@ -1044,8 +1076,14 @@ var init = function (path) {
     changeSection('links');
     displayEditButton();
     displayTorrentButton('path-torrent');
-    displayFileButton({id:'path-file-log',file:'zdl_log.txt'});
-    displayFileButton({id:'path-file-links',file:'links.txt'});
+    displayFileButton({
+	id:'path-file-log',
+	file:'zdl_log.txt'
+    });
+    displayFileButton({
+	id:'path-file-links',
+	file:'links.txt'
+    });
     displayLinks('force');
     getStatus(true, 'loop');
 
