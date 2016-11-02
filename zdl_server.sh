@@ -858,9 +858,9 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		cd "${line[1]}"
 
 	    ## links:
-	    echo >> links.txt
 	    date >> links.txt
 	    urldecode "${line[2]}" >> links.txt
+	    echo "" >> links.txt
 	    
 	    echo -n > "$path_tmp"/links_loop.txt
 	    while read link
