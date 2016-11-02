@@ -480,79 +480,6 @@ textarea {
 /* } */
 
 
-/*
-menu responsive
-*/
-ul.sidenav {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 25%;
-    background-color: #f1f1f1;
-    position: fixed;
-    height: 100%;
-    overflow: auto;
-    cursor: pointer;
-}
-
-ul.sidenav li.sidenav a {
-    display: block;
-    color: #000;
-    padding: 8px 16px;
-    text-decoration: none;
-}
- 
-ul.sidenav li a.active {
-    background-color: #3066db;
-    /* #4CAF50; */
-    color: white;
-}
-
-ul.sidenav li a:hover:not(.active) {
-    background-color: #555;
-    color: white;
-}
-
-/* div.content { */
-/*     margin-left: 25%; */
-/*     padding: 1px 16px; */
-/*     height: 1000px; */
-/* } */
-
-/* @media screen and (max-width: 1050px){ */
-    ul.sidenav {
-        width:100%;
-        height:auto;
-        position:relative;
-    }
-    ul.sidenav li a {
-        float: left;
-        padding: 15px;
-    }
-    div.content {margin-left:0;}
-/* } */
-
-@media screen and (max-width: 600px){
-    /* ul.sidenav li a { */
-    /*     text-align: center; */
-    /*     float: none; */
-    /* } */
-    #progress-bar, #progress-label-file {
-	width: 100%;
-    }
-
-    #progress-label-status {
-	float: right;
-    }
-}
-
-@media screen and (max-width: 350px){
-    ul.sidenav li a {
-        text-align: center;
-        float: none;
-    }
-}
-
 #links, #path, #config, #info, #server {
     display: none;
     position: absolute;
@@ -603,7 +530,7 @@ select {
     font-weght: normal;
 }
 
-div.value {
+div.value, div.value-number {
     position: relative;
     float: left;
     padding: .5em .7em; 
@@ -791,3 +718,134 @@ td {
     text-align: right;
     font-weight: bold;
 }
+
+
+#xdcc-search {
+    margin: 0;
+    width: calc(100% - 23em);
+}
+
+.xdcc {
+    float:left;
+}
+
+#input-link {
+    margin: 0;
+    width: calc(100% - 13em);
+}
+
+/*
+menu responsive
+*/
+ul.sidenav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 25%;
+    background-color: #f1f1f1;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+    cursor: pointer;
+}
+
+ul.sidenav li.sidenav a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+ 
+ul.sidenav li a.active {
+    background-color: #3066db;
+    /* #4CAF50; */
+    color: white;
+}
+
+ul.sidenav li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}
+
+/* div.content { */
+/*     margin-left: 25%; */
+/*     padding: 1px 16px; */
+/*     height: 1000px; */
+/* } */
+
+/* @media screen and (max-width: 1050px){ */
+    ul.sidenav {
+        width:100%;
+        height:auto;
+        position:relative;
+    }
+    ul.sidenav li a {
+        float: left;
+        padding: 15px;
+    }
+    div.content {margin-left:0;}
+/* } */
+
+@media screen and (max-width: 600px){
+    /* ul.sidenav li a { */
+    /*     text-align: center; */
+    /*     float: none; */
+    /* } */
+    #progress-bar, #progress-label-file {
+	width: 100%;
+    }
+
+    #xdcc-search {
+	clear:both;
+	margin: 0 0 0 1em;	
+	width: calc(100% - 1em);
+    }
+
+    #input-link {
+	clear:both;
+	margin: 0 0 0 1em;	
+	width: calc(100% - 1em);
+    }
+
+    #xdcc {
+	padding: 0 1em 1em 0;
+	width: calc(100% - 1em);
+	margin: 0;
+    }
+
+    .xdcc-buttons, button {
+	float: right;
+    }
+
+    #progress-label-status {
+	float: right;
+    }
+
+    .value, input[type=text] {
+	/* clear: left; */
+	clear:both;
+	margin: 0 0 0 1em;	
+	width: calc(100% - 1em);
+    }
+
+    .value-number, input[type=number] {
+	/* clear: left; */
+	clear: left;
+	margin: 0 0 0 1em;	
+	width: 6em;
+    }
+
+    .background-element {
+	padding-right: 1em;
+	padding-bottom: 1em;
+	width: calc(100% - 1em);
+    }
+}
+
+@media screen and (max-width: 350px){
+    ul.sidenav li a {
+        text-align: center;
+        float: none;
+    }
+}
+

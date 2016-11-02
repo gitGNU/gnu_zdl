@@ -790,7 +790,7 @@ var displayConf = function (conf) {
 	    }
 
  	    var output = "<button onclick=\"displayInputNumber(" + objectToSource(spec) + ",'conf-" + spec.key + "');\">Cambia</button>";
-	    document.getElementById('conf-' + spec.key).innerHTML = '<div class="value">' + spec.value + '</div>' + output;
+	    document.getElementById('conf-' + spec.key).innerHTML = '<div class="value-number">' + spec.value + '</div>' + output;
 	    break;
 
 	case 'reconnecter':
@@ -831,12 +831,12 @@ var displaySockets = function (sockets) {
 	port = parseInt(port);
 	
 	if(!isNaN(port)) {
-	    output_open += "<button onclick=\"window.open('" +
+	    output_open += "<button style=\"float:left;\" onclick=\"window.open('" +
 		document.location.protocol + '//' + 
 		document.location.hostname +
 		':' + port +
 		"');";
-	    output_kill += '<button onclick="killServer(' + port + ');';
+	    output_kill += '<button style="float:left;" onclick="killServer(' + port + ');';
 	    if(parseInt(port) === parseInt(document.location.port))
 		output_kill += "setTimeout(reloadPage, 2000);"
 
@@ -875,7 +875,7 @@ var displayMaxDownloads = function (max_dl_str) {
 	max_dl = '';
     }
     output = "<button onclick=\"singlePath(ZDL.path).inputMaxDownloads(" + max_dl + ");\">Cambia</button>";
-    document.getElementById('max-downloads').innerHTML = '<div class="value">' + max_dl_str + '</div>' + output;
+    document.getElementById('max-downloads').innerHTML = '<div class="value-number">' + max_dl_str + '</div>' + output;
 };
 
 var displayEditButton = function () {
@@ -980,6 +980,15 @@ var displayFileButton = function (spec) {
     document.getElementById(spec.id).style.padding = '0';
 };
 
+var deleteFile = function (spec) {
+    ajax({
+	query: "cmd=del-file&path=" + ZDL.path + "&file=" + spec.file,
+	callback: function (res) {
+	    displayFileButton(spec);
+	}
+    });
+};
+
 var displayFileText = function (spec) {
     ajax ({
 	query: 'cmd=get-file&path=' + ZDL.path + '&file=' + ZDL.path + '/' + spec.file,
@@ -988,8 +997,10 @@ var displayFileText = function (spec) {
 		var id = 'file-text-' + spec.file.replace(/\./g,'');
 		
 		var output = '<div class="file-text" id="' + id + '">' + res + '</div>';
+		output += "<button onclick=\"deleteFile(" + objectToSource(spec) + ");\">Elimina</button>";
 		output += "<button onclick=\"displayFileText(" + objectToSource(spec) + ")\">Aggiorna</button>";
 		output += "<button onclick=\"displayFileButton(" + objectToSource(spec) + ");\">Chiudi</button>";
+
 
 		var elemOuter = document.getElementById(spec.id);
 		  elemOuter.innerHTML = "<br><b>" + spec.file + ':</b><br>' + output;

@@ -824,6 +824,17 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 	    file_output="$path_server"/file-text.$socket_port
 	    sed -r 's|$|<br>|g' "${line[2]}" > "$file_output"
 	    ;;
+
+	del-file)
+	    test -d "${line[1]}" &&
+		cd "${line[1]}"
+
+	    if test -s "${line[2]}" &&
+		    ( [ "${line[2]}" == "links.txt" ] || [ "${line[2]}" == "zdl_log.txt" ] )
+	    then
+		rm -f "${line[2]}"
+	    fi
+	    ;;
 	
 	get-links)
 	    test -d "${line[1]}" &&

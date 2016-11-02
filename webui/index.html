@@ -77,28 +77,28 @@
 	  <div id="run-path" class="visible">
 	    <div class="background-element" style="text-align: left">
 	    <div class="label-element">Spazio libero:</div>
-	      <div class="value" id="path-free-space"></div>
+	      <div class="value-number" id="path-free-space"></div>
 	      <button onclick="singlePath(ZDL.path).getFreeSpace();">Aggiorna</button>
 	    </div>
 	  
 	    <div class="background-element" style="text-align: left">
 	    <div id="input-link-label" class="label-element">Aggiungi link:</div>
 
-	    <input id="input-link" type="text" style="margin: 0;width: calc(100% - 13em);">
+	    <input id="input-link" type="text">
 	      <button onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
 	      <div id="editor-links" style="margin-top: 1em; margin-bottom: 2em;"></div>
 	    </div>
 
-	    <div class="background-element" style="text-align: left">
+	    <div class="background-element" style="text-align: left" id="xdcc">
 	      <div id="input-link-label" class="label-element">Cerca XDCC:</div>
 
-	      <input id="xdcc-search" type="text" style="margin: 0; width: calc(100% - 23em)">
+	      <input id="xdcc-search" type="text">
 
-	      <button style="float:left;"
+	      <button class="xdcc-buttons"
 		      onclick="window.open('http://anydownload.altervista.org/search.php?q=' + document.getElementById('xdcc-search').value);">
 		AnyDownload</button>
 
-	      <button style="float:left;"
+	      <button class="xdcc-buttons"
 		      onclick="window.open('http://www.xdcc.eu/search.php?searchkey=' + document.getElementById('xdcc-search').value);">
 		Xdcc.eu</button>
 
