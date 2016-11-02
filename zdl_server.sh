@@ -718,8 +718,17 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 			sleep 0.1
 		    done
 		fi
-		set_link + "$link" ||
+
+		if set_link + "$link"
+		then
+    		    date >> links.txt
+		    echo "$link" >> links.txt
+		    echo "" >> links.txt
+
+		else
 		    list_err+="\n$link"
+		fi
+		
 	    done &>/dev/null
 
 	    if [ -n "$list_err" ]
