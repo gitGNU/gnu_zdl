@@ -682,11 +682,19 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 			;;
 		esac
 	    done
-	    set_link + "irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}" ||
-		{
-	    	    file_output="$path_server"/msg-file.$socket_port
-	    	    echo -e "$err_msg" > "$file_output"
-		}
+
+	    link="irc://${irc[host]}/${irc[chan]}/msg ${irc[msg]}"
+
+	    if set_link + "$link"
+	    then
+		date >> links.txt
+		echo "$link" >> links.txt
+		echo "" >> links.txt
+
+	    else
+	    	file_output="$path_server"/msg-file.$socket_port
+	    	echo -e "$err_msg" > "$file_output"
+	    fi
 	    ;;
 
 	add-link)
