@@ -24,6 +24,7 @@
 
 var ZDL = {
     'path': '',
+    'pathDesktop': '',
     'visible': [],
     'conf_items': [
 	'downloader',
@@ -139,14 +140,16 @@ var getData = function () {
 	return false;
 };
 
-var showInfoLink = function (id, path, link) {
-    document.getElementById(id).setAttribute('class', 'visible');
-    ZDL.visible[path + ' ' + link] = true;
+
+var showInfoLink = function (spec) {
+    document.getElementById(spec.id).setAttribute('class', 'visible');
+    ZDL.visible[spec.key] = true;
 };
 
-var hideInfoLink = function (id, path, link) {
-    document.getElementById(id).setAttribute('class', 'hidden');
-    ZDL.visible[path + ' ' + link] = false;
+
+var hideInfoLink = function (spec) {
+    document.getElementById(spec.id).setAttribute('class', 'hidden');
+    ZDL.visible[spec.key] = false;
 };
 
 
@@ -449,6 +452,16 @@ var changeSection = function (section) {
     });
 };
 
+var sectionPath = function (path) {
+    setPath({
+	path: path,
+	idSel: 'path-sel',
+	idBrowser: 'path-browser',
+	callback: 'setPath'
+    });
+    changeSection('path');
+};
+
 var initClient = function (path) {
     displayTorrentButton('path-torrent');
     ajax ({
@@ -676,57 +689,182 @@ var browseFile = function (id, path, type, key) {
     });
 };
 
-var browseDir = function (path) {
-    document.getElementById('run-path').setAttribute('class', 'hidden');
-    path = cleanPath(path);
 
+
+var browseDir = function (spec) {
+    // spec:{path,idSel,idBrowser,callback}
+    spec.path = cleanPath(spec.path);
+    
+    if (spec.callback === 'setPath')
+	document.getElementById('run-path').setAttribute('class', 'hidden');
+    
     ajax ({
-	query: 'cmd=browse-dirs&path=' + path,
-	callback: function (dirs) {
-	    document.getElementById('sel-path').innerHTML = "<div class=\"value\"><b>Sfoglia: </b>" + path + "</div>" +
-		"<button onclick=\"selectDir('" + path + "');\">Seleziona</button>" +
-		"<button onclick=\"selectDir(ZDL.path)\">Annulla</button>";
+	query: 'cmd=browse-dirs&path=' + spec.path + '&idsel=' + spec.idSel + '&idbrowser=' + spec.idBrowser + '&callback=' + spec.callback,
+	callback: function (dirs) {	    
+	    document.getElementById(spec.idSel).innerHTML = spec.path;
+	    
+	    var output = '<button id="button-select-' + spec.idSel + '">Seleziona</button>' +
+		    '<button id="button-cancel-' + spec.idSel + '">Annulla</button>';
+	    
+	    document.getElementById(spec.idBrowser).innerHTML = output + '<div class="value">' + dirs + '</div>';	    
+	    document.getElementById(spec.idBrowser).style.clear = 'both';
+		
+	    onClick({
+		id: 'button-select-' + spec.idSel,
+		callback: function() {
+		    window[spec.callback](spec);
+		}
+	    });
 
-	    document.getElementById('path-browse-dir').innerHTML = '<div class="value">' + dirs + '</div>';
+	    onClick({
+		id: 'button-cancel-' + spec.idSel,
+		callback: function() {
+		    if (spec.callback === 'setPath')
+			spec.path = ZDL.path;
+		    else if (spec.callback === 'setDesktopPath')
+			spec.path = ZDL.pathDesktop;
+		    
+		    window[spec.callback](spec);
+		}
+	    });
 	}
     });
 };
 
-var selectDir = function (path) {
-    ZDL.path = path;
-    document.getElementById('run-path').setAttribute('class', 'visible');
-    document.getElementById('sel-path').innerHTML = '<div class="label-element">Agisci in:</div><div id="path-value" class="value">' + path + '</div>' +
- 	" <button onClick=\"browseDir('" + path + "');\">Sfoglia</button>" +
-	"<button onclick=\"inputDir();\">Scrivi</button><br>";
-    document.getElementById('path-browse-dir').innerHTML = '';
-    return initClient(path);
-};
-
-var inputDir = function () {
-    var output = '<div class="label-element">Path:</div>' +
-	    '<input id="path-value" type="text" value="' + ZDL.path + '">';
-
-    output += "<button onclick=\"checkDir(document.getElementById('path-value').value)\">Invia</button>";
-    output += "<button onclick=\"selectDir(ZDL.path);\">Annulla</button>";
+var editDir = function (spec) {
+    //alert(objectToSource(spec));
     
-    document.getElementById('sel-path').innerHTML = output;
+    if (spec.callback === 'setPath')
+	document.getElementById('run-path').setAttribute('class', 'hidden');
+
+    var inputDiv = document.getElementById(spec.idSel);
+    var buttonsDiv = document.getElementById(spec.idBrowser);
+
+    inputDiv.innerHTML = '<input type="text" id="input-' + spec.idSel + '" value="' + inputDiv.textContent + '"/>';
+    buttonsDiv.innerHTML = '<button id="enter-' + spec.idSel + '">Invia</button>' +
+	'<button id="cancel-' + spec.idSel + '">Annulla</button> ';
+
+    onClick({
+	id: 'enter-' + spec.idSel,
+	callback: function (params) {
+	    var path = cleanInput (document.getElementById('input-' + params.idSel).value);
+	    
+	    if (path) {		
+		ajax ({
+		    query: 'cmd=check-dir&path=' + path,
+		    callback: function (res, params) {
+			params.path = path;
+			
+			if (cleanInput(res)) {
+			    window[params.callback](params);
+			} else {
+			    alert("Directory inesistente:\n" + params.path);
+			}
+		    },
+		    params: params		    
+		});
+	    } else
+		alert('Non è stata inserita alcuna directory');	
+	},
+	params: spec
+    });
+
+    onClick({
+	id: 'cancel-' + spec.idSel,
+	callback: function (params) {
+	    if (spec.callback === 'setPath')
+		params.path = ZDL.path;
+	    else if (spec.callback === 'setDesktopPath')
+		params.path = ZDL.pathDesktop;
+	    
+	    window[params.callback](params);
+	},
+	params: spec
+    });
 };
 
-var checkDir = function (dir) {
-    if (dir) {
-	ajax ({
-	    query: 'cmd=check-dir&path=' + dir,
-	    callback: function (res) {
-		if (cleanInput(res)) {
-		    selectDir(dir);
-		} else {
-		    alert("Directory inesistente:\n" + dir);
-		}			 
-	    }
-	});
-    } else {
-	alert('Non è stata inserita alcuna directory');	
-    }	
+var displayDesktopPath = function (spec) {
+    ajax ({
+	query: 'cmd=get-desktop-path',
+	callback: function (res) {
+	    if (res)
+		spec.path = cleanInput(res);
+	    
+	    document.getElementById(spec.idSel).innerHTML = cleanPath(spec.path);
+	    
+	    document.getElementById(spec.idBrowser).innerHTML = '<button id="button-browse-desktop">Sfoglia</button>'+
+		'<button id="button-edit-desktop">Scrivi</button>';
+	    
+	    document.getElementById(spec.idBrowser).style.clear = 'right';
+
+	    onClick({
+		id:'button-browse-desktop',
+		callback: function() {
+		    ZDL.pathDesktop = document.getElementById(spec.idSel).value; 
+		    browseDir(spec);
+		}
+	    });
+
+	    onClick({
+		id:'button-edit-desktop',
+		callback: function() {
+		    ZDL.pathDesktop = document.getElementById(spec.idSel).value; 
+		    editDir(spec);
+		}
+	    });
+	}
+    });
+};
+
+var setDesktopPath = function (spec) {
+    ajax ({
+	query: "cmd=set-desktop-path&path=" + spec.path,
+	callback: function (res) {
+	    displayDesktopPath(spec);
+	}
+    });
+};
+
+var onClick = function (spec) {
+    // spec: {id,callback,params:{}}
+    if (!spec.params)
+    	spec.params = '';
+    
+    document.getElementById(spec.id).addEventListener('click',
+						      function(e) {
+							  spec.callback(spec.params);
+							  e.stopPropagation();
+						      },
+						      false);
+};
+
+var setPath = function (spec) {
+    // spec:{path,idSel,idBrowser,callback}
+    
+    ZDL.path = spec.path;
+    document.getElementById('run-path').setAttribute('class', 'visible');
+    
+    document.getElementById(spec.idSel).innerHTML = cleanPath(spec.path);
+    document.getElementById(spec.idBrowser).innerHTML = '<button id="button-browse-' + spec.idSel + '">Sfoglia</button>' +
+	'<button id="button-edit-' + spec.idSel + '">Scrivi</button><br>';
+
+    document.getElementById(spec.idBrowser).style.clear = 'right';
+
+    onClick({
+	id: 'button-browse-' + spec.idSel,
+	callback: function () {
+	    browseDir(spec);
+	}	     
+    });
+
+    onClick({
+	id: 'button-edit-' + spec.idSel,
+	callback: function () {
+	    editDir(spec);
+	}	     
+    });
+
+    return initClient(spec.path);
 };
 
 var cleanPath = function (path) {
@@ -814,6 +952,8 @@ var displayConf = function (conf) {
 	    document.getElementById(id_inputFile).style.display = 'initial';
 	    document.getElementById(id_inputText).style.display = 'initial';
 	};
+
+	
     });    
 };
 
@@ -899,16 +1039,16 @@ var displayLinks = function (op) {
 		
 		if (typeof data === 'object') {
 		    for (var i=0; i<data.length; i++) {
-			if (ZDL.visible[data[i].path + ' ' + data[i].link])
+			if (ZDL.visible[data[i].path + '-' + data[i].link])
 			    visibility = 'visible';
 			else
 			    visibility = 'hidden';
 			
-			output += "<div onclick=\"showInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+			output += '<div id="info-' + i + '-bar">';
 
-			output += "<div id=\"progress-bar\">" +
-			    "<div id=\"progress-label-file\">" + data[i].file + "</div>" +
-			    "<div id=\"progress-status\" style=\"width:" + data[i].percent + "%; background-color:" + data[i].color + "\"></div>" +
+			output += '<div id="progress-bar">' +
+			    '<div id="progress-label-file">' + data[i].file + "</div>" +
+			    '<div id="progress-status" style="width:' + data[i].percent + "%; background-color:" + data[i].color + '"></div>' +
 			    "</div>";
 
 			output += "<div id=\"progress-label-status\">" +
@@ -918,14 +1058,13 @@ var displayLinks = function (op) {
 			    "</div>" +
 			    "</div>";
 
-			output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\"" + 
-			    " onclick=\"hideInfoLink('info-" + i + "','" + data[i].path + "','" + data[i].link + "');\">";
+			output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
 
 			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
 			output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' + data[i].link + "</div>";
 
 			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
-			    "<button class=\"data\" onclick=\"selectDir('" + data[i].path + "'); changeSection('path');\">Gestisci</button></div>";
+			    '<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
 
 			output += '<div class="label-element" style="margin-right: .7em;">File: </div><div class="element">' + data[i].file + "</div>";
 			output += '<div class="label-element" style="margin-right: .7em;">Length: </div><div class="element">' +
@@ -939,11 +1078,62 @@ var displayLinks = function (op) {
 			    output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
 			}
 
-			output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(data[i]);
+			output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(i);
 			output += '</div></div>';
 		    }
 		    
 		    document.getElementById('output-links').innerHTML = output;
+
+		    for (var i=0; i<data.length; i++) {
+			onClick({
+			    id: 'play-' + i,
+			    callback: function (data) {
+				singleLink(data).play();
+			    },
+			    params: data[i]
+			});
+			
+			onClick({
+			    id: 'del-' + i,
+			    callback: function (data) {
+				singleLink(data).del();
+			    },
+			    params: data[i]
+			});
+
+			onClick({
+			    id: 'stop-' + i,
+			    callback: function (data) {
+				singleLink(data).stop();
+			    },
+			    params: data[i]
+			});
+
+			onClick({
+			    id: 'link-to-path-' + i,
+			    callback: sectionPath,
+			    params: data[i].path
+			});
+
+			onClick({
+			    id: 'info-' + i + '-bar',
+			    callback: showInfoLink,
+			    params: {
+				id:'info-' + i,
+				key: data[i].path + '-' + data[i].link
+			    }
+			});
+			
+			onClick({
+			    id: 'info-' + i,
+			    callback: hideInfoLink,
+			    params: {
+				id:'info-' + i,
+				key: data[i].path + '-' + data[i].link
+			    }
+			});
+		    }
+
 		}
 		return displayLinks();
 	    }
@@ -954,15 +1144,16 @@ var displayLinks = function (op) {
     });
 };
 
-var displayLinkButtons = function (spec) {
+var displayLinkButtons = function (id) { 
     if (document.location.hostname !== 'localhost') 
 	var host = ' in ' + document.location.hostname;
     else
 	var host = '';
     
-    var output = "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).stop();\">Ferma</button>" +
-	    "<button onclick=\"singleLink({path:'" + spec.path + "', link:'" + spec.link + "'}).del();\">Elimina</button>" +
-    	    "<button onclick=\"singleLink(" + objectToSource(spec) + ").play();\">Play" + host + "</button>";
+    var output = '<button id="stop-' + id + '">Ferma</button>' +
+	    '<button id="del-' + id + '">Elimina</button>' +
+	    '<button id="play-' + id + '">Play' + host + "</button>";
+
     return output;
 };
 
@@ -978,6 +1169,7 @@ var displayFileButton = function (spec) {
     document.getElementById(spec.id).innerHTML = output;
     document.getElementById(spec.id).style.display = 'inline-block';
     document.getElementById(spec.id).style.padding = '0';
+    document.getElementById(spec.id).style.margin = '1em 0 1em 0';
 };
 
 var deleteFile = function (spec) {
@@ -1003,10 +1195,10 @@ var displayFileText = function (spec) {
 
 
 		var elemOuter = document.getElementById(spec.id);
-		  elemOuter.innerHTML = "<br><b>" + spec.file + ':</b><br>' + output;
+		elemOuter.innerHTML = "<br><b>" + spec.file + ':</b><br>' + output;
 		elemOuter.style.width = window.innerWidth - 40;
 		elemOuter.style.display = 'block';
-		elemOuter.style.margin = '0 0 0 1em';
+		elemOuter.style.margin = '0 0 2em 1em';
 		
 		var elemInner = document.getElementById(id);
 		elemInner.scrollTop = elemInner.scrollHeight;
@@ -1085,7 +1277,12 @@ var resetAccount = function () {
 };
 
 var init = function (path) {
-    selectDir(path);
+    setPath({
+	path: path,
+	idSel: 'path-sel',
+	idBrowser: 'path-browser',
+	callback: 'setPath'
+    });
     changeSection('links');
     displayEditButton();
     displayTorrentButton('path-torrent');
@@ -1100,6 +1297,12 @@ var init = function (path) {
     displayLinks('force');
     getStatus(true, 'loop');
 
-    document.getElementById('conf-account-socket').innerHTML = "<button onclick=\"resetAccount();\">Reset account</button>";    
+    document.getElementById('conf-account-socket').innerHTML = "<button onclick=\"resetAccount();\">Reset account</button>";
+
+    displayDesktopPath({
+	idSel: 'conf-sel-path',
+	idBrowser: 'conf-browser-path',
+	callback: 'setDesktopPath'
+    });
 };
 

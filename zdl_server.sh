@@ -31,7 +31,7 @@ path_tmp=".zdl_tmp"
 
 path_conf="$HOME/.zdl"
 file_conf="$path_conf/zdl.conf"
-
+file_desktop="$HOME/.local/share/applications/zdl-web-ui.desktop"
 
 path_server="/tmp/zdl.d"
 server_data="$path_server/data.json"
@@ -990,6 +990,31 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		echo > "$file_output"
 	    fi
 	    ;;
+
+	get-desktop-path)	    
+	    if test -s "$file_desktop"
+	    then
+		eval exec_line=( $(grep Exec "$file_desktop") )
+
+		for path in "${exec_line[@]}"
+		do
+		    if test -d "$path"
+		    then
+			file_output="$path_server"/get-desktop-path.$socket_port
+			echo "$path" > "$file_output"
+			break
+		    fi
+		done
+	    fi
+	    ;;
+
+	set-desktop-path)
+	    if test -d "${line[1]}" &&
+		    test -s "$file_desktop"
+	    then
+		sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"${line[1]}\"|g" -i "$file_desktop"
+	    fi	    
+	    ;;
 	
 	browse-dirs)
 	    file_output="$path_server"/browsing.$socket_port
@@ -997,11 +1022,11 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 	    test -d "${line[1]}" &&
 		cd "${line[1]}"
 
-	    string_output="<a href=\"javascript:browseDir('$PWD/..');\"><img src=\"folder-blue.png\"> ..</a><br>"
+	    string_output="<a href=\"javascript:browseDir({path:'$PWD/..',idSel:'${line[2]}',idBrowser:'${line[3]}',callback:'${line[4]}'});\"><img src=\"folder-blue.png\"> ..</a><br>"
 	    while read dir
 	    do
 		real_dir=$(realpath "$dir")
-		string_output+="<a href=\"javascript:browseDir('${real_dir}');\"><img src=\"folder-blue.png\"> $dir</a><br>"
+		string_output+="<a href=\"javascript:browseDir({path:'${real_dir}',idSel:'${line[2]}',idBrowser:'${line[3]}',callback:'${line[4]}'});\"><img src=\"folder-blue.png\"> $dir</a><br>"
 	    done < <(ls -d1 */)
 
 	    echo "$string_output" > "$file_output"	    
