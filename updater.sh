@@ -528,11 +528,11 @@ ESTENSIONI:
 
 	if [ -f "$HOME"/.local/share/applications/zdl-web-ui.desktop ]	   
 	then
-	    line_cmd=( $(grep Exec "$HOME"/.local/share/applications/zdl-web-ui.desktop) )
+	    eval line_cmd=( $(grep Exec "$HOME"/.local/share/applications/zdl-web-ui.desktop) )
 
 	    for dir in "${line_cmd[@]}"
 	    do
-		if [ -d $dir ]
+		if [ -d "$dir" ]
 		then
 		    break
 
@@ -540,7 +540,6 @@ ESTENSIONI:
 		    dir="$HOME"
 		fi
 	    done
-
 	fi
 
 	sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" \
