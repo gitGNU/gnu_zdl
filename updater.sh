@@ -532,7 +532,7 @@ ESTENSIONI:
 
 	    for dir in "${line_cmd[@]}"
 	    do
-		if [ -d "$dir" ]
+		if [ -d $dir ]
 		then
 		    break
 
