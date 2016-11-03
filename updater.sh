@@ -525,8 +525,28 @@ ESTENSIONI:
 	done
 
 	try mkdir -p "$HOME"/.local/share/applications/
+
+	if [ -f "$HOME"/.local/share/applications/zdl-web-ui.desktop ]	   
+	then
+	    line_cmd=( $(grep Exec "$HOME"/.local/share/applications/zdl-web-ui.desktop) )
+
+	    for dir in "${line_cmd[@]}"
+	    do
+		if [ -d "$dir" ]
+		then
+		    sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
+		    break
+		fi
+	    done
+
+	else
+	    dir="$HOME"
+	    sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
+	fi	
+	
 	try cp /usr/local/share/zdl/webui/zdl-web-ui.desktop "$HOME"/.local/share/applications/
 	try desktop-file-install "$HOME"/.local/share/applications/zdl-web-ui.desktop
+	
     fi
     
     check_default_downloader
