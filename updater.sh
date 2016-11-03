@@ -537,11 +537,14 @@ ESTENSIONI:
 		    break
 
 		else
-		    dir="$HOME"
+		    unset dir
 		fi
 	    done
 	fi
 
+	[ -z "$dir" ] &&
+	    dir="$HOME"
+	    
 	sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" \
 	    -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
 	
