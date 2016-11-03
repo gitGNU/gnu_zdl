@@ -534,15 +534,17 @@ ESTENSIONI:
 	    do
 		if [ -d "$dir" ]
 		then
-		    sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
 		    break
+
+		else
+		    dir="$HOME"
 		fi
 	    done
 
-	else
-	    dir="$HOME"
-	    sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
-	fi	
+	fi
+
+	sed -r "s|^Exec=.+$|Exec=zdl --web-ui \"$dir\"|g" \
+	    -i /usr/local/share/zdl/webui/zdl-web-ui.desktop
 	
 	try cp /usr/local/share/zdl/webui/zdl-web-ui.desktop "$HOME"/.local/share/applications/
 	try desktop-file-install "$HOME"/.local/share/applications/zdl-web-ui.desktop
