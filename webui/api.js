@@ -744,6 +744,8 @@ var editDir = function (spec) {
     buttonsDiv.innerHTML = '<button id="enter-' + spec.idSel + '">Invia</button>' +
 	'<button id="cancel-' + spec.idSel + '">Annulla</button> ';
 
+    inputDiv.setAttribute ('class', '');
+	
     onClick({
 	id: 'enter-' + spec.idSel,
 	callback: function (params) {
@@ -796,7 +798,8 @@ var displayDesktopPath = function (spec) {
 		'<button id="button-edit-desktop">Scrivi</button>';
 	    
 	    document.getElementById(spec.idBrowser).style.clear = 'right';
-
+	    document.getElementById(spec.idSel).setAttribute ('class', 'value');
+	    
 	    onClick({
 		id:'button-browse-desktop',
 		callback: function() {
@@ -819,7 +822,7 @@ var displayDesktopPath = function (spec) {
 var setDesktopPath = function (spec) {
     ajax ({
 	query: "cmd=set-desktop-path&path=" + spec.path,
-	callback: function (res) {
+	callback: function (res) {	    
 	    displayDesktopPath(spec);
 	}
     });
@@ -849,7 +852,8 @@ var setPath = function (spec) {
 	'<button id="button-edit-' + spec.idSel + '">Scrivi</button><br>';
 
     document.getElementById(spec.idBrowser).style.clear = 'right';
-
+    document.getElementById(spec.idSel).setAttribute ('class', 'value');
+    
     onClick({
 	id: 'button-browse-' + spec.idSel,
 	callback: function () {
