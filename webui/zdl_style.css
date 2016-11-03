@@ -842,10 +842,16 @@ ul.sidenav li a:hover:not(.active) {
     }
 }
 
-@media screen and (max-width: 350px){
+@media screen and (max-width: 360px){
     ul.sidenav li a {
         text-align: center;
         float: none;
+	display:block;
+	/* width:100%; */
+	/* height: 30px; */
+	padding: 15px calc(100% - 15px) 15px 15px;
+	/* box-sizing: border-box; */
+	overflow: hidden;
     }
 }
 
