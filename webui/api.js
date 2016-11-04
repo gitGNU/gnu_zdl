@@ -658,13 +658,18 @@ var displayInputNumber = function (spec, id) {
     document.getElementById(id).innerHTML = output;
 };
 
-var displayInputText = function (spec, id) {
-    // spec = {id: value: min: max:}
-    var output = '<input id="input-' + spec.key + '" type="text" value="' + spec.value + '">' +
-		"<button onclick=\"setConf(" + objectToSource(spec) + ");\">Invia</button>" +
-		"<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
+var displayInputText = function (spec) {
+    // spec = {idInput, idDiv, key, value, min, max, callback}
+    var output = '<input id="' + spec.idInput + '" type="text" value="' + spec.value + '">' +
+	    '<button id="enter-' + spec.key + '">Invia</button>' +
+	    "<button onclick=\"initClient(ZDL.path)\">Annulla</button>";
 
-    document.getElementById(id).innerHTML = output;
+    document.getElementById(spec.idDiv).innerHTML = output;
+    onClick({
+	id: 'enter-' + spec.key,
+	callback: spec.callback,
+	params: spec
+    });
 };
 
 var browseFile = function (id, path, type, key) {
@@ -677,12 +682,12 @@ var browseFile = function (id, path, type, key) {
     ajax ({
 	query: query,
 	callback: function (res) {
-	    var output = "<div style=\"float: none; clear: both; width: 100%;\">" +
-		    "<div class=\"value\" style=\"clear:both;\"><b>Sfoglia:</b> " + path + "</div>" +
-		    "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
-		    "<div class=\"value\" style=\"clear:both;\">" + res + "</div>" +
-		    "<div style=\"clear:both;\"><button onclick=\"initClient(ZDL.path)\">Annulla</button></div>" +
-		    "</div>";
+	    var output = '<div style="float: none; clear: both; width: 100%;">' +
+		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + path + "</div>" +
+		    '<div style="clear:both;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '<div class="value" style="clear:both;">' + res + "</div>" +
+		    '<div style="clear:both;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '</div>';
 	    
 	    document.getElementById(id).innerHTML = output;
 	}
@@ -940,24 +945,37 @@ var displayConf = function (conf) {
 	case 'editor':
 	case 'browser':
 	    var id_inputFile = 'input-file-' + spec.key;
+	    var inputFile = document.getElementById(id_inputFile);
+
 	    var id_inputText = 'conf-' + spec.key + '-text';
+	    var inputText = document.getElementById(id_inputText);
 	    
-	    document.getElementById(id_inputFile).innerHTML = '<div class="value">' + spec.value + '</div>' +
+	    inputFile.innerHTML = '<div class="value">' + spec.value + '</div>' +
 		"<button onclick=\"document.getElementById('" + id_inputText + "').style.display = 'none';" +
 		"browseFile('" + id_inputFile + "', ZDL.path, 'executable', '" + spec.key + "');" +
 		"\">Sfoglia</button>";
 
-	    document.getElementById(id_inputText).innerHTML = "<button onclick=\"" +
-		"document.getElementById('" + id_inputFile + "').style.display = 'none';" +		
-		"displayInputText (" + objectToSource(spec) + ", '" + id_inputText + "');" +
-		"\">Scrivi</button>";
+	    inputFile.style.width = 'initial';
+	    inputFile.style.display = 'initial';
 
-	    document.getElementById(id_inputFile).style.width = 'initial';
-	    document.getElementById(id_inputFile).style.display = 'initial';
-	    document.getElementById(id_inputText).style.display = 'initial';
+
+	    inputText.innerHTML = '<button id="conf-text-file-' + spec.key + '">Scrivi</button>';
+	    inputText.style.display = 'initial';
+	    
+	    spec.idDiv = id_inputText;
+	    spec.idHide = id_inputFile;
+	    spec.idInput = 'input-' + spec.key;
+	    spec.callback = setConf;
+		
+	    onClick({
+		id: 'conf-text-file-' + spec.key,
+		callback: function (params) {
+		    document.getElementById(params.idHide).style.display = 'none';   
+		    displayInputText(params);
+		},
+		params: spec
+	    });
 	};
-
-	
     });    
 };
 
@@ -1100,7 +1118,9 @@ var displayLinks = function (op) {
 			onClick({
 			    id: 'del-' + i,
 			    callback: function (data) {
-				singleLink(data).del();
+				if (confirm('Vuoi davvero cancellare il download del file ' + data.file + ' ?')) {
+				    singleLink(data).del();
+				}
 			    },
 			    params: data[i]
 			});
@@ -1176,13 +1196,15 @@ var displayFileButton = function (spec) {
     document.getElementById(spec.id).style.margin = '1em 0 1em 0';
 };
 
-var deleteFile = function (spec) {
-    ajax({
-	query: "cmd=del-file&path=" + ZDL.path + "&file=" + spec.file,
-	callback: function (res) {
-	    displayFileButton(spec);
-	}
-    });
+var deleteFile = function (spec) {    
+    if (confirm('Vuoi davvero cancellare il file ' + ZDL.path + '/' + spec.file + ' ?')) {
+	ajax({
+	    query: "cmd=del-file&path=" + ZDL.path + "&file=" + spec.file,
+	    callback: function (res) {
+		displayFileButton(spec);
+	    }
+	});
+    }
 };
 
 var displayFileText = function (spec) {
