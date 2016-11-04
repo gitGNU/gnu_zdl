@@ -41,7 +41,7 @@ key_conf[7]=autoupdate;          val_conf[7]=enabled;      string_conf[7]="Aggio
 key_conf[8]=player;              val_conf[8]="";           string_conf[8]="Script/comando/programma per riprodurre un file audio/video"
 key_conf[9]=editor;              val_conf[9]="nano";       string_conf[9]="Editor predefinito per modificare la lista dei link in coda"
 key_conf[10]=resume;             val_conf[10]="";          string_conf[10]="Recupero file omonimi come con opzione --resume (enabled|*)"
-key_conf[11]=zdl_mode;           val_conf[11]="";          string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)"
+key_conf[11]=zdl_mode;           val_conf[11]="stdout";    string_conf[11]="Modalità predefinita di avvio (lite|daemon|stdout)"
 key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Porta TCP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui"
@@ -205,32 +205,6 @@ function set_default_conf {
     done
 }
 
-
-# function get_item_conf {
-#     declare -n ref="$2"
-#     local item line value
-#     
-#     if [ -f "$file_conf" ]
-#     then
-# 	item="$1"
-# 	while read line
-# 	do
-# 	    unset value
-# 	    
-# 	    if [[ "$line" =~ ^[\ ]*${item}=\"*([^\"]+)[\"\ ]*$ ]]
-# 	    then
-# 		value="${BASH_REMATCH[1]}" 
-# 
-# 		[ -n "$2" ] &&
-# 		    ref="$value" ||
-# 			echo "$value"
-# 		return 0
-# 	    fi
-# 	done < "$file_conf" 
-#     fi
-#     return 1
-# }
-
 function get_item_conf {	
 	awk "{match(\$0,/^\ *$1=\"([^\"]+)\"$/,pattern); if (pattern[1]) print pattern[1]}" "$file_conf"
 }
@@ -270,12 +244,15 @@ function set_item_conf {
 
 function get_conf {
     source "$file_conf"
-    [ -z "$zdl_mode" ] &&
+    if [ -z "$zdl_mode" ]
+    then
 	zdl_mode=stdout
+	set_item_conf zdl_mode stdout
+    fi
     
     if [ -z "$this_mode" ]
     then
-	this_mode="$zdl_mode"
+	this_mode="$zdl_mode"	
     fi
     
     ## downloader predefinito
@@ -284,8 +261,11 @@ function get_conf {
 	downloader_in=$(cat "$path_tmp/downloader")
 	
     else
-	[ -z "$downloader" ] &&
+	if [ -z "$downloader" ]
+	then
 	    downloader=${val_conf[0]}
+	    set_item_conf downloader ${val_conf[0]}
+	fi
 
 	for dlr in "$downloader" Aria2 Axel Wget
 	do
@@ -303,12 +283,14 @@ function get_conf {
     if [ -z "$axel_parts_conf" ]
     then
 	axel_parts_conf=32
+	set_item_conf axel_parts_conf 32
     fi
     ## CYGWIN
     if [ -e "/cygdrive" ] &&
 	   (( $axel_parts_conf>10 ))
     then
 	axel_parts_conf=10
+	set_item_conf axel_parts_conf 10
     fi
     axel_parts="$axel_parts_conf"
     
@@ -317,16 +299,21 @@ function get_conf {
     if [ -z "$aria2_connections" ]
     then
 	aria2_connections=16
+	set_item_conf aria2_connections 16
     fi
     ## Valori massimi:
     if [ -d /cygdrive ]
     then
 	((aria2_connections>8)) &&
 	    aria2_connections=8
+	
+	set_item_conf aria2_connections 8
 
     else
 	((aria2_connections>16)) &&
 	    aria2_connections=16
+	
+	set_item_conf aria2_connections 16
     fi
 
     #### pulizia vecchi parametri
@@ -358,12 +345,20 @@ function get_conf {
     if ! command -v "$(trim "${editor%% *}")" &>/dev/null
     then
 	unset editor
+	set_item_conf editor ''
     fi
 
     ## socket
     if [ -z "$socket_port" ]
     then
 	socket_port=${val_conf[14]}
+	set_item_conf socket_port ${val_conf[14]}
+    fi
+
+    if [ -z "$background" ]
+    then
+	background=${val_conf[4]}
+	set_item_conf background "$background"
     fi
     
     [ "$background" == "black" ] &&
