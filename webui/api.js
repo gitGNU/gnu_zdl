@@ -729,15 +729,18 @@ var browseDir = function (spec) {
     ajax ({
 	query: 'cmd=browse-dirs&path=' + spec.path + '&idsel=' + spec.idSel + '&idbrowser=' + spec.idBrowser + '&callback=' + spec.callback,
 	callback: function (dirs) {
-	    var newItem = document.createElement('DIV');
-	    newItem.id = 'path-prefix-' + spec.idSel;
-	    newItem.setAttribute('class', 'value');
-	    newItem.innerHTML = "<b>Path:</b>";
-	    newItem.style.padding = ".5em 0 .5em .7em";
-	    newItem.style.clear = "left";
-
 	    var sel = document.getElementById(spec.idSel);
-	    sel.parentElement.insertBefore(newItem,document.getElementById(spec.idSel));
+	    
+	    if (!document.getElementById('path-prefix-' + spec.idSel)) {
+		var newItem = document.createElement('DIV');
+		newItem.id = 'path-prefix-' + spec.idSel;
+		newItem.setAttribute('class', 'value');
+		newItem.innerHTML = "<b>Path:</b>";
+		newItem.style.padding = ".5em 0 .5em .7em";
+		newItem.style.clear = "left";
+		sel.parentElement.insertBefore(newItem,document.getElementById(spec.idSel));
+	    }
+	    
 	    sel.innerHTML = spec.path;
 	    
 	    var output = '<div style="float: left; clear: both; padding-left: .7em;"><button id="button-select-' + spec.idSel + '">Seleziona</button>' +
@@ -750,8 +753,8 @@ var browseDir = function (spec) {
 	    onClick({
 		id: 'button-select-' + spec.idSel,
 		callback: function() {
-		    window[spec.callback](spec);
 		    document.getElementById('path-prefix-' + spec.idSel).remove();
+		    window[spec.callback](spec);
 		}
 	    });
 
@@ -763,8 +766,8 @@ var browseDir = function (spec) {
 		    else if (spec.callback === 'setDesktopPath')
 			spec.path = ZDL.pathDesktop;
 		    
-		    window[spec.callback](spec);
 		    document.getElementById('path-prefix-' + spec.idSel).remove();
+		    window[spec.callback](spec);
 		}
 	    });
 	}
