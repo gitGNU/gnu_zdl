@@ -672,27 +672,51 @@ var displayInputText = function (spec) {
     });
 };
 
-var browseFile = function (id, path, type, key) {
-    path = cleanPath(path);
+var browseFile = function (spec) {
+    // spec: {path,key,id,type,callback}
+    spec.path = cleanPath(spec.path);
 	
-    var query = 'cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
-    if (key)
-	query += '&key=' + key;    
+    var query = 'cmd=browse&path=' + spec.path + '&id=' + spec.id + '&type=' + spec.type;
+    if (spec.key)
+	query += '&key=' + spec.key;    
     
     ajax ({
 	query: query,
 	callback: function (res) {
+	    alert(res);
 	    var output = '<div style="float: none; clear: both; width: 100%;">' +
-		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + path + "</div>" +
-		    '<div style="clear:both;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + spec.path + "</div>" +
+		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
 		    '<div class="value" style="clear:both;">' + res + "</div>" +
-		    '<div style="clear:both;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
 		    '</div>';
 	    
-	    document.getElementById(id).innerHTML = output;
+	    document.getElementById(spec.id).innerHTML = output;
 	}
     });
 };
+
+// var browseFile = function (id, path, type, key) {
+//     path = cleanPath(path);
+	
+//     var query = 'cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
+//     if (key)
+// 	query += '&key=' + key;    
+    
+//     ajax ({
+// 	query: query,
+// 	callback: function (res) {
+// 	    var output = '<div style="float: none; clear: both; width: 100%;">' +
+// 		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + path + "</div>" +
+// 		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+// 		    '<div class="value" style="clear:both;">' + res + "</div>" +
+// 		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+// 		    '</div>';
+	    
+// 	    document.getElementById(id).innerHTML = output;
+// 	}
+//     });
+// };
 
 
 
@@ -705,19 +729,30 @@ var browseDir = function (spec) {
     
     ajax ({
 	query: 'cmd=browse-dirs&path=' + spec.path + '&idsel=' + spec.idSel + '&idbrowser=' + spec.idBrowser + '&callback=' + spec.callback,
-	callback: function (dirs) {	    
-	    document.getElementById(spec.idSel).innerHTML = spec.path;
+	callback: function (dirs) {
+	    var newItem = document.createElement('DIV');
+	    newItem.id = 'path-prefix-' + spec.idSel;
+	    newItem.setAttribute('class', 'value');
+	    newItem.innerHTML = "<b>Path:</b>";
+	    newItem.style.padding = ".5em 0 .5em .7em";
+	    newItem.style.clear = "left";
+
+	    var sel = document.getElementById(spec.idSel);
+	    sel.parentElement.insertBefore(newItem,document.getElementById(spec.idSel));
+	    sel.innerHTML = spec.path;
 	    
-	    var output = '<button id="button-select-' + spec.idSel + '">Seleziona</button>' +
-		    '<button id="button-cancel-' + spec.idSel + '">Annulla</button>';
-	    
-	    document.getElementById(spec.idBrowser).innerHTML = output + '<div class="value">' + dirs + '</div>';	    
-	    document.getElementById(spec.idBrowser).style.clear = 'both';
+	    var output = '<div style="float: left; clear: both; padding-left: .7em;"><button id="button-select-' + spec.idSel + '">Seleziona</button>' +
+		    '<button id="button-cancel-' + spec.idSel + '">Annulla</button></div>';
+
+	    var browser = document.getElementById(spec.idBrowser);
+	    browser.innerHTML = output + '<div class="value" style="clear:both;">' + dirs + '</div>';	    
+	    browser.style.clear = 'both';
 		
 	    onClick({
 		id: 'button-select-' + spec.idSel,
 		callback: function() {
 		    window[spec.callback](spec);
+		    document.getElementById('path-prefix-' + spec.idSel).remove();
 		}
 	    });
 
@@ -730,6 +765,7 @@ var browseDir = function (spec) {
 			spec.path = ZDL.pathDesktop;
 		    
 		    window[spec.callback](spec);
+		    document.getElementById('path-prefix-' + spec.idSel).remove();
 		}
 	    });
 	}
@@ -944,20 +980,30 @@ var displayConf = function (conf) {
 	case 'player':
 	case 'editor':
 	case 'browser':
-	    var id_inputFile = 'input-file-' + spec.key;
+	    var id_inputFile = 'conf-input-file-' + spec.key;
 	    var inputFile = document.getElementById(id_inputFile);
 
 	    var id_inputText = 'conf-' + spec.key + '-text';
 	    var inputText = document.getElementById(id_inputText);
 	    
 	    inputFile.innerHTML = '<div class="value">' + spec.value + '</div>' +
-		"<button onclick=\"document.getElementById('" + id_inputText + "').style.display = 'none';" +
-		"browseFile('" + id_inputFile + "', ZDL.path, 'executable', '" + spec.key + "');" +
-		"\">Sfoglia</button>";
+		'<button id="conf-browse-file-' + spec.key + '">Sfoglia</button>';
 
 	    inputFile.style.width = 'initial';
 	    inputFile.style.display = 'initial';
 
+	    spec.id = id_inputFile;
+	    spec.callback = browseFile;
+	    spec.type = 'executable';
+	    spec.path = ZDL.path;
+		
+	    onClick({
+		id: 'conf-browse-file-' + spec.key,
+		callback: function (params) {
+		    browseFile(params);
+		},
+		params: spec
+	    });
 
 	    inputText.innerHTML = '<button id="conf-text-file-' + spec.key + '">Scrivi</button>';
 	    inputText.style.display = 'initial';
@@ -1182,7 +1228,19 @@ var displayLinkButtons = function (id) {
 };
 
 var displayTorrentButton = function (id) {
-    document.getElementById(id).innerHTML = "<button onclick=\"browseFile('" + id + "', ZDL.path, 'torrent');\">Sfoglia</button>";
+    document.getElementById(id).innerHTML = '<button id="path-torrent-button">Sfoglia</button>';
+
+    onClick({
+	id: "path-torrent-button",
+	callback: function (params) {
+	    browseFile(params);
+	},
+	params: {
+	    id: id,
+	    path: ZDL.path,
+	    type: 'torrent'
+	}
+    });
 };
 
 var displayFileButton = function (spec) {
