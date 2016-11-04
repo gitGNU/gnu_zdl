@@ -683,7 +683,6 @@ var browseFile = function (spec) {
     ajax ({
 	query: query,
 	callback: function (res) {
-	    alert(res);
 	    var output = '<div style="float: none; clear: both; width: 100%;">' +
 		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + spec.path + "</div>" +
 		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
