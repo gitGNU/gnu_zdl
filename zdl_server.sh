@@ -1043,7 +1043,7 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		cd "$path"
 
 	    JS="browseFile({id:'$id',path:'$PWD/..',type:'$type',key:'$key'});"
-	    string_output="<a href=\"javascript:${JS}\"><img src=\"folder-blue.png\">../</a><br>"
+	    string_output="<a href=\"javascript:${JS}\"><img src=\"folder-blue.png\"> ../</a><br>"
 
 	    while read file
 	    do
@@ -1053,7 +1053,7 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		then
 		    img="folder-blue.png"
 		    JS="browseFile({id:'$id',path:'$real_path',type:'$type',key:'$key'});"
-		    string_output+="<a href=\"javascript:${JS}\"><img src=\"folder-blue.png\">$file</a><br>"
+		    string_output+="<a href=\"javascript:${JS}\"><img src=\"folder-blue.png\"> $file</a><br>"
 
 		elif [ "$type" == torrent ] &&
 			 [[ "$(file -b --mime-type "$real_path")" =~ ^application\/(octet-stream|x-bittorrent)$ ]]
@@ -1061,14 +1061,14 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		    img='application-x-bittorrent.png'
 
 		    JS="if (confirm('Vuoi usare il file $file ?')) singlePath(ZDL.path).addLink('$id','$real_path');"
-		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\">$file</a><br>"
+		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\"> $file</a><br>"
 		    
 		elif [ "$type" == executable ] &&
 			 [ -x "$real_path" ]
 		then		    
 		    img='application-x-desktop.png'
 		    JS="if (confirm('Vuoi usare il file $file ?')) setConf({key:'$key'},'$real_path');"
-		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\">$file</a><br>"
+		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\"> $file</a><br>"
 		fi   
 
 	    done < <(ls -1 --group-directories-first)
