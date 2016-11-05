@@ -548,6 +548,75 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 	    send_json ${line[1]} || return
 	    ;;
 
+	get-playlist)
+	    file_output="$path_server"/playlist
+	    touch "$file_output"
+	    ;;
+
+	add-playlist)
+	    file_output="$path_server"/playlist
+	    touch "$file_output"
+
+	    if [ -f "${line[1]}" ] &&
+		   [[ "$(file -b --mime-type "${line[1]}")" =~ (video|audio) ]]
+	    then
+		$nodejs -e "var data = '$(cat "$file_output")'; 
+if (data) {
+    var json = JSON.parse(data)
+} else {
+    var json = [];
+} 
+if(typeof json === 'object'){
+    json.push('${line[1]}'); 
+    console.log(JSON.stringify(json))
+}" > "$file_output"
+	    fi
+	    ;;
+
+	del-playlist)
+	    file_output="$path_server"/playlist
+	    touch "$file_output"
+
+	    if [ -f "${line[1]}" ] &&
+		   [[ "$(file -b --mime-type "${line[1]}")" =~ (video|audio) ]]
+	    then
+		$nodejs -e "var data = '$(cat "$file_output")'; 
+if (data) {
+    var json = JSON.parse(data); 
+    if(typeof json === 'object'){
+        for(var i=0; i<json.length; i++) {
+            if (json[i] === '${line[1]}')
+                json.splice(i,1);
+        } 
+        console.log(JSON.stringify(json))
+    }
+}" > "$file_output"
+	    fi
+	    ;;
+
+	play-playlist)
+	    file_output="$path_server"/msg-file.$socket_port
+	    
+	    if [ -f "${line[1]}" ]
+	    then
+		if [ -z "$player" ] #&>/dev/null
+		then	
+		    echo -e "Non è stato configurato alcun player per audio/video" > "$file_output"
+
+		elif [[ ! "$(file -b --mime-type "${line[1]}")" =~ (audio|video) ]]
+		then	
+		    echo -e "Non è un file audio/video" > "$file_output"
+
+		else
+		    nohup $player "${line[1]}" &>/dev/null &
+		    echo -e "running" > "$file_output"
+		fi
+
+	    else
+		echo -e "Non è un file audio/video" > "$file_output"
+	    fi
+	    ;;
+
 	get-status)	    
 	    ## status.json
 	    file_output="$path_server"/status.$socket_port.json
@@ -1063,6 +1132,14 @@ per configurare un account, usa il comando 'zdl --configure'" > "$file_output"
 		    JS="if (confirm('Vuoi usare il file $file ?')) singlePath(ZDL.path).addLink('$id','$real_path');"
 		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\"> $file</a><br>"
 		    
+		elif [ "$type" == media ] &&
+			 [[ "$(file -b --mime-type "$real_path")" =~ (audio|video) ]]
+		then
+		    img="${BASH_REMATCH[1]}"-x-generic.png
+
+		    JS="addPlaylist('$path/$file');"
+		    string_output+="<a href=\"javascript:${JS}\"><img src=\"$img\"> $file</a><br>"
+
 		elif [ "$type" == executable ] &&
 			 [ -x "$real_path" ]
 		then		    

@@ -441,7 +441,7 @@ var singlePath = function (path) {
 
 
 var changeSection = function (section) {
-    ['links', 'path', 'config', 'info', 'server'].forEach(function(item) {
+    ['links', 'path', 'config', 'info', 'server', 'playlist'].forEach(function(item) {
 	if (item === section) {
 	    document.getElementById(item).style.display = 'block';
 	    document.getElementById(item + '-menu').setAttribute('class', 'active');
@@ -464,6 +464,8 @@ var sectionPath = function (path) {
 
 var initClient = function (path) {
     displayTorrentButton('path-torrent');
+    displayPlaylistButton('playlist-browse');
+    
     ajax ({
 	query: 'cmd=init-client&path=' + path
     });
@@ -685,39 +687,15 @@ var browseFile = function (spec) {
 	callback: function (res) {
 	    var output = '<div style="float: none; clear: both; width: 100%;">' +
 		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + spec.path + "</div>" +
-		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Chiudi</button></div>' +
 		    '<div class="value" style="clear:both;">' + res + "</div>" +
-		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
+		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Chiudi</button></div>' +
 		    '</div>';
 	    
 	    document.getElementById(spec.id).innerHTML = output;
 	}
     });
 };
-
-// var browseFile = function (id, path, type, key) {
-//     path = cleanPath(path);
-	
-//     var query = 'cmd=browse&path=' + path + '&id=' + id + '&type=' + type;
-//     if (key)
-// 	query += '&key=' + key;    
-    
-//     ajax ({
-// 	query: query,
-// 	callback: function (res) {
-// 	    var output = '<div style="float: none; clear: both; width: 100%;">' +
-// 		    '<div class="value" style="clear:both;"><b>Sfoglia:</b> ' + path + "</div>" +
-// 		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
-// 		    '<div class="value" style="clear:both;">' + res + "</div>" +
-// 		    '<div style="float: left; clear: both; padding-left: .7em;"><button onclick="initClient(ZDL.path)">Annulla</button></div>' +
-// 		    '</div>';
-	    
-// 	    document.getElementById(id).innerHTML = output;
-// 	}
-//     });
-// };
-
-
 
 var browseDir = function (spec) {
     // spec:{path,idSel,idBrowser,callback}
@@ -1136,8 +1114,10 @@ var displayLinks = function (op) {
 			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
 			    '<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
 
-			output += '<div class="label-element" style="margin-right: .7em;">File: </div><div class="element">' + data[i].file + "</div>";
-			output += '<div class="label-element" style="margin-right: .7em;">Length: </div><div class="element">' +
+			output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' + data[i].file +
+			    '<button class="data" id="link-add-playlist-' + i + '">Aggiungi alla playlist</button></div>';
+
+			output += '<div class="label-element" style="margin-right: .7em;">Length:</div><div class="element">' +
 			    (data[i].length/1024/1024).toFixed(2) + "M</div>";
 
 			if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
@@ -1155,6 +1135,14 @@ var displayLinks = function (op) {
 		    document.getElementById('output-links').innerHTML = output;
 
 		    for (var i=0; i<data.length; i++) {
+			onClick({
+			    id: 'link-add-playlist-' + i,
+			    callback: function (file) {
+				addPlaylist(file);
+			    },
+			    params: data[i].path + '/' + data[i].file
+			});
+
 			onClick({
 			    id: 'play-' + i,
 			    callback: function (data) {
@@ -1245,8 +1233,86 @@ var displayTorrentButton = function (id) {
     });
 };
 
+var displayPlaylistButton = function (id) {
+    document.getElementById(id).innerHTML = '<button id="playlist-browse-button">Sfoglia</button>';
+
+    onClick({
+	id: "playlist-browse-button",
+	callback: function (params) {
+	    browseFile(params);
+	},
+	params: {
+	    id: id,
+	    path: ZDL.path,
+	    type: 'media'
+	}
+    });
+};
+
+var addPlaylist = function (file) {
+    if (confirm('Vuoi aggiungere ' + file + ' nella playlist?')) {
+	ajax ({
+	    query: "cmd=add-playlist&file=" + file,
+	    callback: function (data) {
+		//displayPlaylistButton('playlist-browse');
+		displayPlaylist('playlist-list', data);
+	    }
+	});
+    }
+};
+
+var delPlaylist = function (file) {
+    if (confirm('Vuoi togliere ' + file + ' dalla playlist?')) {
+	ajax ({
+	    query: "cmd=del-playlist&file=" + file,
+	    callback: function (data) {
+		displayPlaylist('playlist-list', data);
+	    }
+	});
+    }
+};
+
+var playMedia = function (media) {
+    ajax ({
+	query: 'cmd=play-playlist&file=' + media,
+	callback: function (res) {
+	    if (cleanInput(res) !== 'running')
+	    	alert(res);
+	    else if (cleanInput(res) === 'running' && document.location.hostname !== 'localhost')
+		alert("Player avviato in " + document.location.hostname);
+	}
+    });
+};
+
+var getPlaylist = function (id) {
+    ajax ({
+	query: "cmd=get-playlist",
+	callback: function (data) {
+	    displayPlaylist(id, data);
+	}
+    });
+};
+
+var displayPlaylist = function (id, data) {
+    var output = '';
+    if (isJsonString(data)) {
+	var json = JSON.parse(data);
+
+	json.forEach (function (file) {
+    	    output += '<div class="background-element"><div class="label-element" style="margin-right: .7em;">File:</div><div class="value">' + file + "</div>";
+	    output += "<button style=\"float:right;\" onclick=\"delPlaylist('" + file + "')\">Togli</button>" +
+		"<button style=\"float:right;\" onclick=\"playMedia('" + file + "')\">Play</button></div>"
+	});
+
+    } else {
+	output = '';
+    }
+    
+    document.getElementById(id).innerHTML = output;
+};
+
 var displayFileButton = function (spec) {
-    // spec: {id:,file:}
+    // spec: {id,file}
     var output = "<button onclick=\"displayFileText(" + objectToSource(spec) + ");\">" +
 	    "Leggi " + spec.file + "</button>";
 
@@ -1390,5 +1456,8 @@ var init = function (path) {
 	idBrowser: 'conf-browser-path',
 	callback: 'setDesktopPath'
     });
+    
+    displayPlaylistButton('playlist-browse');
+    getPlaylist('playlist-list');
 };
 

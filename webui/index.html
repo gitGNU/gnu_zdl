@@ -45,6 +45,7 @@
     <ul class="sidenav">
       <li><a id="links-menu" onclick="changeSection('links');">Links</a></li> 
       <li><a id="path-menu" onclick="changeSection('path');">Path</a></li>
+      <li><a id="playlist-menu" onclick="changeSection('playlist');">Playlist</a></li>
       <li><a id="server-menu" onclick="changeSection('server');">Server</a></li>
       <li><a id="config-menu" onclick="changeSection('config');">Config</a></li>
       <li><a id="info-menu" onclick="changeSection('info');">Info</a></li>
@@ -140,8 +141,7 @@
 	    
 	    <div class="background-element">
 	      <div class="label-element">File torrent:</div>
-	      <!-- <div class="element"> -->
-		<div id="path-torrent"></div>
+	      <div id="path-torrent"></div>
 	    </div>
 	    
 	    <div class="background-element" style="text-align:center;">
@@ -180,6 +180,23 @@
       </div>
     </div>
 
+    <!-- sezione PLAYLIST -->
+    <div id="playlist">
+      <div class="section">
+	<div class="label-section">Playlist: ZDL come telecomando</div>
+	<div class="content">
+	    <div class="background-element">
+	      <div class="label-element">Cerca nel server:</div>
+	      <div id="playlist-browse"></div>
+	    </div>
+
+	    <div class="label-element" style="width:100%;"><b>Playlist</b></div>
+	    <div id="playlist-list"></div>
+
+	</div>
+      </div>
+    </div>
+    
     <!-- sezione SERVER -->
     <div id="server">
       <div class="section">
