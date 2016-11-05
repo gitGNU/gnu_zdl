@@ -959,11 +959,10 @@ function kill_server {
 
     if ! check_port $port
     then
-	fuser -s -k -n tcp $port &
-		    
-	init_client 
+	init_client & 
+	#set_line_in_file - "$port" "$path_server"/socket-ports &
 
-	set_line_in_file - "$port" "$path_server"/socket-ports
+	fuser -s -k -n tcp $port &
     fi
 }
 

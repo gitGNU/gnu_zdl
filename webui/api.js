@@ -488,15 +488,23 @@ var runServer = function (port) {
     });
 };
 
-var killServer = function (port) {
-    port = parseInt(port);
-    if (isNaN(port))
-	port = document.location.port;
+var killServer = function (ports) {
+    if (typeof ports !== 'object') {
+	ports = [];
+	ports.push(document.location.port);
+    }
 
-    port = parseInt(port);
-    ajax ({
-	query: 'cmd=kill-server&port=' + port
+    var query = 'cmd=kill-server';
+    
+    ports.forEach(function (port) {
+	port = parseInt(port);
+	query += '&port=' + port;
     });
+
+    ajax ({
+	query: query
+    });
+    
 };
 
 var killAll = function () {
@@ -514,16 +522,17 @@ var exitAll = function () {
 	    callback: function (res){
 		if (isJsonString(res)) {
 		    var sockets = JSON.parse(res);
-		    sockets.forEach(function (port){
-			if (parseInt(port) !== parseInt(document.location.port)) {
-			    ajax ({
-				query: 'cmd=kill-server&port=' + port,
-				async: false
-			    })
-			}
-		    });
+		    //sockets.forEach(function (port){
+			// if (parseInt(port) !== parseInt(document.location.port)) {
+			//     ajax ({
+			// 	query: 'cmd=kill-server&port=' + port,
+			// 	async: false
+			//     })
+			// }
+			killServer(sockets);
+		    //});
 
-		    killServer();
+//		    killServer();
 		    window.setTimeout(reloadPage,2000);
 		}
 	    }
@@ -1027,7 +1036,7 @@ var displaySockets = function (sockets) {
 		document.location.hostname +
 		':' + port +
 		"');";
-	    output_kill += '<button style="float:left;" onclick="killServer(' + port + ');';
+	    output_kill += '<button style="float:left;" onclick="killServer([' + port + ']);';
 	    if(parseInt(port) === parseInt(document.location.port))
 		output_kill += "setTimeout(reloadPage, 2000);"
 

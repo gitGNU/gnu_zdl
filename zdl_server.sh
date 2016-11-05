@@ -1254,7 +1254,10 @@ if (data) {
 	    ;;
 
 	kill-server)
-	    kill_server "${line[1]}" 
+	    for ((i=1; i<${#line[@]}; i++))
+	    do
+		kill_server "${line[i]}"
+	    done
 	    ;;
 	
 	kill-all)
