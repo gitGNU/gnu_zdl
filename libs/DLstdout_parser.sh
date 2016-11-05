@@ -64,26 +64,23 @@ function data_stdout {
 
 	#### attivazione json solo da: zdl_server.sh <port>
 	# json_flag=true
-	# if [ -n "$json_flag" ]
-	# then
-	#     mkdir -p /tmp/zdl.d
-	# fi
 
-	awk_data=$(stdbuf -oL -eL                                   \
-			  awk                                       \
-			  -v pwd="$PWD"                             \
-			  -v file_in="$file_in"                     \
-			  -v url_in="$url_in"                       \
-			  -v no_complete="$no_complete"             \
-			  -v num_check="$num_check"                 \
-			  -v max_dl="$max_dl"                       \
-			  -v no_check="$no_check"                   \
-			  -v json_flag="$json_flag"                 \
-			  -v socket_port="$socket_port"             \
-			  -v wget_links_index="${#wget_links[*]}"   \
-			  -f $path_usr/libs/common.awk              \
-			  -f $path_usr/libs/DLstdout_parser.awk     \
-			  ${tmp_files[@]}                           \
+	awk_data=$(stdbuf -oL -eL                                              \
+			  awk                                                  \
+			  -v pwd="$PWD"                                        \
+			  -v file_in="$file_in"                                \
+			  -v url_in="$url_in"                                  \
+			  -v no_complete="$no_complete"                        \
+			  -v num_check="$num_check"                            \
+			  -v max_dl="$max_dl"                                  \
+			  -v no_check="$no_check"                              \
+			  -v json_flag="$json_flag"                            \
+			  -v socket_port="$socket_port"                        \
+			  -v json_file="$path_server"/data.json.$socket_port   \
+			  -v wget_links_index="${#wget_links[*]}"              \
+			  -f $path_usr/libs/common.awk                         \
+			  -f $path_usr/libs/DLstdout_parser.awk                \
+			  ${tmp_files[@]}                                      \
 		)
 	unset tmp_files
 

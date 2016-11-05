@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path_server=/tmp/zdl.d
+path_server="$HOME"/.zdl/zdl.d
 
 function kill_server {
     local port="$1"

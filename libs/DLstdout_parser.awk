@@ -636,7 +636,6 @@ END {
     }
 
     if (json_flag == "true") {
-	json_file = "/tmp/zdl.d/data.json." socket_port
         printf("%s", json) >> json_file
     }
 

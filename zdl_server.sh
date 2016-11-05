@@ -33,7 +33,7 @@ path_conf="$HOME/.zdl"
 file_conf="$path_conf/zdl.conf"
 file_desktop="$HOME/.local/share/applications/zdl-web-ui.desktop"
 
-path_server="/tmp/zdl.d"
+path_server="$HOME"/.zdl/zdl.d
 server_data="$path_server/data.json"
 server_paths="$path_server/paths.txt"
 server_index="$path_server/index.html"
@@ -629,13 +629,13 @@ if (data) {
 		[ -s "$path_server"/pid_loop_status.$socket_port ] &&
 		    kill -9 $(cat "$path_server"/pid_loop_status.$socket_port)
 		
-		echo "$PWD" > /tmp/zdl.d/path.$socket_port
+		echo "$PWD" > "$path_server"/path.$socket_port
 		
 		unset line[2]
 		while ! check_port $socket_port
 		do
-		    [ -s /tmp/zdl.d/path.$socket_port ] &&
-			cd $(cat /tmp/zdl.d/path.$socket_port)
+		    [ -s "$path_server"/path.$socket_port ] &&
+			cd $(cat "$path_server"/path.$socket_port)
 		    
 		    create_status_json string_output
 		    current_timeout=$(date +%s)
@@ -656,7 +656,7 @@ if (data) {
 		lock_fifo status.$socket_port path
 		if test -d "$path"
 		then
-		    echo "$path" > /tmp/zdl.d/path.$socket_port
+		    echo "$path" > "$path_server"/path.$socket_port
 		    cd "$path"
 		fi
 	    fi

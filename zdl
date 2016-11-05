@@ -994,8 +994,8 @@ then
     done
 fi
 
-mkdir -p /tmp/zdl.d
-set_line_in_file + "$PWD" /tmp/zdl.d/paths.txt
+mkdir -p "$path_server"
+set_line_in_file + "$PWD" "$path_server"/paths.txt
 
 if [[ "${args[*]}" =~ \-s ]]
 then

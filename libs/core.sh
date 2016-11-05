@@ -963,16 +963,16 @@ function kill_server {
 		    
 	init_client 
 
-	set_line_in_file - "$port" /tmp/zdl.d/socket-ports
+	set_line_in_file - "$port" "$path_server"/socket-ports
     fi
 }
 
 function get_server_pids {
     local port=$1
 
-    if [ -s /tmp/zdl.d/pid_server ]
+    if [ -s "$path_server"/pid_server ]
     then
-	grep " $port$" /tmp/zdl.d/pid_server |
+	grep " $port$" "$path_server"/pid_server |
 	    cut -d' ' -f1 &&
 	    return 0
     fi
@@ -986,7 +986,7 @@ function run_zdl_server {
 	   ((port > 1024 )) && (( port < 65535 ))
     then
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
-	set_line_in_file + $port /tmp/zdl.d/socket-ports
+	set_line_in_file + $port "$path_server"/socket-ports
 	#unlock_fifo socket-ports &
 	init_client
 	return 0
@@ -999,8 +999,8 @@ function run_zdl_server {
 function del_server_pid {
     local pid="$1"
 
-    [ -f /tmp/zdl.d/pid_server ] &&
-	sed -r "/^$pid .+/d" -i /tmp/zdl.d/pid_server
+    [ -f "$path_server"/pid_server ] &&
+	sed -r "/^$pid .+/d" -i "$path_server"/pid_server
 }
 
 function add_server_pid {
@@ -1013,7 +1013,7 @@ function add_server_pid {
 		if [[ "${psline[0]}" =~ ^([0-9]+)$ ]] &&
 		       grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/${psline[0]}/cmdline &>/dev/null
 		then
-		    set_line_in_file + "${psline[0]} $port" /tmp/zdl.d/pid_server 
+		    set_line_in_file + "${psline[0]} $port" "$path_server"/pid_server 
 		fi
 	    done &>/dev/null
 }    
@@ -1024,7 +1024,7 @@ function check_instance_server {
 
     grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/*/cmdline &>/dev/null &&
 	{
-	    set_line_in_file + "$port" /tmp/zdl.d/socket-ports
+	    set_line_in_file + "$port" "$path_server"/socket-ports
 	    return 0
 	}
     
@@ -1036,7 +1036,7 @@ function init_client {
     local path="$1"
     local socket_port="$2"
 
-    [ -s /tmp/zdl.d/socket-ports ] &&
+    [ -s "$path_server"/socket-ports ] &&
 	{
 	    while read port
 	    do
@@ -1048,7 +1048,7 @@ function init_client {
 		    unlock_fifo status.$port &
 		fi
 		
-	    done < /tmp/zdl.d/socket-ports
+	    done < "$path_server"/socket-ports
 	}
 }
 
@@ -1056,7 +1056,7 @@ function unlock_fifo {
     local fifo_name="$1"
     local item_value="$2"
     local fifo_path="$3"
-    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
+    [ -z "$fifo_path" ] && fifo_path="$path_server"
     
     # [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
     # 	mkfifo "$fifo_path"/"$fifo_name".fifo
@@ -1069,7 +1069,7 @@ function lock_fifo {
     local fifo_name="$1"
     local item_name="$2"
     local fifo_path="$3"
-    [ -z "$fifo_path" ] && fifo_path=/tmp/zdl.d
+    [ -z "$fifo_path" ] && fifo_path="$path_server"
     
     [ ! -e "$fifo_path"/"$fifo_name".fifo ] &&
 	mkfifo "$fifo_path"/"$fifo_name".fifo
