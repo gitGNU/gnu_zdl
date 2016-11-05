@@ -28,9 +28,14 @@ body, html {
     color: black;
     margin: 0;
     /* font: 13px "Verdana", sans-serif; */
-    padding: 0 0 0 0;
+    padding: 0;
 }
 
+/* div { */
+/*     margin: 0; */
+/*     padding: 0; */
+/*     border: 0px; */
+/* } */
 
 p {
     text-align: left;
@@ -827,14 +832,14 @@ ul.sidenav li a:hover:not(.active) {
     .value, input[type=text], input[type=password] {
 	/* clear: left; */
 	clear:both;
-	margin: 0 0 0 1em;	
+	margin: 0 0 0 0;
 	width: calc(100% - 1em);
     }
 
     .value-number, input[type=number] {
 	/* clear: left; */
 	clear: left;
-	margin: 0 0 0 1em;	
+	margin: 0 0 0 0;
 	width: 6em;
     }
 
