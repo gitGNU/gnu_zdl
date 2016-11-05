@@ -849,9 +849,9 @@ ul.sidenav li a:hover:not(.active) {
         text-align: center;
         float: none;
 	display:block;
-	/* width:100%; */
+	width: calc(100% - 2em);
 	/* height: 30px; */
-	padding: 15px calc(100% - 15px) 15px 15px;
+	/* padding: 15px calc(100% - 15px) 15px 15px; */
 	/* box-sizing: border-box; */
 	overflow: hidden;
     }
