@@ -760,11 +760,13 @@ ul.sidenav li a.active {
     background-color: #3066db;
     /* #4CAF50; */
     color: white;
+    text-decoration: none;
 }
 
 ul.sidenav li a:hover:not(.active) {
     background-color: #555;
     color: white;
+    text-decoration: none;
 }
 
 /* div.content { */
