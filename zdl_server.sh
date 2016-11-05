@@ -577,10 +577,7 @@ if(typeof json === 'object'){
 	    file_output="$path_server"/playlist
 	    touch "$file_output"
 
-	    if [ -f "${line[1]}" ] &&
-		   [[ "$(file -b --mime-type "${line[1]}")" =~ (video|audio) ]]
-	    then
-		$nodejs -e "var data = '$(cat "$file_output")'; 
+	    $nodejs -e "var data = '$(cat "$file_output")'; 
 if (data) {
     var json = JSON.parse(data); 
     if(typeof json === 'object'){
@@ -591,7 +588,6 @@ if (data) {
         console.log(JSON.stringify(json))
     }
 }" > "$file_output"
-	    fi
 	    ;;
 
 	play-playlist)
@@ -1185,19 +1181,9 @@ if (data) {
 	    ;;
 
 	get-sockets)
-	    touch "$path_server"/socket-ports
-
-	    if [ "${line[1]}" != 'force' ]
-	    then
-		read < "$path_server"/socket-ports.fifo
-
-	    else
-		unset line[1] 	    
-	    fi
-
-	    check_socket_ports
-	    
-	    file_output="$path_server"/socket-ports
+	    file_output="$path_server"/get-sockets.$socket_port
+	    get_status_sockets sockets
+	    echo "$sockets" > "$file_output"
 	    ;;
 	
 	run-zdl)

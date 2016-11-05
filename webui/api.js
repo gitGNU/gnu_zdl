@@ -488,28 +488,6 @@ var runServer = function (port) {
     });
 };
 
-var getSockets = function (repeat, op) {
-    var query = 'cmd=get-sockets';
-
-    if (op === 'force')
-	query += '&op=' + op;
-    
-    ajax ({
-	query: query,
-	callback: function (sockets){
-	    if (sockets !== '') {			 
-		displaySockets(sockets.split('\n'));
-		
-		if (repeat)
-		    getSockets(true);
-	    } else {
-		document.getElementById('list-sockets-open').innerHTML = '';
-		document.getElementById('list-sockets-kill').innerHTML = '';
-	    }
-	}
-    });
-};
-
 var killServer = function (port) {
     port = parseInt(port);
     if (isNaN(port))
@@ -523,10 +501,35 @@ var killServer = function (port) {
 
 var killAll = function () {
     ajax ({
-	query: 'cmd=kill-all'
+    	query: 'cmd=kill-all'
     });
 };
 
+var exitAll = function () {
+    if (confirm ('Vuoi davvero terminare i download e le istanze di ZDL in tutti i path e chiudere tutti i socket?')) {
+	killAll();
+
+	ajax ({
+	    query: 'cmd=get-sockets',
+	    callback: function (res){
+		if (isJsonString(res)) {
+		    var sockets = JSON.parse(res);
+		    sockets.forEach(function (port){
+			if (parseInt(port) !== parseInt(document.location.port)) {
+			    ajax ({
+				query: 'cmd=kill-server&port=' + port,
+				async: false
+			    })
+			}
+		    });
+
+		    killServer();
+		    window.setTimeout(reloadPage,2000);
+		}
+	    }
+	});
+    }
+};
 
 // window.onbeforeunload = function () {
 //     ajax ({query:'cmd=reset-requests&path=' + ZDL.path});
@@ -1250,7 +1253,7 @@ var displayPlaylistButton = function (id) {
 };
 
 var addPlaylist = function (file) {
-    if (confirm('Vuoi aggiungere ' + file + ' nella playlist?')) {
+    if (confirm('Vuoi aggiungere ' + file + ' alla playlist?')) {
 	ajax ({
 	    query: "cmd=add-playlist&file=" + file,
 	    callback: function (data) {
