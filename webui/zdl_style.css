@@ -34,9 +34,13 @@ body, html {
 
 p {
     text-align: left;
-    /* margin-top: 0px; */
-    /* margin-bottom: 10px; */
-    margin-left: 1em;
+    /* margin-top: .5em; */
+    /* margin-bottom: .5em; */
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: .7em;
+    padding-right: .7em;
+    margin: 0;
 }
 
 a {
@@ -549,9 +553,6 @@ div.value, div.value-number {
     width: calc(100% - 1.4em);
 }
 
-span {
-    margin: 0 0 .5em 0;    
-}
 
 /* .label-element { */
 /*     float: left; */
@@ -599,7 +600,7 @@ span {
 .element {
     background: #eee;
     /* font-size: .9em; */
-    padding: .5em .7em;
+    /* padding: 0 .7em; */
     border-bottom: 1px solid #fff;
     word-wrap: break-word;
     width: 100%;
@@ -615,17 +616,17 @@ span {
     box-sizing: border-box;
 }
 
-.data {
-    float:left;
-    margin: -0.5em .7em 0 -0.7em;
-    padding: 0 .7em 0 .7em;
-    height: calc(16px + 1em);
-    box-sizing: border-box;
-}
+/* .data { */
+/*     float:left; */
+/*     margin: -0.5em .7em 0 -0.7em; */
+/*     padding: 0 .7em 0 .7em; */
+/*     height: calc(16px + 1em); */
+/*     box-sizing: border-box; */
+/* } */
 
 button.data {
     float: none;
-    margin: -0.5em .7em -0.5em .7em;
+    /* margin: 0em .7em -0.5em .7em; */
 }
 
 div.value-data {
@@ -849,7 +850,7 @@ ul.sidenav li a:hover:not(.active) {
         text-align: center;
         float: none;
 	display:block;
-	width: calc(100% - 2em);
+	width: calc(100% - 2em -1px);
 	/* height: 30px; */
 	/* padding: 15px calc(100% - 15px) 15px 15px; */
 	/* box-sizing: border-box; */

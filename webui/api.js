@@ -1120,24 +1120,29 @@ var displayLinks = function (op) {
 
 			output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
 
-			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' + data[i].downloader + "</div>";
-			output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' + data[i].link + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' +
+			    '<p>' + data[i].downloader + '</p>' + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' +
+			    '<p>' + data[i].link + '</p>' + "</div>";
 
-			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' + data[i].path +
+			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' +
+			    '<p>' + data[i].path + '</p>' +
 			    '<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
 
-			output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' + data[i].file +
+			output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' +
+			     '<p>' + data[i].file + '</p>' +
 			    '<button class="data" id="link-add-playlist-' + i + '">Aggiungi alla playlist</button></div>';
 
 			output += '<div class="label-element" style="margin-right: .7em;">Length:</div><div class="element">' +
-			    (data[i].length/1024/1024).toFixed(2) + "M</div>";
+			    '<p>' + (data[i].length/1024/1024).toFixed(2) + 'M</p>' + "</div>";
 
 			if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
 			    output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
 			    output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
 			    
 			} else {
-			    output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' + data[i].url.toHtmlEntities() + "</div>";
+			    output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' +
+				'<p>' + data[i].url.toHtmlEntities() + '</p>' + "</div>";
 			}
 
 			output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(i);
