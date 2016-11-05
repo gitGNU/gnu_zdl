@@ -441,7 +441,7 @@ var singlePath = function (path) {
 
 
 var changeSection = function (section) {
-    ['links', 'path', 'config', 'info', 'server', 'playlist'].forEach(function(item) {
+    ['path', 'config', 'info', 'server', 'playlist','links'].forEach(function(item) {
 	if (item === section) {
 	    document.getElementById(item).style.display = 'block';
 	    document.getElementById(item + '-menu').setAttribute('class', 'active');

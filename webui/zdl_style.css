@@ -489,7 +489,7 @@ textarea {
 /* } */
 
 
-#links, #path, #config, #info, #server {
+#links, #path, #config, #info, #server, #playlist {
     display: none;
     position: absolute;
     margin: 0;
