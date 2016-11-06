@@ -199,13 +199,13 @@ div {
 }
 
 .header {
-    background-image: url("header-min.gif");    
+    background-image: url("zdl-64x64.png"); /* url("header-min.gif"); */    
     background-color: #343434;
     text-align: left;
     border: 0px;
     display: inline-block;
     width: 100%;
-    height: 50px;
+    height: 64px;
 }
 
 

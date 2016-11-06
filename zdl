@@ -550,11 +550,12 @@ then
 		
 		date +%s >"$path_tmp"/.date_daemon
 
-		nohup /bin/bash $prog ${args[*]} --silent "$PWD" &>/dev/null &
+		nohup /bin/bash zdl ${args[*]} --silent "$PWD" 2>/dev/null &
 		
 		print_c 4 "${name_prog}:       "
 		print_c 1 "Avviato in modalità demone in $PWD\n"
 		print_c 4 "Puoi controllarlo con: ${Color_Off}$prog -i \"$PWD\"\n"
+
 		[ -n "$xterm_stop" ] && xterm_stop
 		exit 0
 
@@ -572,6 +573,53 @@ then
 fi
 
 export pid_prog=$$
+
+mkdir -p "$path_server"
+set_line_in_file + "$PWD" "$path_server"/paths.txt
+
+if [[ "${args[*]}" =~ \-s ]]
+then
+    for ((i=0; i<=$max_args; i++))
+    do
+	if [[ "${args[i]}" =~ ^\-\-socket(\=[0-9]+)$ ]]
+	then	    
+	    socket_port="${BASH_REMATCH[1]#'='}"
+	    unset args[i]
+	    start_socket=true 
+	fi
+
+	if [ "${args[i]}" == '-s' ]
+	then
+	    [[ "${args[i+1]}" =~ ^[0-9]+$ ]] &&
+		socket_port="${args[i+1]}"
+	    unset args[i] args[i+1]
+	    start_socket=true 
+	fi
+
+	if [ "$start_socket" == true ] &&
+	       [ -n "$socket_port" ]
+	then
+	    if ! check_instance_server $socket_port &>/dev/null
+	    then
+		unset start_socket
+		if run_zdl_server $socket_port
+		then
+		    msg_server="Avviato nuovo socket alla porta $socket_port"
+		    init_msg+="$(sprint_c 1 "$msg_server\n")"
+		fi
+		
+	    elif ! check_port "$socket_port"
+	    then
+		msg_server="Socket già in uso alla porta $socket_port (puoi specificare una nuova porta con: -s PORTA oppure --socket=PORTA)"
+		init_msg+="$(sprint_c 3 "$msg_server\n")"
+
+	    else
+		msg_server="Socket non avviato alla porta $socket_port"		
+		init_msg+="$(sprint_c 3 "$msg_server\n")"
+	    fi
+	fi
+    done
+fi
 
 if [ "${args[*]}" != "${args[*]//--help}" ] ||
        [ "${args[*]}" != "${args[*]//-h}" ]
@@ -768,7 +816,7 @@ then
 	    max_dl="${BASH_REMATCH[1]}"
 	    
 	    [[ "${args[i]}" =~ ^\-\-multi ]] &&
-		init_msg="${BRed}Opzione deprecata: '--multi=[NUMERO]' è sostituita con '--max-downloads=[NUMERO]'. Resta invariata l'opzione breve '-m [NUMERO]'\n"
+		init_msg+="${BRed}Opzione deprecata: '--multi=[NUMERO]' è sostituita con '--max-downloads=[NUMERO]'. Resta invariata l'opzione breve '-m [NUMERO]'\n"
 
 	    echo $max_dl >"$path_tmp/max-dl"
 	    #unlock_fifo max-downloads "$PWD" &
@@ -990,38 +1038,6 @@ then
 	then
 	    no_complete=true
 	    unset args[i]
-	fi
-    done
-fi
-
-mkdir -p "$path_server"
-set_line_in_file + "$PWD" "$path_server"/paths.txt
-
-if [[ "${args[*]}" =~ \-s ]]
-then
-    for ((i=0; i<=$max_args; i++))
-    do
-	if [[ "${args[i]}" =~ ^\-\-socket(\=[0-9]+)$ ]]
-	then	    
-	    socket_port="${BASH_REMATCH[1]#'='}"
-	    unset args[i]
-	    start_socket=true 
-	fi
-
-	if [ "${args[i]}" == '-s' ]
-	then
-	    [[ "${args[i+1]}" =~ ^[0-9]+$ ]] &&
-		socket_port="${args[i+1]}"
-	    unset args[i] args[i+1]
-	    start_socket=true 
-	fi
-
-	if [ "$start_socket" == true ] &&
-	       	    [ -n "$socket_port" ] &&
-		! check_instance_server $socket_port &>/dev/null
-	then
-	    unset start_socket
-	    run_zdl_server $socket_port
 	fi
     done
 fi

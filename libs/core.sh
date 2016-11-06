@@ -985,7 +985,8 @@ function run_zdl_server {
     local port="$1"
 
     if [[ "$port" =~ ^[0-9]+$ ]] &&
-	   ((port > 1024 )) && (( port < 65535 ))
+	   ((port > 1024 )) && (( port < 65535 )) &&
+	   check_port $port
     then
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
 	set_line_in_file + $port "$path_server"/socket-ports
