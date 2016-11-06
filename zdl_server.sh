@@ -1395,7 +1395,7 @@ function http_server {
 		fi
 
 		if [ -z "$logged_on" ] &&
-		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico|$socket_port)$ ]] &&
+		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico|png|$socket_port)$ ]] &&
 		       [[ ! "$file_output" =~ login\.html\? ]]
 		then
 		    send_login
