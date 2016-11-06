@@ -114,8 +114,11 @@ function run_web_client {
 	sleep 0.1
     done
 
-    zdl "$@" --socket=$port -d
-    run_browser $port
+    zdl "$@" --socket=$port -d &&
+	print_c 1 "Avviato nuovo socket alla porta $port"
+
+    [ ! -d /cygdrive ] &&
+	run_browser $port
 }
 
 function run_browser {

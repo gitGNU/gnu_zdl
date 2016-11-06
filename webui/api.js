@@ -1118,7 +1118,7 @@ var displayLinks = function (op) {
 			    "</div>" +
 			    "</div>";
 
-			output += "<div style=\"float: left; width: 100%;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
+			output += "<div style=\"float: left; width: 100%;border-bottom: solid 4px #3066db;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
 
 			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' +
 			    '<p>' + data[i].downloader + '</p>' + "</div>";
