@@ -374,7 +374,7 @@ input[type=text] {
     background-color: black;
     color: #EEE;
 
-    padding: .5em 7.em .5em 7.em;
+    /* padding: .5em .7em .5em .7em; */
     height: calc(12px + 1em);
 }
 
@@ -387,7 +387,7 @@ input[type=password] {
     background-color: black;
     color: #EEE;
 
-    padding: .5em 7.em .5em 7.em;
+    /* padding: .5em .7em .5em .7em; */
     height: calc(12px + 1em);
 }
 
@@ -400,7 +400,7 @@ input[type=number] {
     color: #EEE;
     background-color: black;
 
-    padding: .5em 7.em .5em 7.em;
+    /* padding: .5em .7em .5em .7em; */
     height: calc(12px + 1em);
 }
 
@@ -464,7 +464,7 @@ textarea {
     padding: 0 .5em 0 .7em;
     border-bottom: 1px solid #fff;
     box-sizing: border-box;
-    word-wrap: break-all;
+    word-wrap: break-word;
     /* justify-content: space-around; */
 }
 
@@ -499,7 +499,7 @@ textarea {
 
 .section {
     background-color: white;
-    width: 100%:
+    width: 100%;
     margin: 0;
     padding: 0;
     display: block;
@@ -536,7 +536,7 @@ select {
 }
 
 #browse a {
-    font-weght: normal;
+    font-weight: normal;
 }
 
 div.value, div.value-number {
@@ -649,7 +649,7 @@ div.file-text {
     height: 300px;
     overflow: auto;
     padding: 4px;
-    border: 1px 1px 1px 0 solid #343434;
+    border: 1px solid #343434;
     box-sizing: border-box;
     color: #EEE;
     background-color: black;
@@ -855,7 +855,7 @@ ul.sidenav li a:hover:not(.active) {
         text-align: center;
         float: none;
 	display:block;
-	width: calc(100% - 2em -1px);
+	width: calc(100% - 2em - 1px);
 	/* height: 30px; */
 	/* padding: 15px calc(100% - 15px) 15px 15px; */
 	/* box-sizing: border-box; */
