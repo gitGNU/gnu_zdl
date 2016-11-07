@@ -1316,7 +1316,7 @@ var displayPlaylist = function (id, data) {
 	var json = JSON.parse(data);
 
 	json.forEach (function (file) {
-    	    output += '<div class="background-element"><div class="label-element" style="margin-right: .7em;">File:</div><div class="value">' + file + "</div>";
+    	    output += '<div class="background-element"><div class="label-element">File:</div><div class="value">' + file + "</div>";
 	    output += "<button style=\"float:right;\" onclick=\"delPlaylist('" + file + "')\">Togli</button>" +
 		"<button style=\"float:right;\" onclick=\"playMedia('" + file + "')\">Play</button></div>"
 	});
