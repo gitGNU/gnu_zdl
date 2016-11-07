@@ -342,7 +342,8 @@ function send_json {
     while :
     do
 	if check_downloader_running ||
-		((counter<3))
+		((counter<3)) ||
+		[ -f "$path_server"/clean-complete.$socket_port ]
 	then
 	    create_json
 	    touch "$server_data".$socket_port "$server_data".$socket_port.diff
@@ -363,7 +364,9 @@ function send_json {
     ##sleep 0.1
 
     cp "$server_data".$socket_port "$server_data".$socket_port.diff
-    
+
+    rm -rf "$path_server"/clean-complete.$socket_port
+
     file_output="$server_data".$socket_port
 
     if [ -z "$http_method" ]
@@ -1204,6 +1207,11 @@ if (data) {
 		cd "${line[1]}"
 	    
 	    init_client
+
+	    while read port
+	    do
+		touch "$path_server"/clean-complete.$port
+	    done < "$path_server"/socket-ports
 	    ;;
 
 	run-server)
