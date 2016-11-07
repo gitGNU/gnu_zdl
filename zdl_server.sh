@@ -989,8 +989,9 @@ if (data) {
 	    echo -n > "$path_tmp"/links_loop.txt
 	    while read link
 	    do
-		set_link + "$link" ||
-		    list_err+="\n$link"
+		url "$link" &&
+		    set_link + "$link" ||
+			list_err+="\n$link"
 	    
 	    done <<< "$(urldecode "${line[2]}")"
 

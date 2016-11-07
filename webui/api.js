@@ -530,9 +530,9 @@ var exitAll = function () {
     }
 };
 
-// window.onbeforeunload = function () {
-//     ajax ({query:'cmd=reset-requests&path=' + ZDL.path});
-// };
+window.onbeforeunload = function () {
+    ajax ({query:'cmd=reset-requests&path=' + ZDL.path});
+};
 
 // window.onfocus = function () {
 //     initClient (ZDL.path);
