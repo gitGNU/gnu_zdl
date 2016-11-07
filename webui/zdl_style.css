@@ -41,7 +41,7 @@ p {
 }
 
 a {
-    color: black; 
+    color: black;
     text-decoration: none;
     font-weight: bold;
 }
@@ -49,6 +49,7 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
 
 ul {
     margin-left: 0em;

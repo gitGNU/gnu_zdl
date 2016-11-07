@@ -522,17 +522,7 @@ var exitAll = function () {
 	    callback: function (res){
 		if (isJsonString(res)) {
 		    var sockets = JSON.parse(res);
-		    //sockets.forEach(function (port){
-			// if (parseInt(port) !== parseInt(document.location.port)) {
-			//     ajax ({
-			// 	query: 'cmd=kill-server&port=' + port,
-			// 	async: false
-			//     })
-			// }
-			killServer(sockets);
-		    //});
-
-//		    killServer();
+		    killServer(sockets);
 		    window.setTimeout(reloadPage,2000);
 		}
 	    }
