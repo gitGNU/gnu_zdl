@@ -304,25 +304,64 @@ function create_json {
     return 1
 }
 
+function check_xfer_running {
+    local path
+    
+    while read path
+    do
+	if [ -s "$path"/"$path_tmp"/xfer-pids ]
+	then
+	    for pid in $(cut -d' ' -f1 < "$path"/"$path_tmp"/xfer-pids)
+	    do
+		check_pid "$pid" &&
+		    return 0
+	    done
+	fi
+
+    done < "$server_paths"
+
+    return 1
+}
+
+function check_downloader_running {
+    if grep -P "(aria2c|wget|axel|rtmpdump)" /proc/[0-9]*/cmdline &>/dev/null ||
+	    check_xfer_running
+    then
+	return 0
+    else    
+	return 1
+    fi
+}
+
 function send_json {
+    local counter=0
+    
     [ "$1" == force ] &&
 	rm -f "$server_data".$socket_port.diff
     
     while :
     do
-	create_json
-	touch "$server_data".$socket_port "$server_data".$socket_port.diff
-	current_timeout=$(date +%s)
-	if ! cmp_file "$server_data".$socket_port "$server_data".$socket_port.diff ||
-		check_port $socket_port ||
-		(( (current_timeout - start_timeout) > 240 ))
+	if check_downloader_running ||
+		((counter<3))
 	then
-	    break
+	    create_json
+	    touch "$server_data".$socket_port "$server_data".$socket_port.diff
+	    current_timeout=$(date +%s)
+	    if ! cmp_file "$server_data".$socket_port "$server_data".$socket_port.diff ||
+		    check_port $socket_port ||
+		    (( (current_timeout - start_timeout) > 240 ))
+	    then
+		counter=0
+		break
+	    fi
+
+	    ((counter<3)) &&
+		((counter++))
 	fi
-	
 	sleep 2
     done
     ##sleep 0.1
+
     cp "$server_data".$socket_port "$server_data".$socket_port.diff
     
     file_output="$server_data".$socket_port

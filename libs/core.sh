@@ -1025,7 +1025,7 @@ function check_instance_server {
     local port="$1"
     local pid path2pid
 
-    grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/*/cmdline &>/dev/null &&
+    grep -P "socat.+LISTEN:${port}.+zdl_server\.sh" /proc/[0-9]*/cmdline &>/dev/null &&
 	{
 	    set_line_in_file + "$port" "$path_server"/socket-ports
 	    return 0

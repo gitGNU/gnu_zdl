@@ -680,7 +680,7 @@ ul.sidenav li a:hover:not(.active) {
         text-align: center;
         float: none;
 	display:block;
-	width: calc(100% - 2em - 1px);
+	/* width: calc(100% - 2em - 1px); */
 	/* height: 30px; */
 	/* padding: 15px calc(100% - 15px) 15px 15px; */
 	/* box-sizing: border-box; */
