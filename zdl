@@ -550,7 +550,7 @@ then
 		
 		date +%s >"$path_tmp"/.date_daemon
 
-		nohup /bin/bash zdl ${args[*]} --silent "$PWD" 2>/dev/null &
+		nohup /bin/bash zdl ${args[*]} --silent "$PWD" &>/dev/null &
 		
 		print_c 4 "${name_prog}:       "
 		print_c 1 "Avviato in modalità demone in $PWD\n"
