@@ -282,17 +282,21 @@ function create_json {
 
 	while read path
 	do
-	    cd "$path"
-	    if [ -d "$path_tmp" ]
+	    if [ -d "$path" ]
 	    then
-		if data_stdout &&
-			! grep -P '\[$' "$server_data".$socket_port &>/dev/null
+		cd "$path"
+	    
+		if [ -d "$path_tmp" ]
 		then
-		    echo -en "," >>"$server_data".$socket_port
+		    if data_stdout &&
+			    ! grep -P '\[$' "$server_data".$socket_port &>/dev/null
+		    then
+			echo -en "," >>"$server_data".$socket_port
+		    fi
 		fi
 	    fi
 
-	done <"$server_paths"
+	done < "$server_paths"
 
 	sed -r "s|,$|]\n|g" -i "$server_data".$socket_port
 	
@@ -612,6 +616,10 @@ if(typeof json === 'object'){
     json.push('${line[1]}'); 
     console.log(JSON.stringify(json))
 }" > "$file_output"
+
+	    else
+		file_output="$path_server"/playlist-error
+		echo -e "Non è un file audio/video" > "$file_output"
 	    fi
 	    ;;
 

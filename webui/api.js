@@ -1262,7 +1262,13 @@ var addPlaylist = function (file) {
 	    query: "cmd=add-playlist&file=" + file,
 	    callback: function (data) {
 		//displayPlaylistButton('playlist-browse');
-		displayPlaylist('playlist-list', data);
+		if (cleanInput(data) === 'Non è un file audio/video') {
+		    alert (data);
+		    getPlaylist('playlist-list');
+		} else {
+		    // data = [...]
+		    displayPlaylist('playlist-list', data);
+		}
 	    }
 	});
     }
