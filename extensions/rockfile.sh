@@ -40,7 +40,7 @@ then
 		--user-agent="$user_agent"                 \
 		-qO- ${url_in//rockfile.eu/$real_ip_rockfile})
     
-    if [[ "$html" =~ (File Deleted|file was deleted|File not found) ]]
+    if [[ "$html" =~ (File Deleted|file was deleted|File [nN]{1}ot [fF]{1}ound) ]]
     then
 	_log 3
 
