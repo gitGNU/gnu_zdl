@@ -965,7 +965,7 @@ function kill_server {
 	init_client & 
 	#set_line_in_file - "$port" "$path_server"/socket-ports &
 
-	fuser -s -k -n tcp $port &
+	fuser -s -k -n tcp $port -n file /usr/local/share/zdl/zdl_server.sh &
     fi
 }
 
