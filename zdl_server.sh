@@ -293,7 +293,13 @@ function create_json {
 		    then
 			echo -en "," >>"$server_data".$socket_port
 		    fi
+
+		else
+		    set_line_in_file - "$path" "$server_paths" &
 		fi
+
+	    else
+		set_line_in_file - "$path" "$server_paths" &
 	    fi
 
 	done < "$server_paths"
@@ -328,7 +334,9 @@ function check_xfer_running {
 }
 
 function check_downloader_running {
-    if grep -P "(aria2c|wget|axel|rtmpdump)" /proc/[0-9]*/cmdline &>/dev/null ||
+    ## if grep -P "(aria2c|wget|axel|rtmpdump)" /proc/[0-9]*/cmdline &>/dev/null ||
+    ##	    check_xfer_running
+    if fuser /usr/bin/axel /usr/bin/aria2c /usr/bin/wget /usr/bin/rtmpdump -s ||
 	    check_xfer_running
     then
 	return 0
