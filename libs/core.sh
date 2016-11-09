@@ -110,7 +110,7 @@ function run_web_client {
 
     while ! check_port $port
     do
-	if grep -P "^$port$" "$path_server"/socket-ports
+	if grep -P "^$port$" "$path_server"/socket-ports &>/dev/null
 	then
 	    break
 
