@@ -24,43 +24,43 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: download
-## zdl-extension name: MultiUp (multi-link)
+## zdl-extension types: streaming
+## zdl-extension name: Vidlox
 
-if [[ "$url_in" =~ multiup\.org ]]
+
+if [[ "$url_in" =~ (vidlox.) ]]
 then
-    url_1="${url_in//en\/}"
-    url_1="${url_1//download\/}"
-    html=$(wget -qO- "${url_1}")
+    html=$(wget -qO- "$url_in")
 
-    if [[ "$url_in" =~ download\/ ]] &&
-	   [[ ! "$url_in" =~ en\/ ]]
+    if [ -n "$html" ]
     then
-	html="$(wget -qO- "$url_in")"
-    fi	
-
-    if [[ "$html" =~ (File not found) ]]       
-    then
-	_log 3
+	file_in=$(grep '<title>' -A1 <<<  "$html" |tail -n1)
+	file_in="${file_in#Watch }"
 	
-    else
-	url_2='https://multiup.org/en/mirror/'$(grep mirror <<< "$html" |tail -n1 |
-						       sed -r 's|.+mirror\/([^"]+)\"[^"]+|\1|g')
 	
-	html=$(wget -qO- "${url_2}")
+	# url_link=$(grep 'sources:' <<< "$html" |
+	# 		  sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-	for service in 'mega.nz\/\#' 'uptobox.com\/'
-	do
-	    url_in_tmp=$(grep -P "$service" <<< "$html"|
-				sed -r 's|[^"]+\"([^"]+)\".*|\1|g')
-
-	    url "$url_in_tmp" && break	
-	done
+	url_link=$(grep 'sources:' <<< "$html")
+	url_link="${url_link##*file:\"}"
+	url_link="${url_link%%\"*}"
 	
-	replace_url_in "$url_in_tmp"
-
-	[[ "$url_in" =~ multiup\.org ]] &&
-	    _log 2
-    fi	
-fi
+	if [[ "$url_link" =~ \.m3u8$ ]]
+	then
+	    sanitize_file_in "$file_in"
+	    file_in="$file_in".mp4
 	    
+	    url_in_file=$(wget -qO- "$url_link" | grep -vP '^\s*\#' | tail -n1)
+	    ## downloader_in=FFMpeg
+	    # stdbuf -oL -eL \
+	    # 	   $ffmpeg -y -i "$url_in_file" -c copy -bsf:a aac_adtstoasc "$file_in" 2>&1 |
+	    # 	tr '\r' '\n' 
+
+
+	elif url "$url_link"
+	then
+	    url_in_file="$url_link"
+	fi
+    fi
+    end_extension
+fi

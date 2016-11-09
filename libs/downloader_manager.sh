@@ -505,7 +505,8 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
 	FFMpeg)
 	    ## URL-FILE.M3U8
-	    ffmpeg -y -i "$url_in_file" -c copy "$file_in" 2>&1 |
+	    stdbuf -oL -eL \
+		   $ffmpeg -y -i "$url_in_file" -c copy "$file_in" 2>&1 |
 		tr '\r' '\n' > "$path_tmp/${file_in}_stdout.tmp" &
 	    pid_in=$!
 	    echo -e "${pid_in}
@@ -515,7 +516,7 @@ ${pid_prog}
 $file_in" > "$path_tmp/${file_in}_stdout.tmp"
 
  	    ;;
-	
+
 	youtube-dl)
 	    ## provvisorio per youtube-dl non gestito	    
 	    _log 21

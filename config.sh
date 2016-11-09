@@ -162,6 +162,9 @@ max_waiting=40
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
 
+
+## NODEJS:
+
 if [ -d /cygdrive ] &&
        ! command -v node &>/dev/null &&
        [ -f "/usr/local/share/zdl/node.exe" ]
@@ -180,6 +183,18 @@ fi
 
 evaljs=$path_usr/libs/eval.js
 
+
+
+## FFMPEG:
+
+command -v avconv &>/dev/null && ffmpeg="avconv"
+command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg"
+
+
+
+
+
+############
 ## functions
 
 function create_socket_account {
