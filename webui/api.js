@@ -695,6 +695,7 @@ var browseFile = function (spec) {
 		    '</div>';
 	    
 	    document.getElementById(spec.id).innerHTML = output;
+	    document.body.scrollTop = document.getElementById(spec.id).scrollHeight;
 	}
     });
 };
@@ -729,10 +730,12 @@ var browseDir = function (spec) {
 	    var browser = document.getElementById(spec.idBrowser);
 	    browser.innerHTML = output + '<div class="value" style="clear:both;">' + dirs + '</div>';	    
 	    browser.style.clear = 'both';
+	    document.body.scrollTop = document.getElementById(spec.idBrowser).scrollHeight;
 		
 	    onClick({
 		id: 'button-select-' + spec.idSel,
 		callback: function() {
+		    document.getElementById(spec.idBrowser).innerHTML = '';
 		    document.getElementById('path-prefix-' + spec.idSel).remove();
 		    window[spec.callback](spec);
 		}
@@ -745,7 +748,8 @@ var browseDir = function (spec) {
 			spec.path = ZDL.path;
 		    else if (spec.callback === 'setDesktopPath')
 			spec.path = ZDL.pathDesktop;
-		    
+
+		    document.getElementById(spec.idBrowser).innerHTML = '';
 		    document.getElementById('path-prefix-' + spec.idSel).remove();
 		    window[spec.callback](spec);
 		}
