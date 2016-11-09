@@ -112,6 +112,7 @@ function run_web_client {
     do
 	if grep -P "^$port$" "$path_server"/socket-ports &>/dev/null
 	then
+	    no_socket=true
 	    break
 
 	else
@@ -120,9 +121,15 @@ function run_web_client {
 	sleep 0.1
     done
 
-    zdl "$@" --socket=$port -d &&
-	print_c 1 "Avviato nuovo socket alla porta $port"
+    if [ -z "$no_socket" ]
+    then
+	zdl "$@" --socket=$port -d &&
+	    print_c 1 "Avviato nuovo socket alla porta $port"
 
+    else
+	zdl "$@" -d
+    fi
+    
     [ ! -d /cygdrive ] &&
 	run_browser $port
 }
