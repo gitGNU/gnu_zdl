@@ -474,8 +474,8 @@ var initClient = function (path) {
 var runServer = function (port) {
     port = parseInt(port);
 
-    if (isNaN(port) || port < 1024 || port > 65535 )
-	alert('Porta non valida: deve essere un numero compreso tra 1024 e 65535');
+    if (isNaN(port) || port < 1025 || port > 65535 )
+	alert('Porta non valida: deve essere un numero compreso tra 1025 e 65535');
 
     ajax ({
 	query: 'cmd=run-server&port=' + port,
@@ -954,7 +954,7 @@ var displayConf = function (conf) {
 	case 'udp_port':
 	case 'socket_port':
 	    if (isNaN(spec.min) || isNaN(spec.max)) {
-		spec.min = 1024;
+		spec.min = 1025;
 		spec.max = 65535;
 	    }
 
@@ -1107,7 +1107,7 @@ var displayLinks = function (op) {
 
 			output += "<div id=\"progress-label-status\">" +
 			    data[i].percent + '% ' +
-			    data[i].speed + data[i].speed_measure + ' ' +
+			    data[i].speed.toFixed(2) + data[i].speed_measure + ' ' +
 			    data[i].eta +
 			    "</div>" +
 			    "</div>";

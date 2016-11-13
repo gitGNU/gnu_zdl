@@ -204,7 +204,7 @@
 	<div class="content">
 	  <div class="background-element">
 	    <div class="label-element">Nuovo socket (porta):</div>
-	    <input id="input-port" type="number" min="1024" max="65535">
+	    <input id="input-port" type="number" min="1025" max="65535">
 	    <script>document.getElementById("input-port").value = parseInt(window.location.port) + 1 ;</script>
 	    <button style="float:left;" onclick="runServer(document.getElementById('input-port').value);">Avvia socket</button>
 	  </div>
