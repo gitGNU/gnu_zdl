@@ -1107,7 +1107,7 @@ var displayLinks = function (op) {
 
 			output += "<div id=\"progress-label-status\">" +
 			    data[i].percent + '% ' +
-			    data[i].speed.toFixed(2) + data[i].speed_measure + ' ' +
+			    parseFloat(data[i].speed).toFixed(2) + data[i].speed_measure + ' ' +
 			    data[i].eta +
 			    "</div>" +
 			    "</div>";
