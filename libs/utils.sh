@@ -209,7 +209,7 @@ function scrape_url {
 
 	while read line
 	do
-	    [[ ! "$line" =~ ^(ht|f)tp\:\/\/ ]] &&
+	    [[ ! "$line" =~ ^(ht|f)tp[s]*\:\/\/ ]] &&
 		line="${baseURL}/$line"
 
 	    if [[ "$line" =~ "$url_regex" ]]
