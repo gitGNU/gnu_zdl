@@ -54,7 +54,14 @@ then
 	    url_in_tmp=$(grep -P "$service" <<< "$html"|
 				sed -r 's|[^"]+\"([^"]+)\".*|\1|g')
 
-	    url "$url_in_tmp" && break	
+	    if url "$url_in_tmp"
+	    then
+		extension_mega "$url_in_tmp"
+
+		test -n "$url_in_file" &&
+ 		    ! url "$url_in_file" ||
+			break
+	    fi
 	done
 	
 	replace_url_in "$url_in_tmp"
