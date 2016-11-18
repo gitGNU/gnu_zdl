@@ -531,7 +531,7 @@ ${BBlue} * ${Color_Off}│ ${BBlue}schermata principale${Color_Off}\n"
 				unset playing_files
 
 			    else
-				configure_key 10
+				configure_key 9
 				get_conf
 			    fi
 			    ;;
