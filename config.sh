@@ -459,7 +459,7 @@ function init {
     get_conf
     this_tty=$(tty)
 
-    if ! check_instance_prog ||
+    if ! check_instance_prog &&
 	    ! check_instance_daemon
     then
 	rm -f "$path_tmp"/*rewriting "$path_tmp"/reconnect "$path_tmp"/proxy*
