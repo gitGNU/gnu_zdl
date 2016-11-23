@@ -47,14 +47,16 @@ Perché questo programma
 ************************
 
 ZigzagDownLoader è un gestore di download estensibile, robusto ed
-interamente controllabile da terminale.  È nato come script specifico
-per la Bash e si è trasformato in un gestore per downloader come
-_Wget_, _Axel_ ed _Aria2_ (downloader predefinito), estendendosi a
-servizi di video streaming e file hosting e integrandosi con altre
-applicazioni. Oggi ZigzagDownLoader è anche un downloader per
-_IRC/XDCC_: l'intero processo di scaricamento e recupero è automatico e
-non richiede alcuna interazione via CHAT. Inoltre, grazie all'adozione
-di Aria2, ZigzagDownLoader gestisce anche i _TORRENT_.
+interamente controllabile da terminale o, attraverso socket, tramite
+interfaccia web pensata per essere usata anche tramite smartphone
+(_-socket_, _-web-ui_).  È nato come script specifico per la Bash e si
+è trasformato in un gestore per downloader come _Wget_, _Axel_ ed
+_Aria2_ (downloader predefinito), estendendosi a servizi di video
+streaming e file hosting e integrandosi con altre applicazioni. Oggi
+ZigzagDownLoader è anche un downloader per _IRC/XDCC_: l'intero
+processo di scaricamento e recupero è automatico e non richiede alcuna
+interazione via CHAT. Inoltre, grazie all'adozione di Aria2,
+ZigzagDownLoader gestisce anche i _TORRENT_.
 
    Nonostante i suoi limiti strutturali, il linguaggio della _Bash_ si
 è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso
@@ -253,7 +255,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 `--wget'
      Scarica con _Wget_
 
-`-m [_numero_], --max-downloads=[_numero_]'
+`-m [_numero_], --max-downloads[=_numero_]'
      Download parallelo. È possibile indicare il numero massimo di
      download da effettuare contemporaneamente
 
@@ -314,6 +316,21 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 
 `--no-complete'
      Cancella i file temporanei dei download completati
+
+
+Socket e interfacce utente:
+...........................
+
+`-s _porta_, --socket[=_porta_]'
+     Avvia il programma collegandolo a un socket. Se non indicata, la
+     porta è quella predefinita.
+
+`--web-ui'
+     Interfaccia utente web.  Avvia il programma in modalità demone
+     nella directory corrente o, eventualmente, in quella passata come
+     argomento, un socket alla porta predefinita o, se occupata da
+     un'altra applicazione, alla prima porta libera e il browser
+     predefinito all'indirizzo dell'interfaccia utente.
 
 
 IRC/XDCC:
@@ -502,13 +519,12 @@ parallelo, eventualmente attraverso l'uso di proxy: Easybytez e
 Mediafire
 
    Molti server non permettono il recupero di download interrotti e il
-download parallelo.  Per questi (fra cui Easybytez, Dailymotion,
-Videowood e Uploadable) ZDL usa Wget.
+download parallelo.  Per questi servizi ZDL usa Wget.
 
    I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma
 con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
 
-   Gli altri servizi sono abilitati in modo predefinito per Axel.
+   Gli altri servizi sono abilitati in modo predefinito per Aria2.
 
    Per scaricare da Sharpfile, Depositfiles e da altri servizi,
 attualmente è necessario utilizzare il browser web per risolvere il
@@ -525,8 +541,8 @@ senza l'uso di proxy (in questo caso è necessario specificare anche
 `-m' oppure `--max-downloads='). Per configurare l'uso di account: `zdl
 [-c|--configure]'
 
-   Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire
-a connettersi si consiglia di provare ad usare Wget.
+   Per ogni servizio o link, nel caso in cui Aria2 non dovesse riuscire
+a connettersi si consiglia di provare ad usare Axel o Wget.
 
 
 File: zdl.info,  Node: Avviare ZDL,  Next: Arrestare ZDL,  Prev: Servizi streaming/hosting,  Up: Top
@@ -1331,27 +1347,27 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL6488
-Node: Servizi streaming/hosting13355
-Node: Avviare ZDL17114
-Node: Arrestare ZDL19550
-Node: Controllare i download20655
-Node: Manuali d'uso24946
-Node: Modi25362
-Node: Readline28628
-Node: Editor30180
-Node: Omonimie31405
-Node: IRC/XDCC32940
-Node: Torrent34630
-Node: Filtri35514
-Node: Creare nuove estensioni35835
-Node: Software consigliati37597
-Node: Conkeror38998
-Node: zdl-xterm e XXXTerm/Xombrero40009
-Node: Installazione e aggiornamento41933
-Node: Tags44968
-Node: Copying47769
-Node: Contatti48819
+Node: Il comando ZDL6607
+Node: Servizi streaming/hosting14010
+Node: Avviare ZDL17729
+Node: Arrestare ZDL20165
+Node: Controllare i download21270
+Node: Manuali d'uso25561
+Node: Modi25977
+Node: Readline29243
+Node: Editor30795
+Node: Omonimie32020
+Node: IRC/XDCC33555
+Node: Torrent35245
+Node: Filtri36129
+Node: Creare nuove estensioni36450
+Node: Software consigliati38212
+Node: Conkeror39613
+Node: zdl-xterm e XXXTerm/Xombrero40624
+Node: Installazione e aggiornamento42548
+Node: Tags45583
+Node: Copying48384
+Node: Contatti49434
 
 End Tag Table
 

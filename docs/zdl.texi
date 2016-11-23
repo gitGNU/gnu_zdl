@@ -210,7 +210,7 @@
 @c @end man
 
 @unnumbered Perché questo programma
-ZigzagDownLoader è un gestore di download estensibile, robusto ed interamente controllabile da terminale.
+ZigzagDownLoader è un gestore di download estensibile, robusto ed interamente controllabile da terminale o, attraverso socket, tramite interfaccia web pensata per essere usata anche tramite smartphone (@emph{--socket}, @emph{--web-ui}). 
 È nato come script specifico per la Bash e si è trasformato in un gestore per downloader come @emph{Wget}, @emph{Axel} ed @emph{Aria2} (downloader predefinito), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni. Oggi ZigzagDownLoader è anche un downloader per @emph{IRC/XDCC}: l'intero processo di scaricamento e recupero è automatico e non richiede alcuna interazione via CHAT. Inoltre, grazie all'adozione di Aria2, ZigzagDownLoader gestisce anche i @emph{TORRENT}.
 
 Nonostante i suoi limiti strutturali, il linguaggio della @emph{Bash} si è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Una progressiva efficienza è stata raggiunta attraverso lo sviluppo di script @emph{monolitici} nel linguaggio di @emph{Awk} (@emph{Gawk}). Il software include, inoltre, interpreti di altri linguaggi (attualmente: @emph{node.js} e @emph{php}, necessari al trattamento dei link di alcuni servizi), fornendo un supporto per ulteriori estensioni e sviluppi.
@@ -318,7 +318,7 @@ Scarica con @emph{Axel}
 @item --wget                  
 Scarica con @emph{Wget}
 
-@item -m [@emph{numero}], --max-downloads=[@emph{numero}]
+@item -m [@emph{numero}], --max-downloads[=@emph{numero}]
 Download parallelo. È possibile indicare il numero massimo di download da effettuare contemporaneamente 
 
 @item --login
@@ -374,8 +374,22 @@ Cancella i file temporanei dei download completati
 @end table
 
 @c @end man
-@unnumberedsubsubsec IRC/XDCC:
+@unnumberedsubsubsec Socket e interfacce utente:
 @c @man{6}
+@c @ifman @unnumberedsubsec Socket:
+@table @option
+@item -s @emph{porta}, --socket[=@emph{porta}]
+Avvia il programma collegandolo a un socket. Se non indicata, la porta è quella predefinita.
+
+@item --web-ui
+Interfaccia utente web.
+Avvia il programma in modalità demone nella directory corrente o, eventualmente, in quella passata come argomento, un socket alla porta predefinita o, se occupata da un'altra applicazione, alla prima porta libera e il browser predefinito all'indirizzo dell'interfaccia utente.
+
+@end table
+
+@c @end man
+@unnumberedsubsubsec IRC/XDCC:
+@c @man{7}
 @c @ifman @unnumberedsubsec IRC/XDCC:
 @table @option
 @item -x, --xdcc
@@ -399,7 +413,7 @@ Il download via IRC/XDCC può essere affettuato, alternativamente e senza usare 
 
 @c @end man
 @unnumberedsubsubsec Torrent:
-@c @man{7}
+@c @man{8}
 @c @ifman @unnumberedsubsec Torrent:
 @table @option
 @item -T @emph{file}, --torrent-file=@emph{file}
@@ -413,7 +427,7 @@ Porte TCP e UDP aperte: verificare le impostazioni del router
 
 @c @end man
 @unnumberedsubsubsec Filtri:
-@c @man{8}
+@c @man{9}
 @c @ifman @unnumberedsubsec Filtri:
 @table @option
 @item --scrape-url=@emph{URL pagina web}
@@ -444,7 +458,7 @@ Non scarica i file il cui nome contiene la stringa 'sub' (in lettere maiuscole e
 
 @c @end man
 @unnumberedsubsubsec Avvio con un editor:
-@c @man{9}
+@c @man{10}
 @c @ifman @unnumberedsubsec Avvio con un editor:
 @table @option
 @item -e, --editor
@@ -470,7 +484,7 @@ usa Zile, un micro editor GNU in stile Emacs
 
 @c @end man
 @unnumberedsubsubsec Avvio con Proxy:
-@c @man{10}
+@c @man{11}
 @c @ifman @unnumberedsubsec Avvio con proxy:
 @table @option
 
@@ -499,7 +513,7 @@ Avvia ZDL attivando il proxy indicato dall'utente, per l'intera durata del downl
 @c @end man
 @unnumberedsubsubsec Configurazione:
 
-@c @man{11}
+@c @man{12}
 @c @ifman @unnumberedsubsec Configurazione:
 @table @option
 
@@ -519,7 +533,7 @@ Per scaricare lo stream incorporando ZDL in nuovi script, il modello generico de
 
 @unnumbered Scaricare da servizi di @emph{video streaming} e di @emph{file hosting}
 
-@c @man{12}
+@c @man{13}
 @c @ifman @unnumberedsec PANORAMICA
 @c @ifman @unnumberedsubsec Servizi
 ZDL è abilitato per il download da ogni tipo di link valido, compresi lo stream video (da Youtube, Nowvideo, Dailymotion...) per mezzo di estensioni dei browser, ed i file condivisi attraverso i seguenti servizi di hosting e di streaming, direttamente dal link (bypassando il player delle pagine web):
@@ -559,11 +573,11 @@ per procedere con il download in parallelo, eventualmente attraverso
 l'uso di proxy: Easybytez e Mediafire
 
 Molti server non permettono il recupero di download interrotti e il download parallelo.
-Per questi (fra cui Easybytez, Dailymotion, Videowood e Uploadable) ZDL usa Wget.
+Per questi servizi ZDL usa Wget.
 
 I servizi seguenti richiedono l'uso di RTMPDump (in sua mancanza, ma con limitazioni, di cURL): Zinwa, Vidhappy, Videopremium e Streamin.
 
-Gli altri servizi sono abilitati in modo predefinito per Axel. 
+Gli altri servizi sono abilitati in modo predefinito per Aria2. 
 
 Per scaricare da Sharpfile, Depositfiles e da altri servizi,
 attualmente è necessario utilizzare il browser web per risolvere il
@@ -578,7 +592,7 @@ a 600 MB, ma consente anche lo scaricamento in parallelo di più file
 senza l'uso di proxy (in questo caso è necessario specificare anche
 @option{-m} oppure @option{--max-downloads=}). Per configurare l'uso di account: @command{zdl [-c|--configure]}
 
-Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connettersi si consiglia di provare ad usare Wget.
+Per ogni servizio o link, nel caso in cui Aria2 non dovesse riuscire a connettersi si consiglia di provare ad usare Axel o Wget.
 
 @htmlend
 
@@ -587,7 +601,7 @@ Per ogni servizio o link, nel caso in cui Axel non dovesse riuscire a connetters
 
 @unnumbered Modalità di avvio
 
-@c @man{13}
+@c @man{14}
 @c @ifman @unnumberedsubsec Avvio
 ZDL può essere avviato in diversi modi:
 
@@ -660,7 +674,7 @@ nella modalità "non interattiva" (standard), digitando il tasto @kbd{i}
 
 @unnumbered Modalità di arresto
 
-@c @man{14}
+@c @man{15}
 @c @ifman @unnumberedsubsec Arresto
 ZDL può essere fermato in diversi modi:
 @itemize
@@ -937,7 +951,7 @@ modificare il sorgente
 
 @unnumbered Software consigliati
 
-@c @man{15}
+@c @man{16}
 @c @ifman @unnumberedsubsec Software consigliati
 @table @emph
 @pindex aria2
@@ -1250,7 +1264,7 @@ Gianluca Zoni (zoninoz): @url{http://inventati.org/zoninoz}
 
 @bye
 
-@c @man{16}
+@c @man{17}
 @unnumberedsec MANUALI
 Oltre alla presente guida, puoi consultare:
 @table @command
