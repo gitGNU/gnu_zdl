@@ -47,8 +47,8 @@ Perché questo programma
 ************************
 
 ZigzagDownLoader è un gestore di download estensibile, robusto ed
-interamente controllabile da terminale o, attraverso socket, tramite
-interfaccia web pensata per essere usata anche tramite smartphone
+interamente controllabile con un terminale o, attraverso socket, con
+un'interfaccia web adatta anche al formato di uno smartphone
 (_-socket_, _-web-ui_).  È nato come script specifico per la Bash e si
 è trasformato in un gestore per downloader come _Wget_, _Axel_ ed
 _Aria2_ (downloader predefinito), estendendosi a servizi di video
@@ -1347,27 +1347,27 @@ _zdl-devel - Lista di sviluppo_:
 
 Tag Table:
 Node: Top1185
-Node: Il comando ZDL6607
-Node: Servizi streaming/hosting14012
-Node: Avviare ZDL17731
-Node: Arrestare ZDL20167
-Node: Controllare i download21272
-Node: Manuali d'uso25563
-Node: Modi25979
-Node: Readline29245
-Node: Editor30797
-Node: Omonimie32022
-Node: IRC/XDCC33557
-Node: Torrent35247
-Node: Filtri36131
-Node: Creare nuove estensioni36452
-Node: Software consigliati38214
-Node: Conkeror39615
-Node: zdl-xterm e XXXTerm/Xombrero40626
-Node: Installazione e aggiornamento42550
-Node: Tags45585
-Node: Copying48386
-Node: Contatti49436
+Node: Il comando ZDL6602
+Node: Servizi streaming/hosting14007
+Node: Avviare ZDL17726
+Node: Arrestare ZDL20162
+Node: Controllare i download21267
+Node: Manuali d'uso25558
+Node: Modi25974
+Node: Readline29240
+Node: Editor30792
+Node: Omonimie32017
+Node: IRC/XDCC33552
+Node: Torrent35242
+Node: Filtri36126
+Node: Creare nuove estensioni36447
+Node: Software consigliati38209
+Node: Conkeror39610
+Node: zdl-xterm e XXXTerm/Xombrero40621
+Node: Installazione e aggiornamento42545
+Node: Tags45580
+Node: Copying48381
+Node: Contatti49431
 
 End Tag Table
 

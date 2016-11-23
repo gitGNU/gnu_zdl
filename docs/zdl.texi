@@ -210,7 +210,7 @@
 @c @end man
 
 @unnumbered Perché questo programma
-ZigzagDownLoader è un gestore di download estensibile, robusto ed interamente controllabile da terminale o, attraverso socket, tramite interfaccia web pensata per essere usata anche tramite smartphone (@emph{--socket}, @emph{--web-ui}). 
+ZigzagDownLoader è un gestore di download estensibile, robusto ed interamente controllabile con un terminale o, attraverso socket, con un'interfaccia web adatta anche al formato di uno smartphone (@emph{--socket}, @emph{--web-ui}). 
 È nato come script specifico per la Bash e si è trasformato in un gestore per downloader come @emph{Wget}, @emph{Axel} ed @emph{Aria2} (downloader predefinito), estendendosi a servizi di video streaming e file hosting e integrandosi con altre applicazioni. Oggi ZigzagDownLoader è anche un downloader per @emph{IRC/XDCC}: l'intero processo di scaricamento e recupero è automatico e non richiede alcuna interazione via CHAT. Inoltre, grazie all'adozione di Aria2, ZigzagDownLoader gestisce anche i @emph{TORRENT}.
 
 Nonostante i suoi limiti strutturali, il linguaggio della @emph{Bash} si è rivelato adatto allo scopo, soprattutto per la flessibilità d'uso nella gestione dei processi di altri programmi. Una progressiva efficienza è stata raggiunta attraverso lo sviluppo di script @emph{monolitici} nel linguaggio di @emph{Awk} (@emph{Gawk}). Il software include, inoltre, interpreti di altri linguaggi (attualmente: @emph{node.js} e @emph{php}, necessari al trattamento dei link di alcuni servizi), fornendo un supporto per ulteriori estensioni e sviluppi.
