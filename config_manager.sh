@@ -108,10 +108,11 @@ function configure {
 	header_z
 	header_box "Preferenze"
 	echo -e "   ${BBlue} 1 ${Color_Off}│  Modifica la configurazione
-   ${BBlue} 2 ${Color_Off}│  Gestisci gli account dei servizi di hosting
+   ${BBlue} 2 ${Color_Off}│  Resetta l'account dell'interfaccia web (socket account)
+   ${BBlue} 3 ${Color_Off}│  Gestisci gli account dei servizi di hosting
    ${BBlue} q ${Color_Off}│  Esci
 "
-	print_c 2 "$(colorize_values "Scegli un'opzione (1|2|q)" 2)"
+	print_c 2 "$(colorize_values "Scegli un'opzione (1|2|3|q)" 2)"
 	
 	cursor off
 	read -s -n1 option_0
@@ -145,7 +146,17 @@ function configure {
 		    configure_key $opt
 		done
 		;;
-	    2)	
+
+	    2)
+		print_c 2 "Vuoi davvero resettare l'account dei socket? Potrai reimpostarlo dall'interfaccia web. (sì|*)"
+		input_text opt
+		
+		if [ "$opt" == "sì" ]
+		then
+		    rm -f "$path_conf"/.socket-account
+		fi
+		;;
+	    3)	
 		configure_accounts
 		;;
 
