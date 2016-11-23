@@ -321,7 +321,7 @@ Le opzioni brevi non seguite da valori possono essere contratte:
 Socket e interfacce utente:
 ...........................
 
-`-s _porta_, --socket[=_porta_]'
+`-s [_porta_], --socket[=_porta_]'
      Avvia il programma collegandolo a un socket. Se non indicata, la
      porta è quella predefinita.
 
@@ -1348,26 +1348,26 @@ _zdl-devel - Lista di sviluppo_:
 Tag Table:
 Node: Top1185
 Node: Il comando ZDL6607
-Node: Servizi streaming/hosting14010
-Node: Avviare ZDL17729
-Node: Arrestare ZDL20165
-Node: Controllare i download21270
-Node: Manuali d'uso25561
-Node: Modi25977
-Node: Readline29243
-Node: Editor30795
-Node: Omonimie32020
-Node: IRC/XDCC33555
-Node: Torrent35245
-Node: Filtri36129
-Node: Creare nuove estensioni36450
-Node: Software consigliati38212
-Node: Conkeror39613
-Node: zdl-xterm e XXXTerm/Xombrero40624
-Node: Installazione e aggiornamento42548
-Node: Tags45583
-Node: Copying48384
-Node: Contatti49434
+Node: Servizi streaming/hosting14012
+Node: Avviare ZDL17731
+Node: Arrestare ZDL20167
+Node: Controllare i download21272
+Node: Manuali d'uso25563
+Node: Modi25979
+Node: Readline29245
+Node: Editor30797
+Node: Omonimie32022
+Node: IRC/XDCC33557
+Node: Torrent35247
+Node: Filtri36131
+Node: Creare nuove estensioni36452
+Node: Software consigliati38214
+Node: Conkeror39615
+Node: zdl-xterm e XXXTerm/Xombrero40626
+Node: Installazione e aggiornamento42550
+Node: Tags45585
+Node: Copying48386
+Node: Contatti49436
 
 End Tag Table
 
