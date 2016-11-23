@@ -46,14 +46,14 @@ var ZDL = {
     ]
 };
 
-String.prototype.toHtmlEntities = function() {
+var toHtmlEntities = function () {
     return this.replace(/./gm, function(s) {
 	return "&#" + s.charCodeAt(0) + ";";
     });
 };
 
-String.prototype.fromHtmlEntities = function(string) {
-    return (string+"").replace(/&#\d+;/gm,function(s) {
+var fromHtmlEntities = function (string) {
+    return (string + "").replace(/&#\d+;/gm,function(s) {
 	return String.fromCharCode(s.match(/\d+/gm)[0]);
     });
 };
@@ -115,10 +115,8 @@ var ajax = function (spec) {
 		return true;
 	    }
 	    
-	    switch (getUriParam('cmd', spec.url)) {
-	    case 'get-data':
+	    if (getUriParam('cmd', spec.url) === 'get-data') {
 		ZDL.data = req.responseText;
-		break;
 	    }
 
     	} else if (req.status === 307) {
@@ -586,22 +584,11 @@ var getStatus = function (repeat, op) {
 	    if (isJsonString(res)) {
 		var data = JSON.parse(res);
 
-		// data.status:
 		displayStatus(data.status);
-		
-		// data.downloader:
 		displayDownloader(data.downloader);
-		
-		//data.maxDownloads;
 		displayMaxDownloads(data.maxDownloads);
-
-		//data.reconnecter;
 		displayReconnecter(data.reconnect, 'path-reconnecter');
-
-		//data.conf:
 		displayConf(data.conf);
-		
-		//data.sockets:
 		displaySockets(data.sockets);
 	    }
 
@@ -1091,121 +1078,119 @@ var displayLinks = function (op) {
 		var visibility = 'hidden';
 		var color;
 		
-		if (typeof data === 'object') {
-		    for (var i=0; i<data.length; i++) {
-			if (ZDL.visible[data[i].path + '-' + data[i].link])
-			    visibility = 'visible';
-			else
-			    visibility = 'hidden';
-			
-			output += '<div id="info-' + i + '-bar">';
-
-			output += '<div id="progress-bar">' +
-			    '<div id="progress-label-file">' + data[i].file + "</div>" +
-			    '<div id="progress-status" style="width:' + data[i].percent + "%; background-color:" + data[i].color + '"></div>' +
-			    "</div>";
-
-			output += "<div id=\"progress-label-status\">" +
-			    data[i].percent + '% ' +
-			    parseFloat(data[i].speed).toFixed(2) + data[i].speed_measure + ' ' +
-			    data[i].eta +
-			    "</div>" +
-			    "</div>";
-
-			output += "<div style=\"float: left; width: 100%;border-bottom: solid 4px #3066db;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
-
-			output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' +
-			    '<p>' + data[i].downloader + '</p>' + "</div>";
-			output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' +
-			    '<p>' + data[i].link + '</p>' + "</div>";
-
-			output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' +
-			    '<p>' + data[i].path + '</p>' +
-			    '<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
-
-			output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' +
-			     '<p>' + data[i].file + '</p>' +
-			    '<button class="data" id="link-add-playlist-' + i + '">Aggiungi alla playlist</button></div>';
-
-			output += '<div class="label-element" style="margin-right: .7em;">Length:</div><div class="element">' +
-			    '<p>' + (data[i].length/1024/1024).toFixed(2) + 'M</p>' + "</div>";
-
-			if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			    output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
-			    output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
-			    
-			} else {
-			    output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' +
-				'<p>' + data[i].url.toHtmlEntities() + '</p>' + "</div>";
-			}
-
-			output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(i);
-			output += '</div></div>';
-		    }
+		for (var i=0; i<data.length; i++) {
+		    if (ZDL.visible[data[i].path + '-' + data[i].link])
+			visibility = 'visible';
+		    else
+			visibility = 'hidden';
 		    
-		    document.getElementById('output-links').innerHTML = output;
+		    output += '<div id="info-' + i + '-bar">';
 
-		    for (var i=0; i<data.length; i++) {
-			onClick({
-			    id: 'link-add-playlist-' + i,
-			    callback: function (file) {
-				addPlaylist(file);
-			    },
-			    params: data[i].path + '/' + data[i].file
-			});
+		    output += '<div id="progress-bar">' +
+			'<div id="progress-label-file">' + data[i].file + "</div>" +
+			'<div id="progress-status" style="width:' + data[i].percent + "%; background-color:" + data[i].color + '"></div>' +
+			"</div>";
 
-			onClick({
-			    id: 'play-' + i,
-			    callback: function (data) {
-				singleLink(data).play();
-			    },
-			    params: data[i]
-			});
+		    output += "<div id=\"progress-label-status\">" +
+			data[i].percent + '% ' +
+			parseFloat(data[i].speed).toFixed(2) + data[i].speed_measure + ' ' +
+			data[i].eta +
+			"</div>" +
+			"</div>";
+
+		    output += "<div style=\"float: left; width: 100%;border-bottom: solid 4px #3066db;\" class=\"" + visibility + "\" id=\"info-" + i + "\">";
+
+		    output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' +
+			'<p>' + data[i].downloader + '</p>' + "</div>";
+		    output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' +
+			'<p>' + data[i].link + '</p>' + "</div>";
+
+		    output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' +
+			'<p>' + data[i].path + '</p>' +
+			'<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
+
+		    output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' +
+			'<p>' + data[i].file + '</p>' +
+			'<button class="data" id="link-add-playlist-' + i + '">Aggiungi alla playlist</button></div>';
+
+		    output += '<div class="label-element" style="margin-right: .7em;">Length:</div><div class="element">' +
+			'<p>' + (data[i].length/1024/1024).toFixed(2) + 'M</p>' + "</div>";
+
+		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
+			output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
 			
-			onClick({
-			    id: 'del-' + i,
-			    callback: function (data) {
-				if (confirm('Vuoi davvero cancellare il download del file ' + data.file + ' ?')) {
-				    singleLink(data).del();
-				}
-			    },
-			    params: data[i]
-			});
-
-			onClick({
-			    id: 'stop-' + i,
-			    callback: function (data) {
-				singleLink(data).stop();
-			    },
-			    params: data[i]
-			});
-
-			onClick({
-			    id: 'link-to-path-' + i,
-			    callback: sectionPath,
-			    params: data[i].path
-			});
-
-			onClick({
-			    id: 'info-' + i + '-bar',
-			    callback: showInfoLink,
-			    params: {
-				id:'info-' + i,
-				key: data[i].path + '-' + data[i].link
-			    }
-			});
-			
-			onClick({
-			    id: 'info-' + i,
-			    callback: hideInfoLink,
-			    params: {
-				id:'info-' + i,
-				key: data[i].path + '-' + data[i].link
-			    }
-			});
+		    } else {
+			output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' +
+			    '<p>' + toHtmlEntities(data[i].url) + '</p>' + "</div>";
 		    }
 
+		    output += '<div class="background-element" style="text-align: center;">' + displayLinkButtons(i);
+		    output += '</div></div>';
 		}
+		
+		document.getElementById('output-links').innerHTML = output;
+
+		for (var i=0; i<data.length; i++) {
+		    onClick({
+			id: 'link-add-playlist-' + i,
+			callback: function (file) {
+			    addPlaylist(file);
+			},
+			params: data[i].path + '/' + data[i].file
+		    });
+
+		    onClick({
+			id: 'play-' + i,
+			callback: function (data) {
+			    singleLink(data).play();
+			},
+			params: data[i]
+		    });
+		    
+		    onClick({
+			id: 'del-' + i,
+			callback: function (data) {
+			    if (confirm('Vuoi davvero cancellare il download del file ' + data.file + ' ?')) {
+				singleLink(data).del();
+			    }
+			},
+			params: data[i]
+		    });
+
+		    onClick({
+			id: 'stop-' + i,
+			callback: function (data) {
+			    singleLink(data).stop();
+			},
+			params: data[i]
+		    });
+
+		    onClick({
+			id: 'link-to-path-' + i,
+			callback: sectionPath,
+			params: data[i].path
+		    });
+
+		    onClick({
+			id: 'info-' + i + '-bar',
+			callback: showInfoLink,
+			params: {
+			    id:'info-' + i,
+			    key: data[i].path + '-' + data[i].link
+			}
+		    });
+		    
+		    onClick({
+			id: 'info-' + i,
+			callback: hideInfoLink,
+			params: {
+			    id:'info-' + i,
+			    key: data[i].path + '-' + data[i].link
+			}
+		    });
+		}
+		
 		return displayLinks();
 	    }
 	    
