@@ -46,14 +46,14 @@ var ZDL = {
     ]
 };
 
-var toHtmlEntities = function () {
-    return this.replace(/./gm, function(s) {
+var toHtmlEntities = function (str) {
+    return str.replace(/./gm, function(s) {
 	return "&#" + s.charCodeAt(0) + ";";
     });
 };
 
-var fromHtmlEntities = function (string) {
-    return (string + "").replace(/&#\d+;/gm,function(s) {
+var fromHtmlEntities = function (str) {
+    return (str + "").replace(/&#\d+;/gm,function(s) {
 	return String.fromCharCode(s.match(/\d+/gm)[0]);
     });
 };
