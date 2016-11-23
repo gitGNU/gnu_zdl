@@ -376,7 +376,7 @@ Cancella i file temporanei dei download completati
 @c @end man
 @unnumberedsubsubsec Socket e interfacce utente:
 @c @man{6}
-@c @ifman @unnumberedsubsec Socket:
+@c @ifman @unnumberedsubsec Socket e interfacce utente:
 @table @option
 @item -s @emph{porta}, --socket[=@emph{porta}]
 Avvia il programma collegandolo a un socket. Se non indicata, la porta è quella predefinita.
