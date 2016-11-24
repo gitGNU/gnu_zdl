@@ -1417,19 +1417,29 @@ function send_login {
 	
 	[ -z "$GET_DATA" ] &&
 	    add_response_header "Location" "login.html"	
+
 	send_response 307 "$file_output"
+
 	exit 0
     fi
-
 }
 
 function http_server {
+    local id
+    
     case $http_method in
 	GET)
 	    if [[ "${line[*]}" =~ 'Cookie' ]]		   
 	    then
-		[ -n "${line[1]}" ] &&
-		    grep "$(clean_data "${line[1]}")" "$path_server"/http-sessions &>/dev/null &&
+		# [ -n "${line[1]}" ] &&
+		#     grep "$(clean_data "${line[1]}")" "$path_server"/http-sessions &>/dev/null &&
+		#     logged_on=true
+
+		id="$(clean_data "${line[*]}")"
+		id="${id#*id=}"
+		id="${id%% *}"
+		
+		grep "$id" "$path_server"/http-sessions &>/dev/null &&
 		    logged_on=true
 
 	    elif [[ "$(clean_data "${line[*]}")" =~ 'Accept-Language' ]]
@@ -1502,6 +1512,7 @@ function http_server {
 		serve_file "$file_output"
 	    fi
 	    ;;
+
 	*)
 	    return 1
 	    ;;
@@ -1526,11 +1537,13 @@ do
 	    	GET_DATA="$(clean_data "${line[1]#*\?}")"
 	    fi
 	    ;;
+	
 	POST)
 	    unset POST_DATA file_output
 	    http_method=POST
 	    get_file_output file_output "${line[1]}"
 	    ;;
+
 	*)
 	    http_server || exit 1 ## client non-web sono disabilitati, per ora. In seguito:
 	                          ## run_cmd "${line[@]}"
