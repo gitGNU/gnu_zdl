@@ -1431,13 +1431,9 @@ function http_server {
 	GET)
 	    if [[ "${line[*]}" =~ 'Cookie' ]]		   
 	    then
-		# [ -n "${line[1]}" ] &&
-		#     grep "$(clean_data "${line[1]}")" "$path_server"/http-sessions &>/dev/null &&
-		#     logged_on=true
-
 		id="$(clean_data "${line[*]}")"
 		id="${id#*id=}"
-		id="${id%% *}"
+		id="${id%%; *}"
 		
 		grep "$id" "$path_server"/http-sessions &>/dev/null &&
 		    logged_on=true
@@ -1497,8 +1493,7 @@ function http_server {
 	    [ "${line[0]}" == 'Content-Length:' ] &&
 		length=$(clean_data "${line[1]}")
 	    
-	    if [[ "$length" =~ ^[0-9]+$ ]] && ((length>0)) &&
-		   [ -z "$postdata" ]
+	    if [[ "$length" =~ ^[0-9]+$ ]] && ((length>0))
 	    then
 		## read -n 0
 		while read test_line
