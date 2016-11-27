@@ -119,7 +119,7 @@ var ajax = function (spec) {
 		ZDL.data = req.responseText;
 	    }
 
-    	} else if (req.status === 307) {
+    	} else if (req.status === 302) {
     	    window.location.replace('login.html');
     	}
     };

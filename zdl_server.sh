@@ -1403,22 +1403,14 @@ function run_data {
 }
 
 function send_login {
-    
-    #HTTP_RESPONSE_CODE=307
-    #HTTP_RESPONSE_LOCATION='login.html'
-
     if [[ ! "$file_output" =~ login\.html ]]
     then
-	# file_output="$path_server"/empty
-	# echo > "$file_output"
 	file_output="$path_usr/webui"/login.html
-
-	#init_client
 	
 	[ -z "$GET_DATA" ] &&
 	    add_response_header "Location" "login.html"	
 
-	send_response 307 "$file_output"
+	send_response 302 "$file_output"
 
 	exit 0
     fi
