@@ -1103,22 +1103,25 @@ var displayLinks = function (op) {
 		    output += '<div class="label-element" style="margin-right: .7em;">Downloader:</div><div class="element">' +
 			'<p>' + data[i].downloader + '</p>' + "</div>";
 		    output += '<div class="label-element" style="margin-right: .7em;">Link:</div><div class="element">' +
-			'<p>' + data[i].link + '</p>' + "</div>";
+			'<p>' + toHtmlEntities(data[i].link) + '</p>' + "</div>";
 
 		    output += '<div class="label-element" style="margin-right: .7em;">Path:</div><div class="element">' +
 			'<p>' + data[i].path + '</p>' +
 			'<button class="data" id="link-to-path-' + i + '">Gestisci</button></div>';
 
 		    output += '<div class="label-element" style="margin-right: .7em;">File:</div><div class="element">' +
-			'<p>' + data[i].file + '</p>' +
+			'<p>' + toHtmlEntities(data[i].file) + '</p>' +
 			'<button class="data" id="link-add-playlist-' + i + '">Aggiungi alla playlist</button></div>';
 
 		    output += '<div class="label-element" style="margin-right: .7em;">Length:</div><div class="element">' +
 			'<p>' + (data[i].length/1024/1024).toFixed(2) + 'M</p>' + "</div>";
 
 		    if (data[i].downloader.match(/^(RTMPDump|cURL)$/)) {
-			output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' + data[i].streamer + "</div>";
-			output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' + data[i].playpath + "</div>";
+			output += '<div class="label-element" style="margin-right: .7em;">Streamer:</div><div class="element">' +
+			    toHtmlEntities(data[i].streamer) + "</div>";
+
+			output += '<div class="label-element" style="margin-right: .7em;">Playpath:</div><div class="element">' +
+			    toHtmlEntities(data[i].playpath) + "</div>";
 			
 		    } else {
 			output += '<div class="label-element" style="margin-right: .7em;">Url:</div><div class="element">' +
