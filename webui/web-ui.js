@@ -25,25 +25,6 @@ var ZDL = {
     "path": "",
     "pathDesktop": "",
     "visible": [],
-    // "confItems": [
-    //     "web_ui",
-    //     "downloader",
-    //     "axel_parts",
-    //     "aria2_connections",
-    //     "max_dl",
-    //     "background",
-    //     "language",
-    //     "reconnecter",
-    //     "autoupdate",
-    //     "player",
-    //     "editor",
-    //     "resume",
-    //     "zdl_mode",
-    //     "tcp_port",
-    //     "udp_port",
-    //     "socket_port",
-    //     "browser"
-    // ],
     "webUI": ["1","2"]
 };
 
@@ -339,9 +320,11 @@ var singlePath = function (path) {
         ajax({
             query: "cmd=get-links&path=" + path,
             callback: function (str) {
-                document.getElementById("editor-links").innerHTML = "<textarea class='edit-links' id='list-links'>" + str + "</textarea><div class='edit-links-buttons'>" +
-                "<button class='btn' onclick='singlePath(ZDL.path).setLinks();'>Salva</button>" +
-                "<button class='btn' onclick='displayEditButton();'>Annulla</button></div>";
+                document.getElementById("editor-links").innerHTML = "<textarea class='edit-links' id='list-links'>" +
+		    str +
+		    "</textarea><div class='edit-links-buttons'>" +
+                    "<button class='btn' onclick='singlePath(ZDL.path).setLinks();'>Salva</button>" +
+                    "<button class='btn' onclick='displayEditButton();'>Annulla</button></div>";
             }
         });
     };
