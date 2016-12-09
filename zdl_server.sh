@@ -26,7 +26,7 @@
 
 path_usr="/usr/local/share/zdl"
 path_webui="$path_usr/webui"
-template_index="$path_webui/index.html"
+
 path_tmp=".zdl_tmp"
 
 path_conf="$HOME/.zdl"
@@ -36,7 +36,6 @@ file_desktop="$HOME/.local/share/applications/zdl-web-ui.desktop"
 path_server="$HOME"/.zdl/zdl.d
 server_data="$path_server/data.json"
 server_paths="$path_server/paths.txt"
-server_index="$path_server/index.html"
 
 source $path_usr/config.sh
 source $path_usr/libs/core.sh
@@ -49,6 +48,9 @@ source $path_usr/libs/log.sh
 pid_prog=$$
 socket_port="$1"
 add_server_pid "$socket_port"
+
+server_index="$path_server/index-${web_ui}.html"
+template_index="$path_webui/index-${web_ui}.html"
 
 json_flag=true
 
@@ -245,14 +247,14 @@ function get_file_output {
     local file="$2"
     
     if [[ "$file" =~ ^\/tmp\/zdl.d\/ ]] ||
-	   [[ "$file" =~ login\.html\?cmd ]]
+	   [[ "$file" =~ login.*\.html\?cmd ]]
     then
 	result="$file"
 
     else
 	if [ "$file" == '/' ] ||
 	       [ -z "$file" ] ||
-	       [[ "$file" =~ index\.html ]] ||
+	       [[ "$file" =~ index-.+\.html ]] ||
 	       [ "$file" != "${file//'?'}" ]
 	then
 	    template="$template_index"
@@ -546,7 +548,7 @@ function run_cmd {
 		    ## add_response_header "Set-Cookie" "$HTTP_SESSION"		    
 		    echo "$HTTP_SESSION" >> "$path_server"/http-sessions
 
-		    get_file_output file_output 'index.html'
+		    get_file_output file_output 'index-1.html'
 		else
 		    echo -e "<html>\n<head><meta http-equiv=\"refresh\" content=\"0; url=login.html?op=retry\" /></head><body></body></html>" > "$file_output"
 
@@ -1403,12 +1405,12 @@ function run_data {
 }
 
 function send_login {
-    if [[ ! "$file_output" =~ login\.html ]]
+    if [[ ! "$file_output" =~ login.*\.html ]]
     then
-	file_output="$path_usr/webui"/login.html
+	file_output="$path_usr/webui"/login-"$web_ui".html
 	
 	[ -z "$GET_DATA" ] &&
-	    add_response_header "Location" "login.html"	
+	    add_response_header "Location" "login-${web_ui}.html"	
 
 	send_response 302 "$file_output"
 
@@ -1458,7 +1460,7 @@ function http_server {
 
 		if [ -z "$logged_on" ] &&
 		       [[ ! "$file_output" =~ \.(css|js|gif|jpg|jpeg|ico|png|$socket_port)$ ]] &&
-		       [[ ! "$file_output" =~ login\.html\? ]]
+		       [[ ! "$file_output" =~ login.*\.html\? ]]
 		then
 		    send_login
 		fi

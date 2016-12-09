@@ -143,11 +143,16 @@ then
 	
     elif [ -n "$html" ]
     then
-	awk '/\^o/{print}' <<< "$html"   |
+	html2=$(awk '/\^o/{print}' <<< "$html"   |
 	    head -n1                |
-	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+	    sed -r 's|[^>]+>(.+)|\1|g') #>"$path_tmp/aaencoded.js"
 
-	php_aadecode "$path_tmp/aaencoded.js" >"$path_tmp/aadecoded.js"
+	
+	echo "${html2%%var*}" >"$path_tmp/aaencoded.js" 
+#	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+
+	#echo "$html" > HTML.html
+	php_aadecode "$path_tmp/aaencoded.js" > "$path_tmp/aadecoded.js"
 	
 	hiddenurl1=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
 			   sed -r 's|.+\">(.+)<\/span>.*|\1|g')

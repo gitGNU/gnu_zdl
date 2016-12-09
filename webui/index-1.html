@@ -30,15 +30,15 @@
     <title>ZigzagDownLoader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="api.js">
-    </script>
-    <link rel="stylesheet" type="text/css" href="zdl_style.css">
+    <script src="web-ui.js"></script>
+    <script src="lib-1.js"></script>
+    <link rel="stylesheet" type="text/css" href="zdl_style-1.css">
 
     <link rel="icon" href="favicon.ico" />
   </head>
   
   <body onload="init('__START_PATH__');" style="margin: 0; padding: 0;">
-    <a href="index.html">
+    <a href="index-1.html">
       <div class="header"></div>
     </a>
     <!-- <h2>ZigzagDownLoader :: ZDL</h2> -->
@@ -88,8 +88,13 @@
 
 	    <input id="input-link" type="text">
 	      <button onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
-	      <div id="editor-links" style="margin-top: 1em; margin-bottom: 2em;"></div>
 	    </div>
+
+	    <div class="background-element">
+              <div id="input-link-label" class="label-element">Editor links:</div>
+              <div id="editor-links"></div>
+            </div>
+
 
 	    <div class="background-element" style="text-align: left" id="xdcc">
 	      <div id="input-link-label" class="label-element">Cerca XDCC:</div>
@@ -146,10 +151,19 @@
 	      <div id="path-torrent"></div>
 	    </div>
 	    
-	    <div class="background-element" style="text-align:center;">
-	      <div id="path-file-log" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div>
-	      <div id="path-file-links" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div>
-	    </div>
+	    <!-- <div class="background-element" style="text-align:center;"> -->
+	    <!--   <div id="path-file-log" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div> -->
+	    <!--   <div id="path-file-links" style="display:inline-block;margin:1em 0 1em 0;padding:0;"></div> -->
+	    <!-- </div> -->
+            <div class="background-element">
+              <div class="label-element">Log:</div>
+              <div id="path-file-log"></div>
+            </div>
+
+            <div class="background-element">
+              <div class="label-element">Links:</div>
+              <div id="path-file-links"></div>
+            </div>
 
 	    <div class="background-element">
 	      <div class="label-element">Max download paralleli:</div>
@@ -233,6 +247,10 @@
       <div class="section">
 	<div class="label-section">Configurazione</div>
 	<div class="content">
+          <div class="background-element">
+            <div class="label-element">Interfaccia utente (web):</div>
+            <div id="conf-web_ui"></div>
+          </div>
 	  <div class="background-element" style="text-align: left;">
 	    <div class="label-element">Downloader predefinito:</div>
 	    <div id="conf-downloader" ></div>

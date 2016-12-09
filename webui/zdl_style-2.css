@@ -1,0 +1,545 @@
+/*  ZigzagDownLoader (ZDL)
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ * Copyright (C) 2011: Gianluca Zoni (zoninoz) <zoninoz@inventati.org>
+ *
+ * For information or to collaborate on the project:
+ * https://savannah.nongnu.org/projects/zdl
+ *
+ * Gianluca Zoni (author)
+ * http://inventati.org/zoninoz
+ * zoninoz@inventati.org
+ */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: black;
+    color: black;
+    font-family: Arial, 'FreeSans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    padding: .5em .7em;
+    margin: 1em;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul {
+    margin-left: 0;
+    list-style-type: square;
+}
+
+h1, h2, h3 {
+    font-weight: 500;
+    color: #343434;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+blockquote {
+    font-size: 21px;
+    line-height: 30px;
+}
+
+pre {
+    font-size: 13px;
+    line-height: 18.5714px;
+}
+
+p,
+select,
+button,
+input {
+    font: inherit;
+}
+
+td {
+    text-align: right;
+    font-weight: 800;
+}
+
+textarea {
+    box-sizing: border-box;
+    border: 1px solid #343434;
+    color: #eee;
+    background-color: black;
+}
+
+input {
+    float: left;
+    font-weight: 800;
+    border: 1px solid #343434;
+    background-color: black;
+    color: #eee;
+    height: calc(12px + 1em);
+    padding-left: 4px;
+}
+
+.header {
+    background-image: url("zdl-64x64.png");
+    background-color: #343434;
+    width: 100%;
+    height: 64px;
+}
+
+.sidenav {
+    width: 100%;
+    height: auto;
+    background-color: #f1f1f1;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    position: relative;
+}
+
+.sidenav > li a {
+    float: left;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.sidenav > li a.active {
+    background-color: #147de2;
+    color: white;
+    text-decoration: none;
+}
+
+.sidenav > li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+    text-decoration: none;
+}
+
+.section {
+    width: 100%;
+    position: relative;
+}
+
+#links,
+#path,
+#config,
+#info,
+#server,
+#playlist {
+    display: none;
+}
+
+#progress-bar {
+    float: left;
+    width: calc(100% - 190px - 1em);
+    height: 30px;
+    background-color: black;
+    z-index: 10;
+    cursor: pointer;
+}
+
+#progress-status {
+    position: relative;
+    width: 1%;
+    height: 30px;
+    background-color: green;
+    z-index: 20;
+}
+
+#progress-label-file {
+    position: absolute;
+    left: 10px;
+    line-height: 30px;
+    color: white;
+    z-index: 30;
+    height: 30px;
+    width: calc(100% - 200px - 1em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+#progress-label-status {
+    float: left;
+    line-height: 30px;
+    color: white;
+    z-index: 30;
+    width: 190px;
+    background-color: #343434;
+    overflow: hidden;
+    padding-left: 1em;
+    cursor: pointer;
+}
+
+.download-info {
+    float: left;
+    width: 100%;
+    border-bottom: solid 4px #3066db;
+}
+
+.download-info .label-element {
+    min-width: 80px;
+}
+
+.download-info .background-element {
+    border: none !important;
+    margin-bottom: 5px;
+}
+
+.download-info .element {
+    /*color: #fff;*/
+    float: left;
+}
+.download-info span {
+    margin: 0 5px;
+    line-height: 30px;
+}
+
+
+.label-section {
+    position: relative;
+    line-height: 30px;
+    color: white;
+    background-color: #555;
+    padding: 0 1em;
+    font-weight: 800;
+    margin-top: 1px;
+}
+
+.content {
+    background: #eee;
+    width: 100%;
+    float: left;
+    margin-top: 1px;
+}
+
+.background-element {
+    position: relative;
+    float: left;
+    border-bottom: 1px solid #fff;
+    width: 100%;
+    word-wrap: break-word;
+}
+
+.label-element {
+    float: left;
+    color: #fff;
+    background: #777;
+    padding: .5em .4em;
+    text-align: right;
+}
+
+#path .label-element,
+#server .label-element {
+    min-width: 190px;
+}
+
+#config .label-element {
+    min-width: 280px;
+}
+
+.sublabel-element {
+    clear: left;
+    color: black;
+    background: #eee;
+    padding: .7em 0 .2em .7em;
+}
+
+.btn {
+    height: calc(16px + 1em);
+    background-color: #147de2;
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    padding: 0 .7em;
+    font-weight: 700;
+    border: 1px solid #1269bd;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #166dc7;
+}
+
+.btn.m-left {
+    margin-left: 4px;
+}
+
+.btn-select {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAeCAYAAAAo5+5WAAAAlElEQVRIx+2VMQqDUAyG/xRv0MW19xBE6NDzOPVAGQKZsisKDh4rXexSqs+HuuWDTHn5yJCX4F4+3u7+wsnccBEhDnGIQ3xY7O6tp2mzxUQ0M3O/lmfmnojmv8kd+7gSkeG3TREZAFSrVTsXfa2q41eqqiOAerMi44I0ZjaZ2QSgSb7OPE3PJZIUmVPUxc8LcYhP4ANrt21Gm5mUzgAAAABJRU5ErkJggg==') no-repeat right center;
+    background-color: #147de2;
+    margin-right: 4px;
+    overflow: hidden;
+    display: inline-table;
+}
+
+.btn-select:hover {
+    background-color: #166dc7;
+}
+
+.btn-select > select {
+    height: calc(16px + 1em);
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    padding-left: .7em;
+    padding-right: calc(.7em + 1.6em);
+    text-align: center;
+    font-weight: 800;
+    border: 1px solid #1269bd;
+    cursor: pointer;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.btn-select > select:focus {
+    outline: none;
+}
+
+.open {
+    float: none;
+    clear: both;
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.open button,
+.browse-buttons {
+    float: left;
+    clear: both;
+    margin-left: .7em;
+}
+
+.browse {
+    clear: both;
+}
+
+.value,
+.value-number {
+    position: relative;
+    float: left;
+    padding: .5em .7em;
+    word-wrap: break-word;
+}
+
+.path {
+    padding: .5em 0 .5em .7em;
+    clear: left;
+}
+
+.open .value,
+.path .value {
+    clear: both;
+}
+
+.edit-links {
+    position: relative;
+    width: 90%;
+    height: 300px;
+    margin: 3.5em auto 0;
+    padding: 5px;
+    display: block;
+}
+
+.edit-links-buttons {
+    position: relative;
+    width: 90%;
+    margin: 0 auto 1em;
+}
+
+.file-text {
+    position: relative;
+    width: 90%;
+    height: 300px;
+    margin: .5em auto 0;
+    overflow: auto;
+    border: 1px solid #343434;
+    box-sizing: border-box;
+    color: #eee;
+    background-color: black;
+}
+
+.file-text-name {
+    position: relative;
+    width: 90%;
+    clear: left;
+    margin: 5px auto 0;
+    padding-top: 5px;
+}
+
+.file-text-buttons {
+    position: relative;
+    width: 90%;
+    margin: 0 auto 1em;
+}
+
+.info > li {
+    padding: .4em;
+}
+
+#xdcc-search {
+    width: calc(100% - 30.4em);
+}
+
+#input-irc,
+#input-chan,
+#input-ctcp {
+    width: calc(100% - 7em);
+    margin-left: .7em;
+    clear: left;
+}
+
+#input-link {
+    width: calc(100% - 19.7em);
+}
+
+#input-max-downloads {
+    width: 40px;
+}
+
+#input-port {
+    width: 60px;
+}
+
+#path-reconnecter {
+    float: left;
+}
+
+.xdcc-data {
+    margin: 1em 0 2em 1em;
+    display: inline-block;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    background-color: white;
+    margin-bottom: 4px;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.top-margin {
+    margin-top: 1em;
+}
+
+.bottom-margin {
+    margin-bottom: 2em;
+}
+
+.pull-right {
+    float: right;
+}
+
+/*** Login ***/
+
+.login {
+    color: white;
+    background-color: black;
+    text-align: left;
+    margin: auto;
+}
+
+.login-box {
+    width: 100%;
+    text-align: center;
+    color: white;
+    background-color: black;
+    margin-top: 2em;
+}
+
+.login input[type=submit]:hover {
+    background: #147de2;
+    cursor: pointer;
+}
+
+
+@media screen and (max-width: 600px) {
+    #progress-bar,
+    #progress-label-file {
+        width: 100%;
+    }
+    #xdcc-search,
+    #input-link {
+        clear: both;
+        margin-left: 0;
+        width: calc(100% - 1em);
+    }
+    #xdcc {
+        padding: 0 1em 1em 0;
+        width: calc(100% - 1em);
+        margin: 0;
+    }
+    #progress-label-status {
+        float: right;
+    }
+    .value,
+    input[type=text],
+    input[type=password] {
+        clear: both;
+        margin: 0 0 0 0;
+        width: calc(100% - 1em);
+    }
+    .value-number,
+    input[type=number] {
+        clear: left;
+        margin: 0 0 0 0;
+        width: 6em;
+    }
+    .background-element {
+        padding-right: 1em;
+        padding-bottom: 1em;
+        width: calc(100% - 1em);
+    }
+}
+
+@media screen and (max-width: 360px) {
+    ul.sidenav li a {
+        text-align: center;
+        float: none;
+        display: block;
+        overflow: hidden;
+    }
+}

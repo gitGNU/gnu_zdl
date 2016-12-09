@@ -46,6 +46,7 @@ key_conf[12]=tcp_port;           val_conf[12]="";          string_conf[12]="Port
 key_conf[13]=udp_port;           val_conf[13]="";          string_conf[13]="Porta UDP aperta per i torrent di Aria2 (verifica le impostazioni del tuo router)"
 key_conf[14]=socket_port;        val_conf[14]="8080";      string_conf[14]="Porta TCP per creare socket, usata da opzioni come --socket e --web-ui"
 key_conf[15]=browser;            val_conf[15]="firefox";   string_conf[15]="Browser per l'interfaccia web: opzione --web-ui"
+key_conf[16]=web_ui;             val_conf[16]="1";         string_conf[16]="Seleziona l'interfaccia web predefinita (1|2)"
 
 declare -A try_counter
 try_end_default=5
@@ -112,6 +113,7 @@ wget_links=(
     rai\.tv
     idowatch\.
     dropbox\.
+    subyshare\. 
 )
 #    videomega\.
 
@@ -369,6 +371,12 @@ function get_conf {
     then
 	socket_port=${val_conf[14]}
 	set_item_conf socket_port ${val_conf[14]}
+    fi
+
+    if [ -z "$web_ui" ]
+    then
+	web_ui=${val_conf[16]}
+	set_item_conf web_ui "$web_ui"
     fi
 
     if [ -z "$background" ]

@@ -25,20 +25,16 @@
 #
 
 ## zdl-extension types: download
-## zdl-extension name: Rockfile
+## zdl-extension name: Subyshare
 
 
-if [ "$url_in" != "${url_in//'rockfile.'}" ]
+if [ "$url_in" != "${url_in//'subyshare.'}" ]
 then
-    # real_ip_rockfile=217.23.3.237
-    ## real_ip_rockfile=217.23.3.215
-    real_ip_rockfile="rockfile.eu"
-    
     html=$(wget -t 1 -T $max_waiting                       \
 		--keep-session-cookies                     \
 		--save-cookies="$path_tmp"/cookies.zdl     \
 		--user-agent="$user_agent"                 \
-		-qO- ${url_in//rockfile.eu/$real_ip_rockfile})
+		-qO- "${url_in}")
     
     if [[ "$html" =~ (File Deleted|file was deleted|File [nN]{1}ot [fF]{1}ound) ]]
     then
@@ -49,17 +45,13 @@ then
 	input_hidden "$html"
 	file_in="$postdata_fname"
 
-	method_free=$(grep -P 'method_free.+freeDownload' <<< "$html" |
-			     sed -r 's|.+(method_free[^"]*)\".+|\1|g' |
-			     tr -d '\r')
-
-	post_data="${post_data##*document.write\(\&}&${method_free}=Regular Download"
+	post_data="${post_data%%referer*}referer=&method_free=Free Download"
 
 	html=$(wget -qO-                                        \
 		    --load-cookies="$path_tmp"/cookies.zdl      \
 		    --user-agent="$user_agent"                  \
 		    --post-data="$post_data"                    \
-		    "${url_in//rockfile.eu/$real_ip_rockfile}")
+		    "${url_in}")
 
 	code=$(pseudo_captcha "$html")
 
@@ -69,7 +61,7 @@ then
 	else
 	    print_c 3 "Pseudo-captcha: codice non trovato"
 	fi
-
+	
 	unset post_data
 	input_hidden "$html"
 	post_data="${post_data##*'(&'}&code=$code"
@@ -84,25 +76,18 @@ then
 
 	elif [ -n "$code" ]
 	then
-	    timer=$(grep countdown_str <<< "$html"          |
-			   head -n1                         |
+	    timer=$(grep timein <<< "$html"          |
 			   sed -r 's|.+>([0-9]+)<.+|\1|g')
 
 	    countdown- $timer
 	    sleeping 2
 	    
-	    url_in_file=$(wget -qO- "${url_in//rockfile.eu/$real_ip_rockfile}"       \
-			       --load-cookies="$path_tmp"/cookies.zdl           \
-			       --user-agent="$user_agent"                       \
-			       --post-data="$post_data"                   |
-				 grep -P '[^\#]+btn_downloadLink'         |
-				 sed -r 's|.+href=\"([^"]+)\".+|\1|g')
-	    url_in_file=$(sanitize_url "$url_in_file")
+	    redirect "$url_in"
 	fi
     fi
 
     try_end=25
     [ -n "$premium" ] &&
-	print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
+	print_c 2 "Subyshare potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
 	    end_extension
 fi
