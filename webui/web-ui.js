@@ -1041,7 +1041,7 @@ var displayMaxDownloads = function (max_dl_str) {
 };
 
 var displayEditButton = function () {
-    document.getElementById("editor-links").innerHTML = "<button class='btn m-left' onclick='singlePath(ZDL.path).getLinks();'>Apri</button>";
+    document.getElementById("editor-links").innerHTML = "<button class='btn' onclick='singlePath(ZDL.path).getLinks();'>Apri</button>";
 };
 
 
