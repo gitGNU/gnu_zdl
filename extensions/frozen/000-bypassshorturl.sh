@@ -25,10 +25,10 @@
 #
 
 ## zdl-extension types: shortlinks
-## zdl-extension name: Adf.ly, Adfoc.us, linkbucks.com, bit.ly, goo.gl
+## zdl-extension name: Adf.ly, Adfoc.us, linkbucks.com, Bit.ly, Goo.gl, Bc.vc, Ref.so
 
 
-if [[ "$url_in" =~ (adf.ly|adfoc.us|linkbucks.com|bit.ly|goo.gl) ]]
+if [[ "$url_in" =~ (bc.vc|adf.ly|adfoc.us|linkbucks.com|bit.ly|goo.gl|ref.so) ]]
 then
     if command -v curl &>/dev/null
     then
