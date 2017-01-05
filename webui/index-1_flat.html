@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+	ZigzagDownLoader (ZDL)
+
+	This program is free software: you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published
+	by the Free Software Foundation; either version 3 of the License,
+	or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+	or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see http://www.gnu.org/licenses/.
+
+	Copyright (C) 2011
+	Gianluca Zoni <<zoninoz@inventati.org>>
+
+	For information or to collaborate on the project:
+	`https://savannah.nongnu.org/projects/zdl'
+
+	Gianluca Zoni
+	`http://inventati.org/zoninoz'
+	<zoninoz@inventati.org>
+    -->
+
+    <title>ZigzagDownLoader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="zdl_style-1_flat.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <script type="text/javascript" src="web-ui.js"></script>
+    <script type="text/javascript" src="lib-2.js"></script>
+</head>
+
+<body onload="init('__START_PATH__');">
+    <a href="index-1_flat.html">
+        <div class="header"><img src="logo.png" alt="ZigzagDownLoader"></div>
+    </a>
+
+    <ul class="sidenav">
+        <li><a id="links-menu" onclick="changeSection('links');">Download in corso</a></li>
+        <li><a id="path-menu" onclick="changeSection('path');">Gestisci i download</a></li>
+        <li><a id="playlist-menu" onclick="changeSection('playlist');">Playlist</a></li>
+        <li><a id="server-menu" onclick="changeSection('server');">Gestisci il server</a></li>
+        <li><a id="config-menu" onclick="changeSection('config');">Configurazione</a></li>
+        <li><a id="info-menu" onclick="changeSection('info');">Info</a></li>
+        <li><a id="killall-menu" onclick="exitAll();">Chiudi tutto</a></li>
+    </ul>
+
+    <!-- ['links', 'path', 'config', 'info', 'server'].forEach(function(item) { -->
+
+    <!-- sezione LINKS -->
+    <div class="section" id="links">
+        <div class="label-section">Download in corso
+            <button class="btn pull-right" onclick="cleanComplete();">Pulisci completati</button>
+        </div>
+        <div id="output-links"></div>
+    </div>
+
+    <!-- sezione PATH -->
+
+    <div class="section" id="path">
+        <div class="label-section">Gestisci i download nei path</div>
+        <div class="content">
+
+            <div class="background-element">
+                <div class="label-element">Agisci in:</div>
+                <div id="path-sel" class="value"></div>
+                <div id="path-browser"></div>
+            </div>
+
+            <div id="run-path" class="visible">
+                <div class="background-element">
+                    <div class="label-element">Spazio libero:</div>
+                    <div class="value-number" id="path-free-space"></div>
+                    <button class="btn" onclick="singlePath(ZDL.path).getFreeSpace();">Aggiorna</button>
+                </div>
+
+                <div class="background-element">
+                    <div id="input-link-label" class="label-element">Aggiungi link:</div>
+                    <input id="input-link" type="text">
+                    <button class="btn" onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
+                </div>
+
+                <div class="background-element">
+                    <div id="input-link-label" class="label-element">Editor links:</div>
+                    <div id="editor-links"></div>
+                </div>
+
+                <div class="background-element" id="xdcc">
+                    <div id="input-link-label" class="label-element">Cerca XDCC:</div>
+
+                    <input id="xdcc-search" type="text">
+
+                    <button class="btn" onclick="window.open('http://anydownload.altervista.org/search.php?q=' + document.getElementById('xdcc-search').value);">AnyDownload</button>
+
+                    <button class="btn" onclick="window.open('http://www.xdcc.eu/search.php?searchkey=' + document.getElementById('xdcc-search').value);">Xdcc.eu</button>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">Aggiungi XDCC:</div>
+
+                    <div class="sublabel-element top-margin">IRC host:</div>
+                    <input id="input-irc" type="text">
+
+                    <button class="btn" onclick="document.getElementById('input-irc').value='';">Pulisci</button>
+
+                    <div class="sublabel-element">Canale:</div>
+                    <input id="input-chan" type="text">
+
+                    <button class="btn" onclick="document.getElementById('input-chan').value='';">Pulisci</button>
+
+                    <div class="sublabel-element">MSG/CTCP:</div>
+                    <input id="input-ctcp" type="text">
+
+                    <button class="btn" onclick="document.getElementById('input-ctcp').value='';">Pulisci</button>
+
+                    <div class="xdcc-data">
+                        <button class="btn" onclick="singlePath(ZDL.path).addXDCC({host:'input-irc',chan:'input-chan',ctcp:'input-ctcp'});">Invia XDCC</button>
+
+                        <button class="btn" onclick="['input-irc','input-chan','input-ctcp'].forEach(function(id){document.getElementById(id).value='';});">Pulisci</button>
+                    </div>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">File torrent:</div>
+                    <div id="path-torrent"></div>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">Log:</div>
+                    <div id="path-file-log"></div>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">Links:</div>
+                    <div id="path-file-links"></div>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">Max download paralleli:</div>
+                    <div id="max-downloads">
+                        <input class="hidden" id="input-max-downloads" type="text">
+                    </div>
+                </div>
+
+                <div class="background-element">
+                    <div class="label-element">Downloader:</div>
+                    <div id="downloader"></div>
+                </div>
+
+                <!-- <div class="background-element">
+                    <div class="label-element">Attiva proxy:</div>
+                    <div id="path-proxy"></div>
+                </div> -->
+
+                <div class="background-element">
+                    <div class="label-element">Riconnessione modem/router:</div>
+                    <div id="path-reconnecter"></div>
+                    <button class="btn" onclick="singlePath(ZDL.path).reconnect();">Riconnetti adesso</button>
+                    <button class="btn" onclick="singlePath(ZDL.path).getIP();">Indirizzo IP</button>
+                </div>
+
+                <div class="background-element top-margin">
+                    <div id="path-status" class="align-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sezione PLAYLIST -->
+    <div class="section" id="playlist">
+        <div class="label-section">Playlist</div>
+        <div class="content">
+            <div class="background-element">
+                <div class="label-element">Cerca nel server:</div>
+                <div id="playlist-browse"></div>
+            </div>
+
+            <div class="label-element"><b>Playlist</b></div>
+            <div id="playlist-list"></div>
+        </div>
+    </div>
+
+    <!-- sezione SERVER -->
+    <div class="section" id="server">
+        <div class="label-section">Server: gestisci i socket</div>
+        <div class="content">
+            <div class="background-element">
+                <div class="label-element">Nuovo socket (porta):</div>
+                <input id="input-port" type="number" min="1025" max="65535">
+                <button class="btn" onclick="runServer(document.getElementById('input-port').value);">Avvia socket</button>
+            </div>
+
+            <div class="background-element">
+                <div class="label-element">Vai al socket (porta):</div>
+                <div id="list-sockets-open"></div>
+            </div>
+
+            <div class="background-element">
+                <div class="label-element">Termina un socket (porta):</div>
+                <div id="list-sockets-kill"></div>
+            </div>
+
+            <div class="background-element top-margin align-center">
+                <button class="btn" onclick="killServer(); setTimeout(reloadPage, 2000);">Termina il socket attuale</button>
+                <button class="btn" onclick="killAll();">Termina i downloader in tutti i path</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- sezione CONFIGURE -->
+    <div class="section" id="config">
+        <div class="label-section">Configurazione</div>
+        <div class="content">
+            <div class="background-element">
+                <div class="label-element">Interfaccia utente (web):</div>
+                <div id="conf-web_ui"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Downloader predefinito:</div>
+                <div id="conf-downloader"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Numero di parti di download per Axel:</div>
+                <div id="conf-axel_parts"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Numero di parti di download per Aria2:</div>
+                <div id="conf-aria2_connections"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Max download simultanei:</div>
+                <div id="conf-max_dl"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Colore di sfondo nei terminali virtuali:</div>
+                <div id="conf-background"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Lingua:</div>
+                <div id="conf-language"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Comando per riconnettere il modem/router:</div>
+                <div id="conf-input-file-reconnecter"></div>
+                <div id="conf-reconnecter-text"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Aggiornameni automatici:</div>
+                <div id="conf-autoupdate"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Player per anteprima audio/video:</div>
+                <div id="conf-input-file-player"></div>
+                <div id="conf-player-text"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Editor per la lista dei link:</div>
+                <div id="conf-input-file-editor"></div>
+                <div id="conf-editor-text"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Sovrascrittura file omonimi (--resume):</div>
+                <div id="conf-resume"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Modalità di avvio:</div>
+                <div id="conf-zdl_mode"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Porta TCP (torrent):</div>
+                <div id="conf-tcp_port"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Porta UDP (torrent):</div>
+                <div id="conf-udp_port"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Porta TCP (--socket, --web-ui):</div>
+                <div id="conf-socket_port"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Browser web (--web-ui):</div>
+                <div id="conf-input-file-browser"></div>
+                <div id="conf-browser-text"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Account (--socket/--web-ui):</div>
+                <div id="conf-account-socket"></div>
+            </div>
+            <div class="background-element">
+                <div class="label-element">Path dal desktop:</div>
+                <div id="conf-sel-path" class="value"></div>
+                <div id="conf-browser-path"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sezione INFO & SEARCH -->
+    <div class="section" id="info">
+        <div class="label-section">Documentazione di ZigzagDownLoader (ZDL)</div>
+        <div class="content">
+            <div class="background-element">
+                <p>
+                    Il manuale d'uso è disponibile in diverse forme, accessibili dal terminale o da un browser web.<br> Qui puoi consultare:
+                </p>
+                <ul class="info">
+                    <li><a href="http://nongnu.org/zdl" target="_blanck">Sito ufficiale di ZigzagDownLoader</a></li>
+                    <li><a href="https://joindiaspora.com/tags/zdl" target="_blanck">Aggiornamenti in Diaspora*</a></li>
+                    <li><a href="https://savannah.nongnu.org/projects/zdl" target="_blanck">Progetto di sviluppo in Savannah/GNU</a></li>
+                    <li><a href="http://download-mirror.savannah.gnu.org/releases/zdl/" target="_blanck">Pacchetti rilasciati di ZDL</a></li>
+                    <li><a href="http://git.savannah.gnu.org/cgit/zdl.git" target="_blanck">Repository Git (controllo versione sorgenti)</a></li>
+                </ul>
+            </div>
+
+            <div class="background-element">
+                <div class="label-element">Contatti</div>
+                <button class="btn" onclick="window.open('https://savannah.nongnu.org/bugs/?func=additem&group=zdl')">Invia un messaggio</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("input-port").value = parseInt(window.location.port) + 1;
+    </script>
+</body>
+</html>

@@ -338,7 +338,7 @@ function check_xfer_running {
 function check_downloader_running {
     ## if grep -P "(aria2c|wget|axel|rtmpdump)" /proc/[0-9]*/cmdline &>/dev/null ||
     ##	    check_xfer_running
-    if fuser /usr/bin/axel /usr/bin/aria2c /usr/bin/wget /usr/bin/rtmpdump -s ||
+    if fuser $path_axel $path_aria2 $path_wget $path_rtmpdump -s ||
 	    check_xfer_running
     then
 	return 0

@@ -164,6 +164,12 @@ max_waiting=40
 sleeping_pause=3
 #[ -d /cygdrive ] && sleeping_pause=2
 
+path_axel=$(command -v axel 2>/dev/null)
+path_aria2=$(command -v aria2c 2>/dev/null)
+path_wget=$(command -v wget 2>/dev/null)
+path_rtmpdump=$(command -v rtmpdump 2>/dev/null)
+
+
 
 ## NODEJS:
 

@@ -1,331 +1,582 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!--
-	ZigzagDownLoader (ZDL)
-
-	This program is free software: you can redistribute it and/or modify it
-	under the terms of the GNU General Public License as published
-	by the Free Software Foundation; either version 3 of the License,
-	or (at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-	or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program. If not, see http://www.gnu.org/licenses/.
-
-	Copyright (C) 2011
-	Gianluca Zoni <<zoninoz@inventati.org>>
-
-	For information or to collaborate on the project:
-	`https://savannah.nongnu.org/projects/zdl'
-
-	Gianluca Zoni
-	`http://inventati.org/zoninoz'
-	<zoninoz@inventati.org>
-    -->
-
-    <title>ZigzagDownLoader</title>
+    <title>ZDL API web-ui test</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="zdl_style-2.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="web-ui.js"></script>
-    <script type="text/javascript" src="lib-2.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet">
+    <style>
+        body {font-family:"Droid Sans", sans-serif; font-size:14px; background:#eee;}
+        table {border:1px solid #aaa; table-layout:fixed;}
+        table table {border:none;}
+        td {padding:5px; vertical-align:top; overflow:hidden; text-overflow:ellipsis; white-space: nowrap;}
+        input {background:#fff; margin:0; padding:4px; border:1px solid #ccc;}
+        button {background:#444; color:#fff; border:1px solid #333; min-width:110px; padding:3px;}
+        button:hover {background:#000;}
+        .main {width:100%;}
+        .header {height:20px; font-size:16px; font-weight:700; padding:0 5px;}
+        .divider {height:20px; font-weight:700; padding:15px 5px 0; clear:both;}
+        .buttons {width:120px;}
+        .buttons button {margin:2px 0; display:block;}
+        .label {background:#C6C682; text-align:right; min-width:210px;}
+        .value {background:#fff;}
+        .input {padding:0 5px;}
+        .server {width:450px;}
+        .server .label {min-width:140px!important;}
+        .downloads {font-size:90%; height:145px; background:#fff; color:#333;}
+        .downloads span {padding:0 2px 2px; background:#ddd; color:#000; text-align:center; display:inline-block;}
+        .size {min-width:75px; margin-bottom:2px;}
+        .perc {min-width:60px; margin:0 3px 2px 2px;}
+        .reddy {background:#f6d!important;}
+        .new-link button:last-child {margin-left:3px;}
+        .new-link input {width:calc(100% - 240px);}
+        .select {background:transparent; width:calc(100% - 120px); padding:0 5px; border:1px solid #ccc; height:24px; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+        .file {width:calc(50% - 10px); margin-top:15px; margin-right:10px; float:left;}
+        .file-name {padding:0 5px 4px; font-weight:700;}
+        .file-content {height:200px; background:#000; color:#eee; padding:5px; overflow-y:auto;}
+    </style>
+    <script src="api.js"></script>
 </head>
 
-<body onload="init('__START_PATH__');">
-    <a href="index-2.html">
-        <div class="header"><img src="logo.png" alt="ZigzagDownLoader"></div>
-    </a>
+<body>
+<div class="header">ZDL web UI Test</div>
+<table class="main">
+    <tr>
+        <td class="buttons">
+            <button id="start-zdl">Avvia ZDL</button>
+            <button id="quit-zdl">Chiudi ZDL</button>
+            <button id="exit-all">Chiudi tutto</button>
+            <button id="reset-account">Reset account</button>
+        </td>
+        <td class="server">
+            <table>
+                <tr>
+                    <td class="label">IP:</td>
+                    <td class="value" id="ip-address"></td>
+                </tr>
+                <tr>
+                    <td class="label">Status:</td>
+                    <td class="value" id="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">Sockets:</td>
+                    <td class="value" id="sockets"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="text"><button id="new-socket">Nuovo socket</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="text"><button id="kill-socket">Termina socket</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button id="exit-all">Termina tutti i downloader</button></td>
+                </tr>
+            </table>
+        </td>
+        <td class="downloads" id="output"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td class="new-link"><input type="text"><button id="add-link">Aggiungi link</button><button id="clean">Pulisci</button></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td>
+            <select class="select" id="selector">
+                <option selected="selected" disabled>seleziona file ...</option>
+            </select>
+            <button id="play">Play</button>
+        </td>
+    </tr>
+</table>
 
-    <ul class="sidenav">
-        <li><a id="links-menu" onclick="changeSection('links');">Download in corso</a></li>
-        <li><a id="path-menu" onclick="changeSection('path');">Gestisci i download</a></li>
-        <li><a id="playlist-menu" onclick="changeSection('playlist');">Playlist</a></li>
-        <li><a id="server-menu" onclick="changeSection('server');">Gestisci il server</a></li>
-        <li><a id="config-menu" onclick="changeSection('config');">Configurazione</a></li>
-        <li><a id="info-menu" onclick="changeSection('info');">Info</a></li>
-        <li><a id="killall-menu" onclick="exitAll();">Chiudi tutto</a></li>
-    </ul>
+<div class="divider">Configurazione del download nel path:</div>
 
-    <!-- ['links', 'path', 'config', 'info', 'server'].forEach(function(item) { -->
+<table class="path">
+    <tr>
+        <td class="label">Path:</td>
+        <td class="value" id="path"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="label">Spazio libero:</td>
+        <td class="value" id="free-space"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="label">Downloader:</td>
+        <td class="value" id="path-downloader"></td>
+        <td class="input"><input type="text"><button id="set-pathdownloader">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Max download:</td>
+        <td class="value" id="maxDownloads"></td>
+        <td class="input"><input type="text"><button id="set-maxdownloads">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Riconnetti modem:</td>
+        <td class="value" id="reconnect"></td>
+        <td class="input"><input type="text"><button id="set-reconnect">Cambia</button></td>
+    </tr>
+</table>
 
-    <!-- sezione LINKS -->
-    <div class="section" id="links">
-        <div class="label-section">Download in corso
-            <button class="btn pull-right" onclick="cleanComplete();">Pulisci completati</button>
-        </div>
-        <div id="output-links"></div>
-    </div>
+<div class="divider">Configurazione generale:</div>
 
-    <!-- sezione PATH -->
+<table class="config">
+    <tr>
+        <td class="label">Home path:</td>
+        <td class="value" id="home-path"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="label">Interfaccia utente:</td>
+        <td class="value" id="web_ui"></td>
+        <td class="input"><input type="text"><button id="set-webui">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Downloader predefinito:</td>
+        <td class="value" id="downloader"></td>
+        <td class="input"><input type="text"><button id="set-downloader">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Connessioni Axel:</td>
+        <td class="value" id="axel_parts"></td>
+        <td class="input"><input type="text"><button id="set-axelparts">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Connessioni Aria2:</td>
+        <td class="value" id="aria2_connections"></td>
+        <td class="input"><input type="text"><button id="set-aria2parts">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Max download:</td>
+        <td class="value" id="max_dl"></td>
+        <td class="input"><input type="text"><button id="set-maxdl">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Sfondo terminale:</td>
+        <td class="value" id="background"></td>
+        <td class="input"><input type="text"><button id="set-background">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Lingua:</td>
+        <td class="value" id="language"></td>
+        <td class="input"><input type="text"><button id="set-language">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Comando riconnessione:</td>
+        <td class="value" id="reconnecter"></td>
+        <td class="input"><input type="text"><button id="set-reconnecter">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Aggiornamenti automatici:</td>
+        <td class="value" id="autoupdate"></td>
+        <td class="input"><input type="text"><button id="set-autoupdate">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Player video:</td>
+        <td class="value" id="player"></td>
+        <td class="input"><input type="text"><button id="set-player">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Editor:</td>
+        <td class="value" id="editor"></td>
+        <td class="input"><input type="text"><button id="set-editor">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Sovrascrivi download:</td>
+        <td class="value" id="resume"></td>
+        <td class="input"><input type="text"><button id="set-resume">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Modalità avvio:</td>
+        <td class="value" id="zdl_mode"></td>
+        <td class="input"><input type="text"><button id="set-zdlmode">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Porta TCP torrent:</td>
+        <td class="value" id="tcp_port"></td>
+        <td class="input"><input type="text"><button id="set-tcpport">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Porta UDP torrent:</td>
+        <td class="value" id="udp_port"></td>
+        <td class="input"><input type="text"><button id="set-udpport">Cambia</button></td>
+    </tr>
+    <tr>
+        <td class="label">Browser:</td>
+        <td class="value" id="browser"></td>
+        <td class="input"><input type="text"><button id="set-browser">Cambia</button></td>
+    </tr>
+</table>
 
-    <div class="section" id="path">
-        <div class="label-section">Gestisci i download nei path</div>
-        <div class="content">
-
-            <div class="background-element">
-                <div class="label-element">Agisci in:</div>
-                <div id="path-sel" class="value"></div>
-                <div id="path-browser"></div>
-            </div>
-
-            <div id="run-path" class="visible">
-                <div class="background-element">
-                    <div class="label-element">Spazio libero:</div>
-                    <div class="value-number" id="path-free-space"></div>
-                    <button class="btn" onclick="singlePath(ZDL.path).getFreeSpace();">Aggiorna</button>
-                </div>
-
-                <div class="background-element">
-                    <div id="input-link-label" class="label-element">Aggiungi link:</div>
-                    <input id="input-link" type="text">
-                    <button class="btn" onclick="singlePath(ZDL.path).addLink('input-link');">Invia</button>
-                </div>
-
-                <div class="background-element">
-                    <div id="input-link-label" class="label-element">Editor links:</div>
-                    <div id="editor-links"></div>
-                </div>
-
-                <div class="background-element" id="xdcc">
-                    <div id="input-link-label" class="label-element">Cerca XDCC:</div>
-
-                    <input id="xdcc-search" type="text">
-
-                    <button class="btn" onclick="window.open('http://anydownload.altervista.org/search.php?q=' + document.getElementById('xdcc-search').value);">AnyDownload</button>
-
-                    <button class="btn" onclick="window.open('http://www.xdcc.eu/search.php?searchkey=' + document.getElementById('xdcc-search').value);">Xdcc.eu</button>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">Aggiungi XDCC:</div>
-
-                    <div class="sublabel-element top-margin">IRC host:</div>
-                    <input id="input-irc" type="text">
-
-                    <button class="btn" onclick="document.getElementById('input-irc').value='';">Pulisci</button>
-
-                    <div class="sublabel-element">Canale:</div>
-                    <input id="input-chan" type="text">
-
-                    <button class="btn" onclick="document.getElementById('input-chan').value='';">Pulisci</button>
-
-                    <div class="sublabel-element">MSG/CTCP:</div>
-                    <input id="input-ctcp" type="text">
-
-                    <button class="btn" onclick="document.getElementById('input-ctcp').value='';">Pulisci</button>
-
-                    <div class="xdcc-data">
-                        <button class="btn" onclick="singlePath(ZDL.path).addXDCC({host:'input-irc',chan:'input-chan',ctcp:'input-ctcp'});">Invia XDCC</button>
-
-                        <button class="btn" onclick="['input-irc','input-chan','input-ctcp'].forEach(function(id){document.getElementById(id).value='';});">Pulisci</button>
-                    </div>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">File torrent:</div>
-                    <div id="path-torrent"></div>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">Log:</div>
-                    <div id="path-file-log"></div>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">Links:</div>
-                    <div id="path-file-links"></div>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">Max download paralleli:</div>
-                    <div id="max-downloads">
-                        <input class="hidden" id="input-max-downloads" type="text">
-                    </div>
-                </div>
-
-                <div class="background-element">
-                    <div class="label-element">Downloader:</div>
-                    <div id="downloader"></div>
-                </div>
-
-                <!-- <div class="background-element">
-                    <div class="label-element">Attiva proxy:</div>
-                    <div id="path-proxy"></div>
-                </div> -->
-
-                <div class="background-element">
-                    <div class="label-element">Riconnessione modem/router:</div>
-                    <div id="path-reconnecter"></div>
-                    <button class="btn" onclick="singlePath(ZDL.path).reconnect();">Riconnetti adesso</button>
-                    <button class="btn" onclick="singlePath(ZDL.path).getIP();">Indirizzo IP</button>
-                </div>
-
-                <div class="background-element top-margin">
-                    <div id="path-status" class="align-center"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- sezione PLAYLIST -->
-    <div class="section" id="playlist">
-        <div class="label-section">Playlist</div>
-        <div class="content">
-            <div class="background-element">
-                <div class="label-element">Cerca nel server:</div>
-                <div id="playlist-browse"></div>
-            </div>
-
-            <div class="label-element"><b>Playlist</b></div>
-            <div id="playlist-list"></div>
-        </div>
-    </div>
-
-    <!-- sezione SERVER -->
-    <div class="section" id="server">
-        <div class="label-section">Server: gestisci i socket</div>
-        <div class="content">
-            <div class="background-element">
-                <div class="label-element">Nuovo socket (porta):</div>
-                <input id="input-port" type="number" min="1025" max="65535">
-                <button class="btn" onclick="runServer(document.getElementById('input-port').value);">Avvia socket</button>
-            </div>
-
-            <div class="background-element">
-                <div class="label-element">Vai al socket (porta):</div>
-                <div id="list-sockets-open"></div>
-            </div>
-
-            <div class="background-element">
-                <div class="label-element">Termina un socket (porta):</div>
-                <div id="list-sockets-kill"></div>
-            </div>
-
-            <div class="background-element top-margin align-center">
-                <button class="btn" onclick="killServer(); setTimeout(reloadPage, 2000);">Termina il socket attuale</button>
-                <button class="btn" onclick="killAll();">Termina i downloader in tutti i path</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- sezione CONFIGURE -->
-    <div class="section" id="config">
-        <div class="label-section">Configurazione</div>
-        <div class="content">
-            <div class="background-element">
-                <div class="label-element">Interfaccia utente (web):</div>
-                <div id="conf-web_ui"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Downloader predefinito:</div>
-                <div id="conf-downloader"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Numero di parti di download per Axel:</div>
-                <div id="conf-axel_parts"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Numero di parti di download per Aria2:</div>
-                <div id="conf-aria2_connections"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Max download simultanei:</div>
-                <div id="conf-max_dl"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Colore di sfondo nei terminali virtuali:</div>
-                <div id="conf-background"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Lingua:</div>
-                <div id="conf-language"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Comando per riconnettere il modem/router:</div>
-                <div id="conf-input-file-reconnecter"></div>
-                <div id="conf-reconnecter-text"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Aggiornameni automatici:</div>
-                <div id="conf-autoupdate"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Player per anteprima audio/video:</div>
-                <div id="conf-input-file-player"></div>
-                <div id="conf-player-text"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Editor per la lista dei link:</div>
-                <div id="conf-input-file-editor"></div>
-                <div id="conf-editor-text"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Sovrascrittura file omonimi (--resume):</div>
-                <div id="conf-resume"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Modalità di avvio:</div>
-                <div id="conf-zdl_mode"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Porta TCP (torrent):</div>
-                <div id="conf-tcp_port"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Porta UDP (torrent):</div>
-                <div id="conf-udp_port"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Porta TCP (--socket, --web-ui):</div>
-                <div id="conf-socket_port"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Browser web (--web-ui):</div>
-                <div id="conf-input-file-browser"></div>
-                <div id="conf-browser-text"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Account (--socket/--web-ui):</div>
-                <div id="conf-account-socket"></div>
-            </div>
-            <div class="background-element">
-                <div class="label-element">Path dal desktop:</div>
-                <div id="conf-sel-path" class="value"></div>
-                <div id="conf-browser-path"></div>
-            </div>
+<div class="file-container">
+    <div class="file">
+        <div class="file-name">links.txt</div>
+        <div id="links" class="file-content"></div>
+        <div class="file-buttons">
+            <button id="del-links">Elimina</button>
+            <button id="read-links">Aggiorna</button>
         </div>
     </div>
-
-    <!-- sezione INFO & SEARCH -->
-    <div class="section" id="info">
-        <div class="label-section">Documentazione di ZigzagDownLoader (ZDL)</div>
-        <div class="content">
-            <div class="background-element">
-                <p>
-                    Il manuale d'uso è disponibile in diverse forme, accessibili dal terminale o da un browser web.<br> Qui puoi consultare:
-                </p>
-                <ul class="info">
-                    <li><a href="http://nongnu.org/zdl" target="_blanck">Sito ufficiale di ZigzagDownLoader</a></li>
-                    <li><a href="https://joindiaspora.com/tags/zdl" target="_blanck">Aggiornamenti in Diaspora*</a></li>
-                    <li><a href="https://savannah.nongnu.org/projects/zdl" target="_blanck">Progetto di sviluppo in Savannah/GNU</a></li>
-                    <li><a href="http://download-mirror.savannah.gnu.org/releases/zdl/" target="_blanck">Pacchetti rilasciati di ZDL</a></li>
-                    <li><a href="http://git.savannah.gnu.org/cgit/zdl.git" target="_blanck">Repository Git (controllo versione sorgenti)</a></li>
-                </ul>
-            </div>
-
-            <div class="background-element">
-                <div class="label-element">Contatti</div>
-                <button class="btn" onclick="window.open('https://savannah.nongnu.org/bugs/?func=additem&group=zdl')">Invia un messaggio</button>
-            </div>
+    <div class="file">
+        <div class="file-name">zdl_log.txt</div>
+        <div id="log" class="file-content"></div>
+        <div class="file-buttons">
+            <button id="del-log">Elimina</button>
+            <button id="read-log">Aggiorna</button>
         </div>
     </div>
-    <script>
-        document.getElementById("input-port").value = parseInt(window.location.port) + 1;
-    </script>
+</div>
+
+<div class="divider"></div>
+
+<script>
+var files = [];
+
+function tryParse(str) {
+    try {
+        JSON.parse(str);
+    } catch(e) {
+        return false;
+    }
+    return true;
+}
+
+// API
+var options = {path: "__START_PATH__", file: "index.html"};
+var myZDL = new ZDL(options);
+
+function settingsFlow() {
+    var arg = arguments[0] || false;
+    myZDL.getStatus(arg).then(function(res) {
+        if (tryParse(res)) {
+            var obj = JSON.parse(res), node;
+            for (var key of Object.keys(obj)) {
+                if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+                    for (var _key of Object.keys(obj[key])) {
+                        node = document.getElementById(_key);
+                        if (node && node.textContent !== obj[key][_key]) node.textContent = obj[key][_key];
+                    }
+                }
+                else {
+                    // E' necessario diversificare l'ID del downloader nel path.
+                    if (key === "downloader") {
+                        node = document.getElementById("path-" + key);
+                    } else {
+                        node = document.getElementById(key);
+                    }
+                    if (node && node.textContent !== obj[key]) node.textContent = obj[key];
+                }
+            }
+        }
+        //console.log("[ZDL] settings flow:", res.length);
+        settingsFlow();
+    }).catch(function(e) { console.log("[ZDL] settings flow: ", e); });
+}
+
+var output = document.getElementById("output"),
+    selector = document.getElementById("selector");
+
+function downloadsFlow() {
+    var arg = arguments[0] || false;
+    myZDL.getData(arg).then(function(res) {
+        if (tryParse(res)) {
+            var obj = JSON.parse(res), data = "";
+            for (var key of obj) {
+                data += "<span class='size'>"+(key.length / 1048576).toFixed(2)+"MB</span>";
+                if (parseInt(key.percent) < 100) data += "<span class='perc reddy'>" + key.percent + "%</span>";
+                else data += "<span class='perc'>" + key.percent + "%</span>";
+                data += key.file + "<br>";
+                if (files.indexOf(key.file) < 0) {
+                    files.push(key.file);
+                    var option = document.createElement("option");
+                    option.text = key.file;
+                    selector.add(option);
+                }
+            }
+            output.innerHTML = data;
+        }
+        //console.log("[ZDL] downloads flow", res.length);
+        downloadsFlow();
+    }).catch(function(e) { console.log("[ZDL] downloads flow: ", e); });
+}
+
+myZDL.initClient().then(function() {
+    console.log("[ZDL] Flows initialized");
+    settingsFlow(true);
+    downloadsFlow(true);
+});
+
+myZDL.getIP().then(function(res) {
+    var ip = res.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/);
+    if (ip) document.getElementById("ip-address").textContent = ip;
+});
+
+myZDL.getHomePath().then(function(path) {
+    document.getElementById("home-path").textContent = path;
+});
+
+myZDL.getFreeSpace().then(function(space) {
+    document.getElementById("free-space").textContent = space;
+});
+
+myZDL.getFile("links.txt").then(function(content) {
+    document.getElementById("links").innerHTML = content;
+});
+
+myZDL.getFile("zdl_log.txt").then(function(content) {
+    document.getElementById("log").innerHTML = content;
+});
+
+document.querySelector(".main").addEventListener("click", function(event) {
+    if (event.target.nodeName === "BUTTON") {
+        switch (event.target.id) {
+            case "start-zdl":
+                myZDL.run().then(function() {
+                    console.log("[ZDL] start");
+                });
+                break;
+            case "quit-zdl":
+                myZDL.quit().then(function() {
+                    console.log("[ZDL] quit");
+                });
+                break;
+            case "exit-all":
+                myZDL.exitAll().then(function() {
+                    window.setTimeout(function() {
+                        window.location.href = window.location.pathname;
+                    }, 3000);
+                });
+                break;
+            case "reset-account":
+                myZDL.resetAccount().then(function() {
+                    window.setTimeout(function() {
+                        window.location.href = "login.html";
+                    }, 2000);
+                });
+                break;
+            case "new-socket":
+                var port = event.target.previousElementSibling;
+                myZDL.startSocket(port.value).then(function() {
+                    console.log("[ZDL] nuovo socket sulla porta " + port.value);
+                    port.value = "";
+                });
+                break;
+            case "kill-socket":
+                var port = event.target.previousElementSibling;
+                myZDL.killSocket(port.value).then(function() {
+                    window.setTimeout(function() {
+                        window.location.href = window.location.pathname;
+                    }, 3000);
+                    console.log("[ZDL] chiuso socket sulla porta " + port.value);
+                    port.value = "";
+                });
+                break;
+            case "kill-all":
+                myZDL.killAll().then(function() {
+                    console.log("[ZDL] killall");
+                });
+                break;
+            case "add-link":
+                output.innerHTML += "Preparazione del download ... attendere ...";
+                var link = event.target.previousElementSibling;
+                myZDL.addLink(link.value).then(function() {
+                    console.log("[ZDL] aggiunto link: " + link.value);
+                    myZDL.getFile("links.txt").then(function(content) {
+                        document.getElementById("links").innerHTML = content;
+                    });
+                    link.value = "";
+                });
+                break;
+            case "clean":
+                output.innerHTML = "";
+                myZDL.cleanCompleted().then(function() {
+                    console.log("[ZDL] cancellati dati download completati")
+                });
+                break;
+            case "play":
+                var file = event.target.previousElementSibling;
+                myZDL.play(file.value).then(function() {
+                    console.log("[ZDL] play file: " + file.value);
+                });
+                break;
+            default:
+                return false;
+        }
+    }
+}, false);
+
+document.querySelector(".path").addEventListener("click", function(event) {
+    if (event.target.nodeName === "BUTTON") {
+        var input = event.target.previousElementSibling;
+        switch (event.target.id) {
+            case "set-pathdownloader":
+                myZDL.setLocal("set-downloader",  "downloader=" + input.value).then(function() {
+                    console.log("[ZDL] download con " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-maxdownloads":
+                myZDL.setLocal("set-max-downloads", "number=" + input.value).then(function() {
+                    console.log("[ZDL] max downloads: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-reconnect":
+                myZDL.setLocal("reconnect", "set=" + input.value).then(function() {
+                    input.value = "";
+                });
+                break;
+            default:
+                return false;
+        }
+    }
+}, false);
+
+document.querySelector(".config").addEventListener("click", function(event) {
+    if (event.target.nodeName === "BUTTON") {
+        var input = event.target.previousElementSibling;
+        switch (event.target.id) {
+            case "set-webui":
+                myZDL.setGlobal("web_ui", input.value).then(function() {
+                    console.log("[ZDL] interfaccia: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-downloader":
+                myZDL.setGlobal("downloader", input.value).then(function() {
+                    console.log("[ZDL] downloader predefinito: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-axelparts":
+                myZDL.setGlobal("axel_parts", input.value).then(function() {
+                    console.log("[ZDL] parti Axel: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-aria2parts":
+                myZDL.setGlobal("aria2_connections". input.value).then(function() {
+                    console.log("[ZDL] connessioni Aria2 " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-maxdl":
+                myZDL.setGlobal("max_dl", input.value).then(function() {
+                    console.log("[ZDL] max downloads predefiniti: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-background":
+                myZDL.setGlobal("background", input.value).then(function() {
+                    console.log("[ZDL] background console: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-language":
+                myZDL.setGlobal("language", input.value).then(function() {
+                    console.log("[ZDL] lingua: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-reconnecter":
+                myZDL.setGlobal("reconnecter", input.value).then(function() {
+                    console.log("[ZDL] stringa riconnessione modem: '" + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-autoupdate":
+                myZDL.setGlobal("autoupdate", input.value).then(function() {
+                    console.log("[ZDL] autoupdate: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-player":
+                myZDL.setGlobal("player", input.value).then(function() {
+                    console.log("[ZDL] player: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-editor":
+                myZDL.setGlobal("editor", input.value).then(function() {
+                    console.log("[ZDL] editor: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-resume":
+                myZDL.setGlobal("resume", input.value).then(function() {
+                    console.log("[ZDL] resume: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-zdlmode":
+                myZDL.setGlobal("zdl_mode", input.value).then(function() {
+                    console.log("[ZDL] mode: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-tcpport":
+                myZDL.setGlobal("tcp_port", input.value).then(function() {
+                    console.log("[ZDL] porta torrent TCP: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-udpport":
+                myZDL.setGlobal("udp_port", input.value).then(function() {
+                    console.log("[ZDL] porta torrent UDP: " + input.value);
+                    input.value = "";
+                });
+                break;
+            case "set-browser":
+                myZDL.setGlobal("browser", input.value).then(function() {
+                    console.log("[ZDL] browser: " + input.value);
+                    input.value = "";
+                });
+                break;
+            default:
+                return false;
+        }
+    }
+}, false);
+
+document.querySelector(".file-container").addEventListener("click", function(event) {
+    if (event.target.nodeName === "BUTTON") {
+        switch (event.target.id) {
+            case "del-links":
+                myZDL.deleteFile("links.txt").then(function() {
+                    console.log("[ZDL] links.txt eliminato");
+                    document.getElementById("log").innerHTML= "links.txt eliminato";
+                });
+                break;
+            case "read-links":
+                myZDL.getFile("links.txt").then(function(content) {
+                    console.log("[ZDL] links.txt riletto");
+                    document.getElementById("links").innerHTML = content;
+                });
+                break;
+            case "del-log":
+            myZDL.deleteFile("zdl_log.txt").then(function() {
+                console.log("[ZDL] zdl_log.txt eliminato");
+                document.getElementById("log").innerHTML= "zdl_log.txt eliminato";
+            });
+                break;
+            case "read-log":
+            myZDL.getFile("zdl_log.txt").then(function(content) {
+                console.log("[ZDL] zdl_log.txt riletto");
+                document.getElementById("log").innerHTML = content;
+            });
+                break;
+            default:
+                return false;
+        }
+    }
+}, false);
+</script>
+
 </body>
 </html>

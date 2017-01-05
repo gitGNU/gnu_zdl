@@ -125,7 +125,8 @@ function OL_decode3 {
 if [[ "$url_in" =~ (openload\.) ]]
 then
     URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
-    URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
+    #URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
+    URL_in="$(sed -r 's|\/f\/|/embed/|g' <<< "$url_in")"
 
     html=$(wget -t 1 -T $max_waiting                      \
     		-qO-                                      \
@@ -143,6 +144,7 @@ then
 	
     elif [ -n "$html" ]
     then
+	
 	html2=$(awk '/\^o/{print}' <<< "$html"   |
 	    head -n1                |
 	    sed -r 's|[^>]+>(.+)|\1|g') #>"$path_tmp/aaencoded.js"

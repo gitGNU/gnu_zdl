@@ -1,0 +1,191 @@
+API
+===
+
+
+### Instanziare un nuovo oggetto ZDL
+
+var options = {path: "__START_PATH__", file: "index.html"};
+var myZDL = new ZDL(options);
+
+
+### Getters
+
+- myZDL.getStatus()  // per ricevere i dati di configurazione
+- myZDL.getData()  // per ricevere i dati dei download
+- myZDL.initClient()  // per inizializzare il client
+
+# Flussi dati di configurazione e download
+
+I dati vengono serviti dal server sotto forma di json serializzato. Il server di zdl utilizza la tecnica del long polling, ad ogni richiesta del client il json viene confrontato con quello precedentemente servito e inviato solo quando uno o più valori sono cambiati. Per avere i dati aggiornati in tempo reale il client deve racchiudere i metodi getStatus e getData in una funzione che gira in loop quando li riceve:
+
+1) Flusso dati di configurazione
+
+function tryParse(str) {
+    try {
+        JSON.parse(str);
+    } catch(e) {
+        return false;
+    }
+    return true;
+}
+
+function settingsFlow() {
+    var arg = arguments[0] || false;
+    myZDL.getStatus(arg).then(function(res) {
+        if (tryParse(res)) {
+            var obj = JSON.parse(res);  // vedi (4)
+
+            // qui il codice per visualizzare i dati di configurazione
+
+        }
+        settingsFlow();
+    }).catch(function(e) { console.log("settings flow:", e); });
+}
+
+2) Flusso dati dei download
+
+function downloadsFlow() {
+    var arg = arguments[0] || false;
+    myZDL.getData(arg).then(function(res) {
+        if (tryParse(res)) {
+            var obj = JSON.parse(res);  // vedi (4)
+
+            // qui il codice per visualizzare i dati dei download
+
+        }
+        downloadsFlow();
+    }).catch(function(e) { console.log("downloads flow:", e); });
+}
+
+3) Inizializzazione del client e dei flussi
+
+myZDL.initClient().then(function() {
+    settingsFlow(true);
+    downloadsFlow(true);
+});
+
+4) I Dati
+
+Il json di myZDL.getStatus() (dati di configurazione)
+I primi 4 sono i dati locali del path che stà eseguendo zdl
+{
+    path: "",
+    status: "",
+    downloader: "",
+    maxDownloads: "",
+    reconnect: "",
+    sockets:  Array [""]
+    conf:  Object {
+        downloader: "",
+        axel_parts: "",
+        aria2_connections: "",
+        max_dl: "",
+        background: "",
+        language: "",
+        reconnecter: "",
+        autoupdate: "",
+        player: "",
+        editor: "",
+        browser: "",
+        resume: "",
+        socket_port: "",
+        tcp_port: "",
+        udp_port: "",
+        web_ui: "",
+        zdl_mode: ""
+    }
+}
+
+Il json di di myZDL.getData() (dati dei download)
+{
+    path: "",
+    file: "",
+    percent: "",
+    speed: "",
+    speed_measure: "",
+    eta: "",
+    downloader: "",
+    link: "",
+    length: "",
+    streamer: "",
+    playpath: "",
+    url: ""
+}
+
+
+# Dati ottenibili singolarmente
+
+- myZDL.getIP()  // per ricevere l'IP della connessione internet
+- myZDL.getHomePath()  // per ricevere il path della home page
+- myZDL.getFreeSpace()  // per ricevere lo spazio libero della cartella dove si scarica
+- myZDL.getFile("filename")  // per ricevere il contenuto di links.txt e zdl_log.txt
+
+Esempio:
+myZDL.getHomePath().then(function(path) {console.log(path)});
+myZDL.getFile("links.txt").then(function(content) {console.log(content)});
+myZDL.getIP().then(function(res) {
+    var ip = res.match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/);
+    if (ip) console.log(ip);
+});
+
+
+### Comandi
+
+- myZDL.run()  // avvia zdl
+- myZDL.quit()  // chiude zdl
+- myZDL.exitAll()  // chiude tutto e uccide tutti i processi
+- myZDL.resetAccount()  // elimina l'account
+- myZDL.startSocket("porta")  // avvia il socket sulla porta
+- myZDL.killSocket("porta")  // uccide il socket sulla Porta
+- myZDL.killAll()  // uccide tutti i processi dei downloader
+- myZDL.addLink("link")  // avvia un nuovo download
+- myZDL.cleanCompleted()  // cancella dati download completati
+- myZDL.deleteFile("filename")  // per eliminare links.txt e zdl_log.txt
+- myZDL.play("filename")  // riproduce il file scaricato con il player impostato
+
+Esempio:
+- con callback:
+myZDL.startSocket("8083").then(function() {console.log("Socket avviato sulla porta 8083")});
+- senza callback:
+myZDL.startSocket("8084");
+myZDL.play("video.mp4");
+
+
+### Setters (configurazione locale nel path)
+
+- myZDL.setLocal("set-downloader", "downloader=Aria2/Axel/Wget")  // imposta il downloader nel path
+- myZDL.setLocal("set-max-downloads", "number=1/16")  // imposta i download simultanei nel path
+- myZDL.setLocal("reconnect", "set=enabled/disabled")  // sperimentale, non disponibile
+
+Esempi:
+- con callback:
+myZDL.setLocal("set-downloader", "downloader=Aria2").then(function() {console.log("downloader: Aria2")});
+- senza callback:
+myZDL.setLocal("set-max-downloads", "number=8");
+
+
+### Setters (configurazione generale)
+
+- myZDL.setGlobal("web_ui", "1/2")  // seleziona l'interfaccia
+- myZDL.setGlobal("downloader", "Aria2/Axel/Wget")  // imposta il downloader predefinito
+- myZDL.setGlobal("axel_parts", "1/32")  // imposta le parti di download di Axel
+- myZDL.setGlobal("aria2_connections", "1/16")  // imposta le connessioni simultanee di Aria2
+- myZDL.setGlobal("max_dl", "1/16")  // imposta i download simultanei predefiniti
+- myZDL.setGlobal("background", "transparent/black")  // imposta lo sfondo del terminale
+- myZDL.setGlobal("language", "it_IT.UTF-8")  // imposta la lingua
+- myZDL.setGlobal("reconnecter", "string")  // imposta la stringa per riconnettere il modem
+- myZDL.setGlobal("autoupdate", "enabled/disabled")  // imposta l'update automatico
+- myZDL.setGlobal("player", "name")  // imposta il player per i video in streaming
+- myZDL.setGlobal("editor", "name")  // imposta l'editor predefinito
+- myZDL.setGlobal("resume", "enabled/disabled")  // imposta la sovrascrittura dei file
+- myZDL.setGlobal("zdl_mode", "stout/daemon/lite")  // imposta la modalità di avvio di zdl
+- myZDL.setGlobal("tcp_port", "1024/65535")  // imposta la porta tcp per i torrent
+- myZDL.setGlobal("udp_port", "1024/65535")  // imposta la porta udp per i torrent
+- myZDL.setGlobal("browser", "nome")  // imposta il browser predefinito
+
+Esempi:
+- con callback:
+myZDL.setGlobal("zdl_mode", "daemon").then(function() {console.log("zdl mode: daemon")});
+- senza callback:
+myZDL.setGlobal("axel_parts", "16");
+myZDL.setGlobal("browser", "Firefox");
