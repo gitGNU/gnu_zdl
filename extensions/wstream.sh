@@ -59,7 +59,7 @@ then
 		    -qO-)
 
 	url_in_file=$(unpack "$html" |
-			     sed -r 's|.+file:\"([^"]+)\".+|\1|g')
+			     sed -r 's|.+\[\{file:\"([^"]+)\".+|\1|g')
 	
 	end_extension
     fi
