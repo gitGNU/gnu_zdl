@@ -17,7 +17,7 @@
 //  For information or to collaborate on the project:
 //  https://savannah.nongnu.org/projects/zdl
 //
-//  Gianluca Zoni (author)
+//  Gianluca Zoni
 //  http://inventati.org/zoninoz
 //  zoninoz@inventati.org
 
@@ -881,7 +881,7 @@ var displayConf = function (conf) {
             case "web_ui":
                 if (!spec.options)
                     spec.options = ZDL.webUI;
-            case "downloader":
+            case "conf_downloader":
                 if (!spec.options)
                     spec.options = ["Aria2", "Axel", "Wget"];
             case "background":

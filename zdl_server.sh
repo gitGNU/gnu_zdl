@@ -456,12 +456,21 @@ function check_socket_ports {
 }
 
 function get_status_conf {
+    local key_json
     declare -n ref="$1"
 
     ref='{'
     for key in ${key_conf[@]}
     do
-	ref+="\"$key\":\"$(get_item_conf $key)\","
+	if [ "$key" == downloader ]
+	then
+	    key_json="conf_downloader"
+
+	else
+	    key_json="$key"
+	fi
+	
+	ref+="\"$key_json\":\"$(get_item_conf $key)\","
     done
     ref="${ref%,}}"
 }
@@ -1512,7 +1521,7 @@ function http_server {
 while read -a line 
 do
     recv "${line[*]}"
-	
+
     case "${line[0]}" in
 	GET)
 	    unset GET_DATA file_output
@@ -1530,6 +1539,7 @@ do
 	POST)
 	    unset POST_DATA file_output
 	    http_method=POST
+
 	    get_file_output file_output "${line[1]}"
 	    ;;
 
