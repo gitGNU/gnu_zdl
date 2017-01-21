@@ -3,7 +3,7 @@
 <head>
     <!--
 	ZigzagDownLoader (ZDL)
-	
+
 	This program is free software: you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published
 	by the Free Software Foundation; either version 3 of the License,
@@ -12,13 +12,13 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 	or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-	
+
 	You should have received a copy of the GNU General Public License
 	along with this program. If not, see http://www.gnu.org/licenses/.
-	
+
 	Copyright (C) 2011
 	Gianluca Zoni <<zoninoz@inventati.org>>
-	
+
 	For information or to collaborate on the project:
 	`https://savannah.nongnu.org/projects/zdl'
 	-->
@@ -51,6 +51,7 @@
         .reddy {background:#f6d!important;}
         .new-link button:last-child {margin-left:3px;}
         .new-link input {width:calc(100% - 240px);}
+        .new-xdcc input {width:calc(100% - 125px);}
         .select {background:transparent; width:calc(100% - 120px); padding:0 5px; border:1px solid #ccc; height:24px; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
         .file {width:calc(50% - 10px); margin-top:15px; margin-right:10px; float:left;}
         .file-name {padding:0 5px 4px; font-weight:700;}
@@ -93,7 +94,7 @@
                 </tr>
                 <tr>
                     <td></td>
-                    <td><button id="exit-all">Termina tutti i downloader</button></td>
+                    <td><button id="kill-all">Termina tutti i downloader</button></td>
                 </tr>
             </table>
         </td>
@@ -103,6 +104,11 @@
         <td></td>
         <td></td>
         <td class="new-link"><input type="text"><button id="add-link">Aggiungi link</button><button id="clean">Pulisci</button></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td class="new-xdcc"><input type="text" placeholder="Network/Channel/Bot/Slot"><button id="add-xdcc">Aggiungi xdcc</button></td>
     </tr>
     <tr>
         <td></td>
@@ -131,8 +137,8 @@
     </tr>
     <tr>
         <td class="label">Downloader:</td>
-        <td class="value" id="path-downloader"></td>
-        <td class="input"><input type="text"><button id="set-pathdownloader">Cambia</button></td>
+        <td class="value" id="downloader"></td>
+        <td class="input"><input type="text"><button id="set-downloader">Cambia</button></td>
     </tr>
     <tr>
         <td class="label">Max download:</td>
@@ -162,7 +168,7 @@
     <tr>
         <td class="label">Downloader predefinito:</td>
         <td class="value" id="conf_downloader"></td>
-        <td class="input"><input type="text"><button id="set-downloader">Cambia</button></td>
+        <td class="input"><input type="text"><button id="set-conf-downloader">Cambia</button></td>
     </tr>
     <tr>
         <td class="label">Connessioni Axel:</td>
@@ -286,12 +292,7 @@ function settingsFlow() {
                     }
                 }
                 else {
-                    // E' necessario diversificare l'ID del downloader nel path.
-                    if (key === "downloader") {
-                        node = document.getElementById("path-" + key);
-                    } else {
-                        node = document.getElementById(key);
-                    }
+                    node = document.getElementById(key);
                     if (node && node.textContent !== obj[key]) node.textContent = obj[key];
                 }
             }
@@ -401,7 +402,7 @@ document.querySelector(".main").addEventListener("click", function(event) {
                 break;
             case "kill-all":
                 myZDL.killAll().then(function() {
-                    console.log("[ZDL] killall");
+                    console.log("[ZDL] terminati tutti i downloader");
                 });
                 break;
             case "add-link":
@@ -413,6 +414,22 @@ document.querySelector(".main").addEventListener("click", function(event) {
                         document.getElementById("links").innerHTML = content;
                     });
                     link.value = "";
+                });
+                break;
+            case "add-xdcc":
+                output.innerHTML += "Preparazione del download ... attendere ...";
+                var input = event.target.previousElementSibling;
+                var split = input.value.trim().split("/");
+                var link = {
+                    host: split[0],
+                    channel: encodeURIComponent(split[1]),
+                    msg: encodeURIComponent(split[2] + " xdcc send #" + split[3])};
+                myZDL.addXdcc(link).then(function() {
+                    console.log("[ZDL] aggiunto link xdcc: " + link.host + "/" + link.channel + "/" + decodeURIComponent(link.msg));
+                    myZDL.getFile("links.txt").then(function(content) {
+                        document.getElementById("links").innerHTML = content;
+                    });
+                    input.value = "";
                 });
                 break;
             case "clean":
@@ -437,7 +454,7 @@ document.querySelector(".path").addEventListener("click", function(event) {
     if (event.target.nodeName === "BUTTON") {
         var input = event.target.previousElementSibling;
         switch (event.target.id) {
-            case "set-pathdownloader":
+            case "set-downloader":
                 myZDL.setLocal("set-downloader",  "downloader=" + input.value).then(function() {
                     console.log("[ZDL] download con " + input.value);
                     input.value = "";
@@ -467,10 +484,13 @@ document.querySelector(".config").addEventListener("click", function(event) {
             case "set-webui":
                 myZDL.setGlobal("web_ui", input.value).then(function() {
                     console.log("[ZDL] interfaccia: " + input.value);
-                    input.value = "";
+                    input.value = "attendere ...";
+                    window.setTimeout(function() {
+                        window.location.href = window.location.pathname;
+                    }, 3000);
                 });
                 break;
-            case "set-downloader":
+            case "set-conf-downloader":
                 myZDL.setGlobal("downloader", input.value).then(function() {
                     console.log("[ZDL] downloader predefinito: " + input.value);
                     input.value = "";
@@ -582,16 +602,16 @@ document.querySelector(".file-container").addEventListener("click", function(eve
                 });
                 break;
             case "del-log":
-            myZDL.deleteFile("zdl_log.txt").then(function() {
-                console.log("[ZDL] zdl_log.txt eliminato");
-                document.getElementById("log").innerHTML= "zdl_log.txt eliminato";
-            });
+                myZDL.deleteFile("zdl_log.txt").then(function() {
+                    console.log("[ZDL] zdl_log.txt eliminato");
+                    document.getElementById("log").innerHTML= "zdl_log.txt eliminato";
+                });
                 break;
             case "read-log":
-            myZDL.getFile("zdl_log.txt").then(function(content) {
-                console.log("[ZDL] zdl_log.txt riletto");
-                document.getElementById("log").innerHTML = content;
-            });
+                myZDL.getFile("zdl_log.txt").then(function(content) {
+                    console.log("[ZDL] zdl_log.txt riletto");
+                    document.getElementById("log").innerHTML = content;
+                });
                 break;
             default:
                 return false;

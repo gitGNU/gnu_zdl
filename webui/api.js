@@ -79,6 +79,10 @@ function ZDL(options) {
         return serve("?cmd=add-link&path=" + this.path + "&link=" + link);
     };
 
+    this.addXdcc = function(link) {
+        return serve("?cmd=add-xdcc&path=" + this.path + "&host=" + link.host + "&chan=" + link.channel + "&ctcp=" + link.msg);
+    };
+
     this.deleteFile = function(file) {
         return serve("?cmd=del-file&path=" + this.path + "&file=" + file);
     };

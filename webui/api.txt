@@ -139,6 +139,7 @@ myZDL.getIP().then(function(res) {
 - myZDL.killSocket("porta")  // uccide il socket sulla Porta
 - myZDL.killAll()  // uccide tutti i processi dei downloader
 - myZDL.addLink("link")  // avvia un nuovo download
+- myZDL.addXdcc(array[network,channel,msg])  // avvia un nuovo download con xdcc
 - myZDL.cleanCompleted()  // cancella dati download completati
 - myZDL.deleteFile("filename")  // per eliminare links.txt e zdl_log.txt
 - myZDL.play("filename")  // riproduce il file scaricato con il player impostato
@@ -149,6 +150,8 @@ myZDL.startSocket("8083").then(function() {console.log("Socket avviato sulla por
 - senza callback:
 myZDL.startSocket("8084");
 myZDL.play("video.mp4");
+var data = ["network.it", "CHANNEL", "nomeBot xdcc send #132"];
+myZDL.addXdcc(data);
 
 
 ### Setters (configurazione locale nel path)

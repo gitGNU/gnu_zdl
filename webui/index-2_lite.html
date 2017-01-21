@@ -3,7 +3,7 @@
   <head>
     <!--
 	ZigzagDownLoader (ZDL)
-	
+
 	This program is free software: you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published
 	by the Free Software Foundation; either version 3 of the License,
@@ -28,63 +28,86 @@
     <link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet">
     <style>
         body {font-family:"Droid Sans", sans-serif; font-size:14px; background:#333; color:#eee;}
-        table {border:1px solid #444; table-layout:fixed;}
-        td {padding:5px; vertical-align:top; overflow:hidden; text-overflow:ellipsis; white-space: nowrap;}
-        input {height:37px; background:#555; color:#ddd; font-size:13px; margin-right:4px; padding:0 5px; border:0;}
-        button {min-width:110px; height:40px; background:#444; color:#fff; border:1px solid #333; padding:4px 3px;}
-        button:hover {background:#000;}
-        .new-link button:last-child {margin-left:3px;}
-        .new-link input {width:calc(100% - 238px);}
-        .commands button {margin-right:3px;}
-        .commands input {width:110px;}
-        .commands select {background:#555; color:#eee; width:calc(100% - 356px); margin:0 4px; padding:0 5px; border:none; height:38px; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
-        option {background:#444; color:#eee;}
-        .header {height:20px; font-size:16px; font-weight:700; padding:0 5px;}
-        .main {width:100%;}
-        .info {color:#aaa;}
-        .info span {color:#fff; margin-right:20px;}
-        .downloads {height:160px; background:#000; color:#eee;}
+        .header {height:25px; font-size:16px; font-weight:700; padding:0 5px;}
+        .container {border:1px solid #444;}
+        .settings {color:#aaa; padding:5px;}
+        .settings span {color:#fff; margin-right:20px;}
+        .downloads {min-height:160px; background:#000; color:#eee; margin-bottom:5px; padding:5px; overflow-x:hidden; text-overflow:ellipsis; white-space: nowrap;}
         .downloads span {margin-right:5px;}
+        input {height:38px; background:#555; color:#ddd; font-size:13px; padding:0 5px; border:0;}
+        input, select {margin-right:2px;}
+        button {min-width:110px; height:38px; background:#444; color:#fff; border:1px solid #444; vertical-align:top;}
+        button:hover {background:#000; border-color:#000;}
+        button:not(.last) {margin-right:6px;}
+        .start-download, .player, .commands {display:flex; margin-bottom:5px;}
+        .start-download input {flex:1;}
+        .start-download button {flex:0;}
+        .player select {flex:1; background:#555; color:#eee; padding:0 5px; border:none; height:38px; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+        .player button {flex:0;}
+        option {background:#444; color:#eee;}
+        .reports div {width:50%; float:left; display:flex;}
+        .reports textarea {height:100px; background:#000; color:#ddd; padding:5px; font-size:12px; border:none; resize:none; overflow-y:hidden; flex:1;}
         .led {width:5px; background:#555;}
         .size {color:#888}
-        .perc {color:#0c0;}
+        .perc {color:#0b0;}
         .reddy {background:#f00!important;}
         .greeny {background:#0f0!important;}
-        .console {width:100%; height:100px; background:#000; color:#ddd; padding:5px; font-size:12px; border:none; resize:none; overflow-y:hidden;}
     </style>
     <script src="api.js"></script>
 </head>
 
 <body>
 <div class="header">ZDL Lite UI</div>
-<table class="main">
-    <tr>
-        <td class="info">Downloader: <span id="downloader"></span>Path: <span id="path"></span>Player: <span id="player"></span></td>
-    </tr>
-    <tr>
-        <td class="downloads" id="output"></td>
-    </tr>
-    <tr>
-        <td class="new-link"><input type="text"><button id="add-link">Add link</button><button id="clean">Clean</button></td>
-    </tr>
-    <tr>
-        <td class="commands"><input type="text"><button id="set-player">Set player</button><select class="select" id="selector"><option selected="selected" disabled>Select file ...</option></select><button id="play">Play</button></td>
-    </tr>
-    <tr>
-        <td class="commands"><button id="change-ui">UI 1</button><button id="kill-all">Kill downloader</button><button id="exit-all">Close all</button></td>
-    </tr>
-    <tr>
-        <td><textarea class="console" id="console"></textarea></td>
-    </tr>
-</table>
+<div class="container">
+    <div class="settings">
+        Downloader: <span id="downloader"></span>
+        Path: <span id="path"></span>
+        Player: <span id="player"></span>
+    </div>
+    <div class="downloads" id="output"></div>
+    <div class="start-download">
+        <input type="text" placeholder="Network/Channel/Bot/Slot"><button id="add-xdcc">Add xdcc</button>
+        <input type="text" placeholder="Link"><button id="add-link">Add link</button><button class="last" id="clean">Clean</button>
+    </div>
+    <div class="player">
+        <input type="text" placeholder="Player"><button id="set-player">Set player</button>
+        <select class="select" id="selector">
+            <option selected="selected" disabled>Select file ...</option>
+        </select>
+        <button class="last" id="play">Play</button>
+    </div>
+    <div class="commands">
+        <button id="change-ui">UI 1</button>
+        <button id="update-log">Log</button>
+        <button id="kill-all">Kill</button>
+        <button id="exit-all">Exit</button>
+    </div>
+    <div class="reports">
+        <div>
+            <textarea id="console"></textarea>
+        </div>
+        <div>
+            <textarea id="log"></textarea>
+        </div>
+    </div>
+</div>
 
 <script>
 var _console = document.getElementById("console"),
+    _log = document.getElementById("log"),
     files = [];
 
 function zdl_console(msg) {
     var lines = _console.value.split("\n");
     lines.length === 8 ? _console.value = msg : _console.value += msg;
+}
+
+function zdl_log() {
+    myZDL.getFile("zdl_log.txt").then(function(content) {
+        var sanitized_content = content.replace(/<br>/g, "\n");
+        _log.value = sanitized_content;
+        _log.scrollTop = _log.scrollHeight;
+    });
 }
 
 function tryParse(str) {
@@ -109,6 +132,7 @@ function settingsFlow() {
             document.getElementById("player").textContent = obj["conf"].player;
         }
         zdl_console("[ZDL] settings flow: get data\n");
+        zdl_log();
         settingsFlow();
     }).catch(function(e) {
         zdl_console("[ZDL] settings flow: " + e + "\n");
@@ -130,8 +154,8 @@ function downloadsFlow() {
                 } else {
                     data += "<span class='led'>&nbsp;</span>";
                 }
-                data += "<span class='size'>"+(key.length / 1048576).toFixed(2)+"MB</span>";
                 data += "<span class='perc'>" + key.percent + "%</span>";
+                data += "<span class='size'>"+(key.length / 1048576).toFixed(2)+"MB</span>";
                 data += key.file + "<br>";
                 output.innerHTML = data;
                 if (files.indexOf(key.file) < 0) {
@@ -154,9 +178,24 @@ myZDL.initClient().then(function() {
     downloadsFlow(true);
 });
 
-document.querySelector(".main").addEventListener("click", function(event) {
+document.querySelector(".container").addEventListener("click", function(event) {
     if (event.target.nodeName === "BUTTON") {
         switch (event.target.id) {
+            case "add-xdcc":
+                output.innerHTML += "<span class='led reddy'>&nbsp;</span>starting download ... wait ...";
+                var input = event.target.previousElementSibling;
+                var split = input.value.trim().split("/");
+                var link = {
+                    host: split[0],
+                    channel: encodeURIComponent(split[1]),
+                    msg: encodeURIComponent(split[2] + " xdcc send #" + split[3])
+                };
+                myZDL.addXdcc(link).then(function() {
+                    zdl_console("[ZDL] aggiunto link xdcc: " + link.host + "/" + link.channel + "/" + decodeURIComponent(link.msg) + "\n");
+                    input.value = "";
+                    zdl_log();
+                });
+                break;
             case "add-link":
                 output.innerHTML += "<span class='led reddy'>&nbsp;</span>starting download ... wait ...";
                 var link = event.target.previousElementSibling;
@@ -192,9 +231,17 @@ document.querySelector(".main").addEventListener("click", function(event) {
                     }, 3000);
                 });
                 break;
+            case "update-log":
+                zdl_log();
+                zdl_console("[ZDL] log updated\n");
+                break;
             case "kill-all":
                 myZDL.killAll().then(function() {
-                    zdl_console("[ZDL] killall\n");
+                    var split = output.innerHTML.split("<br>");
+                    var data = split.slice(0, split.length - 1).join("<br>") + "<br>";
+                    output.innerHTML = data;
+                    zdl_log();
+                    zdl_console("[ZDL] kill download\n");
                 });
                 break;
             case "exit-all":
