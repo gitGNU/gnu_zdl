@@ -1413,19 +1413,33 @@ function run_data {
     [ -n "${line_cmd[*]}" ] && run_cmd "${line_cmd[@]}"
 }
 
-function send_login {
-    if [[ ! "$file_output" =~ login.*\.html ]]
-    then
-	file_output="$path_usr/webui"/login-"$web_ui".html
+# function send_login {
+#     if [[ ! "$file_output" =~ login.*\.html ]]
+#     then
+# 	file_output="$path_usr/webui"/login-"$web_ui".html
 	
-	[ -z "$GET_DATA" ] &&
-	    add_response_header "Location" "login-${web_ui}.html"	
+# 	[ -z "$GET_DATA" ] &&
+# 	    add_response_header "Location" "login-${web_ui}.html"	
+
+# 	send_response 302 "$file_output"
+
+# 	exit 0
+#     fi
+# }
+
+function send_login {
+    if [[ ! "$file_output" =~ login.html ]]
+    then
+	file_output="$path_usr/webui"/login.html
+	
+	[ -z "$GET_DATA" ] && add_response_header "Location" "login.html"	
 
 	send_response 302 "$file_output"
-
+	
 	exit 0
     fi
 }
+
 
 function http_server {
     local id

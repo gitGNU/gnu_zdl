@@ -35,10 +35,10 @@ then
     real_ip_rockfile="rockfile.eu"
     
     html=$(wget -t 1 -T $max_waiting                       \
-		--keep-session-cookies                     \
-		--save-cookies="$path_tmp"/cookies.zdl     \
-		--user-agent="$user_agent"                 \
-		-qO- ${url_in//rockfile.eu/$real_ip_rockfile})
+    		--keep-session-cookies                     \
+    		--save-cookies="$path_tmp"/cookies.zdl     \
+    		--user-agent="$user_agent"                 \
+    		-qO- "${url_in//rockfile.eu/$real_ip_rockfile}")
     
     if [[ "$html" =~ (File Deleted|file was deleted|File [nN]{1}ot [fF]{1}ound) ]]
     then
