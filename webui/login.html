@@ -84,11 +84,18 @@
             text-align: right;
             font-weight: bold;
         }
+	
+	@media (max-width: 350px) {
+	.login-container {
+	width: 100%;
+	}
+	}
+	
     </style>
 </head>
 
 <body onload="checkAccount();">
-    <div id="login" class="login-container"></div>
+  <div id="login" class="login-container"></div>
 </body>
 
 </html>

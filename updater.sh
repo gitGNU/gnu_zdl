@@ -508,8 +508,9 @@ ESTENSIONI:
 	deps['gawk']=gawk
 	deps['rlwrap']=rlwrap
 	deps['setterm']=util-linux
-	deps['fuser']=psmisc
+	deps['fuser']=psmisc	
 	deps['openssl']=openssl
+	deps['desktop-file-install']=desktop-file-utils
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&
