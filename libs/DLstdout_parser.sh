@@ -34,7 +34,7 @@ function data_stdout {
     unset pid_alive pid_out file_out url_out percent_out length_saved length_out no_check
     [ -z "$num_check" ] && num_check=0
     
-    max_dl=$(cat "$path_tmp/max-dl")
+    max_dl=$(cat "$path_tmp/max-dl" 2>/dev/null)
     
     ## check_stdout, verifica inceppamento e ogni azione sui download: 
     ## disattivati se show_downloads_(lite|extended)

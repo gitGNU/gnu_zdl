@@ -1465,8 +1465,41 @@ reset_exit
 
 function read_binding {
     ## trap SIGINT ==> return
-    read -e -n 1 -t 1 binding_in_loop
+    #export TMOUT=1
+    read -e -t 1 -n 1 binding_in_loop
 }
+
+function closing {
+    noproxy
+
+    if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
+    then
+	data_stdout
+	pipe_files
+    fi
+
+    this_mode=stdout
+    post_process || exit 1
+
+    if ! get_exit
+    then
+	test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
+
+	[ "$test_pid" == "$pid_prog" ] &&
+	    ! check_start_file &&
+	    {
+		rm -rf "$path_tmp"
+		echo
+		print_header
+		separator-
+		print_c 1 "Download completato"
+		header_dl "Premi un tasto per continuare"
+	    }
+    else
+	kill_downloads
+    fi
+}
+
 
 if [ "$this_mode" == "daemon" ]
 then
@@ -1483,13 +1516,19 @@ else
 	this_mode=daemon
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
-    
+
     while true
     do
-	main_loop || break
+	if ! main_loop
+	then
+	    closing
+
+	    break
+	fi
+
     done 2>/dev/null &
     loops_pid=$!
-    
+
     [ "$lite_mode" == true ] &&
 	this_mode=lite
 
@@ -1497,61 +1536,38 @@ else
     bindings
 
     [ "$this_mode" == "lite" ] && fclear
-    
-    while check_pid $loops_pid
+
+    while check_pid $loops_pid ||
+	    [ -s "$path_tmp/links_loop.txt" ]
     do
 	if [ "$this_mode" == "lite" ]
 	then
 	    show_downloads_lite
-	    read_binding
+	    read_binding 
 
 	else
-	    read_binding
+	    read_binding 
 	fi
-    done 2>/dev/null 
+	
+    done #2>/dev/null 
 
     if [ "$this_mode" == "lite" ]
     then
 	header_lite force
 	show_downloads_lite no-clear
-	header
+	print_header
     fi
 fi
 
-wait $loops_pid 
+#wait $loops_pid 
 
-noproxy
+######################
 
 stty sane
 cursor on
 
-if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
-then
-    data_stdout
-    pipe_files
-fi
-
-post_process || exit 1
-
-if ! get_exit
-then
-    test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
-
-    [ "$test_pid" == "$pid_prog" ] &&
-	! check_start_file &&
-	{
-	    rm -rf "$path_tmp"
-	    header
-	    separator-
-	    print_c 1 "Download completato"
-	    separator-
-	}
-else
-    kill_downloads
-fi
-
 #kill_server
-header
+print_header
 echo -en "\n"
 
 if [ -f "$file_log" ]

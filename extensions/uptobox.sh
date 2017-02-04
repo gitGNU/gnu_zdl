@@ -59,7 +59,7 @@ then
 		 --post-data="$post_data"                    \
 		 --user-agent="$user_agent"                  \
 		 "$url_in")
-    
+
     url_in_file=$(grep "Click here to start your download" -B2 <<< "$html2" | head -n1 | sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
     unset post_data

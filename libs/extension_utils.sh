@@ -335,6 +335,9 @@ function anydownload {
     
     if [[ "$url_in" =~ xweaseldownload\.php ]]
     then
+	url_in=$(urldecode "${url_in#*url=}")
+	url_in=$(sed -r 's|\s{1}|%20|g' <<< "$url_in")
+
 	URL_IN=$(wget -qO- "$url_in"               |
 			grep 'xdcc' 2>/dev/null    |
 			head -n1                   |

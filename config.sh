@@ -359,7 +359,7 @@ function get_conf {
     
     if [ -f "$path_tmp/max-dl" ]
     then
-	max_dl="$(cat "$path_tmp/max-dl")"
+	max_dl="$(cat "$path_tmp/max-dl" 2>/dev/null)"
 
     else
 	echo "$max_dl" > "$path_tmp/max-dl"

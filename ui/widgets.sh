@@ -114,6 +114,18 @@ function sprint_c {
     fi
 }
 
+function print_header { # $1=label ; $2=color ; $3=header pattern
+    local text line hpattern color
+    text="$1"
+    [ -n "$text" ] && text=" $text " 
+    color="$2"
+    hpattern="$3"
+    [ -z "$hpattern" ] && hpattern="\ "
+    
+    eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
+    echo -en "${color}${text}$line${Color_Off}"
+}
+
 function separator- {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
@@ -121,13 +133,13 @@ function separator- {
 	then
 	    COLS=$COLUMNS
 	    COLUMNS="$1"
-	    header "" "$BBlue" "─"
+	    print_header "" "$BBlue" "─"
 	    echo -ne "$BBlue┴"
 	    COLUMNS=$((COLS-$1-1))
-	    header "" "$BBlue" "─"
+	    print_header "" "$BBlue" "─"
 
 	else
-	    header "" "$BBlue" "─"
+	    print_header "" "$BBlue" "─"
 	    print_c 0 ""
 	fi
     fi
@@ -170,18 +182,6 @@ function cursor {
     fi
 }
 
-function header { # $1=label ; $2=color ; $3=header pattern
-    local text line hpattern color
-    text="$1"
-    [ -n "$text" ] && text=" $text " 
-    color="$2"
-    hpattern="$3"
-    [ -z "$hpattern" ] && hpattern="\ "
-    
-    eval printf -v line "%.0s${hpattern}" {1..$(( $COLUMNS-${#text} ))}
-    echo -en "${color}${text}$line${Color_Off}"
-}
-
 
 function header_z {
     if show_mode_in_tty "$this_mode" "$this_tty"
@@ -196,7 +196,7 @@ function header_z {
 	    text_end="$2"
 	}
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
-	header "$text_start$text_space$text_end" "$On_Blue"
+	print_header "$text_start$text_space$text_end" "$On_Blue"
 	print_c 0 ""
     fi
 }
@@ -208,23 +208,19 @@ function header_box {
     if show_mode_in_tty "$this_mode" "$this_tty" ||
 	    [ -n "$redirected_link" ]
     then
-	####### strano: header funziona solo all'inizio (!?)
-	## header "$1" "${Black}${On_White}" "─"
-	
-	eval printf -v line "%.0s─" {1..$(( $COLUMNS-${#text} ))}
-	print_c 0 "${Black}${On_White}$text$line${Color_Off}"
+	print_header "$1" "${Black}${On_White}" "─"
     fi
 }
 
 function header_box_interactive {
-    header "$1" "$Black${On_White}" "─"
+    print_header "$1" "$Black${On_White}" "─"
     print_c 0 ""
 }
 
 function header_dl {
     if show_mode_in_tty "$this_mode" "$this_tty"
     then
-	header "$1 " "$White${On_Blue}"
+	print_header "$1 " "$White${On_Blue}"
 	print_c 0 ""
     fi
 }
@@ -236,7 +232,7 @@ function pause {
 	    [ -n "$redirected_link" ]
     then
 	echo
-	header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
+	print_header ">>>>>>>> Digita <Invio> per continuare " "$On_Blue$BWhite" "\<"
 	print_c 0 ""
 	cursor off
 	read -e
@@ -250,7 +246,7 @@ function xterm_stop {
 		   [ -z "${pipe_out[*]}" ]             ||
 		       [ -n "$redirected_link" ] )
     then
-	header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
+	print_header ">>>>>>>> Digita <Invio> per uscire " "$On_Blue$BWhite" "\<"
 	echo -ne "\n"
 	cursor off
 	read -e 
@@ -266,7 +262,7 @@ function zclock {
 function header_lite {
     echo -en "\033[1;0H"
     header_z "ZigzagDownLoader in $PWD" "│ help: M-h"
-    header
+    print_header
 }
 
 function clear_lite {

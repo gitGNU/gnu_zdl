@@ -32,6 +32,8 @@ if [ "$url_in" != "${url_in//'rockfile.'}" ]
 then
     # real_ip_rockfile=217.23.3.237
     ## real_ip_rockfile=217.23.3.215
+    #real_ip_rockfile=62.112.9.247
+    
     real_ip_rockfile="rockfile.eu"
     
     html=$(wget -t 1 -T $max_waiting                       \
@@ -39,6 +41,18 @@ then
     		--save-cookies="$path_tmp"/cookies.zdl     \
     		--user-agent="$user_agent"                 \
     		-qO- "${url_in//rockfile.eu/$real_ip_rockfile}")
+    
+    # if test -z "$html"
+    # then
+    # 	html=$(curl -c cookie "${url_in//rockfile.eu/$real_ip_rockfile}")
+    # fi
+
+    # input_hidden "$html"
+    # post_data="${post_data%= *}=-2"
+
+    # html=$(curl -b cookie -d "$post_data" "http://rockfile.eu/cdn-cgi/l/chk_jschl")
+
+    # echo "$html" |tee -o out
     
     if [[ "$html" =~ (File Deleted|file was deleted|File [nN]{1}ot [fF]{1}ound) ]]
     then

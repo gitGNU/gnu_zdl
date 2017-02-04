@@ -653,7 +653,7 @@ function zero_dl {
     [ "$1" == show ] &&
 	unset hide_zero
     
-    max_dl=$(cat "$path_tmp"/max-dl)
+    max_dl=$(cat "$path_tmp"/max-dl 2>/dev/null)
 
     if [ -n "$max_dl" ] && ((max_dl < 1))
     then
@@ -1003,8 +1003,8 @@ function run_zdl_server {
     then
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
 	set_line_in_file + $port "$path_server"/socket-ports
-	#unlock_fifo socket-ports &
-	init_client
+
+	init_client 
 	return 0
 
     else

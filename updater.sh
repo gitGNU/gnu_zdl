@@ -454,6 +454,7 @@ ESTENSIONI:
 	deps['setterm']=util-linux
 	deps['fuser']=psmisc
 	deps['openssl']=openssl
+	deps['curl']=curl
 
 	for cmd in "${!deps[@]}"
 	do
@@ -511,6 +512,7 @@ ESTENSIONI:
 	deps['fuser']=psmisc	
 	deps['openssl']=openssl
 	deps['desktop-file-install']=desktop-file-utils
+	deps['curl']=curl
 	## deps['ffmpeg']=ffmpeg
 	
 	command -v X &>/dev/null &&

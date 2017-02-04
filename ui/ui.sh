@@ -72,8 +72,8 @@ function show_downloads_lite {
     then
 	header_lite
 	check_wait_connecting &&
-	    header " Connessione in corso ..." "$BYellow" ||
-		header " Connessione in corso . . . " "$BGreen"
+	    print_header " Connessione in corso ..." "$BYellow" ||
+		print_header " Connessione in corso . . . " "$BGreen"
 
 	[ -f "$path_tmp"/no-clear-lite ] ||
 	    clear_lite
@@ -194,6 +194,7 @@ function standard_box {
     then
 	echo -e "${BBlue}       │${Color_Off}"
 	header_box "Readline: immetti URL e link dei servizi"
+	echo -e ""
 
     elif [ "$1" == help ] &&
 	   [ -z "$binding" ]
