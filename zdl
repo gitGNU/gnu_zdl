@@ -1205,7 +1205,7 @@ fi
 [ -f "$path_tmp/downloader" ] ||    
     echo "$downloader_in" > "$path_tmp/downloader"
 
-function main_loop {
+function main_loop {    
     if [ "$this_mode" == "daemon" ] &&
 	   [ ! -f "$start_file" ] &&
 	   [ -z "$lite_mode" ]	
@@ -1263,6 +1263,8 @@ function main_loop {
 		then
 		    continue
 		fi
+		
+		[ -z "$key_to_continue" ] && key_to_continue=true
 
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
@@ -1478,7 +1480,7 @@ function closing {
 	pipe_files
     fi
 
-    this_mode=stdout
+    [ "$lite_mode" == true ] && this_mode=stdout
     post_process || exit 1
 
     if ! get_exit
@@ -1489,11 +1491,16 @@ function closing {
 	    ! check_start_file &&
 	    {
 		rm -rf "$path_tmp"
-		echo
 		print_header
 		separator-
-		print_c 1 "Download completato"
-		header_dl "Premi un tasto per continuare"
+		print_c 1 "\nDownload completato\n"
+		if test -n "$key_to_continue"
+		then
+		    header_dl "Premi un tasto per continuare"
+
+		else
+		    separator-
+		fi
 	    }
     else
 	kill_downloads
