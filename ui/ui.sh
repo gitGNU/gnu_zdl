@@ -185,7 +185,7 @@ function standard_box {
     
     [ -f "$path_tmp/downloader" ] && 
 	downloader_in=$(cat "$path_tmp/downloader")
-    print_c 0 "\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
+    print_c 0 "\n\n${BBlue}Downloader:${Color_Off} $downloader_in\t${BBlue}Directory:${Color_Off} $PWD\n"
     #[ -z "$1" ] && services_box
     
     commands_box
