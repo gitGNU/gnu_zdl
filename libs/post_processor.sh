@@ -24,6 +24,26 @@
 # zoninoz@inventati.org
 #
 
+function ffmpeg_stdout {
+    ppid=$2
+    cpid=$(children_pids $ppid)
+    trap_sigint $cpid $ppid
+    
+    pattern='frame.+size.+'
+
+    [[ "$format" =~ (mp3|flac) ]] &&
+	pattern='size.+kbits/s'
+    
+    while check_pid $cpid
+    do
+	tail $1-*.log 2>/dev/null             |
+	    grep -oP "$pattern"               |
+	    sed -r "s|^(.+)$|\1                                         \n|g" |
+	    tr '\n' '\r'
+	sleep 1
+    done
+}
+
 
 function post_process {
     ## mega.nz
@@ -175,7 +195,7 @@ function post_process {
 			    
 			else
 			    (
-				$convert2format                       \
+				nohup $convert2format                       \
 				    -i "$line"                        \
 				    -report                           \
 				    -aq 0                             \

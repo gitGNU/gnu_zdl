@@ -404,25 +404,6 @@ function pid_list_for_prog {
     fi
 }
 
-function ffmpeg_stdout {
-    ppid=$2
-    cpid=$(children_pids $ppid)
-    trap_sigint $cpid $ppid
-    
-    pattern='frame.+size.+'
-
-    [[ "$format" =~ (mp3|flac) ]] &&
-	pattern='size.+kbits/s'
-    
-    while check_pid $cpid
-    do
-	tail $1-*.log 2>/dev/null             |
-	    grep -oP "$pattern"               |
-	    sed -r "s|^(.+)$|\1                                         \n|g" |
-	    tr '\n' '\r'
-	sleep 1
-    done
-}
 
 # function children_pids {
 #     local children
