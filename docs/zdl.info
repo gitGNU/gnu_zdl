@@ -476,13 +476,13 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Backin, Dailymotion, Exashare, Fastvideo, Flashx.tv, IDoWatch,
-     Junkyvideo (HD), Metacafe, Movshare/Wholecloud, Neodrive (ex
-     Cloudzilla), Nowvideo, Openload, Portalevideo.unimi.it, Putstream,
-     Rai.tv, Rapidvideo, Rocvideo, Sockshare (HD), Speedvideo (HD),
-     Streamin (RTMP), Thevideo, Tutti i video in streaming di tipo
-     .m3u8, Tvdigit.it, Vidce, Videomega, Videowood, Vidhappy (RTMP),
-     Vidto, Vimeo (HD), VK (HD), WStream, Youtube, Zinwa (RTMP) 
+     Backin, Dailymotion, Exashare, Fastvideo, IDoWatch, Junkyvideo
+     (HD), Metacafe, Movshare/Wholecloud, Neodrive (ex Cloudzilla),
+     Nowvideo, Openload, Portalevideo.unimi.it, Putstream, Rai.tv,
+     Rapidvideo, Rocvideo, Sockshare (HD), Speedvideo (HD), Streamin
+     (RTMP), Thevideo, Tutti i video in streaming di tipo .m3u8,
+     Tvdigit.it, Vidce, Videomega, Videowood, Vidhappy (RTMP), Vidto,
+     Vimeo (HD), VK (HD), WStream, Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Clicknupload, Cyberlocker, Dropbox, Easybytez,
@@ -1348,25 +1348,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6602
 Node: Servizi streaming/hosting14007
-Node: Avviare ZDL17689
-Node: Arrestare ZDL20125
-Node: Controllare i download21230
-Node: Manuali d'uso25521
-Node: Modi25937
-Node: Readline29203
-Node: Editor30755
-Node: Omonimie31980
-Node: IRC/XDCC33515
-Node: Torrent35205
-Node: Filtri36089
-Node: Creare nuove estensioni36410
-Node: Software consigliati38172
-Node: Conkeror39573
-Node: zdl-xterm e XXXTerm/Xombrero40584
-Node: Installazione e aggiornamento42508
-Node: Tags45543
-Node: Copying48344
-Node: Contatti49394
+Node: Avviare ZDL17678
+Node: Arrestare ZDL20114
+Node: Controllare i download21219
+Node: Manuali d'uso25510
+Node: Modi25926
+Node: Readline29192
+Node: Editor30744
+Node: Omonimie31969
+Node: IRC/XDCC33504
+Node: Torrent35194
+Node: Filtri36078
+Node: Creare nuove estensioni36399
+Node: Software consigliati38161
+Node: Conkeror39562
+Node: zdl-xterm e XXXTerm/Xombrero40573
+Node: Installazione e aggiornamento42497
+Node: Tags45532
+Node: Copying48333
+Node: Contatti49383
 
 End Tag Table
 
