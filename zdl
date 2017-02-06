@@ -1496,7 +1496,7 @@ function closing {
 		print_c 1 "\nDownload completato\n"
 		if test -n "$key_to_continue"
 		then
-		    header_dl "Premi un tasto per continuare"
+		    header_dl "Premi <Invio> per continuare"
 
 		else
 		    separator-
@@ -1566,7 +1566,7 @@ else
     fi
 fi
 
-#wait $loops_pid 
+wait $loops_pid 
 
 ######################
 
