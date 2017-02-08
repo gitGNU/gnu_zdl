@@ -1490,7 +1490,6 @@ function closing {
 	[ "$test_pid" == "$pid_prog" ] &&
 	    ! check_start_file &&
 	    {
-		rm -rf "$path_tmp"
 		print_header
 		separator-
 		print_c 1 "\nDownload completato\n"
@@ -1529,6 +1528,12 @@ else
 	if ! main_loop
 	then
 	    closing
+	    if [ "$this_mode" == "lite" ]
+	    then
+		header_lite force
+		show_downloads_lite no-clear
+		print_header
+	    fi
 
 	    break
 	fi
@@ -1556,19 +1561,24 @@ else
 	    read_binding 
 	fi
 	
-    done #2>/dev/null 
+    done 2>/dev/null 
 
-    if [ "$this_mode" == "lite" ]
-    then
-	header_lite force
-	show_downloads_lite no-clear
-	print_header
-    fi
 fi
 
 wait $loops_pid 
 
 ######################
+if ! get_exit
+then
+    test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
+    
+    [ "$test_pid" == "$pid_prog" ] &&
+	! check_start_file &&
+	{
+	    rm -rf "$path_tmp"
+	}
+fi
+
 
 stty sane
 cursor on
