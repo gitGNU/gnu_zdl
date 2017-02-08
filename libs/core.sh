@@ -1078,3 +1078,9 @@ function create_hash {
     openssl dgst -whirlpool -hex <<< "${*}" | cut -d' ' -f2
 }
 
+function kill_ffmpeg {
+    if [ -s "$path_tmp"/ffmpeg-pids ]
+    then
+	kill $(cat "$path_tmp"/ffmpeg-pids) &>/dev/null
+    fi
+}

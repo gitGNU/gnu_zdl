@@ -184,7 +184,12 @@ function cursor {
 
 
 function header_z {
-    if show_mode_in_tty "$this_mode" "$this_tty"
+    local title="$1"
+    local menu="$2"
+    local force="$3"
+    
+    if show_mode_in_tty "$this_mode" "$this_tty" ||
+	    [ -n "$force" ]
     then
 	cursor off
 	
@@ -192,8 +197,8 @@ function header_z {
 	    text_start="$name_prog ($prog)"
 	    text_end="$(zclock)"
 	} || {
-	    text_start="$1"
-	    text_end="$2"
+	    text_start="$title"
+	    text_end="$menu"
 	}
 	eval printf -v text_space "%.0s\ " {1..$(( $COLUMNS-${#text_start}-${#text_end}-3 ))}
 	print_header "$text_start$text_space$text_end" "$On_Blue"
@@ -261,7 +266,7 @@ function zclock {
 
 function header_lite {
     echo -en "\033[1;0H"
-    header_z "ZigzagDownLoader in $PWD" "│ help: M-h"
+    header_z "ZigzagDownLoader in $PWD" "│ help: M-h" $1
     print_header
 }
 

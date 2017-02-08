@@ -27,7 +27,8 @@
 function ffmpeg_stdout {
     ppid=$2
     cpid=$(children_pids $ppid)
-    trap_sigint $cpid $ppid
+    ##    trap_sigint $cpid $ppid
+    echo "$cpid $ppid" >"$path_tmp"/ffmpeg-pids
     
     pattern='frame.+size.+'
 
@@ -155,6 +156,7 @@ function post_process {
 			pid_ffmpeg=$!
 
 			ffmpeg_stdout $ffmpeg $pid_ffmpeg
+			unset key_to_continue
 		    fi
 		fi		
 	    fi
@@ -195,7 +197,7 @@ function post_process {
 			    
 			else
 			    (
-				nohup $convert2format                       \
+				nohup $convert2format                 \
 				    -i "$line"                        \
 				    -report                           \
 				    -aq 0                             \
@@ -208,6 +210,7 @@ function post_process {
 			    pid_ffmpeg=$!
 
 			    ffmpeg_stdout $convert2format $pid_ffmpeg
+			    unset key_to_continue
 			fi
 			print_header
 		    fi

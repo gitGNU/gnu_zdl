@@ -45,15 +45,17 @@ function show_downloads {
 
 function show_downloads_lite {
     local no_clear="$1"
+    [ -n "$no_clear" ] && force_header=force
+        
     cursor off
     
     (( odd_run++ ))
     (( odd_run>1 )) && odd_run=0
     
     if data_stdout "no_check"
-    then
+    then       
 	rm -f "$path_tmp"/no-clear-lite
-	header_lite
+	header_lite $force_header
 	
 	stdbuf -oL -eL                                         \
 	       awk -f $path_usr/libs/common.awk                \
@@ -76,6 +78,7 @@ function show_downloads_lite {
 		print_header " Connessione in corso . . . " "$BGreen"
 
 	[ -f "$path_tmp"/no-clear-lite ] ||
+	    [ -f "$path_tmp"/stop-binding ] ||
 	    clear_lite
     fi
 }
@@ -173,12 +176,12 @@ function services_box {
 
 
 function standard_box {
-    [ "$this_mode" == "lite" ] && header_lite=" LITE"
+    [ "$this_mode" == "lite" ] && header_lite_msg=" LITE"
     stdbox=true
     
     [ "$this_mode" == help ] &&
 	header_msg="Help dei comandi" ||
-	    header_msg="Modalità in standard output${header_lite}"
+	    header_msg="Modalità in standard output${header_lite_msg}"
     header_box "$header_msg"
     
     echo -e -n "$init_msg"
@@ -305,7 +308,7 @@ function bindings {
     bind -x "\"\el\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\et\":\"change_mode info\"" 2>/dev/null
     bind -x "\"\eq\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls irc-pids &>/dev/null; kill_external &>/dev/null; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\ek\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls xfer-pids &>/dev/null; kill_pid_urls irc-pids &>/dev/null; kill_downloads &>/dev/null; kill_server; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\ek\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls xfer-pids &>/dev/null; kill_pid_urls irc-pids &>/dev/null; kill_downloads &>/dev/null; kill_server; kill_ffmpeg; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\ec\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=' '\"" &>/dev/null
     bind -x "\"\eC\":\"change_mode configure\"" 2>/dev/null
     
@@ -316,7 +319,7 @@ function bindings {
     bind -x "\"\C-l\":\"change_mode list\"" 2>/dev/null
     bind -x "\"\C-t\":\"change_mode info\"" 2>/dev/null
     bind -x "\"\C-q\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls irc-pids &>/dev/null; kill_external &>/dev/null; kill -1 $loops_pid $pid_prog\"" &>/dev/null
-    bind -x "\"\C-k\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls xfer-pids &>/dev/null; kill_pid_urls irc-pids &>/dev/null; kill_downloads &>/dev/null; kill_server; kill -9 $loops_pid $pid_prog\"" &>/dev/null
+    bind -x "\"\C-k\":\"quit_clear; clean_countdown; cursor on; kill_pid_urls xfer-pids &>/dev/null; kill_pid_urls irc-pids &>/dev/null; kill_downloads &>/dev/null; kill_server; kill_ffmpeg; kill -9 $loops_pid $pid_prog\"" &>/dev/null
     bind -x "\"\C-c\":\"no_complete=true; data_stdout; unset no_complete; export READLINE_LINE=' '\"" &>/dev/null
     bind -x "\"\C-C\":\"change_mode configure\"" 2>/dev/null
 }

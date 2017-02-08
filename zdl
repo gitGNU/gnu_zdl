@@ -1480,8 +1480,15 @@ function closing {
 	pipe_files
     fi
 
-    [ "$lite_mode" == true ] && this_mode=stdout
-    post_process || exit 1
+    [ "$lite_mode" == true ] &&
+	{
+	    this_mode=stdout
+	    unset lite_mode
+	    start_mode_in_tty "stdout" "${this_tty}"
+	    print_header	
+	}
+    post_process ||
+	    exit 1
 
     if ! get_exit
     then
@@ -1492,10 +1499,11 @@ function closing {
 	    {
 		print_header
 		separator-
-		print_c 1 "\nDownload completato\n"
+		print_c 1 "Download completato"
 		if test -n "$key_to_continue"
 		then
-		    header_dl "Premi <Invio> per continuare"
+		    print_header
+		    header_dl "Premi un tasto per continuare"
 
 		else
 		    separator-
@@ -1527,14 +1535,13 @@ else
     do
 	if ! main_loop
 	then
-	    closing
-	    if [ "$this_mode" == "lite" ]
+	    if [ "$lite_mode" == true ]
 	    then
-		header_lite force
-		show_downloads_lite no-clear
-		print_header
+	    	show_downloads_lite no-clear
 	    fi
-
+	    touch "$path_tmp"/stop-binding
+	    closing
+	    
 	    break
 	fi
 
@@ -1548,9 +1555,11 @@ else
     bindings
 
     [ "$this_mode" == "lite" ] && fclear
+    rm -f "$path_tmp/stop-binding" 
 
-    while check_pid $loops_pid ||
-	    [ -s "$path_tmp/links_loop.txt" ]
+    while [ ! -f "$path_tmp/stop-binding" ] &&
+	      ( check_pid $loops_pid ||
+		  [ -s "$path_tmp/links_loop.txt" ] )
     do
 	if [ "$this_mode" == "lite" ]
 	then
