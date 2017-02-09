@@ -503,7 +503,7 @@ ESTENSIONI:
 	deps['aria2c']=aria2
 	deps['axel']=axel
 	deps['nodejs']=nodejs
-	deps['php']=php5-cli
+	deps['php']=php-cli
 	deps['cmp']=diffutils
 	deps['socat']=socat
 	deps['gawk']=gawk
