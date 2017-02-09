@@ -113,7 +113,8 @@ wget_links=(
     rai\.tv
     idowatch\.
     dropbox\.
-    subyshare\. 
+    subyshare\.
+    wstream\.
 )
 #    videomega\.
 
