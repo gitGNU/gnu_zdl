@@ -1497,6 +1497,7 @@ function closing {
 	[ "$test_pid" == "$pid_prog" ] &&
 	    ! check_start_file &&
 	    {
+		rm -f "$path_tmp"/.pid.zdl
 		print_header
 		separator-
 		print_c 1 "Download completato"
