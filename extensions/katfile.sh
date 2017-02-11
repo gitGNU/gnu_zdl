@@ -47,14 +47,23 @@ then
 
     else
 	input_hidden "$html"
-	post_data+="&method_free=Start Slow Download Speed"
-	
+	post_data+="&method_free=Slow Download Speed"
+
 	html=$(wget "$url_in"                       \
 		    --post-data="$post_data"        \
 		    -qO-)
+	
+	code=$(pseudo_captcha "$html")
+	if [[ "$code" =~ ^[0-9]+$ ]]
+	then
+	    print_c 1 "Pseudo-captcha: $code"
+	else
+	    print_c 3 "Pseudo-captcha: codice non trovato"
+	fi
 
 	unset post_data
 	input_hidden "$html"
+	post_data+="&code=$code"
 
 	html=$(wget "$url_in"                       \
 		    --post-data="$post_data"        \

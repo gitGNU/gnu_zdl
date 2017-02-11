@@ -97,7 +97,6 @@ newip_hosts=(
 
 rtmp_links=(
     zinwa\.
-    streamin\.
     vidhappy\.
     videopremium\.
 )
