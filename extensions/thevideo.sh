@@ -48,6 +48,8 @@ then
     url_in_file="${url_in_file%%\"*}?download=true&vt=${vt_code}"
 
     file_in="${url_in_file##*\/}"
+    file_in="${file_in%\?*}"
+    file_in="${file_in%%.mp4}"
 
     end_extension
 fi
