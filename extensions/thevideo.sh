@@ -27,43 +27,27 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: Thevideo
 
-if [ "$url_in" != "${url_in//'thevideo.'}" ]
+if [ "$url_in" != "${url_in//'//thevideo.'}" ]
 then
-    html=$(wget -t 1 -T $max_waiting "$url_in" -O- -q)
-    if [ -n "$html" ]
-    then
-	unset post_data
-	input_hidden "$html"
+    id_thevideo="${url_in##*\/}"
+    url_qualities="https://thevideo.me/download/getqualities/${id_thevideo}"
 
-	url=$(sed -r 's|(.+)\/([^/]+)|\1/download/\2|g' <<< "$url_in")
-	html=$(wget -q -O - "$url")
+    code_mode_hash=( $(wget -t 1 -T $max_waiting "$url_qualities" -qO- |
+			    grep download_video | tail -n1 |
+			    sed -r "s|.+\('(.+)','(.+)','(.+)'\).+|\1 \2 \3|g") )
 
-	url=$(sed -r 's|(.+)\/([^/]+)|\1|g' <<< "$url_in")$(grep url: <<< "$html" | sed -r 's|.+\"([^"]+)\".+|\1|g')
-	html=$(wget --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl" -q -O - "$url" |grep onclick |head -n1)
+    html_2_file=$(curl -s "https://thevideo.me/download/${code_mode_hash[0]}/${code_mode_hash[1]}/${code_mode_hash[2]}")
 
-	urlcode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\1|g" <<< "$html")
-	urlmode=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\2|g" <<< "$html")
-	urlhash=$(sed -r "s|^.+'([^']+)','([^']+)','([^']+)'.+$|\3|g" <<< "$html")
-	url=$(sed -r 's|(.+)\/([^/]+)|\1/download|g' <<< "$url_in")/$urlcode/$urlmode/$urlhash
-	unset url_in_file
-	while [ -z "$url_in_file" ]
-	do
-	    url_in_file=$(wget "$url" -O- -q |grep "Direct Download Link" | sed -r 's|.+\"([^"]+)\".+|\1|g')
-	    sleep 1
-	    if ! check_pid $pid_prog
-	    then
-		exit
-	    fi
-	done
+    vt_url=$(grep dljsv <<< "$html_2_file" | sed -r 's|.+\"([^"]+)\".+|\1|g')
+    vt_code=$(curl -s "$vt_url")
+    vt_code="${vt_code#*each\|}"
+    vt_code="${vt_code%%\|*}"
+    
+    url_in_file=$(grep downloadlink <<< "$html_2_file")
+    url_in_file="${url_in_file#*\"}"
+    url_in_file="${url_in_file%%\"*}?download=true&vt=${vt_code}"
 
-	file_in=$file_in.${url_in_file##*.}
+    file_in="${url_in_file##*\/}"
 
-## per file in streaming (se si riesce a scaricare la pagina con il player [con funzione eval]):
-#    packed_args "$(cat $path_tmp/zdl2.tmp|grep eval)"
-#    packed_code=$( packed "$code_p" "$code_a" "$code_c" "$code_k" )
-
-	axel_parts=6
-    else
-	_log 2
-    fi
+    end_extension
 fi

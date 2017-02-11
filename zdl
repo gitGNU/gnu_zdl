@@ -1497,7 +1497,8 @@ function closing {
 	[ "$test_pid" == "$pid_prog" ] &&
 	    ! check_start_file &&
 	    {
-		rm -f "$path_tmp"/.pid.zdl
+		[ -f "$path_tmp"/.pid.zdl ] &&
+		    mv "$path_tmp"/.pid.zdl "$path_tmp"/.pid2.zdl 
 		print_header
 		separator-
 		print_c 1 "Download completato"
@@ -1580,7 +1581,7 @@ wait $loops_pid
 ######################
 if ! get_exit
 then
-    test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
+    test_pid=$(cat "$path_tmp"/.pid2.zdl 2>/dev/null)
     
     [ "$test_pid" == "$pid_prog" ] &&
 	! check_start_file &&
