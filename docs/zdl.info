@@ -481,8 +481,8 @@ _Video in streaming saltando il player del browser:_
      Nowvideo, Openload, Portalevideo.unimi.it, Putstream, Rai.tv,
      Rapidvideo, Rocvideo, Sockshare (HD), Speedvideo (HD), Streamin,
      Thevideo, Tutti i video in streaming di tipo .m3u8, Tvdigit.it,
-     Vidce, Videomega, Videowood, Vidhappy (RTMP), Vidto, Vimeo (HD),
-     VK (HD), WStream, Youtube, Zinwa (RTMP) 
+     VidABC, Vidce, Videomega, Videowood, Vidhappy (RTMP), Vidto, Vimeo
+     (HD), VK (HD), WStream, Youtube, Zinwa (RTMP) 
 
 _File hosting:_
      Billionuploads, Clicknupload, Cyberlocker, Dropbox, Easybytez,
@@ -490,7 +490,7 @@ _File hosting:_
      Junkyvideo (HD), Katfile, Likeupload, Mediafire, Mega, MultiUp
      (multi-link), Nowdownload, Openload, Ozofiles, Pastebin, Rockfile,
      Sockshare (HD), Subyshare, Thevideo, Tusfiles, Uload, Uploadshub,
-     Uppit, Uptobox 
+     Uppit, Uptobox, VidABC 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
@@ -1348,25 +1348,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6602
 Node: Servizi streaming/hosting14007
-Node: Avviare ZDL17665
-Node: Arrestare ZDL20101
-Node: Controllare i download21206
-Node: Manuali d'uso25497
-Node: Modi25913
-Node: Readline29179
-Node: Editor30731
-Node: Omonimie31956
-Node: IRC/XDCC33491
-Node: Torrent35181
-Node: Filtri36065
-Node: Creare nuove estensioni36386
-Node: Software consigliati38148
-Node: Conkeror39549
-Node: zdl-xterm e XXXTerm/Xombrero40560
-Node: Installazione e aggiornamento42484
-Node: Tags45519
-Node: Copying48320
-Node: Contatti49370
+Node: Avviare ZDL17681
+Node: Arrestare ZDL20117
+Node: Controllare i download21222
+Node: Manuali d'uso25513
+Node: Modi25929
+Node: Readline29195
+Node: Editor30747
+Node: Omonimie31972
+Node: IRC/XDCC33507
+Node: Torrent35197
+Node: Filtri36081
+Node: Creare nuove estensioni36402
+Node: Software consigliati38164
+Node: Conkeror39565
+Node: zdl-xterm e XXXTerm/Xombrero40576
+Node: Installazione e aggiornamento42500
+Node: Tags45535
+Node: Copying48336
+Node: Contatti49386
 
 End Tag Table
 
