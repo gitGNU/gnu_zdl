@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
+## zdl-extension types: streaming
 ## zdl-extension name: VidABC
 
 if [ "$url_in" != "${url_in//'vidabc.'}" ]

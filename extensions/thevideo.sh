@@ -24,7 +24,7 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
+## zdl-extension types: streaming
 ## zdl-extension name: Thevideo
 
 if [ "$url_in" != "${url_in//'//thevideo.'}" ]
