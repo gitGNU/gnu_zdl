@@ -690,7 +690,6 @@ fi
 ###
 start_mode_in_tty "$this_mode" "$this_tty"
 
-
 ##########
 fclear
 header_z
