@@ -142,6 +142,7 @@ no_check_links=(
     \.torrent$
     ^irc\:
     \.dfiles\.
+    \.m3u8
 )
 #no_check_links=( tusfiles\. nowdownload\. )
 
@@ -155,6 +156,7 @@ no_check_ext=(
     \.torrent$
     ^irc\:
     \.dfiles\.
+    \.m3u8
 )
 
 ## massima durata tentativi di connessione (Wget)

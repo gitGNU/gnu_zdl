@@ -24,41 +24,24 @@
 # zoninoz@inventati.org
 #
 
-## zdl-extension types: streaming download
-## zdl-extension name: TubeOffLine.com
-
-if ! url "$url_in_file" ||
-	test -z "$file_in"
-then
-    host="${url_in#*\/\/}"
-    host="${host#www.}"
-    host="${host%%\/*}"
-    host=$(grep -oP '[^.]+\.[^.]+$' <<< "$host")
-    host="${host%%.*}"
-
-    print_c 2 "tubeoffline -> host: $host"
+function ffmpeg_stdout {
+    ppid=$2
+    cpid=$(children_pids $ppid)
+    ##    trap_sigint $cpid $ppid
+    echo "$cpid $ppid" >"$path_tmp"/ffmpeg-pids
     
-    html=$(wget -qO- "$url_in")
+    pattern='frame.+size.+'
 
-    file_in_tol=$(get_title "$html")
-
-    html=$(wget -qO- "http://www.tubeoffline.com/downloadFrom.php?host=${host}&video=${url_in}")
+    [[ "$format" =~ (mp3|flac) ]] &&
+	pattern='size.+kbits/s'
     
-    url_in_file=$(grep -P 'Best.+http' <<< "$html")
-    
-    ! url "${url_in_file}" &&
-	url_in_file=$(grep -P 'http.+DOWNLOAD' <<< "$html" |head -n1)
+    while check_pid $cpid
+    do
+	tail $1-*.log 2>/dev/null             |
+	    grep -oP "$pattern"               |
+	    sed -r "s|^(.+)$|\1                                         \n|g" |
+	    tr '\n' '\r'
+	sleep 1
+    done
+}
 
-    url_in_file="http${url_in_file#*http}"
-    url_in_file="${url_in_file%%\"*}"
-
-    if url "$url_in_file" &&
-	    test -n "$file_in"
-    then
-	print_c 1 "TubeOffLine: $url_in_file"
-	unset break_loop
-
-    else
-	unset file_in url_in_file
-    fi
-fi

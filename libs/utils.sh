@@ -366,7 +366,8 @@ function sanitize_file_in {
     file_in="${file_in::180}"
     file_in=$(sed -r 's|^[^0-9a-zA-Z\[\]()]*([0-9a-zA-Z\[\]()]+)[^0-9a-zA-Z\[\]()]*$|\1|g' <<< "$file_in" 2>/dev/null)
 
-    if ! dler_type "no-check-ext" "$url_in"
+    if ! dler_type "no-check-ext" "$url_in" &&
+	    [[ ! "$url_in_file" =~ \.m3u8 ]]
     then
 	ext=$(set_ext "$file_in")
 	file_in="${file_in%$ext}$ext"

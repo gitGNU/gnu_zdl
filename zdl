@@ -42,6 +42,7 @@ source $path_usr/libs/login.sh
 source $path_usr/libs/ip_changer.sh
 source $path_usr/libs/log.sh
 source $path_usr/libs/post_processor.sh
+source $path_usr/libs/ffmpeg_utils.sh
 
 function update_updater {
     fclear
@@ -1378,7 +1379,7 @@ function main_loop {
 		fi
 
 		if ! url "$url_in_file" && 
-			[[ "$downloader_in" =~ (Aria2|Wget|Axel) ]] ||
+			[[ "$downloader_in" =~ (Aria2|Wget|Axel|FFMpeg) ]] ||
 			    [ "$break_loop" == "true" ]
 		then
 		    unset break_loop

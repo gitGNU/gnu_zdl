@@ -186,7 +186,7 @@ function yellow_progress () {
     }
 }
 
-function progress_out (chunk,           progress_line) {
+function progress_out (chunk,           progress_line, line, cmd) {
     ## eta, %, speed, speed type, length-saved (length-out)
 
     if (dler == "Axel") {
@@ -445,35 +445,59 @@ function progress_out (chunk,           progress_line) {
 	length_saved[i] = size_file(file_out[i])
 	if (!length_out[i])
 	    length_out[i] = "unspecified"
+
     } else if (dler == "FFMpeg") {
 	for (y=n; y>0; y--) {
-
-	    if (chunk[y] ~ /kbits/) {
-	    	progress_line = chunk[y]
-	    	break
+	    if (chunk[y] ~ "muxing") {
+	    	progress_end[i] = chunk[y]
+		break
 	    }
+	    
+	    if (chunk[y] ~ /bitrate= /) {
+		progress_line = chunk[y]
+
+		if (!speed_out[i]) {
+		    match(progress_line, /bitrate=\s*(.+)kbits/, matched)
+		    speed_out[i] = matched[1]
+		    speed_out_type[i] = "KB/s"
+		}
+
+		if (!time_out[i]) {
+		    match(progress_line, /time=\s*([^\ ]+)/, matched)
+		    time_out[i] = int( get_ffmpeg_seconds(matched[1]) )
+		}
+		break
+	    }
+	}
+
+	cmd = "cat .zdl_tmp/"file_out[i]"_stdout.tmp"
+	while (cmd | getline line) {
+	    if (line ~ /Duration/) {
+		match(line, /Duration:\s*([^,]+)/, matched)
+		duration_out[i] = int( get_ffmpeg_seconds(matched[1]) )
+		break
+	    }
+	}
+
+	if (progress_end[i]) {
+	    if (! no_check)
+		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+	    if (url_in == url_out[i]) bash_var("url_in", "")
+	    length_saved[i] = size_file(file_out[i])
+	    percent_out[i] = 100
+        }
+	else if (duration_out[i]) {
+	    percent_out[i] = duration_out[i]
+	    if (time_out[i] && duration_out[i])
+		percent_out[i] = int(time_out[i] * 100 / duration_out[i])
 	}
 	
-        if (progress_line) {
-	    split(progress_line, progress_elems, /[\ ]+/)
-	    speed_out[i] = progress_elems[length(progress_elems)]
-	    if (speed_out[i] ~ /k$/) {
-		speed_out_type[i] = "KB/s"
-		sub(/k$/, "", speed_out[i])
-	    } else {
-		speed_out_type[i] = "B/s"
-	    }
-	    
-	    if (!speed_out[i])
-		speed_out[i] = 0
-	    
-	} else {
-	    speed_out[i] = 0
-	    speed_out_type[i] = "KB/s"
-	}
+	if (!speed_out[i])
+	    speed_out[i] = 0	    
+
 	length_saved[i] = size_file(file_out[i])
 	if (!length_out[i])
-	    length_out[i] = "unspecified"
+	    length_out[i] = length_saved[i] ##"unspecified"
     }
 
     
@@ -493,6 +517,15 @@ function progress_out (chunk,           progress_line) {
 	check_stdout()
     
     get_color_out()
+}
+
+function get_ffmpeg_seconds (time,         h, m, s) {
+    split(time, time_elems, /:/)
+    h = int(time_elems[1])
+    m = int(time_elems[2])
+    s = int(time_elems[3])
+
+    return int(s + (m * 60) + (h * 60 * 60))
 }
 
 function progress () {

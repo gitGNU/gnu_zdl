@@ -27,16 +27,18 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: Tutti i video in streaming di tipo .m3u8
 
-if [[ "$url_in" =~ \.m3u8\?*.* ]] ||
-       [[ "$url_in_file" =~ \.m3u8\?*.* ]]
-then
+function post_m3u8_genlink {
+    ##
+    ## for post_m3u8 function
+    ##
+    
     if [[ "$url_in_file" =~ \.m3u8\?*.* ]]
     then
-	url_m3u8="$url_in_file"
+    	url_m3u8="$url_in_file"
     else
-	url_m3u8="$url_in"
+    	url_m3u8="$url_in"
     fi
-       
+
     files=$(wget -qO- "$url_m3u8" |grep -vP '^#')
     baseurl="${url_m3u8%\/*}"
 
@@ -44,8 +46,8 @@ then
     
     while read line
     do
-	echo "$baseurl"/"$line" > "${path_tmp}/filename_${file_in}__M3U8__${line}.txt"
-	set_link + "$baseurl"/"$line"
+    	echo "$baseurl"/"$line" > "${path_tmp}/filename_${file_in}__M3U8__${line}.txt"
+    	set_link + "$baseurl"/"$line"
     done <<< "$files"
 
     file_in="${file_in}_${line}"
@@ -53,9 +55,32 @@ then
     url_in_file="$url_in"
 
     unset files baseurl
+}
+
+
+
+if [[ "$url_in" =~ \.m3u8\?*.* ]] ||
+       [[ "$url_in_file" =~ \.m3u8\?*.* ]]
+then    
+    downloader_in=FFMpeg
+
+    [[ "$url_in" =~ \.m3u8\?*.* ]] &&
+	url_in_file="$url_in"
+
+    [ -z "$file_in" ] &&
+	file_in="${url_in_file##*\/}"
+
+    file_in="${file_in}.mp4"
+
+    if url "$url_in_file" &&
+	    test -n "$file_in"
+    then
+	print_c 1 "Rilevato link M3U8: il file verrà scaricato con ffmpeg"
+	unset break_loop
+
+    else
+	unset file_in url_in_file
+    fi
+
 fi
 
-if [[ "$url_in" =~ __M3U8__.+\.ts$ ]]
-then
-    axel_parts=1
-fi

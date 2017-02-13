@@ -24,27 +24,107 @@
 # zoninoz@inventati.org
 #
 
-function ffmpeg_stdout {
-    ppid=$2
-    cpid=$(children_pids $ppid)
-    ##    trap_sigint $cpid $ppid
-    echo "$cpid $ppid" >"$path_tmp"/ffmpeg-pids
-    
-    pattern='frame.+size.+'
+function post_m3u8 {
+    ##  *.M3U8
+    if ls *__M3U8__* &>/dev/null
+    then
+    	list_fname=$(ls -1 "$path_tmp"/filename_*__M3U8__* 2>/dev/null    |
+    			    sed -r "s|$path_tmp/filename_(.+).txt|\1|g")
 
-    [[ "$format" =~ (mp3|flac) ]] &&
-	pattern='size.+kbits/s'
-    
-    while check_pid $cpid
-    do
-	tail $1-*.log 2>/dev/null             |
-	    grep -oP "$pattern"               |
-	    sed -r "s|^(.+)$|\1                                         \n|g" |
-	    tr '\n' '\r'
-	sleep 1
-    done
+    	[ -z "$list_fname" ] &&
+    	    list_fname=$(ls -1 *__M3U8__*)
+
+    	list_fprefix=(
+    	    $(grep -oP '.+__M3U8__' <<< "$list_fname" |
+    		     awk '!($0 in a){a[$0]; print}')
+    	)
+
+    	for fprefix in "${list_fprefix[@]}"
+    	do
+    	    last_seg=$(grep "$fprefix" <<< "$list_fname" | wc -l)
+
+    	    while (( $i<=$last_seg ))
+    	    do
+    		unset segments
+    		for ((i=1; i<=$last_seg; i++))
+    		do
+    		    filename=$(grep -P "${fprefix}seg-[0-9]+-" <<< "$list_fname"     |
+    				      head -n1                                       |
+    				      sed -r "s|(${fprefix}seg-)[^-]+(-.+)|\1$i\2|g")
+
+    		    if [ ! -f "$filename" ] ||
+    		    	   [ ! -s "$filename" ]
+    		    then
+    		    	_log 22
+    		    	url_resume=$(grep -h "seg-${i}-" "$path_tmp"/filename_"${fprefix}"* 2>/dev/null)
+
+    			if url "$url_resume"
+    			then
+    		    	    wget -qO "$filename" "$url_resume" &&
+    		    		print_c 1 "Segmento $i recuperato" &&
+    		    		break
+    			else
+    			    _log 24
+    			    exit 1
+    			fi
+    		    else
+    	    	    	segments[i]="$filename"
+    		    fi
+    		done
+    	    done
+
+    	    print_header
+    	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
+
+    	    if cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" 2>/dev/null
+    	    then
+    		unset ffmpeg
+    		command -v avconv &>/dev/null && ffmpeg="avconv"
+    		command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg"
+
+    		if [ -z "$ffmpeg" ]
+    		then
+    		    dep=ffmpeg
+    		    _log 23
+		    
+    		else
+    		    preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
+    		    rm -f $ffmpeg-*.log
+
+    		    if [ -e /cygdrive ]
+    		    then
+    			$ffmpeg -i "${fprefix%__M3U8__}.ts"       \
+    				-report                           \
+    				-acodec libfaac                   \
+    				-ab 160k                          \
+    				-vcodec libx264                   \
+    				-crf 18                           \
+    				-preset $preset                   \
+    				-y                                \
+    				"${fprefix%__M3U8__}.mp4"   &&
+    			    rm -f "$fprefix"*
+			
+    		    else
+    			( $ffmpeg -i "${fprefix%__M3U8__}.ts"       \
+    				  -report                           \
+    				  -acodec libfaac                   \
+    				  -ab 160k                          \
+    				  -vcodec libx264                   \
+    				  -crf 18                           \
+    				  -preset $preset                   \
+    				  -y                                \
+    				  "${fprefix%__M3U8__}.mp4" &>/dev/null &&
+    				rm -f "$fprefix"* ) &
+    			pid_ffmpeg=$!
+
+    			ffmpeg_stdout $ffmpeg $pid_ffmpeg
+    			unset key_to_continue
+    		    fi
+    		fi		
+    	    fi
+    	done
+    fi
 }
-
 
 function post_process {
     ## mega.nz
@@ -62,106 +142,6 @@ function post_process {
 		print_c 1 "Il file $line è stato decrittato come ${line%.MEGAenc}"
 	fi
     done
-
-    ## *.M3U8
-    if ls *__M3U8__* &>/dev/null
-    then
-	list_fname=$(ls -1 "$path_tmp"/filename_*__M3U8__* 2>/dev/null    |
-			    sed -r "s|$path_tmp/filename_(.+).txt|\1|g")
-
-	[ -z "$list_fname" ] &&
-	    list_fname=$(ls -1 *__M3U8__*)
-
-	list_fprefix=(
-	    $(grep -oP '.+__M3U8__' <<< "$list_fname" |
-		     awk '!($0 in a){a[$0]; print}')
-	)
-
-	for fprefix in "${list_fprefix[@]}"
-	do
-	    last_seg=$(grep "$fprefix" <<< "$list_fname" | wc -l)
-
-	    while (( $i<=$last_seg ))
-	    do
-		unset segments
-		for ((i=1; i<=$last_seg; i++))
-		do
-		    filename=$(grep -P "${fprefix}seg-[0-9]+-" <<< "$list_fname"     |
-				      head -n1                                       |
-				      sed -r "s|(${fprefix}seg-)[^-]+(-.+)|\1$i\2|g")
-
-		    if [ ! -f "$filename" ] ||
-		    	   [ ! -s "$filename" ]
-		    then
-		    	_log 22
-		    	url_resume=$(grep -h "seg-${i}-" "$path_tmp"/filename_"${fprefix}"* 2>/dev/null)
-
-			if url "$url_resume"
-			then
-		    	    wget -qO "$filename" "$url_resume" &&
-		    		print_c 1 "Segmento $i recuperato" &&
-		    		break
-			else
-			    _log 24
-			    exit 1
-			fi
-		    else
-	    	    	segments[i]="$filename"
-		    fi
-		done
-	    done
-
-	    print_header
-	    header_box "Creazione del file ${fprefix%__M3U8__}.mp4"
-
-	    if cat "${segments[@]}" > "${fprefix%__M3U8__}.ts" 2>/dev/null
-	    then
-		unset ffmpeg
-		command -v avconv &>/dev/null && ffmpeg="avconv"
-		command -v ffmpeg &>/dev/null && ffmpeg="ffmpeg"
-
-		if [ -z "$ffmpeg" ]
-		then
-		    dep=ffmpeg
-		    _log 23
-		    
-		else
-		    preset=superfast # -preset [ultrafast | superfast | fast | medium | slow | veryslow | placebo]
-		    rm -f $ffmpeg-*.log
-
-		    if [ -e /cygdrive ]
-		    then
-			$ffmpeg -i "${fprefix%__M3U8__}.ts"       \
-				-report                           \
-				-acodec libfaac                   \
-				-ab 160k                          \
-				-vcodec libx264                   \
-				-crf 18                           \
-				-preset $preset                   \
-				-y                                \
-				"${fprefix%__M3U8__}.mp4"   &&
-			    rm -f "$fprefix"*
-			
-		    else
-			( $ffmpeg -i "${fprefix%__M3U8__}.ts"       \
-				  -report                           \
-				  -acodec libfaac                   \
-				  -ab 160k                          \
-				  -vcodec libx264                   \
-				  -crf 18                           \
-				  -preset $preset                   \
-				  -y                                \
-				  "${fprefix%__M3U8__}.mp4" &>/dev/null &&
-				rm -f "$fprefix"* ) &
-			pid_ffmpeg=$!
-
-			ffmpeg_stdout $ffmpeg $pid_ffmpeg
-			unset key_to_continue
-		    fi
-		fi		
-	    fi
-	done
-    fi
 
     ## --mp3/--flac: conversione formato
     if [ -n "$format" ]

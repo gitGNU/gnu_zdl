@@ -505,11 +505,11 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
 	FFMpeg)
 	    ## URL-FILE.M3U8
-	    stdbuf -oL -eL \
-		   $ffmpeg -y -i "$url_in_file" -c copy "$file_in" 2>&1 |
-		tr '\r' '\n' > "$path_tmp/${file_in}_stdout.tmp" &
+	    $ffmpeg -i "$url_in_file" -c copy "${file_in}" -y 2>&1 | 
+		stdbuf -i0 -o0 -e0  tr '\r' '\n' >> "$path_tmp/${file_in}_stdout.tmp" &
 	    pid_in=$!
-	    echo -e "${pid_in}
+	    
+	    echo -e "$pid_in
 $url_in
 FFMpeg
 ${pid_prog}
@@ -663,6 +663,23 @@ function check_in_file { 	## return --> no_download=1 / download=0
 			resume_dl|rewrite_dl) 
 			    [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&                                       
 				test_completed=$(grep 'Download complete' < "$path_tmp/${file_in}_stdout.tmp")
+
+			    if [ -f "${file_in}" ] &&                        
+				   [ -z "$test_completed" ] &&                  
+				   ( [ -z "$bis" ] || [ "$no_bis" == true ] )
+			    then 
+				unset no_newip
+				[ -n "$url_in_file" ] && return 0
+			    fi
+			    ;;
+		    esac
+
+		elif [ "$downloader_in" == "FFMpeg" ]
+		then
+		    case "$i" in
+			resume_dl|rewrite_dl) 
+			    [ -f "$path_tmp/${file_in}_stdout.tmp" ] &&                                       
+				test_completed=$(grep 'muxing' < "$path_tmp/${file_in}_stdout.tmp")
 
 			    if [ -f "${file_in}" ] &&                        
 				   [ -z "$test_completed" ] &&                  

@@ -85,7 +85,7 @@ function show_downloads_extended () {
 	    code = code BBlue "Url del file: " Color_Off url_out_file[i] "\n"
 	}
 
-	if (downloader_out[i] == "cURL") {
+	if (downloader_out[i] ~ /cURL/) {
 	    if (check_pid(pid_out[i])) {
 		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n"
 	    } else if (exists(file_out[i])) {
@@ -94,8 +94,8 @@ function show_downloads_extended () {
 		code = code BBlue "Stato: " Color_Off BRed "Download non attivo" Color_Off "\n"
 	    }
 	} else {
-	    progress_bar = make_progress()
-	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n"
+	    progress_bar = make_progress() 
+	    code = code BBlue "Stato: " diff_bar_color progress_bar Color_Off "\n\n"
 	}
     }
     return code
@@ -114,6 +114,8 @@ function show_downloads () {
 	    downloader = "RTMP"
 	else if (downloader_out[i] == "DCC_Xfer")
 	    downloader = "xdcc"
+	else if (downloader_out[i] == "FFMpeg")
+	    downloader = "FFMp"
 	else
 	    downloader = downloader_out[i]
 
@@ -135,6 +137,8 @@ function show_downloads_lite () {
 	    downloader = "RTMP"
 	else if (downloader_out[i] == "DCC_Xfer")
 	    downloader = "xdcc"
+	else if (downloader_out[i] == "FFMpeg")
+	    downloader = "FFMp"
 	else
 	    downloader = downloader_out[i]
 
@@ -184,7 +188,7 @@ function bar_colors (content, I) {
 }
 
 function make_progress (size_bar, progress_bar, progress) {
-    if (downloader_out[i] == "cURL") {
+    if (downloader_out[i] ~ /cURL/) {
 	length_out[i] = "unspecified"
 	# if ((! check_pid(pid_out[i])) && (exists(file_out[i]))) {
 	#     percent_out[i] = 100
@@ -200,19 +204,19 @@ function make_progress (size_bar, progress_bar, progress) {
 	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato            " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato           " Color_Off)	
 	}
 	else if (check_irc_pid()) {
 	    diff_bar_color = BYellow
 	    bar_color = On_Yellow
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi               " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi              " Color_Off)	
 	}    
 	else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
 	    # if (downloader_out[i] == "Wget")
 	    # 	percent_out[i] = 0
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo            " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo           " Color_Off)	
 	}
     } else {
 	if (speed_out[i] > 0) {
