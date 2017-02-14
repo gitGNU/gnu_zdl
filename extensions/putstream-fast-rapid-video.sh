@@ -25,10 +25,9 @@
 #
 
 ## zdl-extension types: streaming
-## zdl-extension name: Fastvideo, Rapidvideo, Putstream, Vidto
+## zdl-extension name: Fastvideo, Putstream, Vidto
 
-
-if [[ "$url_in" =~ (fastvideo.|rapidvideo.|putstream.|vidto.) ]]
+if [[ "$url_in" =~ (fastvideo.|putstream.|vidto.) ]]
 then
     if [[ ! "$url_in" =~ embed ]]
     then
@@ -58,6 +57,7 @@ then
     then
 	packed_args "$html_packed"
 	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+		
 	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
 	
     elif [ -n "$html_sources" ]

@@ -33,27 +33,35 @@ then
     html=$(wget https://player.vimeo.com/video/${BASH_REMATCH[1]} -qO-)
     html2="$html"
 
-    if [ -z "$html" ]
-    then
-	html2=$(wget -qO- "$url_in")
-	url_embed=$(grep GET <<< "$html2" |
-			   sed -r 's|.+GET\",\"([^"]+)\".+|\1|g')
-	html=$(wget -qO- "$url_embed")
-    fi
+    ## meglio scaricare con aria2 il file mp4
+    #
+    # if command -v youtube-dl &>/dev/null
+    # then
+    # 	url_in_file=$(youtube-dl --dump-json "$url_in")
+    # 	url_in_file="${url_in_file%.m3u8*}.m3u8"
+    # 	url_in_file="${url_in_file##*\"}"
 
-    url_in_file=$(grep -P 'token=' <<< "$(echo -e "${html//http/\\nhttp}")")
-    url_in_file="${url_in_file%%\"*}"
+    # else
+	if [ -z "$html" ]
+	then
+	    html2=$(wget -qO- "$url_in")
+	    url_embed=$(grep GET <<< "$html2" |
+			       sed -r 's|.+GET\",\"([^"]+)\".+|\1|g')
+	    html=$(wget -qO- "$url_embed")
+	fi
 
-    ## M3U8: alternativa valida ma incompleta
-    #
-    # m3u8_url=$(echo -e "${html//http/\\nhttp}"  |
-    # 		      grep m3u8                   |
-    # 		      tail -n1                    |
-    # 		      sed -r 's|([^"]+)\".+|\1|g')
-    #
-    # m3u8_url=${m3u8_url%%video*}$(wget -qO- "$m3u8_url" | tail -n1 | sed -r "s|\.\.\/\.\.\/(.+)|\1|g")
-    #
-    # replace_url_in "$m3u8_url"
+	url_in_file=$(grep -P 'token=' <<< "$(echo -e "${html//http/\\nhttp}")")
+	url_in_file="${url_in_file%%\"*}"
+
+	## M3U8: alternativa valida ma incompleta
+	#
+	# m3u8_url=$(echo -e "${html//http/\\nhttp}"  |
+	# 		      grep m3u8                   |
+	# 		      tail -n1                    |
+	# 		      sed -r 's|([^"]+)\".+|\1|g')
+	#
+	# url_in_file=${m3u8_url%%video*}$(wget -qO- "$m3u8_url" | tail -n1 | sed -r "s|\.\.\/\.\.\/(.+)|\1|g")
+#    fi
     
     ext="${url_in_file%'?'*}"
     ext="${ext##*'.'}"

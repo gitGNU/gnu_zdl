@@ -485,8 +485,6 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	}
 
 	length_saved[i] = size_file(file_out[i])
-	if (!length_out[i])
-	    length_out[i] = length_saved[i] ##"unspecified"
 
 	if (progress_end[i]) {
 	    if (! no_check)
@@ -495,9 +493,8 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    percent_out[i] = 100
         }
 	else if (time_out[i] && duration_out[i]) {
-	    percent_out[i] = duration_out[i]
-	    if (time_out[i] && duration_out[i])
-		percent_out[i] = int(time_out[i] * 100 / duration_out[i])
+	    percent_out[i] = int(time_out[i] * 100 / duration_out[i])
+	    length_out[i] = 100 * int(length_saved[i]) / int(percent_out[i])
 
 	    if (int(speed_out[i]) != 0 && int(speed_out[i]) > 0) {
 		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / int(speed_out[i]))
@@ -509,7 +506,9 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	}
 	
 	if (!speed_out[i])
-	    speed_out[i] = 0	    
+	    speed_out[i] = 0
+	if (!length_out[i])
+	    length_out[i] = length_saved[i] ##"unspecified"
     }
 
     

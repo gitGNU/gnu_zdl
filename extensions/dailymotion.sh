@@ -28,7 +28,8 @@
 ## zdl-extension name: Dailymotion
 
 
-if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]; then
+if [ "$url_in" != "${url_in//dailymotion.com\/video}" ]
+then
     echo -e ".dailymotion.com\tTRUE\t/\tFALSE\t0\tff\toff" > "$path_tmp"/cookies.zdl
     html="$(wget -t 1 -T $max_waiting --load-cookies="$path_tmp"/cookies.zdl -q "$url_in" -O-)"
 

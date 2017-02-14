@@ -476,22 +476,21 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Backin, Dailymotion, Exashare, Fastvideo, IDoWatch, Junkyvideo
-     (HD), Metacafe, Movshare/Wholecloud, Neodrive (ex Cloudzilla),
-     Nowvideo, Openload, Portalevideo.unimi.it, Putstream, Rai.tv,
-     Rapidvideo, Rocvideo, Sockshare (HD), Speedvideo (HD), Streamin,
-     Thevideo, TubeOffLine.com (tutti i servizi: Biqle), Tutti i video
-     in streaming di tipo .m3u8, Tvdigit.it, VidABC, Vidce, Videomega,
-     Videowood, Vidhappy (RTMP), Vidto, Vimeo (HD), VK (HD), WStream,
-     Youtube, Zinwa (RTMP) 
+     Dailymotion, Exashare, Fastvideo, IDoWatch, Metacafe,
+     Movshare/Wholecloud, Neodrive (ex Cloudzilla), Nowvideo, Openload,
+     Portalevideo.unimi.it, Putstream, Raptu (ex rapidvideo), Rocvideo,
+     Sockshare (HD), Speedvideo (HD), Streamin, Thevideo,
+     TubeOffLine.com (tutti i servizi: Biqle), Tutti i video in
+     streaming di tipo .m3u8, VidABC, Vidce, Videowood, Vidhappy
+     (RTMP), Vidlox, Vidto, Vimeo (HD), VK (HD), WStream, Youtube,
+     Zinwa (RTMP) 
 
 _File hosting:_
-     Clicknupload, Cyberlocker, Dropbox, Easybytez, Glumbouploads,
-     Go4Up (multi-link), Jheberg (multi-link), Junkyvideo (HD),
-     Katfile, Mediafire, Mega, MultiUp (multi-link), Nowdownload,
-     Openload, Ozofiles, Pastebin, Rockfile, Sockshare (HD), Subyshare,
-     TubeOffLine.com (tutti i servizi: Biqle), Tusfiles, Uload,
-     Uploadshub, Uppit, Uptobox 
+     Clicknupload, Cyberlocker, Dropbox, Easybytez, Go4Up (multi-link),
+     Jheberg (multi-link), Katfile, Mediafire, Mega, MultiUp
+     (multi-link), Nowdownload, Openload, Ozofiles, Pastebin, Rockfile,
+     Sockshare (HD), Subyshare, TubeOffLine.com (tutti i servizi:
+     Biqle), Tusfiles, Uload, Uploadshub, Uppit, Uptobox 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
@@ -1247,18 +1246,18 @@ Indice analitico generale
 
 * argomenti:                             Il comando ZDL.       (line 18)
 * captcha:                               Servizi streaming/hosting.
-                                                               (line 28)
+                                                               (line 27)
 * comando zdl:                           Il comando ZDL.       (line  6)
 * download:                              Servizi streaming/hosting.
                                                                (line 20)
 * file hosting:                          Servizi streaming/hosting.
                                                                (line 20)
 * generated:                             Servizi streaming/hosting.
-                                                               (line 28)
+                                                               (line 27)
 * opzioni:                               Il comando ZDL.       (line 42)
 * perché zdl:                            Top.                  (line  6)
 * short links:                           Servizi streaming/hosting.
-                                                               (line 32)
+                                                               (line 31)
 * sintassi:                              Il comando ZDL.       (line 13)
 * streaming:                             Servizi streaming/hosting.
                                                                (line 12)
@@ -1349,25 +1348,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6602
 Node: Servizi streaming/hosting14007
-Node: Avviare ZDL17724
-Node: Arrestare ZDL20160
-Node: Controllare i download21265
-Node: Manuali d'uso25556
-Node: Modi25972
-Node: Readline29238
-Node: Editor30790
-Node: Omonimie32015
-Node: IRC/XDCC33550
-Node: Torrent35240
-Node: Filtri36124
-Node: Creare nuove estensioni36445
-Node: Software consigliati38207
-Node: Conkeror39608
-Node: zdl-xterm e XXXTerm/Xombrero40619
-Node: Installazione e aggiornamento42543
-Node: Tags45578
-Node: Copying48379
-Node: Contatti49429
+Node: Avviare ZDL17650
+Node: Arrestare ZDL20086
+Node: Controllare i download21191
+Node: Manuali d'uso25482
+Node: Modi25898
+Node: Readline29164
+Node: Editor30716
+Node: Omonimie31941
+Node: IRC/XDCC33476
+Node: Torrent35166
+Node: Filtri36050
+Node: Creare nuove estensioni36371
+Node: Software consigliati38133
+Node: Conkeror39534
+Node: zdl-xterm e XXXTerm/Xombrero40545
+Node: Installazione e aggiornamento42469
+Node: Tags45504
+Node: Copying48305
+Node: Contatti49355
 
 End Tag Table
 

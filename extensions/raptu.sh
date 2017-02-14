@@ -24,22 +24,18 @@
 # zoninoz@inventati.org
 #
 
-## ZDL add-on
 ## zdl-extension types: streaming
-## zdl-extension name: Tvdigit.it
+## zdl-extension name: Raptu (ex rapidvideo)
 
-if [ "$url_in" != "${url_in//'tvdigit.it'}" ]; then
+if [[ "$url_in" =~ (raptu\.|rapidvideo\.) ]]
+then
+    html=$(wget -qO- "$url_in")
 
-	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
-	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep ".flv")
-	url_in_file="${url_in_file%%.flv*}.flv"
-	url_in_file="http${url_in_file##*http}"
-	url_in_file=$(urldecode "${url_in_file}")
+    file_in=$(get_title "$html")
 
-	ext="flv"
-	file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "title>")
-	file_in="${file_in#*'title>'}"
-	file_in="${file_in%%'</title'*}"
-	file_in="${file_in//\//-}.$ext"
-	file_in=$(htmldecode "$file_in")
+    url_in_file=$(grep mp4 <<< "$html" | tr -d '\\')
+    url_in_file="${url_in_file##*file\":\"}"
+    url_in_file="${url_in_file%%\"*}"
+
+    end_extension
 fi

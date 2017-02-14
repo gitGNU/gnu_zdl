@@ -24,24 +24,18 @@
 # zoninoz@inventati.org
 #
 
-## ZDL add-on
 ## zdl-extension types: streaming
-## zdl-extension name: Rai.tv
+## zdl-extension name: Vidlox
 
-if [ "$url_in" != "${url_in//'rai.tv'}" ]
+if [ "$url_in" != "${url_in//vidlox.}" ]
 then
-    if [ "${url_in}" == "${url_in//dirette}" ]
-    then 
-	wget "$url_in" -O "$path_tmp"/zdl.tmp -q
-	url_in_file=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "videoURL_MP4")
-	url_in_file="${url_in_file#*\"}"
-	url_in_file="${url_in_file%%\"*}"
-	file_in=$(cat "$path_tmp"/zdl.tmp 2>/dev/null |grep "title>")
-	file_in="${file_in#*'title>'}"
-	file_in="${file_in%%'</title'*}"
-	file_in="${file_in//\//-}.mp4"
-    else
-	_log 3
-	print_c 3 "La diretta RAI usa un protocollo non supportato da $name_prog" | tee -a $file_log
-    fi
+    html=$(wget -qO- "$url_in")
+
+    file_in=$(trim "$(grep '<title>' -A2 <<< "$html" | sed -n 2p)")
+    file_in="${file_in#Watch }"
+    
+    url_in_file=$(grep m3u8 <<< "$html" | head -n1 | tr -d '\\' |
+			 sed -r 's|.+\"([^"]+)\".+|\1|')
+
+    end_extension
 fi
