@@ -479,25 +479,29 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    }
 	}
 
+	length_saved[i] = size_file(file_out[i])
+	if (!length_out[i])
+	    length_out[i] = length_saved[i] ##"unspecified"
+
 	if (progress_end[i]) {
 	    if (! no_check)
 		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 	    if (url_in == url_out[i]) bash_var("url_in", "")
-	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
         }
-	else if (duration_out[i]) {
+	else if (time_out[i] && duration_out[i]) {
 	    percent_out[i] = duration_out[i]
 	    if (time_out[i] && duration_out[i])
 		percent_out[i] = int(time_out[i] * 100 / duration_out[i])
+
+	    if (int(speed_out[i]) != 0 && int(speed_out[i]) > 0) {
+		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / int(speed_out[i]))
+		eta_out[i] = seconds_to_human(eta_out[i])
+	    }
 	}
 	
 	if (!speed_out[i])
 	    speed_out[i] = 0	    
-
-	length_saved[i] = size_file(file_out[i])
-	if (!length_out[i])
-	    length_out[i] = length_saved[i] ##"unspecified"
     }
 
     
