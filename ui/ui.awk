@@ -85,9 +85,9 @@ function show_downloads_extended () {
 	    code = code BBlue "Url del file: " Color_Off url_out_file[i] "\n"
 	}
 
-	if (downloader_out[i] ~ /cURL/) {
+	if (downloader_out[i] ~ /cURL|FFMpeg/ && length_out[i] == "unspecified") {
 	    if (check_pid(pid_out[i])) {
-		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n"
+		code = code BGreen downloader_out[i] ": " progress_unspecified("downloading") "\n\n"
 	    } else if (exists(file_out[i])) {
 		code = code BGreen downloader_out[i] ": " progress_unspecified("complete") "\n"
 	    } else {
@@ -204,7 +204,7 @@ function make_progress (size_bar, progress_bar, progress) {
 	if (percent_out[i] == 100) {
 	    diff_bar_color = BGreen 
 	    bar_color = On_Green
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato           " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "completato            " Color_Off)	
 	}
 	else if (check_irc_pid()) {
 	    diff_bar_color = BYellow

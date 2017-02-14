@@ -505,8 +505,10 @@ $playpath" > "$path_tmp/${file_in}_stdout.tmp"
 
 	FFMpeg)
 	    ## URL-FILE.M3U8
-	    $ffmpeg -i "$url_in_file" -c copy "${file_in}" -y 2>&1 | 
-		stdbuf -i0 -o0 -e0  tr '\r' '\n' >> "$path_tmp/${file_in}_stdout.tmp" &
+	    rm -f "$path_tmp/${file_in}_stdout.tmp"
+	    $ffmpeg -loglevel info -i "$url_in_file" -c copy "${file_in}" -y 2>&1 | 
+		stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+	    	stdbuf -i0 -o0 -e0 grep -P '(Duration|bitrate=|time=|muxing)' >> "$path_tmp/${file_in}_stdout.tmp" &
 	    pid_in=$!
 	    
 	    echo -e "$pid_in

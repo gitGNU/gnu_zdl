@@ -453,21 +453,26 @@ function progress_out (chunk,           progress_line, line, cmd) {
 		break
 	    }
 	    
-	    if (chunk[y] ~ /bitrate=/) {
+	    if (chunk[y] ~ /bitrate=.+speed=/) {
 		progress_line = chunk[y]
 
 		if (!speed_out[i]) {
-		    match(progress_line, /bitrate=\s*(.+)kbits/, matched)
-		    speed_out[i] = matched[1]
+		    match(progress_line, /bitrate=\s*(.+)kbits/, bitrate)
+		    match(progress_line, /speed=\s*(.+)x/, speed)
+		    speed_out[i] = int( (int(bitrate[1]) / 8) * int(speed[1]) )
 		    speed_out_type[i] = "KB/s"
 		}
+	    }
 
+	    if (chunk[y] ~ /time=/) {
 		if (!time_out[i]) {
-		    match(progress_line, /time=\s*(.+)\s*/, matched)
+		    match(progress_line, /time=\s*([^\ ]+)\s*/, matched)
 		    time_out[i] = int( get_ffmpeg_seconds(matched[1]) )
 		}
-		break
 	    }
+
+	    if (time_out[i] && speed_out[i])
+		break
 	}
 
 	cmd = "cat .zdl_tmp/"file_out[i]"_stdout.tmp"
@@ -498,6 +503,9 @@ function progress_out (chunk,           progress_line, line, cmd) {
 		eta_out[i] = int(((length_out[i] / 1024) * (100 - percent_out[i]) / 100) / int(speed_out[i]))
 		eta_out[i] = seconds_to_human(eta_out[i])
 	    }
+	}
+	else if (! time_out[i] || ! duration_out[i]) {
+	    length_out[i] = "unspecified"
 	}
 	
 	if (!speed_out[i])
