@@ -25,7 +25,7 @@
 #
 
 ## zdl-extension types: streaming download
-## zdl-extension name: TubeOffLine.com: Biqle, VK, 
+## zdl-extension name: TubeOffLine.com (tutti i servizi: Biqle)  
 
 if ! url "$url_in_file" ||
 	test -z "$file_in"

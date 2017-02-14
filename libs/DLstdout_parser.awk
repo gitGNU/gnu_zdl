@@ -101,7 +101,7 @@ function check_stdout () {
 	    length_out[i] > 0 &&
 	    ! exists(file_out[i] ".st") &&
 	    ! exists(file_out[i] ".zdl") &&
-	    downloader_out[i] != "Aria2")
+	    ! downloader_out[i] ~ /Aria2|FFMpeg/)
 	    rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
 
 		
@@ -453,7 +453,7 @@ function progress_out (chunk,           progress_line, line, cmd) {
 		break
 	    }
 	    
-	    if (chunk[y] ~ /bitrate= /) {
+	    if (chunk[y] ~ /bitrate=/) {
 		progress_line = chunk[y]
 
 		if (!speed_out[i]) {
@@ -463,7 +463,7 @@ function progress_out (chunk,           progress_line, line, cmd) {
 		}
 
 		if (!time_out[i]) {
-		    match(progress_line, /time=\s*([^\ ]+)/, matched)
+		    match(progress_line, /time=\s*(.+)\s*/, matched)
 		    time_out[i] = int( get_ffmpeg_seconds(matched[1]) )
 		}
 		break
