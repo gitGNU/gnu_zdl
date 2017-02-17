@@ -29,9 +29,12 @@
 
 if [[ "$url_in" =~ (fastvideo.|putstream.|vidto.) ]]
 then
+    [[ "$url_in" =~ fastvideo ]] &&
+	replace_url_in "${url_in%'?'*}"
+    
     if [[ ! "$url_in" =~ embed ]]
     then
-	html=$(wget -qO- --user-agent="$user_agent" "$url_in")
+	html=$(wget -qO- --user-agent="$user_agent" "${url_in}")
 	
 	if [[ "$url_in" =~ (putstream.) ]]
 	then

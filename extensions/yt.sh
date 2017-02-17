@@ -29,7 +29,7 @@
 
 if [ "$url_in" != "${url_in//'youtube.com/watch'}" ]
 then
-    replace_url_in "$(urldecode "$url_in")"
+    replace_url_in "$(urldecode "${url_in%%'&'*}")"
     
     html=$(wget -Nc -e convert-links=off                     \
     		--keep-session-cookies                       \

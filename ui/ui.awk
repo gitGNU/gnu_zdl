@@ -209,14 +209,14 @@ function make_progress (size_bar, progress_bar, progress) {
 	else if (check_irc_pid()) {
 	    diff_bar_color = BYellow
 	    bar_color = On_Yellow
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi              " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "attendi               " Color_Off)	
 	}    
 	else {	    
 	    diff_bar_color = BRed 
 	    bar_color = On_Red
 	    # if (downloader_out[i] == "Wget")
 	    # 	percent_out[i] = 0
-	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo           " Color_Off)	
+	    info = sprintf("%-5s%-9s", percent_out[i] "%", "non attivo            " Color_Off)	
 	}
     } else {
 	if (speed_out[i] > 0) {
