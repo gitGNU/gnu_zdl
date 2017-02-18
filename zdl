@@ -1525,12 +1525,12 @@ else
     do
 	if ! main_loop
 	then
-	    if [ "$lite_mode" == true ]
-	    then
-	    	show_downloads_lite no-clear
-	    fi
+	    # if [ "$lite_mode" == true ]
+	    # then
+	    # 	show_downloads_lite no-clear
+	    # fi
 	    touch "$path_tmp"/stop-binding
-	    closing
+#	    closing
 
 	    while [ -f "$path_tmp"/stop-binding ]
 	    do
@@ -1577,6 +1577,8 @@ fi
 wait $loops_pid 
 
 ######################
+closing
+
 if ! get_exit
 then
     test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
