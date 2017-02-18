@@ -1264,8 +1264,6 @@ function main_loop {
 		    continue
 		fi
 		
-		[ -z "$key_to_continue" ] && key_to_continue=true
-
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -1497,19 +1495,9 @@ function closing {
 	[ "$test_pid" == "$pid_prog" ] &&
 	    ! check_start_file &&
 	    {
-		[ -f "$path_tmp"/.pid.zdl ] &&
-		    mv "$path_tmp"/.pid.zdl "$path_tmp"/.pid2.zdl 
-		print_header
 		separator-
 		print_c 1 "Download completato"
-		if test -n "$key_to_continue"
-		then
-		    print_header
-		    header_dl "Premi un tasto per continuare"
-
-		else
-		    separator-
-		fi
+		separator-
 	    }
     else
 	kill_downloads
@@ -1543,7 +1531,12 @@ else
 	    fi
 	    touch "$path_tmp"/stop-binding
 	    closing
-	    
+
+	    while [ -f "$path_tmp"/stop-binding ]
+	    do
+		sleep 0.1
+	    done
+
 	    break
 	fi
 
@@ -1576,12 +1569,12 @@ else
 
 fi
 
-wait $loops_pid 
+#wait $loops_pid 
 
 ######################
 if ! get_exit
 then
-    test_pid=$(cat "$path_tmp"/.pid2.zdl 2>/dev/null)
+    test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
     
     [ "$test_pid" == "$pid_prog" ] &&
 	! check_start_file &&
