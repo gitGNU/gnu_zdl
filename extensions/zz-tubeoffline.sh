@@ -27,7 +27,8 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: TubeOffLine.com (tutti i servizi: Biqle)  
 
-if ( ! url "$url_in_file" ||
+if grep -vP '\/\/[^w]{2}[^.]*\.[^.]+\.[^.:/]+\/*:*.+(\.mp[34]|\.avi|\.mkv|\.rar|\.zip|\.tar|\.doc|\.flv)*' &&
+	( ! url "$url_in_file" ||
 	   test -z "$file_in" ) #&&        ! grep "$url_in" "$path_tmp"/filename_* &>/dev/null
 then
     host="${url_in#*\/\/}"

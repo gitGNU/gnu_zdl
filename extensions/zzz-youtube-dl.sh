@@ -88,7 +88,8 @@ then
     then
 	unset file_in url_in_file
     else
-	print_c 1 "youtube-dl: $url_in_file"
+	[ "$url_in" != "$url_in_file" ] &&
+	    print_c 1 "youtube-dl: $url_in_file"
 	unset break_loop
     fi
 fi
