@@ -514,6 +514,8 @@ ESTENSIONI:
 	deps['desktop-file-install']=desktop-file-utils
 	deps['curl']=curl
 	## deps['ffmpeg']=ffmpeg
+
+	## php-mbstring
 	
 	command -v X &>/dev/null &&
 	    deps['xterm']=xterm
