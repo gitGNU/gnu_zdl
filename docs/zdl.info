@@ -482,7 +482,7 @@ _Video in streaming saltando il player del browser:_
      Sockshare (HD), Speedvideo (HD), Streamin, Thevideo,
      TubeOffLine.com (tutti i servizi: Biqle), Tutti i video in
      streaming di tipo .m3u8, VidABC, Vidce, Videowood, Vidhappy
-     (RTMP), Vidlox, Vidto, Vimeo (HD), VK (HD), WStream, Youtube,
+     (RTMP), Vidlox, Vidto, Vimeo (HD), VK (HD), WStream (HD), Youtube,
      Zinwa (RTMP) 
 
 _File hosting:_
@@ -490,7 +490,7 @@ _File hosting:_
      Jheberg (multi-link), Katfile, Mediafire, Mega, MultiUp
      (multi-link), Nowdownload, Openload, Ozofiles, Pastebin, Rockfile,
      Sockshare (HD), Subyshare, TubeOffLine.com (tutti i servizi:
-     Biqle), Tusfiles, Uload, Uploadshub, Uppit, Uptobox 
+     Biqle), Tusfiles, Uload, Uploadshub, Uppit, Uptobox, WStream (HD) 
 
 _Link generati dal web (anche dopo captcha):_
      Depositfiles, Hugefiles, Openload, Rockfile, Storbit, Uploadable
@@ -1348,25 +1348,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6602
 Node: Servizi streaming/hosting14007
-Node: Avviare ZDL17650
-Node: Arrestare ZDL20086
-Node: Controllare i download21191
-Node: Manuali d'uso25482
-Node: Modi25898
-Node: Readline29164
-Node: Editor30716
-Node: Omonimie31941
-Node: IRC/XDCC33476
-Node: Torrent35166
-Node: Filtri36050
-Node: Creare nuove estensioni36371
-Node: Software consigliati38133
-Node: Conkeror39534
-Node: zdl-xterm e XXXTerm/Xombrero40545
-Node: Installazione e aggiornamento42469
-Node: Tags45504
-Node: Copying48305
-Node: Contatti49355
+Node: Avviare ZDL17669
+Node: Arrestare ZDL20105
+Node: Controllare i download21210
+Node: Manuali d'uso25501
+Node: Modi25917
+Node: Readline29183
+Node: Editor30735
+Node: Omonimie31960
+Node: IRC/XDCC33495
+Node: Torrent35185
+Node: Filtri36069
+Node: Creare nuove estensioni36390
+Node: Software consigliati38152
+Node: Conkeror39553
+Node: zdl-xterm e XXXTerm/Xombrero40564
+Node: Installazione e aggiornamento42488
+Node: Tags45523
+Node: Copying48324
+Node: Contatti49374
 
 End Tag Table
 

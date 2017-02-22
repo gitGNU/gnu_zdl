@@ -25,8 +25,8 @@
 #
 
 ## ZDL add-on
-## zdl-extension types: streaming
-## zdl-extension name: WStream
+## zdl-extension types: streaming download
+## zdl-extension name: WStream (HD)
 
 
 if [ "$url_in" != "${url_in//wstream.}" ] &&
