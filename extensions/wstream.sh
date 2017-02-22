@@ -29,7 +29,8 @@
 ## zdl-extension name: WStream
 
 
-if [ "$url_in" != "${url_in//wstream.}" ]
+if [ "$url_in" != "${url_in//wstream.}" ] &&
+       [[ ! "$url_in" =~ "black" ]]
 then
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
@@ -58,9 +59,20 @@ then
 	# 	    --post-data="$post_data"        \
 	# 	    -qO-)
 
-	url_in_file=$(unpack "$html"|
-			     sed -r 's|.+\[\{file:\"([^"]+)\".+|\1|g')
+	## url_in_file=$(unpack "$html"|			     sed -r 's|.+\[\{file:\"([^"]+)\".+|\1|g')
 
+	download_video=$(grep -P 'download_video.+Original' <<< "$html")
+
+	hash_wstream="${download_video%\'*}"
+	hash_wstream="${hash_wstream##*\'}"
+
+	id_wstream="${download_video#*\'}"
+	id_wstream="${id_wstream%%\'*}"
+
+	url_in_file=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
+			     grep 'Direct Download Link' |
+			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+	
 	end_extension
     fi
 fi
