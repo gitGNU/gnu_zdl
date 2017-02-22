@@ -35,12 +35,13 @@ then
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
 		--user-agent="Firefox"                           \
-		--keep-session-cookies="$path_tmp/cookies.zdl"   \
+		--keep-session-cookies                           \
+		--save-cookies="$path_tmp/cookies.zdl"           \
 		-qO-)
     
-    [ -z "$html" ] &&
-	command -v curl >/dev/null && 
-	html=$(curl "$url_in") 
+    # [ -z "$html" ] &&
+    # 	command -v curl >/dev/null && 
+    # 	html=$(curl "$url_in") 
 
     if [[ "$html" =~ (File Not Found) ]]
     then
@@ -69,8 +70,9 @@ then
 	id_wstream="${download_video#*\'}"
 	id_wstream="${id_wstream%%\'*}"
 
-	url_in_file=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
-			     grep 'Direct Download Link' |
+	url_in_file=$(wget -qO- \
+			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
+			     grep 'Direct Download Link'                                                            |
 			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
 	
 	end_extension
