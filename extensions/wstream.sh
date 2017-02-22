@@ -46,21 +46,21 @@ then
 	_log 3
 
     else
-	input_hidden "$html"
-	post_data+="&imhuman=Proceed to video"
-	
-	countdown- 10
+	# input_hidden "$html"
+	# post_data+="&imhuman=Proceed to video"
+
+	# countdown- 10
 
 	file_in=$(get_title "$html" |sed -r 's|Watch\s||')
 	file_in="${file_in%.mp4}.mp4"
 	
-	html=$(wget "$url_in"                       \
-		    --post-data="$post_data"        \
-		    -qO-)
+	# html=$(wget "$url_in"                       \
+	# 	    --post-data="$post_data"        \
+	# 	    -qO-)
 
-	url_in_file=$(unpack "$html" |
+	url_in_file=$(unpack "$html"|
 			     sed -r 's|.+\[\{file:\"([^"]+)\".+|\1|g')
-	
+
 	end_extension
     fi
 fi
