@@ -74,6 +74,13 @@ then
 			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
 			     grep 'Direct Download Link'                                                            |
 			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+	if ! url "$url_in_file"
+	then
+	    url_in_file=$(wget -qO- \
+			       "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
+				 grep 'Direct Download Link'                                                            |
+				 sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+	fi
 	
 	end_extension
     fi
