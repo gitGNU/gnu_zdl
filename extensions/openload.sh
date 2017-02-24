@@ -127,12 +127,18 @@ then
     if [[ "$url_in" =~ (openload.+stream.+~) ]]
     then
 	openload_data=$(wget -S --spider "$url_in" 2>&1)
+	
 	url_in_file=$(grep Location <<< "$openload_data" |
+			     head -n1 |
 			     sed -r 's|.+\s(.+)$|\1|g')
 
 	file_in=$(grep filename <<< "$openload_data" |
 			 sed -r 's|.+\"([^"]+).+|\1|g')
 
+	[ -z "$file_in" ] && file_in="${url_in_file##*\/}"
+
+	countdown- 6
+	
     else
 	URL_in="$(sed -r 's|\/F\/|/f/|g' <<< "$url_in")"
 	#URL_in="$(sed -r 's|\/embed\/|/f/|g' <<< "$url_in")"
