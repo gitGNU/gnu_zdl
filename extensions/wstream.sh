@@ -39,29 +39,11 @@ then
 		--save-cookies="$path_tmp/cookies.zdl"           \
 		-qO-)
     
-    # [ -z "$html" ] &&
-    # 	command -v curl >/dev/null && 
-    # 	html=$(curl "$url_in") 
-
     if [[ "$html" =~ (File Not Found) ]]
     then
 	_log 3
 
     else
-	# input_hidden "$html"
-	# post_data+="&imhuman=Proceed to video"
-
-	# countdown- 10
-
-	file_in=$(get_title "$html" |sed -r 's|Watch\s||')
-	file_in="${file_in%.mp4}.mp4"
-	
-	# html=$(wget "$url_in"                       \
-	# 	    --post-data="$post_data"        \
-	# 	    -qO-)
-
-	## url_in_file=$(unpack "$html"|			     sed -r 's|.+\[\{file:\"([^"]+)\".+|\1|g')
-
 	download_video=$(grep -P 'download_video.+Original' <<< "$html")
 
 	hash_wstream="${download_video%\'*}"
@@ -70,16 +52,25 @@ then
 	id_wstream="${download_video#*\'}"
 	id_wstream="${id_wstream%%\'*}"
 
+	## original
 	url_in_file=$(wget -qO- \
 			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
 			     grep 'Direct Download Link'                                                            |
 			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
-	if ! url "$url_in_file"
+
+	if url "$url_in_file"
 	then
+	    file_in="${url_in_file##*\/}"
+
+	else
+	    ## normal
 	    url_in_file=$(wget -qO- \
 			       "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
 				 grep 'Direct Download Link'                                                            |
-				 sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+				 sed -r 's|.+\"([^"]+)\".+|\1|g')
+
+	    file_in=$(get_title "$html" |sed -r 's|Watch\s||')
+	    file_in="${file_in%.mp4}.mp4"
 	fi
 	
 	end_extension
