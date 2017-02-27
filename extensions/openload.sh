@@ -158,56 +158,66 @@ then
 	then
 	    _log 3
 	    
-	elif [ -n "$html" ]
-	then
+	# elif [ -n "$html" ]
+	# then
 	    
-	    html2=$(awk '/\^o/{print}' <<< "$html"   |
-			   head -n1                |
-			   sed -r 's|[^>]+>(.+)|\1|g') #>"$path_tmp/aaencoded.js"
+	    # html2=$(awk '/\^o/{print}' <<< "$html"   |
+	    # 		   head -n1                |
+	    # 		   sed -r 's|[^>]+>(.+)|\1|g') #>"$path_tmp/aaencoded.js"
 
 	    
-	    echo "${html2%%var*}" >"$path_tmp/aaencoded.js"
-	    #	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+	    # echo "${html2%%var*}" >"$path_tmp/aaencoded.js"
+	    # #	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
 
-	    #echo "$html" > HTML.html
-	    php_aadecode "$path_tmp/aaencoded.js" > "$path_tmp/aadecoded.js"
+	    # #echo "$html" > HTML.html
+	    # php_aadecode "$path_tmp/aaencoded.js" > "$path_tmp/aadecoded.js"
 
-	    html3=$(awk '/_\^o/{print}' <<< "$html"   | 
-			   tail -n1                |
-			   sed -r 's|^(.+)<\/script.+|\1|g') #>"$path_tmp/aaencoded.js"
-#awk '/_\^o/{print}' <<< "$html"  
+	    # html3=$(awk '/_\^o/{print}' <<< "$html"   | 
+	    # 		   tail -n1                |
+	    # 		   sed -r 's|^(.+)<\/script.+|\1|g') #>"$path_tmp/aaencoded.js"
+
 	    
-	    echo "${html3%%var*}" >"$path_tmp/aaencoded.js"
-	    #	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
+	    # echo "${html3%%var*}" >"$path_tmp/aaencoded.js"
+	    # #	    sed -r 's|[^>]+>(.+)</script.+|\1|g' >"$path_tmp/aaencoded.js" 
 
-	    #echo "$html" > HTML.html
-	    php_aadecode "$path_tmp/aaencoded.js" > "$path_tmp/aadecoded.js"
+	    # #echo "$html" > HTML.html
+	    # php_aadecode "$path_tmp/aaencoded.js" > "$path_tmp/aadecoded.js"
 
-	    hiddenurl1=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
-				sed -r 's|.+\">(.+)<\/span>.*|\1|g')
+	    # hiddenurl1=$(grep '"streamurl' -B2 <<< "$html" | head -n1 |
+	    # 			sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 
-	    hiddenurl1=$(htmldecode "$hiddenurl1")
-	    hiddenurl1="${hiddenurl1//\\/\\\\}"
-	    hiddenurl1="${hiddenurl1//\'/\\\'}"
-	    hiddenurl1="${hiddenurl1//\"/\\\"}"
-	    hiddenurl1="${hiddenurl1//\`/\\\`}"
-	    hiddenurl1="${hiddenurl1//\$/\\\$}"
+	    # hiddenurl1=$(htmldecode "$hiddenurl1")
+	    # hiddenurl1="${hiddenurl1//\\/\\\\}"
+	    # hiddenurl1="${hiddenurl1//\'/\\\'}"
+	    # hiddenurl1="${hiddenurl1//\"/\\\"}"
+	    # hiddenurl1="${hiddenurl1//\`/\\\`}"
+	    # hiddenurl1="${hiddenurl1//\$/\\\$}"
 
-	    hiddenurl2=$(grep '"streamurl' -B1 <<< "$html" | head -n1 |
-				sed -r 's|.+\">(.+)<\/span>.*|\1|g')
+	    # hiddenurl2=$(grep '"streamurl' -B1 <<< "$html" | head -n1 |
+	    # 			sed -r 's|.+\">(.+)<\/span>.*|\1|g')
 	    
-	    hiddenurl2=$(htmldecode "$hiddenurl2")
-	    hiddenurl2="${hiddenurl2//\\/\\\\}"
-	    hiddenurl2="${hiddenurl2//\'/\\\'}"
-	    hiddenurl2="${hiddenurl2//\"/\\\"}"
-	    hiddenurl2="${hiddenurl2//\`/\\\`}"
-	    hiddenurl2="${hiddenurl2//\$/\\\$}"
+	    # hiddenurl2=$(htmldecode "$hiddenurl2")
+	    # hiddenurl2="${hiddenurl2//\\/\\\\}"
+	    # hiddenurl2="${hiddenurl2//\'/\\\'}"
+	    # hiddenurl2="${hiddenurl2//\"/\\\"}"
+	    # hiddenurl2="${hiddenurl2//\`/\\\`}"
+	    # hiddenurl2="${hiddenurl2//\$/\\\$}"
 
-	    countdown- 6
+	    ## sperimentale:
+	    # hiddenurl=$(grep '"streamurl' -B1 <<< "$html" | head -n1 |
+	    # 			sed -r 's|.+\">(.+)<\/span>.*|\1|g')
+	    # echo "$hiddenurl"
+	    # echo "$html" >"openload-page.html"
+	    # awk '/_\^o/{print}' <<< "$html" | tee "openload-aaencoded.js"
+	    # php_aadecode "openload-aaencoded.js" > "openload-aadecoded.js"
+	    # php_aadecode "openload-page.html" > "openload-page-aadecoded.html"
+	    ############
+	    
+	    #countdown- 6
 	    
 	    # OL_decode 1
 	    # OL_decode2 "$hiddenurl1" "$hiddenurl2"
-	    OL_decode3 "$hiddenurl1" "$hiddenurl2"
+	    # OL_decode3 "$hiddenurl1" "$hiddenurl2"
 	fi
     fi
     end_extension
