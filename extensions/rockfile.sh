@@ -41,11 +41,6 @@ then
     		--save-cookies="$path_tmp"/cookies.zdl     \
     		--user-agent="$user_agent"                 \
     		-qO- "${url_in//rockfile.eu/$real_ip_rockfile}")
-    
-    # if test -z "$html"
-    # then
-    # 	html=$(curl -c cookie "${url_in//rockfile.eu/$real_ip_rockfile}")
-    # fi
 
     # input_hidden "$html"
     # post_data="${post_data%= *}=-2"
