@@ -70,48 +70,57 @@ then
 		    --post-data="$post_data"                    \
 		    "${url_in//rockfile.eu/$real_ip_rockfile}")
 
-	code=$(pseudo_captcha "$html")
-
-	if [[ "$code" =~ ^[0-9]+$ ]]
+	if [[ "$html" =~ 'have to wait '([0-9]+) ]]
 	then
-	    print_c 1 "Pseudo-captcha: $code"
+	    url_in_timer=$((${BASH_REMATCH[1]} * 60))
+	    set_link_timer "$url_in" $url_in_timer
+	    _log 33 $url_in_timer
+
 	else
-	    print_c 3 "Pseudo-captcha: codice non trovato"
-	fi
 
-	unset post_data
-	input_hidden "$html"
-	post_data="${post_data##*'(&'}&code=$code"
-	post_data="${post_data//'&down_script=1'}"
+	    code=$(pseudo_captcha "$html")
 
-	errMsg=$(grep 'Devi attendere' <<< "$html" |
-			sed -r 's|[^>]+>([^<]+)<.+|\1|g')
-	
-	if [[ "$html" =~ (You can download files up to) ]]
-	then
-	    _log 4
+	    if [[ "$code" =~ ^[0-9]+$ ]]
+	    then
+		print_c 1 "Pseudo-captcha: $code"
+	    else
+		print_c 3 "Pseudo-captcha: codice non trovato"
+	    fi
 
-	elif [ -n "$code" ]
-	then
-	    timer=$(grep countdown_str <<< "$html"          |
-			   head -n1                         |
-			   sed -r 's|.+>([0-9]+)<.+|\1|g')
+	    unset post_data
+	    input_hidden "$html"
+	    post_data="${post_data##*'(&'}&code=$code"
+	    post_data="${post_data//'&down_script=1'}"
 
-	    countdown- $timer
-	    sleeping 2
+	    errMsg=$(grep 'Devi attendere' <<< "$html" |
+			    sed -r 's|[^>]+>([^<]+)<.+|\1|g')
 	    
-	    url_in_file=$(wget -qO- "${url_in//rockfile.eu/$real_ip_rockfile}"       \
-			       --load-cookies="$path_tmp"/cookies.zdl           \
-			       --user-agent="$user_agent"                       \
-			       --post-data="$post_data"                   |
-				 grep -P '[^\#]+btn_downloadLink'         |
-				 sed -r 's|.+href=\"([^"]+)\".+|\1|g')
-	    url_in_file=$(sanitize_url "$url_in_file")
-	fi
-    fi
+	    if [[ "$html" =~ (You can download files up to) ]]
+	    then
+		_log 4
 
-    try_end=25
-    [ -n "$premium" ] &&
-	print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
-	    end_extension
+	    elif [ -n "$code" ]
+	    then
+		timer=$(grep countdown_str <<< "$html"          |
+			       head -n1                         |
+			       sed -r 's|.+>([0-9]+)<.+|\1|g')
+
+		countdown- $timer
+		sleeping 2
+		
+		url_in_file=$(wget -qO- "${url_in//rockfile.eu/$real_ip_rockfile}"       \
+				   --load-cookies="$path_tmp"/cookies.zdl           \
+				   --user-agent="$user_agent"                       \
+				   --post-data="$post_data"                   |
+				     grep -P '[^\#]+btn_downloadLink'         |
+				     sed -r 's|.+href=\"([^"]+)\".+|\1|g')
+		url_in_file=$(sanitize_url "$url_in_file")
+	    fi
+	fi
+
+	try_end=25
+	[ -n "$premium" ] &&
+	    print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
+		end_extension
+    fi
 fi

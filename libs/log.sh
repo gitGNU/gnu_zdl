@@ -35,8 +35,8 @@ function init_log {
 }
 
 function _log {
-    [ -n "$2" ] &&
-	url_in="$2"
+    # [ -n "$2" ] &&
+    # 	url_in="$2"
     
     [ -n "$file_in" ] &&
 	msg_file_in=" $file_in"
@@ -92,10 +92,10 @@ function _log {
 	    ;;
 	12)
 	    msg="$url_in --> Non è un URL adatto per $name_prog\n"
+	    set_link - "$url_in"
 	    ;;
 	13)
 	    msg="$url_in --> Il file$msg_file_in non sarà scaricato, perché corrisponde alla regex: $no_file_regex"
-	    set_link - "$url_in"
 	    ;;
 	14)
 	    msg="$url_in --> Il file$msg_file_in non sarà scaricato, perché non corrisponde alla regex: $file_regex"
@@ -168,6 +168,9 @@ function _log {
 	32)
 	    msg="$url_in --> Servizio momentaneamente non supportato: richiedi un intervento degli sviluppatori"
 	    set_link - "$url_in"
+	    ;;
+	33)
+	    msg="$url_in --> In pausa per $2 secondi"
 	    ;;
     esac
     

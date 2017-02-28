@@ -44,6 +44,8 @@ then
 	_log 3
 
     else
+	
+
 	download_video=$(grep -P 'download_video.+Original' <<< "$html")
 
 	hash_wstream="${download_video%\'*}"
@@ -54,24 +56,38 @@ then
 
 	## original
 	html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
-	url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
-			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
 
-	if url "$url_in_file"
+	if [[ "$html2" =~ 'have to wait '([0-9]+) ]]
 	then
-	    file_in="${url_in_file##*\/}"
+	    url_in_timer=$((${BASH_REMATCH[1]} * 60))
+	    set_link_timer "$url_in" $url_in_timer
+	    _log 33 $url_in_timer
 
 	else
-	    ## normal
-	    url_in_file=$(wget -qO- \
-	    		       "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
-	    			 grep 'Direct Download Link'                                                            |
-	    			 sed -r 's|.+\"([^"]+)\".+|\1|g')
+	    url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
+				 sed -r 's|.+\"([^"]+)\".+|\1|g')	     
 
-	    file_in=$(get_title "$html" |sed -r 's|Watch\s||')
-	    file_in="${file_in%.mp4}.mp4"
-	fi
-	
-	end_extension
+	    if url "$url_in_file"
+	    then
+		print_c 1 "Disponibile il filmato HD"
+		file_in="${url_in_file##*\/}"
+
+	    else
+		## normal
+		print_c 3 "Non è disponibile il filmato HD"
+		url_in_file=$(wget -qO- \
+	    			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
+	    			     grep 'Direct Download Link'                                                            |
+	    			     sed -r 's|.+\"([^"]+)\".+|\1|g')
+
+		url "$url_in_file" &&
+		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
+		
+		file_in=$(get_title "$html" |sed -r 's|Watch\s||')
+		file_in="${file_in%.mp4}.mp4"
+	    fi
+
+	    end_extension
+	fi	
     fi
 fi

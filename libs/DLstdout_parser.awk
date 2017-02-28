@@ -33,7 +33,8 @@ function downloaded_part () {
     if ((downloader_out[i] == "Axel") && (percent_out[i] < 100)) {
     	tot = int((percent_out[i] * (length_out[i] / axel_parts_out[i])) / 100)
     	return tot
-    } else {
+    }
+    else {
 	return length_saved[i]
     }
 }
@@ -49,10 +50,12 @@ function get_color_out () {
 	else {
 	    color_out[i] = "red"
 	}
-    } else {
+    }
+    else {
 	if (speed_out[i] > 0) {
 	    color_out[i] = "green"
-	} else {
+	}
+	else {
 	    color_out[i] = "yellow"
 	}		    
     }
@@ -349,12 +352,14 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
-	} else if (progress_abort[i]) {
+	}
+	else if (progress_abort[i]) {
 	    bash_var("url_in", "")
 	    percent_out[i] = 0
 	    code = code "_log 3 \"" url_out[i] "\"; "
 	    system("rm -f .zdl_tmp/"file_out[i]"_stdout.* " file_out[i] " " file_out[i] ".st")
-	} else if (progress_line) {
+	}
+	else if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]*[\%]*/)
 	    percent_out[i] = progress_elems[length(progress_elems)-3]
 	    speed_out[i] = progress_elems[length(progress_elems)-1]
@@ -365,11 +370,13 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    sub(/[BKM]/, "", speed_out[i])
 	    length_saved[i] = size_file(file_out[i])
 	    if (! length_saved[i]) length_saved[i] = 0
-	} else if (progress_chunked) {
+	}
+	else if (progress_chunked) {
 	    match(progress_chunked, /.+ ([0-9]+)[MK]/, matched)
 	    speed_out[i] = matched[1]
 	    length_saved[i] = size_file(file_out[i])
-	} else {
+	}
+	else {
 	    ## giallo: sostituire ciò che segue con un sistema di recupero dati precedenti (barra di colore giallo)
 	    percent_out[i] = 0
 	    speed_out[i] = 0
@@ -379,7 +386,8 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    length_saved[i] = 0
 	}
 
-    } else if (dler == "RTMPDump") {
+    }
+    else if (dler == "RTMPDump") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "Download complete") {
 		progress_end[i] = chunk[y]
@@ -398,7 +406,8 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    length_saved[i] = size_file(file_out[i])
 	    percent_out[i] = 100
-	} else if (progress_line) {
+	}
+	else if (progress_line) {
 	    cmd = "date +%s"
 	    cmd | getline this_time
 	    close(cmd)
@@ -417,7 +426,8 @@ function progress_out (chunk,           progress_line, line, cmd) {
 		system("rm -f " file_out[i])
 	}
 
-    } else if (dler == "cURL") {
+    }
+    else if (dler == "cURL") {
 	for (y=n; y>0; y--) {
 
 	    if (chunk[y] ~ /[\ ]+[0-9]+[k]*k$/) {
@@ -428,25 +438,30 @@ function progress_out (chunk,           progress_line, line, cmd) {
         if (progress_line) {
 	    split(progress_line, progress_elems, /[\ ]+/)
 	    speed_out[i] = progress_elems[length(progress_elems)]
+
 	    if (speed_out[i] ~ /k$/) {
 		speed_out_type[i] = "KB/s"
 		sub(/k$/, "", speed_out[i])
-	    } else {
+	    }
+	    else {
 		speed_out_type[i] = "B/s"
 	    }
 	    
 	    if (!speed_out[i])
 		speed_out[i] = 0
 	    
-	} else {
+	}
+	else {
 	    speed_out[i] = 0
 	    speed_out_type[i] = "KB/s"
 	}
 	length_saved[i] = size_file(file_out[i])
+
 	if (!length_out[i])
 	    length_out[i] = "unspecified"
 
-    } else if (dler == "FFMpeg") {
+    }
+    else if (dler == "FFMpeg") {
 	for (y=n; y>0; y--) {
 	    if (chunk[y] ~ "muxing") {
 	    	progress_end[i] = chunk[y]
@@ -489,6 +504,7 @@ function progress_out (chunk,           progress_line, line, cmd) {
 	if (progress_end[i]) {
 	    if (! no_check)
 		rm_line(url_out[i], ".zdl_tmp/links_loop.txt")
+
 	    if (url_in == url_out[i]) bash_var("url_in", "")
 	    percent_out[i] = 100
         }

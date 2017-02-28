@@ -276,6 +276,60 @@ function set_line_in_file { 	#### usage:
     return $result
 }
 
+links_timer="$path_tmp/links_timer.txt"
+## link ip timeout
+
+function check_link_timer {
+    local link="$1"
+    local this_ip that_ip now timeout line
+
+    [ ! -s "$links_timer" ] && return 0
+    line=$(grep "$link" "$links_timer" |tail -n1)
+
+    if [ -z "$line" ]
+    then
+	return 0
+
+    else
+	get_ip this_ip
+	read that_ip timeout < <(awk '{print $2" "$3}' <<< "$line")
+	now=$(date +%s)
+
+	if [ "$this_ip" != "$that_ip" ] ||
+	       ((now >= timeout))
+	then
+	    return 0
+	else
+	    print_c 3 "$url_in -> Link in pausa: mancano $((timeout - now)) secondi"
+	    return 1
+	fi
+    fi
+}
+
+function set_link_timer {
+    if ! url "$1" ||
+	    [[ "$2" =~ ^[^0-9]+$ ]]
+    then
+	return 1
+    fi
+    
+    local link="$1"
+    local timeout=$(($(date +%s) + $2))
+    local ip
+    get_ip ip
+    
+    del_link_timer "$link"
+    
+    echo "$link $ip $timeout" >>"$links_timer"
+    _log 33 "$2"
+}
+
+function del_link_timer {
+    local link="$1"
+    sed -r "s|^$link\s+.+||g" -i "$links_timer"
+    [ ! -s "$links_timer" ] && rm -f "$links_timer"
+}
+
 function check_link {
     local url_test="$1"
 

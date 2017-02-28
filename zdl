@@ -1205,7 +1205,9 @@ fi
 [ -f "$path_tmp/downloader" ] ||    
     echo "$downloader_in" > "$path_tmp/downloader"
 
-function main_loop {    
+function main_loop {
+    local nline nlines
+    
     if [ "$this_mode" == "daemon" ] &&
 	   [ ! -f "$start_file" ] &&
 	   [ -z "$lite_mode" ]	
@@ -1223,15 +1225,22 @@ function main_loop {
 	    ! get_exit
     then	
 	#### do ... done < $start_file
-	while read url_in
+
+	nline=0
+	while : #read url_in
 	do
-	    if ! url "${url_in}"
+	    if [ -s "$start_file" ]
 	    then
-		set_link - "$url_in"
-		_log 12 "$url_in"
+		nlines=$(wc -l < "$start_file")
+		((nline == nlines)) && nline=0
+		((nline++))
+		url_in=$(sed -n ${nline}p < "$start_file")
+		url "${url_in}" || _log 12 "$url_in"
+		
+	    else
+		break
 	    fi
 	    
-
 	    if [ -n "$no_url_regex" ] && [[ "${url_in}" =~ $no_url_regex ]]
 	    then
 		set_link - "$url_in"
@@ -1244,10 +1253,10 @@ function main_loop {
 		_log 16 "$url_in"
 	    fi
 
-	    if ! check_link "$url_in"
-	    then
-		continue
-	    fi
+	    # if ! check_link "$url_in"
+	    # then
+	    # 	continue
+	    # fi
 
 	    unset pid_in file_in url_in_file
 
@@ -1256,14 +1265,30 @@ function main_loop {
 		downloader_in=$(cat "$path_tmp/downloader")
 	    fi
 
-	    if ! check_in_loop
+	    if check_in_loop ||
+		    [ -z "$url_in" ] ||
+		    ! check_link "$url_in"
 	    then
-		if [ -z "$url_in" ] ||
-		       ! check_link "$url_in"
-		then
-		    continue
-		fi
+		pipe_files
+		show_downloads
 		
+		[ ! -s "$start_file" ] && sleeping_pause=0 
+		sleeping "$sleeping_pause"
+
+	    else
+		# if [ -z "$url_in" ] ||
+		#        ! check_link "$url_in"
+		# then
+
+	
+		#     show_downloads
+
+		#     [ ! -s "$start_file" ] && sleeping_pause=0 
+		#     sleeping "$sleeping_pause"
+
+		#     continue
+		# fi
+
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -1275,6 +1300,11 @@ function main_loop {
 		print_c 1 "Connessione in corso..."
 
 		check_ip
+		check_link_timer "$url_in" ||
+		    {
+			sleep 1
+			continue
+		    }
 
 		echo > "$path_tmp"/zdl.tmp > "$path_tmp"/zdl2.tmp
 
@@ -1322,6 +1352,7 @@ function main_loop {
 		    rm -f "$path_tmp/redirect"
 		fi
 		###################
+
 		get_exit && return 1
 		
 		if [ "$break_loop" == "true" ]
@@ -1421,23 +1452,23 @@ function main_loop {
 
 		noproxy
 
-		while true 
-		do
-		    pipe_files
-		    show_downloads
-		    if ! check_in_loop
-		    then
-			no_msg=true
-			break
-		    fi
+		# while true 
+		# do
+		#     pipe_files
+		#     show_downloads
+		#     if ! check_in_loop
+		#     then
+		# 	no_msg=true
+		# 	break
+		#     fi
 
-		    [ ! -s "$start_file" ] && sleeping_pause=0 
-		    sleeping "$sleeping_pause"
-		done
+		#     [ ! -s "$start_file" ] && sleeping_pause=0 
+		#     sleeping "$sleeping_pause"
+		# done
 
 		unset break_loop post_data not_available exceeded url_in
 	    fi
-	done < "$start_file"
+	done #< "$start_file"
 
 	[ ! -s "$start_file" ] && sleeping_pause=0 
 	[ -z "$no_msg" ] && sleeping $sleeping_pause
