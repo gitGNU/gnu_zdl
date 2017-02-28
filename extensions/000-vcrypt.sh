@@ -29,18 +29,29 @@
 
 if [ "$url_in" != "${url_in//vcrypt.}" ]
 then
-    url_in_new='http://'$(wget -S --spider "$url_in"    2>&1 |
-			      grep -P '[lL]{1}ocation:' | head -n1       |
-			      sed -r 's|.+\/http:\/\/(.+)|\1|g')
+    url_in_new=$(wget -S --spider "$url_in"    2>&1 |
+		     grep -P '[lL]{1}ocation:' |
+		     grep -v 'vcrypt' |
+		     head -n1 |
+		     awk '{print $2}')
+#			      sed -r 's|.+\/http:\/\/(.+)|\1|g')
 
-    if url "$url_in_new"
+    
+    # if url "$url_in_new"
+    # then
+    # 	url_in_new=$(wget -S --spider "$url_in_new"    2>&1 |
+    # 			 grep -P '[lL]{1}ocation:' | head -n1 |
+    # 			     awk '{print $2}')
+    # 		#	 sed -r 's|.*[lL]{1}ocation:\s*(.+)|\1|g')
+    # fi
+
+    if [[ ! "$url_in_new" =~ vcrypt ]] &&
+	   url "$url_in_new"
     then
-	url_in_new=$(wget -S --spider "$url_in_new"    2>&1 |
-			 grep -P '[lL]{1}ocation:' | head -n1 |
-			 sed -r 's|.*[lL]{1}ocation:\s*(.+)|\1|g')
-    fi
-	
-    replace_url_in "$url_in_new" ||
+	replace_url_in "$url_in_new" ||
+	    _log 2
+    else
 	_log 2
+    fi
 fi
 

@@ -53,9 +53,8 @@ then
 	id_wstream="${id_wstream%%\'*}"
 
 	## original
-	url_in_file=$(wget -qO- \
-			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}" |
-			     grep 'Direct Download Link'                                                            |
+	html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
+	url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
 			     sed -r 's|.+\"([^"]+)\".+|\1|g')	     
 
 	if url "$url_in_file"
@@ -65,9 +64,9 @@ then
 	else
 	    ## normal
 	    url_in_file=$(wget -qO- \
-			       "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
-				 grep 'Direct Download Link'                                                            |
-				 sed -r 's|.+\"([^"]+)\".+|\1|g')
+	    		       "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
+	    			 grep 'Direct Download Link'                                                            |
+	    			 sed -r 's|.+\"([^"]+)\".+|\1|g')
 
 	    file_in=$(get_title "$html" |sed -r 's|Watch\s||')
 	    file_in="${file_in%.mp4}.mp4"

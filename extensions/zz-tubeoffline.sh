@@ -28,6 +28,7 @@
 ## zdl-extension name: TubeOffLine.com (tutti i servizi: Biqle)  
 
 if grep -vP '\/\/[^w]{2}[^.]*\.[^.]+\.[^.:/]+\/*:*.+(\.mp[34]|\.avi|\.mkv|\.rar|\.zip|\.tar|\.doc|\.flv)*' &>/dev/null &&
+	grep -vP '\/\/[0-9]{3}\.' &>/dev/null &&
 	( ! url "$url_in_file" ||
 	   test -z "$file_in" ) #&&        ! grep "$url_in" "$path_tmp"/filename_* &>/dev/null
 then

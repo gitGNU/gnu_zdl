@@ -29,7 +29,7 @@
 
 if [ "$url_in" != "${url_in//cb01.}" ]
 then
-    replace_url_in "$(wget -S --spider "$url_in" 2>&1 | awk '/Location:/{print $2}' | head -n1)"
+    replace_url_in "$(wget -S --spider "${url_in//serietv\/}" 2>&1 | awk '/Location:/{print $2}' | head -n1)"
 fi
 
 if [ "$url_in" != "${url_in//k4pp4.}" ]

@@ -25,34 +25,10 @@
 #
 
 ## zdl-extension types: shortlinks
-## zdl-extension name: Shortlink
+## zdl-extension name: bc.vc
 
 
-if [[ "$url_in" =~ (shortlink.) ]]
+if [[ "$url_in" =~ bc\.vc ]]
 then
-    shortcode="${url_in##*\/}"
-    wget -q -O /dev/null                          \
-	 --keep-session-cookies                   \
-	 --save-cookies="$path_tmp/cookies.zdl"   \
-	 --user-agent="$user_agent"               \
-	 "$url_in"
-    
-    countdown- 10
-    new_url=$(wget -qO-                                          \
-		   http://www.shortlink.li/ajax/getLink          \
-		   --post-data="short=$shortcode"                \
-		   --user-agent="$user_agent"                    \
-		   --load-cookies="$path_tmp/cookies.zdl"   |
-		     sed -r 's|.+\"([^"]+)\"\}$|\1|g'       |
-		     sed -r 's|\\||g')
-    new_url="$(sanitize_url "$new_url")"
-    
-    if url "$new_url"
-    then
-	set_link - "$url_in"
-	url_in="$new_url"
-	set_link + "$url_in"	
-    else
-	break_loop=true
-    fi
+    replace_url_in "${url_in#*bc.vc\/[^/]*\/}"    
 fi
