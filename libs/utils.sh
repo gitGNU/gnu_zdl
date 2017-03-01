@@ -132,10 +132,11 @@ function obfuscate {
 }
 
 function countdown+ {
-    max=$1
+    local max=$1
     print_c 2 "Attendi $max secondi:"
-    k=`date +"%s"`
-    s=0
+    local k=`date +"%s"`
+    local s=0
+
     while (( $s<$max ))
     do
 	if ! check_pid $pid_prog
@@ -150,10 +151,12 @@ function countdown+ {
 }
 
 function countdown- {
-    max=$1
-    start=`date +"%s"`
-    stop=$(( $start+$max ))
-    diff=$max
+    local max=$1
+    local start=`date +"%s"`
+    local stop=$(( $start+$max ))
+    local diff=$max
+    local this
+    
     while (( $diff>0 ))
     do
 	if ! check_pid $pid_prog
@@ -165,7 +168,7 @@ function countdown- {
 	print_c 0 "           \r\c"
 	print_c 0 "$diff\r\c"
 	sleeping 1
-    done 
+    done
 }
 
 function clean_countdown {

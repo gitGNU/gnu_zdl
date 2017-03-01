@@ -1232,7 +1232,7 @@ function main_loop {
 	    if [ -s "$start_file" ]
 	    then
 		nlines=$(wc -l < "$start_file")
-		((nline == nlines)) && nline=0
+		((nline >= nlines)) && nline=0
 		((nline++))
 		url_in=$(sed -n ${nline}p < "$start_file")
 		url "${url_in}" || _log 12 "$url_in"
@@ -1454,8 +1454,8 @@ function main_loop {
 
 		# while true 
 		# do
-		#     pipe_files
-		#     show_downloads
+		     pipe_files
+		     show_downloads
 		#     if ! check_in_loop
 		#     then
 		# 	no_msg=true
