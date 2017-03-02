@@ -1206,7 +1206,7 @@ fi
     echo "$downloader_in" > "$path_tmp/downloader"
 
 function main_loop {
-    local nline nlines
+    local nline nlines loop_url_in
     
     if [ "$this_mode" == "daemon" ] &&
 	   [ ! -f "$start_file" ] &&
@@ -1231,7 +1231,8 @@ function main_loop {
 	    then
 		nlines=$(wc -l < "$start_file")
 		((nline >= nlines)) && nline=0
-		((nline++))
+		[ -s "$loop_url_in" ] && ((nline++))
+		
 		url_in=$(sed -n ${nline}p < "$start_file")
 		url "${url_in}" || _log 12 "$url_in"
 		
@@ -1260,12 +1261,13 @@ function main_loop {
 
 	    if check_in_loop
 	    then
-		((nline--))
+		loop_url_in=true
 		
 	    elif ! check_in_loop &&
 		    [ -n "$url_in" ] &&
 		    check_link "$url_in"
 	    then
+		unset loop_url_in
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
