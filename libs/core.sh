@@ -402,7 +402,9 @@ function check_start_file {
     
 }
 
-function pipe_files { 
+function pipe_files {
+    local line
+    
     [ -z "$print_out" ] && [ -z "${pipe_out[*]}" ] && return
 
     if [ -f "$path_tmp"/pipe_files.txt ]
@@ -418,7 +420,7 @@ function pipe_files {
 	then
 	    while read line
 	    do
-		if [ -z "$(grep -P '^$line$' $print_out)" ]
+		if ! grep -P '^$line$' $print_out &>/dev/null
 		then
 		    echo "$line" >> "$print_out"
 		fi

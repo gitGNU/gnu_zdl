@@ -127,6 +127,7 @@ function post_m3u8 {
 }
 
 function post_process {
+    local line
     ## mega.nz
 
     for line in *.MEGAenc
@@ -151,8 +152,21 @@ function post_process {
 	print_header
 	header_box "Conversione in $format ($convert2format)"
 
-	if [ -f "$print_out" ]
+	data_stdout
+	if [ -n "$print_out" ] && [ -f "$path_tmp"/pipe_files.txt ]
 	then
+	    while read line
+	    do
+		if ! grep -P '^$line$' $print_out &>/dev/null
+		then
+		    echo "$line" >> "$print_out"
+		fi
+		
+	    done < "$path_tmp"/pipe_files.txt 
+	fi
+
+	if [ -f "$print_out" ]
+	then	    
 	    for line in $(cat "$print_out")
 	    do
 		if [ -f "$line" ]

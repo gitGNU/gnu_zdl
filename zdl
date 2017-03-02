@@ -1227,7 +1227,7 @@ function main_loop {
 	#### do ... done < $start_file
 
 	nline=0
-	while : #read url_in
+	while : #check_pid $pid_prog
 	do
 	    if [ -s "$start_file" ]
 	    then
@@ -1427,7 +1427,8 @@ function main_loop {
 		    ## check in nuova posizione da testare: prima era più in alto
 		    #
 		    check_dler_forcing
-
+	#	    pipe_files
+		    
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
 			print_c 4 "Streamer: $streamer\nPlaypath: $playpath\n"
@@ -1454,7 +1455,7 @@ function main_loop {
 
 		# while true 
 		# do
-		     pipe_files
+		
 		     show_downloads
 		#     if ! check_in_loop
 		#     then
@@ -1468,27 +1469,35 @@ function main_loop {
 
 		unset break_loop post_data not_available exceeded url_in
 	    fi
-	done #< "$start_file"
+	done 
 
-	[ ! -s "$start_file" ] && sleeping_pause=0 
-	[ -z "$no_msg" ] && sleeping $sleeping_pause
-	pipe_files
+#	[ ! -s "$start_file" ] && sleeping_pause=0 
+#	[ -z "$no_msg" ] && sleeping $sleeping_pause
+#	pipe_files
 
-	if [ -f "$path_tmp/links_loop.txt" ]
-	then
-	    start_file="$path_tmp/links_loop.txt"
-	fi
+	# if [ -f "$path_tmp/links_loop.txt" ]
+	# then
+	#     start_file="$path_tmp/links_loop.txt"
+	# fi
 
-	[ -z "$no_msg" ] && show_downloads
-	unset no_msg
+	# [ -z "$no_msg" ] && show_downloads
+	# unset no_msg
 	
-    elif ! check_start_file ||
-	    get_exit
-    then
-	exit 1
+    # elif ! check_start_file ||
+    # 	    get_exit
+    # then
+    # 	exit 1
 
     # else
-    # 	exit 0
+	# 	exit 0
+	
+    
+
+	touch "$path_tmp"/stop-binding
+	while [ -f "$path_tmp"/stop-binding ]
+	do
+	    sleep 0.1
+	done
     fi
 }
 
@@ -1517,51 +1526,46 @@ else
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
 
-    if ! main_loop 2>/dev/null &
-    then
-	loops_pid=$!
-	
-	[ "$lite_mode" == true ] &&
-	    this_mode=lite
+    main_loop 2>/dev/null &
+    loops_pid=$!
+    
+    [ "$lite_mode" == true ] &&
+	this_mode=lite
 
-	cursor off
-	bindings
+    cursor off
+    bindings
 
-	[ "$this_mode" == "lite" ] && fclear
-	rm -f "$path_tmp/stop-binding" 
+    [ "$this_mode" == "lite" ] && fclear
+    rm -f "$path_tmp/stop-binding" 
 
-	while check_pid $loops_pid &&
-		[ -s "$path_tmp/links_loop.txt" ] 
-	do
-	    if [ "$this_mode" == "lite" ]
-	    then
-		show_downloads_lite
-		read_binding 
-
-	    else
-		read_binding 
-	    fi
-	    
-	done 2>/dev/null 
-
-
-	
-	if [ "$lite_mode" == true ]
+    while check_pid $loops_pid &&
+	    [ -s "$path_tmp/links_loop.txt" ] 
+    do
+	if [ "$this_mode" == "lite" ]
 	then
-	    show_downloads_lite no-clear
+	    show_downloads_lite
+	    read_binding 
+
+	else
+	    read_binding 
 	fi
 
-
+	if [ -f "$path_tmp"/stop-binding ]
+	then
+	    rm "$path_tmp"/stop-binding
+	    break
+	fi
+	
+    done 2>/dev/null 
+    
+    if [ "$lite_mode" == true ]
+    then
+	show_downloads_lite no-clear
     fi
 fi
 
 noproxy
 
-if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
-then
-    data_stdout
-    pipe_files
-fi
 
 [ "$lite_mode" == true ] &&
     {
@@ -1571,6 +1575,12 @@ fi
     }
 
 post_process
+
+if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
+then
+    data_stdout
+    pipe_files
+fi
 
 if ! get_exit
 then

@@ -39,7 +39,7 @@ then
 		--save-cookies="$path_tmp/cookies.zdl"           \
 		-qO-)
     
-    if [[ "$html" =~ (File Not Found) ]]
+    if [[ "$html" =~ (File Not Found|File doesn\'t exits) ]]
     then
 	_log 3
 
