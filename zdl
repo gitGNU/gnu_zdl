@@ -1224,10 +1224,8 @@ function main_loop {
     elif check_start_file &&
 	    ! get_exit
     then	
-	#### do ... done < $start_file
-
 	nline=0
-	while : #check_pid $pid_prog
+	while :
 	do
 	    if [ -s "$start_file" ]
 	    then
@@ -1253,11 +1251,6 @@ function main_loop {
 		_log 16 "$url_in"
 	    fi
 
-	    # if ! check_link "$url_in"
-	    # then
-	    # 	continue
-	    # fi
-
 	    unset pid_in file_in url_in_file
 
 	    if [ -f "$path_tmp/downloader" ]
@@ -1265,30 +1258,10 @@ function main_loop {
 		downloader_in=$(cat "$path_tmp/downloader")
 	    fi
 
-	    if check_in_loop ||
-		    [ -z "$url_in" ] ||
-		    ! check_link "$url_in"
+	    if ! check_in_loop &&
+		    [ -n "$url_in" ] &&
+		    check_link "$url_in"
 	    then
-		pipe_files
-		show_downloads
-		
-		[ ! -s "$start_file" ] && sleeping_pause=0 
-		sleeping "$sleeping_pause"
-
-	    else
-		# if [ -z "$url_in" ] ||
-		#        ! check_link "$url_in"
-		# then
-
-	
-		#     show_downloads
-
-		#     [ ! -s "$start_file" ] && sleeping_pause=0 
-		#     sleeping "$sleeping_pause"
-
-		#     continue
-		# fi
-
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
@@ -1427,7 +1400,6 @@ function main_loop {
 		    ## check in nuova posizione da testare: prima era più in alto
 		    #
 		    check_dler_forcing
-	#	    pipe_files
 		    
 		    if [[ "$downloader_in" =~ (RTMPDump|cURL) ]]
 		    then
@@ -1451,47 +1423,15 @@ function main_loop {
 		    downloader_in=$dler &&
 		    unset ch_dler
 
-		noproxy
+		noproxy	    	
+	    fi	    
 
-		# while true 
-		# do
-		
-		     show_downloads
-		#     if ! check_in_loop
-		#     then
-		# 	no_msg=true
-		# 	break
-		#     fi
-
-		#     [ ! -s "$start_file" ] && sleeping_pause=0 
-		#     sleeping "$sleeping_pause"
-		# done
-
-		unset break_loop post_data not_available exceeded url_in
-	    fi
+	    show_downloads
+	    pipe_files
+	    [ ! -s "$start_file" ] && sleeping_pause=0 
+	    sleeping "$sleeping_pause"
+	    unset break_loop post_data not_available exceeded url_in
 	done 
-
-#	[ ! -s "$start_file" ] && sleeping_pause=0 
-#	[ -z "$no_msg" ] && sleeping $sleeping_pause
-#	pipe_files
-
-	# if [ -f "$path_tmp/links_loop.txt" ]
-	# then
-	#     start_file="$path_tmp/links_loop.txt"
-	# fi
-
-	# [ -z "$no_msg" ] && show_downloads
-	# unset no_msg
-	
-    # elif ! check_start_file ||
-    # 	    get_exit
-    # then
-    # 	exit 1
-
-    # else
-	# 	exit 0
-	
-    
 
 	touch "$path_tmp"/stop-binding
 	while [ -f "$path_tmp"/stop-binding ]
