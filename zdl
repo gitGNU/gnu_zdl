@@ -1258,7 +1258,11 @@ function main_loop {
 		downloader_in=$(cat "$path_tmp/downloader")
 	    fi
 
-	    if ! check_in_loop &&
+	    if check_in_loop
+	    then
+		((nline--))
+		
+	    elif ! check_in_loop &&
 		    [ -n "$url_in" ] &&
 		    check_link "$url_in"
 	    then
@@ -1423,7 +1427,7 @@ function main_loop {
 		    downloader_in=$dler &&
 		    unset ch_dler
 
-		noproxy	    	
+		noproxy
 	    fi	    
 
 	    show_downloads
