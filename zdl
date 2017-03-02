@@ -1485,10 +1485,10 @@ function main_loop {
     elif ! check_start_file ||
 	    get_exit
     then
-	return 1
+	exit 1
 
-    else
-	return 0
+    # else
+    # 	exit 0
     fi
 }
 
@@ -1498,41 +1498,6 @@ function read_binding {
     ## trap SIGINT ==> return
     #export TMOUT=1
     read -e -t 1 -n 1 binding_in_loop
-}
-
-function closing {
-    noproxy
-
-    if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
-    then
-	data_stdout
-	pipe_files
-    fi
-
-    [ "$lite_mode" == true ] &&
-	{
-	    this_mode=stdout
-	    unset lite_mode
-	    start_mode_in_tty "stdout" "${this_tty}"
-	    print_header	
-	}
-    post_process ||
-	    exit 1
-
-    if ! get_exit
-    then
-	test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
-
-	[ "$test_pid" == "$pid_prog" ] &&
-	    ! check_start_file &&
-	    {
-		separator-
-		print_c 1 "Download completato"
-		separator-
-	    }
-    else
-	kill_downloads
-    fi
 }
 
 
@@ -1552,84 +1517,85 @@ else
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
 
-    while true
-    do
-	if ! main_loop
-	then
-	    if [ "$lite_mode" == true ]
-	    then
-	    	show_downloads_lite no-clear
-	    fi
-	    touch "$path_tmp"/stop-binding
-	    closing
-
-	    while [ -f "$path_tmp"/stop-binding ]
-	    do
-		sleep 0.1
-	    done
-
-	    break
-	fi
-
-    done 2>/dev/null &
-    loops_pid=$!
-
-    [ "$lite_mode" == true ] &&
-	this_mode=lite
-
-    cursor off
-    bindings
-
-    [ "$this_mode" == "lite" ] && fclear
-    rm -f "$path_tmp/stop-binding" 
-
-    while check_pid $loops_pid ||
-	    [ -s "$path_tmp/links_loop.txt" ] 
-    do
-	if [ "$this_mode" == "lite" ]
-	then
-	    show_downloads_lite
-	    read_binding 
-
-	else
-	    read_binding 
-	fi
-
-	if [ -f "$path_tmp/stop-binding" ]
-	then
-	    rm "$path_tmp/stop-binding"
-	    break
-	fi
+    if ! main_loop 2>/dev/null &
+    then
+	loops_pid=$!
 	
-    done 2>/dev/null 
+	[ "$lite_mode" == true ] &&
+	    this_mode=lite
 
+	cursor off
+	bindings
+
+	[ "$this_mode" == "lite" ] && fclear
+	rm -f "$path_tmp/stop-binding" 
+
+	while check_pid $loops_pid &&
+		[ -s "$path_tmp/links_loop.txt" ] 
+	do
+	    if [ "$this_mode" == "lite" ]
+	    then
+		show_downloads_lite
+		read_binding 
+
+	    else
+		read_binding 
+	    fi
+	    
+	done 2>/dev/null 
+
+
+	
+	if [ "$lite_mode" == true ]
+	then
+	    show_downloads_lite no-clear
+	fi
+
+
+    fi
 fi
 
-wait $loops_pid 
+noproxy
 
-######################
+if [ -n "${pipe_out[*]}" ] && [ "$pipe_done" != 1 ]
+then
+    data_stdout
+    pipe_files
+fi
+
+[ "$lite_mode" == true ] &&
+    {
+	this_mode=stdout
+	unset lite_mode
+	start_mode_in_tty "stdout" "${this_tty}"	
+    }
+
+post_process
+
 if ! get_exit
 then
     test_pid=$(cat "$path_tmp"/.pid.zdl 2>/dev/null)
-    
+
     [ "$test_pid" == "$pid_prog" ] &&
 	! check_start_file &&
 	{
+	    print_header
+	    separator-
+	    print_c 1 "Download completato"
+	    separator-
+
 	    rm -rf "$path_tmp"
 	}
+else
+    kill_downloads
 fi
-
 
 stty sane
 cursor on
 
-#kill_server
-print_header
-echo -en "\n"
-
 if [ -f "$file_log" ]
 then
-    print_c 3 "In $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
+    print_c 3 "\nIn $PWD è presente un file che contiene un elenco di operazioni di $PROG terminate senza successo."
     print_c 0 "${BBlue}Per leggerlo, digita:${Color_Off}\n${Bold}cat $PWD/$file_log${Color_Off}\n"
 fi
 
@@ -1640,7 +1606,3 @@ then
 fi
 
 echo -en "\e[0m\e[J"
-
-
-
-
