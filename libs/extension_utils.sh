@@ -135,24 +135,26 @@ function base64_decode {
 
 function simply_debrid {
     local url="$1"
+
     print_c 2 "Estrazione dell'URL del file attraverso https://simply-debrid.com ..."
     
-    html_url='https://simply-debrid.com/'$(wget --keep-session-cookies                                 \
-    						--save-cookies="$path_tmp/cookies.zdl"                 \
-    						--post-data="link=$url&submit=GENERATE TEXT LINKS"     \
-    						"https://simply-debrid.com/generate"                   \
-    						-qO-                                              |
-    						  grep -Po "inc/generate/name.php[^']+")
+    local html=$(wget --keep-session-cookies                                 \
+    		      --save-cookies="$path_tmp/cookies.zdl"                 \
+    		      --post-data="link=$url&submit=GENERATE TEXT LINKS"     \
+    		      "https://simply-debrid.com/generate#show"              \
+    		      -qO-)
+
+    local html_url='https://simply-debrid.com/'$(grep -Po 'inc/generate/name.php[^"]+' <<< "$html")
 
     url "$html_url" &&
 	print_c 4 "... $html_url ..."
 
     wget -qO /dev/null 'https://simply-debrid.com/inc/generate/adb.php?nok=1' \
-	 --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl"
-    
-    json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"                 \
-		     "$html_url" -qO- |
-		       sed -r 's|\\\/|/|g')
+    	 --keep-session-cookies --save-cookies="$path_tmp/cookies.zdl"
+
+	json_data=$(wget --load-cookies="$path_tmp/cookies.zdl"                 \
+			 "$html_url" -qO- |
+			   sed -r 's|\\\/|/|g')
     
     if [[ "$json_data" =~ '"error":0' ]]
     then
@@ -170,7 +172,8 @@ function simply_debrid {
     elif [[ "$url_in" =~ (nowdownload) ]]
     then
 	print_c 3 "$PROG non è riuscito ad acquisire l'URL del file da simply-debrid: prova manualmente dalla pagina https://simply-debrid.com/generate#show\n"
-	_log 2
+	set_link - "$url_in"
+	break_loop=true
 	breakloop=true
     
     else

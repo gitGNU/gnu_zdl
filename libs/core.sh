@@ -503,7 +503,7 @@ function set_downloader {
 	downloader_in=$1
 	echo $downloader_in > "$path_tmp/downloader"
 	#unlock_fifo downloader "$PWD" &
-	init_client
+	init_client &>/dev/null
 	
     else
 	return 1
@@ -1012,7 +1012,7 @@ function kill_server {
 
     if ! check_port $port
     then
-	init_client & 
+	init_client 2>/dev/null & 
 	#set_line_in_file - "$port" "$path_server"/socket-ports &
 
 	fuser -s -k -n tcp $port -n file /usr/local/share/zdl/zdl_server.sh &
@@ -1041,7 +1041,7 @@ function run_zdl_server {
 	socat TCP-LISTEN:$port,fork,reuseaddr EXEC:"$path_usr/zdl_server.sh $port" 2>/dev/null &
 	set_line_in_file + $port "$path_server"/socket-ports
 
-	init_client 
+	init_client 2>/dev/null
 	return 0
 
     else
@@ -1101,8 +1101,8 @@ function init_client {
 		    unlock_fifo status.$port &
 		fi
 		
-	    done < "$path_server"/socket-ports
-	}
+	    done < "$path_server"/socket-ports 
+	} 
 }
 
 function unlock_fifo {

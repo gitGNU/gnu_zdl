@@ -1466,8 +1466,10 @@ else
 	start_mode_in_tty "lite" "${this_tty}" 
     fi
 
-    main_loop 2>/dev/null &
-    loops_pid=$!
+    {
+	main_loop 2>/dev/null &
+	loops_pid=$!
+    } 2>/dev/null
     
     [ "$lite_mode" == true ] &&
 	this_mode=lite
@@ -1478,7 +1480,7 @@ else
     [ "$this_mode" == "lite" ] && fclear
     rm -f "$path_tmp/stop-binding" 
 
-    while check_pid $loops_pid &&
+    while check_pid $loops_pid ||
 	    [ -s "$path_tmp/links_loop.txt" ] 
     do
 	if [ "$this_mode" == "lite" ]
@@ -1502,10 +1504,11 @@ else
     then
 	show_downloads_lite no-clear
     fi
-fi
+fi 
 
 noproxy
 
+wait $loops_pid
 
 [ "$lite_mode" == true ] &&
     {
