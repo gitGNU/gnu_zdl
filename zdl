@@ -1231,7 +1231,7 @@ function main_loop {
 	    then
 		nlines=$(wc -l < "$start_file")
 		((nline >= nlines)) && nline=0
-		[ -s "$loop_url_in" ] && ((nline++))
+		[ -z "$loop_url_in" ] && ((nline++))
 		
 		url_in=$(sed -n ${nline}p < "$start_file")
 		url "${url_in}" || _log 12 "$url_in"
@@ -1261,7 +1261,7 @@ function main_loop {
 
 	    if check_in_loop
 	    then
-		loop_url_in=true
+	    	loop_url_in=true
 		
 	    elif ! check_in_loop &&
 		    [ -n "$url_in" ] &&

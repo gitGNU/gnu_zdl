@@ -270,7 +270,7 @@ function trap_sigint {
     
     if [[ "$1" == ^[0-9]+$ ]]
     then
-	kill_pids="kill -9 $@ $pid_prog"
+	kill_pids="kill -9 $@; kill -9 $loops_pid; kill -9 $pid_prog"
 	trap "$kill_pids" SIGINT
     else
 	## trap "trap SIGINT; stty echo; kill -9 $loops_pid; exit 1" SIGINT
