@@ -1231,7 +1231,7 @@ function main_loop {
 	    then
 		nlines=$(wc -l < "$start_file")
 		((nline >= nlines)) && nline=0
-		[ -z "$loop_url_in" ] && ((nline++))
+		((nline++))
 		
 		url_in=$(sed -n ${nline}p < "$start_file")
 		url "${url_in}" || _log 12 "$url_in"
@@ -1259,15 +1259,10 @@ function main_loop {
 		downloader_in=$(cat "$path_tmp/downloader")
 	    fi
 
-	    if check_in_loop
-	    then
-	    	loop_url_in=true
-		
-	    elif ! check_in_loop &&
+	    if ! check_in_loop &&
 		    [ -n "$url_in" ] &&
 		    check_link "$url_in"
 	    then
-		unset loop_url_in
 		axel_parts=$axel_parts_conf
 		url_in="${url_in## }"
 		url_in="${url_in%% }"
