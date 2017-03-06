@@ -31,6 +31,6 @@
 url "$url_in_file" &&
     test -n "$file_in" ||
 	{
-	    extension_clicknupload "$url_in"
-	    end_extension
+	    extension_clicknupload "$url_in" &&
+		end_extension
 	}

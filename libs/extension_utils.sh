@@ -394,8 +394,11 @@ function extension_clicknupload {
 	    url_in_file=$(grep downloadbtn <<< "$html" |
 				 sed -r "s|.+open\('([^']+)'\).+|\1|g")
 
+	    url "$url_in_file" &&
+		return 0
 	fi
     fi
+    return 1
 }
 
 function extension_mega {

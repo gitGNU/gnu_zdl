@@ -113,7 +113,7 @@ wget_links=(
     idowatch\.
     dropbox\.
     subyshare\.
-    wstream\.
+#    wstream\.
 )
 #    videomega\.
 

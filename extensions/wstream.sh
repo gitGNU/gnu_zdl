@@ -29,8 +29,7 @@
 ## zdl-extension name: WStream (HD)
 
 
-if [ "$url_in" != "${url_in//wstream.}" ] &&
-       [[ ! "$url_in" =~ "black" ]]
+if [ "$url_in" != "${url_in//wstream.}" ] #&&       [[ ! "$url_in" =~ "black" ]]
 then
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
@@ -38,14 +37,12 @@ then
 		--keep-session-cookies                           \
 		--save-cookies="$path_tmp/cookies.zdl"           \
 		-qO-)
-    
+
     if [[ "$html" =~ (File Not Found|File doesn\'t exits) ]]
     then
 	_log 3
 
     else
-	
-
 	download_video=$(grep -P 'download_video.+Original' <<< "$html")
 
 	hash_wstream="${download_video%\'*}"
@@ -55,39 +52,62 @@ then
 	id_wstream="${id_wstream%%\'*}"
 
 	## original
-	html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
 
-	if [[ "$html2" =~ 'have to wait '([0-9]+) ]]
-	then
-	    url_in_timer=$((${BASH_REMATCH[1]} * 60))
-	    set_link_timer "$url_in" $url_in_timer
-	    _log 33 $url_in_timer
+	wstream_loops=0
+	while ! url "$url_in_file" 
+	do
+	    html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
+	    
+	    input_hidden "$html2"
 
-	else
-	    url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
-				 sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+	    url_in_file=$(wget -qO- \
+			       "$url_in" \
+			       --post-data="$post_data" |
+				 grep 'Direct Download Link' |
+				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-	    if url "$url_in_file"
-	    then
-		print_c 1 "Disponibile il filmato HD"
-		file_in="${url_in_file##*\/}"
+	    url_in_file="${url_in_file//https\:/http:}"
+	    ((wstream_loops > 5)) && break
+	    ((wstream++))
 
-	    else
-		## normal
-		print_c 3 "Non è disponibile il filmato HD"
-		url_in_file=$(wget -qO- \
-	    			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
-	    			     grep 'Direct Download Link'                                                            |
-	    			     sed -r 's|.+\"([^"]+)\".+|\1|g')
+	    sleep 1
+	done
+	file_in="${url_in_file##*\/}"
 
-		url "$url_in_file" &&
-		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
+	# if [[ "$html2" =~ 'have to wait '([0-9]+) ]]
+	# then
+	#     url_in_timer=$((${BASH_REMATCH[1]} * 60))
+	#     set_link_timer "$url_in" $url_in_timer
+	#     _log 33 $url_in_timer
+
+	# else
+	#     # url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
+	#     # 			 sed -r 's|.+\"([^"]+)\".+|\1|g')	     
+
+	#     if url "$url_in_file"
+	#     then
+	# 	print_c 1 "Disponibile il filmato HD"
+	# 	echo "$url_in_file"
+	# 	file_in="${url_in_file##*\/}"
+
+	#     else
+	# 	## normal
+	# 	print_c 3 "Non è disponibile il filmato HD"
+	# 	url_in_file=$(wget -qO- \
+	#     			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
+	#     			     grep 'Direct Download Link'                                                            |
+	#     			     sed -r 's|.+\"([^"]+)\".+|\1|g')
+
+	# 	url "$url_in_file" &&
+	# 	    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
 		
-		file_in=$(get_title "$html" |sed -r 's|Watch\s||')
-		file_in="${file_in%.mp4}.mp4"
-	    fi
+	# 	file_in=$(get_title "$html" |sed -r 's|Watch\s||')
+	# 	file_in="${file_in%.mp4}.mp4"
+	#     fi
 
-	    end_extension
-	fi	
+	#     end_extension
+	# fi
+
+	end_extension
     fi
 fi
