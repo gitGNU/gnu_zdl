@@ -36,18 +36,37 @@ then
     
     real_ip_rockfile="rockfile.eu"
     
-    html=$(wget -t 1 -T $max_waiting                       \
-    		--keep-session-cookies                     \
-    		--save-cookies="$path_tmp"/cookies.zdl     \
-    		--user-agent="$user_agent"                 \
-    		-qO- "${url_in//rockfile.eu/$real_ip_rockfile}")
+    # html=$(wget -t 1 -T $max_waiting                       \
+    # 		--keep-session-cookies                     \
+    # 		--save-cookies="$path_tmp"/cookies.zdl     \
+    # 		--user-agent="$user_agent"                 \
+    # 		-qO- "${url_in//rockfile.eu/$real_ip_rockfile}")
+    html=$(curl -c "$path_tmp/cookies.zdl" "$url_in")
 
-    # input_hidden "$html"
-    # post_data="${post_data%= *}=-2"
+     input_hidden "$html"
 
-    # html=$(curl -b cookie -d "$post_data" "http://rockfile.eu/cdn-cgi/l/chk_jschl")
+     countdown- 5
 
-    # echo "$html" |tee -o out
+# for val in $(seq 0 200)
+# do
+#     a=521693
+     a=10691
+#     ##echo '>>>>>>>>>>>>> '$val
+
+#     a=$((a + val))
+     get_data="${post_data%= *}=$a"
+#     #echo "$get_data"
+
+# sleep 0.1
+     html=$(wget --referer="$url_in" \
+		 --user-agent="$user_agent" \
+		 --load-cookies="$path_tmp/cookies.zdl" \
+		 -SO- "http://rockfile.eu/cdn-cgi/l/chk_jschl?$get_data")
+
+#     #echo "$html" |tee -o out
+#     grep -P 'method_free.+freeDownload' <<< "$html" 
+
+# done
     
     if [[ "$html" =~ (File Deleted|file was deleted|File [nN]{1}ot [fF]{1}ound) ]]
     then
@@ -117,10 +136,11 @@ then
 		url_in_file=$(sanitize_url "$url_in_file")
 	    fi
 	fi
-
-	try_end=25
-	[ -n "$premium" ] &&
-	    print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
-		end_extension
     fi
+
+    try_end=25
+    [ -n "$premium" ] &&
+	print_c 2 "Rockfile potrebbe aver attivato il captcha: in tal caso, risolvi prima i passaggi richiesti dal sito web" ||
+	    [ -n "$url_in_timer" ] ||
+	    end_extension
 fi

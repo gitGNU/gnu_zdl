@@ -58,7 +58,8 @@ then
     if url "$url_in_file" &&
 	    test -n "$file_in_tol"
     then
-	file_in="$file_in_tol"
+	test -z "$file_in" &&
+	    file_in="$file_in_tol"
 	print_c 1 "TubeOffLine: $url_in_file"
 	unset break_loop
 

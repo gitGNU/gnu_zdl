@@ -49,18 +49,25 @@ then
 	
 	html=$(wget -qO- "${url_2}")
 
-	for service in 'mega.nz\/\#' 'uptobox.com\/'
+	for service in '\/\/clicknupload.' 'mega.nz\/\#' 'uptobox.com\/'
 	do
 	    url_in_tmp=$(grep -P "$service" <<< "$html"|
 				sed -r 's|[^"]+\"([^"]+)\".*|\1|g')
 
 	    if url "$url_in_tmp"
 	    then
-		extension_mega "$url_in_tmp"
-
-		test -n "$url_in_file" &&
- 		    ! url "$url_in_file" ||
-			break
+		case "$service" in
+		    '\/\/clicknupload.')
+			extension_clicknupload "$url_in_tmp"
+			echo "$url_in_tmp"
+			;;
+		    'mega.nz\/\#') 
+			extension_mega "$url_in_tmp"
+			echo "$url_in_tmp"
+			;;
+		esac
+ 		! url "$url_in_file" ||
+		    break
 	    fi
 	done
 	

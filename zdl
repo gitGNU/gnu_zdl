@@ -1237,6 +1237,7 @@ function main_loop {
 		url "${url_in}" || _log 12 "$url_in"
 		
 	    else
+		show_downloads
 		break
 	    fi
 	    
@@ -1276,6 +1277,7 @@ function main_loop {
 		check_ip
 		check_link_timer "$url_in" ||
 		    {
+			show_downloads
 			sleep 1
 			continue
 		    }

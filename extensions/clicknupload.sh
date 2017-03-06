@@ -28,40 +28,9 @@
 ## zdl-extension types: download
 ## zdl-extension name: Clicknupload
 
-
-if [ "$url_in" != "${url_in//clicknupload.}" ]
-then
-    html=$(wget -t1 -T$max_waiting                               \
-		"$url_in"                                        \
-		--user-agent="Firefox"                           \
-		--keep-session-cookies="$path_tmp/cookies.zdl"   \
-		-qO-)
-    
-    [ -z "$html" ] &&
-	command -v curl >/dev/null && 
-	html=$(curl "$url_in") 
-
-    if [[ "$html" =~ (File Not Found) ]]
-    then
-	_log 3
-
-    else
-	input_hidden "$html"
-	post_data+="&method_free=Free Download >>"
-
-	html=$(wget "$url_in"                       \
-		    --post-data="$post_data"        \
-		    -qO-)
-
-	input_hidden "$html"
-
-	html=$(wget "$url_in"                       \
-		    --post-data="$post_data"        \
-		    -qO-)
-
-	url_in_file=$(grep downloadbtn <<< "$html" |
-			     sed -r "s|.+open\('([^']+)'\).+|\1|g")
-
-	end_extension
-    fi
-fi
+url "$url_in_file" &&
+    test -n "$file_in" ||
+	{
+	    extension_clicknupload "$url_in"
+	    end_extension
+	}

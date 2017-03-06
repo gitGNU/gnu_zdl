@@ -357,9 +357,50 @@ function anydownload {
     return 1
 }
 
+function extension_clicknupload {
+    local url_in="$1"
+    local html post_data
+
+    if [ "$url_in" != "${url_in//clicknupload.}" ]
+    then
+	html=$(wget -t1 -T$max_waiting                               \
+		    "$url_in"                                        \
+		    --user-agent="Firefox"                           \
+		    --keep-session-cookies="$path_tmp/cookies.zdl"   \
+		    -qO-)
+	
+	[ -z "$html" ] &&
+	    command -v curl >/dev/null && 
+	    html=$(curl "$url_in") 
+
+	if [[ "$html" =~ (File Not Found) ]]
+	then
+	    _log 3
+
+	else
+	    input_hidden "$html"
+	    post_data+="&method_free=Free Download >>"
+
+	    html=$(wget "$url_in"                       \
+			--post-data="$post_data"        \
+			-qO-)
+
+	    input_hidden "$html"
+
+	    html=$(wget "$url_in"                       \
+			--post-data="$post_data"        \
+			-qO-)
+
+	    url_in_file=$(grep downloadbtn <<< "$html" |
+				 sed -r "s|.+open\('([^']+)'\).+|\1|g")
+
+	fi
+    fi
+}
 
 function extension_mega {
     local url_in="$1"
+    
     
     if [[ "$url_in" =~ (^https\:\/\/mega\.co\.nz\/|^https\:\/\/mega\.nz\/) ]]
     then

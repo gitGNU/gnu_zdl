@@ -43,9 +43,11 @@ then
 	unset ext urlin
     fi
 
-    html=$(wget -t 1 -T $max_waiting                 \
-		"$url_in"                            \
-		--user-agent="$user_agent"           \
+    html=$(wget -t 1 -T $max_waiting                     \
+		"$url_in"                                \
+		--user-agent="$user_agent"               \
+		--keep-session-cookies                   \
+		--save-cookies="$path_tmp"/cookies.zdl   \
 		-qO-)
 
     if [ -n "$html" ]
@@ -65,6 +67,8 @@ then
 			    "$url_in"                                \
 			    --user-agent="$user_agent"               \
 			    --post-data="${post_data}&submit=submit" \
+			    --keep-session-cookies                   \
+			    --save-cookies="$path_tmp"/cookies.zdl   \
 			    -qO-)
 	    fi
 
