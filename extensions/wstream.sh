@@ -69,12 +69,11 @@ then
 
 	    url_in_file="${url_in_file//https\:/http:}"
 
-	    if ! url "$url_in_file" &&
-		    grep 'Direct Download Link' <<< "$html2" &>/dev/null
+	    if url "$url_in_file"
 	    then
-		((wstream_loops >= 3)) && break
 		continue
 	    fi
+
 	    ((wstream_loops >= 3)) && break
 
 	    sleep 1
