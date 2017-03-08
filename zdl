@@ -1275,6 +1275,7 @@ function main_loop {
 		print_c 1 "Connessione in corso..."
 
 		check_ip
+		
 		check_link_timer "$url_in" ||
 		    {
 			show_downloads

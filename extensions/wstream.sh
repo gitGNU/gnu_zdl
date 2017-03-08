@@ -54,7 +54,8 @@ then
 	## original
 
 	wstream_loops=0
-	while ! url "$url_in_file" 
+	while ! url "$url_in_file" &&
+		((wstream_loops < 3))
 	do
 	    ((wstream_loops++))
 	    html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
@@ -68,16 +69,9 @@ then
 				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
 	    url_in_file="${url_in_file//https\:/http:}"
-
-	    if url "$url_in_file"
-	    then
-		continue
-	    fi
-
-	    ((wstream_loops >= 3)) && break
-
-	    sleep 1
+	    ((wstream_loops < 3)) && sleep 1
 	done
+
 	file_in="${url_in_file##*\/}"
 
 	if ! url "$url_in_file" &&

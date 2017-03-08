@@ -50,7 +50,7 @@ function check_ip {
 
 	if show_mode_in_tty "$this_mode" "$this_tty"
 	then
-	    $reconnecter 
+	    $reconnecter
 	else
 	    $reconnecter &>/dev/null
 	fi
