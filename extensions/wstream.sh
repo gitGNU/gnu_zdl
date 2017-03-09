@@ -92,7 +92,6 @@ then
 	    then
 		url_in_file="${url_in_file//https\:/http:}"
 		print_c 1 "Disponibile il filmato HD"
-		file_in="${url_in_file##*\/}"
 
 	    else
 		## normal
@@ -105,9 +104,11 @@ then
 		url "$url_in_file" &&
 		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
 		
-		file_in=$(get_title "$html" |sed -r 's|Watch\s||')
-		file_in="${file_in%.mp4}.mp4"
+		# file_in=$(get_title "$html" |sed -r 's|Watch\s||')
+		# file_in="${file_in%.mp4}.mp4"
 	    fi
+	    
+	    file_in="${url_in_file##*\/}"
 	fi
 
 	end_extension
