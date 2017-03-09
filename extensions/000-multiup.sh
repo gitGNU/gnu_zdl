@@ -59,11 +59,9 @@ then
 		case "$service" in
 		    '\/\/clicknupload.')
 			extension_clicknupload "$url_in_tmp"
-			echo "$url_in_tmp"
 			;;
 		    'mega.nz\/\#') 
 			extension_mega "$url_in_tmp"
-			echo "$url_in_tmp"
 			;;
 		esac
  		! url "$url_in_file" ||
