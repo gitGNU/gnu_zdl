@@ -315,9 +315,12 @@ function set_ext {
 function replace_url_in {
     if url "$1"
     then
+	_log 34 "$1"
+	
 	set_link - "$url_in"
 	url_in="$1"
 	set_link + "$url_in"
+
 	return 0
 	
     else

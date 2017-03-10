@@ -68,11 +68,8 @@ then
 				 grep 'Direct Download Link' |
 				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-	    url_in_file="${url_in_file//https\:/http:}"
 	    ((wstream_loops < 3)) && sleep 1
 	done
-
-	file_in="${url_in_file##*\/}"
 
 	if ! url "$url_in_file" &&
 		[[ "$html2" =~ 'have to wait '([0-9]+) ]]
@@ -108,9 +105,15 @@ then
 		# file_in="${file_in%.mp4}.mp4"
 	    fi
 	    
-	    file_in="${url_in_file##*\/}"
+	    
 	fi
 
+	if url "$url_in_file"
+	then
+	    url_in_file="${url_in_file//https\:/http:}"
+	    file_in="${url_in_file##*\/}"
+	fi
+	
 	end_extension
     fi
 fi

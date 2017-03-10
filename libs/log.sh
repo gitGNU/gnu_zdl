@@ -172,6 +172,9 @@ function _log {
 	33)
 	    msg="$url_in --> In pausa per $2 secondi"
 	    ;;
+	34)
+	    msg="Redirezione: $url_in --> $2"
+	    ;;
     esac
     
     ##  if [ -z "$no_msg" ] || [ -n "$from_loop" ]
@@ -182,6 +185,6 @@ function _log {
 	echo -e "$msg" >> $file_log
 	# no_msg=true
 	# unset from_loop
-	[ "$1" != 18 ] && break_loop=true
+	[[ ! "$1" =~ ^(18|34)$ ]] && break_loop=true
     fi
 }

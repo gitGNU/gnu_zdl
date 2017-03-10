@@ -1540,7 +1540,8 @@ then
 	    separator-
 	    print_c 1 "Download completato"
 	    separator-
-
+	    print_header
+	    
 	    rm -rf "$path_tmp"
 	}
 else
