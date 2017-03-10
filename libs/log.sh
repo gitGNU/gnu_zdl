@@ -174,7 +174,7 @@ function _log {
 	    msg="$url_in --> In pausa per $(seconds_to_human $2)"
 	    ;;
 	34)
-	    msg="Redirezione: $url_in --> $2"
+	    msg="Reindirizzamento: $url_in --> $2"
 	    color_code=4
 	    ;;
     esac
