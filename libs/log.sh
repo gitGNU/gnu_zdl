@@ -35,6 +35,7 @@ function init_log {
 }
 
 function _log {
+    local color_code=3
     # [ -n "$2" ] &&
     # 	url_in="$2"
     
@@ -174,6 +175,7 @@ function _log {
 	    ;;
 	34)
 	    msg="Redirezione: $url_in --> $2"
+	    color_code=4
 	    ;;
     esac
     
@@ -181,7 +183,7 @@ function _log {
     if [ -z "$break_loop" ] 
     then
 	init_log
-	print_c 3 "$msg"
+	print_c $color_code "$msg"
 	echo -e "$msg" >> $file_log
 	# no_msg=true
 	# unset from_loop
