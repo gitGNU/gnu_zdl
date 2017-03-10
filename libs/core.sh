@@ -300,7 +300,7 @@ function check_link_timer {
 	then
 	    return 0
 	else
-	    print_c 3 "$url_in -> Link in pausa: mancano $((timeout - now)) secondi"
+	    print_c 3 "$url_in -> Link in pausa: mancano $(seconds_to_human $((timeout - now)) )"
 	    return 1
 	fi
     fi

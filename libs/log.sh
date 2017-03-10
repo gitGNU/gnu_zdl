@@ -171,7 +171,7 @@ function _log {
 	    set_link - "$url_in"
 	    ;;
 	33)
-	    msg="$url_in --> In pausa per $2 secondi"
+	    msg="$url_in --> In pausa per $(seconds_to_human $2)"
 	    ;;
 	34)
 	    msg="Redirezione: $url_in --> $2"

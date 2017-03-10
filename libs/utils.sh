@@ -545,4 +545,30 @@ function parse_int {
     fi
 }
 
+function seconds_to_human {
+    if [[ "$1" =~ ^([0-9]+)$ ]]
+    then
+	local seconds="$1"
+	local minutes=$((seconds/60))
+	local hours=$((minutes/60))
+	minutes=$((minutes - (hours * 60) ))
+	seconds=$((seconds - (minutes * 60) - (hours * 60 * 60) ))
 
+	if ((hours > 0))
+	then
+	    echo -n "$hours ore, "
+	fi
+
+	if ((hours > 0)) || ((minutes > 0))
+	then
+	    echo -n "$minutes minuti e "
+	fi
+
+	echo -n "$seconds secondi"
+	
+	return 0 
+    else
+	echo -n "tempo indefinito"
+	return 1
+    fi
+}
