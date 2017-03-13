@@ -1206,7 +1206,7 @@ fi
     echo "$downloader_in" > "$path_tmp/downloader"
 
 function main_loop {
-    local nline nlines loop_url_in
+    local nline nlines loop_url_in url_in_old
     
     if [ "$this_mode" == "daemon" ] &&
 	   [ ! -f "$start_file" ] &&
@@ -1224,17 +1224,23 @@ function main_loop {
     elif check_start_file &&
 	    ! get_exit
     then	
-	nline=0
+	nline=1
 	while :
 	do
 	    if [ -s "$start_file" ]
 	    then
-		nlines=$(wc -l < "$start_file")
-		((nline >= nlines)) && nline=0
-		((nline++))
-		
+		nlines=$(wc -l < "$start_file")		
+		((nline >= nlines)) && nline=1
+
+		url_in_old="$url_in"
 		url_in=$(sed -n ${nline}p < "$start_file")
-		url "${url_in}" || _log 12 "$url_in"
+		[ "$url_in_old" == "$url_in" ] && ((nline++))
+		
+		url "${url_in}" ||
+		    {
+			_log 12 "$url_in"
+			continue
+		    }			
 		
 	    else
 		show_downloads
@@ -1261,7 +1267,6 @@ function main_loop {
 	    fi
 
 	    if ! check_in_loop &&
-		    [ -n "$url_in" ] &&
 		    check_link "$url_in"
 	    then
 		axel_parts=$axel_parts_conf
@@ -1434,7 +1439,7 @@ function main_loop {
 	    pipe_files
 	    [ ! -s "$start_file" ] && sleeping_pause=0 
 	    sleeping "$sleeping_pause"
-	    unset break_loop post_data not_available exceeded url_in
+	    unset break_loop post_data not_available exceeded
 	done 
 
 	touch "$path_tmp"/stop-binding

@@ -27,7 +27,8 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: TubeOffLine.com (tutti i servizi: Biqle)  
 
-if grep -vP '\/\/[^w]{2}[^.]*\.[^.]+\.[^.:/]+\/*:*.+(\.mp[34]|\.avi|\.mkv|\.rar|\.zip|\.tar|\.doc|\.flv)*' <<< "$url_in" &>/dev/null &&
+if grep -vP '\/\/[^w]{2}[^.]*\.[^.]+\.[^.:/]+\/*:*.+' <<< "$url_in" &>/dev/null &&
+	[[ ! "$url_in" =~ (\.mp[34]{1}|\.avi|\.mkv|\.rar|\.zip|\.tar|\.doc|\.flv)$ ]] &&
 	grep -vP '\/\/[0-9]{3}\.' <<< "$url_in" &>/dev/null &&
 	[ -z "$break_loop" ] &&
 	( ! url "$url_in_file" ||
@@ -41,11 +42,15 @@ then
 
     print_c 2 "tubeoffline -> host: $host"
     
-    html=$(wget -qO- "$url_in")
+    html=$(wget -t1 -T 20 \
+		-qO- \
+		--keep-session-cookies \
+		--save-cookies="$path_tmp/cookies.zdl" \
+		"$url_in")
 
     file_in_tol=$(get_title "$html")
 
-    html=$(wget -qO- "http://www.tubeoffline.com/downloadFrom.php?host=${host}&video=${url_in}")
+    html=$(wget -t1 -T 20 -qO- "http://www.tubeoffline.com/downloadFrom.php?host=${host}&video=${url_in}")
     
     url_in_file=$(grep -P 'Best.+http' <<< "$html")
     
@@ -54,6 +59,7 @@ then
 
     url_in_file="http${url_in_file#*http}"
     url_in_file="${url_in_file%%\"*}"
+##    url_in_file="${url_in_file//https\:/http:}"
 
     if url "$url_in_file" &&
 	    test -n "$file_in_tol"
