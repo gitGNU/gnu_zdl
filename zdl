@@ -1230,7 +1230,7 @@ function main_loop {
 	    if [ -s "$start_file" ]
 	    then
 		nlines=$(wc -l < "$start_file")		
-		((nline >= nlines)) && nline=1
+		((nline > nlines)) && nline=1
 
 		url_in_old="$url_in"
 		url_in=$(sed -n ${nline}p < "$start_file")
@@ -1285,6 +1285,8 @@ function main_loop {
 		    {
 			show_downloads
 			sleep 1
+			((nline++))
+
 			continue
 		    }
 

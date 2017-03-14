@@ -29,10 +29,14 @@
 ## zdl-extension name: WStream (HD)
 
 
-if [ "$url_in" != "${url_in//wstream.}" ] #&&       [[ ! "$url_in" =~ "black" ]]
+if [ "$url_in" != "${url_in//wstream.}" ] 
 then
-    rm -rf "$path_tmp/cookies.zdl"           
-
+    if [ -z "$(grep -v wstream "$path_tmp/links_loop.txt" &>/dev/null)" ]
+    then
+	print_c 1 "Cookies cancellati"
+	rm -rf "$path_tmp/cookies.zdl"           
+    fi
+    
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
 		--user-agent="Firefox"                           \
