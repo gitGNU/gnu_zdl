@@ -31,6 +31,8 @@
 
 if [ "$url_in" != "${url_in//wstream.}" ] #&&       [[ ! "$url_in" =~ "black" ]]
 then
+    rm -rf "$path_tmp/cookies.zdl"           
+
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
 		--user-agent="Firefox"                           \

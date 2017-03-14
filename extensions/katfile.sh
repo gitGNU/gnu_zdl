@@ -34,7 +34,8 @@ then
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
 		--user-agent="Firefox"                           \
-		--keep-session-cookies="$path_tmp/cookies.zdl"   \
+		--keep-session-cookies                           \
+		--save-cookies="$path_tmp/cookies.zdl"           \
 		-qO-)
     
     [ -z "$html" ] &&
@@ -51,30 +52,37 @@ then
 
 	html=$(wget "$url_in"                       \
 		    --post-data="$post_data"        \
+		    --load-cookies="$path_tmp/cookies.zdl"   \
 		    -qO-)
-	
-	code=$(pseudo_captcha "$html")
-	if [[ "$code" =~ ^[0-9]+$ ]]
+
+	if [[ "$html" =~ 'to download bigger files' ]]
 	then
-	    print_c 1 "Pseudo-captcha: $code"
+	    _log 4
+
 	else
-	    print_c 3 "Pseudo-captcha: codice non trovato"
+	    code=$(pseudo_captcha "$html")
+	    if [[ "$code" =~ ^[0-9]+$ ]]
+	    then
+		print_c 1 "Pseudo-captcha: $code"
+	    else
+		print_c 3 "Pseudo-captcha: codice non trovato"
+	    fi
+
+	    unset post_data
+	    input_hidden "$html"
+	    post_data+="&code=$code"
+
+	    html=$(wget "$url_in"                       \
+			--post-data="$post_data"        \
+			-qO-)
+
+	    url_in_file=$(grep downloadbtn -B1 <<< "$html"  |
+				 head -n1                   |
+				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+
+	    aria2_connections=2
 	fi
-
-	unset post_data
-	input_hidden "$html"
-	post_data+="&code=$code"
-
-	html=$(wget "$url_in"                       \
-		    --post-data="$post_data"        \
-		    -qO-)
-
-	url_in_file=$(grep downloadbtn -B1 <<< "$html"  |
-			     head -n1                   |
-			     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
-
-	aria2_connections=2
-
+	
 	end_extension
     fi
 fi
