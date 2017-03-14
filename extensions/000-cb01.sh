@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 #
 # ZigzagDownLoader (ZDL)
 # 
@@ -29,7 +29,15 @@
 
 if [ "$url_in" != "${url_in//cb01.}" ]
 then
-    replace_url_in "$(wget -S --spider "${url_in//serietv\/}" 2>&1 | awk '/Location:/{print $2}' | head -n1)"
+    cb01_redirect=$(wget -S --spider "${url_in//serietv\/}" 2>&1 | awk '/Location:/{print $2}' | head -n1)
+
+    if url "$cb01_redirect"
+    then
+	replace_url_in "$cb01_redirect"
+
+    else
+	_log 2
+    fi
 fi
 
 if [ "$url_in" != "${url_in//k4pp4.}" ]
