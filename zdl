@@ -1234,13 +1234,26 @@ function main_loop {
 
 		url_in_old="$url_in"
 		url_in=$(sed -n ${nline}p < "$start_file")
-		[ "$url_in_old" == "$url_in" ] && ((nline++))
+
+		if [ "$url_in_old" == "$url_in" ] &&
+		       ((nlines > 1))
+		then
+		    ((nline++))
+		    continue
+		fi
+
+		if [ -z "$url_in" ]
+		then
+		    grep -v '^$' "$start_file" >"$start_file"_tmp
+		    mv "$start_file"_tmp "$start_file"
+		    continue
+		fi
 		
-		url "${url_in}" ||
-		    {
-			_log 12 "$url_in"
-			continue
-		    }			
+		if ! url "${url_in}"
+		then
+		    _log 12 "$url_in"
+		    continue
+		fi			
 		
 	    else
 		show_downloads

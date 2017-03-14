@@ -334,11 +334,14 @@ function check_link {
     local url_test="$1"
 
     if url "$url_test" &&
-	    grep "^${url_test}$" "$path_tmp/links_loop.txt" &>/dev/null
+	   grep "^${url_test}$" "$path_tmp/links_loop.txt" &>/dev/null
     then
 	return 0
+
+    else
+	((nline++))
+	return 1
     fi
-    return 1
 }
 
 function set_link {

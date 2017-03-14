@@ -577,6 +577,7 @@ function check_in_loop {
     if data_stdout
     then
 	max_dl=$(cat "$path_tmp/max-dl" 2>/dev/null)
+
 	if [ -z "$max_dl" ] || (( "${#pid_alive[*]}" < "$max_dl" ))
 	then
 	    return 1 ## rompe il loop (esce dall'attesa) => procede con un altro download
