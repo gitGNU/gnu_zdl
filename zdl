@@ -1242,12 +1242,12 @@ function main_loop {
 		    continue
 		fi
 
-		if [ -z "$url_in" ]
-		then
-		    grep -v '^$' "$start_file" >"$start_file"_tmp
-		    mv "$start_file"_tmp "$start_file"
-		    continue
-		fi
+		# if [ -z "$url_in" ]
+		# then
+		#     grep -v '^$' "$start_file" >"$start_file"_tmp
+		#     mv "$start_file"_tmp "$start_file"
+		#     continue
+		# fi
 		
 		if ! url "${url_in}"
 		then
