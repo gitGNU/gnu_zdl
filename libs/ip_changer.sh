@@ -51,8 +51,10 @@ function check_ip {
 	if show_mode_in_tty "$this_mode" "$this_tty"
 	then
 	    $reconnecter
+	    rm -rf "$path_tmp/links_timer.txt"
 	else
 	    $reconnecter &>/dev/null
+	    rm -rf "$path_tmp/links_timer.txt"
 	fi
 	
     elif [ -f "$path_tmp"/proxy ] &&
@@ -72,8 +74,10 @@ function check_ip {
 	    if show_mode_in_tty "$this_mode" "$this_tty"
 	    then
 		$reconnecter
+		rm -rf "$path_tmp/links_timer.txt"
 	    else
 		$reconnecter &>/dev/null
+		rm -rf "$path_tmp/links_timer.txt"
 	    fi
 
 	else
