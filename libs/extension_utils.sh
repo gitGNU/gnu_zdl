@@ -335,6 +335,7 @@ function anydownload {
     ## http://anydownload.altervista.org
     local url_in="$1"
     local URL_IN
+    local irc_host irc_chan irc_msg
     
     if [[ "$url_in" =~ xweaseldownload\.php ]]
     then
@@ -345,16 +346,33 @@ function anydownload {
 			grep 'xdcc' 2>/dev/null    |
 			head -n1                   |
 			sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+
+    elif [[ "$url_in" =~ IRCdownload\.php ]] &&
+	 [[ ! "$url_in" =~ adfly ]]
+    then
+	html=$(wget -qO- "$url_in")
+	echo "$html" >OUT
 	
-	if url "$URL_IN"
-	then
-	    echo "$URL_IN"
-	    return 0
-	fi
+	irc_host=$(grep server0 <<< "$html" |
+			     sed -r 's|.+\"([^"]+)\"[^"]+|\1|g')
+
+	irc_chan=$(grep canale0 <<< "$html" |
+			  sed -r 's|.+\"\#([^"]+)\"[^"]+|\1|g')
+
+	irc_msg="msg "$(grep 'nome_bot0' <<< "$html" | sed -r 's,.+value=\"([^"]+)\"[^"]+,\1,g')" xdcc send "$(grep numero_pack0 <<< "$html" | sed -r 's,.+\"([^"]+)\"[^"]+$,\1,g')
+	
+        URL_IN="irc://${irc_host}/${irc_chan}/${irc_msg}"
     fi
-    
-    echo "$url_in"
-    return 1
+
+    if url "$URL_IN"
+    then
+	echo "$URL_IN"
+	return 0
+
+    else
+	echo "$url_in"
+	return 1	
+    fi    
 }
 
 function extension_clicknupload {

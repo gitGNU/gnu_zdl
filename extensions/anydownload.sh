@@ -27,18 +27,24 @@
 ## zdl-extension types: xdcc
 ## zdl-extension name: Anydownload
 
-if [[ "$url_in" =~ xweaseldownload.php ]]
+if [[ "$url_in" =~ anydownload.+'adflyshrink.php?url='(.+)? ]]
 then
-    URL_IN=$(anydownload "$url_in")
+    replace_url_in "$(urldecode "${BASH_REMATCH[1]}")"
+fi
+
+if [[ "$url_in" =~ anydownload.+(IRCdownload|xweaseldownload)\.php ]]
+then
+    url_in_anydownload=$(anydownload "$url_in")
     
-    if url "$URL_IN"
+    if url "$url_in_anydownload"
     then
-	replace_url_in "$(sanitize_url "$URL_IN")"
-	unset URL_IN
+	replace_url_in "$(sanitize_url "$url_in_anydownload")"
 
     else
 	_log 2
     fi
+
+    unset url_in_anydownload
 fi
 									   
 
