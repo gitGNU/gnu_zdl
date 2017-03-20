@@ -320,7 +320,7 @@ function set_link_timer {
     
     del_link_timer "$link"
     
-    echo "$link $ip $timeout" >>"$links_timer"
+    #echo "$link $ip $timeout" >>"$links_timer"
     _log 33 "$2"
 }
 

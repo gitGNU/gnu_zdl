@@ -111,15 +111,13 @@ then
 		# file_in="${file_in%.mp4}.mp4"
 	    fi
 	    
+	    if url "$url_in_file"
+	    then
+		url_in_file="${url_in_file//https\:/http:}"
+		file_in="${url_in_file##*\/}"
+	    fi
 	    
+	    end_extension	    
 	fi
-
-	if url "$url_in_file"
-	then
-	    url_in_file="${url_in_file//https\:/http:}"
-	    file_in="${url_in_file##*\/}"
-	fi
-	
-	end_extension
     fi
 fi
