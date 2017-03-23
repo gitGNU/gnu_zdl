@@ -27,15 +27,110 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: VidABC
 
+# if [ "$url_in" != "${url_in//'vidabc.'}" ]
+# then
+#     html=$(curl -s "$url_in")
+#     url_in_file=$(grep sources <<< "$html")
+#     url_in_file="${url_in_file##*file: \"}"
+#     url_in_file="${url_in_file%\"*}"
+
+#     file_in=$(get_title "$html")
+#     file_in="${file_in#Watch }.${url_in_file##*.}"
+    
+#     end_extension
+# fi
+
 if [ "$url_in" != "${url_in//'vidabc.'}" ]
 then
-    html=$(curl -s "$url_in")
-    url_in_file=$(grep sources <<< "$html")
-    url_in_file="${url_in_file##*file: \"}"
-    url_in_file="${url_in_file%\"*}"
+    html=$(wget -t1 -T$max_waiting                               \
+		"$url_in"                                        \
+		--user-agent="Firefox"                           \
+		--keep-session-cookies                           \
+		--save-cookies="$path_tmp/cookies.zdl"           \
+		-qO-)
 
-    file_in=$(get_title "$html")
-    file_in="${file_in#Watch }.${url_in_file##*.}"
+    input_hidden "$html"
+
+    countdown- 6
+
+    html=$(wget -qO-                                       \
+		"${url_in#.html}"                          \
+		--load-cookies="$path_tmp/cookies.zdl"     \
+		--post-data="$post_data")
     
-    end_extension
+    if [[ "$html" =~ (File Not Found|File doesn\'t exits) ]]
+    then
+	_log 3
+
+    else
+	download_video=$(grep -P 'download_video.+High quality' <<< "$html")
+
+	hash_stream="${download_video%\'*}"
+	hash_stream="${hash_stream##*\'}"
+
+	id_stream="${download_video#*\'}"
+	id_stream="${id_stream%%\'*}"
+
+	## original
+	stream_loops=0
+	while ! url "$url_in_file" &&
+		((stream_loops < 3))
+	do
+	    ((stream_loops++))
+	    html2=$(wget -qO- "http://vidabc.com/dl?op=download_orig&id=${id_stream}&mode=h&hash=${hash_stream}")
+	    
+	    input_hidden "$html2"
+
+	    url_in_file=$(wget -qO- \
+			       "$url_in" \
+			       --post-data="$post_data" |
+				 grep 'Direct Download Link' |
+				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+
+	    ((stream_loops < 3)) && sleep 1
+	done
+
+	if ! url "$url_in_file" &&
+		[[ "$html2" =~ 'have to wait '([0-9]+) ]]
+	then
+	    url_in_timer=$((${BASH_REMATCH[1]} * 60))
+	    set_link_timer "$url_in" $url_in_timer
+	    _log 33 $url_in_timer
+
+	else
+	    if ! url "$url_in_file"
+	    then
+		url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
+	     			     sed -r 's|.+\"([^"]+)\".+|\1|g')
+	    fi
+	    
+	    if url "$url_in_file"
+	    then
+		url_in_file="${url_in_file//https\:/http:}"
+		print_c 1 "Disponibile il filmato HD"
+
+	    else
+		## normal
+		print_c 3 "Non è disponibile il filmato HD"
+		url_in_file=$(wget -qO- \
+	    			   "http://vidabc.com/dl?op=download_orig&id=${id_stream}&mode=n&hash=${hash_stream}" |
+	    			     grep 'Direct Download Link'                                                            |
+	    			     sed -r 's|.+\"([^"]+)\".+|\1|g')
+
+		url "$url_in_file" &&
+		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
+		
+	    fi
+	    
+	    if url "$url_in_file"
+	    then
+		url_in_file="${url_in_file//https\:/http:}"
+
+		test -z "$file_in" &&
+		    file_in="${url_in_file##*\/}"
+	    fi
+	    
+	    end_extension	    
+	fi
+    fi
 fi

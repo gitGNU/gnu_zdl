@@ -29,7 +29,7 @@
 ## zdl-extension name: WStream (HD)
 
 
-if [ "$url_in" != "${url_in//wstream.}" ] 
+if [[ "$url_in" =~ wstream ]] 
 then
     if [ -z "$(grep -v wstream "$path_tmp/links_loop.txt" &>/dev/null)" ]
     then
@@ -58,7 +58,6 @@ then
 	id_wstream="${id_wstream%%\'*}"
 
 	## original
-
 	wstream_loops=0
 	while ! url "$url_in_file" &&
 		((wstream_loops < 3))
