@@ -27,19 +27,6 @@
 ## zdl-extension types: streaming
 ## zdl-extension name: VidABC
 
-# if [ "$url_in" != "${url_in//'vidabc.'}" ]
-# then
-#     html=$(curl -s "$url_in")
-#     url_in_file=$(grep sources <<< "$html")
-#     url_in_file="${url_in_file##*file: \"}"
-#     url_in_file="${url_in_file%\"*}"
-
-#     file_in=$(get_title "$html")
-#     file_in="${file_in#Watch }.${url_in_file##*.}"
-    
-#     end_extension
-# fi
-
 if [ "$url_in" != "${url_in//'vidabc.'}" ]
 then
     html=$(wget -t1 -T$max_waiting                               \
@@ -126,8 +113,8 @@ then
 	    then
 		url_in_file="${url_in_file//https\:/http:}"
 
-		test -z "$file_in" &&
-		    file_in="${url_in_file##*\/}"
+#		test -z "$file_in" &&
+		file_in="${url_in_file##*\/}"
 	    fi
 	    
 	    end_extension	    
