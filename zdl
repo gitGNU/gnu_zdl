@@ -682,6 +682,12 @@ then
 fi
 
 
+if ! check_instance_prog &&
+	! check_instance_daemon
+then
+    rm -f "$path_tmp"/reconnect "$path_tmp"/proxy*
+fi
+    
 
 
 

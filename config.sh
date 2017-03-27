@@ -478,7 +478,7 @@ function init {
     if ! check_instance_prog &&
 	    ! check_instance_daemon
     then
-	rm -f "$path_tmp"/*rewriting "$path_tmp"/reconnect "$path_tmp"/proxy*
+	rm -f "$path_tmp"/*rewriting 
     fi
     
     # CYGWIN
