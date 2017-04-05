@@ -28,8 +28,12 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: WStream (HD)
 
-function set_wstream_definition {
+function add_wstream_definition {
     set_line_in_file + "$url_in $1" "$path_tmp"/wstream-definitions
+}
+
+function del_wstream_definition {
+    set_line_in_file - "$url_in $1" "$path_tmp"/wstream-definitions
 }
 
 function get_wstream_definition {
@@ -114,7 +118,7 @@ then
 		set_link_timer "$url_in" $url_in_timer
 		_log 33 $url_in_timer
 
-		set_wstream_definition $mode_stream
+		add_wstream_definition $mode_stream
 		break
 
 	    else
@@ -132,6 +136,7 @@ then
 
 		else
 		    print_c 3 "Non è disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
+		    del_wstream_definition $mode_stream
 		fi
 	    fi
 	done
