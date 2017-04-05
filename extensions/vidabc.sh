@@ -44,7 +44,7 @@ then
 		"${url_in#.html}"                          \
 		--load-cookies="$path_tmp/cookies.zdl"     \
 		--post-data="$post_data")
-    
+
     if [[ "$html" =~ (File Not Found|File doesn\'t exits) ]]
     then
 	_log 3
@@ -52,31 +52,35 @@ then
     else
 	download_video=$(grep -P 'download_video.+High quality' <<< "$html")
 
-	hash_stream="${download_video%\'*}"
-	hash_stream="${hash_stream##*\'}"
+	[ -z "$download_video" ] &&
+	    download_video=$(grep -P 'download_video.+Normal quality' <<< "$html")
 
-	id_stream="${download_video#*\'}"
-	id_stream="${id_stream%%\'*}"
-
-	## original
-	stream_loops=0
-	while ! url "$url_in_file" &&
-		((stream_loops < 3))
-	do
-	    ((stream_loops++))
-	    html2=$(wget -qO- "http://vidabc.com/dl?op=download_orig&id=${id_stream}&mode=h&hash=${hash_stream}")
+	mode_stream=$(grep -oP "'(h|n){1}'" <<< "$download_video" | tr -d "'")
+	
+	if [ -n "$mode_stream" ]
+	then
+	    hash_stream="$postdata_hash"
+	    id_stream="$postdata_id"
 	    
-	    input_hidden "$html2"
+	    stream_loops=0
+	    while ! url "$url_in_file" &&
+		    ((stream_loops < 3))
+	    do
+		((stream_loops++))
+		html2=$(wget -qO- "http://vidabc.com/dl?op=download_orig&id=${id_stream}&mode=${mode_stream}&hash=${hash_stream}")
+		
+		input_hidden "$html2"
 
-	    url_in_file=$(wget -qO- \
-			       "$url_in" \
-			       --post-data="$post_data" |
-				 grep 'Direct Download Link' |
-				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+		url_in_file=$(wget -qO- \
+				   "$url_in" \
+				   --post-data="$post_data" |
+				     grep 'Direct Download Link' |
+				     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-	    ((stream_loops < 3)) && sleep 1
-	done
-
+		((stream_loops < 3)) && sleep 1
+	    done
+	fi
+	
 	if ! url "$url_in_file" &&
 		[[ "$html2" =~ 'have to wait '([0-9]+) ]]
 	then
@@ -93,31 +97,20 @@ then
 	    
 	    if url "$url_in_file"
 	    then
+		case $mode_stream in
+		    h)			
+			print_c 1 "Disponibile il filmato HD"			
+			;;		    
+		    n)
+		 	print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
+			;;
+		esac
+
 		url_in_file="${url_in_file//https\:/http:}"
-		print_c 1 "Disponibile il filmato HD"
-
-	    else
-		## normal
-		print_c 3 "Non è disponibile il filmato HD"
-		url_in_file=$(wget -qO- \
-	    			   "http://vidabc.com/dl?op=download_orig&id=${id_stream}&mode=n&hash=${hash_stream}" |
-	    			     grep 'Direct Download Link'                                                            |
-	    			     sed -r 's|.+\"([^"]+)\".+|\1|g')
-
-		url "$url_in_file" &&
-		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
-		
-	    fi
-	    
-	    if url "$url_in_file"
-	    then
-		url_in_file="${url_in_file//https\:/http:}"
-
-#		test -z "$file_in" &&
 		file_in="${url_in_file##*\/}"
 	    fi
 	    
-	    end_extension	    
+	    end_extension
 	fi
     fi
 fi
