@@ -86,7 +86,7 @@ then
 	    [ -n "$mode_stream_test" ] &&
 		mode_stream="$mode_stream_test"
 
-	    print_c 2 "Filmato con definizione ${movie_definition[$mode_stream]}"
+	    print_c 2 "Filmato con definizione ${movie_definition[$mode_stream]}..."
 	    
 	    wstream_loops=0
 	    while ! url "$url_in_file" &&
@@ -141,7 +141,9 @@ then
 	    url_in_file="${url_in_file//https\:/http:}"
 	    file_in="${url_in_file##*\/}"
 	fi
-	
-	end_extension	    
+
+	[ -z "$url_in_timer" ] &&
+	    end_extension ||
+		unset url_in_timer
     fi
 fi
