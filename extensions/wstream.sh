@@ -28,9 +28,24 @@
 ## zdl-extension types: streaming download
 ## zdl-extension name: WStream (HD)
 
+function set_wstream_definition {
+    set_line_in_file + "$url_in $1" "$path_tmp"/wstream-definitions
+}
+
+function get_wstream_definition {
+    declare -n ref="$1"
+
+    if test -f "$path_tmp"/wstream-definitions
+    then
+	ref=$(grep -P "^$url_in (o|n|l){1}$" "$path_tmp"/wstream-definitions |
+		     cut -f2 -d' ')
+    fi
+}
 
 if [[ "$url_in" =~ wstream ]] 
 then
+    unset html html2 movie_definition
+    
     if [ -z "$(grep -v wstream "$path_tmp/links_loop.txt" &>/dev/null)" ]
     then
 	print_c 1 "Cookies cancellati"
@@ -57,66 +72,76 @@ then
 	id_wstream="${download_video#*\'}"
 	id_wstream="${id_wstream%%\'*}"
 
-	## original
-	wstream_loops=0
-	while ! url "$url_in_file" &&
-		((wstream_loops < 3))
+	declare -A movie_definition
+	movie_definition=(
+	    ['o']="Original"
+	    ['n']="Normal"
+	    ['l']="Low"
+	)
+
+	for mode_stream in o n l
 	do
-	    ((wstream_loops++))
-	    html2=$(wget -qO- "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=o&hash=${hash_wstream}")
+	    get_wstream_definition mode_stream_test
+
+	    [ -n "$mode_stream_test" ] &&
+		mode_stream="$mode_stream_test"
+
+	    print_c 2 "Filmato con definizione ${movie_definition[$mode_stream]}"
 	    
-	    input_hidden "$html2"
+	    wstream_loops=0
+	    while ! url "$url_in_file" &&
+		    ((wstream_loops < 2))
+	    do
+		((wstream_loops++))
+		html2=$(wget -qO- -t1 -T$max_waiting           \
+			     "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=${mode_stream}&hash=${hash_wstream}")
+		
+		input_hidden "$html2"
 
-	    url_in_file=$(wget -qO- \
-			       "$url_in" \
-			       --post-data="$post_data" |
-				 grep 'Direct Download Link' |
-				 sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+		url_in_file=$(wget -qO- -t1 -T$max_waiting     \
+				   "$url_in"                   \
+				   --post-data="$post_data" |
+				     grep 'Direct Download Link' |
+				     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-	    ((wstream_loops < 3)) && sleep 1
-	done
+		((wstream_loops < 2)) && sleep 1
+	    done
 
-	if ! url "$url_in_file" &&
-		[[ "$html2" =~ 'have to wait '([0-9]+) ]]
-	then
-	    url_in_timer=$((${BASH_REMATCH[1]} * 60))
-	    set_link_timer "$url_in" $url_in_timer
-	    _log 33 $url_in_timer
-
-	else
-	    if ! url "$url_in_file"
+	    if ! url "$url_in_file" &&
+		    [[ "$html2" =~ 'have to wait '([0-9]+) ]]
 	    then
-		url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
-	     			     sed -r 's|.+\"([^"]+)\".+|\1|g')
-	    fi
-	    
-	    if url "$url_in_file"
-	    then
-		url_in_file="${url_in_file//https\:/http:}"
-		print_c 1 "Disponibile il filmato HD"
+		url_in_timer=$((${BASH_REMATCH[1]} * 60))
+		set_link_timer "$url_in" $url_in_timer
+		_log 33 $url_in_timer
+
+		set_wstream_definition $mode_stream
+		break
 
 	    else
-		## normal
-		print_c 3 "Non è disponibile il filmato HD"
-		url_in_file=$(wget -qO- \
-	    			   "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=n&hash=${hash_wstream}" |
-	    			     grep 'Direct Download Link'                                                            |
-	    			     sed -r 's|.+\"([^"]+)\".+|\1|g')
-
-		url "$url_in_file" &&
-		    print_c 1 "Verrà scaricato il filmato con definizione \"normale\""
+		if ! url "$url_in_file"
+		then
+		    url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
+	     				 sed -r 's|.+\"([^"]+)\".+|\1|g')
+		fi
 		
-		# file_in=$(get_title "$html" |sed -r 's|Watch\s||')
-		# file_in="${file_in%.mp4}.mp4"
+		if url "$url_in_file"
+		then
+		    print_c 1 "Disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
+		    set_wstream_definition $mode_stream
+		    break
+
+		else
+		    print_c 3 "Non è disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
+		fi
 	    fi
-	    
-	    if url "$url_in_file"
-	    then
-		url_in_file="${url_in_file//https\:/http:}"
-		file_in="${url_in_file##*\/}"
-	    fi
-	    
-	    end_extension	    
+	done
+	
+	if url "$url_in_file"
+	then
+	    url_in_file="${url_in_file//https\:/http:}"
+	    file_in="${url_in_file##*\/}"
 	fi
+	
+	end_extension	    
     fi
 fi
