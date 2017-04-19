@@ -50,11 +50,11 @@ if [[ "$url_in" =~ wstream ]]
 then
     unset html html2 movie_definition
     
-    if [ -z "$(grep -v wstream "$path_tmp/links_loop.txt" &>/dev/null)" ]
-    then
-	print_c 1 "Cookies cancellati"
-	rm -rf "$path_tmp/cookies.zdl"           
-    fi
+    # if [ -z "$(grep -v wstream "$path_tmp/links_loop.txt" &>/dev/null)" ]
+    # then
+    # 	print_c 1 "Cookies cancellati"
+    # 	rm -rf "$path_tmp/cookies.zdl"           
+    # fi
     
     html=$(wget -t1 -T$max_waiting                               \
 		"$url_in"                                        \
@@ -68,83 +68,93 @@ then
 	_log 3
 
     else
-	download_video=$(grep -P 'download_video.+Original' <<< "$html")
+	# download_video=$(grep -P 'download_video.+Original' <<< "$html")
 
-	hash_wstream="${download_video%\'*}"
-	hash_wstream="${hash_wstream##*\'}"
+	# hash_wstream="${download_video%\'*}"
+	# hash_wstream="${hash_wstream##*\'}"
 
-	id_wstream="${download_video#*\'}"
-	id_wstream="${id_wstream%%\'*}"
+	# id_wstream="${download_video#*\'}"
+	# id_wstream="${id_wstream%%\'*}"
 
-	declare -A movie_definition
-	movie_definition=(
-	    ['o']="Original"
-	    ['n']="Normal"
-	    ['l']="Low"
-	)
+	# declare -A movie_definition
+	# movie_definition=(
+	#     ['o']="Original"
+	#     ['n']="Normal"
+	#     ['l']="Low"
+	# )
 
-	for mode_stream in o n l
-	do
-	    get_wstream_definition mode_stream_test
+	# for mode_stream in o n l
+	# do
+	#     get_wstream_definition mode_stream_test
 
-	    [ -n "$mode_stream_test" ] &&
-		mode_stream="$mode_stream_test"
+	#     [ -n "$mode_stream_test" ] &&
+	# 	mode_stream="$mode_stream_test"
 
-	    print_c 2 "Filmato con definizione ${movie_definition[$mode_stream]}..."
+	#     print_c 2 "Filmato con definizione ${movie_definition[$mode_stream]}..."
 	    
-	    wstream_loops=0
-	    while ! url "$url_in_file" &&
-		    ((wstream_loops < 2))
-	    do
-		((wstream_loops++))
-		html2=$(wget -qO- -t1 -T$max_waiting           \
-			     "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=${mode_stream}&hash=${hash_wstream}")
+	#     wstream_loops=0
+	#     while ! url "$url_in_file" &&
+	# 	    ((wstream_loops < 2))
+	#     do
+	# 	((wstream_loops++))
+	# 	html2=$(wget -qO- -t1 -T$max_waiting           \
+	# 		     "https://wstream.video/dl?op=download_orig&id=${id_wstream}&mode=${mode_stream}&hash=${hash_wstream}")
 		
-		input_hidden "$html2"
+	# 	input_hidden "$html2"
 
-		url_in_file=$(wget -qO- -t1 -T$max_waiting     \
-				   "$url_in"                   \
-				   --post-data="$post_data" |
-				     grep 'Direct Download Link' |
-				     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
+	# 	url_in_file=$(wget -qO- -t1 -T$max_waiting     \
+	# 			   "$url_in"                   \
+	# 			   --post-data="$post_data" |
+	# 			     grep 'Direct Download Link' |
+	# 			     sed -r 's|[^"]+\"([^"]+)\".+|\1|g')
 
-		((wstream_loops < 2)) && sleep 1
-	    done
+	# 	((wstream_loops < 2)) && sleep 1
+	#     done
 
-	    if ! url "$url_in_file" &&
-		    [[ "$html2" =~ 'have to wait '([0-9]+) ]]
-	    then
-		url_in_timer=$((${BASH_REMATCH[1]} * 60))
-		set_link_timer "$url_in" $url_in_timer
-		_log 33 $url_in_timer
+	#     if ! url "$url_in_file" &&
+	# 	    [[ "$html2" =~ 'have to wait '([0-9]+) ]]
+	#     then
+	# 	url_in_timer=$((${BASH_REMATCH[1]} * 60))
+	# 	set_link_timer "$url_in" $url_in_timer
+	# 	_log 33 $url_in_timer
 
-		add_wstream_definition $mode_stream
-		break
+	# 	add_wstream_definition $mode_stream
+	# 	break
 
-	    else
-		if ! url "$url_in_file"
-		then
-		    url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
-	     				 sed -r 's|.+\"([^"]+)\".+|\1|g')
-		fi
+	#     else
+	# 	if ! url "$url_in_file"
+	# 	then
+	# 	    url_in_file=$(grep 'Direct Download Link' <<< "$html2" |
+	#      				 sed -r 's|.+\"([^"]+)\".+|\1|g')
+	# 	fi
 		
-		if url "$url_in_file"
-		then
-		    print_c 1 "Disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
-		    set_wstream_definition $mode_stream
-		    break
+	# 	if url "$url_in_file"
+	# 	then
+	# 	    print_c 1 "Disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
+	# 	    set_wstream_definition $mode_stream
+	# 	    break
 
-		else
-		    print_c 3 "Non è disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
-		    del_wstream_definition $mode_stream
-		fi
-	    fi
-	done
+	# 	else
+	# 	    print_c 3 "Non è disponibile il filmato con definizione ${movie_definition[$mode_stream]}"
+	# 	    del_wstream_definition $mode_stream
+	# 	fi
+	#     fi
+	# done
+
+	
 	
 	if url "$url_in_file"
 	then
 	    url_in_file="${url_in_file//https\:/http:}"
 	    file_in="${url_in_file##*\/}"
+	    
+	else
+	    unpacked=$(unpack "$html")
+	    url_in_file="${unpacked%.mp4*}.mp4"
+	    url_in_file="${url_in_file##*\"}"
+
+	    file_in="${unpacked#*'title:'\"}"
+	    file_in="${file_in%%\"*}"
 	fi
 
 	[ -z "$url_in_timer" ] &&
