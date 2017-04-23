@@ -425,7 +425,7 @@ function extension_mega {
     
     if [[ "$url_in" =~ (^https\:\/\/mega\.co\.nz\/|^https\:\/\/mega\.nz\/) ]]
     then
-	url_in="${url_in//mega.co.nz/mega.nz}"
+	replace_url_in "${url_in//mega.co.nz/mega.nz}"
 	
 	id=$(awk -F '!' '{print $2}' <<< "$url_in")
 
