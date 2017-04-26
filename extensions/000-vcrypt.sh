@@ -34,17 +34,9 @@ then
 		     grep -v 'vcrypt' |
 		     head -n1 |
 		     awk '{print $2}')
-#			      sed -r 's|.+\/http:\/\/(.+)|\1|g')
 
+    url_in_new="http${url_in_new##*\=http}"
     
-    # if url "$url_in_new"
-    # then
-    # 	url_in_new=$(wget -S --spider "$url_in_new"    2>&1 |
-    # 			 grep -P '[lL]{1}ocation:' | head -n1 |
-    # 			     awk '{print $2}')
-    # 		#	 sed -r 's|.*[lL]{1}ocation:\s*(.+)|\1|g')
-    # fi
-
     if [[ ! "$url_in_new" =~ vcrypt ]] &&
 	   url "$url_in_new"
     then
