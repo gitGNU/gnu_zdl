@@ -35,8 +35,8 @@ then
 		     head -n1 |
 		     awk '{print $2}')
 
-    url_in_new="http${url_in_new##*\=http}"
-    
+    url_in_new="http${url_in_new##*http}"
+
     if [[ ! "$url_in_new" =~ vcrypt ]] &&
 	   url "$url_in_new"
     then
