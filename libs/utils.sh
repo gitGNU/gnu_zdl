@@ -197,6 +197,7 @@ function make_index {
 
 function scrape_url {
     url_page="$1"
+    
     if url "$url_page"
     then
 	print_c 1 "[--scrape-url] connessione in corso: $url_page"
@@ -236,8 +237,14 @@ function scrape_url {
 
 function set_ext {
     local filename="$1"
-    local exts ext item
+    local ext item
 
+    if [[ "$url_in_file" =~ \.iso$ ]]
+    then
+	echo iso
+	return 0
+    fi
+    
     for item in "$filename" "$url_in_file"
     do
 	url "$item" &&
@@ -273,7 +280,6 @@ function set_ext {
 	then
 	    method_post="--post-data=${post_data}"
 	fi
-	
 
 	wget --user-agent=Firefox                  \
 	     -t 3 -T 40                            \
@@ -303,8 +309,7 @@ function set_ext {
 
     if [ -n "$mime_type" ]
     then
-	exts=$(grep "$mime_type" $path_usr/mimetypes.txt | awk '{print $1}')
-	head -n1 <<< "$exts"
+	grep "$mime_type" $path_usr/mimetypes.txt | awk '{print $1}' | head -n1
 	return 0
 	
     else

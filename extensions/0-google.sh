@@ -24,12 +24,9 @@
 # zoninoz@inventati.org
 #
 		
-if [ "$url_in" != "${url_in//'google.com/url?q='}" ]
+if [[ "$url_in" =~ google\..+url\? ]]
 then
-    url_in_old="$url_in"
-    url_in="${url_in_old#*'?q='}"
-    url_in="${url_in%'&sa='*}"
-    url_in=$(urldecode "$url_in")
-    set_link - "$url_in_old"
-    set_link + "$url_in"
+    url_in_google="${url_in#*'url='}"
+    url_in_google="${url_in_google%%'&'*}"
+    replace_url_in "$(urldecode "$url_in_google")"
 fi
