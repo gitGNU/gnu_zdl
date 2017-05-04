@@ -35,6 +35,9 @@ then
 	replace_url_in "${url_in//nowvideo/www.nowvideo}"
     fi
 
+    [[ "$url_in" =~ [0-9]+nowvideo ]] &&
+	replace_url_in "${url_in//[0-9]nowvideo/nowvideo}"
+
     if [[ "$url_in" =~ nowvideo\.([^/]+)\/ ]]
     then
 	ext=${BASH_REMATCH[1]}
@@ -54,8 +57,9 @@ then
     then
 	test_exist=$(grep "This file no longer exists on our servers" <<< "$html")
 
-	if [ -n "$test_exist" ]
+	if [ -n "${test_exist}" ]
 	then
+	    echo sdhdshdfh
 	    _log 3
 
 	else
@@ -72,57 +76,76 @@ then
 			    -qO-)
 	    fi
 
-	    file_in=$(get_title "$html")
-	    file_in="${file_in#Watch}"
-	    file_in="${file_in}"
-	    
-	    url_in_file=$(grep "source" <<< "$html" |
-				 head -n1 |
-				 sed -r 's|.+\"([^"]+)\".+|\1|g')
-
-	    if ! url "$url_in_file"
+	    if grep "yet ready" <<< "$html" &>/dev/null
 	    then
-		flashvars_file=$(grep "flashvars.file=" <<< "$html")
-		flashvars_file="${flashvars_file#*'flashvars.file='\"}"
-		flashvars_file="${flashvars_file%\"*}"
+		_log 3
+
+	    else
+		file_in=$(get_title "$html")
+		file_in="${file_in#Watch}"
+		file_in=$(trim "${file_in%'|'*}")
+
+		url_in_file=$(grep "source" <<< "$html" |
+				     head -n1 |
+				     sed -r 's|.+\"([^"]+)\".+|\1|g')
+
+		if ! url "$url_in_file"
+		then
+		    url_in_file="${url_in%'/video'*}"$(grep '/download.php?file=' <<< "$html" |
+							      sed -r 's|[^"]+\"([^"]+).+|\1|g')
+		fi
 		
-		myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
-
-		flashvars_key=$(grep "$myip" <<< "$html")
-		flashvars_key="${flashvars_key#*\"}"
-		flashvars_key="${flashvars_key%\"*}"
-		flashvars_domain=$(grep "flashvars.domain=" <<< "$html")
-		flashvars_domain="${flashvars_domain#*'flashvars.domain='\"}"
-		flashvars_domain="${flashvars_domain%\"*}"
-
-		rm -f "$path_tmp"/zdl2.tmp
-		axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null
-
-		if [ ! -f "$path_tmp"/zdl2.tmp ]
+		if ! url "$url_in_file"
 		then
-	    	    _log 5
+		    flashvars_file=$(grep "flashvars.file=" <<< "$html")
+		    flashvars_file="${flashvars_file#*'flashvars.file='\"}"
+		    flashvars_file="${flashvars_file%\"*}"
 		    
-		elif [ -n "$(grep 'The video is being transfered' "$path_tmp"/zdl2.tmp)" ]
-		then
-	    	    _log 17
-		    
-		elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
-		then
-	    	    not_available=true
-	    	    break_loop=true
-		else
-	    	    url_in_file=$(cat "$path_tmp"/zdl2.tmp)
-	    	    url_in_file="${url_in_file#*'url='}"
-	    	    url_in_file="${url_in_file%%'&'*}"
+		    myip=$(wget -t 1 -T $max_waiting -qO- http://indirizzo-ip.com/ip.php)
 
-	    	    ext="${url_in_file##*'.'}"
-	    	    file_in=$(grep "share" <<< "$html" |grep "title=")
-	    	    file_in="${file_in#*'title='}"
-	    	    file_in="${file_in%%\"*}.$ext"
+		    flashvars_key=$(grep "$myip" <<< "$html")
+		    flashvars_key="${flashvars_key#*\"}"
+		    flashvars_key="${flashvars_key%\"*}"
+		    flashvars_domain=$(grep "flashvars.domain=" <<< "$html")
+		    flashvars_domain="${flashvars_domain#*'flashvars.domain='\"}"
+		    flashvars_domain="${flashvars_domain%\"*}"
+
+		    rm -f "$path_tmp"/zdl2.tmp
+		    axel "${flashvars_domain}/api/player.api.php?user=undefined&cid=1&file=${flashvars_file}&pass=undefined&key=${flashvars_key}" -o "$path_tmp"/zdl2.tmp &>/dev/null
+
+		    if [ ! -f "$path_tmp"/zdl2.tmp ]
+		    then
+	    		_log 5
+			
+		    elif [ -n "$(grep 'The video is being transfered' "$path_tmp"/zdl2.tmp)" ]
+		    then
+	    		_log 17
+			
+		    elif [ -z $(cat "$path_tmp"/zdl2.tmp 2>/dev/null |grep url ) ]
+		    then
+	    		not_available=true
+	    		break_loop=true
+		    else
+	    		url_in_file=$(cat "$path_tmp"/zdl2.tmp)
+	    		url_in_file="${url_in_file#*'url='}"
+	    		url_in_file="${url_in_file%%'&'*}"
+
+	    		file_in=$(grep "share" <<< "$html" |grep "title=")
+	    		file_in="${file_in#*'title='}"
+	    		file_in="${file_in%%\"*}"
+		    fi
+		fi
+
+		if url "$url_in_file" &&
+			[ -n "$file_in" ] &&
+			[[ ! "$file_in" =~ (.mp4|.flv)$ ]]
+		then
+		    file_in="$file_in"."${url_in_file##*'.'}"
 		fi
 	    fi
 	fi
     fi
+
     try_end=15
     end_extension
 fi

@@ -154,7 +154,7 @@ function check_wget {
     countdown- 30 &
     pid_countdown=$!
     
-    wget_checked=$(wget -t3 -T10 -S --spider "$url_in_file" 2>&1)
+    wget_checked=$(wget -t3 -T10 -S --spider --user-agent="$user_agent" "$url_in_file" 2>&1)
     kill -9 $pid_countdown
     
     if [[ "$wget_checked" =~ (Remote file does not exist|failed: Connection refused) ]]
@@ -181,6 +181,7 @@ function download {
 	then
 	    if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
 	    then
+		echo kkkkkkkkkkkkkkkkkkkk
 		_log 2 #3
 		return 1
 	    fi
