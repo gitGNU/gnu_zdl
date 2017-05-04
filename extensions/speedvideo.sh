@@ -49,7 +49,7 @@ then
 
     unset post_data
     
-    if [[ "$htm$html" =~ 'File Not Found' ]] 
+    if [[ "${htm}${html}" =~ 'File Not Found' ]] 
     then
 	_log 3
 
@@ -63,37 +63,19 @@ then
 	    linkfile=$(grep 'var linkfile ="' <<< "$html" |
 			      sed -r 's|.+\"([^"]+)\".+|\1|g')
 	fi
-	
 
 	var2=$(grep base64_decode <<< "$html" |
-		      sed -r 's|.+ ([^ ]+)\)\;$|\1|g')
+		      sed -r 's|.+ ([^ ]+)\)\;$|\1|g' | head -n1)
 	
 
-	url_in_file=$(base64_decode "$linkfile"                      \
+	url_in_file=$(base64_decode "$linkfile"     \
 				    $(grep "$var2" <<< "$html"                |
-					     head -n1                         |
-					     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
+				    	     head -n1                         |
+				    	     sed -r 's|.+ ([^ ]+)\;$|\1|g') )
 
-	if url "$url_in_file" &&
-	       	[ -n "$file_in" ] &&
-		[[ ! "$(wget --spider -S "$url_in_file" 2>&1 | grep Content-Type)" =~ octet-stream ]]
-	then
-	    url_m3u8="${url_in_file%\/*}/$(wget -qO- "$url_in_file" | grep -v '^#' |head -n1)"
-	    unset url_in_file
-
-	    set_link - "$url_in"
-	    url_in="$url_m3u8"
-	    set_link + "$url_in"
-	    
-	else
-	    ext="${url_in_file##*.}"
-	    file_in="${file_in%.$ext}".$ext
-	    axel_parts=4
-	fi
+	url_in_file="http://${url_in_file#*'///'}"
+	url_in_file="${url_in_file%'/'*}"
+	
+	end_extension
     fi
-
-    [ -n "$file_in" ] &&
-	url "${url_in_file}" ||
-	    url "$url_m3u8" ||
-	    _log 2
 fi
