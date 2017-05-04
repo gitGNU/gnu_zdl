@@ -29,9 +29,6 @@
 
 if [[ "$url_in" =~ (fastvideo.|putstream.|vidto.) ]]
 then
-    [[ "$url_in" =~ fastvideo ]] &&
-	replace_url_in "${url_in%'?'*}"
-    
     if [[ ! "$url_in" =~ embed ]]
     then
 	html=$(wget -qO- --user-agent="$user_agent" "${url_in}")
@@ -53,30 +50,37 @@ then
     fi
 
     html_embed=$(wget "$url_packed" -qO- --user-agent="$user_agent")
-    html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
-    html_sources=$(grep 'sources' <<< "$html_embed")
 
-    if [ -n "$html_packed" ]
+    if grep 'DELETED' <<< "$html_embed" &>/dev/null
     then
-	packed_args "$html_packed"
-	packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
-		
-	url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
-	
-    elif [ -n "$html_sources" ]
-    then
-	url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
-    fi
+	_log 3
 
-    if url "$url_in_file" &&
-	    [ -n "$file_in" ]
-    then
-	ext=${url_in_file##*.} 
-	file_in="${file_in#Watch}"
-	file_in="${file_in%.$ext}".$ext
-	axel_parts=4
-	
     else
-	_log 2
+	html_packed=$(grep 'p,a,c,k,e,d' <<< "$html_embed")
+	html_sources=$(grep 'sources' <<< "$html_embed")
+
+	if [ -n "$html_packed" ]
+	then
+	    packed_args "$html_packed"
+	    packed_code=$(packed "$code_p" "$code_a" "$code_c" "$code_k")
+	    
+	    url_in_file=$(sed -r 's@.+file\:\"http([^"]+)mp4\".+@http\1mp4@' <<< "$packed_code")
+	    
+	elif [ -n "$html_sources" ]
+	then
+	    url_in_file=$(sed -r 's|.+file:\"([^"]+)\".+|\1|g' <<< "$html_sources")
+	fi
+
+	if url "$url_in_file" &&
+		[ -n "$file_in" ]
+	then
+	    ext=${url_in_file##*.} 
+	    file_in="${file_in#Watch}"
+	    file_in="${file_in%.$ext}".$ext
+	    axel_parts=4
+	    
+	else
+	    _log 2
+	fi
     fi
 fi
