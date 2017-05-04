@@ -25,17 +25,29 @@
 #
 
 ## zdl-extension types: streaming
-## zdl-extension name: Raptu.com/Rapidvideo.com
+## zdl-extension name: Rapidvideo.tv
 
-if [[ "$url_in" =~ (raptu|rapidvideo)\.com ]]
+if [[ "$url_in" =~ rapidvideo\. && ! "$url_in" =~ rapidvideo\.com ]]
 then
-    html=$(wget -qO- "$url_in")
-
-    file_in=$(get_title "$html")
-
-    url_in_file=$(grep mp4 <<< "$html" | tr -d '\\')
-    url_in_file="${url_in_file##*file\":\"}"
+    if [[ ! "$url_in" =~ embed ]]
+    then
+	link_parser "$url_in"
+	parser_path="${parser_path%%\/*}"
+	replace_url_in "${parser_proto}${parser_domain}/embed-${parser_path%.html*}-896x370.html"
+    fi
+    
+    html=$(wget --keep-session-cookies \
+		--save-cookies="$path_tmp"/cookies.zdl \
+		--user-agent="$user_agent" \
+		-qO- "$url_in")
+    
+    html_unpacked=$(unpack "$html")
+    
+    url_in_file="${html_unpacked#*file:\"}"
     url_in_file="${url_in_file%%\"*}"
 
+    file_in="${html_unpacked#*file_name=\"}"
+    file_in="${file_in%%\"*}".${url_in_file##*.}
+    
     end_extension
 fi
