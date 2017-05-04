@@ -181,8 +181,7 @@ function download {
 	then
 	    if [[ ! "$wget_checked" =~ (HTTP/[0-9.]+ 503) ]]
 	    then
-		echo kkkkkkkkkkkkkkkkkkkk
-		_log 2 #3
+		_log 2 
 		return 1
 	    fi
 	    if [[ "$wget_checked" =~ (HTTP/[0-9.]+ 404) ]]

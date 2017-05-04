@@ -472,3 +472,25 @@ function extension_mega {
 	fi
     fi
 }
+
+function get_location { # 1=url 2=variable_to_new_url  
+    local location=$(wget -S --spider "$1" 2>&1 |
+			 awk '/Location:/{print $2}')
+
+    if [ -n "$2" ]
+    then
+	declare -n ref="$2"
+	ref="$location"
+
+    else
+	echo "$location"
+    fi
+	
+    if url "$location"
+    then
+	return 0
+
+    else
+	return 1
+    fi
+}

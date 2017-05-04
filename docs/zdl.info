@@ -476,10 +476,10 @@ servizi di hosting e di streaming, direttamente dal link (bypassando il
 player delle pagine web):
 
 _Video in streaming saltando il player del browser:_
-     Dailymotion, Exashare, Fastvideo, IDoWatch, Metacafe,
-     Movshare/Wholecloud, Neodrive (ex Cloudzilla), Nowvideo, Openload,
-     Portalevideo.unimi.it, Putstream, Raptu (ex rapidvideo), Rocvideo,
-     Sockshare (HD), Speedvideo (HD), Streamin, Thevideo,
+     Auroravid/Novamov, Dailymotion, Exashare, Fastvideo, IDoWatch,
+     Metacafe, Movshare/Wholecloud, Neodrive (ex Cloudzilla), Nowvideo,
+     Openload, Portalevideo.unimi.it, Putstream, Raptu (ex rapidvideo),
+     Rocvideo, Sockshare (HD), Speedvideo (HD), Streamin, Thevideo,
      TubeOffLine.com (tutti i servizi: Biqle), Tutti i video in
      streaming di tipo .m3u8, VidABC, Vidce, Videowood, Vidhappy
      (RTMP), Vidlox, Vidoza (HD), Vidto, Vimeo (HD), VK (HD), WStream
@@ -1349,25 +1349,25 @@ Tag Table:
 Node: Top1185
 Node: Il comando ZDL6602
 Node: Servizi streaming/hosting14007
-Node: Avviare ZDL17713
-Node: Arrestare ZDL20149
-Node: Controllare i download21254
-Node: Manuali d'uso25545
-Node: Modi25961
-Node: Readline29227
-Node: Editor30779
-Node: Omonimie32004
-Node: IRC/XDCC33539
-Node: Torrent35229
-Node: Filtri36113
-Node: Creare nuove estensioni36434
-Node: Software consigliati38196
-Node: Conkeror39597
-Node: zdl-xterm e XXXTerm/Xombrero40608
-Node: Installazione e aggiornamento42532
-Node: Tags45567
-Node: Copying48368
-Node: Contatti49418
+Node: Avviare ZDL17732
+Node: Arrestare ZDL20168
+Node: Controllare i download21273
+Node: Manuali d'uso25564
+Node: Modi25980
+Node: Readline29246
+Node: Editor30798
+Node: Omonimie32023
+Node: IRC/XDCC33558
+Node: Torrent35248
+Node: Filtri36132
+Node: Creare nuove estensioni36453
+Node: Software consigliati38215
+Node: Conkeror39616
+Node: zdl-xterm e XXXTerm/Xombrero40627
+Node: Installazione e aggiornamento42551
+Node: Tags45586
+Node: Copying48387
+Node: Contatti49437
 
 End Tag Table
 

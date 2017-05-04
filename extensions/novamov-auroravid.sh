@@ -26,25 +26,11 @@
 
 ## ZDL add-on
 ## zdl-extension types: streaming
-## zdl-extension name: Nowvideo
+## zdl-extension name: Auroravid/Novamov
 
-if [ "$url_in" != "${url_in//'nowvideo.'}" ]
+if [[ "$url_in" =~ (auroravid|novamov) ]]
 then
-    if [[ "$url_in" =~ 'http://nowvideo' ]]
-    then
-	replace_url_in "${url_in//nowvideo/www.nowvideo}"
-    fi
-
-    [[ "$url_in" =~ [0-9]+nowvideo ]] &&
-	replace_url_in "${url_in//[0-9]nowvideo/nowvideo}"
-
-    if [[ "$url_in" =~ nowvideo\.([^/]+)\/ ]]
-    then
-	ext=${BASH_REMATCH[1]}
-	urlin=$(sed -r "s|nowvideo\.[^/]+|nowvideo.${ext:0:2}|g" <<< "$url_in")
-	replace_url_in "$urlin"
-	unset ext urlin
-    fi
+    replace_url_in "$(get_location "${url_in}")"
 
     html=$(wget -t 1 -T $max_waiting                     \
 		"$url_in"                                \
@@ -55,9 +41,7 @@ then
 
     if [ -n "$html" ]
     then
-	test_exist=$(grep "This file no longer exists on our servers" <<< "$html")
-
-	if [ -n "${test_exist}" ]
+	if grep "This file no longer exists on our servers" <<< "$html" &>/dev/null
 	then
 	    _log 3
 
@@ -87,7 +71,7 @@ then
 		url_in_file=$(grep "source" <<< "$html" |
 				     head -n1 |
 				     sed -r 's|.+\"([^"]+)\".+|\1|g')
-
+		
 		if ! url "$url_in_file"
 		then
 		    url_in_file="${url_in%'/video'*}"$(grep '/download.php?file=' <<< "$html" |
